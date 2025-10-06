@@ -23,6 +23,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -77,9 +79,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
             ZaaktypeBpmnConfiguration().apply {
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktype.uuid
-                    ?: throw IllegalArgumentException("No zaaktype UUID provided")
+                    ?: throw InputValidationFailedException(ErrorCode.ERROR_CODE_CASE_TYPE_UUID_REQUIRED)
                 zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktype.omschrijving
-                    ?: throw IllegalArgumentException("No zaaktype description provided")
+                    ?: throw InputValidationFailedException(ErrorCode.ERROR_CODE_CASE_TYPE_DESCRIPTION_REQUIRED)
                 bpmnProcessDefinitionKey = processDefinitionKey
                 productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
                 groupId = restZaaktypeBpmnProcessDefinition.groepNaam

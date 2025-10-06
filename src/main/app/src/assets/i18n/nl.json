@@ -835,6 +835,8 @@
   "msg.error.document.has.already.been.signed": "Dit document is al ondertekend.",
   "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "KvK-nummer is onbekend.",
+  "msg.error.case.type.uuid.required": "Casetype-UUID is vereist.",
+  "msg.error.case.type.description.required": "Een zaaktype omschrijving is vereist.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
