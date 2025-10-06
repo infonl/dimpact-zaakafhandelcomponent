@@ -127,6 +127,7 @@ class KlantRestService @Inject constructor(
     fun readRechtspersoonByRsin(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoonByRsin(rsin)
             ?.toRestBedrijf()
+            ?.copy(kvkNummer = null)
             ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
 
     /**
@@ -216,6 +217,7 @@ class KlantRestService @Inject constructor(
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
                 vestiging.await()?.toRestBedrijf()?.apply {
+                    if (kvkNummer == null) this.kvkNummer = null
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
                 } ?: throw VestigingNotFoundException(
