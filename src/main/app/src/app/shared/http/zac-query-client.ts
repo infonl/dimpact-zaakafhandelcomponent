@@ -4,9 +4,9 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { lastValueFrom } from "rxjs";
 import type {
   ArgsTuple,
   DeleteBody,
@@ -18,26 +18,23 @@ import type {
   PostBody,
   PutBody,
 } from "./http-client";
-import { HttpClient } from "./http-client";
+import { HttpClient, Response } from "./http-client";
 
 @Injectable({
   providedIn: "root",
 })
-export class ZacHttpClient {
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+export class ZacQueryClient {
   private readonly httpClient = inject(HttpClient);
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "get",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return this.httpClient
-      .GET<Path, Method>(url, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
+    return queryOptions<Response<Path, Method>>({
+      queryKey: [url, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
+    });
   }
 
   public POST<
@@ -48,13 +45,11 @@ export class ZacHttpClient {
     body: PostBody<Path, Method>,
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
-    return this.httpClient
-      .POST<Path, Method>(url, body, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
+    return queryOptions<Response<Path, Method>>({
+      queryKey: [url, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
+    });
   }
 
   public PUT<
@@ -65,13 +60,11 @@ export class ZacHttpClient {
     body: PutBody<Path, Method>,
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
-    return this.httpClient
-      .PUT<Path, Method>(url, body, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
+    return queryOptions<Response<Path, Method>>({
+      queryKey: [url, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+    });
   }
 
   public DELETE<
@@ -89,13 +82,11 @@ export class ZacHttpClient {
           body?: DeleteBody<Path, Method>,
         ]
   ) {
-    return this.httpClient
-      .DELETE<Path, Method>(url, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
+    return queryOptions<Response<Path, Method>>({
+      queryKey: [url, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.DELETE<Path, Method>(url, ...args)),
+    });
   }
 
   public PATCH<
@@ -106,12 +97,11 @@ export class ZacHttpClient {
     body: PatchBody<Path, Method>,
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
-    return this.httpClient
-      .PATCH<Path, Method>(url, body, ...args)
-      .pipe(
-        catchError((error) =>
-          this.foutAfhandelingService.foutAfhandelen(error),
-        ),
-      );
+    // @ts-expect-error Expression produces a union type that is too complex to represent.
+    return queryOptions<Response<Path, Method>>({
+      queryKey: [url, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
+    });
   }
 }

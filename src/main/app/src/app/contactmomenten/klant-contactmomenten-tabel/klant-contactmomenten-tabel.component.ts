@@ -16,7 +16,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { PutBody } from "../../shared/http/zac-http-client";
+import { PutBody } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
 

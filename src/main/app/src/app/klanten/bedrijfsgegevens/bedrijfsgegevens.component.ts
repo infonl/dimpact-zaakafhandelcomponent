@@ -5,7 +5,6 @@
 
 import { Component, computed, input, output, signal } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
@@ -21,30 +20,16 @@ export class BedrijfsgegevensComponent {
   protected isVerwijderbaar = input<boolean | null>(false);
   protected isWijzigbaar = input<boolean | null>(false);
   protected initiatorIdentificatie =
-    input<GeneratedType<"BetrokkeneIdentificatie"> | null>(null);
+    input.required<GeneratedType<"BetrokkeneIdentificatie">>();
 
   protected delete = output<GeneratedType<"RestBedrijf"> | null>();
   protected edit = output<GeneratedType<"RestBedrijf"> | null>();
 
-  protected bedrijfQuery = injectQuery(() => ({
-    enabled: !!this.initiatorIdentificatie(),
-    retry: false,
-    queryKey: [
-      this.initiatorIdentificatie()?.type,
-      this.initiatorIdentificatie()
-        ? new BetrokkeneIdentificatie(this.initiatorIdentificatie()!).uniqueKey
-        : null,
-    ],
-    queryFn: () => {
-      const betrokkkene = this.initiatorIdentificatie();
-      if (!betrokkkene) return Promise.resolve(null);
-      return lastValueFrom(
-        this.klantenService.readBedrijf(
-          new BetrokkeneIdentificatie(betrokkkene),
-        ),
-      );
-    },
-  }));
+  protected readonly bedrijfQuery = injectQuery(() => {
+    return this.klantenService.readBedrijf(
+      new BetrokkeneIdentificatie(this.initiatorIdentificatie()),
+    );
+  });
 
   protected vestigingsprofielOphalenMogelijk = computed(
     () => !!this.bedrijfQuery.data()?.vestigingsnummer,

@@ -7,6 +7,7 @@ import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -18,6 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -73,6 +75,8 @@ export class ZaakViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly queryClient = inject(QueryClient);
+
   readonly indicatiesLayout = IndicatiesLayout;
   zaak!: GeneratedType<"RestZaak">;
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
@@ -1366,7 +1370,7 @@ export class ZaakViewComponent
       });
   }
 
-  betrokkeneGegevensOphalen(
+  async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
       gegevens?: string | null;
     },
@@ -1374,22 +1378,20 @@ export class ZaakViewComponent
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON": {
-        this.klantenService
-          .readPersoon(betrokkene.identificatie, {
+        const persoon = await this.queryClient.ensureQueryData(
+          this.klantenService.readPersoon(betrokkene.identificatie, {
             context: this.zaak.uuid,
             action: "list betrokkene",
-          })
-          .subscribe((persoon) => {
-            betrokkene["gegevens"] = persoon.naam;
-            if (persoon.geboortedatum) {
-              betrokkene["gegevens"] += `, ${this.datumPipe.transform(
-                persoon.geboortedatum,
-              )}`;
-            }
-            if (persoon.verblijfplaats) {
-              betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
-            }
-          });
+          }),
+        );
+        betrokkene["gegevens"] = persoon.naam;
+        if (persoon.geboortedatum) {
+          betrokkene["gegevens"] += `, ${this.datumPipe.transform(
+            persoon.geboortedatum,
+          )}`;
+        }
+        if (persoon.verblijfplaats)
+          betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
         break;
       }
       case "NIET_NATUURLIJK_PERSOON":
@@ -1401,16 +1403,14 @@ export class ZaakViewComponent
           vestigingsnummer: betrokkene.identificatie,
         });
 
-        this.klantenService
-          .readBedrijf(betrokkeneIdentificatie)
-          .subscribe((bedrijf: GeneratedType<"RestBedrijf">) => {
-            if (!bedrijf) return;
+        const bedrijf = await this.queryClient.ensureQueryData(
+          this.klantenService.readBedrijf(betrokkeneIdentificatie),
+        );
 
-            betrokkene["gegevens"] = bedrijf.naam;
-            if (bedrijf.adres) {
-              betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
-            }
-          });
+        if (!bedrijf) return;
+
+        betrokkene["gegevens"] = bedrijf.naam;
+        if (bedrijf.adres) betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
         break;
       }
       case "ORGANISATORISCHE_EENHEID":
