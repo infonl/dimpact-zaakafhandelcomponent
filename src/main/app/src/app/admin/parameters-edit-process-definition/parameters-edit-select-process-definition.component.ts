@@ -5,6 +5,7 @@
 
 import { Component, EventEmitter, Output } from "@angular/core";
 import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
+import { FormBuilder, Validators } from "@angular/forms";
 
 @Component({
   selector: "zac-parameters-edit-select-process-definition",
@@ -13,5 +14,12 @@ import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-proce
 export class ParameterEditSelectProcessDefinitionComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
-  constructor() {}
+  constructor(private readonly formBuilder: FormBuilder) {}
+
+  cmmnBpmnFormGroup = this.formBuilder.group({
+    options: this.formBuilder.control<{
+      value: string;
+      label: string;
+    } | null>(null, [Validators.required]),
+  });
 }

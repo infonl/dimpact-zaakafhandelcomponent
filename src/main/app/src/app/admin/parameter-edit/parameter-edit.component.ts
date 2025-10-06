@@ -95,6 +95,13 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
+  cmmnBpmnFormGroup = this.formBuilder.group({
+    options: this.formBuilder.control<{
+      value: string;
+      label: string;
+    } | null>(null, [Validators.required]),
+  });
+
   algemeenFormGroup = this.formBuilder.group({
     caseDefinition:
       this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
@@ -299,6 +306,10 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
+    // this.cmmnBpmnFormGroup.setValue({
+    //   options: { label: "BPMN", value: "BPMN" },
+    // });
+
     this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
 
     const { defaultGroepId, defaultBehandelaarId } = this.parameters;

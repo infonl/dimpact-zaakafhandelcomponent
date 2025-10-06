@@ -48,6 +48,13 @@ export class ParameterEditBpmnComponent {
     },
   };
 
+  cmmnBpmnFormGroup = this.formBuilder.group({
+    options: this.formBuilder.control<{
+      value: string;
+      label: string;
+    } | null>(null, [Validators.required]),
+  });
+
   algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
       this.formBuilder.control<GeneratedType<"RestZaaktypeBpmnProcessDefinition"> | null>(
