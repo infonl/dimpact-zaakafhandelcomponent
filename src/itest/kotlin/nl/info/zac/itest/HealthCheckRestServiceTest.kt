@@ -176,7 +176,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       }
                     ]    
-                """.trimIndent()
+            """.trimIndent()
 
             And("the body contains all the performed checks") {
             }
