@@ -106,6 +106,7 @@ class HealthCheckRestService @Inject constructor(
             statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
             statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
             zaakafhandelParametersValide = check.isZaakafhandelParametersValide,
+            brpInstellingenCorrect = check.isBrpInstellingenCorrect,
             valide = check.isValide
         )
 }

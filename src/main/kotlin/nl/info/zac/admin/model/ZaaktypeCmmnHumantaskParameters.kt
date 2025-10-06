@@ -99,15 +99,8 @@ class ZaaktypeCmmnHumantaskParameters :
             Objects.equals(formulierDefinitieID, other.formulierDefinitieID) &&
             Objects.equals(planItemDefinitionID, other.planItemDefinitionID) &&
             Objects.equals(groepID, other.groepID) &&
-            Objects.equals(doorlooptijd, other.doorlooptijd) && (
-                (
-                    (referentieTabellen != null && other.referentieTabellen != null) &&
-                        Objects.deepEquals(
-                            referentieTabellen.toTypedArray(),
-                            other.referentieTabellen.toTypedArray()
-                        )
-                    )
-                )
+            Objects.equals(doorlooptijd, other.doorlooptijd) &&
+            Objects.deepEquals(referentieTabellen.toTypedArray(), other.referentieTabellen.toTypedArray())
     }
 
     override fun hashCode(): Int =
@@ -120,14 +113,7 @@ class ZaaktypeCmmnHumantaskParameters :
                     !Objects.equals(original.formulierDefinitieID, formulierDefinitieID) ||
                     !Objects.equals(original.groepID, groepID) ||
                     !Objects.equals(original.doorlooptijd, doorlooptijd) ||
-                    (
-                        referentieTabellen != null && original.referentieTabellen != null &&
-                            !Objects.deepEquals(
-                                referentieTabellen.toTypedArray(),
-                                original.referentieTabellen.toTypedArray()
-                            )
-                        ) ||
-                    (referentieTabellen == null && original.referentieTabellen == null)
+                    !Objects.deepEquals(referentieTabellen.toTypedArray(), original.referentieTabellen.toTypedArray())
                 )
     }
 

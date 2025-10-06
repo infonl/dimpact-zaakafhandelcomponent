@@ -20,5 +20,6 @@ data class RESTZaaktypeInrichtingscheck(
     var besluittypeAanwezig: Boolean = false,
     var resultaattypesMetVerplichtBesluit: MutableList<String?>? = null,
     var zaakafhandelParametersValide: Boolean = false,
+    var brpInstellingenCorrect: Boolean = false,
     var valide: Boolean = false
 )

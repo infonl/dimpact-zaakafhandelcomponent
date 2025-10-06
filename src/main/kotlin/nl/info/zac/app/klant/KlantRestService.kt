@@ -68,22 +68,18 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService
 ) {
-    companion object {
-        const val HEADER_VERWERKING = "X-Verwerking"
-    }
-
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam(HEADER_VERWERKING) auditEvent: String
+        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null,
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, auditEvent)
+                brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
             klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
@@ -146,21 +142,16 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(
-        @HeaderParam(HEADER_VERWERKING) auditEvent: String,
-        restListPersonenParameters: RestListPersonenParameters
-    ): RESTResultaat<RestPersoon> =
+    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, auditEvent))
+                listOfNotNull(brpClientService.retrievePersoon(bsn))
                     .map { it.toRestPersoon() }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(
-                restListPersonenParameters.toPersonenQuery(),
-                auditEvent
-            ).toRechtsPersonen()
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+                .toRechtsPersonen()
                 .toRestResultaat()
 
     @PUT

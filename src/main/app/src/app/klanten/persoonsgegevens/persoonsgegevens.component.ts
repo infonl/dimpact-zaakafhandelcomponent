@@ -30,10 +30,7 @@ export class PersoonsgegevensComponent {
   persoon$ = this.bsn$.pipe(
     switchMap((bsn) => {
       if (!bsn) return of(undefined);
-      return this.klantenService.readPersoon(bsn, {
-        context: this.zaakIdentificatie(),
-        action: this.action(),
-      });
+      return this.klantenService.readPersoon(bsn);
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
