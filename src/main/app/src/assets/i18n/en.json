@@ -957,6 +957,7 @@
   "healthCheck.zaaktype.geenRolOverigeAanwezig": "In addition to the roles \"Behandelaar\" and \"Initiator\", at least one other role must be present",
   "healthCheck.zaaktype.geenInformatieobjecttypeEmailAanwezig": "The required informationobject type \"E-mail\" does not exist",
   "healthCheck.zaaktype.geenBesluittypeAanwezig": "Result type(s) \"<b>{{resultaattypes}}</b>\" require a decision type, but no decision type is found",
+  "healthCheck.zaaktype.onjuisteBrpHeaderwaarde": "Incorrect BRP header value",
   "healthCheck.referentielijsten.inrichtingscheck": "Referentielijsten & Selectielijst configuration check",
   "healthCheck.communicatiekanaal.e-formulier": "Communication channel \"E-formulier\"",
   "healthCheck.communicatiekanaal.e-formulier.beschikbaar": "The \"E-formulier\" communication channel is not available",

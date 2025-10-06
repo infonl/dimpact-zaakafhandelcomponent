@@ -21,6 +21,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
@@ -31,7 +32,7 @@ import java.util.UUID
 class HealthCheckServiceTest : BehaviorSpec({
 
     @Suppress("UNCHECKED_CAST")
-    Given("A zaaktype with two initiator role types") {
+    Given("A zaaktype with two initiator role types and invalid BRP parameters") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
         val versionNumber = Optional.of("0.0.0") as Optional<String?>
@@ -96,13 +97,38 @@ class HealthCheckServiceTest : BehaviorSpec({
         } returns createReferenceTable()
         every {
             referenceTableService.readReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE.name)
-        } returns createReferenceTable()
+        } returns createReferenceTable(
+            values = mutableListOf(
+                createReferenceTableValue(name = "Algemeen"),
+                createReferenceTableValue(name = "Bíj́na")
+            )
+        )
 
         When("controleerZaaktype is called") {
             val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
 
             Then("The zaaktypeInrichtingscheck is invalid") {
                 zaaktypeInrichtingscheck.isValide shouldBe false
+            }
+
+            Then("The reason for the invalidity is reported") {
+                with(zaaktypeInrichtingscheck) {
+                    isStatustypeIntakeAanwezig shouldBe true
+                    isStatustypeInBehandelingAanwezig shouldBe true
+                    isStatustypeHeropendAanwezig shouldBe true
+                    isStatustypeAanvullendeInformatieVereist shouldBe true
+                    isStatustypeAfgerondAanwezig shouldBe true
+                    isStatustypeAfgerondLaatsteVolgnummer shouldBe true
+                    isResultaattypeAanwezig shouldBe true
+                    aantalInitiatorroltypen shouldBe 2
+                    aantalBehandelaarroltypen shouldBe 1
+                    isRolOverigeAanwezig shouldBe true
+                    isInformatieobjecttypeEmailAanwezig shouldBe true
+                    isBesluittypeAanwezig shouldBe true
+                    resultaattypesMetVerplichtBesluit shouldBe arrayOf("fakeOmschrijving")
+                    isZaakafhandelParametersValide shouldBe true
+                    isBrpInstellingenCorrect shouldBe false
+                }
             }
 
             And("the number of initiator roles is detected") {

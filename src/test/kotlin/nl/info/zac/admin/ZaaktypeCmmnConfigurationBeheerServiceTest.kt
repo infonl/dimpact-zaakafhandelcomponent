@@ -424,9 +424,9 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
 
             And("The BRP doeleinden should get copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.getBrpDoelbindingen().let {
-                    it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpDoelbindingen().zoekWaarde
-                    it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpDoelbindingen().raadpleegWaarde
+                slotPersistZaaktypeCmmnConfiguration.captured.getBrpParameters().let {
+                    it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().zoekWaarde
+                    it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().raadpleegWaarde
                 }
             }
 

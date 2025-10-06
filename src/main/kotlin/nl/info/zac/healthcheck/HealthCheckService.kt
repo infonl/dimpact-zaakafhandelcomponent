@@ -38,6 +38,7 @@ import nl.info.zac.healthcheck.exception.BuildInformationException
 import nl.info.zac.healthcheck.model.BuildInformation
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.isPureAscii
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import java.io.IOException
@@ -93,7 +94,7 @@ class HealthCheckService @Inject constructor(
                 controleerZaaktypeBesluittypeInrichting(it)
                 controleerZaaktypeRoltypeInrichting(it)
                 controleerZaaktypeInformatieobjecttypeInrichting(it)
-                controleerBrpDoelbindingenInrichting(it)
+                controleerBrpInstellingenCorrect(it)
             }
         }
 
@@ -187,27 +188,24 @@ class HealthCheckService @Inject constructor(
         }
     }
 
-    private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
-        val informatieobjecttypes = ztcClientService.readInformatieobjecttypen(zaaktypeInrichtingscheck.zaaktype.url)
-        informatieobjecttypes.forEach {
-            if (it.isNuGeldig() && INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving) {
-                zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = true
+    private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) =
+        ztcClientService.readInformatieobjecttypen(zaaktypeInrichtingscheck.zaaktype.url).let { informatieobjecttypes ->
+            zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = informatieobjecttypes.any {
+                it.isNuGeldig() && INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving
             }
+        }
+
+    private fun controleerBrpInstellingenCorrect(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
+        if (isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_ZOEK_WAARDE.name) &&
+            isReferenceTableValidForAuditLogHeaders(BRP_DOELBINDING_RAADPLEEG_WAARDE.name) &&
+            isReferenceTableValidForAuditLogHeaders(BRP_VERWERKINGSREGISTER_WAARDE.name)
+        ) {
+            zaaktypeInrichtingscheck.isBrpInstellingenCorrect = true
         }
     }
 
-    private fun controleerBrpDoelbindingenInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
-        val brpDoelbindingZoekWaarde =
-            referenceTableService.readReferenceTable(BRP_DOELBINDING_ZOEK_WAARDE.name)
-        val brpDoelbindingRaadpleegWaarde =
-            referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
-        val brpVerwerkingsregisterWaarde =
-            referenceTableService.readReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE.name)
-        if (brpDoelbindingZoekWaarde.values.isNotEmpty() &&
-            brpDoelbindingRaadpleegWaarde.values.isNotEmpty() &&
-            brpVerwerkingsregisterWaarde.values.isNotEmpty()
-        ) {
-            zaaktypeInrichtingscheck.isBrpDoelbindingenAanwezig = true
+    private fun isReferenceTableValidForAuditLogHeaders(referenceTableCode: String): Boolean =
+        referenceTableService.readReferenceTable(referenceTableCode).values.let { values ->
+            values.isNotEmpty() && values.all { it.name.isPureAscii() }
         }
-    }
 }

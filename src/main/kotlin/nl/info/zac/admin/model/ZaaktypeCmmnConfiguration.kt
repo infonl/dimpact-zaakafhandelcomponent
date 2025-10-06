@@ -329,10 +329,10 @@ class ZaaktypeCmmnConfiguration {
         zaaktypeCmmnBetrokkeneParameters = value
     }
 
-    fun getBrpDoelbindingen(): ZaaktypeCmmnBrpParameters =
+    fun getBrpParameters(): ZaaktypeCmmnBrpParameters =
         zaaktypeCmmnBrpParameters ?: ZaaktypeCmmnBrpParameters()
 
-    fun setBrpDoelbindingen(value: ZaaktypeCmmnBrpParameters?) {
+    fun setBrpParameters(value: ZaaktypeCmmnBrpParameters?) {
         zaaktypeCmmnBrpParameters = value
     }
 
@@ -361,11 +361,6 @@ class ZaaktypeCmmnConfiguration {
         } ?: throw RuntimeException(
             "No UserEventListenerParameters found for zaaktypeUUID: '$zaakTypeUUID' and planitemDefinitionID: '$planitemDefinitionID'"
         )
-
-//    fun findHumanTaskParameter(planitemDefinitionID: String): Optional<ZaaktypeCmmnHumantaskParameters> =
-//        Optional.ofNullable(
-//            getHumanTaskParametersCollection().firstOrNull { it.planItemDefinitionID == planitemDefinitionID }
-//        )
 
     fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =
         getHumanTaskParametersCollection().find { it.planItemDefinitionID == planitemDefinitionID }
