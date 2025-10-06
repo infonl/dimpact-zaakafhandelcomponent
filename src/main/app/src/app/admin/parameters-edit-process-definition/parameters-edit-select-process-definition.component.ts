@@ -7,11 +7,10 @@ import { Component, EventEmitter, Output } from "@angular/core";
 import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
-  selector: "zac-parameters-edit-process-definition",
-  templateUrl: "./parameters-edit-process-definition.component.html",
-  styleUrls: ["./parameters-edit-process-definition.component.less"],
+  selector: "zac-parameters-edit-select-process-definition",
+  templateUrl: "./parameters-edit-select-process-definition.component.html",
 })
-export class ParameterEditProcessDefinitionComponent {
+export class ParameterEditSelectProcessDefinitionComponent {
   @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
 
   constructor() {}
