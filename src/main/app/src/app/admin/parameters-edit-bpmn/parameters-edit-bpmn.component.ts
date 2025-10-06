@@ -3,81 +3,131 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ProcessDefinitionType } from "../model/parameters/parameters-edit-process-definition-type";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
+import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import { IdentityService } from "src/app/identity/identity.service";
+import { Subject } from "rxjs";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
   templateUrl: "./parameters-edit-bpmn.component.html",
   styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
-export class ParameterEditBpmnComponent implements OnInit {
+export class ParameterEditBpmnComponent {
   @Output() switchProcessDefinition = new EventEmitter<ProcessDefinitionType>();
+
+  private readonly destroy$ = new Subject<void>();
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelparameters: boolean = false;
 
-  protected zaakType: GeneratedType<"RestZaaktype"> = {
-    uuid: "",
-    identificatie: "",
-    doel: "",
-    omschrijving: "",
+  protected bpmnDefinitions: GeneratedType<"RestZaaktypeBpmnProcessDefinition">[] =
+    [];
+  protected groepen = this.identityService.listGroups();
+
+  protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> & {
+    zaaktype: GeneratedType<"RestZaaktype">;
+  } = {
+    zaaktypeUuid: "",
+    zaaktypeOmschrijving: "",
+    bpmnProcessDefinitionKey: "",
+    productaanvraagtype: null,
+    groepNaam: "",
+
+    // needs to be taken out if endpoint is fixe
+    zaaktype: {
+      uuid: "",
+      identificatie: "",
+      doel: "",
+      omschrijving: "",
+    },
   };
 
-  protected bpmnProcessDefinition: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> =
-    {
-      zaaktypeUuid: "",
-      zaaktypeOmschrijving: "",
-      bpmnProcessDefinitionKey: "",
-      productaanvraagtype: null,
-      groepNaam: "",
-    };
-
   algemeenFormGroup = this.formBuilder.group({
-    caseDefinition:
-      this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
+    bpmnDefinition:
+      this.formBuilder.control<GeneratedType<"RestZaaktypeBpmnProcessDefinition"> | null>(
         null,
         [Validators.required],
       ),
-    domein: this.formBuilder.control<string | null>(null),
     defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
       null,
       [Validators.required],
     ),
-    defaultBehandelaar:
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-    einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
-      null,
-      [Validators.min(0), Validators.max(31)],
-    ),
-    uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
-      number | null
-    >(null, [Validators.min(0)]),
     productaanvraagtype: this.formBuilder.control<string | null>(null),
   });
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly formBuilder: FormBuilder,
+    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
+    private readonly identityService: IdentityService,
   ) {
     this.route.data.subscribe((data) => {
-      this.bpmnProcessDefinition = data.parameters.bpmnProcessDefinition;
-      this.zaakType = data.parameters.zaakafhandelparameters.zaaktype; // these zaaktype props should be provided by the bpmnProcessDefinition endpoint; for now taken from zaakafhandelparameters
+      this.bpmnZaakafhandelParameters =
+        data.parameters.bpmnZaakafhandelParameters;
+
       this.isSavedZaakafhandelparameters =
         data?.parameters.isSavedZaakafhandelparameters;
+
+      this.bpmnDefinitions =
+        data?.parameters.listBpmnZaakafhandelParameters?.map(
+          (
+            bpmnDefinition: GeneratedType<"RestZaaktypeBpmnProcessDefinition">,
+          ) => ({
+            naam: bpmnDefinition.bpmnProcessDefinitionKey,
+            id: bpmnDefinition.bpmnProcessDefinitionKey,
+          }),
+        ) || [];
     });
+
+    this.createForm();
   }
 
-  ngOnInit() {
-    console.log("ParameterEditBpmnComponent ngOnInit called");
+  async createForm() {
+    this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
+      emitEvent: true,
+    });
+
+    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters; // this name should be aligned in new backend
+
+    if (defaultGroepId) {
+      const groups = await this.groepen.toPromise();
+
+      const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
+      this.algemeenFormGroup.controls.defaultGroep.setValue(
+        defaultGroup ?? null,
+      );
+    }
+  }
+
+  protected opslaan() {
+    this.isLoading = true;
+
+    this.bpmnZaakafhandelParameters = {
+      ...this.bpmnZaakafhandelParameters,
+      ...this.algemeenFormGroup.value,
+      groepNaam: this.algemeenFormGroup.value.defaultGroep?.id || "",
+    };
+
+    console.log("bpmnZaakafhandelParameters", this.bpmnZaakafhandelParameters);
+
+    // this.zaakafhandelParametersService
+    //   .updateBpmnZaakafhandelparameters(
+    //     this.algemeenFormGroup.value.bpmnDefinition!.id || "",
+    //     this.algemeenFormGroup.value,
+    //   )
+    //   .subscribe({
+    //     next: (data) => {
+    //       this.isLoading = false;
+    //     },
+    //     error: () => {
+    //       this.isLoading = false;
+    //     },
+    //   });
   }
 
   protected isValid(): boolean {

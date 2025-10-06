@@ -65,43 +65,35 @@
           <zac-static-text
             class="col-12 col-md-6"
             label="zaaktypeOmschrijving"
-            [value]="zaakType.omschrijving"
+            [value]="bpmnZaakafhandelParameters.zaaktype.omschrijving"
           />
           <zac-static-text
             class="col-12 col-md-6"
             label="doel"
-            [value]="zaakType.doel"
+            [value]="bpmnZaakafhandelParameters.zaaktype.doel"
           />
         </section>
         <section class="row">
           <zac-static-text
             class="col-12 col-md-6"
             label="identificatie"
-            [value]="zaakType.identificatie"
+            [value]="bpmnZaakafhandelParameters.zaaktype.identificatie"
           />
           <zac-static-text
             class="col-12 col-md-6"
             label="uuid"
-            [value]="zaakType.uuid"
+            [value]="bpmnZaakafhandelParameters.zaaktype.uuid"
           />
         </section>
       </fieldset>
-      <fieldset>
-        <section class="row">
-          <!--
+      <fieldset class="my-5">
+        <section>
           <zac-select
             class="col-12 col-md-6"
-            key="caseDefinition"
+            key="bpmnDefinition"
             optionDisplayValue="naam"
             [form]="algemeenFormGroup"
-            [options]="caseDefinitions"
-          >
-          </zac-select>
-          <zac-select
-            class="col-12 col-md-6"
-            key="domein"
-            [form]="algemeenFormGroup"
-            [options]="domeinen"
+            [options]="bpmnDefinitions"
           >
           </zac-select>
         </section>
@@ -115,33 +107,6 @@
             [options]="groepen"
           >
           </zac-select>
-
-          <zac-select
-            class="col-12 col-md-6"
-            key="defaultBehandelaar"
-            label="behandelaar"
-            optionDisplayValue="naam"
-            [form]="algemeenFormGroup"
-            [options]="medewerkers"
-          >
-          </zac-select>
-        </section>
-        <section class="row">
-          <zac-input
-            class="col-12 col-md-6"
-            key="uiterlijkeEinddatumAfdoeningWaarschuwing"
-            [form]="algemeenFormGroup"
-          >
-            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-          </zac-input>
-          <zac-input
-            *ngIf="zaakType.servicenorm"
-            class="col-12 col-md-6"
-            key="einddatumGeplandWaarschuwing"
-            [form]="algemeenFormGroup"
-          >
-            <span matSuffix>{{ "kalenderdagen" | translate }}</span>
-          </zac-input>
         </section>
         <section class="row">
           <zac-input
@@ -153,7 +118,6 @@
               "msg.zaakafhandelparameters.productaanvraagtype" | translate
             }}</mat-hint>
           </zac-input>
-          -->
         </section>
       </fieldset>
 
@@ -177,7 +141,12 @@
         <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}
         </button>
-        <button mat-raised-button color="primary">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="opslaan()"
+          [disabled]="!algemeenFormGroup.valid || isLoading"
+        >
           {{ "actie.opslaan" | translate }}
         </button>
       </div>

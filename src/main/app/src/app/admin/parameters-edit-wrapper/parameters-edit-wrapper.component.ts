@@ -36,8 +36,6 @@ export class ParametersEditWrapperComponent
     this.setupMenu("title.parameters.wijzigen");
 
     this.route.data.subscribe(({ parameters }) => {
-      console.log("parameters", parameters);
-
       if (parameters.isBpmn) {
         this.processDefinitionType = "BPMN";
         return;

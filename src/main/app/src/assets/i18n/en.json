@@ -350,6 +350,7 @@
   "behandelaar.-kies-": "- Select a handler -",
   "behandelaar.-geen-": "- No handler -",
   "caseDefinition": "CMMN model",
+  "bpmnDefinition": "BPMN process definition",
   "zaakgeometrie": "Location",
   "locatie": "Location",
   "coordinates": "Coordinates",
