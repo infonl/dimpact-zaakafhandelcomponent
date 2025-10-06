@@ -213,8 +213,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         opschortenZaakHelper = opschortenZaakHelper,
         zaakService = zaakService,
         zaakHistoryService = zaakHistoryService,
-        dispatcher = testDispatcher,
-        kvkClientService = kvkClientService
+        dispatcher = testDispatcher
     )
 
     beforeEach {

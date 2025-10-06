@@ -49,7 +49,7 @@ data class RestZaakBetrokkene(
     /**
      * Only populated when type is [NIET_NATUURLIJK_PERSOON] and it is not a `INN NNP ID (=RSIN)`
      */
-    var kvkNummer: String?,
+    var kvkNummer: String?
 )
 
 /**

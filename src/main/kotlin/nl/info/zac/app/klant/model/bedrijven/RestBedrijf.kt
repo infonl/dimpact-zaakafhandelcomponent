@@ -57,7 +57,7 @@ fun ResultaatItem.toRestBedrijf() = RestBedrijf(
     postcode = this.adres?.binnenlandsAdres?.postcode,
     rsin = this.rsin,
     type = this.type.uppercase(Locale.getDefault()),
-    adres = this.toAddress(),
+    adres = this.toAddress()
 )
 
 fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
