@@ -167,7 +167,7 @@ class KlantRestService @Inject constructor(
     fun listBedrijven(restListBedrijvenParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
         kvkClientService.search(restListBedrijvenParameters.toKvkZoekenParameters()).resultaten
             .filter { it.isKoppelbaar() }
-            .map { it.toRestBedrijf(restListBedrijvenParameters.vestigingsnummer, restListBedrijvenParameters.kvkNummer) }
+            .map { it.toRestBedrijf() }
             .toRestResultaat()
 
     @GET
@@ -215,14 +215,13 @@ class KlantRestService @Inject constructor(
                 async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
-                vestiging.await()?.toRestBedrijf(vestigingsnummer, kvkNummer)?.apply {
+                vestiging.await()?.toRestBedrijf()?.apply {
                     emailadres = klantVestigingRestPersoon.emailadres
                     telefoonnummer = klantVestigingRestPersoon.telefoonnummer
-                } ?: RestBedrijf().apply {
-                    doesExistInKvK = false
-                    this.vestigingsnummer = vestigingsnummer
-                    this.kvkNummer = kvkNummer
-                }
+                } ?: throw VestigingNotFoundException(
+                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
+                        (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
+                )
             }
         }
     }

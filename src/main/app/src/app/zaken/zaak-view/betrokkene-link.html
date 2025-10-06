@@ -1,0 +1,20 @@
+@if(betrokkeneQuery.isLoading()) {
+<div>loading....</div>
+<div>{{betrokkene().type}}</div>
+}
+
+@if(betrokkeneQuery.data()) {
+   @if(betrokkene()?.type !== 'BSN') {
+       <a  mat-icon-button
+               [routerLink]="bedrijfRouteLink()"
+               title="{{ 'actie.bedrijf.bekijken' | translate }}"
+       >
+           <mat-icon>visibility</mat-icon>
+       </a>
+   }
+}
+
+@if(betrokkeneQuery.error()) {
+    <div>error</div>
+}
+

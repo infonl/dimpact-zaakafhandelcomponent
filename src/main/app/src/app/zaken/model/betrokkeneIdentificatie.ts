@@ -22,7 +22,7 @@ export class BetrokkeneIdentificatie
   constructor(
     betrokkene: GeneratedType<
       "RestPersoon" | "RestBedrijf" | "BetrokkeneIdentificatie"
-    >,
+    >
   ) {
     this.type = this.getType(betrokkene);
     switch (this.type) {
@@ -36,7 +36,7 @@ export class BetrokkeneIdentificatie
           break;
         }
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`
         );
         break;
       case "VN":
@@ -50,7 +50,7 @@ export class BetrokkeneIdentificatie
           break;
         }
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or vestigingsnummer`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or vestigingsnummer`
         );
       case "RSIN":
         if (
@@ -62,11 +62,11 @@ export class BetrokkeneIdentificatie
           break;
         }
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or rsin`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or rsin`
         );
       default:
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`,
+          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`
         );
     }
   }
@@ -74,7 +74,7 @@ export class BetrokkeneIdentificatie
   private getType(
     betrokkene: GeneratedType<
       "RestPersoon" | "RestBedrijf" | "BetrokkeneIdentificatie"
-    >,
+    >
   ): GeneratedType<"IdentificatieType"> {
     if ("identificatieType" in betrokkene) {
       return betrokkene.identificatieType!;
@@ -96,7 +96,7 @@ export class BetrokkeneIdentificatie
     }
 
     throw new Error(
-      `${BetrokkeneIdentificatie.name}: Unsupported betrokkene type`,
+      `${BetrokkeneIdentificatie.name}: Unsupported betrokkene type`
     );
   }
 }

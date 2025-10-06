@@ -1099,9 +1099,12 @@ export class ZaakViewComponent
     if (!zaak) return;
 
     this.zaak = zaak;
-    const naam = [zaak.initiatorIdentificatie?.kvkNummer, zaak.initiatorIdentificatie?.vestigingsnummer].filter(Boolean);
+    const naam = [
+      zaak.initiatorIdentificatie?.kvkNummer,
+      zaak.initiatorIdentificatie?.vestigingsnummer,
+    ].filter(Boolean);
     this.utilService.openSnackbar(notification, {
-      naam: naam.join(' - '),
+      naam: naam.join(" - "),
     });
     this.loadHistorie();
   }

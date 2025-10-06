@@ -43,6 +43,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
+import {BetrokkeneLinkComponent} from "./zaak-view/betrokkene-link.component";
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BesluitViewComponent,
     IntakeAfrondenDialogComponent,
     ZaakViewComponent,
+      BetrokkeneLinkComponent,
     ZaakVerkortComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
