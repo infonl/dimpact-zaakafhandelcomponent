@@ -148,7 +148,7 @@ class BrpClientService @Inject constructor(
             zaakIdentificatie = zaakIdentificatie,
             defaultValue = defaultProcessingRegisterValue,
             valueDescription = "processing value",
-            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingRegisterWaarde },
+            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingsregisterWaarde },
             buildFunction = { resolvedValue, configuration -> "$resolvedValue@${configuration.zaaktypeOmschrijving}" }
         )
 

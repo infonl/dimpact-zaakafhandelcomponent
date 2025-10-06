@@ -100,7 +100,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = ZaaktypeCmmnBrpParameters().apply {
         zoekWaarde = ""
         raadpleegWaarde = ""
-        verwerkingRegisterWaarde = ""
+        verwerkingsregisterWaarde = ""
     },
     zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
 ) =

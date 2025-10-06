@@ -43,6 +43,6 @@ class ZaaktypeCmmnBrpParameters {
     @Column(name = "raadpleegWaarde")
     var raadpleegWaarde: String? = ""
 
-    @Column(name = "verwerkingRegisterWaarde")
-    var verwerkingRegisterWaarde: String? = ""
+    @Column(name = "verwerkingsregisterWaarde")
+    var verwerkingsregisterWaarde: String? = ""
 }

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
--- add verwerkingregisterwaarde to zaaktype_cmmn_brp_parameters
+-- add verwerkingsregisterwaarde to zaaktype_cmmn_brp_parameters
 ALTER TABLE ${schema}.zaaktype_cmmn_brp_parameters
-    ADD verwerkingregisterwaarde TEXT DEFAULT '';
+    ADD verwerkingsregisterwaarde TEXT DEFAULT '';
 
 -- add referentie tabellen voor BRP doelbindingen
 INSERT INTO ${schema}.referentie_tabel(id_referentie_tabel, code, naam, is_systeem_tabel)
