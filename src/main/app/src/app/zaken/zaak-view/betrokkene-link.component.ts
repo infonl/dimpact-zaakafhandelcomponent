@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Component, computed, input } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
