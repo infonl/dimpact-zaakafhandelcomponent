@@ -7,11 +7,11 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Subject } from "rxjs";
+import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { UtilService } from "src/app/core/service/util.service";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
