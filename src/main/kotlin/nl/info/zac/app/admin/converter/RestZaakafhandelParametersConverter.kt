@@ -83,7 +83,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             ),
             betrokkeneKoppelingen = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
-            brpDoelbindingen = zaaktypeCmmnConfiguration.getBrpDoelbindingen()
+            brpDoelbindingen = zaaktypeCmmnConfiguration.getBrpParameters()
                 .toRestBrpDoelbindingen(),
             automaticEmailConfirmation = zaaktypeCmmnConfiguration.getAutomaticEmailConfirmation()
                 ?.toRestAutomaticEmailConfirmation()

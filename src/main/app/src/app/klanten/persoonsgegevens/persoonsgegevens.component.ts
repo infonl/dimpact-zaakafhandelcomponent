@@ -27,10 +27,7 @@ export class PersoonsgegevensComponent {
   protected edit = output<GeneratedType<"RestPersoon">>();
 
   protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(this.bsn(), {
-      context: this.zaakIdentificatie(),
-      action: this.action(),
-    }),
+    this.klantenService.readPersoon(this.bsn()),
   );
 
   protected readonly indicatiesLayout = IndicatiesLayout;

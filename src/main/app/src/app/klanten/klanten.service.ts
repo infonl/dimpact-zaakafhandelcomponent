@@ -17,11 +17,11 @@ export class KlantenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
-  readPersoon(bsn: string, audit: { context: string; action: string }) {
+  readPersoon(bsn: string, zaakIdentification: string | null = null) {
     return this.zacQueryClient.GET("/rest/klanten/persoon/{bsn}", {
       path: { bsn },
       header: {
-        "X-Verwerking": `${audit.context}@${audit.action}`,
+        "X-ZAAK-ID": zaakIdentification,
       },
     });
   }
@@ -110,15 +110,8 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listPersonen(
-    body: PutBody<"/rest/klanten/personen">,
-    audit: { context: string; action: string },
-  ) {
-    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
-      header: {
-        "X-Verwerking": `${audit.context}@${audit.action}`,
-      },
-    });
+  listPersonen(body: PutBody<"/rest/klanten/personen">) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body);
   }
 
   /* istanbul ignore next */

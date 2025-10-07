@@ -318,6 +318,11 @@
                             }
                     "
                   ></div>
+                  <div *ngIf="!row.isBrpInstellingenCorrect">
+                    {{
+                      "healthCheck.zaaktype.onjuisteBrpHeaderwaarde" | translate
+                    }}
+                  </div>
                 </div>
               </td>
             </ng-container>

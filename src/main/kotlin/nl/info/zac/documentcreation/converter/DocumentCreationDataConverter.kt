@@ -52,8 +52,6 @@ import java.time.ZonedDateTime
 import java.util.Objects
 import java.util.UUID
 
-private const val ACTION = "Document aanmaken"
-
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class DocumentCreationDataConverter @Inject constructor(
@@ -121,12 +119,12 @@ class DocumentCreationDataConverter @Inject constructor(
             convertToAanvragerData(initiator, zaak.identificatie)
         }
 
-    private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaakIdentification: String): AanvragerData? =
         when (initiator.betrokkeneType) {
             NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
                 createAanvragerDataNatuurlijkPersoon(
                     bsn = this,
-                    auditEvent = "$zaakNummer@$ACTION"
+                    zaakIdentification = zaakIdentification
                 )
             }
             VESTIGING -> initiator.identificatienummer?.run {
@@ -136,8 +134,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, auditEvent: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, auditEvent)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakIdentification: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, zaakIdentification)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =

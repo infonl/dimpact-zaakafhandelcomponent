@@ -87,6 +87,7 @@ class ZacClient {
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@info.nl",
         automaticEmailConfirmationReply: String = "reply@info.nl"
     ): Response {
@@ -279,7 +280,8 @@ class ZacClient {
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
-                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde"
+                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
+                "verwerkingWaarde": "$brpVerwerkingWaarde"
               },
               "automaticEmailConfirmation": {
                 "enabled": true,

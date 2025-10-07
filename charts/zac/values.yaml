@@ -106,6 +106,7 @@ brpApi:
     doelbinding:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
+    verwerkingsregister: "Algemeen"
 
 
 # Integration with the KVK API provider (KVK)
