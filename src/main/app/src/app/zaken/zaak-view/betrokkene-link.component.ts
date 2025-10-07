@@ -16,15 +16,17 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   styleUrls: [],
 })
 export class BetrokkeneLinkComponent {
-  protected readonly persoonQuery = injectQuery(() =>
-    this.klantService.readPersoon(this.betrokkene().identificatie),
-  );
+  protected readonly persoonQuery = injectQuery(() => ({
+    ...this.klantService.readPersoon(this.betrokkene().identificatie),
+    enabled: this.betrokkene().type === "BSN",
+  }));
 
-  protected bedrijfQuery = injectQuery(() =>
-    this.klantService.readBedrijf(
+  protected bedrijfQuery = injectQuery(() => ({
+    ...this.klantService.readBedrijf(
       new BetrokkeneIdentificatie(this.betrokkene()),
     ),
-  );
+    enabled: this.betrokkene().type !== "BSN",
+  }));
 
   protected readonly betrokkene =
     input.required<GeneratedType<"RestZaakBetrokkene">>();
