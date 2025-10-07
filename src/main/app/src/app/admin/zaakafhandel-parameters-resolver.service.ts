@@ -56,7 +56,8 @@ export class ZaakafhandelParametersResolver {
               zaaktype: zaakafhandelParameters.zaaktype, // will be put in endpoint in backend PR!
             },
             isBpmn: !!bpmnZaakafhandelParameters, // true if there is a matching BPMN process definition
-            isSavedZaakafhandelparameters: !!zaakafhandelParameters?.id, // true if zaakafhandelparameters for this zaaktype has been saved before
+            isSavedZaakafhandelparameters:
+              !!zaakafhandelParameters?.id || !!bpmnZaakafhandelParameters?.id, // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
           };
         },
       ),
