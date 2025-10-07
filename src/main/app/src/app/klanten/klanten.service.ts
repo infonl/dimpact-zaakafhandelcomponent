@@ -14,12 +14,12 @@ export class KlantenService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   /* istanbul ignore next */
-  readPersoon(bsn: string, zaakIdentification: string | null = null) {
+  readPersoon(bsn: string, zaakIdentification?: string) {
     return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
       path: { bsn },
-      header: {
-        "X-ZAAK-ID": zaakIdentification,
-      },
+      ...(zaakIdentification && {
+        header: { "X-ZAAK-ID": zaakIdentification },
+      }),
     });
   }
 
