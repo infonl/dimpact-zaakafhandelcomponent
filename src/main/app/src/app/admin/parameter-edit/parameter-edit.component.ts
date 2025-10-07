@@ -306,9 +306,11 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    // this.cmmnBpmnFormGroup.setValue({
-    //   options: { label: "BPMN", value: "BPMN" },
-    // });
+    this.cmmnBpmnFormGroup.controls.options.setValue({
+      label: "CPMN",
+      value: "CPMN",
+    });
+    this.cmmnBpmnFormGroup.controls.options.disable();
 
     this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
 

@@ -21,14 +21,12 @@
     <ng-container [ngSwitch]="processDefinitionType.type">
       <zac-parameters-edit-select-process-definition
         *ngSwitchCase="'SELECT-PROCESS-DEFINITION'"
-        [data]="data"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
       </zac-parameters-edit-select-process-definition>
 
       <zac-parameter-edit
         *ngSwitchCase="'CMMN'"
-        [data]="data"
         [stepperStart]="processDefinitionType.stepperStart"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
@@ -36,7 +34,6 @@
 
       <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"
-        [data]="data"
         [stepperStart]="processDefinitionType.stepperStart"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >

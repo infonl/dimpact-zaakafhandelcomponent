@@ -21,7 +21,6 @@ export class ParametersEditWrapperComponent
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
-  data: any;
   processDefinitionType!: ZaakProcessDefinition;
 
   constructor(

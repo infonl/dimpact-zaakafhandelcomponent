@@ -138,7 +138,7 @@ export class ParameterEditBpmnComponent {
         },
       )
       .subscribe({
-        next: (data) => {
+        next: () => {
           this.isLoading = false;
         },
         error: () => {
