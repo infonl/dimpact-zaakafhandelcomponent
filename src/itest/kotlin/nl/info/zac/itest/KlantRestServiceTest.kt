@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -63,6 +64,7 @@ private const val HEADER_ZAAK_ID = "X-ZAAK-ID"
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 @Suppress("LongParameterList")
+@ExperimentalKotest
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
@@ -86,23 +88,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
-            val headers = Headers.Builder()
-                .add(HEADER_ZAAK_ID, ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                .build()
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                headers = headers
-            )
-            Then(
-                """
-                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
-                    """
-            ) {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+
+        Context("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+            val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
@@ -115,9 +103,44 @@ class KlantRestServiceTest : BehaviorSpec({
                       "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
                       "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"
                     }
-                """.trimIndent()
+            """.trimIndent()
+
+            When("zaak id is provided in the request headers") {
+                val headers = Headers.Builder()
+                    .add(HEADER_ZAAK_ID, ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                    .build()
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                    headers = headers
+                )
+                Then(
+                    """
+                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
+                    """
+                ) {
+                    val responseBody = response.body.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
+            }
+            When("no zaak information is provided") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                )
+                Then(
+                    """
+                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
+                    """
+                ) {
+                    val responseBody = response.body.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
             }
         }
+
         When("a vestiging is requested which is present in the KVK test environment") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"

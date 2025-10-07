@@ -1,13 +1,10 @@
 {
-  "priority": 30,
+  "priority": 20,
   "request": {
     "urlPathPattern": "/haalcentraal/api/brp/personen.*",
     "headers": {
       "X-DOELBINDING": {
         "matches": "BRP.+"
-      },
-      "X-VERWERKING": {
-        "matches": ".+@.+"
       }
     }
   },
