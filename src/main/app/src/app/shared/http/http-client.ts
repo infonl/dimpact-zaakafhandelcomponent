@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { HttpClient as AngularHttp, HttpHeaders } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { FetchOptions, FetchResponse } from "openapi-fetch";
