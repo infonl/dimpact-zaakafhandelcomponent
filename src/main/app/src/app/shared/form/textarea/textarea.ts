@@ -4,15 +4,9 @@
  *
  */
 
-import {
-  booleanAttribute,
-  Component,
-  Input,
-  numberAttribute,
-  OnInit,
-} from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
+import { Component, computed, input, numberAttribute } from "@angular/core";
+import { AbstractControl } from "@angular/forms";
+import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
 @Component({
@@ -22,29 +16,12 @@ import { FormHelper } from "../helpers";
 export class ZacTextarea<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
-> implements OnInit
-{
-  @Input({ required: true }) key!: Key & string;
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: numberAttribute }) minRows = 5;
-  @Input({ transform: numberAttribute }) maxRows = 15;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input() label?: string;
+  Option extends Form[Key]["value"],
+> extends SingleInputFormField<Form, Key, Option> {
+  protected minRows = input(5, { transform: numberAttribute });
+  protected maxRows = input(15, { transform: numberAttribute });
 
-  protected control?: AbstractControl<string>;
-  protected maxlength?: number | null;
-
-  constructor(private readonly translateService: TranslateService) {}
-
-  ngOnInit() {
-    this.control = this.form.get(String(this.key))!;
-    this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
-  }
-
-  protected get required() {
-    return this.control?.hasValidator(Validators.required) ?? false;
-  }
-
-  protected getErrorMessage = () =>
-    FormHelper.getErrorMessage(this.control, this.translateService);
+  protected maxlength = computed(() =>
+    FormHelper.getValidatorValue("maxLength", this.control() ?? null),
+  );
 }

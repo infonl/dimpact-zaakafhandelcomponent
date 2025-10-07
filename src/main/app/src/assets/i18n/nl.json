@@ -316,6 +316,7 @@
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- Geen -",
   "-geen.generiek-": "Geen {{label}}",
+  "-laden.generiek-": "{{label}} laden",
   "-kies.generiek-": "Kies een {{label}}",
   "informatieobject": "Document",
   "enkelvoudigInformatieObjecten": "Documenten",

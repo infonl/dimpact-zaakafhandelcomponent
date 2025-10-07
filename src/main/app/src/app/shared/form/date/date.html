@@ -4,38 +4,38 @@
   ~
   -->
 
-<mat-form-field [formGroup]="form" class="full-width" appearance="fill">
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ key | translate | capitalizeFirstLetter }}
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <input
     type="date"
     matInput
     autocomplete="off"
-    [min]="min"
-    [max]="max"
-    [formControlName]="key"
+    [min]="min()"
+    [max]="max()"
+    [formControlName]="key()"
     [matDatepicker]="date"
   />
-  <span *ngIf="showAmountOfDays" matSuffix>{{ control?.value | dagen }}</span>
+  <span *ngIf="showAmountOfDays" matSuffix>{{ control()?.value | dagen }}</span>
   <button
-    *ngIf="!control?.disabled && control?.value"
+    *ngIf="!control()?.disabled && control()?.value"
     matSuffix
     mat-icon-button
     type="button"
-    (click)="control?.reset(undefined)"
+    (click)="control()?.reset(null)"
   >
     <mat-icon>clear</mat-icon>
   </button>
   <mat-datepicker-toggle
-    *ngIf="!control?.value"
+    *ngIf="!control()?.value"
     matSuffix
     [for]="date"
   ></mat-datepicker-toggle>
   <mat-datepicker #date></mat-datepicker>
-  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

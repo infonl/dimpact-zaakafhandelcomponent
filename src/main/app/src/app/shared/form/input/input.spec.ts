@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -33,6 +34,7 @@ interface TestForm extends Record<string, AbstractControl> {
 
 describe(ZacInput.name, () => {
   let component: ZacInput<TestForm, keyof TestForm, unknown, () => string>;
+  let componentRef: ComponentRef<typeof component>;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
   let translateService: TranslateService;
@@ -64,14 +66,15 @@ describe(ZacInput.name, () => {
     fixture = TestBed.createComponent(
       ZacInput<TestForm, keyof TestForm, unknown, () => string>,
     );
+    componentRef = fixture.componentRef;
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("Basic functionality", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
     });
 
@@ -93,11 +96,11 @@ describe(ZacInput.name, () => {
       const input = await loader.getHarness(MatInputHarness);
       await input.setValue("John Doe");
 
-      expect(component.form.controls.name.value).toBe("John Doe");
+      expect(component.form().controls.name.value).toBe("John Doe");
     });
 
     it("should update the input when form control value changes", async () => {
-      component.form.controls.name.setValue("Jane Doe");
+      component.form().controls.name.setValue("Jane Doe");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -107,8 +110,8 @@ describe(ZacInput.name, () => {
 
   describe("Label display", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       translateService.setTranslation("en", {
         name: "Test field label",
       });
@@ -123,7 +126,7 @@ describe(ZacInput.name, () => {
     });
 
     it("should display custom label when provided", async () => {
-      component.label = "Custom Name Label";
+      componentRef.setInput("label", "Custom Name Label");
       fixture.detectChanges();
 
       const formField = await loader.getHarness(MatFormFieldHarness);
@@ -134,8 +137,8 @@ describe(ZacInput.name, () => {
 
   describe("Input types", () => {
     it("should default to text type", async () => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -143,9 +146,9 @@ describe(ZacInput.name, () => {
     });
 
     it("should set number type when specified", async () => {
-      component.form = createTestForm();
-      component.key = "age";
-      component.type = "number";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "age");
+      componentRef.setInput("type", "number");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -155,8 +158,8 @@ describe(ZacInput.name, () => {
     it("should automatically set number type when min validators are present", async () => {
       const form = createTestForm();
       form.controls.age.addValidators(Validators.min(0));
-      component.form = form;
-      component.key = "age";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "age");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -166,8 +169,8 @@ describe(ZacInput.name, () => {
     it("should automatically set number type when max validators are present", async () => {
       const form = createTestForm();
       form.controls.age.addValidators(Validators.max(0));
-      component.form = form;
-      component.key = "age";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "age");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -184,19 +187,17 @@ describe(ZacInput.name, () => {
     it("should apply maxlength constraint", async () => {
       const form = createTestForm();
       form.controls.name.addValidators(Validators.maxLength(10));
-      component.form = form;
-      component.key = "name";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
 
       // Test that the maxlength is properly extracted by the component
-      expect((component as unknown as Record<string, unknown>).maxlength).toBe(
-        10,
-      );
+      expect(component["maxlength"]()).toBe(10);
 
       const input = await loader.getHarness(MatInputHarness);
       await input.setValue("This is too long for the maxlength");
 
-      const control = component.form.controls.name;
+      const control = component.form().controls.name;
       expect(control?.errors?.["maxlength"]).toBeTruthy();
       expect(control?.errors?.["maxlength"]).toBeTruthy();
     });
@@ -204,22 +205,22 @@ describe(ZacInput.name, () => {
     it("should apply min/max constraints for number inputs", async () => {
       const form = createTestForm();
       form.controls.age.addValidators([Validators.min(0), Validators.max(120)]);
-      component.form = form;
-      component.key = "age";
-      component.type = "number";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "age");
+      componentRef.setInput("type", "number");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
       await input.setValue("150");
 
-      expect(component.form.controls.age.value).toBe("150");
+      expect(component.form().controls.age.value).toBe("150");
     });
   });
 
   describe("Readonly mode", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
     });
 
@@ -229,7 +230,7 @@ describe(ZacInput.name, () => {
     });
 
     it("should be readonly when readonly input is true", async () => {
-      component.readonly = true;
+      componentRef.setInput("readonly", true);
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -237,7 +238,7 @@ describe(ZacInput.name, () => {
     });
 
     it("should be readonly when displayValue is set", async () => {
-      component.displayValue = () => "name";
+      componentRef.setInput("displayValue", () => "name");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -247,9 +248,9 @@ describe(ZacInput.name, () => {
 
   describe("Display value functionality", () => {
     it("should hide input when displayValue is set", async () => {
-      component.form = createTestForm();
-      component.key = "name";
-      component.displayValue = () => "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
+      componentRef.setInput("displayValue", () => "name");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -260,8 +261,8 @@ describe(ZacInput.name, () => {
 
   describe("Clear button", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
     });
 
@@ -280,7 +281,7 @@ describe(ZacInput.name, () => {
     });
 
     it("should not show clear button when input is readonly", async () => {
-      component.readonly = true;
+      componentRef.setInput("readonly", true);
       const input = await loader.getHarness(MatInputHarness);
       await input.setValue("Test value");
       fixture.detectChanges();
@@ -298,14 +299,14 @@ describe(ZacInput.name, () => {
       await clearButton?.click();
       fixture.detectChanges();
 
-      expect(component.form.controls.name.value).toBeNull();
+      expect(component.form().controls.name.value).toBeNull();
     });
   });
 
   describe("Input event handling", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
     });
 
@@ -315,11 +316,11 @@ describe(ZacInput.name, () => {
       await input.setValue("");
       fixture.detectChanges();
 
-      expect(component.form.controls.name.value).toBeNull();
+      expect(component.form().controls.name.value).toBeNull();
     });
 
     it("should reset control to null when number input is cleared", async () => {
-      component.type = "number";
+      componentRef.setInput("type", "number");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -327,7 +328,7 @@ describe(ZacInput.name, () => {
       await input.setValue("");
       fixture.detectChanges();
 
-      expect(component.form.controls.age.value).toBeNull();
+      expect(component.form().controls.age.value).toBeNull();
     });
   });
 
@@ -335,8 +336,8 @@ describe(ZacInput.name, () => {
     it("should show character counter when maxlength is set", async () => {
       const form = createTestForm();
       form.controls.description.addValidators(Validators.maxLength(100));
-      component.form = form;
-      component.key = "description";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "description");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -347,8 +348,8 @@ describe(ZacInput.name, () => {
     });
 
     it("should not show character counter when maxlength is not set", async () => {
-      component.form = createTestForm();
-      component.key = "description";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "description");
       fixture.detectChanges();
 
       const input = await loader.getHarness(MatInputHarness);
@@ -364,8 +365,8 @@ describe(ZacInput.name, () => {
       const form = createTestForm();
       form.controls.email.addValidators(Validators.required);
       form.controls.email.markAsTouched();
-      component.form = form;
-      component.key = "email";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "email");
       fixture.detectChanges();
 
       const formField = await loader.getHarness(MatFormFieldHarness);
@@ -374,8 +375,8 @@ describe(ZacInput.name, () => {
     });
 
     it("should not display error message when form control has no errors", async () => {
-      component.form = createTestForm();
-      component.key = "email";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "email");
       fixture.detectChanges();
 
       const formField = await loader.getHarness(MatFormFieldHarness);
@@ -386,8 +387,8 @@ describe(ZacInput.name, () => {
 
   describe("Content projection", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "name";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "name");
       fixture.detectChanges();
     });
 

@@ -18,52 +18,65 @@ import { GeneratedType } from "../utils/generated-types";
 
 type _Form = Record<string, AbstractControl<unknown, unknown>>;
 
-type BaseFormField<Form extends _Form, Key extends keyof Form = keyof Form> = {
+type SingleInputFormField<
+  Form extends _Form,
+  Key extends keyof Form = keyof Form,
+> = {
   key: Key;
   label?: string;
+  readonly?: boolean;
+};
+
+type MultipleInputFormField<
+  Form extends _Form,
+  Key extends keyof Form = keyof Form,
+  Option extends string | Record<string, unknown> = Record<string, unknown>,
+> = SingleInputFormField<Form, Key> & {
+  options: Option[] | Observable<Option[]>;
+  optionDisplayValue?: keyof Option | ((option: Option) => string);
 };
 
 type SelectFormField<
   Form extends _Form,
+  Key extends keyof Form = keyof Form,
   Option extends string | Record<string, unknown> = Record<string, unknown>,
-> = BaseFormField<Form> & {
+> = MultipleInputFormField<Form, Key, Option> & {
   type: "select";
-  options: Option[];
-  optionDisplayValue?: keyof Option | ((option: Option) => string);
 };
 
-type InputFormField<Form extends _Form> = BaseFormField<Form> & {
+type InputFormField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "input";
 };
 
-type TextareaFormField<Form extends _Form> = BaseFormField<Form> & {
+type TextareaFormField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "textarea";
 };
 
-type DateFormField<Form extends _Form> = BaseFormField<Form> & {
+type DateFormField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "date";
 };
 
 type AutocompleteFormField<
   Form extends _Form,
+  Key extends keyof Form = keyof Form,
   Option extends string | Record<string, unknown> = Record<string, unknown>,
-> = BaseFormField<Form> & {
+> = MultipleInputFormField<Form, Key, Option> & {
   type: "auto-complete";
-  options: Option[];
-  optionDisplayValue?: keyof Option | ((option: Option) => string);
 };
 
 type DocumentFormField<
   Form extends _Form,
+  Key extends keyof Form = keyof Form,
   Option extends
     GeneratedType<"RestEnkelvoudigInformatieobject"> = GeneratedType<"RestEnkelvoudigInformatieobject">,
-> = BaseFormField<Form> & {
+> = MultipleInputFormField<Form, Key, Option> & {
   type: "documents";
-  options: Option[] | Observable<Option[]>;
-  readonly?: boolean;
 };
 
-type PlainTextField<Form extends _Form> = Omit<BaseFormField<Form>, "key"> & {
+type PlainTextField<Form extends _Form> = Omit<
+  SingleInputFormField<Form>,
+  "key"
+> & {
   type: "plain-text";
   text: string;
   header?: string;
@@ -71,21 +84,24 @@ type PlainTextField<Form extends _Form> = Omit<BaseFormField<Form>, "key"> & {
 
 type RadioFormField<
   Form extends _Form,
+  Key extends keyof Form = keyof Form,
   Option extends string | Record<string, unknown> = string,
-> = BaseFormField<Form> & {
+> = MultipleInputFormField<Form, Key, Option> & {
   type: "radio";
-  options: Option[];
 };
 
-type BaseFormConfig = {
+/**
+ * This type is meant to be used **only** in the `ZacForm` component.
+ */
+type _FormConfig = {
   submitLabel?: string;
 };
-type FormConfigWithPartialSubmit = BaseFormConfig & {
+type FormConfigWithPartialSubmit = _FormConfig & {
   partialSubmitLabel: string;
   hideCancelButton: true;
 };
 
-type CancelableFormConfig = BaseFormConfig & {
+type CancelableFormConfig = _FormConfig & {
   cancelLabel?: string;
   hideCancelButton?: false;
 };
