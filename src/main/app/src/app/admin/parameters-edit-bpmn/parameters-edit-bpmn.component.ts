@@ -137,6 +137,7 @@ export class ParameterEditBpmnComponent {
     this.isLoading = true;
     this.zaakafhandelParametersService
       .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
+        id: this.bpmnZaakafhandelParameters?.id || null,
         zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktype.uuid,
         zaaktypeOmschrijving:
           this.bpmnZaakafhandelParameters.zaaktype.omschrijving || "",
