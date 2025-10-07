@@ -839,6 +839,8 @@
   "msg.error.document.has.already.been.signed": "This document has already been signed.",
   "msg.error.formio.init": "Error while initializing form component '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "CoC-number is unknown.",
+  "msg.error.zaaktype.configuration.not.found": "Zaaktype configuration not found.",
+  "msg.error.multiple.zaaktype.configurations.found": "Multiple configurations for the same zaaktype found.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.email.verstuurd": "E-mail has been sent",

@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 
@@ -29,15 +30,15 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Listing BPMN zaaktypes") {
+    Context("Reading BPMN zaaktypes") {
         Given("BPMN zaaktype process definition is set-up") {
             every { policyService.readOverigeRechten().beheren } returns true
             every {
                 zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
             } returns listOf(zaaktypeBpmnProcessDefinition)
 
-            When("listing BPMN zaaktypes") {
-                val result = zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnProcessDefinition(
+            When("reading BPMN zaaktypes") {
+                val result = zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
                     zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                 )
 
@@ -60,9 +61,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
             } returns emptyList()
 
-            When("listing BPMN zaaktypes") {
+            When("reading BPMN zaaktypes") {
                 val exception = shouldThrow<NotFoundException> {
-                    zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnProcessDefinition(
+                    zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
                         zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                     )
                 }
@@ -79,9 +80,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
             } returns listOf(zaaktypeBpmnProcessDefinition, zaaktypeBpmnProcessDefinition)
 
-            When("listing BPMN zaaktypes") {
-                val exception = shouldThrow<IllegalStateException> {
-                    zaaktypeBpmnConfigurationRestService.listZaaktypeBpmnProcessDefinition(
+            When("reading BPMN zaaktypes") {
+                val exception = shouldThrow<MultipleZaaktypeConfigurationsFoundException> {
+                    zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
                         zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                     )
                 }

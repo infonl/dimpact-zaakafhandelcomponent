@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.util.AllOpen
@@ -22,7 +23,9 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
     private val entityManager: EntityManager,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService
 ) {
-    fun storeZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
+    fun storeZaaktypeBpmnConfiguration(
+        zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
+    ): ZaaktypeBpmnConfiguration {
         zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(
             zaaktypeBpmnConfiguration.zaaktypeUuid
         )?.let {
@@ -30,9 +33,16 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                 "CMMN configuration for zaaktype '${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}' already exists"
             )
         }
-        zaaktypeBpmnConfiguration.id?.let {
+        return if (zaaktypeBpmnConfiguration.id != null) {
             entityManager.merge(zaaktypeBpmnConfiguration)
-        } ?: entityManager.persist(zaaktypeBpmnConfiguration)
+        } else {
+            entityManager.persist(zaaktypeBpmnConfiguration)
+            entityManager.flush()
+            findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid)
+                ?: throw ZaaktypeConfigurationNotFoundException(
+                    "Zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
+                )
+        }
     }
 
     fun deleteZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {

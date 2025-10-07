@@ -30,7 +30,7 @@ export class ParameterEditBpmnComponent {
   protected bpmnDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
 
-  protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> & {
+  protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
   } = {
     zaaktypeUuid: "",
@@ -39,7 +39,7 @@ export class ParameterEditBpmnComponent {
     productaanvraagtype: null,
     groepNaam: "",
 
-    // needs to be taken out if endpoint is fixe
+    // needs to be taken out if endpoint is fixed
     zaaktype: {
       uuid: "",
       identificatie: "",
