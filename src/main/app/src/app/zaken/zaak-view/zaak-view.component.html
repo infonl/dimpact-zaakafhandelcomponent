@@ -699,7 +699,9 @@
                         *ngIf="
                           (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
                             betrokkene.type === 'VESTIGING') &&
-                          betrokkene.kvkNummer
+                          (betrokkene.kvkNummer ||
+                            (betrokkene.identificatieType === 'RSIN' &&
+                              betrokkene.identificatie))
                         "
                         mat-icon-button
                         [routerLink]="bedrijfRouteLink(betrokkene)"
@@ -707,25 +709,12 @@
                       >
                         <mat-icon>visibility</mat-icon>
                       </a>
-                        <a
-                                *ngIf="
-                          (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
-                            betrokkene.type === 'VESTIGING') &&
-                          betrokkene.identificatieType === 'RSIN' &&
-                          betrokkene.identificatie
-                        "
-                                mat-icon-button
-                                [routerLink]="bedrijfRouteLink(betrokkene)"
-                                title="{{ 'actie.bedrijf.bekijken' | translate }}"
-                        >
-                            <mat-icon>visibility</mat-icon>
-                        </a>
                       <mat-icon
                         *ngIf="
                           (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
                             betrokkene.type === 'VESTIGING') &&
-                            betrokkene.identificatieType != 'RSIN' &&
-                           !betrokkene.kvkNummer
+                          betrokkene.identificatieType != 'RSIN' &&
+                          !betrokkene.kvkNummer
                         "
                         class="mr-2"
                         color="warn"
