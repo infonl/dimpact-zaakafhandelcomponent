@@ -25,12 +25,12 @@
       >
       </zac-parameters-edit-select-process-definition>
 
-      <zac-parameter-edit
+      <zac-parameters-edit-cmmn
         *ngSwitchCase="'CMMN'"
         [stepperStart]="processDefinitionType.stepperStart"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
-      </zac-parameter-edit>
+      </zac-parameters-edit-cmmn>
 
       <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"
