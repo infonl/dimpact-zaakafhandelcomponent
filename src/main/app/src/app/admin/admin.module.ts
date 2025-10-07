@@ -20,13 +20,13 @@ import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component"
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
 import { SmartDocumentsFormItemComponent } from "./parameter-edit/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 import { SmartDocumentsFormComponent } from "./parameter-edit/smart-documents-form/smart-documents-form.component";
+import { ParameterEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
+import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-process-definition/parameters-edit-select-process-definition.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
-import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
-import { ParameterEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
-import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-process-definition/parameters-edit-select-process-definition.component";
 
 @NgModule({
   declarations: [

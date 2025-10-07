@@ -4,8 +4,8 @@
  */
 
 import { Component, EventEmitter, Output } from "@angular/core";
-import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 import { FormBuilder, Validators } from "@angular/forms";
+import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameters-edit-select-process-definition",

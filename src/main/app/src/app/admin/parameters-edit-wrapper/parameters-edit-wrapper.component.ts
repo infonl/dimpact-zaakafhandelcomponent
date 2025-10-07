@@ -4,11 +4,11 @@
  */
 
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { AdminComponent } from "../admin/admin.component";
-import { UtilService } from "src/app/core/service/util.service";
+import { ActivatedRoute } from "@angular/router";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
+import { UtilService } from "src/app/core/service/util.service";
+import { AdminComponent } from "../admin/admin.component";
 import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({

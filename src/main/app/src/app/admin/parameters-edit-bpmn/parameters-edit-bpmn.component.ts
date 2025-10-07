@@ -4,13 +4,13 @@
  */
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { Subject } from "rxjs";
+import { IdentityService } from "src/app/identity/identity.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
-import { FormBuilder, Validators } from "@angular/forms";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { IdentityService } from "src/app/identity/identity.service";
-import { Subject } from "rxjs";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -57,7 +57,7 @@ export class ParameterEditBpmnComponent {
 
   algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
-      this.formBuilder.control<GeneratedType<"RestZaaktypeBpmnProcessDefinition"> | null>(
+      this.formBuilder.control<GeneratedType<"RestProcessDefinition"> | null>(
         null,
         [Validators.required],
       ),
@@ -75,8 +75,6 @@ export class ParameterEditBpmnComponent {
     private readonly identityService: IdentityService,
   ) {
     this.route.data.subscribe((data) => {
-      console.log("bpmn data", data);
-
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
 
@@ -90,6 +88,14 @@ export class ParameterEditBpmnComponent {
   }
 
   async createForm() {
+    if (this.isSavedZaakafhandelparameters) {
+      this.cmmnBpmnFormGroup.controls.options.setValue({
+        label: "BPMN",
+        value: "BPMN",
+      });
+      this.cmmnBpmnFormGroup.controls.options.disable();
+    }
+
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
       emitEvent: true,
     });
@@ -107,30 +113,24 @@ export class ParameterEditBpmnComponent {
   }
 
   protected opslaan() {
+    const bpmnProcessDefinitionKey =
+      this.algemeenFormGroup.value.bpmnDefinition?.key;
+
+    if (!bpmnProcessDefinitionKey) {
+      return;
+    }
+
     this.isLoading = true;
-
-    this.bpmnZaakafhandelParameters = {
-      ...this.bpmnZaakafhandelParameters,
-      ...this.algemeenFormGroup.value,
-      groepNaam: this.algemeenFormGroup.value.defaultGroep?.id || "",
-    };
-
-    console.log("bpmnZaakafhandelParameters", this.bpmnZaakafhandelParameters);
-
     this.zaakafhandelParametersService
-      .updateBpmnZaakafhandelparameters(
-        this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
-        {
-          zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktypeUuid,
-          zaaktypeOmschrijving:
-            this.bpmnZaakafhandelParameters.zaaktypeOmschrijving,
-          bpmnProcessDefinitionKey:
-            this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
-          productaanvraagtype:
-            this.algemeenFormGroup.value.productaanvraagtype || null,
-          groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
-        },
-      )
+      .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
+        zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktype.uuid,
+        zaaktypeOmschrijving:
+          this.bpmnZaakafhandelParameters.zaaktype.omschrijving || "",
+        bpmnProcessDefinitionKey,
+        productaanvraagtype:
+          this.algemeenFormGroup.value.productaanvraagtype || null,
+        groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
+      })
       .subscribe({
         next: () => {
           this.isLoading = false;

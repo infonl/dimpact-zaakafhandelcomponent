@@ -31,10 +31,10 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
+import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
-import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
 
 @Component({
   selector: "zac-parameter-edit",
@@ -312,11 +312,18 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    this.cmmnBpmnFormGroup.controls.options.setValue({
-      label: "CPMN",
-      value: "CPMN",
-    });
-    this.cmmnBpmnFormGroup.controls.options.disable();
+    console.log("this.stepperStart", this.stepperStart);
+    console.log(
+      "this.isSavedZaakafhandelparameters",
+      this.isSavedZaakafhandelparameters,
+    );
+    if (this.isSavedZaakafhandelparameters) {
+      this.cmmnBpmnFormGroup.controls.options.setValue({
+        label: "CMMN",
+        value: "CMMN",
+      });
+      this.cmmnBpmnFormGroup.controls.options.disable();
+    }
 
     this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
 

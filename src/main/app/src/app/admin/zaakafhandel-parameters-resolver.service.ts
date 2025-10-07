@@ -5,9 +5,9 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 import { forkJoin, map } from "rxjs";
 import { ProcessDefinitionsService } from "./process-definitions.service";
+import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
   providedIn: "root",
@@ -41,12 +41,6 @@ export class ZaakafhandelParametersResolver {
           bpmnZaakafhandelParametersList,
           bpmnProcessDefinitionsList,
         }) => {
-          console.log(
-            "zaakafhandelParameters bpmnZaakafhandelParametersList bpmnProcessDefinitionsList,",
-            zaakafhandelParameters,
-            // bpmnZaakafhandelParametersList,
-            bpmnProcessDefinitionsList,
-          );
           const bpmnZaakafhandelParameters =
             bpmnZaakafhandelParametersList?.find(
               (item) =>

@@ -14,13 +14,13 @@ import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.c
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
-import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 
 const routes: Routes = [
   {
