@@ -16,6 +16,10 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
@@ -108,6 +112,7 @@ describe(ZaakViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(new QueryClient()),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
