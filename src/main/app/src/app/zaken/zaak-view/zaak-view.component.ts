@@ -1379,7 +1379,10 @@ export class ZaakViewComponent
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON": {
         const persoon = await this.queryClient.ensureQueryData(
-          this.klantenService.readPersoon(betrokkene.identificatie, this.zaak.identificatie),
+          this.klantenService.readPersoon(
+            betrokkene.identificatie,
+            this.zaak.identificatie,
+          ),
         );
         betrokkene["gegevens"] = persoon.naam;
         if (persoon.geboortedatum) {

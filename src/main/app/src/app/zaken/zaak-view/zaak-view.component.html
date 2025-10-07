@@ -159,7 +159,6 @@
           class="w100 flex-1"
           [zaakIdentificatie]="zaak.identificatie"
           [bsn]="zaak.initiatorIdentificatie?.bsnNummer"
-          action="initiator tonen"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
           (edit)="addOrEditZaakInitiator()"

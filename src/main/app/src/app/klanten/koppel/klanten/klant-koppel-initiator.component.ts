@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, input, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -37,8 +37,6 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
     </ng-template>
     @if (type === "persoon") {
       <zac-persoon-zoek
-        [context]="this.context()"
-        action="klant-koppelen-initiator"
         [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
@@ -54,8 +52,6 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 export class KlantKoppelInitiator {
   @Input() type: "persoon" | "bedrijf" = "persoon";
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
-
-  context = input.required<string>();
 
   klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
     this.klantGegevens.emit(new KlantGegevens(klant));

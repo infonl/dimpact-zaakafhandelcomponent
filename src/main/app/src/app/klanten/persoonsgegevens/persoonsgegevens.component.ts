@@ -21,7 +21,6 @@ export class PersoonsgegevensComponent {
   protected isWijzigbaar = input(false);
   protected bsn = input.required<string>();
   protected zaakIdentificatie = input.required<string>();
-  protected action = input.required<string>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();

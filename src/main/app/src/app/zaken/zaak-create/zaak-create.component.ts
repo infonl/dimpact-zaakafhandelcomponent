@@ -227,10 +227,7 @@ export class ZaakCreateComponent implements OnDestroy {
     switch (initiatorID.length) {
       case BSN_LENGTH: {
         const result = await this.queryClient.ensureQueryData(
-          this.klantenService.readPersoon(initiatorID, {
-            context: "ZAAK_AANMAKEN",
-            action: "find user",
-          }),
+          this.klantenService.readPersoon(initiatorID),
         );
         this.form.controls.initiatorIdentificatie.setValue({
           ...result,
