@@ -6,6 +6,7 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
+import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
@@ -18,6 +19,13 @@ export class BedrijfViewComponent {
   protected vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null =
     null;
   protected vestigingsprofielOphalenMogelijk = true;
+  warningIcon = new TextIcon(
+    () => true,
+    "warning",
+    "warning-icon",
+    "",
+    "error",
+  );
 
   constructor(
     private readonly utilService: UtilService,

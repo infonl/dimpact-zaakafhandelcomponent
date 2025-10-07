@@ -4,29 +4,29 @@
   ~
   -->
 
-<mat-form-field [formGroup]="form" class="full-width" appearance="fill">
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ key | translate | capitalizeFirstLetter }}
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <input
     type="text"
     matInput
     [matAutocomplete]="auto"
-    [formControlName]="key"
+    [formControlName]="key()"
   />
   <button
-    *ngIf="!control?.value"
+    *ngIf="!control()?.value"
     mat-icon-button
     matSuffix
-    [disabled]="control?.disabled"
+    [disabled]="control()?.disabled"
     type="button"
   >
     <mat-icon>search</mat-icon>
   </button>
   <button
-    *ngIf="!control?.disabled && control?.value"
+    *ngIf="!control()?.disabled && control()?.value"
     mat-icon-button
     matSuffix
     (click)="reset()"
@@ -35,11 +35,18 @@
     <mat-icon>clear</mat-icon>
   </button>
   <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
-    <mat-option *ngFor="let option of filteredOptions" [value]="option">
+    <mat-option *ngIf="isLoading()" disabled="true">
+      {{
+        "-laden.generiek-"
+          | translate: { label: (label() ?? key() | translate | lowercase) }
+      }}
+      <mat-spinner diameter="15" matPrefix></mat-spinner>
+    </mat-option>
+    <mat-option *ngFor="let option of filteredOptions()" [value]="option">
       {{ displayWith(option) | translate }}
     </mat-option>
   </mat-autocomplete>
-  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

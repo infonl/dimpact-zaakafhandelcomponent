@@ -57,14 +57,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             Then("the response should be a 200 OK") {
                 response.isSuccessful shouldBe true
             }
-
-            And("the body contains all the performed checks") {
-                responseBody shouldEqualJson """
+            responseBody shouldEqualJson """
                     [
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
                         "informatieobjecttypeEmailAanwezig": true,
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
@@ -90,12 +89,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       },
                       {                     
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
                         "informatieobjecttypeEmailAanwezig": true,
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
-                        "aantalBehandelaarroltypen": 1,
-                        "aantalInitiatorroltypen": 1,
                         "rolOverigeAanwezig": true,
                         "statustypeAanvullendeInformatieVereist": true,
                         "statustypeAfgerondAanwezig": true,
@@ -118,12 +118,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       },  
                       {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": true,
+                        "brpInstellingenCorrect": true,
                         "informatieobjecttypeEmailAanwezig": true,
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
-                        "aantalBehandelaarroltypen": 1,
-                        "aantalInitiatorroltypen": 1,
                         "rolOverigeAanwezig": true,
                         "statustypeAanvullendeInformatieVereist": true,
                         "statustypeAfgerondAanwezig": true,
@@ -146,12 +147,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       },
                       {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
+                        "brpInstellingenCorrect": true,
                         "besluittypeAanwezig": false,
                         "informatieobjecttypeEmailAanwezig": true,
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
-                        "aantalBehandelaarroltypen": 1,
-                        "aantalInitiatorroltypen": 1,
                         "rolOverigeAanwezig": true,
                         "statustypeAanvullendeInformatieVereist": true,
                         "statustypeAfgerondAanwezig": true,
@@ -174,7 +176,9 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       }
                     ]    
-                """.trimIndent()
+            """.trimIndent()
+
+            And("the body contains all the performed checks") {
             }
         }
     }

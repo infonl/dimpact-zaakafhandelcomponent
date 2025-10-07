@@ -163,7 +163,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.5@sha256:49061c0de5717822cf6702ef3197f6817f26b98d46765c308c1e23e6b261997b
+    image: redis:7.4.6@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -255,7 +255,7 @@ services:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
     ports:
-      - "5052:8080"
+      - "18084:8080"
     depends_on:
       brp-personen-mock:
         condition: service_started
@@ -573,7 +573,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -624,7 +624,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -638,7 +638,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -654,7 +654,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -752,6 +752,7 @@ services:
       - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
       - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
+      - BRP_VERWERKINGSREGISTER=Algemeen
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database

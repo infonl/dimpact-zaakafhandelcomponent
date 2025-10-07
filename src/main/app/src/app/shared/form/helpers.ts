@@ -4,17 +4,22 @@
  *
  */
 
-import { AbstractControl, FormControl, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormControl,
+  ValidationErrors,
+  Validators,
+} from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 
 export class FormHelper {
   static getErrorMessage(
-    control?: AbstractControl,
+    errors?: ValidationErrors | null,
     translateService?: TranslateService,
-  ) {
-    if (!control?.errors) return null;
+  ): string | null {
+    if (!errors) return null;
 
-    const [error, parameters] = Object.entries(control.errors)[0];
+    const [error, parameters] = Object.entries(errors)[0];
 
     if (error === "custom") {
       const { message, ...rest } = parameters as ReturnType<
@@ -28,7 +33,7 @@ export class FormHelper {
 
   static getValidatorValue(
     key: keyof typeof Validators,
-    control?: AbstractControl,
+    control?: AbstractControl | null,
   ) {
     if (!control?.validator) return null;
 

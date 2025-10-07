@@ -8,27 +8,27 @@
   <mat-form-field
     appearance="fill"
     class="full-width"
-    [formGroup]="form"
+    [formGroup]="form()"
     (click)="fileInput.click()"
   >
     <mat-label>
       <ng-content select="mat-label">
-        {{ label ?? key | translate | capitalizeFirstLetter }}
+        {{ label() ?? key() | translate | capitalizeFirstLetter }}
       </ng-content>
     </mat-label>
     <input
       matInput
       [formControl]="displayControl"
       readonly="true"
-      [required]="required"
+      [required]="isRequired()"
     />
     <span matSuffix>
       <ng-content select="button">
-        <button *ngIf="!control?.value" mat-icon-button type="button">
+        <button *ngIf="!control()?.value" mat-icon-button type="button">
           <mat-icon>upload</mat-icon>
         </button>
         <button
-          *ngIf="control?.value"
+          *ngIf="control()?.value"
           mat-icon-button
           (click)="reset()"
           type="button"
@@ -40,12 +40,16 @@
       <ng-content select="mat-icon"></ng-content>
     </span>
 
-    <mat-error>{{ getErrorMessage() }}</mat-error>
-    <mat-hint>
+    <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+    <mat-hint *ngIf="!formError()">
       <ng-content select="mat-hint">
         {{
           "form.input.file.hint"
-            | translate: { sizeInMB: maxFileSizeMB, formats: allowedFormats }
+            | translate
+              : {
+                  sizeInMB: fileSize() | async,
+                  formats: allowedFormats().join(","),
+                }
         }}
       </ng-content>
     </mat-hint>
@@ -53,7 +57,7 @@
     <input
       hidden="hidden"
       type="file"
-      [accept]="allowedFileTypes.join(',')"
+      [accept]="allowedFormats().join(',')"
       (change)="selectedFile($event)"
       #fileInput
     />
