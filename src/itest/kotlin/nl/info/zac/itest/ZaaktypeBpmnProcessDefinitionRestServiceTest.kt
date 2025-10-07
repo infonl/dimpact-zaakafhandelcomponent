@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -49,6 +50,7 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         lateinit var responseBody: String
         val bpmnZaakType = """
         {
+            "id": 1,
             "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
             "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
             "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",

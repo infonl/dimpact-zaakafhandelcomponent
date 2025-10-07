@@ -85,6 +85,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
 
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnProcessDefinition() =
         RestZaaktypeBpmnProcessDefinition(
+            id = this.id,
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
