@@ -4,7 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { queryOptions } from "@tanstack/angular-query-experimental";
+import {
+  mutationOptions,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
 import { lastValueFrom } from "rxjs";
 import type {
@@ -40,14 +43,10 @@ export class ZacQueryClient {
   public POST<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "post",
-  >(
-    url: Path,
-    body: PostBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    return queryOptions<Response<Path, Method>>({
-      queryKey: [url, ...args],
-      queryFn: () =>
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    return mutationOptions({
+      mutationKey: [url, ...args],
+      mutationFn: (body: PostBody<Path, Method>) =>
         lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
     });
   }
@@ -55,14 +54,10 @@ export class ZacQueryClient {
   public PUT<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "put",
-  >(
-    url: Path,
-    body: PutBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    return queryOptions<Response<Path, Method>>({
-      queryKey: [url, ...args],
-      queryFn: () =>
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    return mutationOptions({
+      mutationKey: [url, ...args],
+      mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
     });
   }
@@ -82,9 +77,9 @@ export class ZacQueryClient {
           body?: DeleteBody<Path, Method>,
         ]
   ) {
-    return queryOptions<Response<Path, Method>>({
-      queryKey: [url, ...args],
-      queryFn: () =>
+    return mutationOptions<Response<Path, Method>>({
+      mutationKey: [url, ...args],
+      mutationFn: () =>
         lastValueFrom(this.httpClient.DELETE<Path, Method>(url, ...args)),
     });
   }
@@ -98,9 +93,9 @@ export class ZacQueryClient {
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
     // @ts-expect-error Expression produces a union type that is too complex to represent.
-    return queryOptions<Response<Path, Method>>({
-      queryKey: [url, ...args],
-      queryFn: () =>
+    return mutationOptions<Response<Path, Method>>({
+      mutationKey: [url, ...args],
+      mutationFn: () =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
     });
   }

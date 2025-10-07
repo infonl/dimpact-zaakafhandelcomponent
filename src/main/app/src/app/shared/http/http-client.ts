@@ -222,7 +222,9 @@ export class HttpClient {
     const result: Parameters<typeof this.http.get>[1] = {};
 
     if (parameters && "header" in parameters && parameters.header) {
-      result.headers = new HttpHeaders(parameters.header);
+      result.headers = new HttpHeaders(
+        parameters.header as Record<string, string>,
+      );
     }
 
     if (parameters && "responseType" in parameters && parameters.responseType) {

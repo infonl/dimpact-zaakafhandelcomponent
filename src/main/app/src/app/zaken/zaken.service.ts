@@ -3,16 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZakenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readZaak(uuid: string) {
     return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
@@ -26,8 +28,8 @@ export class ZakenService {
     });
   }
 
-  createZaak(body: PostBody<"/rest/zaken/zaak">) {
-    return this.zacHttpClient.POST("/rest/zaken/zaak", body);
+  createZaak() {
+    return this.zacQueryClient.POST("/rest/zaken/zaak");
   }
 
   updateZaak(

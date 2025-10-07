@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { firstValueFrom, Observable, of, Subject, takeUntil } from "rxjs";
+import { Observable, of, Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -53,9 +53,7 @@ export class ZaakCreateComponent implements OnDestroy {
   );
 
   protected createZaakMutation = injectMutation(() => ({
-    mutationFn: (
-      zaakData: Parameters<typeof this.zakenService.createZaak>[0],
-    ) => firstValueFrom(this.zakenService.createZaak(zaakData)),
+    ...this.zakenService.createZaak(),
     onSuccess: ({ identificatie }) =>
       this.router.navigate(["/zaken/", identificatie]),
     onError: () => this.form.reset(),
