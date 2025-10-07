@@ -83,4 +83,10 @@ export class ReferentieTabelService {
       "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
     );
   }
+
+  listBrpProcessingValues() {
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/brp-verwerkingsregister-waarde",
+    );
+  }
 }

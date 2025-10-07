@@ -42,4 +42,7 @@ class ZaaktypeCmmnBrpParameters {
 
     @Column(name = "raadpleegWaarde")
     var raadpleegWaarde: String? = ""
+
+    @Column(name = "verwerkingsregisterWaarde")
+    var verwerkingsregisterWaarde: String? = ""
 }

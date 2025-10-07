@@ -17,6 +17,7 @@ data:
   BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin }}
   BRP_DOELBINDING_ZOEKMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!" .Values.brpApi.protocollering.doelbinding.zoekmet }}
   BRP_DOELBINDING_RAADPLEEGMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!" .Values.brpApi.protocollering.doelbinding.raadpleegmet }}
+  BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerkingsregister entry required!" .Values.brpApi.protocollering.verwerkingsregister }}
   {{- end }}
   {{- if .Values.catalogusDomein }}
   CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
