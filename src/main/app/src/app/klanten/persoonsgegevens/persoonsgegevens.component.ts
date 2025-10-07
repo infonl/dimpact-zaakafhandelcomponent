@@ -5,7 +5,7 @@
 
 import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, of, shareReplay, switchMap } from "rxjs";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
@@ -26,11 +26,12 @@ export class PersoonsgegevensComponent {
   action = input.required<string>();
 
   bsn$ = toObservable(this.bsn);
+  zaakIdentificatie$ = toObservable(this.zaakIdentificatie);
 
-  persoon$ = this.bsn$.pipe(
-    switchMap((bsn) => {
+  persoon$ = combineLatest([this.bsn$, this.zaakIdentificatie$]).pipe(
+    switchMap(([bsn, zaakIdentificatie]) => {
       if (!bsn) return of(undefined);
-      return this.klantenService.readPersoon(bsn);
+      return this.klantenService.readPersoon(bsn, zaakIdentificatie);
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
