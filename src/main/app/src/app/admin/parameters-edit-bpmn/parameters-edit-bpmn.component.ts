@@ -75,21 +75,15 @@ export class ParameterEditBpmnComponent {
     private readonly identityService: IdentityService,
   ) {
     this.route.data.subscribe((data) => {
+      console.log("bpmn data", data);
+
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
 
       this.isSavedZaakafhandelparameters =
         data?.parameters.isSavedZaakafhandelparameters;
 
-      this.bpmnDefinitions =
-        data?.parameters.listBpmnZaakafhandelParameters?.map(
-          (
-            bpmnDefinition: GeneratedType<"RestZaaktypeBpmnProcessDefinition">,
-          ) => ({
-            naam: bpmnDefinition.bpmnProcessDefinitionKey,
-            id: bpmnDefinition.bpmnProcessDefinitionKey,
-          }),
-        ) || [];
+      this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
     });
 
     this.createForm();

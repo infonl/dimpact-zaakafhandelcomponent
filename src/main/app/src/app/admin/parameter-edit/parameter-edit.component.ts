@@ -194,7 +194,13 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.route.data.subscribe((data) => {
-      this.parameters = data.parameters.zaakafhandelparameters;
+      console.log(
+        "zaakafhandelparameterszaakafhandelparameterszaakafhandelparameterszaakafhandelparameters",
+        data,
+      );
+
+      this.parameters = data.parameters.zaakafhandelParameters;
+
       this.isSavedZaakafhandelparameters =
         data?.parameters.isSavedZaakafhandelparameters;
 
@@ -744,14 +750,15 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
 
   protected isValid(): boolean {
     return (
-      this.cmmnBpmnFormGroup.valid &&
-      this.algemeenFormGroup.valid &&
-      this.humanTasksFormGroup.valid &&
-      this.zaakbeeindigFormGroup.valid &&
-      this.automatischeOntvangstbevestigingFormGroup.valid &&
-      this.betrokkeneKoppelingen.valid &&
-      this.brpDoelbindingFormGroup.valid &&
-      this.isSmartDocumentsStepValid
+      this.cmmnBpmnFormGroup.valid ||
+      (this.stepperStart > 0 &&
+        this.algemeenFormGroup.valid &&
+        this.humanTasksFormGroup.valid &&
+        this.zaakbeeindigFormGroup.valid &&
+        this.automatischeOntvangstbevestigingFormGroup.valid &&
+        this.betrokkeneKoppelingen.valid &&
+        this.brpDoelbindingFormGroup.valid &&
+        this.isSmartDocumentsStepValid)
     );
   }
 
