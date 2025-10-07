@@ -288,7 +288,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
@@ -397,7 +399,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -459,7 +463,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -529,7 +535,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
@@ -625,7 +633,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
@@ -704,7 +714,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
@@ -858,7 +870,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
 
             When("it is not allowed to add a betrokkene") {
                 val invalidZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -1046,7 +1060,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
@@ -1170,7 +1186,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns emptyList()
             // BPMN not configured
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns null
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
             every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
             When("the productaanvraag is handled") {
@@ -1289,7 +1307,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns emptyList()
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns bpmnDefinition
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnDefinition
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
@@ -1376,7 +1396,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
-            every { zaaktypeBpmnConfigurationService.findByProductAanvraagType(productAanvraagType) } returns bpmnDefinition
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnDefinition
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag

@@ -125,7 +125,7 @@ class BpmnServiceTest : BehaviorSpec({
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeUUID)
         } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
@@ -139,7 +139,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
