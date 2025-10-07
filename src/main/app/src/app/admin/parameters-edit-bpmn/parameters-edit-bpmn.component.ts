@@ -26,8 +26,7 @@ export class ParameterEditBpmnComponent {
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelparameters: boolean = false;
 
-  protected bpmnDefinitions: GeneratedType<"RestZaaktypeBpmnProcessDefinition">[] =
-    [];
+  protected bpmnDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnProcessDefinition"> & {
@@ -96,15 +95,21 @@ export class ParameterEditBpmnComponent {
       this.cmmnBpmnFormGroup.controls.options.disable();
       this.cmmnBpmnFormGroup.controls.options.setValidators([]);
       this.cmmnBpmnFormGroup.updateValueAndValidity();
-      this.cmmnBpmnFormGroup.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
       emitEvent: true,
     });
+    this.algemeenFormGroup.controls.bpmnDefinition.setValue(
+      this.bpmnDefinitions?.find(
+        (bpmnDef) =>
+          bpmnDef.key ===
+          this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
+      )!,
+      { emitEvent: true },
+    );
 
     const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters; // this name should be aligned in new backend
-
     if (defaultGroepId) {
       const groups = await this.groepen.toPromise();
 
@@ -145,9 +150,6 @@ export class ParameterEditBpmnComponent {
   }
 
   protected isValid(): boolean {
-    return (
-      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
-      this.algemeenFormGroup.valid
-    );
+    return this.cmmnBpmnFormGroup.valid && this.algemeenFormGroup.valid;
   }
 }
