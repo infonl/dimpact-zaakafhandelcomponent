@@ -194,11 +194,6 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.route.data.subscribe((data) => {
-      console.log(
-        "zaakafhandelparameterszaakafhandelparameterszaakafhandelparameterszaakafhandelparameters",
-        data,
-      );
-
       this.parameters = data.parameters.zaakafhandelParameters;
 
       this.isSavedZaakafhandelparameters =
@@ -312,11 +307,6 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    console.log("this.stepperStart", this.stepperStart);
-    console.log(
-      "this.isSavedZaakafhandelparameters",
-      this.isSavedZaakafhandelparameters,
-    );
     if (this.isSavedZaakafhandelparameters) {
       this.cmmnBpmnFormGroup.controls.options.setValue({
         label: "CMMN",
