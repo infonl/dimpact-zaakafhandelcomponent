@@ -313,6 +313,9 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
         value: "CMMN",
       });
       this.cmmnBpmnFormGroup.controls.options.disable();
+      this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+      this.cmmnBpmnFormGroup.updateValueAndValidity();
+      this.cmmnBpmnFormGroup.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
@@ -746,16 +749,18 @@ export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   }
 
   protected isValid(): boolean {
+    console.log("this.cmmnBpmnFormGroup.valid", this.cmmnBpmnFormGroup.valid);
+
     return (
-      this.cmmnBpmnFormGroup.valid ||
-      (this.stepperStart > 0 &&
-        this.algemeenFormGroup.valid &&
-        this.humanTasksFormGroup.valid &&
-        this.zaakbeeindigFormGroup.valid &&
-        this.automatischeOntvangstbevestigingFormGroup.valid &&
-        this.betrokkeneKoppelingen.valid &&
-        this.brpDoelbindingFormGroup.valid &&
-        this.isSmartDocumentsStepValid)
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
+      // (this.cmmnBpmnFormGroup.valid || this.stepperStart > 0) &&
+      this.algemeenFormGroup.valid &&
+      this.humanTasksFormGroup.valid &&
+      this.zaakbeeindigFormGroup.valid &&
+      this.automatischeOntvangstbevestigingFormGroup.valid &&
+      this.betrokkeneKoppelingen.valid &&
+      this.brpDoelbindingFormGroup.valid &&
+      this.isSmartDocumentsStepValid
     );
   }
 

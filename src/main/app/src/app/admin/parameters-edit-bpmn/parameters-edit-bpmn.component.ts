@@ -94,6 +94,9 @@ export class ParameterEditBpmnComponent {
         value: "BPMN",
       });
       this.cmmnBpmnFormGroup.controls.options.disable();
+      this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+      this.cmmnBpmnFormGroup.updateValueAndValidity();
+      this.cmmnBpmnFormGroup.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
@@ -142,6 +145,9 @@ export class ParameterEditBpmnComponent {
   }
 
   protected isValid(): boolean {
-    return this.cmmnBpmnFormGroup.valid && this.algemeenFormGroup.valid;
+    return (
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
+      this.algemeenFormGroup.valid
+    );
   }
 }
