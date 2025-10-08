@@ -14,7 +14,7 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 })
 export class ZaakafhandelParametersResolver {
   constructor(
-    private readonly adminService: ZaakafhandelParametersService,
+    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly processDefinitionsService: ProcessDefinitionsService,
   ) {}
 
@@ -29,9 +29,9 @@ export class ZaakafhandelParametersResolver {
 
     return forkJoin({
       zaakafhandelParameters:
-        this.adminService.readZaakafhandelparameters(uuid),
+        this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
       bpmnZaakafhandelParametersList:
-        this.adminService.listBpmnZaakafhandelParameters(),
+        this.zaakafhandelParametersService.listBpmnZaakafhandelParameters(),
       bpmnProcessDefinitionsList:
         this.processDefinitionsService.listProcessDefinitions(),
     }).pipe(

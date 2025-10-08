@@ -37,7 +37,7 @@ describe(ParametersEditCmmnComponent.name, () => {
   let loader: HarnessLoader;
   let utilService: UtilService;
 
-  const zaakAfhandelParamaters = fromPartial<
+  const zaakAfhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
@@ -77,7 +77,7 @@ describe(ParametersEditCmmnComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ parameters: zaakAfhandelParamaters }),
+            data: of({ parameters: zaakAfhandelParameters }),
           },
         },
       ],
