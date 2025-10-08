@@ -12,7 +12,7 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 
 @Component({
   selector: "betrokkene-link",
-  templateUrl: "./betrokkene-link.html",
+  templateUrl: "./betrokkene-link.component.html",
   styleUrls: [],
 })
 export class BetrokkeneLinkComponent {
