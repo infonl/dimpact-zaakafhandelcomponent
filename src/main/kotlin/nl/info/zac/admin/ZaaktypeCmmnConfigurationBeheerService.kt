@@ -98,7 +98,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
         zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
             zaaktypeBpmnConfigurationService
-                .findZaaktypeBpmnConfigurationByZaaktypeUuid(uuid)
+                .findConfigurationByZaaktypeUuid(uuid)
                 ?.let {
                     throw ZaaktypeInUseException(
                         "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"

@@ -34,7 +34,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         Given("BPMN zaaktype process definition is set-up") {
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
+                zaaktypeBpmnConfigurationService.listConfigurations()
             } returns listOf(zaaktypeBpmnProcessDefinition)
 
             When("reading BPMN zaaktypes") {
@@ -58,7 +58,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         Given("No BPMN zaaktype process definition is set-up") {
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
+                zaaktypeBpmnConfigurationService.listConfigurations()
             } returns emptyList()
 
             When("reading BPMN zaaktypes") {
@@ -77,7 +77,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         Given("Multiple zaaktypes mapped to one process definition") {
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
+                zaaktypeBpmnConfigurationService.listConfigurations()
             } returns listOf(zaaktypeBpmnProcessDefinition, zaaktypeBpmnProcessDefinition)
 
             When("reading BPMN zaaktypes") {

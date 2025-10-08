@@ -63,7 +63,7 @@ class BpmnService @Inject constructor(
                 )
         }
 
-    fun isProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
+    fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
     fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
@@ -120,7 +120,7 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeUUID)
+        zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.

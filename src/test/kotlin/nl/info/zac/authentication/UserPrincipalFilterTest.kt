@@ -147,7 +147,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
             } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations() } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -229,7 +229,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 pabcClientService.getApplicationRoles(any())
             } returns pabcRolesResponse("fakeZaaktypeOmschrijving1", *pabcRoleNames.toTypedArray())
             every {
-                zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations()
+                zaaktypeBpmnConfigurationService.listConfigurations()
             } returns listOf(
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1"),
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn2")

@@ -1060,6 +1060,7 @@
   "resultaattype": "Resultaattype",
   "besluittype": "Besluittype",
   "informatieobjecttype": "Informatieobjecttype",
+  "brp_protocollering": "BRP Protocollering",
   "zaakafhandelparameters": "Zaakafhandelparameters",
   " 13 ": ">>--> Zaak formulieren <--<<",
   "melding_klein_evenement.evenement": "Gegevens evenement",

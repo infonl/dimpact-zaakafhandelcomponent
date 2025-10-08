@@ -1060,6 +1060,7 @@
   "resultaattype": "Result type",
   "besluittype": "Decision type",
   "informatieobjecttype": "Informationobject type",
+  "brp_protocollering": "BRP Audit Logging",
   "zaakafhandelparameters": "Case handling parameters",
   " 13 ": ">>--> Zaak formulieren <--<<",
   "melding_klein_evenement.evenement": "Event information",

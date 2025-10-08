@@ -198,7 +198,7 @@ constructor(
             // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
             // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
             val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationService
-                .listZaaktypeBpmnConfigurations()
+                .listConfigurations()
                 .map { it.zaaktypeOmschrijving }
 
             zaaktypeCmmnConfigurationDescriptions + zaaktypeBpmnProcessDefinitionDescriptions

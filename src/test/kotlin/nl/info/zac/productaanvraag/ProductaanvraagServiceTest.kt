@@ -289,7 +289,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -400,7 +400,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
 
             When("the productaanvraag is handled") {
@@ -464,7 +464,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
 
             When("the productaanvraag is handled") {
@@ -536,7 +536,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -634,7 +634,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -715,7 +715,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -871,7 +871,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
 
             When("it is not allowed to add a betrokkene") {
@@ -1061,7 +1061,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
@@ -1187,7 +1187,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns emptyList()
             // BPMN not configured
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
@@ -1308,7 +1308,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns emptyList()
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns bpmnDefinition
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
@@ -1397,7 +1397,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
             every {
-                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByProductAanvraagType(productAanvraagType)
+                zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns bpmnDefinition
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak

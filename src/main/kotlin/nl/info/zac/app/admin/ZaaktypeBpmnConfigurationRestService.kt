@@ -38,7 +38,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaaktypeBpmnConfigurationService.listZaaktypeBpmnConfigurations().map {
+        return zaaktypeBpmnConfigurationService.listConfigurations().map {
             it.toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -50,7 +50,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinitions = zaaktypeBpmnConfigurationService
-            .listZaaktypeBpmnConfigurations()
+            .listConfigurations()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
 
         if (processDefinitions.isEmpty()) {
@@ -74,7 +74,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        val bpmnConfiguration = zaaktypeBpmnConfigurationService.storeZaaktypeBpmnConfiguration(
+        val bpmnConfiguration = zaaktypeBpmnConfigurationService.storeConfiguration(
             ZaaktypeBpmnConfiguration().apply {
                 id = restZaaktypeBpmnProcessDefinition.id
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid

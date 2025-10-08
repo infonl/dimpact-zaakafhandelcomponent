@@ -205,7 +205,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
 
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
         } returns null
 
         // Relaxed entity manager mocking; criteria queries and persisting
@@ -243,7 +243,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { zaaktypeCmmnConfigurationService.clearListCache() } returns "Cache cleared"
 
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
         } returns null
 
         // ZtcClientService mocking
@@ -456,7 +456,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     Given("A zaaktype with existing BPMN process mapping") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(zaaktypeCmmnConfiguration.zaakTypeUUID!!)
+            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeCmmnConfiguration.zaakTypeUUID!!)
         } returns createZaaktypeBpmnConfiguration()
 
         When("create a zaaktypeCmmnConfiguration is attempted") {

@@ -475,7 +475,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
-            every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
@@ -587,7 +587,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
-            every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
@@ -672,7 +672,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-            every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
 
@@ -747,7 +747,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { identityService.readGroup(restZaakAssignmentToLoggedInUserData.groupId) } returns group
             every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
-            every { bpmnService.isProcessDriven(zaak.uuid) } returns true
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 

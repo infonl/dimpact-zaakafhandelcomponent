@@ -199,6 +199,9 @@
                   >
                     {{ "besluittype" | translate }}
                   </div>
+                  <div *ngIf="!row.isBrpInstellingenCorrect">
+                    {{ "brp_protocollering" | translate }}
+                  </div>
                 </div>
               </td>
             </ng-container>

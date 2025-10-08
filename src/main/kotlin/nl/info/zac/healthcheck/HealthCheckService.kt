@@ -6,7 +6,6 @@ package nl.info.zac.healthcheck
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -23,6 +22,8 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INIT
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
@@ -60,8 +61,9 @@ class HealthCheckService @Inject constructor(
     private val versionNumber: Optional<String?>,
 
     private val referenceTableService: ReferenceTableService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val ztcClientService: ZtcClientService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
+    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val ztcClientService: ZtcClientService
 ) {
     companion object {
         private const val BUILD_TIMESTAMP_FILE = "/build_timestamp.txt"
@@ -85,9 +87,10 @@ class HealthCheckService @Inject constructor(
     }
 
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
+        zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaakafhandelParams.isValide()
+                isZaakafhandelParametersValide = zaakafhandelParams?.isValide() ?:
+                    (zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid) != null)
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)
