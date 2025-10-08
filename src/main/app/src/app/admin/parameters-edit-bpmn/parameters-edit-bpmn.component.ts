@@ -52,7 +52,7 @@ export class ParameterEditBpmnComponent {
     options: this.formBuilder.control<{
       value: string;
       label: string;
-    } | null>(null, [Validators.required]),
+    }>({ label: 'BPMN', value: 'BPMN' }, [Validators.required]),
   });
 
   algemeenFormGroup = this.formBuilder.group({
@@ -75,7 +75,7 @@ export class ParameterEditBpmnComponent {
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
   ) {
-    this.route.data.subscribe((data) => {
+    this.route.data.subscribe(async (data) => {
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
 
@@ -83,21 +83,17 @@ export class ParameterEditBpmnComponent {
         data?.parameters.isSavedZaakafhandelparameters;
 
       this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
-    });
 
-    this.createForm();
+      await this.createForm();
+    });
   }
 
   async createForm() {
-    if (this.isSavedZaakafhandelparameters) {
-      this.cmmnBpmnFormGroup.controls.options.setValue({
-        label: "BPMN",
-        value: "BPMN",
-      });
+    // if (this.isSavedZaakafhandelparameters) {
       this.cmmnBpmnFormGroup.controls.options.disable();
-      this.cmmnBpmnFormGroup.controls.options.setValidators([]);
-      this.cmmnBpmnFormGroup.updateValueAndValidity();
-    }
+      // this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+      // this.cmmnBpmnFormGroup.updateValueAndValidity();
+    // }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
       emitEvent: true,
@@ -121,7 +117,7 @@ export class ParameterEditBpmnComponent {
 
       const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
       this.algemeenFormGroup.controls.defaultGroep.setValue(
-        defaultGroup ?? null,
+        defaultGroup ?? groups?.at(0) ?? null,
       );
     }
   }
