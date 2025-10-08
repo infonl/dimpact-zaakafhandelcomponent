@@ -17,11 +17,11 @@
     "cross-fetch": "4.1.0",
     "pdf-parse": "2.1.7",
     "uniqid": "5.4.0",
-    "zod": "4.1.11"
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@types/node": "22.18.8",
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "1.56.0",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",
     "ts-node": "10.9.2",

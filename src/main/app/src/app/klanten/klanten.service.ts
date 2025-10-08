@@ -17,12 +17,12 @@ export class KlantenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
-  readPersoon(bsn: string, zaakIdentification: string | null = null) {
-    return this.zacQueryClient.GET("/rest/klanten/persoon/{bsn}", {
+  readPersoon(bsn: string, zaakIdentification?: string) {
+    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
       path: { bsn },
-      header: {
-        "X-ZAAK-ID": zaakIdentification,
-      },
+      ...(zaakIdentification && {
+        header: { "X-ZAAK-ID": zaakIdentification },
+      }),
     });
   }
 
