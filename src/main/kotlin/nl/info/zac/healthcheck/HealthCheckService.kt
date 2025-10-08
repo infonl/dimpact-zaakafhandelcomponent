@@ -51,7 +51,7 @@ import java.util.UUID
 
 @Singleton
 @NoArgConstructor
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class HealthCheckService @Inject constructor(
     @ConfigProperty(name = "BRANCH_NAME")
     private val branchName: Optional<String?>,
@@ -89,8 +89,8 @@ class HealthCheckService @Inject constructor(
     private fun inrichtingscheck(zaaktypeUuid: UUID, zaaktype: ZaakType): ZaaktypeInrichtingscheck =
         zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
-                isZaakafhandelParametersValide = zaakafhandelParams?.isValide() ?:
-                    (zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid) != null)
+                isZaakafhandelParametersValide = zaakafhandelParams?.isValide()
+                    ?: (zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid) != null)
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)
