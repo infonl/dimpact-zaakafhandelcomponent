@@ -5,9 +5,7 @@
 package nl.info.client.brp.util
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.maps.shouldContainExactly
-import io.kotest.matchers.maps.shouldNotHaveKey
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -27,96 +25,197 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("originOin is empty") {
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.empty(),
-            loggedInUserInstance
-        )
-        val existingHeaders = Headers<String>().apply {
-            add("header", "value")
-        }
+    Context("iConnect audit log provider") {
+        Given("originOin is empty") {
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.empty(),
+                auditLogProvider = Optional.empty(),
+                loggedInUserInstance = loggedInUserInstance
+            )
+            val existingHeaders = Headers<String>().apply {
+                add("header", "value")
+            }
 
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), existingHeaders)
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), existingHeaders)
 
-            Then("no protocolering headers are changed or set") {
-                headers shouldContainExactly mapOf("header" to listOf("value"))
+                Then("no protocolering headers are changed or set") {
+                    headers shouldContainExactly mapOf("header" to listOf("value"))
+                }
             }
         }
-    }
 
-    Given("originOIN is present and a valid user exists") {
-        every { loggedInUserInstance.get().id } returns "username"
+        Given("originOIN is present and a valid user exists") {
+            every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
-        )
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.of("iConnect"),
+                loggedInUserInstance = loggedInUserInstance
+            )
 
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), Headers())
 
-            Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldNotHaveKey("X-DOELBINDING")
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("username"))
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-API-KEY" to listOf(apiKey),
+                        "X-ORIGIN-OIN" to listOf(originOin),
+                        "X-GEBRUIKER" to listOf("username")
+                    )
+                }
+            }
+        }
+
+        Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
+            every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
+
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.empty(),
+                loggedInUserInstance = loggedInUserInstance
+            )
+
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), Headers())
+
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-API-KEY" to listOf(apiKey),
+                        "X-ORIGIN-OIN" to listOf(originOin),
+                        "X-GEBRUIKER" to listOf("BurgerZelf")
+                    )
+                }
+            }
+        }
+
+        Given(
+            "Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled and a valid user"
+        ) {
+            val outgoingHeaders = Headers<String>().apply {
+                add("X-API-KEY", apiKey)
+                add("X-DOELBINDING", purpose)
+            }
+            every { loggedInUserInstance.get().id } returns "username"
+
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.of("iConnect"),
+                loggedInUserInstance = loggedInUserInstance
+            )
+
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-API-KEY" to listOf(apiKey),
+                        "X-ORIGIN-OIN" to listOf(originOin),
+                        "X-DOELBINDING" to listOf(purpose),
+                        "X-GEBRUIKER" to listOf("username")
+                    )
                 }
             }
         }
     }
 
-    Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
-        every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
+    Context("2Secure audit log provider") {
+        Given("originOin is empty") {
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.empty(),
+                auditLogProvider = Optional.of("2Secure"),
+                loggedInUserInstance = loggedInUserInstance
+            )
+            val existingHeaders = Headers<String>().apply {
+                add("header", "value")
+            }
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
-        )
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), existingHeaders)
 
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldNotHaveKey("X-DOELBINDING")
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("BurgerZelf"))
+                Then("no protocolering headers are changed or set") {
+                    headers shouldContainExactly mapOf("header" to listOf("value"))
                 }
             }
         }
-    }
 
-    Given("Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled and a valid user") {
-        val outgoingHeaders = Headers<String>().apply {
-            add("X-API-KEY", apiKey)
-            add("X-DOELBINDING", purpose)
+        Given("originOIN is present and a valid user exists") {
+            every { loggedInUserInstance.get().id } returns "username"
+
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.of("2Secure"),
+                loggedInUserInstance = loggedInUserInstance
+            )
+
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), Headers())
+
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-REQUEST-APPLICATION" to listOf(apiKey),
+                        "X-REQUEST-ORGANIZATION" to listOf(originOin),
+                        "X-REQUEST-USER" to listOf("username")
+                    )
+                }
+            }
         }
-        every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
-        )
+        Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
+            every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
 
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.of("2Secure"),
+                loggedInUserInstance = loggedInUserInstance
+            )
 
-            Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf(purpose))
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("username"))
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), Headers())
+
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-REQUEST-APPLICATION" to listOf(apiKey),
+                        "X-REQUEST-ORGANIZATION" to listOf(originOin),
+                        "X-REQUEST-USER" to listOf("BurgerZelf")
+                    )
+                }
+            }
+        }
+
+        Given(
+            "Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled and a valid user"
+        ) {
+            val outgoingHeaders = Headers<String>().apply {
+                add("X-API-KEY", apiKey)
+                add("X-REQUEST-ORGANIZATION", "different organization")
+            }
+            every { loggedInUserInstance.get().id } returns "username"
+
+            val brpClientHeadersFactory = BRPClientHeadersFactory(
+                apiKey = Optional.of(apiKey),
+                originOIN = Optional.of(originOin),
+                auditLogProvider = Optional.of("2Secure"),
+                loggedInUserInstance = loggedInUserInstance
+            )
+
+            When("headers are updated") {
+                val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+
+                Then("correct BRP protocollering headers are generated") {
+                    headers shouldContainExactly mapOf(
+                        "X-API-KEY" to listOf("apiKey"),
+                        "X-REQUEST-ORGANIZATION" to listOf("different organization"),
+                        "X-REQUEST-APPLICATION" to listOf(apiKey),
+                        "X-REQUEST-USER" to listOf("username")
+                    )
                 }
             }
         }

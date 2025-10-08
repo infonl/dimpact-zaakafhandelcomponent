@@ -24,7 +24,6 @@ import java.time.temporal.ChronoUnit
 /**
  * BRP Personen Bevragen
  *
- *
  * API voor het bevragen van personen uit de basisregistratie personen (BRP), inclusief de registratie niet-ingezeten (RNI).
  * Met deze API kun je personen zoeken en actuele gegevens over personen, kinderen, partners en ouders raadplegen.
  * Gegevens die er niet zijn of niet actueel zijn krijg je niet terug.
@@ -41,28 +40,31 @@ import java.time.temporal.ChronoUnit
 @Produces(MediaType.APPLICATION_JSON)
 @Timeout(unit = ChronoUnit.SECONDS, value = 10)
 interface PersonenApi {
+
     /**
-     * Zoek personen
+     * Search for persons
      *
+     * Search for persons using one of the mandatory parameter combinations below and supplement them with optional parameters if necessary.
+     * 1. Search using citizen service number
+     * 2. Search using surname and date of birth
+     * 3. Search using surname, first names, and municipality of registration
+     * 4. Search using postal code and house number
+     * 5. Search using street, house number, and municipality of registration
+     * 6. Search using number identification
      *
-     * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
-     * 1. Raadpleeg met burgerservicenummer
-     * 2. Zoek met geslachtsnaam en geboortedatum
-     * 3. Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
-     * 4. Zoek met postcode en huisnummer
-     * 5. Zoek met straat, huisnummer en gemeente van inschrijving
-     * 6. Zoek met nummeraanduiding identificatie
+     * @param personenQuery the search criteria for persons
+     * @param purpose the request purpose (iConnect's X-DOELBINDING header), mandatory for logging and authorization
+     * @param auditEvent what the response data will be used for (iConnect's X-VERWERKING header)
+     * @param recipient customer requesting the data (2Secure's X-REQUEST-AFNEMERSCODE header)
      *
-     *@param personenQuery de zoekcriteria voor personen
-     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocolering en autorisatie
-     *
-     * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
-     * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
+     * By default, you will receive persons who are still alive, unless you specify "includedeceasedpersons=true."
+     * Use the fields parameter to request only the data you need and are authorized to access.
      */
     @POST
     fun personen(
         personenQuery: PersonenQuery,
-        @HeaderParam(BRPClientHeadersFactory.X_DOELBINDING) purpose: String?,
-        @HeaderParam(BRPClientHeadersFactory.X_VERWERKING) auditEvent: String?
+        @HeaderParam(BRPClientHeadersFactory.ICONNECT_X_DOELBINDING) purpose: String? = null,
+        @HeaderParam(BRPClientHeadersFactory.ICONNECT_X_VERWERKING) auditEvent: String? = null,
+        @HeaderParam(BRPClientHeadersFactory.TWOSECURE_X_REQUEST_AFNEMERSCODE) recipient: String? = null
     ): PersonenQueryResponse
 }
