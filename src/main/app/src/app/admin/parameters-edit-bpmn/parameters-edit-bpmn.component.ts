@@ -144,8 +144,9 @@ export class ParameterEditBpmnComponent {
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
       })
       .subscribe({
-        next: () => {
+        next: (data) => {
           this.isLoading = false;
+          this.bpmnZaakafhandelParameters.id = data.id; // in case of new save
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
