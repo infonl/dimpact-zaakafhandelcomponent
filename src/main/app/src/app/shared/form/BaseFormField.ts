@@ -106,7 +106,10 @@ export class MultiInputFormField<
   Key extends keyof Form,
   Option extends Form[Key]["value"],
   OptionDisplayValue extends keyof Option | ((option: Option) => string),
-    Compare extends (a: Option, b: Option) => boolean = (a: Option, b: Option) => boolean,
+  Compare extends (a: Option, b: Option) => boolean = (
+    a: Option,
+    b: Option,
+  ) => boolean,
 > extends SingleInputFormField<Form, Key, Option> {
   public readonly options = input.required<
     Array<Option> | Observable<Array<Option>>

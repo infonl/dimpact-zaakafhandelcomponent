@@ -52,7 +52,7 @@ export class ParameterEditBpmnComponent {
     options: this.formBuilder.control<{
       value: string;
       label: string;
-    }>({ label: 'BPMN', value: 'BPMN' }, [Validators.required]),
+    }>({ label: "BPMN", value: "BPMN" }, [Validators.required]),
   });
 
   algemeenFormGroup = this.formBuilder.group({
@@ -89,11 +89,12 @@ export class ParameterEditBpmnComponent {
   }
 
   async createForm() {
-    // if (this.isSavedZaakafhandelparameters) {
+    if (this.isSavedZaakafhandelparameters) {
       this.cmmnBpmnFormGroup.controls.options.disable();
-      // this.cmmnBpmnFormGroup.controls.options.setValidators([]);
-      // this.cmmnBpmnFormGroup.updateValueAndValidity();
-    // }
+      this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+      this.cmmnBpmnFormGroup.updateValueAndValidity();
+      this.cmmnBpmnFormGroup.disable();
+    }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
       emitEvent: true,
@@ -156,6 +157,9 @@ export class ParameterEditBpmnComponent {
   }
 
   protected isValid(): boolean {
-    return this.cmmnBpmnFormGroup.valid && this.algemeenFormGroup.valid;
+    return (
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
+      this.algemeenFormGroup.valid
+    );
   }
 }

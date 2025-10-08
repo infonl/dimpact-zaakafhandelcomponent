@@ -39,21 +39,22 @@
     </div>
 
     <div class="button-group flex-row flex-wrap">
-      @if (!isSavedZaakafhandelparameters) {
+      @if (
+        !isSavedZaakafhandelparameters &&
+        cmmnBpmnFormGroup.value.options?.value === "BPMN"
+      ) {
         <button
           mat-raised-button
           (click)="
-            cmmnBpmnFormGroup.value.options?.value &&
-              switchProcessDefinition.emit({
-                type: cmmnBpmnFormGroup.value.options.value,
-                stepperStart: 1,
-              })
+            switchProcessDefinition.emit({
+              type: cmmnBpmnFormGroup.value.options.value,
+              stepperStart: 1,
+            })
           "
         >
           {{ "actie.volgende" | translate }}
         </button>
-      }
-      @if (isSavedZaakafhandelparameters) {
+      } @else {
         <button mat-raised-button matStepperNext>
           {{ "actie.volgende" | translate }}
         </button>

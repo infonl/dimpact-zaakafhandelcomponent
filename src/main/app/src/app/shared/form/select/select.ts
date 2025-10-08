@@ -16,9 +16,8 @@ export class ZacSelect<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
   Option extends Form[Key]["value"],
-  OptionDisplayValue extends keyof Option | ((option: Option) => string)
+  OptionDisplayValue extends keyof Option | ((option: Option) => string),
 > extends MultiInputFormField<Form, Key, Option, OptionDisplayValue> {
-
   /**
    * The suffix to display after the input field.
    * It will get translated using the `translate` pipe.

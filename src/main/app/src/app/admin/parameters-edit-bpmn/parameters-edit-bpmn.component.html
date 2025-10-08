@@ -31,7 +31,6 @@
         { label: 'BPMN', value: 'BPMN' },
       ]"
       optionDisplayValue="label"
-      [disabled]="isSavedZaakafhandelparameters || isLoading"
     ></zac-radio>
 
     <div class="flex-row items-center gap-10 ml-1 my-3">
@@ -40,21 +39,22 @@
     </div>
 
     <div class="button-group flex-row flex-wrap">
-      @if (!isSavedZaakafhandelparameters) {
+      @if (
+        !isSavedZaakafhandelparameters &&
+        cmmnBpmnFormGroup.value.options?.value === "CMMN"
+      ) {
         <button
           mat-raised-button
           (click)="
-            cmmnBpmnFormGroup.value.options?.value &&
-              switchProcessDefinition.emit({
-                type: cmmnBpmnFormGroup.value.options.value,
-                stepperStart: 1,
-              })
+            switchProcessDefinition.emit({
+              type: cmmnBpmnFormGroup.value.options.value,
+              stepperStart: 1,
+            })
           "
         >
           {{ "actie.volgende" | translate }}
         </button>
-      }
-      @if (isSavedZaakafhandelparameters) {
+      } @else {
         <button mat-raised-button matStepperNext>
           {{ "actie.volgende" | translate }}
         </button>
@@ -63,6 +63,7 @@
         mat-raised-button
         color="primary"
         [disabled]="!isValid() || isLoading"
+        (click)="opslaan()"
       >
         {{ "actie.opslaan" | translate }}
       </button>
