@@ -26,7 +26,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("zaaktype-bpmn-process-definitions")
+@Path("zaaktype-bpmn-configuration")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen

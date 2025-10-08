@@ -27,7 +27,7 @@ export class ParameterEditBpmnComponent {
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelparameters: boolean = false;
 
-  protected bpmnDefinitions: GeneratedType<"RestProcessDefinition">[] = [];
+  protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
@@ -57,7 +57,7 @@ export class ParameterEditBpmnComponent {
 
   algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
-      this.formBuilder.control<GeneratedType<"RestProcessDefinition"> | null>(
+      this.formBuilder.control<GeneratedType<"RestBpmnProcessDefinition"> | null>(
         null,
         [Validators.required],
       ),

@@ -22,7 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-process-definitions"
+    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-configuration"
 
     val bpmnZaakType = """
         {

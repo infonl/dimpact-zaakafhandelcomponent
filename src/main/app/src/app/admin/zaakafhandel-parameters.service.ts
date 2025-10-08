@@ -21,7 +21,7 @@ export class ZaakafhandelParametersService {
   }
 
   listBpmnZaakafhandelParameters() {
-    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-process-definitions");
+    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -69,10 +69,10 @@ export class ZaakafhandelParametersService {
 
   updateBpmnZaakafhandelparameters(
     processDefinitionKey: string,
-    body: PostBody<"/rest/zaaktype-bpmn-process-definitions/{processDefinitionKey}">,
+    body: PostBody<"/rest/zaaktype-bpmn-configuration/{processDefinitionKey}">,
   ) {
     return this.zacHttpClient.POST(
-      "/rest/zaaktype-bpmn-process-definitions/{processDefinitionKey}",
+      "/rest/zaaktype-bpmn-configuration/{processDefinitionKey}",
       body,
       { path: { processDefinitionKey } },
     );

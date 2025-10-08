@@ -52,6 +52,12 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
             } returns null
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
+            every { entityManager.flush() } just Runs
+            every {
+                zaaktypeBpmnConfigurationService.findZaaktypeBpmnConfigurationByZaaktypeUuid(
+                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
+                )
+            } returns zaaktypeBpmnProcessDefinition
 
             When("the zaaktype BPMN process definition relation is created") {
                 zaaktypeBpmnConfigurationService.storeZaaktypeBpmnConfiguration(zaaktypeBpmnProcessDefinition)
@@ -59,6 +65,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                 Then("the zaaktype BPMN process definition relation is persisted") {
                     verify(exactly = 1) {
                         entityManager.persist(zaaktypeBpmnProcessDefinition)
+                        entityManager.flush()
                     }
                 }
             }
@@ -97,7 +104,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
 
                 Then("the zaaktype BPMN process definition relation is persisted") {
                     verify(exactly = 1) {
-                        entityManager.persist(zaaktypeBpmnProcessDefinition)
+                        entityManager.merge(zaaktypeBpmnProcessDefinition)
                     }
                 }
             }
