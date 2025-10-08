@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
@@ -18,10 +18,9 @@ import { KlantenService } from "../klanten.service";
   providedIn: "root",
 })
 export class BedrijfResolverService {
-  constructor(
-    private readonly klantenService: KlantenService,
-    private readonly foutafhandelingService: FoutAfhandelingService,
-  ) {}
+  private readonly klantenService = inject(KlantenService);
+  private readonly foutafhandelingService = inject(FoutAfhandelingService);
+  private readonly queryClient = inject(QueryClient);
 
   async resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
@@ -48,16 +47,15 @@ export class BedrijfResolverService {
           identificatieType === "RSIN" && id.length !== KVK_LENGTH ? id : null,
       });
 
-      return lastValueFrom(
+      return this.queryClient.ensureQueryData(
         this.klantenService.readBedrijf(betrokkeneIdentificatie),
       );
-    } catch (error) {
-      this.handleBetrokkeneError(error);
+    } catch {
+      this.handleBetrokkeneError();
     }
   }
 
-  private handleBetrokkeneError(error: unknown) {
-    console.warn(error);
+  private handleBetrokkeneError() {
     this.foutafhandelingService.openFoutDialog(
       "msg.error.search.bedrijf.not-found",
     );

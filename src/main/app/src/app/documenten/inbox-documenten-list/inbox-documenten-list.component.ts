@@ -28,7 +28,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { PutBody } from "../../shared/http/zac-http-client";
+import { PutBody } from "../../shared/http/http-client";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,

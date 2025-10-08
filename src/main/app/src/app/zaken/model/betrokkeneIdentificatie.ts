@@ -39,13 +39,28 @@ export class BetrokkeneIdentificatie
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
         );
       case "VN":
-        if ("vestigingsnummer" in betrokkene) {
-          this.vestigingsnummer = betrokkene.vestigingsnummer;
+        if (
+          "vestigingsnummer" in betrokkene &&
+          betrokkene.vestigingsnummer !== null
+        ) {
           if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
             this.kvkNummer = betrokkene.kvkNummer;
           }
+          this.vestigingsnummer = betrokkene.vestigingsnummer;
           break;
         }
+
+        if (
+          "identificatie" in betrokkene &&
+          betrokkene.identificatie !== null
+        ) {
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
+          this.vestigingsnummer = betrokkene.identificatie;
+          break;
+        }
+
         throw new Error(
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a vestigingsnummer`,
         );
@@ -66,6 +81,17 @@ export class BetrokkeneIdentificatie
           `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`,
         );
     }
+  }
+
+  get uniqueKey() {
+    if (this.rsin) return this.rsin;
+    if (this.bsnNummer) return this.bsnNummer;
+    if (this.vestigingsnummer) {
+      if (this.kvkNummer) return `${this.kvkNummer}@${this.vestigingsnummer}`;
+      return this.vestigingsnummer;
+    }
+
+    return "unknown-betrokkene";
   }
 
   private getType(

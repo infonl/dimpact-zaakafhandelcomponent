@@ -1,0 +1,48 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+-->
+
+@if (
+  (bedrijfQuery.isLoading() && !persoonQuery.data()) ||
+  (persoonQuery.isLoading() && !bedrijfQuery.data())
+) {
+  <div class="mx-3 d-inline-block"><mat-spinner diameter="18" /></div>
+}
+
+@if (persoonQuery.data()) {
+  <a
+    mat-icon-button
+    [routerLink]="['/persoon', betrokkene().identificatie]"
+    title="{{ 'actie.persoon.bekijken' | translate }}"
+  >
+    <mat-icon>visibility</mat-icon>
+  </a>
+}
+@if (bedrijfQuery.data()) {
+  @if (!betrokkene().kvkNummer) {
+    <mat-icon
+      class="mr-2"
+      color="warn"
+      [matTooltip]="'msg.hint.kvk.unknown' | translate"
+      >warning</mat-icon
+    >
+  } @else {
+    <a
+      mat-icon-button
+      [routerLink]="bedrijfRouteLink()"
+      title="{{ 'actie.bedrijf.bekijken' | translate }}"
+    >
+      <mat-icon>visibility</mat-icon>
+    </a>
+  }
+}
+
+@if (bedrijfQuery.error() || persoonQuery.error()) {
+  <mat-icon
+    class="mx-2"
+    color="warn"
+    [matTooltip]="'msg.hint.kvk.outdated' | translate"
+    >warning</mat-icon
+  >
+}

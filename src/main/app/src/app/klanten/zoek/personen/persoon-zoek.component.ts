@@ -40,8 +40,6 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
 
-  protected action = input.required<string>();
-  protected context = input.required<string>();
   protected blockSearch = input<boolean>(false);
 
   private readonly destroy$ = new Subject<void>();

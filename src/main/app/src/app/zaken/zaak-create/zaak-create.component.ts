@@ -3,14 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, ViewChild } from "@angular/core";
+import { Component, inject, OnDestroy, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { firstValueFrom, Observable, of, Subject, takeUntil } from "rxjs";
+import { Observable, of, Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -30,6 +33,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-create.component.html",
 })
 export class ZaakCreateComponent implements OnDestroy {
+  private readonly queryClient = inject(QueryClient);
   private readonly destroy$ = new Subject<void>();
   static DEFAULT_CHANNEL = "E-formulier";
 
@@ -49,9 +53,7 @@ export class ZaakCreateComponent implements OnDestroy {
   );
 
   protected createZaakMutation = injectMutation(() => ({
-    mutationFn: (
-      zaakData: Parameters<typeof this.zakenService.createZaak>[0],
-    ) => firstValueFrom(this.zakenService.createZaak(zaakData)),
+    ...this.zakenService.createZaak(),
     onSuccess: ({ identificatie }) =>
       this.router.navigate(["/zaken/", identificatie]),
     onError: () => this.form.reset(),
@@ -210,7 +212,7 @@ export class ZaakCreateComponent implements OnDestroy {
     await this.actionsSidenav.open();
   }
 
-  private handleProductRequest(
+  private async handleProductRequest(
     productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     if (!productRequest?.initiatorID) return;
@@ -222,28 +224,28 @@ export class ZaakCreateComponent implements OnDestroy {
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH: {
-        this.klantenService.readPersoon(initiatorID).subscribe((result) => {
-          this.form.controls.initiatorIdentificatie.setValue({
-            ...result,
-            type: result.identificatieType!,
-          });
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readPersoon(initiatorID),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
         });
         break;
       }
       case VESTIGINGSNUMMER_LENGTH: {
-        this.klantenService
-          .readBedrijf(
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readBedrijf(
             new BetrokkeneIdentificatie({
               identificatie: initiatorID,
               identificatieType: "VN",
             }),
-          )
-          .subscribe((result) => {
-            this.form.controls.initiatorIdentificatie.setValue({
-              ...result,
-              type: result.identificatieType!,
-            });
-          });
+          ),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
+        });
         break;
       }
     }

@@ -10,8 +10,8 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { of } from "rxjs";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
@@ -23,8 +23,8 @@ import { BedrijfResolverService } from "./bedrijf-resolver.service";
 
 describe(BedrijfResolverService.name, () => {
   let bedrijfResolverService: BedrijfResolverService;
-  let klantenService: KlantenService;
   let foutAfhandelingService: FoutAfhandelingService;
+  let queryClient: QueryClient;
 
   const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
   const kvkNummer = "2".repeat(KVK_LENGTH);
@@ -36,6 +36,7 @@ describe(BedrijfResolverService.name, () => {
         BedrijfResolverService,
         FoutAfhandelingService,
         KlantenService,
+        QueryClient,
         provideHttpClient(withInterceptorsFromDi()),
       ],
       imports: [TranslateModule.forRoot()],
@@ -46,10 +47,11 @@ describe(BedrijfResolverService.name, () => {
     foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     jest.spyOn(foutAfhandelingService, "openFoutDialog").mockImplementation();
 
-    klantenService = TestBed.inject(KlantenService);
+    TestBed.inject(KlantenService);
+    queryClient = TestBed.inject(QueryClient);
     jest
-      .spyOn(klantenService, "readBedrijf")
-      .mockReturnValue(of(fromPartial<GeneratedType<"RestBedrijf">>({})));
+      .spyOn(queryClient, "ensureQueryData")
+      .mockResolvedValue(fromPartial<GeneratedType<"RestBedrijf">>({}));
   });
 
   it("should throw an error if no id is provided", async () => {
@@ -74,7 +76,7 @@ describe(BedrijfResolverService.name, () => {
       { params: { id: rsin }, type: "RSIN" },
     ])(
       "should determine the correct type based on the passed parameters",
-      async ({ params, type }) => {
+      async ({ params }) => {
         await bedrijfResolverService.resolve(
           fromPartial({
             get paramMap() {
@@ -83,8 +85,12 @@ describe(BedrijfResolverService.name, () => {
           }),
         );
 
-        expect(klantenService.readBedrijf).toHaveBeenCalledWith(
-          expect.objectContaining({ type }),
+        expect(queryClient.ensureQueryData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            queryKey: expect.arrayContaining([
+              expect.stringContaining("/rest/klanten/"),
+            ]),
+          }),
         );
       },
     );

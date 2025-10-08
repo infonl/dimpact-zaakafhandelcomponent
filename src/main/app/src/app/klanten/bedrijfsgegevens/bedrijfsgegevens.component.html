@@ -3,38 +3,56 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-expansion-panel [expanded]="klantExpanded">
+<mat-expansion-panel [expanded]="!!bedrijfQuery.data()">
   <mat-expansion-panel-header>
-    <mat-panel-title> {{ "initiator.titel" | translate }} </mat-panel-title>
+    <mat-panel-title>
+      <span class="mr-2">{{ "initiator.titel" | translate }}</span>
+      @if (bedrijfQuery.isLoading()) {
+        <mat-spinner diameter="18" />
+      } @else if (bedrijfQuery.error()) {
+        <mat-icon
+          class="mr-2"
+          color="warn"
+          [matTooltip]="'msg.hint.kvk.outdated' | translate"
+          >warning</mat-icon
+        >
+      }
+    </mat-panel-title>
     <mat-panel-description>
-      {{ bedrijf?.naam ?? ("msg.loading" | translate) }}
+      {{ bedrijfQuery.data()?.naam ?? "-" }}
       <div class="flex-row">
         <button
           mat-icon-button
-          [disabled]="!vestigingsprofielOphalenMogelijk"
+          [disabled]="!vestigingsprofielOphalenMogelijk()"
           title="{{ 'bedrijf.profiel.ophalen' | translate }}"
           (click)="$event.stopPropagation(); ophalenVestigingsprofiel()"
         >
           <mat-icon outlined>other_admission</mat-icon>
         </button>
         <button
-          *ngIf="bedrijf && isWijzigbaar"
+          *ngIf="isWijzigbaar()"
+          [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.initiator.wijzigen' | translate"
           mat-icon-button
-          (click)="$event.stopPropagation(); edit.emit(bedrijf)"
+          (click)="
+            $event.stopPropagation(); edit.emit(bedrijfQuery.data() ?? null)
+          "
         >
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="bedrijf && isVerwijderbaar"
+          *ngIf="isVerwijderbaar()"
+          [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.ontkoppelen' | translate"
           mat-icon-button
-          (click)="$event.stopPropagation(); delete.emit(bedrijf)"
+          (click)="
+            $event.stopPropagation(); delete.emit(bedrijfQuery.data() ?? null)
+          "
         >
           <mat-icon>link_off</mat-icon>
         </button>
         <a
-          *ngIf="bedrijf"
+          *ngIf="bedrijfQuery.data()"
           mat-icon-button
           [routerLink]="bedrijfRouteLink()"
           title="{{ 'actie.bedrijf.bekijken' | translate }}"
@@ -44,57 +62,74 @@
       </div>
     </mat-panel-description>
   </mat-expansion-panel-header>
-  <div *ngIf="bedrijf" id="bedrijfsgegevens" class="content flex-row flex-wrap">
-    <zac-static-text label="bedrijfsnaam" [value]="bedrijf.naam" />
+  <div
+    *ngIf="!bedrijfQuery.isLoading()"
+    id="bedrijfsgegevens"
+    class="content flex-row flex-wrap"
+  >
+    <zac-static-text label="bedrijfsnaam" [value]="bedrijfQuery.data()?.naam" />
     <zac-static-text
-      *ngIf="bedrijf.kvkNummer"
+      *ngIf="initiatorIdentificatie()?.kvkNummer"
       label="kvknummer"
-      [value]="bedrijf.kvkNummer"
+      [value]="initiatorIdentificatie()?.kvkNummer"
     />
     <zac-static-text
-      *ngIf="!bedrijf.kvkNummer"
+      *ngIf="!initiatorIdentificatie()?.kvkNummer"
       label="kvknummer"
       [icon]="warningIcon"
       [value]="'msg.error.kvk.unknown' | translate"
     />
     <zac-static-text
-      *ngIf="bedrijf.vestigingsnummer"
+      *ngIf="initiatorIdentificatie()?.vestigingsnummer"
       label="vestigingsnummer"
-      [value]="bedrijf.vestigingsnummer"
+      [value]="initiatorIdentificatie()?.vestigingsnummer"
     />
-    <zac-static-text *ngIf="bedrijf.rsin" label="rsin" [value]="bedrijf.rsin" />
-    <zac-static-text label="type" [value]="bedrijf.type | translate" />
     <zac-static-text
-      *ngIf="!vestigingsprofiel"
+      *ngIf="initiatorIdentificatie()?.rsin"
+      label="rsin"
+      [value]="initiatorIdentificatie()?.rsin"
+    />
+    <zac-static-text
+      label="type"
+      [value]="initiatorIdentificatie()?.type | translate"
+    />
+    <zac-static-text
+      *ngIf="!vestigingsprofiel()"
       label="adres"
-      [value]="bedrijf.adres"
+      [value]="bedrijfQuery.data()?.adres"
     />
     <zac-static-text
-      *ngFor="let adres of vestigingsprofiel?.adressen"
+      *ngFor="let adres of vestigingsprofiel()?.adressen"
       label="adres"
       [value]="adres.volledigAdres"
     />
-    <zac-static-text label="telefoonnummer" [value]="bedrijf.telefoonnummer" />
-    <zac-static-text label="emailadres" [value]="bedrijf.emailadres" />
     <zac-static-text
-      *ngIf="vestigingsprofiel"
+      label="telefoonnummer"
+      [value]="bedrijfQuery.data()?.telefoonnummer"
+    />
+    <zac-static-text
+      label="emailadres"
+      [value]="bedrijfQuery.data()?.emailadres"
+    />
+    <zac-static-text
+      *ngIf="vestigingsprofiel()"
       label="totaalWerkzamePersonen"
-      [value]="vestigingsprofiel.totaalWerkzamePersonen"
+      [value]="vestigingsprofiel()?.totaalWerkzamePersonen"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel"
+      *ngIf="vestigingsprofiel()"
       label="hoofdactiviteit"
-      [value]="vestigingsprofiel.sbiHoofdActiviteit"
+      [value]="vestigingsprofiel()?.sbiHoofdActiviteit"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel"
+      *ngIf="vestigingsprofiel()"
       label="activiteiten"
-      [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n')"
+      [value]="vestigingsprofiel()?.sbiActiviteiten?.join(',\r\n')"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel"
+      *ngIf="vestigingsprofiel()"
       label="website"
-      [value]="vestigingsprofiel.website"
+      [value]="vestigingsprofiel()?.website"
     />
   </div>
 </mat-expansion-panel>

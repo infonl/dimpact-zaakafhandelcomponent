@@ -16,10 +16,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { expectType } from "ts-expect";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { ZacHttpClient } from "./zac-http-client";
+import { NullableIfOptional } from "../utils/generated-types";
+import { HttpClient } from "./http-client";
 
-describe(ZacHttpClient.name, () => {
-  let zacHttpClient: ZacHttpClient;
+describe(HttpClient.name, () => {
+  let httpclient: HttpClient;
   let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
@@ -32,7 +33,7 @@ describe(ZacHttpClient.name, () => {
     });
 
     TestBed.inject(FoutAfhandelingService);
-    zacHttpClient = TestBed.inject(ZacHttpClient);
+    httpclient = TestBed.inject(HttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
 
@@ -40,7 +41,7 @@ describe(ZacHttpClient.name, () => {
     httpTestingController.verify();
   });
 
-  describe(ZacHttpClient.prototype.GET.name, () => {
+  describe(HttpClient.prototype.GET.name, () => {
     it("Replaces the path params", (done) => {
       const testData: paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
         [
@@ -50,14 +51,14 @@ describe(ZacHttpClient.name, () => {
           },
         ];
 
-      zacHttpClient
+      httpclient
         .GET("/rest/bag/zaak/{zaakUuid}", {
           path: { zaakUuid: "123" },
         })
         .subscribe((data) => {
           expectType<
             paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
-          >(data);
+          >(data as typeof testData);
 
           expect(data).toEqual(testData);
           done();
@@ -70,7 +71,7 @@ describe(ZacHttpClient.name, () => {
     });
 
     it("adds the query params", (done) => {
-      zacHttpClient
+      httpclient
         .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
           query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
           path: { zaakUuid: "123" },
@@ -88,14 +89,14 @@ describe(ZacHttpClient.name, () => {
     });
   });
 
-  describe(ZacHttpClient.prototype.POST.name, () => {
+  describe(HttpClient.prototype.POST.name, () => {
     it("Http post works with all expected types", (done) => {
       const testData: paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
         {
           headers: {},
         };
 
-      zacHttpClient
+      httpclient
         .POST(
           "/rest/informatieobjecten/informatieobject/{uuid}/convert",
           undefined as never,
@@ -121,12 +122,12 @@ describe(ZacHttpClient.name, () => {
     });
   });
 
-  describe(ZacHttpClient.prototype.PUT.name, () => {
+  describe(HttpClient.prototype.PUT.name, () => {
     it("Http PUT works with all expected types", (done) => {
       const path =
         "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}" as const;
 
-      zacHttpClient
+      httpclient
         .PUT(path, undefined as never, {
           path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" },
         })
@@ -150,13 +151,15 @@ describe(ZacHttpClient.name, () => {
       const testData: Partial<
         paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
       > = { uuid: "123" };
-      zacHttpClient
+      httpclient
         .PATCH(path, {} as never, {
           path: { uuid: "123" },
         })
         .subscribe((data) => {
           expectType<
-            paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+            NullableIfOptional<
+              paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
+            >
           >(data);
           expect(data).toEqual(testData);
           done();
@@ -170,10 +173,10 @@ describe(ZacHttpClient.name, () => {
     });
   });
 
-  describe(ZacHttpClient.prototype.DELETE.name, () => {
+  describe(HttpClient.prototype.DELETE.name, () => {
     it("Http delete works with all expected types", (done) => {
       const path = "/rest/gebruikersvoorkeuren/zoekopdracht/{id}" as const;
-      zacHttpClient
+      httpclient
         .DELETE(path, {
           path: { id: 123 },
         })
