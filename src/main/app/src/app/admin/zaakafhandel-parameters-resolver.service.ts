@@ -46,18 +46,20 @@ export class ZaakafhandelParametersResolver {
               (item) =>
                 item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
             );
+          const isBpmn = !!bpmnZaakafhandelParameters; // true if there is a matching BPMN process definition
+          const isSavedZaakafhandelparameters =
+            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
 
           return {
-            zaakafhandelParameters, // zaakafhandelparameters of this zaak
-            bpmnProcessDefinitionsList, // full list of BPMN process definitions
-            bpmnZaakafhandelParametersList, // full list of BPMN zaak afhandelparameters
+            zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
+            bpmnProcessDefinitionsList, // BPMN process definitions
+            bpmnZaakafhandelParametersList, // BPMN zaak afhandelparameters of this zaaktype
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
-              zaaktype: zaakafhandelParameters.zaaktype, // will be put in endpoint in backend PR!
+              zaaktype: zaakafhandelParameters.zaaktype, // will in future be put in by endpoint in backend PR!
             },
-            isBpmn: !!bpmnZaakafhandelParameters, // true if there is a matching BPMN process definition
-            isSavedZaakafhandelparameters:
-              !!zaakafhandelParameters?.id || !!bpmnZaakafhandelParameters?.id, // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
+            isBpmn,
+            isSavedZaakafhandelparameters,
           };
         },
       ),
