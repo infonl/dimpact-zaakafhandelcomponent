@@ -10,7 +10,10 @@ import { Subject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
+import {
+  ZaakProcessDefinition,
+  ZaakProcessSelect,
+} from "../model/parameters/zaak-process-definition-type";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
 @Component({
@@ -48,9 +51,17 @@ export class ParameterEditBpmnComponent {
     },
   };
 
+  protected readonly zaakProcessDefinitions: Array<{
+    label: string;
+    value: ZaakProcessSelect;
+  }> = [
+    { label: "CMMN", value: "CMMN" },
+    { label: "BPMN", value: "BPMN" },
+  ];
+
   cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: string;
+      value: ZaakProcessSelect;
       label: string;
     }>({ label: "BPMN", value: "BPMN" }, [Validators.required]),
   });

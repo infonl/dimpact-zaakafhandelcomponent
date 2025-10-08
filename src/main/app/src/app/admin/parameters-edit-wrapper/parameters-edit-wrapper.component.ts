@@ -9,7 +9,7 @@ import { ActivatedRoute } from "@angular/router";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { AdminComponent } from "../admin/admin.component";
-import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
+import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definition-type";
 
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",

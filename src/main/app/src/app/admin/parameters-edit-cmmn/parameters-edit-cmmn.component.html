@@ -26,10 +26,7 @@
       [form]="cmmnBpmnFormGroup"
       key="options"
       label="Welke koppeling wil je maken?"
-      [options]="[
-        { label: 'CMMN', value: 'CMMN' },
-        { label: 'BPMN', value: 'BPMN' },
-      ]"
+      [options]="zaakProcessDefinitions"
       optionDisplayValue="label"
     ></zac-radio>
 
@@ -47,7 +44,7 @@
           mat-raised-button
           (click)="
             switchProcessDefinition.emit({
-              type: cmmnBpmnFormGroup.value.options.value,
+              type: 'BPMN',
               stepperStart: 1,
             })
           "
@@ -353,7 +350,7 @@
       <form [formGroup]="userEventListenersFormGroup" class="flex-col">
         <mat-accordion>
           <mat-expansion-panel
-            [formGroupName]="actieParameter.id"
+            [formGroupName]="actieParameter.id ?? ''"
             class="flex-col"
             *ngFor="let actieParameter of userEventListenerParameters"
           >
@@ -866,13 +863,13 @@
           </form>
           <mat-divider class="my-3"></mat-divider>
           <smart-documents-form
-            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
-            [zaakTypeUuid]="parameters.zaaktype.uuid"
+            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype')?.value"
+            [zaakTypeUuid]="parameters.zaaktype.uuid ?? ''"
             #smartDocumentsFormRef
           >
           </smart-documents-form>
           <div
-            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype').value"
+            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype')?.value"
             class="form-disabled-feedback"
           >
             {{ "msg.smartdocuments.form.disabled" | translate }}

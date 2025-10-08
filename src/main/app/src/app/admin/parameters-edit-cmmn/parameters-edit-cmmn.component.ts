@@ -31,7 +31,10 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
-import { ZaakProcessDefinition } from "../model/parameters/parameters-edit-process-definition-type";
+import {
+  ZaakProcessDefinition,
+  ZaakProcessSelect,
+} from "../model/parameters/zaak-process-definition-type";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -95,9 +98,17 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
+  protected readonly zaakProcessDefinitions: Array<{
+    label: string;
+    value: ZaakProcessSelect;
+  }> = [
+    { label: "CMMN", value: "CMMN" },
+    { label: "BPMN", value: "BPMN" },
+  ];
+
   cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: string;
+      value: ZaakProcessSelect;
       label: string;
     }>({ label: "CMMN", value: "CMMN" }, [Validators.required]),
   });
