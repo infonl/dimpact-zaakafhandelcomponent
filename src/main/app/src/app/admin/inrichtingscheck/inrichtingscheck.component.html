@@ -199,7 +199,7 @@
                   >
                     {{ "besluittype" | translate }}
                   </div>
-                  <div *ngIf="!row.isBrpInstellingenCorrect">
+                  <div *ngIf="!row.brpInstellingenCorrect">
                     {{ "brp_protocollering" | translate }}
                   </div>
                 </div>
@@ -321,7 +321,7 @@
                             }
                     "
                   ></div>
-                  <div *ngIf="!row.isBrpInstellingenCorrect">
+                  <div *ngIf="!row.brpInstellingenCorrect">
                     {{
                       "healthCheck.zaaktype.onjuisteBrpHeaderwaarde" | translate
                     }}
