@@ -37,7 +37,6 @@ export class ParameterEditSelectProcessDefinitionComponent {
   protected onNext() {
     const selectedOption = this.cmmnBpmnFormGroup.value.options?.value;
     if (selectedOption) {
-      console.log("Selected option:", selectedOption);
       this.switchProcessDefinition.emit({
         type: selectedOption,
         stepperStart: 1,
