@@ -236,12 +236,17 @@ export class TaakViewComponent
 
     try {
       const form =
-        await this.taakFormulierenService.getAngularHandleFormBuilder(taak);
+        await this.taakFormulierenService.getAngularHandleFormBuilder(
+          taak,
+          zaak,
+        );
 
-      form.forEach(([formField, formControl]) => {
-        if ("key" in formField && formControl) {
-          this.form.addControl(formField.key, formControl);
-        }
+      form.forEach((formField) => {
+        this.form.addControl(
+          formField.key,
+          formField.control ??
+            this.formBuilder.control(taak.taakdata?.[formField.key] ?? null),
+        );
 
         this.formFields.push(formField);
       });

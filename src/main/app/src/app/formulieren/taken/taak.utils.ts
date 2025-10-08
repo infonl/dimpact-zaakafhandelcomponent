@@ -4,6 +4,7 @@
  */
 
 import { AbstractControl, FormGroup } from "@angular/forms";
+import { isMoment } from "moment";
 import { GeneratedType } from "../../shared/utils/generated-types";
 type ControlMapOptions = {
   documentKey: keyof GeneratedType<"RestEnkelvoudigInformatieobject">;
@@ -19,6 +20,7 @@ function mapControlToTaskDataValue(
 ): string {
   const { value } = control;
   if (value === null || value === undefined) return "";
+  if (isMoment(value)) return value.toISOString();
   switch (typeof value) {
     case "boolean":
       return `${value}`;
@@ -33,10 +35,16 @@ function mapControlToTaskDataValue(
           .map((document) => document[options.documentKey])
           .join(options.documentSeparator);
       }
-      // We assume options are being set as {key: string, value: string} objects
       if ("key" in value && "value" in value) {
+        // Options should have a `key` and `value` property
         return `${value.value}`;
       }
+
+      if ("body" in value) {
+        // html-text editor
+        return value.body;
+      }
+      console.log(value);
       return JSON.stringify(value); // Fallback
     default:
       return value;

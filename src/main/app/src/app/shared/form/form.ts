@@ -25,6 +25,8 @@ type SingleInputFormField<
   key: Key;
   label?: string;
   readonly?: boolean;
+  hidden?: boolean;
+  control?: AbstractControl<unknown, unknown>;
 };
 
 type MultipleInputFormField<
@@ -56,6 +58,14 @@ type DateFormField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "date";
 };
 
+type HtmlEditorField<Form extends _Form> = SingleInputFormField<Form> & {
+  type: "html-editor";
+};
+
+type CheckboxField<Form extends _Form> = SingleInputFormField<Form> & {
+  type: "checkbox";
+};
+
 type AutocompleteFormField<
   Form extends _Form,
   Key extends keyof Form = keyof Form,
@@ -73,19 +83,16 @@ type DocumentFormField<
   type: "documents";
 };
 
-type PlainTextField<Form extends _Form> = Omit<
-  SingleInputFormField<Form>,
-  "key"
-> & {
+type PlainTextField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "plain-text";
-  text: string;
-  header?: string;
 };
 
 type RadioFormField<
   Form extends _Form,
   Key extends keyof Form = keyof Form,
-  Option extends string | Record<string, unknown> = string,
+  Option extends string | Record<string, unknown> =
+    | string
+    | Record<string, unknown>,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "radio";
 };
@@ -112,6 +119,8 @@ export type FormField<Form extends _Form = _Form> =
   | SelectFormField<Form>
   | InputFormField<Form>
   | DateFormField<Form>
+  | HtmlEditorField<Form>
+  | CheckboxField<Form>
   | TextareaFormField<Form>
   | AutocompleteFormField<Form>
   | DocumentFormField<Form>
