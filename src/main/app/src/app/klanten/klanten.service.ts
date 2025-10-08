@@ -18,7 +18,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   readPersoon(bsn: string, zaakIdentification?: string) {
-    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
+    return this.zacQueryClient.GET("/rest/klanten/persoon/{bsn}", {
       path: { bsn },
       ...(zaakIdentification && {
         header: { "X-ZAAK-ID": zaakIdentification },
