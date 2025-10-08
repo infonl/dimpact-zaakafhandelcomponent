@@ -30,7 +30,8 @@
           <mat-icon outlined>other_admission</mat-icon>
         </button>
         <button
-          *ngIf="bedrijfQuery.data() && isWijzigbaar()"
+          *ngIf="isWijzigbaar()"
+          [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.initiator.wijzigen' | translate"
           mat-icon-button
           (click)="
@@ -40,7 +41,8 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="bedrijfQuery.data() && isVerwijderbaar()"
+          *ngIf="isVerwijderbaar()"
+          [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.ontkoppelen' | translate"
           mat-icon-button
           (click)="

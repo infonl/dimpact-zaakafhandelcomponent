@@ -3,8 +3,11 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
 -->
 
-@if (bedrijfQuery.isLoading() && persoonQuery.isLoading()) {
-  <mat-spinner diameter="18" />
+@if (
+  (bedrijfQuery.isLoading() && !persoonQuery.data()) ||
+  (persoonQuery.isLoading() && !bedrijfQuery.data())
+) {
+  <div class="mx-3 d-inline-block"><mat-spinner diameter="18" /></div>
 }
 
 @if (persoonQuery.data()) {
@@ -35,9 +38,9 @@
   }
 }
 
-@if (bedrijfQuery.error()) {
+@if (bedrijfQuery.error() || persoonQuery.error()) {
   <mat-icon
-    class="mr-2"
+    class="mx-2"
     color="warn"
     [matTooltip]="'msg.hint.kvk.outdated' | translate"
     >warning</mat-icon
