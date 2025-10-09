@@ -44,9 +44,10 @@ class BrpConfiguration @Inject constructor(
     fun isBrpProtocoleringEnabled(): Boolean = originOIN.isPresent
 
     fun readBrpAuditLogProvider(): String =
-        auditLogProvider.getOrDefault(DEFAULT_AUDIT_LOG_PROVIDER)
-            .takeIf { it in SUPPORTED_AUDIT_LOG_PROVIDERS }
+        auditLogProvider.getOrDefault(DEFAULT_AUDIT_LOG_PROVIDER).let { rawValue ->
+            rawValue.takeIf { it in SUPPORTED_AUDIT_LOG_PROVIDERS }
             ?: DEFAULT_AUDIT_LOG_PROVIDER.also {
-                LOG.warning("Invalid BRP audit log provider '$it', defaulting to '$DEFAULT_AUDIT_LOG_PROVIDER'")
+                LOG.warning("Invalid BRP audit log provider '$rawValue', defaulting to '$DEFAULT_AUDIT_LOG_PROVIDER'")
             }
+        }
 }
