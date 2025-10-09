@@ -29,7 +29,7 @@ export class ParameterEditBpmnComponent {
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected bmpnFeatureFlag: boolean = false;
+  protected isBpmnSupported: boolean = false;
 
   protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
@@ -52,7 +52,7 @@ export class ParameterEditBpmnComponent {
     },
   };
 
-  protected readonly zaakProcessDefinitions: Array<{
+  protected readonly zaakProcessDefinitionOptions: Array<{
     label: string;
     value: ZaakProcessSelect;
   }> = [
@@ -93,7 +93,7 @@ export class ParameterEditBpmnComponent {
       this.isSavedZaakafhandelParameters =
         data?.parameters.isSavedZaakafhandelParameters;
       this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
-      this.bmpnFeatureFlag = data.parameters.bmpnFeatureFlag;
+      this.isBpmnSupported = data.parameters.isBpmnSupported;
 
       await this.createForm();
     });
@@ -108,19 +108,16 @@ export class ParameterEditBpmnComponent {
       emitEvent: true,
     });
 
-    const foundBpmnDefinition = this.bpmnDefinitions?.find(
-      (bpmnDef) =>
-        bpmnDef.key ===
-        this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
+    this.algemeenFormGroup.controls.bpmnDefinition.setValue(
+      this.bpmnDefinitions?.find(
+        (bpmnDef) =>
+          bpmnDef.key ===
+          this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
+      ) || null,
+      { emitEvent: true },
     );
-    if (foundBpmnDefinition) {
-      this.algemeenFormGroup.controls.bpmnDefinition.setValue(
-        foundBpmnDefinition,
-        { emitEvent: true },
-      );
-    }
 
-    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters; // this name should be aligned in new backend
+    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters; // this name will be aligned in new backend PR
     if (defaultGroepId) {
       const groups = await this.groepen.toPromise();
 
@@ -130,7 +127,8 @@ export class ParameterEditBpmnComponent {
       );
     }
 
-    if (!this.bmpnFeatureFlag) {
+    if (!this.isBpmnSupported) {
+      // if no bpmn support, disable the form for better UX
       this.algemeenFormGroup.disable();
     }
   }
@@ -158,7 +156,7 @@ export class ParameterEditBpmnComponent {
       .subscribe({
         next: (data) => {
           this.isLoading = false;
-          this.bpmnZaakafhandelParameters.id = data.id; // in case of new save
+          this.bpmnZaakafhandelParameters.id = data.id; // needed when save on this case type is repeated
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );

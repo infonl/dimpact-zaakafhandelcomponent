@@ -18,9 +18,9 @@ import {
 export class ParameterEditSelectProcessDefinitionComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
-  protected bmpnFeatureFlag: boolean = false;
+  protected isBpmnSupported: boolean = false;
 
-  protected readonly zaakProcessDefinitions: Array<{
+  protected readonly zaakProcessDefinitionOptions: Array<{
     label: string;
     value: ZaakProcessSelect;
   }> = [
@@ -40,9 +40,10 @@ export class ParameterEditSelectProcessDefinitionComponent {
     private readonly route: ActivatedRoute,
   ) {
     this.route.data.subscribe(async (data) => {
-      this.bmpnFeatureFlag = data.parameters.bmpnFeatureFlag;
+      this.isBpmnSupported = data.parameters.isBpmnSupported;
 
-      if (!this.bmpnFeatureFlag) {
+      if (!this.isBpmnSupported) {
+        // if no bpmn support, set input to only possible value and disable it for better UX
         this.cmmnBpmnFormGroup.controls.options.setValue({
           value: "CMMN",
           label: "CMMN",

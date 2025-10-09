@@ -98,7 +98,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
-  protected readonly zaakProcessDefinitions: Array<{
+  protected readonly zaakProcessDefinitionOptions: Array<{
     label: string;
     value: ZaakProcessSelect;
   }> = [

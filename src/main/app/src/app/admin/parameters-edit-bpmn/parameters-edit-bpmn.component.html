@@ -26,7 +26,7 @@
       [form]="cmmnBpmnFormGroup"
       key="options"
       label="Welke koppeling wil je maken?"
-      [options]="zaakProcessDefinitions"
+      [options]="zaakProcessDefinitionOptions"
       optionDisplayValue="label"
     ></zac-radio>
 
@@ -149,7 +149,7 @@
           mat-raised-button
           color="primary"
           (click)="opslaan()"
-          [disabled]="!algemeenFormGroup.valid || isLoading || !bmpnFeatureFlag"
+          [disabled]="!algemeenFormGroup.valid || isLoading || !isBpmnSupported"
         >
           {{ "actie.opslaan" | translate }}
         </button>

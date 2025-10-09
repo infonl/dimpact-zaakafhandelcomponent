@@ -18,10 +18,10 @@
       [form]="cmmnBpmnFormGroup"
       key="options"
       label="Welke koppeling wil je maken?"
-      [options]="zaakProcessDefinitions"
+      [options]="zaakProcessDefinitionOptions"
       optionDisplayValue="label"
     ></zac-radio>
-    <mat-hint *ngIf="!bmpnFeatureFlag">{{
+    <mat-hint *ngIf="!isBpmnSupported">{{
       "geen-bmpn-support" | translate
     }}</mat-hint>
 
