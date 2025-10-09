@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.UnsatisfiedResolutionException
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_HEADER_SIZE
 import nl.info.zac.authentication.LoggedInUser
 import org.jboss.resteasy.core.Headers
 import java.util.Optional
@@ -119,8 +120,8 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("Header longer than 241 characters") {
-        val longZaakDescription = "a".repeat(252)
+    Given("Header longer than $MAX_HEADER_SIZE characters") {
+        val longZaakDescription = "a".repeat(MAX_HEADER_SIZE + 1)
         val outgoingHeaders = Headers<String>().apply {
             add("X-VERWERKING", "General@$longZaakDescription")
         }
@@ -134,12 +135,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
 
-            Then("header is truncated to 241 characters") {
+            Then("header is truncated to $MAX_HEADER_SIZE characters") {
                 headers shouldHaveSize 1
                 headers shouldContainKey "X-VERWERKING"
                 with(headers["X-VERWERKING"]?.first()) {
                     this shouldStartWith "General@aaa"
-                    this shouldHaveLength 241
+                    this shouldHaveLength MAX_HEADER_SIZE
                 }
             }
         }
