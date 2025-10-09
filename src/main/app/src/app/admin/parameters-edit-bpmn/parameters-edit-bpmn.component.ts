@@ -101,10 +101,10 @@ export class ParameterEditBpmnComponent {
 
   async createForm() {
     if (this.isSavedZaakafhandelParameters) {
-      this.cmmnBpmnFormGroup.controls.options.disable();
-      this.cmmnBpmnFormGroup.controls.options.setValidators([]);
-      this.cmmnBpmnFormGroup.updateValueAndValidity();
       this.cmmnBpmnFormGroup.disable();
+    }
+    if (!this.bmpnFeatureFlag) {
+      this.algemeenFormGroup.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
