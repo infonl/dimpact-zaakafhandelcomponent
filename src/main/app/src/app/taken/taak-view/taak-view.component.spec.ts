@@ -214,9 +214,7 @@ describe(TaakViewComponent.name, () => {
     beforeEach(() => {
       jest
         .spyOn(taakFormulierenService, "getAngularHandleFormBuilder")
-        .mockResolvedValue([
-          { type: "input", key: "question" },
-        ]);
+        .mockResolvedValue([{ type: "input", key: "question" }]);
     });
 
     it("should create the form when the task is loaded", async () => {

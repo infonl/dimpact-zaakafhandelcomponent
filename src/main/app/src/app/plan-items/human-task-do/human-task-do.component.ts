@@ -72,6 +72,12 @@ export class HumanTaskDoComponent implements OnInit {
         this.formFields.push(formField);
       });
 
+      this.formFields.push({
+        type: "plain-text",
+        key: "actie.taak.toewijzing",
+        label: "actie.taak.toewijzing",
+      });
+
       const groupControl =
         this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
           Validators.required,
@@ -82,6 +88,7 @@ export class HumanTaskDoComponent implements OnInit {
       this.formFields.push({
         type: "auto-complete",
         key: "group",
+        label: "actie.taak.toekennen.groep",
         options: groups,
         optionDisplayValue: "naam",
       });
@@ -93,6 +100,7 @@ export class HumanTaskDoComponent implements OnInit {
       this.formFields.push({
         type: "auto-complete",
         key: "user",
+        label: "actie.taak.toekennen.medewerker",
         options: [],
         optionDisplayValue: "naam",
       });

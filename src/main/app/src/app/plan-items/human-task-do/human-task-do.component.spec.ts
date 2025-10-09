@@ -92,9 +92,7 @@ describe("HumanTaskDoComponent", () => {
     beforeEach(() => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockResolvedValue([
-          { type: "input", key: "question" },
-        ]);
+        .mockResolvedValue([{ type: "input", key: "question" }]);
     });
 
     it("should create the form controls", async () => {
