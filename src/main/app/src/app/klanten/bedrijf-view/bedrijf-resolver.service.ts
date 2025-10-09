@@ -11,6 +11,7 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 
@@ -19,7 +20,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class BedrijfResolverService {
   private readonly klantenService = inject(KlantenService);
-  private readonly foutafhandelingService = inject(FoutAfhandelingService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly queryClient = inject(QueryClient);
 
   async resolve(route: ActivatedRouteSnapshot) {
@@ -47,16 +48,22 @@ export class BedrijfResolverService {
           identificatieType === "RSIN" && id.length !== KVK_LENGTH ? id : null,
       });
 
-      return this.queryClient.ensureQueryData(
-        this.klantenService.readBedrijf(betrokkeneIdentificatie),
-      );
+      return this.queryClient.ensureQueryData({
+        ...this.klantenService.readBedrijf(betrokkeneIdentificatie),
+        retry: (count, error) => {
+          if (count < DEFAULT_RETRY_COUNT) return true;
+
+          this.foutAfhandelingService.httpErrorAfhandelen(error);
+          return false;
+        },
+      });
     } catch {
       this.handleBetrokkeneError();
     }
   }
 
   private handleBetrokkeneError() {
-    this.foutafhandelingService.openFoutDialog(
+    this.foutAfhandelingService.openFoutDialog(
       "msg.error.search.bedrijf.not-found",
     );
   }
