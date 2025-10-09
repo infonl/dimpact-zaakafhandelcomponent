@@ -13,7 +13,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 import java.util.Optional
 
-class BRPClientHeadersFactory @Inject constructor(
+class BrpClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.api.key")
     private val apiKey: Optional<String>,
 
@@ -31,6 +31,8 @@ class BRPClientHeadersFactory @Inject constructor(
         private const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
         private const val X_GEBRUIKER = "X-GEBRUIKER"
         private const val SYSTEM_USER = "BurgerZelf"
+
+        private const val MAX_HEADER_SIZE = 241
     }
 
     override fun update(
@@ -45,7 +47,7 @@ class BRPClientHeadersFactory @Inject constructor(
             }
         } else {
             clientOutgoingHeaders
-        }
+        }.trimToMaxSize(MAX_HEADER_SIZE)
 
     private fun MultivaluedMap<String, String>.createHeader(name: String, value: Optional<String>) {
         if (value.isPresent) {
@@ -58,6 +60,15 @@ class BRPClientHeadersFactory @Inject constructor(
             add(name, value)
         }
     }
+
+    private fun MultivaluedMap<String, String>.trimToMaxSize(maxSize: Int) =
+        onEach { keyValuePair ->
+            keyValuePair.value?.let { valuesList ->
+                valuesList.onEachIndexed { index, value ->
+                    valuesList[index] = value.take(maxSize)
+                }
+            }
+        }
 
     private fun getUser(): String =
         try {

@@ -5,9 +5,11 @@
 package nl.info.client.brp.util
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.maps.shouldContainExactly
-import io.kotest.matchers.maps.shouldNotHaveKey
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldHaveSize
+import io.kotest.matchers.string.shouldHaveLength
+import io.kotest.matchers.string.shouldStartWith
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -17,7 +19,7 @@ import nl.info.zac.authentication.LoggedInUser
 import org.jboss.resteasy.core.Headers
 import java.util.Optional
 
-class BRPClientHeadersFactoryTest : BehaviorSpec({
+class BrpClientHeadersFactoryTest : BehaviorSpec({
     val apiKey = "apiKey"
     val originOin = "originOin"
     val purpose = "purpose"
@@ -28,7 +30,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     }
 
     Given("originOin is empty") {
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
+        val brpClientHeadersFactory = BrpClientHeadersFactory(
             Optional.of(apiKey),
             Optional.empty(),
             loggedInUserInstance
@@ -49,7 +51,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("originOIN is present and a valid user exists") {
         every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
+        val brpClientHeadersFactory = BrpClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
             loggedInUserInstance
@@ -59,13 +61,11 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
 
             Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldNotHaveKey("X-DOELBINDING")
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("username"))
-                }
+                headers shouldContainExactly mapOf(
+                    "X-API-KEY" to listOf(apiKey),
+                    "X-ORIGIN-OIN" to listOf(originOin),
+                    "X-GEBRUIKER" to listOf("username")
+                )
             }
         }
     }
@@ -73,7 +73,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
         every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
+        val brpClientHeadersFactory = BrpClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
             loggedInUserInstance
@@ -83,13 +83,11 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
 
             Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldNotHaveKey("X-DOELBINDING")
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("BurgerZelf"))
-                }
+                headers shouldContainExactly mapOf(
+                    "X-API-KEY" to listOf(apiKey),
+                    "X-ORIGIN-OIN" to listOf(originOin),
+                    "X-GEBRUIKER" to listOf("BurgerZelf")
+                )
             }
         }
     }
@@ -101,7 +99,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         }
         every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
+        val brpClientHeadersFactory = BrpClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
             loggedInUserInstance
@@ -111,12 +109,37 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
 
             Then("correct BRP protocollering headers are generated") {
-                with(headers) {
-                    shouldContain("X-API-KEY", listOf(apiKey))
-                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf(purpose))
-                    shouldNotHaveKey("X-VERWERKING")
-                    shouldContain("X-GEBRUIKER", listOf("username"))
+                headers shouldContainExactly mapOf(
+                    "X-API-KEY" to listOf(apiKey),
+                    "X-ORIGIN-OIN" to listOf(originOin),
+                    "X-DOELBINDING" to listOf(purpose),
+                    "X-GEBRUIKER" to listOf("username")
+                )
+            }
+        }
+    }
+
+    Given("Header longer than 241 characters") {
+        val longZaakDescription = "a".repeat(252)
+        val outgoingHeaders = Headers<String>().apply {
+            add("X-VERWERKING", "General@$longZaakDescription")
+        }
+
+        val brpClientHeadersFactory = BrpClientHeadersFactory(
+            Optional.of(apiKey),
+            Optional.empty(),
+            loggedInUserInstance
+        )
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+
+            Then("header is truncated to 241 characters") {
+                headers shouldHaveSize 1
+                headers shouldContainKey "X-VERWERKING"
+                with(headers["X-VERWERKING"]?.first()) {
+                    this shouldStartWith "General@aaa"
+                    this shouldHaveLength 241
                 }
             }
         }
