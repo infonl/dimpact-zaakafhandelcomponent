@@ -5,11 +5,11 @@
 
 import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
-import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "zac-parameters-edit-select-process-definition",

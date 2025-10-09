@@ -204,10 +204,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     private readonly formBuilder: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
   ) {
-    this.cmmnBpmnFormGroup.controls.options.disable();
-    this.cmmnBpmnFormGroup.controls.options.setValidators([]);
-    this.cmmnBpmnFormGroup.updateValueAndValidity();
-
     this.route.data.subscribe((data) => {
       this.parameters = data.parameters.zaakafhandelParameters;
 
@@ -322,12 +318,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    if (!this.isSavedZaakafhandelParameters) {
-      this.cmmnBpmnFormGroup.controls.options.enable();
-      this.cmmnBpmnFormGroup.controls.options.setValidators([
-        Validators.required,
-      ]);
-      this.cmmnBpmnFormGroup.updateValueAndValidity();
+    if (this.isSavedZaakafhandelParameters) {
+      this.cmmnBpmnFormGroup.controls.options.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
