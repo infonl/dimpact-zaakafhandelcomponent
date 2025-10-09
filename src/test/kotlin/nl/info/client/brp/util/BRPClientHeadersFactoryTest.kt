@@ -28,11 +28,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     }
 
     Given("originOin is empty") {
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.empty(),
-            loggedInUserInstance
-        )
+        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
         val existingHeaders = Headers<String>().apply {
             add("header", "value")
         }
@@ -49,11 +46,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("originOIN is present and a valid user exists") {
         every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
-        )
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -73,11 +67,12 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
         every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
+        val brpConfiguration = createBrpConfiguration(
+            queryPersonenDefaultPurpose = Optional.empty(),
+            retrievePersoonDefaultPurpose = Optional.empty(),
+            processingRegisterDefault = Optional.empty()
         )
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -101,11 +96,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         }
         every { loggedInUserInstance.get().id } returns "username"
 
-        val brpClientHeadersFactory = BRPClientHeadersFactory(
-            Optional.of(apiKey),
-            Optional.of(originOin),
-            loggedInUserInstance
-        )
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)

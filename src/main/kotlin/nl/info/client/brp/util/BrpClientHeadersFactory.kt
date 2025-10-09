@@ -9,38 +9,33 @@ import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
-import org.eclipse.microprofile.config.inject.ConfigProperty
+import nl.info.zac.configuratie.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 import java.util.Optional
 
-class BRPClientHeadersFactory @Inject constructor(
-    @ConfigProperty(name = "brp.api.key")
-    private val apiKey: Optional<String>,
-
-    @ConfigProperty(name = "brp.origin.oin")
-    private val originOIN: Optional<String>,
-
-    @Inject
+class BrpClientHeadersFactory @Inject constructor(
+    private val brpConfiguration: BrpConfiguration,
     private var loggedInUserInstance: Instance<LoggedInUser>,
 ) : ClientHeadersFactory {
 
     companion object {
         const val X_DOELBINDING = "X-DOELBINDING"
         const val X_VERWERKING = "X-VERWERKING"
-        private const val X_API_KEY = "X-API-KEY"
-        private const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
-        private const val X_GEBRUIKER = "X-GEBRUIKER"
-        private const val SYSTEM_USER = "BurgerZelf"
+        const val X_API_KEY = "X-API-KEY"
+        const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
+        const val X_GEBRUIKER = "X-GEBRUIKER"
+
+        const val SYSTEM_USER = "BurgerZelf"
     }
 
     override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> =
-        if (originOIN.isPresent) {
+        if (brpConfiguration.isBrpProtocoleringEnabled()) {
             clientOutgoingHeaders.apply {
-                createHeader(X_API_KEY, apiKey)
-                createHeader(X_ORIGIN_OIN, originOIN)
+                createHeader(X_API_KEY, brpConfiguration.apiKey)
+                createHeader(X_ORIGIN_OIN, brpConfiguration.originOIN)
                 createHeader(X_GEBRUIKER, getUser())
             }
         } else {
