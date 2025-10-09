@@ -29,6 +29,7 @@ export class ParameterEditBpmnComponent {
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
+  protected bmpnFeatureFlag: boolean = false;
 
   protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
@@ -89,11 +90,10 @@ export class ParameterEditBpmnComponent {
     this.route.data.subscribe(async (data) => {
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
-
       this.isSavedZaakafhandelParameters =
         data?.parameters.isSavedZaakafhandelParameters;
-
       this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
+      this.bmpnFeatureFlag = data.parameters.bmpnFeatureFlag;
 
       await this.createForm();
     });
