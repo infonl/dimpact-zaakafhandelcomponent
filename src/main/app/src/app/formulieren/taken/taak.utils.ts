@@ -66,22 +66,32 @@ export function mapFormGroupToTaskData(
   );
 }
 
-type ToelichtingMapping<Data extends Record<string, string>> = {
+type ToelichtingMapping<Data extends Record<string, string> = Record<string, string>> = {
   uitkomst: keyof Data;
   bijlagen?: keyof Data;
   opmerking?: keyof Data;
 };
 
+const DEFAULT_TOELICHTING_MAPPING: ToelichtingMapping = {
+  uitkomst: "uitkomst",
+  bijlagen: "bijlagen",
+  opmerking: "toelichting",
+};
+
 function getToelichtingMapping(
   taak: GeneratedType<"RestTask">,
-): ToelichtingMapping<Record<string, string>> {
+): ToelichtingMapping {
   switch (taak.formulierDefinitieId) {
     case "GOEDKEUREN":
       return {
+        ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "goedkeuren",
-        opmerking: "toelichting",
-        bijlagen: "bijlagen",
       };
+      case 'AANVULLENDE_INFORMATIE':
+        return {
+            ...DEFAULT_TOELICHTING_MAPPING,
+            uitkomst: "aanvullendeInformatie",
+        };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);
   }

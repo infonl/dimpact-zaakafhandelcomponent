@@ -74,8 +74,6 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     const messageControl = this.formBuilder.control(
       this.getMessageFieldLabel(zaak, null),
     );
-    console.log(this.getMessageFieldLabel(zaak, null));
-    // const messageControl = this.formBuilder.control(this.getMessageFieldLabel(zaak, moment(this.humanTaskData.fataledatum)))
 
     taakFataleDatumControl.valueChanges
       .pipe(takeUntil(this.destroy$))
