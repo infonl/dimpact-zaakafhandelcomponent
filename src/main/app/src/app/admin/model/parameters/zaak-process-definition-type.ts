@@ -7,5 +7,5 @@ export type ZaakProcessSelect = "CMMN" | "BPMN" | "SELECT-PROCESS-DEFINITION";
 
 export type ZaakProcessDefinition = {
   type: ZaakProcessSelect;
-  stepperStart?: number | null;
+  selectedIndexStart?: number | null;
 };

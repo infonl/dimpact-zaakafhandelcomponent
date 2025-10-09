@@ -7,7 +7,7 @@
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="true"
-  [selectedIndex]="stepperStart"
+  [selectedIndex]="selectedIndexStart"
 >
   <!--
     Step below is skipped on load when parameters are already saved
@@ -45,7 +45,7 @@
           (click)="
             switchProcessDefinition.emit({
               type: 'CMMN',
-              stepperStart: 1,
+              selectedIndexStart: 1,
             })
           "
         >

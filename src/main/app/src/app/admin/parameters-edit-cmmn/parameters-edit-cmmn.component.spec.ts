@@ -43,9 +43,7 @@ describe(ParametersEditCmmnComponent.name, () => {
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
     zaaktype: {
-      uuid: "zaaktype-123",
-      omschrijving: "Test zaaktype",
-      doel: "Test doel",
+      uuid: "test-uuid",
     },
     humanTaskParameters: [],
     userEventListenerParameters: [],

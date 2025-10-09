@@ -22,7 +22,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
   styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
 export class ParameterEditBpmnComponent {
-  @Input() stepperStart: number = 0;
+  @Input() selectedIndexStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   private readonly destroy$ = new Subject<void>();

@@ -45,7 +45,7 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   styleUrls: ["./parameters-edit-cmmn.component.less"],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
-  @Input() stepperStart: number = 0;
+  @Input() selectedIndexStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   @ViewChild("smartDocumentsFormRef")

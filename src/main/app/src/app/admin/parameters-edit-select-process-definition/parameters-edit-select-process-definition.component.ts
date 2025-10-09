@@ -39,7 +39,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
     if (selectedOption) {
       this.switchProcessDefinition.emit({
         type: selectedOption,
-        stepperStart: 1,
+        selectedIndexStart: 1,
       });
     }
   }
