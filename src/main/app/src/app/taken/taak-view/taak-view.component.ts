@@ -124,7 +124,7 @@ export class TaakViewComponent
     private readonly formioSetupService: FormioSetupService,
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
-    private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly informatieObjectenService: InformatieObjectenService
   ) {
     super();
   }
@@ -143,7 +143,7 @@ export class TaakViewComponent
           this.takenService.readTaak(data.taak.id).subscribe((task) => {
             this.init(task, false);
           });
-        },
+        }
       );
 
       this.historieSrc.sortingDataAccessor = (item, property) => {
@@ -165,7 +165,7 @@ export class TaakViewComponent
         "report_problem",
         "errorTaakVerlopen_icon",
         "msg.datum.overschreden",
-        "error",
+        "error"
       );
     });
   }
@@ -201,7 +201,7 @@ export class TaakViewComponent
 
   private createTaakForm(
     taak: GeneratedType<"RestTask">,
-    zaak: GeneratedType<"RestZaak">,
+    zaak: GeneratedType<"RestZaak">
   ) {
     this.formConfig = null;
     this.formulier = null;
@@ -223,7 +223,7 @@ export class TaakViewComponent
 
   private async createHardCodedTaakForm(
     taak: GeneratedType<"RestTask">,
-    zaak: GeneratedType<"RestZaak">,
+    zaak: GeneratedType<"RestZaak">
   ) {
     if (taak.status !== "AFGEROND" && taak.rechten.wijzigen) {
       this.formConfig = new FormConfigBuilder()
@@ -235,17 +235,17 @@ export class TaakViewComponent
     }
 
     try {
-      const form =
+      const formFields =
         await this.taakFormulierenService.getAngularHandleFormBuilder(
           taak,
-          zaak,
+          zaak
         );
 
-      form.forEach((formField) => {
+      formFields.forEach((formField) => {
         this.form.addControl(
           formField.key,
           formField.control ??
-            this.formBuilder.control(taak.taakdata?.[formField.key] ?? null),
+            this.formBuilder.control(taak.taakdata?.[formField.key] ?? null)
         );
 
         this.formFields.push(formField);
@@ -261,7 +261,7 @@ export class TaakViewComponent
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
           zaakUUID: zaak.uuid,
           informatieobjectUUIDs: taak.taakdocumenten,
-        }),
+        })
       );
       const attachmentsControl =
         this.formBuilder.control<
@@ -280,8 +280,7 @@ export class TaakViewComponent
       // Handle form in the old way
       this.formulier = this.taakFormulierenService
         .getFormulierBuilder(
-          this.taak
-            ?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">,
+          this.taak?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">
         )
         .behandelForm(taak, zaak)
         .build();
@@ -295,13 +294,13 @@ export class TaakViewComponent
         this.isReadonly() ? "title.taak.raadplegen" : "title.taak.behandelen",
         {
           taak: taak.naam,
-        },
+        }
       ),
     });
   }
 
   private createConfigurableTaakForm(
-    formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">,
+    formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">
   ) {
     this.formulierDefinitie = formulierDefinitie;
     this.utilService.setTitle("title.taak", {
@@ -323,7 +322,7 @@ export class TaakViewComponent
         .groepRequired()
         .medewerkerLabel("behandelaar.-kies-")
         .setZaaktypeUuid(this.taak.zaaktypeUUID!)
-        .build(),
+        .build()
     );
     this.editFormFields.set(
       "toelichting",
@@ -331,7 +330,7 @@ export class TaakViewComponent
         .id("toelichting")
         .label("toelichting")
         .maxlength(1000)
-        .build(),
+        .build()
     );
     this.editFormFields.set(
       "reden",
@@ -339,7 +338,7 @@ export class TaakViewComponent
         .id("reden")
         .label("reden")
         .maxlength(80)
-        .build(),
+        .build()
     );
   }
 
@@ -352,8 +351,8 @@ export class TaakViewComponent
         new ButtonMenuItem(
           "actie.document.toevoegen",
           () => this.actionsSidenav.open(),
-          "upload_file",
-        ),
+          "upload_file"
+        )
       );
 
       if (
@@ -366,8 +365,8 @@ export class TaakViewComponent
           new ButtonMenuItem(
             "actie.document.maken",
             () => this.actionsSidenav.open(),
-            "note_add",
-          ),
+            "note_add"
+          )
         );
       }
     }
@@ -412,7 +411,7 @@ export class TaakViewComponent
                 documentSeparator: ", ",
               },
             }),
-            this.taak!,
+            this.taak!
           ),
         },
       };
@@ -496,12 +495,12 @@ export class TaakViewComponent
       this.formioSetupService.getSmartDocumentsGroups(event.component);
     const normalizedTemplateName =
       this.formioSetupService.normalizeSmartDocumentsTemplateName(
-        this.smartDocumentsTemplateName,
+        this.smartDocumentsTemplateName
       );
     this.smartDocumentsInformatieobjecttypeUuid =
       this.formioSetupService.getInformatieobjecttypeUuid(
         event,
-        normalizedTemplateName,
+        normalizedTemplateName
       );
     void this.actionsSidenav.open();
   }
@@ -566,7 +565,7 @@ export class TaakViewComponent
   }
 
   updateTaakdocumenten(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">
   ) {
     if (!this.taak) return;
 
@@ -604,12 +603,12 @@ export class TaakViewComponent
       () => {
         this.websocketService.removeListener(listener);
         this.loadHistorie();
-      },
+      }
     );
   }
 
   documentMoveToCase(
-    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
+    $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>
   ) {
     this.activeSideAction = "actie.document.verplaatsen";
     this.documentToMove = $event;

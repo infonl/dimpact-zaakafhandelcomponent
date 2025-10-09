@@ -3,9 +3,9 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
 -->
 
-<form [formGroup]="form" (ngSubmit)="submitForm()">
+<form [formGroup]="form()" (ngSubmit)="submitForm()">
   <fieldset>
-    @for (field of fields; track field) {
+    @for (field of fields(); track field) {
       @if (!field.hidden) {
         @switch (field.type) {
           @case ("plain-text") {
@@ -16,19 +16,19 @@
                 }}</mat-label>
               }
               <div
-                [innerHTML]="form.controls[field.key]?.value | translate"
+                [innerHTML]="form().controls[field.key]?.value | translate"
               ></div>
             </section>
           }
           @case ("input") {
-            <zac-input [form]="form" [key]="field.key" [label]="field.label" />
+            <zac-input [form]="form()" [key]="field.key" [label]="field.label" />
           }
           @case ("date") {
-            <zac-date [form]="form" [key]="field.key" [label]="field.label" />
+            <zac-date [form]="form()" [key]="field.key" [label]="field.label" />
           }
           @case ("select") {
             <zac-select
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
               [options]="field.options"
@@ -37,14 +37,14 @@
           }
           @case ("textarea") {
             <zac-textarea
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
             />
           }
           @case ("auto-complete") {
             <zac-auto-complete
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
               [options]="field.options"
@@ -53,16 +53,16 @@
           }
           @case ("documents") {
             <zac-documents
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
               [options]="field.options"
-              [readonly]="field.readonly || readonly"
+              [readonly]="field.readonly || readonly()"
             />
           }
           @case ("radio") {
             <zac-radio
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
               [options]="field.options"
@@ -70,14 +70,14 @@
           }
           @case ("checkbox") {
             <zac-checkbox
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
             />
           }
           @case ("html-editor") {
             <zac-html-editor
-              [form]="form"
+              [form]="form()"
               [key]="field.key"
               [label]="field.label"
             />
@@ -86,33 +86,33 @@
       }
     }
   </fieldset>
-  <fieldset *ngIf="!readonly">
+  <fieldset *ngIf="!readonly()">
     <mat-action-row>
       <button
-        *ngIf="!config.hideCancelButton"
+        *ngIf="!config().hideCancelButton"
         mat-raised-button
         type="reset"
         (click)="cancelForm()"
       >
-        {{ config.cancelLabel ?? "actie.annuleren" | translate }}
+        {{ config().cancelLabel ?? "actie.annuleren" | translate }}
       </button>
       <button
-        *ngIf="config.hideCancelButton"
+        *ngIf="config().hideCancelButton"
         mat-raised-button
         color="accent"
-        [disabled]="form.invalid"
+        [disabled]="form().invalid"
         type="button"
         (click)="partiallySubmitForm()"
       >
-        {{ config.partialSubmitLabel ?? "actie.opslaan" | translate }}
+        {{ config().partialSubmitLabel ?? "actie.opslaan" | translate }}
       </button>
       <button
         mat-raised-button
         type="submit"
         color="primary"
-        [disabled]="form.invalid"
+        [disabled]="form().invalid"
       >
-        {{ config.submitLabel ?? "actie.verstuur" | translate }}
+        {{ config().submitLabel ?? "actie.verstuur" | translate }}
       </button>
     </mat-action-row>
   </fieldset>

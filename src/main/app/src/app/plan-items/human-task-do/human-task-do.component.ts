@@ -57,16 +57,16 @@ export class HumanTaskDoComponent implements OnInit {
     }
 
     try {
-      const form =
+      const formFields =
         await this.taakFormulierenService.getAngularRequestFormBuilder(
           this.zaak,
           this.planItem.formulierDefinitie,
         );
 
-      form.map((formField) => {
+      formFields.map((formField) => {
         this.form.addControl(
-          formField.key,
-          formField.control ?? this.formBuilder.control(null),
+            formField.key,
+            formField.control ?? this.formBuilder.control(null),
         );
 
         this.formFields.push(formField);

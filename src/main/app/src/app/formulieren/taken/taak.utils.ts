@@ -35,16 +35,12 @@ function mapControlToTaskDataValue(
           .map((document) => document[options.documentKey])
           .join(options.documentSeparator);
       }
-      if ("key" in value && "value" in value) {
-        // Options should have a `key` and `value` property
-        return `${value.value}`;
-      }
 
-      if ("body" in value) {
-        // html-text editor
-        return value.body;
-      }
-      console.log(value);
+      // Options which have a `key` and `value` property
+      if ("key" in value && "value" in value) return `${value.value}`;
+
+      // html-text editor
+      if ("body" in value)  return value.body;
       return JSON.stringify(value); // Fallback
     default:
       return value;
