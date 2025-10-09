@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { inject, Injectable, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
