@@ -163,16 +163,16 @@ describe(ParametersEditCmmnComponent.name, () => {
       expect(value).toBe("test-user");
     });
 
-    it.skip("should update the case handlers when the group changes", async () => {
+    it("should update the case handlers when the group changes", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       const groupField = selectFields[2];
 
       await groupField.clickOptions({ text: "test-group-2" });
 
-      const caseHandlerSelect = selectFields[4];
+      const caseHandlerSelect = selectFields[3];
       const value = await caseHandlerSelect.getValueText();
 
-      expect(value).toBe("behandelaar.-geen-");
+      expect(value).toBe("-kies.generiek-");
     });
   });
 });
