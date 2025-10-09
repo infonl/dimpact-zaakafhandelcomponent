@@ -87,6 +87,10 @@ export class ParameterEditBpmnComponent {
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
   ) {
+    this.cmmnBpmnFormGroup.controls.options.disable();
+    this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+    this.cmmnBpmnFormGroup.updateValueAndValidity();
+
     this.route.data.subscribe(async (data) => {
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
@@ -100,11 +104,12 @@ export class ParameterEditBpmnComponent {
   }
 
   async createForm() {
-    if (this.isSavedZaakafhandelParameters) {
-      this.cmmnBpmnFormGroup.disable();
-    }
-    if (!this.bmpnFeatureFlag) {
-      this.algemeenFormGroup.disable();
+    if (!this.isSavedZaakafhandelParameters) {
+      this.cmmnBpmnFormGroup.controls.options.enable();
+      this.cmmnBpmnFormGroup.controls.options.setValidators([
+        Validators.required,
+      ]);
+      this.cmmnBpmnFormGroup.updateValueAndValidity();
     }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
@@ -131,6 +136,10 @@ export class ParameterEditBpmnComponent {
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? groups?.at(0) ?? null,
       );
+    }
+
+    if (!this.bmpnFeatureFlag) {
+      this.algemeenFormGroup.disable();
     }
   }
 
