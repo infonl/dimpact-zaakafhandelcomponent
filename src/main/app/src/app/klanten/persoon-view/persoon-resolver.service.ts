@@ -7,8 +7,8 @@ import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
 import { KlantenService } from "../klanten.service";
-import {DEFAULT_RETRY_COUNT} from "../../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",

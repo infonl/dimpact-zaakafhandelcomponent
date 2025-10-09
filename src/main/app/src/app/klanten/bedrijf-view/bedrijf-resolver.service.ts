@@ -11,9 +11,9 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
-import {DEFAULT_RETRY_COUNT} from "../../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
