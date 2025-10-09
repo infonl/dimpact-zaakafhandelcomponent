@@ -157,7 +157,7 @@ Met de dropdown keuzes Zoekwaarde, Raapleegwaarde en Verwerkingsregisterwaarde i
 
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
 - BRP_DOELBINDING_ZOEK_WAARDE
-- BRPBRP_VERWERKINGSREGISTER_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
 
 ##### SmartDocuments
 
