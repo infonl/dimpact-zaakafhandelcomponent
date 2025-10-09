@@ -47,7 +47,7 @@ export class ZaakafhandelParametersResolver {
                 item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
             );
           const isBpmn = !!bpmnZaakafhandelParameters; // true if there is a matching BPMN process definition
-          const isSavedZaakafhandelparameters =
+          const isSavedZaakafhandelParameters =
             isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
 
           return {
@@ -59,7 +59,7 @@ export class ZaakafhandelParametersResolver {
               zaaktype: zaakafhandelParameters.zaaktype, // will in future be put in by endpoint in backend PR!
             },
             isBpmn,
-            isSavedZaakafhandelparameters,
+            isSavedZaakafhandelParameters,
           };
         },
       ),

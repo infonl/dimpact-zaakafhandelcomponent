@@ -40,7 +40,7 @@ export class ParametersEditWrapperComponent
         return;
       }
 
-      if (parameters.isSavedZaakafhandelparameters) {
+      if (parameters.isSavedZaakafhandelParameters) {
         this.processDefinitionType = { type: "CMMN" };
         return;
       }

@@ -37,13 +37,15 @@ describe(ParametersEditCmmnComponent.name, () => {
   let loader: HarnessLoader;
   let utilService: UtilService;
 
-  const zaakAfhandelParameters = fromPartial<
+  const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
     zaaktype: {
-      uuid: "test-uuid",
+      uuid: "zaaktype-123",
+      omschrijving: "Test zaaktype",
+      doel: "Test doel",
     },
     humanTaskParameters: [],
     userEventListenerParameters: [],
@@ -77,7 +79,12 @@ describe(ParametersEditCmmnComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ parameters: zaakAfhandelParameters }),
+            data: of({
+              parameters: {
+                zaakafhandelParameters,
+                isSavedZaakafhandelParameters: true,
+              },
+            }),
           },
         },
       ],
@@ -100,6 +107,9 @@ describe(ParametersEditCmmnComponent.name, () => {
       .mockReturnValue(of([]));
     jest
       .spyOn(zaakafhandelParametersService, "listResultaattypes")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listBpmnZaakafhandelParameters")
       .mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
@@ -155,8 +165,8 @@ describe(ParametersEditCmmnComponent.name, () => {
 
     it.skip("should update the case handlers when the group changes", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-
       const groupField = selectFields[2];
+
       await groupField.clickOptions({ text: "test-group-2" });
 
       const caseHandlerSelect = selectFields[4];

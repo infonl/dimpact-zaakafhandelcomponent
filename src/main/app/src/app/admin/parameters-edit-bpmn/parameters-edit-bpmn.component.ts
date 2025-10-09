@@ -28,7 +28,7 @@ export class ParameterEditBpmnComponent {
   private readonly destroy$ = new Subject<void>();
 
   protected isLoading: boolean = false;
-  protected isSavedZaakafhandelparameters: boolean = false;
+  protected isSavedZaakafhandelParameters: boolean = false;
 
   protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
@@ -90,8 +90,8 @@ export class ParameterEditBpmnComponent {
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
 
-      this.isSavedZaakafhandelparameters =
-        data?.parameters.isSavedZaakafhandelparameters;
+      this.isSavedZaakafhandelParameters =
+        data?.parameters.isSavedZaakafhandelParameters;
 
       this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
 
@@ -100,7 +100,7 @@ export class ParameterEditBpmnComponent {
   }
 
   async createForm() {
-    if (this.isSavedZaakafhandelparameters) {
+    if (this.isSavedZaakafhandelParameters) {
       this.cmmnBpmnFormGroup.controls.options.disable();
       this.cmmnBpmnFormGroup.controls.options.setValidators([]);
       this.cmmnBpmnFormGroup.updateValueAndValidity();

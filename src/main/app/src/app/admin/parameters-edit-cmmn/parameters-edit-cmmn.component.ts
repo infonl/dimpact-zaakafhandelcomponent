@@ -55,7 +55,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   isSmartDocumentsStepValid: boolean = true;
 
-  protected isSavedZaakafhandelparameters: boolean = false;
+  protected isSavedZaakafhandelParameters: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -207,8 +207,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.route.data.subscribe((data) => {
       this.parameters = data.parameters.zaakafhandelParameters;
 
-      this.isSavedZaakafhandelparameters =
-        data?.parameters.isSavedZaakafhandelparameters;
+      this.isSavedZaakafhandelParameters =
+        data?.parameters.isSavedZaakafhandelParameters;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -318,7 +318,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    if (this.isSavedZaakafhandelparameters) {
+    if (this.isSavedZaakafhandelParameters) {
       this.cmmnBpmnFormGroup.controls.options.disable();
     }
 
