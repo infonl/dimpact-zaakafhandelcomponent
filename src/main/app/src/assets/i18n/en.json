@@ -1062,6 +1062,7 @@
   "informatieobjecttype": "Informationobject type",
   "brp-protocollering": "BRP Audit Logging",
   "zaakafhandelparameters": "Case handling parameters",
+  "geen-bmpn-support": "No BPMN support is configured on this environment. Please contact your system administrator.",
   " 13 ": ">>--> Zaak formulieren <--<<",
   "melding-klein-evenement.evenement": "Event information",
   "melding-klein-evenement.aanvrager.gegevens": "Requester details",

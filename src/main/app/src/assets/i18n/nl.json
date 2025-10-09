@@ -1062,6 +1062,7 @@
   "informatieobjecttype": "Informatieobjecttype",
   "brp-protocollering": "BRP Protocollering",
   "zaakafhandelparameters": "Zaakafhandelparameters",
+  "geen-bmpn-support": "Deze omgeving ondersteunt geen BMPN.",
   " 13 ": ">>--> Zaak formulieren <--<<",
   "melding-klein-evenement.evenement": "Gegevens evenement",
   "melding-klein-evenement.aanvrager.gegevens": "Gegevens aanvrager",

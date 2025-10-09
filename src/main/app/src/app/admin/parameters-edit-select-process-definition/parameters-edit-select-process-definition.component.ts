@@ -9,6 +9,7 @@ import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "zac-parameters-edit-select-process-definition",
@@ -17,7 +18,7 @@ import {
 export class ParameterEditSelectProcessDefinitionComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
-  constructor(private readonly formBuilder: FormBuilder) {}
+  protected bmpnFeatureFlag: boolean = false;
 
   protected readonly zaakProcessDefinitions: Array<{
     label: string;
@@ -33,6 +34,25 @@ export class ParameterEditSelectProcessDefinitionComponent {
       label: string;
     } | null>(null, [Validators.required]),
   });
+
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly route: ActivatedRoute,
+  ) {
+    this.route.data.subscribe(async (data) => {
+      this.bmpnFeatureFlag = data.parameters.bmpnFeatureFlag;
+
+      if (!this.bmpnFeatureFlag) {
+        this.cmmnBpmnFormGroup.controls.options.setValue({
+          value: "CMMN",
+          label: "CMMN",
+        });
+        this.cmmnBpmnFormGroup.controls.options.disable();
+        this.cmmnBpmnFormGroup.controls.options.setValidators([]);
+        this.cmmnBpmnFormGroup.updateValueAndValidity();
+      }
+    });
+  }
 
   protected onNext() {
     const selectedOption = this.cmmnBpmnFormGroup.value.options?.value;

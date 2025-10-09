@@ -9,7 +9,7 @@ services:
     ports:
       - "54326:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -30,10 +30,11 @@ services:
       - "127.0.0.1:8081:8080"
       - "9001:9000"
     healthcheck:
-      test: [
-        "CMD-SHELL",
-        "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1"
-      ]
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1",
+        ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -130,7 +131,13 @@ services:
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
-      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -152,7 +159,7 @@ services:
     environment: *openzaak-env
     command: /celery_worker.sh
     healthcheck:
-      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -160,7 +167,7 @@ services:
     depends_on:
       openzaak.local:
         condition: service_healthy
-    profiles: [ "opennotificaties" ]
+    profiles: ["opennotificaties"]
 
   redis:
     image: redis:7.4.6@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
@@ -194,7 +201,7 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: ["objecten", "itest"]
 
   objecten-api-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -211,7 +218,7 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
-    profiles: [ "objecten", "itest" ]
+    profiles: ["objecten", "itest"]
 
   objecten-api-import:
     image: docker.io/maykinmedia/objects-api:3.1.4@sha256:0d080242a8cf0342aff8e0667f4329027169c1274eab95dcecfef19dd06e1256
@@ -225,7 +232,7 @@ services:
     depends_on:
       objecten-api.local:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: ["objecten", "itest"]
 
   solr:
     image: docker.io/solr:9.9.0-slim@sha256:0ef1dd94cb9255011b7e58cb56137bd68e52021bc7eb66be45ef458acfb8478a
@@ -253,7 +260,7 @@ services:
     image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
     volumes:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
-    entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
+    entrypoint: ["/docker-entrypoint.sh", "--disable-gzip", "--verbose"]
     ports:
       - "18084:8080"
     depends_on:
@@ -318,10 +325,16 @@ services:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
-    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    entrypoint:
+      [
+        "/docker-entrypoint.sh",
+        "--global-response-templating",
+        "--disable-gzip",
+        "--verbose",
+      ]
     ports:
       - "18080:8080"
-    profiles: [ "itest" ]
+    profiles: ["itest"]
 
   kvk-wiremock:
     image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
@@ -329,10 +342,16 @@ services:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/kvk-wiremock/__files:/home/wiremock/__files
-    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    entrypoint:
+      [
+        "/docker-entrypoint.sh",
+        "--global-response-templating",
+        "--disable-gzip",
+        "--verbose",
+      ]
     ports:
       - "18081:8080"
-    profiles: [ "itest" ]
+    profiles: ["itest"]
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -342,10 +361,16 @@ services:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/bag-wiremock/__files:/home/wiremock/__files
-    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    entrypoint:
+      [
+        "/docker-entrypoint.sh",
+        "--global-response-templating",
+        "--disable-gzip",
+        "--verbose",
+      ]
     ports:
       - "18082:8080"
-    profiles: [ "itest" ]
+    profiles: ["itest"]
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
@@ -353,8 +378,8 @@ services:
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
-    entrypoint: [ "opa", "test", "/home/policies", "/home/tests" ]
-    profiles: [ "itest" ]
+    entrypoint: ["opa", "test", "/home/policies", "/home/tests"]
+    profiles: ["itest"]
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
@@ -366,7 +391,7 @@ services:
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
     image: docker.io/otel/opentelemetry-collector:0.137.0@sha256:089a8b3c81d328a190f6f0740b30c15b0c7f1f2cfeadeb810355574d5158b31c
-    command: [ --config=/etc/otel-collector.yaml ]
+    command: [--config=/etc/otel-collector.yaml]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
     ports:
@@ -377,21 +402,21 @@ services:
       - "55679:55679" # zpages extension
     depends_on:
       - tempo
-    profiles: [ "metrics" ]
+    profiles: ["metrics"]
 
   # Observability traces data store
   tempo:
     image: docker.io/grafana/tempo:2.8.2@sha256:0ef775495967cd5d7a6b2e146b6ea695d624803c8db8349fb8ce4164f719f9b7
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
     ports:
-      - "14268"  # jaeger ingest
-      - "3200:3200"   # tempo
-      - "4317"  # otlp grpc
-      - "4318"  # otlp http
-      - "9411"   # zipkin
-    profiles: [ "metrics" ]
+      - "14268" # jaeger ingest
+      - "3200:3200" # tempo
+      - "4317" # otlp grpc
+      - "4318" # otlp http
+      - "9411" # zipkin
+    profiles: ["metrics"]
 
   # Observability metrics data store
   prometheus:
@@ -404,7 +429,7 @@ services:
       - ./scripts/docker-compose/imports/prometheus/prometheus.yaml:/etc/prometheus.yaml
     ports:
       - "9090:9090"
-    profiles: [ "metrics" ]
+    profiles: ["metrics"]
 
   # Visualizes metrics and traces data
   grafana:
@@ -428,7 +453,7 @@ services:
     depends_on:
       - tempo
       - prometheus
-    profiles: [ "metrics" ]
+    profiles: ["metrics"]
 
   greenmail:
     image: docker.io/greenmail/standalone:2.1.6@sha256:f7ab2b32f1678d19e591eb478c16f542275434be1fcd6d731402fa1d2185c6cf
@@ -443,7 +468,7 @@ services:
       - "25:25"
       - "143:143"
       - "18083:8080"
-    profiles: [ "itest" ]
+    profiles: ["itest"]
 
   rabbitmq:
     image: rabbitmq:4.1.4-alpine@sha256:1eb39c312d394eaba5b11fb65808851801dff96877ee293afbb53c9b3a17fa57
@@ -452,7 +477,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-    profiles: [ "opennotificaties" ]
+    profiles: ["opennotificaties"]
 
   opennotificaties-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -460,7 +485,7 @@ services:
       - "54327:5432"
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -473,7 +498,7 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
-    profiles: [ "opennotificaties" ]
+    profiles: ["opennotificaties"]
 
   opennotificaties:
     image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
@@ -501,7 +526,13 @@ services:
       RABBITMQ_HOST: rabbitmq
       SECRET_KEY: opennotificatiesApiSecretKey
     healthcheck:
-      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -515,8 +546,8 @@ services:
       - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
     depends_on:
       opennotificaties-init:
-          condition: service_completed_successfully
-    profiles: [ "opennotificaties" ]
+        condition: service_completed_successfully
+    profiles: ["opennotificaties"]
 
   opennotificaties-init:
     image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
@@ -534,7 +565,7 @@ services:
       redis:
         condition: service_started
     volumes: *opennotificaties-volumes
-    profiles: [ "opennotificaties" ]
+    profiles: ["opennotificaties"]
 
   opennotificaties-celery:
     image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
@@ -542,21 +573,21 @@ services:
     environment: *opennotificaties-env
     command: /celery_worker.sh
     healthcheck:
-      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
     depends_on:
-        opennotificaties:
-            condition: service_healthy
-    profiles: [ "opennotificaties" ]
+      opennotificaties:
+        condition: service_healthy
+    profiles: ["opennotificaties"]
 
   openarchiefbeheer-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -570,7 +601,7 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
@@ -606,7 +637,13 @@ services:
       - FRONTEND_URL=http://localhost:8005
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
-      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -621,7 +658,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
@@ -635,7 +672,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
@@ -643,7 +680,7 @@ services:
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
-      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -651,7 +688,7 @@ services:
     depends_on:
       - openarchiefbeheer-database
       - redis
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
@@ -661,7 +698,7 @@ services:
     depends_on:
       - openarchiefbeheer-database
       - redis
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   openarchiefbeheer-ui:
     image: nginx:1.29.1@sha256:33e0bbc7ca9ecf108140af6288c7c9d1ecc77548cbfd3952fd8466a75edefe57
@@ -672,7 +709,7 @@ services:
     depends_on:
       openarchiefbeheer-web:
         condition: service_healthy
-    profiles: [ "openarchiefbeheer" ]
+    profiles: ["openarchiefbeheer"]
 
   pabc-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
@@ -684,7 +721,15 @@ services:
       - POSTGRES_PASSWORD=pabc
       - POSTGRES_DB=Pabc
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "$${POSTGRES_DB}", "-U", "$${POSTGRES_USER}" ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready",
+          "-d",
+          "$${POSTGRES_DB}",
+          "-U",
+          "$${POSTGRES_USER}",
+        ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -723,7 +768,7 @@ services:
     ports:
       - "54320:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -808,11 +853,11 @@ services:
       - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
       - ./build/jacoco/itest/jacoco-report:/jacoco-report
     entrypoint: [
-      "sh",
-      "-c",
-      # entrypoint may be overridden by environment variable to pass on extra arguments
-      "${ZAC_DOCKER_ENTRYPOINT:-java -Djboss.bind.address.management=0.0.0.0 -Xms1024m -Xmx1024m -Xlog:gc::time,uptime -jar zaakafhandelcomponent.jar}"
-    ]
+        "sh",
+        "-c",
+        # entrypoint may be overridden by environment variable to pass on extra arguments
+        "${ZAC_DOCKER_ENTRYPOINT:-java -Djboss.bind.address.management=0.0.0.0 -Xms1024m -Xmx1024m -Xlog:gc::time,uptime -jar zaakafhandelcomponent.jar}",
+      ]
     deploy:
       resources:
         limits:
