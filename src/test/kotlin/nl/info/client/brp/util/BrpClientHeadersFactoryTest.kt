@@ -134,4 +134,23 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
             }
         }
     }
+
+    Given("Invalid audit log provider") {
+        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("invalid"))
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
+
+        every { loggedInUserInstance.get().id } returns "username"
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers(), Headers())
+
+            Then("default iConnect headers are generated") {
+                headers shouldContainExactly mapOf(
+                    "X-API-KEY" to listOf(apiKey),
+                    "X-ORIGIN-OIN" to listOf(originOin),
+                    "X-GEBRUIKER" to listOf("username")
+                )
+            }
+        }
+    }
 })
