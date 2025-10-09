@@ -21,7 +21,11 @@
             </section>
           }
           @case ("input") {
-            <zac-input [form]="form()" [key]="field.key" [label]="field.label" />
+            <zac-input
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+            />
           }
           @case ("date") {
             <zac-date [form]="form()" [key]="field.key" [label]="field.label" />

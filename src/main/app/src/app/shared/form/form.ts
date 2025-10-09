@@ -5,7 +5,8 @@
 
 import {
   booleanAttribute,
-  Component, computed, effect,
+  Component,
+  effect,
   input,
   output,
 } from "@angular/core";
@@ -103,11 +104,11 @@ type _FormConfig = {
 type FormConfigWithPartialSubmit = _FormConfig & {
   partialSubmitLabel: string;
   hideCancelButton: true;
-  cancelLabel?: null
+  cancelLabel?: null;
 };
 
 type CancelableFormConfig = _FormConfig & {
-  partialSubmitLabel?: null,
+  partialSubmitLabel?: null;
   cancelLabel?: string;
   hideCancelButton?: false;
 };
@@ -140,10 +141,9 @@ export class ZacForm<Form extends _Form> {
   protected readonly formPartiallySubmitted = output<FormGroup<Form>>();
   protected readonly formCancelled = output<void>();
 
-
   constructor() {
     effect(() => {
-      if(!this.readonly()) return
+      if (!this.readonly()) return;
       this.form().disable({ onlySelf: true });
     });
   }

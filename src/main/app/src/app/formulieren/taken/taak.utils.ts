@@ -40,7 +40,7 @@ function mapControlToTaskDataValue(
       if ("key" in value && "value" in value) return `${value.value}`;
 
       // html-text editor
-      if ("body" in value)  return value.body;
+      if ("body" in value) return value.body;
       return JSON.stringify(value); // Fallback
     default:
       return value;
@@ -66,7 +66,9 @@ export function mapFormGroupToTaskData(
   );
 }
 
-type ToelichtingMapping<Data extends Record<string, string> = Record<string, string>> = {
+type ToelichtingMapping<
+  Data extends Record<string, string> = Record<string, string>,
+> = {
   uitkomst: keyof Data;
   bijlagen?: keyof Data;
   opmerking?: keyof Data;
@@ -87,11 +89,11 @@ function getToelichtingMapping(
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "goedkeuren",
       };
-      case 'AANVULLENDE_INFORMATIE':
-        return {
-            ...DEFAULT_TOELICHTING_MAPPING,
-            uitkomst: "aanvullendeInformatie",
-        };
+    case "AANVULLENDE_INFORMATIE":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "aanvullendeInformatie",
+      };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);
   }

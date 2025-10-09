@@ -65,8 +65,8 @@ export class HumanTaskDoComponent implements OnInit {
 
       formFields.map((formField) => {
         this.form.addControl(
-            formField.key,
-            formField.control ?? this.formBuilder.control(null),
+          formField.key,
+          formField.control ?? this.formBuilder.control(null),
         );
 
         this.formFields.push(formField);
