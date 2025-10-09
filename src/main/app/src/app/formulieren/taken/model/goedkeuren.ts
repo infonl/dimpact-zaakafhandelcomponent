@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
