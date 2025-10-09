@@ -26,6 +26,10 @@ class BrpClientHeadersFactory @Inject constructor(
         const val X_GEBRUIKER = "X-GEBRUIKER"
 
         const val SYSTEM_USER = "BurgerZelf"
+
+        // Audit log headers are limited to 242 characters as this is the maximum length of the DB columns:
+        // https://github.com/VNG-Realisatie/gemma-verwerkingenlogging/blob/002df5b01bf7d10142c9ae042a041b096989ced9/docs/api-write/oas-specification/logging-verwerkingen-api/openapi.yaml#L1170-L1175
+        const val MAX_HEADER_SIZE = 242
     }
 
     override fun update(
@@ -40,7 +44,7 @@ class BrpClientHeadersFactory @Inject constructor(
             }
         } else {
             clientOutgoingHeaders
-        }
+        }.trimToMaxSize(MAX_HEADER_SIZE)
 
     private fun MultivaluedMap<String, String>.createHeader(name: String, value: Optional<String>) {
         if (value.isPresent) {
@@ -53,6 +57,15 @@ class BrpClientHeadersFactory @Inject constructor(
             add(name, value)
         }
     }
+
+    private fun MultivaluedMap<String, String>.trimToMaxSize(maxSize: Int) =
+        onEach { keyValuePair ->
+            keyValuePair.value?.let { valuesList ->
+                valuesList.onEachIndexed { index, value ->
+                    valuesList[index] = value.take(maxSize)
+                }
+            }
+        }
 
     private fun getUser(): String =
         try {
