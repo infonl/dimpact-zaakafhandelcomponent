@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input, output, signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -17,6 +24,8 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./bedrijfsgegevens.component.less"],
 })
 export class BedrijfsgegevensComponent {
+  protected readonly klantenService = inject(KlantenService);
+
   protected isVerwijderbaar = input<boolean | null>(false);
   protected isWijzigbaar = input<boolean | null>(false);
   protected initiatorIdentificatie =
@@ -34,8 +43,14 @@ export class BedrijfsgegevensComponent {
   protected vestigingsprofielOphalenMogelijk = computed(
     () => !!this.bedrijfQuery.data()?.vestigingsnummer,
   );
-  protected vestigingsprofiel =
-    signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
+
+  protected readonly vestigingsprofielOphalen = signal(false);
+  protected readonly vestigingsprofielQuery = injectQuery(() => ({
+    ...this.klantenService.readVestigingsprofiel(
+      this.bedrijfQuery.data()!.vestigingsnummer!,
+    ),
+    enabled: this.vestigingsprofielOphalen(),
+  }));
 
   protected warningIcon = new TextIcon(
     () => true,
@@ -45,20 +60,11 @@ export class BedrijfsgegevensComponent {
     "error",
   );
 
-  constructor(private klantenService: KlantenService) {}
-
   protected bedrijfRouteLink() {
     return buildBedrijfRouteLink(this.bedrijfQuery.data());
   }
 
   ophalenVestigingsprofiel() {
-    const vestigingsnummer = this.bedrijfQuery.data()?.vestigingsnummer;
-    if (!vestigingsnummer) return;
-
-    this.klantenService
-      .readVestigingsprofiel(vestigingsnummer)
-      .subscribe((value) => {
-        this.vestigingsprofiel.set(value);
-      });
+    this.vestigingsprofielOphalen.set(true);
   }
 }

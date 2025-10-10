@@ -6,6 +6,7 @@ package nl.info.zac.app.klant
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam
@@ -189,9 +190,10 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("contactmomenten")
-    fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
-        val nummer = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
-        // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
+    fun listContactmomenten(@Valid parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
+        // TODO also use kvk nummer
+        val nummer = parameters.betrokkene.bsnNummer ?: parameters.betrokkene.vestigingsnummer
+        // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered an invalid number
         val pageNumber = parameters.page!! + 1
         val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
         val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }

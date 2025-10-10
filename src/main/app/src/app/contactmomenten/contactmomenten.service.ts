@@ -3,17 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { PutBody } from "../shared/http/http-client";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { inject, Injectable } from "@angular/core";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class ContactmomentenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listContactmomenten(body: PutBody<"/rest/klanten/contactmomenten">) {
-    return this.zacHttpClient.PUT("/rest/klanten/contactmomenten", body);
+  listContactmomenten() {
+    return this.zacQueryClient.PUT("/rest/klanten/contactmomenten");
   }
 }
