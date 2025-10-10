@@ -48,6 +48,11 @@ export class AdviesFormulier extends AbstractTaakFormulier {
         control: this.formBuilder.control("msg.advies.behandelen"),
       },
       {
+        type: "plain-text",
+        label: "vraag",
+        key: "vraag",
+      },
+      {
         type: "documents",
         key: "relevanteDocumenten",
         options: taak.taakdata?.["relevanteDocumenten"]
