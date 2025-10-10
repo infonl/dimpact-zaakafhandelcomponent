@@ -57,18 +57,26 @@ export class HumanTaskDoComponent implements OnInit {
     }
 
     try {
-      this.taakFormulierenService
-        .getAngularRequestFormBuilder(
+      const formFields =
+        await this.taakFormulierenService.getAngularRequestFormBuilder(
           this.zaak,
           this.planItem.formulierDefinitie,
-        )
-        .map(([formField, formControl]) => {
-          if ("key" in formField && formControl) {
-            this.form.addControl(formField.key, formControl);
-          }
+        );
 
-          this.formFields.push(formField);
-        });
+      formFields.map((formField) => {
+        this.form.addControl(
+          formField.key,
+          formField.control ?? this.formBuilder.control(null),
+        );
+
+        this.formFields.push(formField);
+      });
+
+      this.formFields.push({
+        type: "plain-text",
+        key: "actie.taak.toewijzing",
+        label: "actie.taak.toewijzing",
+      });
 
       const groupControl =
         this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -80,6 +88,7 @@ export class HumanTaskDoComponent implements OnInit {
       this.formFields.push({
         type: "auto-complete",
         key: "group",
+        label: "actie.taak.toekennen.groep",
         options: groups,
         optionDisplayValue: "naam",
       });
@@ -87,9 +96,11 @@ export class HumanTaskDoComponent implements OnInit {
       const userControl =
         this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
       this.form.addControl("user", userControl);
+      userControl.disable();
       this.formFields.push({
         type: "auto-complete",
         key: "user",
+        label: "actie.taak.toekennen.medewerker",
         options: [],
         optionDisplayValue: "naam",
       });
@@ -97,7 +108,12 @@ export class HumanTaskDoComponent implements OnInit {
       groupControl.valueChanges.subscribe((value) => {
         userControl.reset();
 
-        if (!value) return;
+        if (!value) {
+          userControl.disable();
+          return;
+        }
+
+        userControl.enable();
         this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.formFields = this.formFields.map((field) => {
             if (field.type === "auto-complete" && field.key === "user")
@@ -138,15 +154,15 @@ export class HumanTaskDoComponent implements OnInit {
       });
     } catch {
       // Handling form in Angular way
-
       this.planItemsService
         .doHumanTaskPlanItem({
           planItemInstanceId: this.planItem!.id!,
           groep: this.form.get("group")!.value!,
           medewerker: this.form.get("user")!.value!,
           taakStuurGegevens: {
-            sendMail: false,
-            mail: "",
+            sendMail:
+              this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
+            mail: this.form.get("taakStuurGegevens.mail")?.value,
           },
           taakdata: mapFormGroupToTaskData(formGroup, {
             ignoreKeys: ["group", "user"],
