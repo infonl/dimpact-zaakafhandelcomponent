@@ -153,10 +153,11 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   -- Basisregistratie personen (persoonsgegevens) koppelen
   -- KvK (bedrijfsgegevens) koppelen
 
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+Met de dropdown keuzes Zoekwaarde, Raapleegwaarde en Verwerkingsregisterwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
 
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE.
+- BRP_DOELBINDING_ZOEK_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
 
 ##### SmartDocuments
 
