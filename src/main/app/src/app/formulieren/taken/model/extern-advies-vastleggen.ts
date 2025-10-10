@@ -1,109 +1,77 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
+import { Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
-import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { TakenService } from "../../../taken/taken.service";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
+import { FormField } from "../../../shared/form/form";
+import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
-export class ExternAdviesVastleggen extends AbstractTaakFormulier {
-  fields = {
-    VRAAG: "vraag",
-    ADVISEUR: "adviseur",
-    BRON: "bron",
-    EXTERNADVIES: "externAdvies",
-  };
-
-  taakinformatieMapping = {
-    uitkomst: this.fields.EXTERNADVIES,
-  };
-
-  constructor(
-    translate: TranslateService,
-    public takenService: TakenService,
-    public informatieObjectenService: InformatieObjectenService,
-  ) {
-    super(translate, informatieObjectenService);
+@Injectable({
+  providedIn: "root",
+})
+export class ExternAdviesVastleggenFormulier extends AbstractTaakFormulier {
+  async requestForm(): Promise<FormField[]> {
+    return [
+      {
+        type: "textarea",
+        key: "vraag",
+        control: this.formBuilder.control("", [
+          Validators.required,
+          Validators.maxLength(1000),
+        ]),
+      },
+      {
+        type: "input",
+        key: "adviseur",
+        control: this.formBuilder.control("", [
+          Validators.required,
+          Validators.maxLength(1000),
+        ]),
+      },
+      {
+        type: "textarea",
+        key: "bron",
+        control: this.formBuilder.control("", [
+          Validators.required,
+          Validators.maxLength(1000),
+        ]),
+      },
+    ];
   }
 
-  _initStartForm() {
-    const fields = this.fields;
-    this.form.push(
-      [
-        new TextareaFormFieldBuilder()
-          .id(fields.VRAAG)
-          .label(fields.VRAAG)
-          .validators(Validators.required)
-          .maxlength(1000)
-          .build(),
-      ],
-      [
-        new InputFormFieldBuilder()
-          .id(fields.ADVISEUR)
-          .label(fields.ADVISEUR)
-          .validators(Validators.required)
-          .maxlength(1000)
-          .build(),
-      ],
-      [
-        new TextareaFormFieldBuilder()
-          .id(fields.BRON)
-          .label(fields.BRON)
-          .validators(Validators.required)
-          .maxlength(1000)
-          .build(),
-      ],
-    );
-  }
-
-  _initBehandelForm() {
-    const fields = this.fields;
-    this.form.push(
-      [
-        new ParagraphFormFieldBuilder()
-          .text(
-            this.translate.instant("msg.extern.advies.vastleggen.behandelen"),
-          )
-          .build(),
-      ],
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.VRAAG))
-          .id(fields.VRAAG)
-          .label(fields.VRAAG)
-          .build(),
-      ],
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.ADVISEUR))
-          .id(fields.ADVISEUR)
-          .label(fields.ADVISEUR)
-          .build(),
-      ],
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.BRON))
-          .id(fields.BRON)
-          .label(fields.BRON)
-          .build(),
-      ],
-      [
-        new TextareaFormFieldBuilder(this.getDataElement(fields.EXTERNADVIES))
-          .id(fields.EXTERNADVIES)
-          .label(fields.EXTERNADVIES)
-          .validators(Validators.required)
-          .readonly(this.readonly)
-          .maxlength(1000)
-          .build(),
-      ],
-    );
-  }
-
-  getBehandelTitel(): string {
-    return this.translate.instant("title.taak.extern-advies.verwerken");
+  async handleForm(): Promise<FormField[]> {
+    return [
+      {
+        type: "plain-text",
+        key: "intro",
+        control: this.formBuilder.control(
+          "msg.extern.advies.vastleggen.behandelen",
+        ),
+      },
+      {
+        type: "plain-text",
+        key: "vraag",
+        label: "vraag",
+      },
+      {
+        type: "plain-text",
+        key: "adviseur",
+        label: "adviseur",
+      },
+      {
+        type: "plain-text",
+        key: "bron",
+        label: "bron",
+      },
+      {
+        type: "textarea",
+        key: "externAdvies",
+        control: this.formBuilder.control("", [
+          Validators.required,
+          Validators.maxLength(1000),
+        ]),
+      },
+    ];
   }
 }
