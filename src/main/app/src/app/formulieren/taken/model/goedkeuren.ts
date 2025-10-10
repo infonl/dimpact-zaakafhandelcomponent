@@ -9,7 +9,6 @@ import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { Goedkeuring } from "../goedkeuring.enum";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
 @Injectable({
@@ -88,9 +87,11 @@ export class GoedkeurenFormulier extends AbstractTaakFormulier {
       {
         type: "radio",
         key: "goedkeuren",
-        options: Object.values(Goedkeuring).map(
-          (value) => `goedkeuren.${value}`,
-        ),
+        options: [
+          "goedkeuren.AKKOORD",
+          "goedkeuren.NIET_AKKOORD",
+          "goedkeuren.GEDEELTELIJK_AKKOORD",
+        ],
         control: goedkeurenControl,
       },
     ];
