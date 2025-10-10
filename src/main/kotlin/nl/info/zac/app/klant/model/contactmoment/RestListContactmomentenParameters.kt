@@ -4,8 +4,11 @@
  */
 package nl.info.zac.app.klant.model.contactmoment
 
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
+import nl.info.zac.util.NoArgConstructor
+
+@NoArgConstructor
 data class RestListContactmomentenParameters(
-    var bsn: String? = null,
-    var vestigingsnummer: String? = null,
-    var page: Int? = null
+    var betrokkene: BetrokkeneIdentificatie,
+    var page: Int = 0, // Default to first page
 )

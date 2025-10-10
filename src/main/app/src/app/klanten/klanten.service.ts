@@ -96,7 +96,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   readVestigingsprofiel(vestigingsnummer: string) {
-    return this.zacHttpClient.GET(
+    return this.zacQueryClient.GET(
       "/rest/klanten/vestigingsprofiel/{vestigingsnummer}",
       {
         path: { vestigingsnummer },

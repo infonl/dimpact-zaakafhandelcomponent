@@ -11,7 +11,11 @@
           <mat-card-title>{{ "bedrijfsgegevens" | translate }}</mat-card-title>
           <button
             mat-icon-button
-            [disabled]="!vestigingsprofielOphalenMogelijk"
+            [disabled]="
+              !vestigingsprofielOphalenMogelijk() ||
+              vestigingsprofielQuery.isLoading() ||
+              vestigingsprofielQuery.data()
+            "
             title="{{ 'bedrijf.profiel.ophalen' | translate }}"
             (click)="ophalenVestigingsprofiel()"
           >
@@ -23,63 +27,71 @@
             id="bedrijfsgegevens"
             class="content flex-row flex-wrap space-between"
           >
-            <zac-static-text label="bedrijfsnaam" [value]="bedrijf?.naam" />
+            <zac-static-text label="bedrijfsnaam" [value]="bedrijf()?.naam" />
             <zac-static-text
-              *ngIf="bedrijf?.kvkNummer"
+              *ngIf="bedrijf()?.kvkNummer"
               label="kvknummer"
-              [value]="bedrijf?.kvkNummer"
+              [value]="bedrijf()?.kvkNummer"
             />
             <zac-static-text
-              *ngIf="!bedrijf?.kvkNummer"
+              *ngIf="!bedrijf()?.kvkNummer"
               label="kvknummer"
               [icon]="warningIcon"
               [value]="'msg.error.kvk.unknown' | translate"
             />
             <zac-static-text
-              *ngIf="bedrijf?.vestigingsnummer"
+              *ngIf="bedrijf()?.vestigingsnummer"
               label="vestigingsnummer"
-              [value]="bedrijf?.vestigingsnummer"
+              [value]="bedrijf()?.vestigingsnummer"
             />
             <zac-static-text
-              *ngIf="bedrijf?.rsin"
+              *ngIf="bedrijf()?.rsin"
               label="rsin"
-              [value]="bedrijf?.rsin"
+              [value]="bedrijf()?.rsin"
             />
-            <zac-static-text label="type" [value]="bedrijf?.type | translate" />
             <zac-static-text
-              *ngIf="!vestigingsprofiel"
+              label="type"
+              [value]="bedrijf()?.type | translate"
+            />
+            <zac-static-text
+              *ngIf="!vestigingsprofielQuery.data()"
               label="adres"
-              [value]="bedrijf?.adres"
+              [value]="bedrijf()?.adres"
             />
             <zac-static-text
-              *ngFor="let adres of vestigingsprofiel?.adressen"
+              *ngFor="let adres of vestigingsprofielQuery.data()?.adressen"
               [label]="adres.type | titlecase"
               [value]="adres.volledigAdres"
             />
             <zac-static-text
               label="telefoonnummer"
-              [value]="bedrijf?.telefoonnummer"
+              [value]="bedrijf()?.telefoonnummer"
             />
-            <zac-static-text label="emailadres" [value]="bedrijf?.emailadres" />
             <zac-static-text
-              *ngIf="vestigingsprofiel"
+              label="emailadres"
+              [value]="bedrijf()?.emailadres"
+            />
+            <zac-static-text
+              *ngIf="vestigingsprofielQuery.data()"
               label="totaalWerkzamePersonen"
-              [value]="vestigingsprofiel.totaalWerkzamePersonen"
+              [value]="vestigingsprofielQuery.data()?.totaalWerkzamePersonen"
             />
             <zac-static-text
-              *ngIf="vestigingsprofiel"
+              *ngIf="vestigingsprofielQuery.data"
               label="hoofdactiviteit"
-              [value]="vestigingsprofiel.sbiHoofdActiviteit"
+              [value]="vestigingsprofielQuery.data()?.sbiHoofdActiviteit"
             />
             <zac-static-text
-              *ngIf="vestigingsprofiel"
+              *ngIf="vestigingsprofielQuery.data()"
               label="activiteiten"
-              [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n')"
+              [value]="
+                vestigingsprofielQuery.data()?.sbiActiviteiten?.join(',\r\n')
+              "
             />
             <zac-static-text
-              *ngIf="vestigingsprofiel"
+              *ngIf="vestigingsprofielQuery.data()"
               label="website"
-              [value]="vestigingsprofiel.website"
+              [value]="vestigingsprofielQuery.data()?.website"
             />
           </div>
         </mat-card-content>
@@ -87,12 +99,11 @@
 
       <div class="flex-1 w75">
         <zac-klant-zaken-tabel
-          *ngIf="bedrijf"
-          [klant]="bedrijf"
+          *ngIf="bedrijf()"
+          [klant]="bedrijf()"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
-          *ngIf="bedrijf && bedrijf.vestigingsnummer"
-          [vestigingsnummer]="bedrijf.vestigingsnummer"
+          [klant]="bedrijf()"
         ></zac-klant-contactmomenten-tabel>
       </div>
     </div>

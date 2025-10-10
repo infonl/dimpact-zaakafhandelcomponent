@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -15,11 +16,27 @@ import { KlantenService } from "../klanten.service";
   styleUrls: ["./bedrijf-view.component.less"],
 })
 export class BedrijfViewComponent {
-  protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;
-  protected vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null =
-    null;
-  protected vestigingsprofielOphalenMogelijk = true;
-  warningIcon = new TextIcon(
+  private readonly klantenService = inject(KlantenService);
+  private readonly utilService = inject(UtilService);
+  private readonly route = inject(ActivatedRoute);
+
+  protected readonly bedrijf = signal<GeneratedType<"RestBedrijf"> | null>(
+    null,
+  );
+  protected readonly vestigingsprofielOphalen = signal(false);
+
+  protected readonly vestigingsprofielOphalenMogelijk = computed(
+    () => !!this.bedrijf()?.vestigingsnummer,
+  );
+
+  protected readonly vestigingsprofielQuery = injectQuery(() => ({
+    ...this.klantenService.readVestigingsprofiel(
+      this.bedrijf()!.vestigingsnummer!,
+    ),
+    enabled: this.vestigingsprofielOphalen(),
+  }));
+
+  protected readonly warningIcon = new TextIcon(
     () => true,
     "warning",
     "warning-icon",
@@ -27,26 +44,14 @@ export class BedrijfViewComponent {
     "error",
   );
 
-  constructor(
-    private readonly utilService: UtilService,
-    private readonly route: ActivatedRoute,
-    private readonly klantenService: KlantenService,
-  ) {
+  constructor() {
     this.utilService.setTitle("bedrijfsgegevens");
     this.route.data.subscribe((data) => {
-      this.bedrijf = data.bedrijf;
-      this.vestigingsprofielOphalenMogelijk = !!this.bedrijf?.vestigingsnummer;
+      this.bedrijf.set(data.bedrijf);
     });
   }
 
   protected ophalenVestigingsprofiel() {
-    this.vestigingsprofielOphalenMogelijk = false;
-    if (!this.bedrijf?.vestigingsnummer) return;
-
-    this.klantenService
-      .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
-      .subscribe((value) => {
-        this.vestigingsprofiel = value;
-      });
+    this.vestigingsprofielOphalen.set(true);
   }
 }

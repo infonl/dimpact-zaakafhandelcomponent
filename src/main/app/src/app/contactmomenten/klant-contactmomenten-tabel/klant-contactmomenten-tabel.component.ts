@@ -3,21 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewChild,
-} from "@angular/core";
+import { Component, effect, inject, input, ViewChild } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
-import { PutBody } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { ContactmomentenService } from "../contactmomenten.service";
 
 @Component({
@@ -25,67 +17,46 @@ import { ContactmomentenService } from "../contactmomenten.service";
   templateUrl: "./klant-contactmomenten-tabel.component.html",
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
 })
-export class KlantContactmomentenTabelComponent
-  implements OnInit, AfterViewInit, OnChanges
-{
-  @Input() bsn?: string;
-  @Input() vestigingsnummer?: string;
+export class KlantContactmomentenTabelComponent {
+  private readonly contactmomentenService = inject(ContactmomentenService);
+  private readonly utilService = inject(UtilService);
+
+  protected readonly klant = input<
+    GeneratedType<"RestPersoon"> | GeneratedType<"RestBedrijf">
+  >();
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<GeneratedType<"RestContactmoment">>();
-  columns: string[] = [
+  protected readonly columns = [
     "registratiedatum",
     "kanaal",
     "initiatiefnemer",
     "medewerker",
     "tekst",
-  ];
-  listParameters: PutBody<"/rest/klanten/contactmomenten"> = {};
-  init = false;
-  isLoadingResults = true;
+  ] as const;
 
-  constructor(
-    private readonly contactmomentenService: ContactmomentenService,
-    private readonly utilService: UtilService,
-  ) {}
-
-  ngOnInit(): void {
-    this.listParameters.bsn = this.bsn;
-    this.listParameters.vestigingsnummer = this.vestigingsnummer;
-  }
-
-  ngAfterViewInit(): void {
-    this.init = true;
-    this.paginator.page
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults = true;
-          this.utilService.setLoading(true);
-          return this.loadContactmomenten();
-        }),
-        map((resultaat) => {
-          this.isLoadingResults = false;
-          this.utilService.setLoading(false);
-          return resultaat;
-        }),
-      )
-      .subscribe((resultaat) => {
-        this.paginator.length = resultaat.totaal ?? 0;
-        this.dataSource.data = resultaat.resultaten ?? [];
-      });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.bsn = changes.bsn?.currentValue;
-    this.vestigingsnummer = changes.vestigingsnummer?.currentValue;
-    if (this.init) {
+  protected readonly contactMomentenMutation = injectMutation(() => ({
+    ...this.contactmomentenService.listContactmomenten(),
+    onSuccess: ({ resultaten }) => {
+      this.dataSource.data = resultaten ?? [];
       this.paginator.pageIndex = 0;
-      this.paginator.page.emit();
-    }
-  }
+      this.paginator.length = resultaten?.length ?? 0;
+    },
+  }));
 
-  private loadContactmomenten() {
-    this.listParameters.page = this.paginator.pageIndex;
-    return this.contactmomentenService.listContactmomenten(this.listParameters);
+  constructor() {
+    effect(() => {
+      const klant = this.klant();
+      if (!klant) return;
+
+      this.contactMomentenMutation.mutate({
+        betrokkene: new BetrokkeneIdentificatie(klant),
+        page: 0,
+      });
+    });
+
+    effect(() => {
+      this.utilService.setLoading(this.contactMomentenMutation.isPending());
+    });
   }
 }

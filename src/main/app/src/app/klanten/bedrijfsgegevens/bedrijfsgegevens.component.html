@@ -94,12 +94,12 @@
       [value]="initiatorIdentificatie()?.type | translate"
     />
     <zac-static-text
-      *ngIf="!vestigingsprofiel()"
+      *ngIf="!vestigingsprofielQuery.data()"
       label="adres"
       [value]="bedrijfQuery.data()?.adres"
     />
     <zac-static-text
-      *ngFor="let adres of vestigingsprofiel()?.adressen"
+      *ngFor="let adres of vestigingsprofielQuery.data()?.adressen"
       label="adres"
       [value]="adres.volledigAdres"
     />
@@ -112,24 +112,24 @@
       [value]="bedrijfQuery.data()?.emailadres"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel()"
+      *ngIf="vestigingsprofielQuery.data()"
       label="totaalWerkzamePersonen"
-      [value]="vestigingsprofiel()?.totaalWerkzamePersonen"
+      [value]="vestigingsprofielQuery.data()?.totaalWerkzamePersonen"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel()"
+      *ngIf="vestigingsprofielQuery.data()"
       label="hoofdactiviteit"
-      [value]="vestigingsprofiel()?.sbiHoofdActiviteit"
+      [value]="vestigingsprofielQuery.data()?.sbiHoofdActiviteit"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel()"
+      *ngIf="vestigingsprofielQuery.data()"
       label="activiteiten"
-      [value]="vestigingsprofiel()?.sbiActiviteiten?.join(',\r\n')"
+      [value]="vestigingsprofielQuery.data()?.sbiActiviteiten?.join(',\r\n')"
     />
     <zac-static-text
-      *ngIf="vestigingsprofiel()"
+      *ngIf="vestigingsprofielQuery.data()"
       label="website"
-      [value]="vestigingsprofiel()?.website"
+      [value]="vestigingsprofielQuery.data()?.website"
     />
   </div>
 </mat-expansion-panel>

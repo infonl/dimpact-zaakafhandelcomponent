@@ -59,8 +59,14 @@
         <tr mat-row *matRowDef="let row; columns: columns"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" [colSpan]="columns.length">
-            <p *ngIf="isLoadingResults">{{ "msg.loading" | translate }}</p>
-            <p *ngIf="!isLoadingResults">
+            <p *ngIf="contactMomentenMutation.isPending()">
+              {{ "msg.loading" | translate }}
+            </p>
+            <p
+              *ngIf="
+                !dataSource.data.length && !contactMomentenMutation.isPending()
+              "
+            >
               {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           </td>
@@ -68,7 +74,6 @@
       </table>
     </div>
     <mat-paginator
-      #paginator
       [pageIndex]="0"
       [pageSize]="5"
       [pageSizeOptions]="[5, 10, 20]"
