@@ -152,5 +152,17 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson "true"
             }
         }
+        When("the audit log provider is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/configuratie/brp/audit-log-provider"
+            )
+
+            Then("the default audit log provider is returned") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                responseBody shouldBe "iConnect"
+            }
+        }
     }
 })

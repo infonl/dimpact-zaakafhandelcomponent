@@ -58,4 +58,8 @@ class ConfiguratieRestService @Inject constructor(
     @GET
     @Path("gemeente")
     fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configuratieService.readGemeenteNaam())
+
+    @GET
+    @Path("brp/audit-log-provider")
+    fun readBrpAuditLogProvider(): String = configuratieService.readBrpConfiguration().readBrpAuditLogProvider()
 }

@@ -14,6 +14,8 @@ import nl.info.client.brp.exception.BrpResponseExceptionMapper
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.util.BrpClientHeadersFactory
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_DOELBINDING
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_VERWERKING
 import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
@@ -62,7 +64,7 @@ interface PersonenApi {
     @POST
     fun personen(
         personenQuery: PersonenQuery,
-        @HeaderParam(BrpClientHeadersFactory.X_DOELBINDING) purpose: String?,
-        @HeaderParam(BrpClientHeadersFactory.X_VERWERKING) auditEvent: String?
+        @HeaderParam(X_DOELBINDING) purpose: String?,
+        @HeaderParam(X_VERWERKING) auditEvent: String?
     ): PersonenQueryResponse
 }
