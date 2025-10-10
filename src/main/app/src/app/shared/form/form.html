@@ -9,7 +9,7 @@
       @if (!field.hidden) {
         @switch (field.type) {
           @case ("plain-text") {
-            <section>
+            <section style="word-break: break-word">
               @if (field.label) {
                 <mat-label style="font-weight: bold">{{
                   field.label | translate
