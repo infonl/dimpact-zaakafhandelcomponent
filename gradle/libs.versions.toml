@@ -70,7 +70,7 @@ json-json = "20250517"
 slf4j-simple = "2.0.17"
 
 github-kotlin-logging = "7.0.13"
-okhttp = "5.2.0"
+okhttp = "5.2.1"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
