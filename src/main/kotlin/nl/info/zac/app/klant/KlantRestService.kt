@@ -20,6 +20,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.atos.client.klant.KlantClientService
+import net.atos.client.klant.model.CodeObjecttypeEnum
 import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
@@ -50,6 +51,7 @@ import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRechtsPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -194,11 +196,28 @@ class KlantRestService @Inject constructor(
         // TODO also use kvk nummer
         val nummer = parameters.betrokkene.bsnNummer ?: parameters.betrokkene.vestigingsnummer
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered an invalid number
-        val pageNumber = parameters.page!! + 1
-        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
+        val pageNumber = parameters.page + 1
+        val type = this.getBetrokkeneObjectType(parameters.betrokkene)
+        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByType(nummer, type, pageNumber)
         val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
+    }
+
+    private fun getBetrokkeneObjectType(betrokkene: BetrokkeneIdentificatie): CodeObjecttypeEnum {
+        betrokkene.bsnNummer?.isNotEmpty()?.let {
+            if(it) return CodeObjecttypeEnum.NATUURLIJK_PERSOON
+        }
+
+        betrokkene.kvkNummer?.isNotEmpty()?.let {
+            betrokkene.bsnNummer?.isNotEmpty()?.let {
+                return CodeObjecttypeEnum.VESTIGING
+            }
+
+            return CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
+        }
+
+        return CodeObjecttypeEnum.OVERIG
     }
 
     private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {

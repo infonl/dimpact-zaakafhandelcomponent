@@ -11,6 +11,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import net.atos.client.klant.model.CodeObjecttypeEnum;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.klant.model.DigitaalAdres;
@@ -32,7 +33,7 @@ public class KlantClientService {
         this.klantClient = klantClient;
     }
 
-    public List<DigitaalAdres> findDigitalAddressesByNumber(final String number) {
+    public List<DigitaalAdres> findDigitalAddressesByNumber(final String id) {
         ExpandPartij party = convertToSingleItem(
                 klantClient.partijenList(
                         null,
@@ -55,7 +56,7 @@ public class KlantClientService {
                         null,
                         null,
                         null,
-                        number,
+                        id,
                         null,
                         null,
                         null
@@ -67,7 +68,7 @@ public class KlantClientService {
         return party.getExpand().getDigitaleAdressen();
     }
 
-    public List<ExpandBetrokkene> listBetrokkenenByNumber(final String number, final Integer page) {
+    public List<ExpandBetrokkene> listBetrokkenenByType(final String id, final CodeObjecttypeEnum type, final Integer page) {
         ExpandPartij party = convertToSingleItem(
                 klantClient.partijenList(
                         null,
@@ -87,10 +88,10 @@ public class KlantClientService {
                         null,
                         page,
                         1,
+                        type.toString(),
                         null,
                         null,
-                        null,
-                        number,
+                        id,
                         null,
                         null,
                         null
