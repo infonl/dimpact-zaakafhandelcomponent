@@ -13,7 +13,6 @@ import {
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSidenav } from "@angular/material/sidenav";
@@ -215,9 +214,7 @@ describe(TaakViewComponent.name, () => {
     beforeEach(() => {
       jest
         .spyOn(taakFormulierenService, "getAngularHandleFormBuilder")
-        .mockResolvedValue([
-          [{ type: "input", key: "question" }, new FormControl("")],
-        ]);
+        .mockResolvedValue([{ type: "input", key: "question" }]);
     });
 
     it("should create the form when the task is loaded", async () => {
