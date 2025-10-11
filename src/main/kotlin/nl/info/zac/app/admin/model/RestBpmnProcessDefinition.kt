@@ -9,7 +9,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-class RestProcessDefinition(
+class RestBpmnProcessDefinition(
     var id: String,
     var name: String,
     var version: Int,

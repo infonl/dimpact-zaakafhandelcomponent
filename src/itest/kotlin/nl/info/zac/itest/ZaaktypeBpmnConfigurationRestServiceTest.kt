@@ -19,13 +19,26 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 @Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
-class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
+class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-process-definitions"
+    val testUrl = "$ZAC_API_URI/zaaktype-bpmn-configuration"
+
+    val bpmnZaakType = """
+        {
+            "id": 1,
+            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+            "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
+            "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
+            "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
+        }
+    """.trimIndent()
 
     Given("No existing zaaktype - BPMN process definition mapping") {
-        When("a mapping is created") {
+        lateinit var responseBody: String
+
+        When("a zaaktype configuration is created") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$testUrl/$BPMN_TEST_PROCESS_ID",
                 requestBodyAsString = """{ 
@@ -38,26 +51,21 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             )
 
             Then("the response is successful") {
-                val responseBody = response.body.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+            }
+
+            And("the response contains the created zaaktype configuration") {
+                responseBody shouldEqualJson bpmnZaakType
             }
         }
     }
 
     Given("Configured BPMN zaak type") {
         lateinit var responseBody: String
-        val bpmnZaakType = """
-        {
-            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-            "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
-            "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
-            "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
-        }
-        """.trimIndent()
 
-        When("the BPMN zaak type is retrieved") {
+        When("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$testUrl/$BPMN_TEST_PROCESS_ID"
             )
@@ -73,7 +81,7 @@ class ZaaktypeBpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("list of all BPMN zaak types is retrieved") {
+        When("list of all BPMN zaaktype configurations is retrieved") {
             lateinit var responseBody: String
 
             val response = itestHttpClient.performGetRequest(testUrl)

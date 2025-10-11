@@ -106,11 +106,16 @@ export class MultiInputFormField<
   Key extends keyof Form,
   Option extends Form[Key]["value"],
   OptionDisplayValue extends keyof Option | ((option: Option) => string),
+  Compare extends (a: Option, b: Option) => boolean = (
+    a: Option,
+    b: Option,
+  ) => boolean,
 > extends SingleInputFormField<Form, Key, Option> {
   public readonly options = input.required<
     Array<Option> | Observable<Array<Option>>
   >();
   public readonly optionDisplayValue = input<OptionDisplayValue>();
+  protected readonly compare = input<Compare>();
 
   protected readonly isLoading = signal(false);
   protected readonly availableOptions = signal<Option[]>([]);
@@ -151,5 +156,17 @@ export class MultiInputFormField<
       default:
         return String(option[displayValue as unknown as keyof Option]);
     }
+  };
+
+  // Needs to be an arrow function to de-link the reference to `this`
+  // when used in the template `[compareWith]="compareWith"`
+  protected compareWith = (a: Option, b: Option) => {
+    const compare = this.compare();
+    if (compare) return compare.call(this, a, b);
+
+    if (this.optionDisplayValue())
+      return this.displayWith(a) === this.displayWith(b);
+
+    return a === b;
   };
 }

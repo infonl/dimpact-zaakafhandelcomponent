@@ -150,7 +150,7 @@ class RestZaakConverter @Inject constructor(
             isHeropend = statustype.isHeropend(),
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
+            isProcesGestuurd = bpmnService.isZaakProcessDriven(zaak.uuid),
             heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),

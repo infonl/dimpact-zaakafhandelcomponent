@@ -103,8 +103,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "statustypeHeropendAanwezig": true,
                         "statustypeInBehandelingAanwezig": true,
                         "statustypeIntakeAanwezig": true,
-                        "valide": false,
-                        "zaakafhandelParametersValide": false,
+                        "valide": true,
+                        "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_01_01",
                           "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",

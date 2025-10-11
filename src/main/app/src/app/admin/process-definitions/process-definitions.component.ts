@@ -32,7 +32,9 @@ export class ProcessDefinitionsComponent
 
   isLoadingResults = false;
   columns: string[] = ["name", "version", "key", "id"];
-  dataSource = new MatTableDataSource<GeneratedType<"RestProcessDefinition">>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestBpmnProcessDefinition">
+  >();
 
   constructor(
     public dialog: MatDialog,
@@ -75,7 +77,7 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  delete(processDefinition: GeneratedType<"RestProcessDefinition">) {
+  delete(processDefinition: GeneratedType<"RestBpmnProcessDefinition">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
