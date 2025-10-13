@@ -18,11 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -77,7 +77,7 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
+            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddresses(bsn) }
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
@@ -180,7 +180,7 @@ class KlantRestService @Inject constructor(
     fun ophalenContactGegevens(
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
     ): RestContactGegevens =
-        klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie).toRestPersoon().let {
+        klantClientService.findDigitalAddresses(initiatorIdentificatie).toRestPersoon().let {
             RestContactGegevens(
                 telefoonnummer = it.telefoonnummer,
                 emailadres = it.emailadres
@@ -193,7 +193,7 @@ class KlantRestService @Inject constructor(
         val number = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         // we currently assume that `number` is always non-null here; this will be refactored in a future PR
-        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(number!!, parameters.page + 1)
+        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenen(number!!, parameters.page + 1)
         val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
@@ -204,7 +204,7 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
-                async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
+                async { klantClientService.findDigitalAddresses(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
                 vestiging.await()?.toRestBedrijf()?.apply {
