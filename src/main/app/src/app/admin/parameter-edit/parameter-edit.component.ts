@@ -71,7 +71,7 @@ export class ParameterEditComponent
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
-        verwerkingsregisterWaarde: ""
+      verwerkingsregisterWaarde: "",
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
@@ -127,7 +127,7 @@ export class ParameterEditComponent
   brpDoelbindingFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
-    verwerkingsregisterWaarde: new FormControl("")
+    verwerkingsregisterWaarde: new FormControl(""),
   });
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -492,9 +492,9 @@ export class ParameterEditComponent
         this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-          this.brpDoelbindingFormGroup.controls.verwerkingsregisterWaarde.setValidators(
-              value ? [Validators.required] : [],
-          );
+        this.brpDoelbindingFormGroup.controls.verwerkingsregisterWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
 
         this.brpDoelbindingFormGroup.updateValueAndValidity({
           emitEvent: false,
@@ -519,12 +519,12 @@ export class ParameterEditComponent
           ? [Validators.required]
           : [],
       ],
-    verwerkingsregisterWaarde: [
+      verwerkingsregisterWaarde: [
         this.parameters.brpDoelbindingen.verwerkingsregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
-            ? [Validators.required]
-            : [],
-    ],
+          ? [Validators.required]
+          : [],
+      ],
     });
   }
 
