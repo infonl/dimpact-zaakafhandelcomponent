@@ -19,7 +19,9 @@
     [formControlName]="key()"
     [matDatepicker]="date"
   />
-  <span *ngIf="showAmountOfDays" matSuffix>{{ control()?.value | dagen }}</span>
+  <span *ngIf="showAmountOfDays()" matSuffix>{{
+    control()?.value | dagen
+  }}</span>
   <button
     *ngIf="!control()?.disabled && control()?.value"
     matSuffix

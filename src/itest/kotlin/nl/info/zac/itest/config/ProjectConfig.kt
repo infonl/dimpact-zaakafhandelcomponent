@@ -15,6 +15,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
@@ -51,7 +52,9 @@ class ProjectConfig : AbstractProjectConfig() {
     private val logger = KotlinLogging.logger {}
     private val itestHttpClient = ItestHttpClient()
     private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
-    private val dockerComposeEnvironment = mapOf(
+
+    // All variables below have to be overridable in the docker-compose.yaml file
+    private val dockerComposeOverrideEnvironment = mapOf(
         "AUTH_SSL_REQUIRED" to "none",
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
@@ -61,6 +64,7 @@ class ProjectConfig : AbstractProjectConfig() {
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
         "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
         "PABC_API_KEY" to PABC_API_KEY,
+        "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
         "SMARTDOCUMENTS_ENABLED" to "true",
         "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
@@ -141,12 +145,12 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {
-        logger.info { "Using Docker Compose environment variables: $dockerComposeEnvironment" }
+        logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
         return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
             .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
-            .withEnv(dockerComposeEnvironment)
+            .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
                 "--profile itest"

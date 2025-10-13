@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.132](https://img.shields.io/badge/Version-1.0.132-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.133](https://img.shields.io/badge/Version-1.0.133-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -61,6 +61,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
+| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
 | brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
 | brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
 | brpApi.protocollering.originOin | string | `""` |  |
@@ -167,7 +168,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.1@sha256:45d9d4f263e6f5b19d1518b9ef6e0dca706456480fbe263991faf238ae5537ca"` |  |
+| nginx.image.tag | string | `"1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |

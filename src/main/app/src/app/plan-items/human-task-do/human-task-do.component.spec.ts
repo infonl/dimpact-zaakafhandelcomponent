@@ -6,7 +6,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -77,7 +77,7 @@ describe("HumanTaskDoComponent", () => {
     beforeEach(() => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockReturnValue([]);
+        .mockResolvedValue([]);
     });
 
     it("should create the default form controls", async () => {
@@ -92,9 +92,7 @@ describe("HumanTaskDoComponent", () => {
     beforeEach(() => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockReturnValue([
-          [{ type: "input", key: "question" }, new FormControl("")],
-        ]);
+        .mockResolvedValue([{ type: "input", key: "question" }]);
     });
 
     it("should create the form controls", async () => {

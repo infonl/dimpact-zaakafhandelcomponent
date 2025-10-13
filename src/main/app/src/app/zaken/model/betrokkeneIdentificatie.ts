@@ -62,7 +62,7 @@ export class BetrokkeneIdentificatie
         }
 
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a vestigingsnummer`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a vestigingsnummer`,
         );
       case "RSIN":
         if (
@@ -74,24 +74,13 @@ export class BetrokkeneIdentificatie
           break;
         }
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or rsin`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a kvkNummer or rsin`,
         );
       default:
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`,
+          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type "${this.type}"`,
         );
     }
-  }
-
-  get uniqueKey() {
-    if (this.rsin) return this.rsin;
-    if (this.bsnNummer) return this.bsnNummer;
-    if (this.vestigingsnummer) {
-      if (this.kvkNummer) return `${this.kvkNummer}@${this.vestigingsnummer}`;
-      return this.vestigingsnummer;
-    }
-
-    return "unknown-betrokkene";
   }
 
   private getType(
@@ -114,7 +103,7 @@ export class BetrokkeneIdentificatie
         case "BSN":
           return betrokkene.type as GeneratedType<"IdentificatieType">;
         default:
-          throw new Error(`Unsupported betrokkene type ${betrokkene.type}`);
+          throw new Error(`Unsupported betrokkene type "${betrokkene.type}"`);
       }
     }
 

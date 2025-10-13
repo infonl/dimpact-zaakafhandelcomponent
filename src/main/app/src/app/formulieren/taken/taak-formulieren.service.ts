@@ -3,68 +3,48 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../shared/form/form";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZakenService } from "../../zaken/zaken.service";
-import { Goedkeuring } from "./goedkeuring.enum";
-import { AanvullendeInformatie } from "./model/aanvullende-informatie";
+import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
 import { Advies } from "./model/advies";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
 import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
+import { GoedkeurenFormulier } from "./model/goedkeuren";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
 
 @Injectable({
   providedIn: "root",
 })
 export class TaakFormulierenService {
+  private readonly goedkeurenFormulier = inject(GoedkeurenFormulier);
+  private readonly aanvullendeInformatieFormulier = inject(
+    AanvullendeInformatieFormulier,
+  );
   constructor(
     private readonly translate: TranslateService,
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly takenService: TakenService,
     private readonly zakenService: ZakenService,
     private readonly mailtemplateService: MailtemplateService,
-    private readonly klantenService: KlantenService,
-    private readonly formBuilder: FormBuilder,
   ) {}
 
-  public getAngularRequestFormBuilder(
+  public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
     formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null,
-  ): [FormField, FormControl?][] {
+  ): Promise<FormField[]> {
     switch (formulierDefinitie) {
       case "GOEDKEUREN":
-        return [
-          [
-            { type: "textarea", key: "vraag" },
-            this.formBuilder.control("", [
-              Validators.required,
-              Validators.maxLength(1000),
-            ]),
-          ],
-          [
-            {
-              type: "documents",
-              key: "relevanteDocumenten",
-              options:
-                this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-                  {
-                    zaakUUID: zaak.uuid,
-                  },
-                ),
-            },
-            this.formBuilder.control(null),
-          ],
-        ];
+        return this.goedkeurenFormulier.requestForm(zaak);
+      case "AANVULLENDE_INFORMATIE":
+        return this.aanvullendeInformatieFormulier.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -74,72 +54,16 @@ export class TaakFormulierenService {
 
   public async getAngularHandleFormBuilder(
     taak: GeneratedType<"RestTask">,
-  ): Promise<[FormField, FormControl?][]> {
+    zaak: GeneratedType<"RestZaak">,
+  ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
-      case "GOEDKEUREN": {
-        const goedkeuren = taak.taakdata?.["goedkeuren"] as string;
-        const goedkeurenControl = this.formBuilder.control(goedkeuren, [
-          Validators.required,
-        ]);
-
-        const checkedDocuments = (
-          (taak.taakdata?.["ondertekenen"] as string) ?? ""
-        ).split(";");
-        const relevantDocumentUUIDs = taak.taakdata?.["relevanteDocumenten"]
-          ? String(taak.taakdata?.["relevanteDocumenten"]).split(";")
-          : [];
-
-        const documentsToSign = await lastValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: taak.zaakUuid,
-            informatieobjectUUIDs: relevantDocumentUUIDs,
-          }),
-        );
-        const initiallyCheckedDocuments = documentsToSign.filter((doc) =>
-          checkedDocuments.includes(doc.uuid!),
-        );
-        const documentsToSignControl = this.formBuilder.control(
-          initiallyCheckedDocuments,
-        );
-        return [
-          [
-            {
-              type: "plain-text",
-              text: this.translate.instant("msg.goedkeuring.behandelen", {
-                zaaknummer: taak.zaakIdentificatie,
-              }),
-            },
-          ],
-          [
-            {
-              type: "plain-text",
-              text: (taak.taakdata?.["vraag"] as string) ?? "",
-              header: "vraag",
-            },
-          ],
-          [
-            {
-              type: "documents",
-              key: "ondertekenen",
-              options: documentsToSign,
-            },
-            documentsToSignControl,
-          ],
-          [
-            {
-              type: "radio",
-              key: "goedkeuren",
-              options: Object.values(Goedkeuring).map(
-                (value) => `goedkeuren.${value}`,
-              ),
-            },
-            goedkeurenControl,
-          ],
-        ];
-      }
+      case "GOEDKEUREN":
+        return this.goedkeurenFormulier.handleForm(taak);
+      case "AANVULLENDE_INFORMATIE":
+        return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
       default:
         throw new Error(
-          `Onbekende formulierDefinitie for Angular form: ${taak.formulierDefinitie}`,
+          `${taak.formulierDefinitie}: Onbekende formulierDefinitie for Angular`,
         );
     }
   }
@@ -156,15 +80,8 @@ export class TaakFormulierenService {
           ),
         );
       case "AANVULLENDE_INFORMATIE":
-        return new TaakFormulierBuilder(
-          new AanvullendeInformatie(
-            this.translate,
-            this.takenService,
-            this.informatieObjectenService,
-            this.mailtemplateService,
-            this.klantenService,
-            this.zakenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "ADVIES":
         return new TaakFormulierBuilder(
@@ -193,7 +110,9 @@ export class TaakFormulierenService {
           ),
         );
       case "GOEDKEUREN":
-        throw new Error("This form is DEPRECATED, use Angular form");
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
+        );
       case "DOCUMENT_VERZENDEN_POST":
         return new TaakFormulierBuilder(
           new DocumentVerzendenPost(

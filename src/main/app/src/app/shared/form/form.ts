@@ -6,11 +6,9 @@
 import {
   booleanAttribute,
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
+  effect,
+  input,
+  output,
 } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { Observable } from "rxjs";
@@ -25,6 +23,8 @@ type SingleInputFormField<
   key: Key;
   label?: string;
   readonly?: boolean;
+  hidden?: boolean;
+  control?: AbstractControl<unknown, unknown>;
 };
 
 type MultipleInputFormField<
@@ -56,6 +56,14 @@ type DateFormField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "date";
 };
 
+type HtmlEditorField<Form extends _Form> = SingleInputFormField<Form> & {
+  type: "html-editor";
+};
+
+type CheckboxField<Form extends _Form> = SingleInputFormField<Form> & {
+  type: "checkbox";
+};
+
 type AutocompleteFormField<
   Form extends _Form,
   Key extends keyof Form = keyof Form,
@@ -73,19 +81,16 @@ type DocumentFormField<
   type: "documents";
 };
 
-type PlainTextField<Form extends _Form> = Omit<
-  SingleInputFormField<Form>,
-  "key"
-> & {
+type PlainTextField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "plain-text";
-  text: string;
-  header?: string;
 };
 
 type RadioFormField<
   Form extends _Form,
   Key extends keyof Form = keyof Form,
-  Option extends string | Record<string, unknown> = string,
+  Option extends string | Record<string, unknown> =
+    | string
+    | Record<string, unknown>,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "radio";
 };
@@ -99,9 +104,11 @@ type _FormConfig = {
 type FormConfigWithPartialSubmit = _FormConfig & {
   partialSubmitLabel: string;
   hideCancelButton: true;
+  cancelLabel?: null;
 };
 
 type CancelableFormConfig = _FormConfig & {
+  partialSubmitLabel?: null;
   cancelLabel?: string;
   hideCancelButton?: false;
 };
@@ -112,6 +119,8 @@ export type FormField<Form extends _Form = _Form> =
   | SelectFormField<Form>
   | InputFormField<Form>
   | DateFormField<Form>
+  | HtmlEditorField<Form>
+  | CheckboxField<Form>
   | TextareaFormField<Form>
   | AutocompleteFormField<Form>
   | DocumentFormField<Form>
@@ -122,38 +131,33 @@ export type FormField<Form extends _Form = _Form> =
   selector: "zac-form",
   templateUrl: "./form.html",
 })
-export class ZacForm<Form extends _Form> implements OnChanges {
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ required: true }) fields: FormField[] = [];
-  @Input() config: FormConfig = {
-    hideCancelButton: false,
-  };
-  @Input({ transform: booleanAttribute }) readonly = false;
+export class ZacForm<Form extends _Form> {
+  protected readonly form = input.required<FormGroup<Form>>();
+  protected readonly fields = input.required<FormField[]>();
+  protected readonly config = input<FormConfig>({ hideCancelButton: false });
+  protected readonly readonly = input(false, { transform: booleanAttribute });
 
-  @Output() formSubmitted = new EventEmitter<FormGroup<Form>>();
-  @Output() formPartiallySubmitted = new EventEmitter<FormGroup<Form>>();
-  @Output() formCancelled = new EventEmitter<void>();
+  protected readonly formSubmitted = output<FormGroup<Form>>();
+  protected readonly formPartiallySubmitted = output<FormGroup<Form>>();
+  protected readonly formCancelled = output<void>();
 
-  ngOnChanges(changes: SimpleChanges) {
-    if ("readonly" in changes) {
-      if (changes.readonly.currentValue) {
-        this.form.disable();
-      } else {
-        this.form.enable();
-      }
-    }
+  constructor() {
+    effect(() => {
+      if (!this.readonly()) return;
+      this.form().disable({ onlySelf: true });
+    });
   }
 
   protected submitForm() {
-    this.formSubmitted.emit(this.form);
+    this.formSubmitted.emit(this.form());
   }
 
   protected partiallySubmitForm() {
-    this.formPartiallySubmitted.emit(this.form);
+    this.formPartiallySubmitted.emit(this.form());
   }
 
   protected cancelForm() {
-    this.form.reset();
+    this.form().reset();
     this.formCancelled.emit();
   }
 }

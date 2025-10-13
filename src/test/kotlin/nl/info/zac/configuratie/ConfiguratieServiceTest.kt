@@ -12,6 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.EntityManager
+import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
@@ -32,6 +33,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
     val gemeenteMail = "gemeente@example.com"
     val bpmnSupport = false
     val pabcIntegration = false
+    val brpConfiguration = createBrpConfiguration()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -59,7 +61,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
             pabcIntegration,
             bronOrganisatie,
             verantwoordelijkeOrganisatie,
-            catalogusDomein
+            catalogusDomein,
+            brpConfiguration
         )
 
         When("zaak tonen URL is requested") {
@@ -118,7 +121,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
                         pabcIntegration,
                         bronOrganisatie,
                         verantwoordelijkeOrganisatie,
-                        catalogusDomein
+                        catalogusDomein,
+                        brpConfiguration
                     )
                 }
             }
@@ -147,7 +151,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
             pabcIntegration,
             bronOrganisatie,
             verantwoordelijkeOrganisatie,
-            catalogusDomein
+            catalogusDomein,
+            brpConfiguration
         )
 
         When("a list of additional allowed file types are requested") {

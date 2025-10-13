@@ -4,6 +4,7 @@
  */
 
 import { AbstractControl, FormGroup } from "@angular/forms";
+import { isMoment } from "moment";
 import { GeneratedType } from "../../shared/utils/generated-types";
 type ControlMapOptions = {
   documentKey: keyof GeneratedType<"RestEnkelvoudigInformatieobject">;
@@ -19,6 +20,7 @@ function mapControlToTaskDataValue(
 ): string {
   const { value } = control;
   if (value === null || value === undefined) return "";
+  if (isMoment(value)) return value.toISOString();
   switch (typeof value) {
     case "boolean":
       return `${value}`;
@@ -33,10 +35,12 @@ function mapControlToTaskDataValue(
           .map((document) => document[options.documentKey])
           .join(options.documentSeparator);
       }
-      // We assume options are being set as {key: string, value: string} objects
-      if ("key" in value && "value" in value) {
-        return `${value.value}`;
-      }
+
+      // Options which have a `key` and `value` property
+      if ("key" in value && "value" in value) return `${value.value}`;
+
+      // html-text editor
+      if ("body" in value) return value.body;
       return JSON.stringify(value); // Fallback
     default:
       return value;
@@ -62,21 +66,33 @@ export function mapFormGroupToTaskData(
   );
 }
 
-type ToelichtingMapping<Data extends Record<string, string>> = {
+type ToelichtingMapping<
+  Data extends Record<string, string> = Record<string, string>,
+> = {
   uitkomst: keyof Data;
   bijlagen?: keyof Data;
   opmerking?: keyof Data;
 };
 
+const DEFAULT_TOELICHTING_MAPPING: ToelichtingMapping = {
+  uitkomst: "uitkomst",
+  bijlagen: "bijlagen",
+  opmerking: "toelichting",
+};
+
 function getToelichtingMapping(
   taak: GeneratedType<"RestTask">,
-): ToelichtingMapping<Record<string, string>> {
+): ToelichtingMapping {
   switch (taak.formulierDefinitieId) {
     case "GOEDKEUREN":
       return {
+        ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "goedkeuren",
-        opmerking: "toelichting",
-        bijlagen: "bijlagen",
+      };
+    case "AANVULLENDE_INFORMATIE":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "aanvullendeInformatie",
       };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);

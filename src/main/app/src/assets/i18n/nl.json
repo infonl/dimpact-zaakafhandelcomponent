@@ -933,6 +933,7 @@
   "title.smartdocuments.form": "SmartDocuments koppelingen",
   "brpDoelbinding.zoekWaarde": "Zoekwaarde",
   "brpDoelbinding.raadpleegWaarde": "Raadpleegwaarde",
+  "brpDoelbinding.verwerkingsregisterWaarde": "Verwerkingsregisterwaarde",
   "msg.smartdocuments.form.disabled": "De koppeling met SmartDocuments staat uit voor dit zaaktype.",
   "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg": "Zaak heeft geen fatale datum!",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden": "Bij deze aanpassing of het kiezen van opschorten wordt de fatale datum van de zaak overschreden en aangepast.",
