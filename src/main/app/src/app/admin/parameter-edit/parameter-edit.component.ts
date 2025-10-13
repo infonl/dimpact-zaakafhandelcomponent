@@ -71,6 +71,7 @@ export class ParameterEditComponent
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
+        verwerkingsregisterWaarde: ""
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
@@ -126,6 +127,7 @@ export class ParameterEditComponent
   brpDoelbindingFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
+    verwerkingsregisterWaarde: new FormControl("")
   });
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -173,6 +175,7 @@ export class ParameterEditComponent
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
+  brpProcessingValues: string[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -210,6 +213,7 @@ export class ParameterEditComponent
         ),
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
+        referentieTabelService.listBrpProcessingValues(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -221,6 +225,7 @@ export class ParameterEditComponent
           resultaattypes,
           brpSearchValues,
           brpViewValues,
+          brpProcessingValues,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -231,6 +236,7 @@ export class ParameterEditComponent
           this.resultaattypes = resultaattypes;
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
+          this.brpProcessingValues = brpProcessingValues;
           await this.createForm();
         },
       );
@@ -486,6 +492,9 @@ export class ParameterEditComponent
         this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
           value ? [Validators.required] : [],
         );
+          this.brpDoelbindingFormGroup.controls.verwerkingsregisterWaarde.setValidators(
+              value ? [Validators.required] : [],
+          );
 
         this.brpDoelbindingFormGroup.updateValueAndValidity({
           emitEvent: false,
@@ -510,6 +519,12 @@ export class ParameterEditComponent
           ? [Validators.required]
           : [],
       ],
+    verwerkingsregisterWaarde: [
+        this.parameters.brpDoelbindingen.verwerkingsregisterWaarde ?? "",
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+            ? [Validators.required]
+            : [],
+    ],
     });
   }
 

@@ -826,6 +826,26 @@
                         >
                       </mat-select>
                     </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
+                    >
+                      <mat-label>{{
+                        "brpDoelbinding.verwerkingsregisterWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpDoelbindingFormGroup.controls.verwerkingsregisterWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpProcessingValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
                   </section>
                 </form>
                 <div class="flex-row items-center gap-8">
