@@ -41,8 +41,8 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
 
 @Component({
   selector: "zac-parameters-edit-cmmn",
-  templateUrl: "./parameters-edit-cmmn.component.html",
-  styleUrls: ["./parameters-edit-cmmn.component.less"],
+  templateUrl: "./parameter-edit.component.html",
+  styleUrls: ["./parameter-edit.component.less"],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;
