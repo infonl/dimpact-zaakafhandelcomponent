@@ -16,6 +16,7 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_HEADER_SIZE
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_USER_HEADER_SIZE
 import nl.info.zac.authentication.LoggedInUser
 import org.jboss.resteasy.core.Headers
 import java.util.Optional
@@ -40,7 +41,7 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), existingHeaders)
 
-            Then("no protocolering headers are changed or set") {
+            Then("no protocollering headers are changed or set") {
                 headers shouldContainExactly mapOf("header" to listOf("value"))
             }
         }
@@ -82,13 +83,13 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
                 headers shouldContainExactly mapOf(
                     "X-API-KEY" to listOf(apiKey),
                     "X-ORIGIN-OIN" to listOf(originOin),
-                    "X-GEBRUIKER" to listOf("BurgerZelf")
+                    "X-GEBRUIKER" to listOf("Systeem")
                 )
             }
         }
     }
 
-    Given("Previously set BRP headers, no custom doelbinding and verwerking, protocolering enabled and a valid user") {
+    Given("Previously set BRP headers, no custom doelbinding and verwerking, protocollering enabled and a valid user") {
         val outgoingHeaders = Headers<String>().apply {
             add("X-API-KEY", apiKey)
             add("X-DOELBINDING", purpose)
@@ -108,6 +109,29 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
                     "X-DOELBINDING" to listOf(purpose),
                     "X-GEBRUIKER" to listOf("username")
                 )
+            }
+        }
+    }
+
+    Given("User longer than $MAX_USER_HEADER_SIZE characters") {
+        val longUserName = "a".repeat(MAX_USER_HEADER_SIZE + 1)
+        val outgoingHeaders = Headers<String>().apply {
+            add("X-GEBRUIKER", longUserName)
+        }
+
+        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+
+            Then("header is truncated to $MAX_USER_HEADER_SIZE characters") {
+                headers shouldHaveSize 1
+                headers shouldContainKey "X-GEBRUIKER"
+                with(headers["X-GEBRUIKER"]?.first()) {
+                    this shouldStartWith "aaa"
+                    this shouldHaveLength MAX_USER_HEADER_SIZE
+                }
             }
         }
     }

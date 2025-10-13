@@ -11,7 +11,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Optional
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrDefault
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
@@ -23,7 +23,7 @@ class BrpConfiguration @Inject constructor(
     @ConfigProperty(name = "BRP_ORIGIN_OIN")
     val originOIN: Optional<String>,
 
-    @ConfigProperty(name = "BRP_PROTOCOLERING")
+    @ConfigProperty(name = "BRP_PROTOCOLLERING")
     val auditLogProvider: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_ZOEKMET")
@@ -37,17 +37,20 @@ class BrpConfiguration @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(BrpConfiguration::class.java.name)
-        val SUPPORTED_AUDIT_LOG_PROVIDERS = arrayOf("iConnect", "2Secure")
-        const val DEFAULT_AUDIT_LOG_PROVIDER = "iConnect"
+        val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf("iConnect", "2Secure")
     }
 
-    fun isBrpProtocoleringEnabled(): Boolean = originOIN.isPresent
+    fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 
-    fun readBrpAuditLogProvider(): String =
-        auditLogProvider.getOrDefault(DEFAULT_AUDIT_LOG_PROVIDER).let { rawValue ->
-            rawValue.takeIf { it in SUPPORTED_AUDIT_LOG_PROVIDERS }
-            ?: DEFAULT_AUDIT_LOG_PROVIDER.also {
-                LOG.warning("Invalid BRP audit log provider '$rawValue', defaulting to '$DEFAULT_AUDIT_LOG_PROVIDER'")
+    fun readBrpProtocolleringProvider(): String {
+        LOG.warning { "BRP_PROTOCOLLERING environment variable value: ${auditLogProvider.getOrNull()}" }
+        LOG.warning { "Environment variables: ${System.getenv().entries.joinToString { "${it.key}: ${it.value}" }}" }
+        return requireNotNull(auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }) {
+            if (auditLogProvider.isPresent) {
+                "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: " + SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString()
+            } else {
+                "Missing environment variable 'BRP_PROTOCOLLERING'. Supported: " + SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString()
             }
         }
+    }
 }

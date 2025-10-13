@@ -103,6 +103,8 @@ brpApi:
   apiKey: ""
   protocollering:
     originOin: ""
+    # -- Supported providers: iConnect, 2Secure
+    aanbieder: "iConnect"
     doelbinding:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"

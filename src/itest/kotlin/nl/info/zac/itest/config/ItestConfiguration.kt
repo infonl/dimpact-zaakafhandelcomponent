@@ -478,6 +478,8 @@ object ItestConfiguration {
     const val BPMN_TEST_FORM_NAME = "Test form"
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
+    const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
+
     /**
      * Global variable to store the id of a task that is created in the integration tests as
      * part of the zaak with UUID [zaakProductaanvraag1Uuid].

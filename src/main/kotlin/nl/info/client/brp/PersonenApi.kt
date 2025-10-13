@@ -56,7 +56,7 @@ interface PersonenApi {
      * 6. Zoek met nummeraanduiding identificatie
      *
      *@param personenQuery de zoekcriteria voor personen
-     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocolering en autorisatie
+     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocollering en autorisatie
      *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
