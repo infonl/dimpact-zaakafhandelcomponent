@@ -322,7 +322,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.cmmnBpmnFormGroup.controls.options.disable();
     }
 
-    this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
+    this.algemeenFormGroup.patchValue(this.parameters);
 
     const { defaultGroepId, defaultBehandelaarId } = this.parameters;
 

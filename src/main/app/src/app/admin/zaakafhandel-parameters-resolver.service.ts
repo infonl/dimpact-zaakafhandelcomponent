@@ -36,14 +36,15 @@ export class ZaakafhandelParametersResolver {
         this.zaakafhandelParametersService.listBpmnZaakafhandelParameters(),
       bpmnProcessDefinitionsList:
         this.processDefinitionsService.listProcessDefinitions(),
-      isBpmnSupported: this.configuratieService.readFeatureFlagBpmnSupport(),
+      featureFlagBpmnSupport:
+        this.configuratieService.readFeatureFlagBpmnSupport(),
     }).pipe(
       map(
         ({
           zaakafhandelParameters,
           bpmnZaakafhandelParametersList,
           bpmnProcessDefinitionsList,
-          isBpmnSupported,
+          featureFlagBpmnSupport,
         }) => {
           const bpmnZaakafhandelParameters =
             bpmnZaakafhandelParametersList?.find(
@@ -62,7 +63,7 @@ export class ZaakafhandelParametersResolver {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
             },
-            isBpmnSupported,
+            featureFlagBpmnSupport,
             isBpmn,
             isSavedZaakafhandelParameters,
           };

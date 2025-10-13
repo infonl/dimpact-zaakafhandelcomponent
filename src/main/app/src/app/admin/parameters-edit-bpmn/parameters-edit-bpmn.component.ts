@@ -29,7 +29,7 @@ export class ParameterEditBpmnComponent {
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected isBpmnSupported: boolean = false;
+  protected featureFlagBpmnSupport: boolean = false;
 
   protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
@@ -42,8 +42,6 @@ export class ParameterEditBpmnComponent {
     bpmnProcessDefinitionKey: "",
     productaanvraagtype: null,
     groepNaam: "",
-
-    // needs to be taken out if endpoint is fixed
     zaaktype: {
       uuid: "",
       identificatie: "",
@@ -93,7 +91,7 @@ export class ParameterEditBpmnComponent {
       this.isSavedZaakafhandelParameters =
         data?.parameters.isSavedZaakafhandelParameters;
       this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
-      this.isBpmnSupported = data.parameters.isBpmnSupported;
+      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
 
       await this.createForm();
     });
@@ -104,9 +102,7 @@ export class ParameterEditBpmnComponent {
       this.cmmnBpmnFormGroup.disable();
     }
 
-    this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters, {
-      emitEvent: true,
-    });
+    this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters);
 
     this.algemeenFormGroup.controls.bpmnDefinition.setValue(
       this.bpmnDefinitions?.find(
@@ -114,10 +110,9 @@ export class ParameterEditBpmnComponent {
           bpmnDef.key ===
           this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
       ) || null,
-      { emitEvent: true },
     );
 
-    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters; // this name will be aligned in new backend PR
+    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters;
     if (defaultGroepId) {
       const groups = await this.groepen.toPromise();
 
@@ -127,7 +122,7 @@ export class ParameterEditBpmnComponent {
       );
     }
 
-    if (!this.isBpmnSupported) {
+    if (!this.featureFlagBpmnSupport) {
       // if no bpmn support, disable the form for better UX
       this.algemeenFormGroup.disable();
     }
