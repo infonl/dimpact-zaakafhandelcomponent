@@ -124,7 +124,7 @@ export class ParameterEditComponent
     intakeMail: new FormControl(),
     afrondenMail: new FormControl(),
   });
-  brpDoelbindingFormGroup = new FormGroup({
+  brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
     verwerkingsregisterWaarde: new FormControl(""),
@@ -486,27 +486,27 @@ export class ParameterEditComponent
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpDoelbindingFormGroup.controls.verwerkingsregisterWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.verwerkingsregisterWaarde.setValidators(
           value ? [Validators.required] : [],
         );
 
-        this.brpDoelbindingFormGroup.updateValueAndValidity({
+        this.brpProtocoleringFormGroup.updateValueAndValidity({
           emitEvent: false,
         });
         if (value) return;
 
-        this.brpDoelbindingFormGroup.reset();
+        this.brpProtocoleringFormGroup.reset();
       });
   }
 
   private createBrpDoelbindingForm() {
-    this.brpDoelbindingFormGroup = this.formBuilder.group({
+    this.brpProtocoleringFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
@@ -752,7 +752,7 @@ export class ParameterEditComponent
       this.zaakbeeindigFormGroup.valid &&
       this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
-      this.brpDoelbindingFormGroup.valid &&
+      this.brpProtocoleringFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
@@ -874,7 +874,7 @@ export class ParameterEditComponent
       ),
     };
 
-    this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
+    this.parameters.brpDoelbindingen = this.brpProtocoleringFormGroup.value;
 
     const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;

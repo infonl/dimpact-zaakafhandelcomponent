@@ -752,7 +752,7 @@
       <mat-step
         [stepControl]="smartDocumentsEnabledForm"
         [hasError]="
-          !isSmartDocumentsStepValid || !brpDoelbindingFormGroup.valid
+          !isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid
         "
       >
         <ng-template matStepLabel>{{
@@ -777,7 +777,7 @@
                   <p>{{ "gegevens.koppelen.brp" | translate }}</p>
                 </div>
                 <form
-                  [formGroup]="brpDoelbindingFormGroup"
+                  [formGroup]="brpProtocoleringFormGroup"
                   *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
                 >
                   <p>
@@ -796,7 +796,7 @@
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
-                          brpDoelbindingFormGroup.controls.zoekWaarde
+                          brpProtocoleringFormGroup.controls.zoekWaarde
                         "
                       >
                         <mat-option
@@ -816,7 +816,7 @@
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
-                          brpDoelbindingFormGroup.controls.raadpleegWaarde
+                          brpProtocoleringFormGroup.controls.raadpleegWaarde
                         "
                       >
                         <mat-option
@@ -836,7 +836,7 @@
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
-                          brpDoelbindingFormGroup.controls
+                          brpProtocoleringFormGroup.controls
                             .verwerkingsregisterWaarde
                         "
                       >
