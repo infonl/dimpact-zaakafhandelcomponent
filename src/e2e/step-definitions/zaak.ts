@@ -100,7 +100,7 @@ When(
       .first()
       .fill("e2e-test@team-dimpact.info.nl");
 
-    await this.page.getByLabel(" Taak toekennen aan groep ").first().click();
+    await this.page.getByLabel("Taak toekennen aan groep").first().click();
     await this.page
       .getByRole("option", { name: user2Profile.group })
       .first()
