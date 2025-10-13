@@ -60,7 +60,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         }
         if (processDefinitions.size != 1) {
             throw MultipleZaaktypeConfigurationsFoundException(
-                "Multiple zaaktype configrations found for process definition key '$processDefinitionKey'"
+                "Multiple zaaktype configurations found for process definition key '$processDefinitionKey'"
             )
         }
 
