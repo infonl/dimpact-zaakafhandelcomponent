@@ -60,7 +60,7 @@ export class ZaakafhandelParametersResolver {
             bpmnZaakafhandelParametersList, // BPMN zaak afhandelparameters of this zaaktype
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
-              zaaktype: zaakafhandelParameters.zaaktype, // will in future be put in by endpoint in backend PR!
+              zaaktype: zaakafhandelParameters.zaaktype,
             },
             isBpmnSupported,
             isBpmn,
