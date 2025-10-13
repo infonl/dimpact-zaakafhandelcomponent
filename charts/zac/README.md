@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.132](https://img.shields.io/badge/Version-1.0.132-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.133](https://img.shields.io/badge/Version-1.0.133-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -61,6 +61,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
+| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
 | brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
 | brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
 | brpApi.protocollering.originOin | string | `""` |  |
