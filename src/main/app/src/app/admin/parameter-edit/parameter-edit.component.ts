@@ -40,11 +40,11 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 @Component({
-  selector: "zac-parameters-edit-cmmn",
-  templateUrl: "./parameters-edit-cmmn.component.html",
-  styleUrls: ["./parameters-edit-cmmn.component.less"],
+  selector: "zac-parameter-edit",
+  templateUrl: "./parameter-edit.component.html",
+  styleUrls: ["./parameter-edit.component.less"],
 })
-export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
+export class ParameterEditComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 

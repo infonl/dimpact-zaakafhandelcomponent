@@ -25,12 +25,12 @@
       >
       </zac-parameters-edit-select-process-definition>
 
-      <zac-parameters-edit-cmmn
+      <zac-parameter-edit
         *ngSwitchCase="'CMMN'"
         [selectedIndexStart]="processDefinitionType.selectedIndexStart ?? 0"
         (switchProcessDefinition)="switchProcessDefinition($event)"
       >
-      </zac-parameters-edit-cmmn>
+      </zac-parameter-edit>
 
       <zac-parameters-edit-bpmn
         *ngSwitchCase="'BPMN'"

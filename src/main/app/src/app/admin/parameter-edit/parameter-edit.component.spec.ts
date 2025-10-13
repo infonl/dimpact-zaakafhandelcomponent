@@ -26,10 +26,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
+import { ParameterEditComponent } from "./parameter-edit.component";
 
-describe(ParametersEditCmmnComponent.name, () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
+describe(ParameterEditComponent.name, () => {
+  let fixture: ComponentFixture<ParameterEditComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
@@ -59,7 +59,7 @@ describe(ParametersEditCmmnComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        ParametersEditCmmnComponent,
+        ParameterEditComponent,
         SideNavComponent,
         StaticTextComponent,
       ],
@@ -148,7 +148,7 @@ describe(ParametersEditCmmnComponent.name, () => {
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
+    fixture = TestBed.createComponent(ParameterEditComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
