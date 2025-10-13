@@ -940,6 +940,7 @@
   "title.smartdocuments.form": "SmartDocuments connections",
   "brpDoelbinding.zoekWaarde": "Search value",
   "brpDoelbinding.raadpleegWaarde": "Consulting value",
+  "brpDoelbinding.verwerkingsregisterWaarde": "Processing Register value",
   "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg": "Case has no fatal date!",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden": "With this adjustment or the choice to suspend, the fatal date of the case will be exceeded and adjusted.",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort": "With this adjustment, the fatal date of the case will be exceeded and adjusted.",

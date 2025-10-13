@@ -75,6 +75,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
+      verwerkingsregisterWaarde: "",
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
@@ -142,9 +143,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     intakeMail: new FormControl(),
     afrondenMail: new FormControl(),
   });
-  brpDoelbindingFormGroup = new FormGroup({
+  brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
+    verwerkingsregisterWaarde: new FormControl(""),
   });
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -192,6 +194,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
+  brpProcessingValues: string[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -232,6 +235,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         ),
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
+        referentieTabelService.listBrpProcessingValues(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -243,6 +247,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           resultaattypes,
           brpSearchValues,
           brpViewValues,
+          brpProcessingValues,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -253,6 +258,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.resultaattypes = resultaattypes;
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
+          this.brpProcessingValues = brpProcessingValues;
           await this.createForm();
         },
       );
@@ -502,24 +508,27 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpProtocoleringFormGroup.controls.verwerkingsregisterWaarde.setValidators(
           value ? [Validators.required] : [],
         );
 
-        this.brpDoelbindingFormGroup.updateValueAndValidity({
+        this.brpProtocoleringFormGroup.updateValueAndValidity({
           emitEvent: false,
         });
         if (value) return;
 
-        this.brpDoelbindingFormGroup.reset();
+        this.brpProtocoleringFormGroup.reset();
       });
   }
 
   private createBrpDoelbindingForm() {
-    this.brpDoelbindingFormGroup = this.formBuilder.group({
+    this.brpProtocoleringFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
@@ -528,6 +537,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       ],
       zoekWaarde: [
         this.parameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
+      ],
+      verwerkingsregisterWaarde: [
+        this.parameters.brpDoelbindingen.verwerkingsregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
@@ -760,7 +775,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.zaakbeeindigFormGroup.valid &&
       this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
-      this.brpDoelbindingFormGroup.valid &&
+      this.brpProtocoleringFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
@@ -882,7 +897,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       ),
     };
 
-    this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
+    this.parameters.brpDoelbindingen = this.brpProtocoleringFormGroup.value;
 
     const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;
