@@ -392,7 +392,8 @@ configure<SpotlessExtension> {
             "$appPath/.angular/**",
             "src/**/package-lock.json",
             "$appPath/coverage/**",
-            "**/.venv/**"
+            "**/.venv/**",
+            "scripts/docker-compose/volume-data/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
