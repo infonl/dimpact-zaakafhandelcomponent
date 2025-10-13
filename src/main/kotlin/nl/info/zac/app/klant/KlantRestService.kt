@@ -190,10 +190,10 @@ class KlantRestService @Inject constructor(
     @PUT
     @Path("contactmomenten")
     fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
-        val nummer = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
+        val number = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
-        val pageNumber = parameters.page!! + 1
-        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
+        // we currently assume that `number` is always non-null here; this will be refactored in a future PR
+        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(number!!, parameters.page + 1)
         val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())

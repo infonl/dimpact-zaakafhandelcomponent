@@ -7,5 +7,5 @@ package nl.info.zac.app.klant.model.contactmoment
 data class RestListContactmomentenParameters(
     var bsn: String? = null,
     var vestigingsnummer: String? = null,
-    var page: Int? = null
+    var page: Int
 )

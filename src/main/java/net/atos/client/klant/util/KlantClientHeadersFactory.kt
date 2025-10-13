@@ -2,27 +2,23 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.klant.util;
+package net.atos.client.klant.util
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.inject.Inject
+import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.MultivaluedMap
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
-
-public class KlantClientHeadersFactory implements ClientHeadersFactory {
-
-    @Inject
+class KlantClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "KLANTINTERACTIES_API_TOKEN")
-    private String token;
-
-    @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders
-    ) {
-        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, "Token " + token);
-        return outgoingHeaders;
+    private val token: String
+) : ClientHeadersFactory {
+    override fun update(
+        incomingHeaders: MultivaluedMap<String, String>,
+        outgoingHeaders: MultivaluedMap<String, String>
+    ): MultivaluedMap<String, String> {
+        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, "Token $token")
+        return outgoingHeaders
     }
 }
