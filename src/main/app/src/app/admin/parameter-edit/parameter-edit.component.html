@@ -752,7 +752,7 @@
       <mat-step
         [stepControl]="smartDocumentsEnabledForm"
         [hasError]="
-          !isSmartDocumentsStepValid || !brpDoelbindingFormGroup.valid
+          !isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid
         "
       >
         <ng-template matStepLabel>{{
@@ -777,7 +777,7 @@
                   <p>{{ "gegevens.koppelen.brp" | translate }}</p>
                 </div>
                 <form
-                  [formGroup]="brpDoelbindingFormGroup"
+                  [formGroup]="brpProtocoleringFormGroup"
                   *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
                 >
                   <p>
@@ -796,7 +796,7 @@
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
-                          brpDoelbindingFormGroup.controls.zoekWaarde
+                          brpProtocoleringFormGroup.controls.zoekWaarde
                         "
                       >
                         <mat-option
@@ -816,11 +816,32 @@
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
-                          brpDoelbindingFormGroup.controls.raadpleegWaarde
+                          brpProtocoleringFormGroup.controls.raadpleegWaarde
                         "
                       >
                         <mat-option
                           *ngFor="let value of brpConsultingValues"
+                          [value]="value"
+                          >{{ value }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                      class="flex-1 w33 w100-md"
+                      floatLabel="always"
+                    >
+                      <mat-label>{{
+                        "brpDoelbinding.verwerkingsregisterWaarde" | translate
+                      }}</mat-label>
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="
+                          brpProtocoleringFormGroup.controls
+                            .verwerkingsregisterWaarde
+                        "
+                      >
+                        <mat-option
+                          *ngFor="let value of brpProcessingValues"
                           [value]="value"
                           >{{ value }}</mat-option
                         >

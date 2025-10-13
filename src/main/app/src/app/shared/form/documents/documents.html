@@ -105,4 +105,13 @@
     <tr mat-header-row *matHeaderRowDef="columnsWithSelect; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: columnsWithSelect"></tr>
   </table>
+  @if (availableOptions().length === 0) {
+    <section class="flex-col align-items-center justify-center p-3">
+      @if (isLoading()) {
+        <mat-spinner diameter="30" />
+      } @else {
+        <div>no data</div>
+      }
+    </section>
+  }
 </section>
