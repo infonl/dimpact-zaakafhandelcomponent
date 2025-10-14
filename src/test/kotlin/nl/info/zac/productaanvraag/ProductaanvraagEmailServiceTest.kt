@@ -13,9 +13,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.createDigitalAddress
-import net.atos.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.createDigitalAddress
+import nl.info.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -56,7 +56,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -112,7 +112,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -163,7 +163,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -222,7 +222,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         )
 
         every {
-            klantClientService.findDigitalAddressesByNumber(betrokkene.vestigingsNummer)
+            klantClientService.findDigitalAddresses(betrokkene.vestigingsNummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -271,7 +271,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val digitalAddress = createDigitalAddress()
 
         every {
-            klantClientService.findDigitalAddressesByNumber(betrokkene.inpBsn)
+            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {
