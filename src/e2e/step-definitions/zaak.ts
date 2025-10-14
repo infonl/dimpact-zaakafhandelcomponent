@@ -351,15 +351,12 @@ Then(
 
     const dataBuffer = fs.readFileSync("./ExportData/" + suggestedFileName);
     const parser = new PDFParse({ data: dataBuffer });
-    parser.getText().then((data: { text: string }) => {
-      fs.writeFileSync("./ExportData/actual.txt", data.text);
-    }).finally(async ()=>{
+    try {
+      const pdfText = await parser.getText();
+      let actual_export_values = pdfText.text.replace(/(\r\n|\n|\r)/gm, "");
+      this.expect(actual_export_values).toContain(openFormsTestId);
+    } finally {
       await parser.destroy();
-    });
-
-    let actual_export_values = fs
-      .readFileSync("./ExportData/actual.txt", "utf-8")
-      .replace(/(\r\n|\n|\r)/gm, "");
-    this.expect(actual_export_values).toContain(openFormsTestId);
+    }
   },
 );
