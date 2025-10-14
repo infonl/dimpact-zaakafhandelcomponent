@@ -38,11 +38,11 @@ class ZaaktypeCmmnBrpParameters {
     lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @Column(name = "zoekWaarde")
-    var zoekWaarde: String? = ""
+    var zoekWaarde: String? = null
 
     @Column(name = "raadpleegWaarde")
-    var raadpleegWaarde: String? = ""
+    var raadpleegWaarde: String? = null
 
     @Column(name = "verwerkingsregisterWaarde")
-    var verwerkingsregisterWaarde: String? = ""
+    var verwerkingsregisterWaarde: String? = null
 }
