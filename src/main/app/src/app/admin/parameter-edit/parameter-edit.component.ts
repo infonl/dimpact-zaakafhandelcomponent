@@ -362,8 +362,8 @@ export class ParameterEditComponent
       .readProtocolleringProvider()
       .pipe(takeUntil(this.destroy$))
       .subscribe((provider: string) => {
-        const cleanProvider = provider.trim();
-        this.showDoelbindingen = cleanProvider === "iConnect";
+        const trimmedProvider = provider.trim();
+        this.showDoelbindingen = trimmedProvider === "iConnect";
       });
   }
 
