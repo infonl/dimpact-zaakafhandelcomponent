@@ -360,16 +360,10 @@ export class ParameterEditComponent
   checkProtocollering() {
     this.configuratieService
       .readProtocolleringProvider()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((provider: string) => {
-        const cleanProvider = provider.replace(/['"\n\r\t\s]+/g, "").trim();
-
+        const cleanProvider = provider.trim();
         this.showDoelbindingen = cleanProvider === "iConnect";
-        console.log(
-          "Protocollering provider:",
-          cleanProvider,
-          " - showDoelbindingen:",
-          this.showDoelbindingen,
-        );
       });
   }
 
