@@ -159,6 +159,8 @@ Met de dropdown keuzes Zoekwaarde, Raapleegwaarde en Verwerkingsregisterwaarde i
 - BRP_DOELBINDING_ZOEK_WAARDE
 - BRP_VERWERKINGSREGISTER_WAARDE
 
+De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
+
 ##### SmartDocuments
 
 - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
