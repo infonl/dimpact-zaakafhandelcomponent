@@ -7,8 +7,8 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
@@ -73,12 +73,12 @@ class ProductaanvraagEmailService @Inject constructor(
         )
 
     private fun fetchEmail(identity: String): String? =
-        klantClientService.findDigitalAddressesByNumber(identity)
+        klantClientService.findDigitalAddresses(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
-        klantClientService.findDigitalAddressesByNumber(vestigingsNummer ?: kvkNummer)
+        klantClientService.findDigitalAddresses(vestigingsNummer ?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
