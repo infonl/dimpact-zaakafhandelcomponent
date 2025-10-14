@@ -364,6 +364,4 @@ class BrpClientServiceTest : BehaviorSpec({
             }
         }
     }
-
-
 })
