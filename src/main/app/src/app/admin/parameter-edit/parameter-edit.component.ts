@@ -53,6 +53,8 @@ export class ParameterEditComponent
 
   isSmartDocumentsStepValid: boolean = true;
 
+  showDoelbindingen: boolean = true;
+
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
@@ -352,6 +354,23 @@ export class ParameterEditComponent
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
     this.createAutomatischeOntvangstbevestigingForm();
+    this.checkProtocollering();
+  }
+
+  checkProtocollering() {
+    this.configuratieService
+      .readProtocolleringProvider()
+      .subscribe((provider: string) => {
+        const cleanProvider = provider.replace(/['"\n\r\t\s]+/g, "").trim();
+
+        this.showDoelbindingen = cleanProvider === "iConnect";
+        console.log(
+          "Protocollering provider:",
+          cleanProvider,
+          " - showDoelbindingen:",
+          this.showDoelbindingen,
+        );
+      });
   }
 
   protected isHumanTaskParameterValid(

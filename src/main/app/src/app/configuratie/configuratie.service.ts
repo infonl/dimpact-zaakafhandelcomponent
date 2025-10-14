@@ -15,13 +15,14 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class ConfiguratieService {
   private readonly basepath = "/rest/configuratie";
-  private talen$: Observable<GeneratedType<"RestTaal">[]>;
-  private defaultTaal$: Observable<GeneratedType<"RestTaal">>;
-  private maxFileSizeMB$: Observable<number>;
-  private additionalAllowedFileTypes$: Observable<string[]>;
-  private gemeenteCode$: Observable<string>;
-  private gemeenteNaam$: Observable<string>;
-  private bpmnSupport$: Observable<boolean>;
+  private talen$?: Observable<GeneratedType<"RestTaal">[]>;
+  private defaultTaal$?: Observable<GeneratedType<"RestTaal">>;
+  private maxFileSizeMB$?: Observable<number>;
+  private additionalAllowedFileTypes$?: Observable<string[]>;
+  private gemeenteCode$?: Observable<string>;
+  private gemeenteNaam$?: Observable<string>;
+  private bpmnSupport$?: Observable<boolean>;
+  private protocolleringProvider$?: Observable<string>;
 
   constructor(
     private http: HttpClient,
@@ -110,5 +111,19 @@ export class ConfiguratieService {
         );
     }
     return this.bpmnSupport$;
+  }
+
+  readProtocolleringProvider(): Observable<string> {
+    if (!this.protocolleringProvider$) {
+      this.protocolleringProvider$ = this.http
+        .get(`${this.basepath}/brp/protocollering-provider`, {
+          responseType: "text",
+        })
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+          shareReplay(1),
+        );
+    }
+    return this.protocolleringProvider$;
   }
 }

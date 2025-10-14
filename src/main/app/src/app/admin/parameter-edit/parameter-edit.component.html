@@ -778,7 +778,10 @@
                 </div>
                 <form
                   [formGroup]="brpProtocoleringFormGroup"
-                  *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+                  *ngIf="
+                    showDoelbindingen &&
+                    betrokkeneKoppelingen.controls.brpKoppelen.value
+                  "
                 >
                   <p>
                     {{
