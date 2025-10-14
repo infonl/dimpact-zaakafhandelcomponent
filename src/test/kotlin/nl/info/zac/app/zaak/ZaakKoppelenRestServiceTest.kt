@@ -33,7 +33,7 @@ import java.util.UUID
 
 private const val OMSCHRIJVING = "fakeOmschrijving"
 
-private const val ZAAK_TYPE_OMSCHRIJVING = "Melding evenement organiseren behandelen"
+private const val ZAAK_TYPE_OMSCHRIJVING = "Test zaaktype 3"
 
 private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
 

@@ -11,8 +11,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2000_03_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
@@ -117,7 +117,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },
@@ -217,7 +217,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },

@@ -18,12 +18,12 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID
@@ -53,9 +53,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             """.trimIndent()
         ) {
             val response = zacClient.createZaaktypeCmmnConfiguration(
-                zaakTypeIdentificatie = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
-                zaakTypeUuid = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
-                zaakTypeDescription = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
+                zaakTypeIdentificatie = ZAAKTYPE_TEST_3_IDENTIFICATIE,
+                zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
+                zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
                 productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
                 automaticEmailConfirmationSender = "GEMEENTE"
             )
@@ -86,7 +86,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the list zaakafhandelparameters endpoint is called for the 'melding klein evenement' zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
                 val responseBody = response.body.string()
@@ -95,7 +95,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "zaaktype.identificatie",
-                        ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+                        ZAAKTYPE_TEST_3_IDENTIFICATIE
                     )
                 }
             }

@@ -43,9 +43,7 @@ When(
     await this.expect(submitButton).toBeDisabled();
 
     await this.page.getByLabel("Sjabloongroep").click();
-    await this.page
-      .getByRole("option", { name: "Melding evenement organiseren behandelen" })
-      .click();
+    await this.page.getByRole("option", { name: "Test zaaktype 3" }).click();
 
     // The only existing template is selected by default, so no need to click on it.
 

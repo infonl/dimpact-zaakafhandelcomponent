@@ -6,7 +6,7 @@ VALUES
 (
 1,
    (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'test-zaaktype-2'),
-   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'melding-evenement-organiseren-behandelen')
+   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'test-zaaktype-3')
 );
 
 -- Insert productaanvraag PDF document as enkelvoudig informatieobject.
