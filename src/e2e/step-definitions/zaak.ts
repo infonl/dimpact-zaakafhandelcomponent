@@ -5,11 +5,11 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import fs from "fs";
+import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
-import { PDFParse } from "pdf-parse";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWO_MINUTES_IN_MS = 120_000;
