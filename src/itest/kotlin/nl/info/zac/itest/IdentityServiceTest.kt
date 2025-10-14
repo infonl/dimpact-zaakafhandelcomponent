@@ -37,8 +37,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec({
@@ -65,7 +65,7 @@ class IdentityServiceTest : BehaviorSpec({
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
                 "only those groups which have the domain role are returned"
@@ -90,7 +90,7 @@ class IdentityServiceTest : BehaviorSpec({
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_3_UUID"
             )
             Then(
                 "all groups are returned"

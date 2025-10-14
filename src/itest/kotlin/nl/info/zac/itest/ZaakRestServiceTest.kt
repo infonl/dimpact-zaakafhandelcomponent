@@ -70,15 +70,15 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERN
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_REFERENTIEPROCES
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
@@ -169,14 +169,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                     "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                   },
                   {
-                    "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                    "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                   },
                   {
-                    "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                    "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                    "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                    "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                   }
                 ]
                     """.trimIndent()
@@ -238,7 +238,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
             val response = zacClient.createZaak(
-                zaakTypeUUID = ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
+                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
                 groupId = TEST_GROUP_A_ID,
                 groupName = TEST_GROUP_A_DESCRIPTION,
                 startDate = DATE_TIME_2020_01_01,
@@ -311,23 +311,23 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "zaakdata": {
                         "zaakIdentificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                         "initiator": null,
-                        "zaaktypeUUID": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
-                        "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                        "zaaktypeUUID": "$ZAAKTYPE_TEST_3_UUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                       },
                       "zaaktype": {
                         "beginGeldigheid": "$DATE_2023_09_21",
-                        "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                         "informatieobjecttypes": [
                           "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                           "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                         ],
                         "nuGeldig": true,
-                        "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                         "opschortingMogelijk": false,
-                        "referentieproces": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES",
+                        "referentieproces": "$ZAAKTYPE_TEST_3_REFERENTIEPROCES",
                         "servicenorm": false,
-                        "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                        "uuid": "$ZAAKTYPE_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
                         "vertrouwelijkheidaanduiding": "openbaar",
@@ -494,12 +494,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "zaakbeeindigParameters": [],
                           "zaaktype": {
                             "beginGeldigheid": "$DATE_2023_09_21",
-                            "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                            "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                            "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                            "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                             "nuGeldig": true,
-                            "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                            "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                             "servicenorm": false,
-                            "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                            "uuid": "$ZAAKTYPE_TEST_3_UUID",
                             "versiedatum": "$DATE_2023_09_21",
                             "vertrouwelijkheidaanduiding": "openbaar"
                           }
@@ -524,7 +524,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_MANUAL_2020_01_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+                        getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_TEST_3_IDENTIFICATIE
                     }
                 }
             }

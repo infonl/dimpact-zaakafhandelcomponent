@@ -40,7 +40,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     }
 
                     with(groups!!.last()) {
-                        name shouldBe "Indienen aansprakelijkstelling door derden behandelen"
+                        name shouldBe "fakeTemplateGroup1"
                         templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "Data Test"
                         templates!!.last().name shouldBe "OpenZaakTest"

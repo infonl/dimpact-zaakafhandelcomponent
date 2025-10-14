@@ -179,7 +179,7 @@ class BrpClientService @Inject constructor(
             .let { zaaktypeCmmnConfiguration ->
                 resolveFunction(zaaktypeCmmnConfiguration)?.let {
                     if (it.isPureAscii()) {
-                        it
+                        it.trim()
                     } else {
                         LOG.warning { "Resolved $valueDescription '$it' contains non-ASCII characters. Using '$defaultValue' instead" }
                         defaultValue
