@@ -9,6 +9,7 @@ import { z } from "zod";
 import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
+import { PDFParse } from "pdf-parse";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWO_MINUTES_IN_MS = 120_000;
@@ -348,10 +349,12 @@ Then(
     const filePath = "ExportData/" + suggestedFileName;
     await download.saveAs(filePath);
 
-    const pdf = require("pdf-parse");
     const dataBuffer = fs.readFileSync("./ExportData/" + suggestedFileName);
-    await pdf(dataBuffer).then((data: { text: string }) => {
+    const parser = new PDFParse({ data: dataBuffer });
+    parser.getText().then((data: { text: string }) => {
       fs.writeFileSync("./ExportData/actual.txt", data.text);
+    }).finally(async ()=>{
+      await parser.destroy();
     });
 
     let actual_export_values = fs
