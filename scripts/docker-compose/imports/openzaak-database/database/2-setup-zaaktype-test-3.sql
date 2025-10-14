@@ -1,4 +1,4 @@
--- SQL script that creates the 'Melding evenement organiseren behandelen' zaaktype in the Open Zaak database
+-- SQL script that creates the 'Test zaaktype 3' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -51,12 +51,12 @@ VALUES
   NULL,         -- datum_einde_geldigheid
   false,         -- concept
   '448356ff-dcfb-4504-9501-7fe929077c4f', -- uuid
-  'melding-evenement-organiseren-behandelen', -- identificatie
-  'Melding evenement organiseren behandelen', -- zaaktype_omschrijving
-  'Melding evenement organiseren', -- zaaktype_omschrijving_generiek
+  'test-zaaktype-3', -- identificatie
+  'Test zaaktype 3', -- zaaktype_omschrijving
+  'Test zaaktype 3', -- zaaktype_omschrijving_generiek
   'openbaar',   -- vertrouwelijkheidaanduiding
-  'Melding evenement organiseren behandelen', -- doel
-  'Melding evenement organiseren behandelen', -- aanleiding
+  'Test zaaktype 3', -- doel
+  'Test zaaktype 3', -- aanleiding
   '',           -- toelichting
   'extern',     -- indicatie_intern_of_extern
   'Melden',     -- handeling_initiator
@@ -74,7 +74,7 @@ VALUES
   '2023-09-21', -- versiedatum
   '{}',         -- producten_of_diensten
   'https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5', -- selectielijst_procestype
-  'melding klein evenement', -- referentieproces_naam
+  'Test zaaktype 3', -- referentieproces_naam
   '',           -- referentieproces_link
   1,           -- catalogus_id
   2020,           -- selectielijst_procestype_jaar

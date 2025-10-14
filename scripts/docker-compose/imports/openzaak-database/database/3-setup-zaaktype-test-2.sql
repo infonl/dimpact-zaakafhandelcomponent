@@ -1,4 +1,4 @@
--- SQL script that creates the 'Indienen aansprakelijkstelling door derden behandelen' zaaktype in the Open Zaak database
+-- SQL script that creates the 'Test zaaktype 2' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -51,12 +51,12 @@ VALUES
     NULL, -- datum_einde_geldigheid
     false, -- concept
     'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425', -- uuid (derived from the URL)
-    'indienen-aansprakelijkstelling-behandelen', -- identificatie
-    'Indienen aansprakelijkstelling door derden behandelen', -- zaaktype_omschrijving
-    'Indienen aansprakelijkstelling', -- zaaktype_omschrijving_generiek
+    'test-zaaktype-2', -- identificatie
+    'Test zaaktype 2', -- zaaktype_omschrijving
+    'Test zaaktype 2', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
-    'Indienen aansprakelijkstelling door derden behandelen', -- doel
-    'Indienen aansprakelijkstelling door derden behandelen', -- aanleiding
+    'Test zaaktype 2', -- doel
+    'Test zaaktype 2', -- aanleiding
     '', -- toelichting
     'extern', -- indicatie_intern_of_extern
     'Indienen', -- handeling_initiator
@@ -74,7 +74,7 @@ VALUES
     '2023-10-01', -- versiedatum
     '{}', -- producten_of_diensten (empty array)
     'https://selectielijst.openzaak.nl/api/v1/procestypen/1e12ad30-b900-4e7f-b3b7-569673cee0b0', -- selectielijst_procestype
-    'Indienen aansprakelijkstelling door derden', -- referentieproces_naam
+    'Test zaaktype 2', -- referentieproces_naam
     '', -- referentieproces_link
     1, -- catalogus_id, assuming a lookup is required
     2020, -- selectielijst_procestype_jaar (assuming this remains constant)
