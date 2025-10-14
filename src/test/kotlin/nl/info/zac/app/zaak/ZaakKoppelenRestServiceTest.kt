@@ -32,9 +32,7 @@ import java.net.URI
 import java.util.UUID
 
 private const val OMSCHRIJVING = "fakeOmschrijving"
-
-private const val ZAAK_TYPE_OMSCHRIJVING = "Test zaaktype 3"
-
+private const val ZAAK_TYPE_OMSCHRIJVING = "fakeZaakTypeOmschrijving"
 private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
 
 @Suppress("LargeClass")
