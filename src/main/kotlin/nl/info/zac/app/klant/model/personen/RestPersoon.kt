@@ -147,6 +147,7 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     }
 }
 
+// TODO: refactor: don't use a list; return a pair instead of a restpersoon
 fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     val restPersoon = RestPersoon()
     for (digitalAdress in this) {
@@ -158,6 +159,7 @@ fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     }
     return restPersoon
 }
+
 fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
     when (this) {
         is RaadpleegMetBurgerservicenummerResponse -> this.personen.toRestPersons()

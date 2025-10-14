@@ -48,7 +48,7 @@ export class MailCreateComponent implements OnInit {
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
-  protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
+  protected contactGegevens: GeneratedType<"RestContactDetails"> | null = null;
   protected variabelen: string[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 

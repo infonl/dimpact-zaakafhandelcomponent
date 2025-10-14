@@ -22,6 +22,7 @@ import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.CodeObjecttypeEnum
 import nl.info.client.klant.model.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
@@ -38,7 +39,8 @@ import nl.info.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
 import nl.info.zac.app.klant.model.contactmoment.RestContactmoment
 import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment
-import nl.info.zac.app.klant.model.klant.RestContactGegevens
+import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.klant.model.klant.RestContactDetails
 import nl.info.zac.app.klant.model.klant.RestRoltype
 import nl.info.zac.app.klant.model.klant.toRestRoltypes
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
@@ -49,6 +51,7 @@ import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRechtsPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -177,15 +180,57 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("contactgegevens/{initiatorIdentificatie}")
+    @Deprecated("Use POST variant with BetrokkeneIdentificatie instead")
+    // TODO: wordt dit endpoint uberhaupt wel gebruikt? niet op de zaakdetail pagina in ieder geval..
+    // daar wordt readVestigingByVestigingsnummerAndKvkNummer gebruikt..
     fun ophalenContactGegevens(
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens =
+    ): RestContactDetails =
         klantClientService.findDigitalAddresses(initiatorIdentificatie).toRestPersoon().let {
-            RestContactGegevens(
+            RestContactDetails(
                 telefoonnummer = it.telefoonnummer,
                 emailadres = it.emailadres
             )
         }
+
+    @PUT
+    @Path("contactgegevens")
+    fun readContactDetails(betrokkeneIdentificatie: BetrokkeneIdentificatie): RestContactDetails {
+        // TODO: 1/ convert BetrokkeneIdentificatie to objectType and number, 2/ for vestigingen do two calls to Open Zaak,
+        // to retrieve both vestiging and main KVK company?
+        when (val type = betrokkeneIdentificatie.type) {
+            IdentificatieType.BSN -> return klantClientService.findDigitalAddresses(
+                objectType = type.toCodeObjecttypeEnum(),
+                number = betrokkeneIdentificatie.bsnNummer!!
+            ).toRestPersoon().let {
+                RestContactDetails(
+                    telefoonnummer = it.telefoonnummer,
+                    emailadres = it.emailadres
+                )
+            }
+
+            IdentificatieType.RSIN -> return klantClientService.findDigitalAddresses(
+                objectType = type.toCodeObjecttypeEnum(),
+                number = betrokkeneIdentificatie.rsin!!
+            ).toRestPersoon().let {
+                RestContactDetails(
+                    telefoonnummer = it.telefoonnummer,
+                    emailadres = it.emailadres
+                )
+            }
+
+            // TODO: first retrieve the KVK bedrijf and then the vestiging that is part of it? how?
+            IdentificatieType.VN -> return klantClientService.findDigitalAddresses(
+                objectType = type.toCodeObjecttypeEnum(),
+                number = betrokkeneIdentificatie.vestigingsnummer!!
+            ).toRestPersoon().let {
+                RestContactDetails(
+                    telefoonnummer = it.telefoonnummer,
+                    emailadres = it.emailadres
+                )
+            }
+        }
+    }
 
     @PUT
     @Path("contactmomenten")
@@ -204,6 +249,7 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
+                // TODO: also use the KVK number to retrieve the digital addresses of the vestiging
                 async { klantClientService.findDigitalAddresses(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
@@ -224,4 +270,11 @@ class KlantRestService @Inject constructor(
     private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
         this.filter { it.initiator && it.expand != null && it.expand.hadKlantcontact != null }
             .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
+
+    private fun IdentificatieType.toCodeObjecttypeEnum(): CodeObjecttypeEnum =
+        when (this) {
+            IdentificatieType.BSN -> CodeObjecttypeEnum.NATUURLIJK_PERSOON
+            IdentificatieType.VN -> CodeObjecttypeEnum.VESTIGING
+            IdentificatieType.RSIN -> CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
+        }
 }
