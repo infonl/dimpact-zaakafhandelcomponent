@@ -53,7 +53,7 @@ export class ParameterEditComponent
 
   isSmartDocumentsStepValid: boolean = true;
 
-  showDoelbindingen: boolean = true;
+  showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -362,8 +362,8 @@ export class ParameterEditComponent
       .readProtocolleringProvider()
       .pipe(takeUntil(this.destroy$))
       .subscribe((provider: string) => {
-        const trimmedProvider = provider.trim();
-        this.showDoelbindingen = trimmedProvider === "iConnect";
+        const brpProviderName = provider.trim();
+        this.showDoelbindingen = brpProviderName === "iConnect";
       });
   }
 
