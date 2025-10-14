@@ -39,10 +39,10 @@ import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
@@ -125,7 +125,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "ZAAKTYPE": [
                                 {
                                     "aantal": 7,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 19,
@@ -301,7 +301,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "filters": {
                         "ZAAKTYPE": {
                              "values": [
-                               "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                               "$ZAAKTYPE_TEST_2_DESCRIPTION"
                              ],
                              "inverse": "false"
                         }
@@ -333,7 +333,7 @@ class SearchRestServiceTest : BehaviorSpec({
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
                           "aantal" : 4,
-                          "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                          "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
@@ -579,7 +579,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "status": "TOEGEKEND",
                                 "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
                                 "zaakToelichting": "null",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                             },
                             {
                                 "type": "TAAK",
@@ -622,7 +622,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 1,

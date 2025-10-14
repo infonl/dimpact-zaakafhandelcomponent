@@ -100,7 +100,7 @@ fun createTemplateGroups() = listOf(
         )
     ),
     createTemplateGroup(
-        "Indienen aansprakelijkstelling door derden behandelen",
+        "Test zaaktype 2",
         listOf(
             createTemplate("Data Test"),
             createTemplate("OpenZaakTest"),

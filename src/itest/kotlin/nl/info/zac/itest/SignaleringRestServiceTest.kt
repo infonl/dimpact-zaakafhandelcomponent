@@ -31,8 +31,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -103,7 +103,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
         authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_BEHANDELAARS_ID,
             groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
             behandelaarId = TEST_BEHANDELAAR_1_USERNAME,
@@ -233,7 +233,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                         shouldContainJsonKeyValue(
                             "zaaktype",
-                            ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
+                            ZAAKTYPE_TEST_2_DESCRIPTION
                         )
                     }
                 }
@@ -338,7 +338,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                             shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                             shouldContainJsonKeyValue(
                                 "zaaktype",
-                                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
+                                ZAAKTYPE_TEST_2_DESCRIPTION
                             )
                         }
                     }
