@@ -290,7 +290,52 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A person exists for a given BSN") {
+    Given("Processing value with whitespaces") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+        val zaak = createZaak()
+        val retrievePersoonPurpose = "raadpleegWaarde"
+        val processingValue = "  \t Process ing\tvalue\t with whitespaces \t"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+                raadpleegWaarde = retrievePersoonPurpose
+                verwerkingsregisterWaarde = processingValue
+            }
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
+        every {
+            // Since we have a processing value in Unicode, the default value is used instead
+            personenApi.personen(any(), retrievePersoonPurpose, "Process ing\tvalue\t with whitespaces@fakeZaaktypeOmschrijving")
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should still return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("A person exists for a given BSN, but no zaak is found for the given audit event ") {
         val bsn = "123456789"
         val person = createPersoon(
             bsn = bsn
@@ -311,7 +356,7 @@ class BrpClientServiceTest : BehaviorSpec({
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
-        When("no zaak is found for the given audit event and retrieve persoon is called") {
+        When("retrieve persoon is called") {
             val personResponse = configuredBrpClientService.retrievePersoon(bsn, ZAAK)
 
             Then("retrieving a person should still work") {
@@ -319,4 +364,6 @@ class BrpClientServiceTest : BehaviorSpec({
             }
         }
     }
+
+
 })
