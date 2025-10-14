@@ -216,6 +216,7 @@ export class ParameterEditComponent
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
+        configuratieService.readProtocolleringProvider(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -228,6 +229,7 @@ export class ParameterEditComponent
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
+          protocolleringProvider,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -239,6 +241,9 @@ export class ParameterEditComponent
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
+          this.showDoelbindingen = this.getProtocolering(
+            protocolleringProvider,
+          );
           await this.createForm();
         },
       );
@@ -354,17 +359,14 @@ export class ParameterEditComponent
     this.createBetrokkeneKoppelingenForm();
     this.createBrpDoelbindingForm();
     this.createAutomatischeOntvangstbevestigingForm();
-    this.checkProtocollering();
   }
 
-  checkProtocollering() {
-    this.configuratieService
-      .readProtocolleringProvider()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((provider: string) => {
-        const brpProviderName = provider.trim();
-        this.showDoelbindingen = brpProviderName === "iConnect";
-      });
+  private getProtocolering(provider: string) {
+    const clean = (provider ?? "")
+      .toString()
+      .replace(/['"\n\r\t]+/g, "")
+      .trim();
+    return clean === "iConnect";
   }
 
   protected isHumanTaskParameterValid(
