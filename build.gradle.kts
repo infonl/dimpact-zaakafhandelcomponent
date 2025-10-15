@@ -930,10 +930,10 @@ dependencyCheck {
     }
     
     // Configure NVD API settings (optional - improves performance)
-    // nvd {
-    //     apiKey = providers.environmentVariable("NVD_API_KEY").orNull
-    //     delay = 16000  // 16 seconds between API calls (free tier limit)
-    // }
+    nvd {
+        apiKey = providers.environmentVariable("NVD_API_KEY").orNull
+        delay = 16000  // 16 seconds between API calls (free tier limit)
+    }
 }
 
 // Add OWASP check to the standard check task
