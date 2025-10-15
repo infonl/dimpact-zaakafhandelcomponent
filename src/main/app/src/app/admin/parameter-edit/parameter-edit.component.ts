@@ -216,7 +216,7 @@ export class ParameterEditComponent
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
-        configuratieService.readProtocolleringProvider(),
+        configuratieService.readBrpProtocollering(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -229,7 +229,7 @@ export class ParameterEditComponent
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-          protocolleringProvider,
+          brpProtocollering,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -242,7 +242,7 @@ export class ParameterEditComponent
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
           this.showDoelbindingen = this.getProtocolering(
-            protocolleringProvider,
+            brpProtocollering,
           );
           await this.createForm();
         },
@@ -363,8 +363,8 @@ export class ParameterEditComponent
     this.createAutomatischeOntvangstbevestigingForm();
   }
 
-  private getProtocolering(provider: string) {
-    return provider === "iConnect";
+  private getProtocolering(protocolering: string) {
+    return protocolering.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(

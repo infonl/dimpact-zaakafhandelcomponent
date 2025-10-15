@@ -22,7 +22,7 @@ export class ConfiguratieService {
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
   private bpmnSupport$?: Observable<boolean>;
-  private protocolleringProvider$?: Observable<string>;
+  private brpProtocollering$?: Observable<string>;
 
   constructor(
     private http: HttpClient,
@@ -113,9 +113,9 @@ export class ConfiguratieService {
     return this.bpmnSupport$;
   }
 
-  readProtocolleringProvider(): Observable<string> {
-    if (!this.protocolleringProvider$) {
-      this.protocolleringProvider$ = this.http
+    readBrpProtocollering(): Observable<string> {
+    if (!this.brpProtocollering$) {
+      this.brpProtocollering$ = this.http
         .get(`${this.basepath}/brp/protocollering-provider`, {
           responseType: "text",
         })
@@ -124,6 +124,6 @@ export class ConfiguratieService {
           shareReplay(1),
         );
     }
-    return this.protocolleringProvider$;
+    return this.brpProtocollering$;
   }
 }
