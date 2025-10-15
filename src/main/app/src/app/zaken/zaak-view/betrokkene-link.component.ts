@@ -38,7 +38,7 @@ export class BetrokkeneLinkComponent {
     };
   });
 
-  protected bedrijfQuery = injectQuery(() => {
+  protected readonly bedrijfQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
 
     if (this.isBsnType()) {
