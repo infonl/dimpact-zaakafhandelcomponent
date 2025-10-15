@@ -201,6 +201,8 @@
   "formaat": "format",
   "gegeven": "Resource",
   "gegevens.proces-definitie": "CMMN/BPMN",
+  "gegevens.proces-definitie.CMMN": "CMMN",
+  "gegevens.proces-definitie.BPMN": "BPMN",
   "gegevens.algemeen": "Information",
   "gegevens.beeindiging": "Case termination information",
   "gegevens.koppelingen": "Connections",

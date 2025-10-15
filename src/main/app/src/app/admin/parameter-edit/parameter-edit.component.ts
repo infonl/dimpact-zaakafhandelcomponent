@@ -112,7 +112,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    }>({ label: "CMMN", value: "CMMN" }, [Validators.required]),
+    }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
   algemeenFormGroup = this.formBuilder.group({
@@ -334,7 +334,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   async createForm() {
     if (this.isSavedZaakafhandelParameters) {
-      this.cmmnBpmnFormGroup.controls.options.disable();
+      this.cmmnBpmnFormGroup.disable();
     }
 
     this.algemeenFormGroup.patchValue(this.parameters);
@@ -786,7 +786,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected isValid(): boolean {
     return (
-      this.cmmnBpmnFormGroup.valid &&
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&

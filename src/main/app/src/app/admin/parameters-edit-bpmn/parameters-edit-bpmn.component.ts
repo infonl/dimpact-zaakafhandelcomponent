@@ -62,7 +62,7 @@ export class ParametersEditBpmnComponent {
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    }>({ label: "BPMN", value: "BPMN" }, [Validators.required]),
+    }>({ label: "BPMN", value: "BPMN" }, []),
   });
 
   algemeenFormGroup = this.formBuilder.group({

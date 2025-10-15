@@ -201,6 +201,8 @@
   "formaat": "Bestandsformaat",
   "gegeven": "Gegeven",
   "gegevens.proces-definitie": "CMMN/BPMN",
+  "gegevens.proces-definitie.CMMN": "CMMN",
+  "gegevens.proces-definitie.BPMN": "BPMN",
   "gegevens.algemeen": "Gegevens",
   "gegevens.beeindiging": "Zaakbeëindig gegevens",
   "gegevens.koppelingen": "Koppelingen",
