@@ -9,6 +9,7 @@ import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.configuratie.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 import java.util.Optional
@@ -78,7 +79,7 @@ class BrpClientHeadersFactory @Inject constructor(
 
     private fun getUser(): String =
         try {
-            loggedInUserInstance.get().id
+            loggedInUserInstance.get().id.takeIf { it != FUNCTIONEEL_GEBRUIKER.id } ?: SYSTEM_USER
         } catch (_: UnsatisfiedResolutionException) {
             SYSTEM_USER
         }

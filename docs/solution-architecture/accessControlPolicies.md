@@ -41,11 +41,12 @@ and by giving a certain group of users the corresponding domain role in Keycloak
 
 Finally, there is a special `domein_elk_zaaktype` system role which will grant the user access to all zaaktypes in ZAC.
 
+Domain roles as well as the special `domein_elk_zaaktype` system role will be removed in the new IAM architecture in the future 
+and this functionality will be replaced by the new PABC component. See [ZAC IAM architecture](iamArchitecture.md) for more information.
+
 ## ZAC policies per resource and role
 
-See [the REGO file](../../src/main/resources/policies/zaak-rechten.rego) for the actual OPA policy implementation of the access control policies.
-
-The following OPA access control policies are enforced in the ZAC backend for the roles listed above for the
+The following access control policies are enforced in the ZAC backend for the roles listed above for the
 various resources on which a user can perform actions:
 
 | Rechten                                                     | Raadpleger |                                                        Behandelaar                                                       | Coördinator |                            Recordmanager                            | Beheerder |
@@ -129,8 +130,9 @@ Notes:
 
 ## Technical implementation
 
-The OPA policies are implemented using OPA policy files in OPA's native [Rego policy language](https://www.openpolicyagent.org/docs/latest/policy-language/) and can be found
-in the [ZAC OPA policies folder](../../src/main/resources/policies).
+The access control policies are mostly implemented using OPA policy files in OPA's native [Rego policy language](https://www.openpolicyagent.org/docs/latest/policy-language/) and can be found
+in the [ZAC OPA policies folder](../../src/main/resources/policies). 
+However, some access control policies are also implemented in the ZAC backend code itself.
 
 These policies are deployed by ZAC on startup to the OPA server, which is part of the ZAC ecosystem and needs to be
 available for ZAC. The OPA server provides a REST API with which ZAC integrates.

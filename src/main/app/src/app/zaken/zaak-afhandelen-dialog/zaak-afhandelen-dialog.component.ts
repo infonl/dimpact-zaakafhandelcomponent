@@ -76,7 +76,9 @@ export class ZaakAfhandelenDialogComponent {
       this.data.zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(this.data.zaak.initiatorIdentificatie.bsnNummer)
+        .getContactDetailsForPerson(
+          this.data.zaak.initiatorIdentificatie.bsnNummer,
+        )
         .subscribe(({ emailadres }) => {
           if (!emailadres) return;
           this.initiatorEmail = emailadres;

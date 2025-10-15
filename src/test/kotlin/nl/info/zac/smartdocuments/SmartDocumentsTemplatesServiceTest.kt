@@ -68,7 +68,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
                 listOf(
                     "Dimpact",
-                    "Indienen aansprakelijkstelling door derden behandelen"
+                    "fakeTemplateGroup1"
                 )
             )
 

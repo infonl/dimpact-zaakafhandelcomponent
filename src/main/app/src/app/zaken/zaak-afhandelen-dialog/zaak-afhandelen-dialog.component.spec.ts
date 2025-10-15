@@ -153,7 +153,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
     jest
-      .spyOn(klantenService, "ophalenContactGegevens")
+      .spyOn(klantenService, "getContactDetailsForPerson")
       .mockReturnValue(of({ emailadres: "initiator@example.com" }));
     jest
       .spyOn(planItemsService, "doUserEventListenerPlanItem")

@@ -24,8 +24,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
@@ -73,10 +73,10 @@ class TaskRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
                         shouldContainJsonKeyValue(
                             "zaaktypeOmschrijving",
-                            ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+                            ZAAKTYPE_TEST_3_DESCRIPTION
                         )
                         shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                        shouldContainJsonKeyValue("zaaktypeUUID", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString())
+                        shouldContainJsonKeyValue("zaaktypeUUID", ZAAKTYPE_TEST_3_UUID.toString())
                         JSONObject(this,).getJSONObject("groep").apply {
                             getString("id") shouldBe TEST_GROUP_A_ID
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION

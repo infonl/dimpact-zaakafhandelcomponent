@@ -135,12 +135,9 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  ophalenContactGegevens(initiatorIdentificatie: string) {
-    return this.zacHttpClient.GET(
-      "/rest/klanten/contactgegevens/{initiatorIdentificatie}",
-      {
-        path: { initiatorIdentificatie },
-      },
-    );
+  getContactDetailsForPerson(bsn: string) {
+    return this.zacHttpClient.GET("/rest/klanten/contactdetails/bsn/{bsn}", {
+      path: { bsn },
+    });
   }
 }

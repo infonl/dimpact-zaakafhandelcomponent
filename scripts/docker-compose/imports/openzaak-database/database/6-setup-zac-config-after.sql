@@ -5,8 +5,8 @@ INSERT INTO catalogi_zaaktype_deelzaaktypen (id, from_zaaktype_id, to_zaaktype_i
 VALUES
 (
 1,
-   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'indienen-aansprakelijkstelling-behandelen'),
-   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'melding-evenement-organiseren-behandelen')
+   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'test-zaaktype-2'),
+   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'test-zaaktype-3')
 );
 
 -- Insert productaanvraag PDF document as enkelvoudig informatieobject.

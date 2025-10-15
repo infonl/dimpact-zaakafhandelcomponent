@@ -43,13 +43,13 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -420,11 +420,11 @@ class KlantRestServiceTest : BehaviorSpec({
         }
         When(
             """
-                the betrokkenen are retrieved for the zaaktype 'indienen aansprakelijkstelling door derden behandelen'
+                the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'
                 """
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID/betrokkene",
+                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
                 val responseBody = response.body.string()
@@ -436,32 +436,32 @@ class KlantRestServiceTest : BehaviorSpec({
                       {
                         "naam": "Belanghebbende",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE"
                       },
                       {
                         "naam": "Bewindvoerder",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER"
                       },
                       {
                         "naam": "Contactpersoon",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON"
                       },
                       {
                         "naam": "Gemachtigde",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE"
                       },
                       {
                         "naam": "Medeaanvrager",
                         "omschrijvingGeneriekEnum": "mede_initiator",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER"
                       },
                       {
                         "naam": "Plaatsvervanger",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
                     """.trimIndent()

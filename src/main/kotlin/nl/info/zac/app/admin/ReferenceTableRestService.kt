@@ -167,8 +167,8 @@ class ReferenceTableRestService @Inject constructor(
         }
 
     @GET
-    @Path("brp-verwerkingsregister-waarde")
-    fun listBrpVerwerkingsregisterWaarde(): List<String> =
+    @Path("brp-verwerkingregister-waarde")
+    fun listBrpVerwerkingregisterWaarde(): List<String> =
         referenceTableService.readReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE.name).values.let {
             getReferenceTableValueNames(it)
         }

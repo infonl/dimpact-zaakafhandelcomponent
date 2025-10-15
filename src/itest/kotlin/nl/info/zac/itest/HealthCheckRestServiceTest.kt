@@ -16,15 +16,15 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class HealthCheckRestServiceTest : BehaviorSpec({
@@ -136,12 +136,12 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
-                          "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID",
+                          "uuid": "$ZAAKTYPE_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
@@ -165,12 +165,12 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_09_21",
-                          "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                          "uuid": "$ZAAKTYPE_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }

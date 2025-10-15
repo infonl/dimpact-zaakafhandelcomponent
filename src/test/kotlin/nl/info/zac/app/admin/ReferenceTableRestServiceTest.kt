@@ -269,7 +269,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
 
             When("the purpose search table is retrieved") {
-                val values = referenceTableRestService.listBrpVerwerkingsregisterWaarde()
+                val values = referenceTableRestService.listBrpVerwerkingregisterWaarde()
 
                 Then("it should return the correct list of values") {
                     values.size shouldBe 2

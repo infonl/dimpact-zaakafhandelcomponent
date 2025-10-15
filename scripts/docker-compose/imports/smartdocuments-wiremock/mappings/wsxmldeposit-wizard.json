@@ -65,7 +65,7 @@
                   "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
                   "verlengingReden": "fakeReason",
                   "vertrouwelijkheidaanduiding": "openbaar",
-                  "zaaktype": "Melding evenement organiseren behandelen"
+                  "zaaktype": "Test zaaktype 3"
                 }
               }
             },

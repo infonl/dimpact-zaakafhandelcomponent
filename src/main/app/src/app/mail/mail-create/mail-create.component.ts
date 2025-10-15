@@ -48,7 +48,7 @@ export class MailCreateComponent implements OnInit {
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
-  protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
+  protected contactGegevens: GeneratedType<"RestContactDetails"> | null = null;
   protected variabelen: string[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
@@ -100,7 +100,7 @@ export class MailCreateComponent implements OnInit {
       return;
 
     this.klantenService
-      .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
+      .getContactDetailsForPerson(this.zaak.initiatorIdentificatie.bsnNummer)
       .subscribe((contactGegevens) => {
         if (!contactGegevens.emailadres) return;
         this.contactGegevens = contactGegevens;

@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_HEADER_SIZE
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_USER_HEADER_SIZE
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
 import org.jboss.resteasy.core.Headers
 import java.util.Optional
 
@@ -61,6 +62,25 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
                     "X-API-KEY" to listOf(apiKey),
                     "X-ORIGIN-OIN" to listOf(originOin),
                     "X-GEBRUIKER" to listOf("username")
+                )
+            }
+        }
+    }
+
+    Given("FUNCTIONEEL_GEBRUIKER is the current active user") {
+        every { loggedInUserInstance.get().id } returns FUNCTIONEEL_GEBRUIKER.id
+
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers(), Headers())
+
+            Then("Systeem user is sent as the active user") {
+                headers shouldContainExactly mapOf(
+                    "X-API-KEY" to listOf(apiKey),
+                    "X-ORIGIN-OIN" to listOf(originOin),
+                    "X-GEBRUIKER" to listOf("Systeem")
                 )
             }
         }

@@ -51,4 +51,5 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_GROUP_NOT_FOUND_IN_KEYCLOAK("msg.error.group.not.in.keycloak"),
     ERROR_CODE_CONVERT_NOT_POSSIBLE("msg.error.convert.not.possible"),
     ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED("msg.error.document.has.already.been.signed"),
+    ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION("msg.error.bad.brp.protocollering.configuration"),
 }
