@@ -16,17 +16,45 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   styleUrls: [],
 })
 export class BetrokkeneLinkComponent {
-  protected readonly persoonQuery = injectQuery(() => ({
-    ...this.klantService.readPersoon(this.betrokkene().identificatie),
-    enabled: this.betrokkene().type === "BSN",
-  }));
+  protected readonly persoonQuery = injectQuery(() => {
+    const betrokkene = this.betrokkene();
 
-  protected bedrijfQuery = injectQuery(() => ({
-    ...this.klantService.readBedrijf(
-      new BetrokkeneIdentificatie(this.betrokkene()),
-    ),
-    enabled: this.betrokkene().type !== "BSN",
-  }));
+    if (betrokkene.type !== "BSN" && betrokkene.identificatieType !== "BSN") {
+      return {
+        queryKey: ["persoon", betrokkene.identificatie],
+        enabled: false,
+      };
+    }
+
+    const persoonQuery = this.klantService.readPersoon(
+      betrokkene.identificatie,
+    );
+
+    return {
+      queryKey: persoonQuery.queryKey,
+      queryFn: persoonQuery.queryFn,
+    };
+  });
+
+  protected bedrijfQuery = injectQuery(() => {
+    const betrokkene = this.betrokkene();
+
+    if (betrokkene.type === "BSN" || betrokkene.identificatieType === "BSN") {
+      return {
+        queryKey: ["bedrijf", betrokkene.identificatie],
+        enabled: false,
+      };
+    }
+
+    const bedrijfQuery = this.klantService.readBedrijf(
+      new BetrokkeneIdentificatie(betrokkene),
+    );
+
+    return {
+      queryKey: bedrijfQuery.queryKey,
+      queryFn: bedrijfQuery.queryFn,
+    };
+  });
 
   protected readonly betrokkene =
     input.required<GeneratedType<"RestZaakBetrokkene">>();
