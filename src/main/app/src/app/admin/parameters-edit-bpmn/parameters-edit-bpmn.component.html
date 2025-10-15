@@ -148,9 +148,7 @@
           mat-raised-button
           color="primary"
           (click)="opslaan()"
-          [disabled]="
-            !algemeenFormGroup.valid || isLoading || !featureFlagBpmnSupport
-          "
+          [disabled]="!algemeenFormGroup.valid || isLoading"
         >
           {{ "actie.opslaan" | translate }}
         </button>

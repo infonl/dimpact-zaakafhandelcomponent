@@ -29,7 +29,6 @@ export class ParametersEditBpmnComponent {
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected featureFlagBpmnSupport: boolean = false;
 
   protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
   protected groepen = this.identityService.listGroups();
@@ -95,7 +94,6 @@ export class ParametersEditBpmnComponent {
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
       this.bpmnDefinitions = data.parameters.bpmnProcessDefinitionsList || [];
-      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
 
       await this.createForm();
     });
@@ -124,11 +122,6 @@ export class ParametersEditBpmnComponent {
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? groups?.at(0) ?? null,
       );
-    }
-
-    if (!this.featureFlagBpmnSupport) {
-      // if no bpmn support, disable the form for better UX
-      this.algemeenFormGroup.disable();
     }
   }
 

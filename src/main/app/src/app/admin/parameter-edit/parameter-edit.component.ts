@@ -53,10 +53,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private readonly destroy$ = new Subject<void>();
 
-  isSmartDocumentsStepValid: boolean = true;
-
+  protected isSmartDocumentsStepValid: boolean = true;
   protected isSavedZaakafhandelParameters: boolean = false;
-  showDoelbindingen: boolean = false;
+  protected featureFlagBpmnSupport: boolean = false;
+  protected showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -218,6 +218,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
+      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -333,7 +334,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    if (this.isSavedZaakafhandelParameters) {
+    if (!this.featureFlagBpmnSupport || this.isSavedZaakafhandelParameters) {
       this.cmmnBpmnFormGroup.disable();
     }
 

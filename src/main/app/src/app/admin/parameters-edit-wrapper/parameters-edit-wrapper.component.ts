@@ -35,13 +35,18 @@ export class ParametersEditWrapperComponent
     this.setupMenu("title.parameters.wijzigen");
 
     this.route.data.subscribe(({ parameters }) => {
+      if (!parameters.featureFlagBpmnSupport) {
+        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
+        return;
+      }
+
       if (parameters.isBpmn) {
-        this.processDefinitionType = { type: "BPMN" };
+        this.processDefinitionType = { type: "BPMN", selectedIndexStart: 1 };
         return;
       }
 
       if (parameters.isSavedZaakafhandelParameters) {
-        this.processDefinitionType = { type: "CMMN" };
+        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
         return;
       }
 

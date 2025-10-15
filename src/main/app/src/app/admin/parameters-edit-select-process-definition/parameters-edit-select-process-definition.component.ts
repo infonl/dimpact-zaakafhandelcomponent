@@ -5,7 +5,6 @@
 
 import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
@@ -17,8 +16,6 @@ import {
 })
 export class ParameterEditSelectProcessDefinitionComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
-
-  protected featureFlagBpmnSupport: boolean = false;
 
   protected readonly zaakProcessDefinitionOptions: Array<{
     label: string;
@@ -35,25 +32,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
     } | null>(null, [Validators.required]),
   });
 
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    private readonly route: ActivatedRoute,
-  ) {
-    this.route.data.subscribe(async (data) => {
-      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
-
-      if (!this.featureFlagBpmnSupport) {
-        // if no bpmn support, set input to only possible value and disable it for better UX
-        this.cmmnBpmnFormGroup.controls.options.setValue({
-          value: "CMMN",
-          label: "CMMN",
-        });
-        this.cmmnBpmnFormGroup.controls.options.disable();
-        this.cmmnBpmnFormGroup.controls.options.setValidators([]);
-        this.cmmnBpmnFormGroup.updateValueAndValidity();
-      }
-    });
-  }
+  constructor(private readonly formBuilder: FormBuilder) {}
 
   protected onNext() {
     const selectedOption = this.cmmnBpmnFormGroup.value.options?.value;
