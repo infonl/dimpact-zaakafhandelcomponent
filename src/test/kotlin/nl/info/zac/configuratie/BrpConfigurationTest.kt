@@ -18,10 +18,10 @@ class BrpConfigurationTest : BehaviorSpec({
         val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
 
         When("reading BRP audit log provider") {
-            val protolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
+            val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
 
             Then("empty string is returned") {
-                protolleringProvider shouldContain ""
+                protocolleringProvider shouldContain ""
             }
         }
     }
