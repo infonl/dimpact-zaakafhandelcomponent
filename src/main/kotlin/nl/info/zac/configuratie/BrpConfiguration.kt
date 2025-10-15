@@ -42,14 +42,18 @@ class BrpConfiguration @Inject constructor(
     fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 
     fun readBrpProtocolleringProvider(): String =
-        auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }
-            ?: throw BrpProtocolleringConfigurationException(
-                SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
-                    if (auditLogProvider.isPresent) {
-                        "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: $it"
-                    } else {
-                        "Missing environment variable 'BRP_PROTOCOLLERING'. Supported: $it"
+        if (isBrpProtocolleringEnabled()) {
+            auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }
+                ?: throw BrpProtocolleringConfigurationException(
+                    SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
+                        if (auditLogProvider.isPresent) {
+                            "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: $it"
+                        } else {
+                            "Missing environment variable 'BRP_PROTOCOLLERING'. Supported: $it"
+                        }
                     }
-                }
-            )
+                )
+        } else {
+            ""
+        }
 }
