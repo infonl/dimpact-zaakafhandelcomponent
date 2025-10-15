@@ -178,6 +178,7 @@ export class ParameterEditComponent
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
   brpProcessingValues: string[] = [];
+  brpProtocollering: string = "";
 
   constructor(
     public readonly utilService: UtilService,
@@ -241,7 +242,7 @@ export class ParameterEditComponent
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.showDoelbindingen = this.getProtocolering(brpProtocollering);
+          this.brpProtocollering = brpProtocollering;
           await this.createForm();
         },
       );
@@ -355,6 +356,8 @@ export class ParameterEditComponent
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
+
+    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
     if (this.showDoelbindingen) {
       this.createBrpDoelbindingForm();
     }
