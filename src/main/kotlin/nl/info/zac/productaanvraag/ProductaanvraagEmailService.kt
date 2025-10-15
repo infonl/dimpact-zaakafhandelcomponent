@@ -74,7 +74,7 @@ class ProductaanvraagEmailService @Inject constructor(
         )
 
     private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
-        klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, identity)
+        klantClientService.findDigitalAddressesForPerson(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 

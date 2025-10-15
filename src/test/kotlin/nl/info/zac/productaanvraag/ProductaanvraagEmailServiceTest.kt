@@ -57,7 +57,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -113,7 +113,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -164,7 +164,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -272,7 +272,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val digitalAddress = createDigitalAddress()
 
         every {
-            klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {

@@ -41,7 +41,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
 
             When("digital addresses are retrieved for natuurlijk persoon type") {
-                val result = klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, number)
+                val result = klantClientService.findDigitalAddressesForPerson(number)
 
                 Then("it should return the digital addresses") {
                     result shouldContainExactly digitalAddresses

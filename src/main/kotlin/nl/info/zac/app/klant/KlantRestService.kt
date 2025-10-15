@@ -80,7 +80,7 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses =
-                async { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) }
+                async { klantClientService.findDigitalAddressesForPerson(bsn) }
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
@@ -183,7 +183,7 @@ class KlantRestService @Inject constructor(
     fun getContactDetailsForPerson(
         @PathParam("bsn") bsn: String
     ): RestContactDetails =
-        klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn).toContactDetails().let {
+        klantClientService.findDigitalAddressesForPerson(bsn).toContactDetails().let {
             RestContactDetails(
                 telefoonnummer = it.telephoneNumber,
                 emailadres = it.emailAddress

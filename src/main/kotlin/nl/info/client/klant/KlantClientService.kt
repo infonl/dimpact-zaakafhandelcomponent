@@ -29,6 +29,15 @@ class KlantClientService @Inject constructor(
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
+    fun findDigitalAddressesForPerson(number: String): List<DigitaalAdres> =
+        klantClient.partijenList(
+            expand = "digitaleAdressen",
+            page = 1,
+            pageSize = 1,
+            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NATUURLIJK_PERSOON.toString(),
+            partijIdentificatorObjectId = number
+        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+
     fun listBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =
         klantClient.partijenList(
             expand = "betrokkenen,betrokkenen.hadKlantcontact",
