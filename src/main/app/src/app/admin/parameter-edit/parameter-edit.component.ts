@@ -56,6 +56,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   isSmartDocumentsStepValid: boolean = true;
 
   protected isSavedZaakafhandelParameters: boolean = false;
+  showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -75,7 +76,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
-      verwerkingsregisterWaarde: "",
+      verwerkingregisterWaarde: "",
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
@@ -146,7 +147,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
-    verwerkingsregisterWaarde: new FormControl(""),
+    verwerkingregisterWaarde: new FormControl(""),
   });
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -195,6 +196,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
   brpProcessingValues: string[] = [];
+  brpProtocollering: string = "";
 
   constructor(
     public readonly utilService: UtilService,
@@ -240,6 +242,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
+        configuratieService.readBrpProtocollering(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -252,6 +255,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
+          brpProtocollering,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -263,6 +267,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
+          this.brpProtocollering = brpProtocollering;
           await this.createForm();
         },
       );
@@ -376,8 +381,16 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
-    this.createBrpDoelbindingForm();
+
+    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
+    if (this.showDoelbindingen) {
+      this.createBrpDoelbindingForm();
+    }
     this.createAutomatischeOntvangstbevestigingForm();
+  }
+
+  private getProtocolering(protocolering: string) {
+    return protocolering?.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(
@@ -518,7 +531,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpProtocoleringFormGroup.controls.verwerkingsregisterWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
           value ? [Validators.required] : [],
         );
 
@@ -545,8 +558,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           ? [Validators.required]
           : [],
       ],
-      verwerkingsregisterWaarde: [
-        this.parameters.brpDoelbindingen.verwerkingsregisterWaarde ?? "",
+      verwerkingregisterWaarde: [
+        this.parameters.brpDoelbindingen.verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],

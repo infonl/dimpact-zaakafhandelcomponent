@@ -83,7 +83,7 @@ export class ReferentieTabelService {
 
   listBrpProcessingValues() {
     return this.zacHttpClient.GET(
-      "/rest/referentietabellen/brp-verwerkingsregister-waarde",
+      "/rest/referentietabellen/brp-verwerkingregister-waarde",
     );
   }
 }
