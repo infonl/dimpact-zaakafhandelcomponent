@@ -25,7 +25,7 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
   protected variables: GeneratedType<"MailTemplateVariables">[] = [];
-  protected contactGegevens: GeneratedType<"RestContactGegevens"> | null = null;
+  protected contactGegevens: GeneratedType<"RestContactDetails"> | null = null;
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected readonly form = this.formBuilder.group({
