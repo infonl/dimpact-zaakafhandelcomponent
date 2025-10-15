@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -5,9 +9,44 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_OP_NAAM_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_OP_NAAM_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_AANVULLENDE_INFORMATIE_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_AANVULLENDE_INFORMATIE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_AFGEHANDELD_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_AFGEHANDELD_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
@@ -41,63 +80,63 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "TAAK_ONTVANGSTBEVESTIGING",
-                      "mailTemplateNaam": "Ontvangstbevestiging"
+                      "mail": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_TAAK_OP_NAAM",
-                      "mailTemplateNaam": "Signalering taak op naam"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_TAAK_VERLOPEN",
-                      "mailTemplateNaam": "Signalering taak verlopen"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD",
-                      "mailTemplateNaam": "Signalering zaak document toegevoegd"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_DOCUMENT_TOEGEVOEGD_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_ZAAK_OP_NAAM",
-                      "mailTemplateNaam": "Signalering zaak op naam"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_OP_NAAM_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_OP_NAAM_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM",
-                      "mailTemplateNaam": "Signalering zaak verlopend fatale datum"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_FATALE_DATUM_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM",
-                      "mailTemplateNaam": "Signalering zaak verlopend streefdatum"
+                      "mail": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_SIGNALERING_ZAAK_VERLOPEND_STREEFDATUM_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "TAAK_AANVULLENDE_INFORMATIE",
-                      "mailTemplateNaam": "Taak formulierdefinitie: Aanvullende informatie"
+                      "mail": "$MAIL_TEMPLATE_TAAK_AANVULLENDE_INFORMATIE_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_TAAK_AANVULLENDE_INFORMATIE_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "TAAK_ADVIES_EXTERN",
-                      "mailTemplateNaam": "Taak formulierdefinitie: Extern advies (met e-mail)"
+                      "mail": "$MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "ZAAK_AFGEHANDELD",
-                      "mailTemplateNaam": "Zaak afgehandeld"
+                      "mail": "$MAIL_TEMPLATE_ZAAK_AFGEHANDELD_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_AFGEHANDELD_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "ZAAK_NIET_ONTVANKELIJK",
-                      "mailTemplateNaam": "Zaak niet ontvankelijk"
+                      "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME"
                     },
                     {
                       "defaultMailtemplate": true,
-                      "mail": "ZAAK_ONTVANKELIJK",
-                      "mailTemplateNaam": "Zaak ontvankelijk"
+                      "mail": "$MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL",
+                      "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME"
                     }
                   ]
                 """.trimIndent()
@@ -114,15 +153,14 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
             }
 
-            And("all templates are returned") {
+            And("all mailtemplatekoppeling are returned") {
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                   [
                     {
-                      "id": 1,
                       "mailtemplate": {
                         "defaultMailtemplate": true,
-                        "mail": "ZAAK_NIET_ONTVANKELIJK",
-                        "mailTemplateNaam": "Zaak niet ontvankelijk",
+                        "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                        "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME"
                       },
                       "zaakafhandelParameters": {
                         "afrondenMail": "BESCHIKBAAR_UIT",
@@ -130,7 +168,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "emailReply": "reply@info.nl",
                           "emailSender": "GEMEENTE",
                           "enabled": true,
-                          "templateName": "Ontvangstbevestiging"
+                          "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
                         "betrokkeneKoppelingen": {
                           "brpKoppelen": true,
@@ -144,11 +182,11 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "test-group-a",
+                        "defaultGroepId": "$TEST_GROUP_A_ID",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
-                        "productaanvraagtype": "productaanvraag-type-1",
+                        "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_1",
                         "smartDocuments": {
                           "enabledForZaaktype": true,
                           "enabledGlobally": true
@@ -158,14 +196,14 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
-                          "beginGeldigheid": "2023-09-21",
-                          "doel": "Test zaaktype 3",
-                          "identificatie": "test-zaaktype-3",
+                          "beginGeldigheid": "$DATE_2023_09_21",
+                          "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "Test zaaktype 3",
+                          "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "448356ff-dcfb-4504-9501-7fe929077c4f",
-                          "versiedatum": "2023-09-21",
+                          "uuid": "$ZAAKTYPE_TEST_3_UUID",
+                          "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
@@ -173,9 +211,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     {
                       "mailtemplate": {
                         "defaultMailtemplate": true,
-                        "id": 2,
-                        "mail": "ZAAK_NIET_ONTVANKELIJK",
-                        "mailTemplateNaam": "Zaak niet ontvankelijk",
+                        "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                        "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME"
                       },
                       "zaakafhandelParameters": {
                         "afrondenMail": "BESCHIKBAAR_UIT",
@@ -183,7 +220,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "emailReply": "reply@info.nl",
                           "emailSender": "sender@info.nl",
                           "enabled": true,
-                          "templateName": "Ontvangstbevestiging"
+                          "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
                         "betrokkeneKoppelingen": {
                           "brpKoppelen": true,
@@ -197,13 +234,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "creatiedatum": "2025-10-15T16:19:09.962077Z",
-                        "defaultGroepId": "test-group-a",
+                        "defaultGroepId": "$TEST_GROUP_A_ID",
                         "domein": "domein_test_1",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
-                        "productaanvraagtype": "productaanvraag-type-2",
+                        "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_2",
                         "smartDocuments": {
                           "enabledForZaaktype": true,
                           "enabledGlobally": true
@@ -213,14 +249,14 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "zaakAfzenders": [],
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
-                          "beginGeldigheid": "2023-10-01",
-                          "doel": "Test zaaktype 2",
-                          "identificatie": "test-zaaktype-2",
+                          "beginGeldigheid": "$DATE_2023_10_01",
+                          "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "Test zaaktype 2",
+                          "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "fd2bf643-c98a-4b00-b2b3-9ae0c41ed425",
-                          "versiedatum": "2023-10-01",
+                          "uuid": "$ZAAKTYPE_TEST_2_UUID",
+                          "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
