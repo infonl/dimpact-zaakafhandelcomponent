@@ -476,6 +476,9 @@ object ItestConfiguration {
 
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
 
+    const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL = "ZAAK_ALGEMEEN"
+    const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME = "Algemene e-mail"
+
     /**
      * Global variable to store the id of a task that is created in the integration tests as
      * part of the zaak with UUID [zaakProductaanvraag1Uuid].
