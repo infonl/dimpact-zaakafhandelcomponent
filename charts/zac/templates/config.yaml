@@ -15,6 +15,7 @@ data:
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
   {{- if .Values.brpApi.protocollering.originOin }}
   BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin }}
+  BRP_PROTOCOLLERING: {{ required "Valid .Values.brpApi.protocollering.aanbieder entry required!" .Values.brpApi.protocollering.aanbieder }}
   BRP_DOELBINDING_ZOEKMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!" .Values.brpApi.protocollering.doelbinding.zoekmet }}
   BRP_DOELBINDING_RAADPLEEGMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!" .Values.brpApi.protocollering.doelbinding.raadpleegmet }}
   BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerkingsregister entry required!" .Values.brpApi.protocollering.verwerkingsregister }}

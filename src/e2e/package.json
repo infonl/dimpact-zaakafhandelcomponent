@@ -15,12 +15,12 @@
     "@cucumber/cucumber": "12.2.0",
     "@types/uniqid": "5.3.4",
     "cross-fetch": "4.1.0",
-    "pdf-parse": "2.2.6",
+    "pdf-parse": "2.3.0",
     "uniqid": "5.4.0",
     "zod": "4.1.12"
   },
   "devDependencies": {
-    "@types/node": "22.18.9",
+    "@types/node": "22.18.10",
     "@playwright/test": "1.56.0",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",

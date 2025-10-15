@@ -5,6 +5,7 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import fs from "fs";
+import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
@@ -100,7 +101,7 @@ When(
       .first()
       .fill("e2e-test@team-dimpact.info.nl");
 
-    await this.page.getByPlaceholder("- Kies een groep -").first().click();
+    await this.page.getByLabel("Taak toekennen aan groep").first().click();
     await this.page
       .getByRole("option", { name: user2Profile.group })
       .first()
@@ -348,15 +349,14 @@ Then(
     const filePath = "ExportData/" + suggestedFileName;
     await download.saveAs(filePath);
 
-    const pdf = require("pdf-parse");
     const dataBuffer = fs.readFileSync("./ExportData/" + suggestedFileName);
-    await pdf(dataBuffer).then((data: { text: string }) => {
-      fs.writeFileSync("./ExportData/actual.txt", data.text);
-    });
-
-    let actual_export_values = fs
-      .readFileSync("./ExportData/actual.txt", "utf-8")
-      .replace(/(\r\n|\n|\r)/gm, "");
-    this.expect(actual_export_values).toContain(openFormsTestId);
+    const parser = new PDFParse({ data: dataBuffer });
+    try {
+      const pdfText = await parser.getText();
+      let actual_export_values = pdfText.text.replace(/(\r\n|\n|\r)/gm, "");
+      this.expect(actual_export_values).toContain(openFormsTestId);
+    } finally {
+      await parser.destroy();
+    }
   },
 );

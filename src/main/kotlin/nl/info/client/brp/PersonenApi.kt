@@ -14,6 +14,8 @@ import nl.info.client.brp.exception.BrpResponseExceptionMapper
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.util.BrpClientHeadersFactory
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_DOELBINDING
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_VERWERKING
 import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
@@ -54,7 +56,7 @@ interface PersonenApi {
      * 6. Zoek met nummeraanduiding identificatie
      *
      *@param personenQuery de zoekcriteria voor personen
-     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocolering en autorisatie
+     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocollering en autorisatie
      *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
@@ -62,7 +64,7 @@ interface PersonenApi {
     @POST
     fun personen(
         personenQuery: PersonenQuery,
-        @HeaderParam(BrpClientHeadersFactory.X_DOELBINDING) purpose: String?,
-        @HeaderParam(BrpClientHeadersFactory.X_VERWERKING) auditEvent: String?
+        @HeaderParam(X_DOELBINDING) purpose: String?,
+        @HeaderParam(X_VERWERKING) auditEvent: String?
     ): PersonenQueryResponse
 }

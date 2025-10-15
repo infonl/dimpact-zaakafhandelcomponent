@@ -437,28 +437,24 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
-    val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
-
-    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
-        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
-        "indienen-aansprakelijkstelling-behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
-        "Indienen aansprakelijkstelling door derden behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
-        "74799b20-0350-457d-8773-a0f1ab16b299"
-
     val ZAAKTYPE_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
     const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
     const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
+
+    val ZAAKTYPE_TEST_2_UUID: UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
+    const val ZAAKTYPE_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
+    const val ZAAKTYPE_TEST_2_DESCRIPTION = "Test zaaktype 2"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+
+    val ZAAKTYPE_TEST_3_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    const val ZAAKTYPE_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
+    const val ZAAKTYPE_TEST_3_DESCRIPTION = "Test zaaktype 3"
+    const val ZAAKTYPE_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
@@ -477,6 +473,8 @@ object ItestConfiguration {
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
     const val BPMN_TEST_FORM_NAME = "Test form"
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
+
+    const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
 
     /**
      * Global variable to store the id of a task that is created in the integration tests as

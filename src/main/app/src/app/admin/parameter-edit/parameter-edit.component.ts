@@ -53,6 +53,8 @@ export class ParameterEditComponent
 
   isSmartDocumentsStepValid: boolean = true;
 
+  showDoelbindingen: boolean = false;
+
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
@@ -71,6 +73,7 @@ export class ParameterEditComponent
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
+      verwerkingregisterWaarde: "",
     },
     productaanvraagtype: null,
     automaticEmailConfirmation: {
@@ -123,9 +126,10 @@ export class ParameterEditComponent
     intakeMail: new FormControl(),
     afrondenMail: new FormControl(),
   });
-  brpDoelbindingFormGroup = new FormGroup({
+  brpProtocoleringFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
+    verwerkingregisterWaarde: new FormControl(""),
   });
 
   zaakbeeindigFormGroup = new FormGroup({});
@@ -173,6 +177,8 @@ export class ParameterEditComponent
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
+  brpProcessingValues: string[] = [];
+  brpProtocollering: string = "";
 
   constructor(
     public readonly utilService: UtilService,
@@ -210,6 +216,8 @@ export class ParameterEditComponent
         ),
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
+        referentieTabelService.listBrpProcessingValues(),
+        configuratieService.readBrpProtocollering(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -221,6 +229,8 @@ export class ParameterEditComponent
           resultaattypes,
           brpSearchValues,
           brpViewValues,
+          brpProcessingValues,
+          brpProtocollering,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -231,6 +241,8 @@ export class ParameterEditComponent
           this.resultaattypes = resultaattypes;
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
+          this.brpProcessingValues = brpProcessingValues;
+          this.brpProtocollering = brpProtocollering;
           await this.createForm();
         },
       );
@@ -344,8 +356,16 @@ export class ParameterEditComponent
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
-    this.createBrpDoelbindingForm();
+
+    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
+    if (this.showDoelbindingen) {
+      this.createBrpDoelbindingForm();
+    }
     this.createAutomatischeOntvangstbevestigingForm();
+  }
+
+  private getProtocolering(protocolering: string) {
+    return protocolering?.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(
@@ -480,24 +500,27 @@ export class ParameterEditComponent
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpDoelbindingFormGroup.controls.raadpleegWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpDoelbindingFormGroup.controls.zoekWaarde.setValidators(
+        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
           value ? [Validators.required] : [],
         );
 
-        this.brpDoelbindingFormGroup.updateValueAndValidity({
+        this.brpProtocoleringFormGroup.updateValueAndValidity({
           emitEvent: false,
         });
         if (value) return;
 
-        this.brpDoelbindingFormGroup.reset();
+        this.brpProtocoleringFormGroup.reset();
       });
   }
 
   private createBrpDoelbindingForm() {
-    this.brpDoelbindingFormGroup = this.formBuilder.group({
+    this.brpProtocoleringFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
@@ -506,6 +529,12 @@ export class ParameterEditComponent
       ],
       zoekWaarde: [
         this.parameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value
+          ? [Validators.required]
+          : [],
+      ],
+      verwerkingregisterWaarde: [
+        this.parameters.brpDoelbindingen.verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
@@ -737,7 +766,7 @@ export class ParameterEditComponent
       this.zaakbeeindigFormGroup.valid &&
       this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
-      this.brpDoelbindingFormGroup.valid &&
+      this.brpProtocoleringFormGroup.valid &&
       this.isSmartDocumentsStepValid
     );
   }
@@ -859,7 +888,7 @@ export class ParameterEditComponent
       ),
     };
 
-    this.parameters.brpDoelbindingen = this.brpDoelbindingFormGroup.value;
+    this.parameters.brpDoelbindingen = this.brpProtocoleringFormGroup.value;
 
     const { templateName, emailSender, emailReply, enabled } =
       this.automatischeOntvangstbevestigingFormGroup.value;
