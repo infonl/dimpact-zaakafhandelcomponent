@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
@@ -150,6 +151,18 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "true"
+            }
+        }
+        When("the audit log provider is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/configuratie/brp/protocollering-provider"
+            )
+
+            Then("the configured audit log provider is returned") {
+                response.isSuccessful shouldBe true
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                responseBody shouldBe BRP_PROTOCOLLERING_ICONNECT
             }
         }
     }

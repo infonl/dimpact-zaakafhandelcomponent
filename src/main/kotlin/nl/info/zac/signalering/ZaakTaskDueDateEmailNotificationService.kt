@@ -7,7 +7,7 @@ package nl.info.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
@@ -45,7 +45,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZtcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val searchService: SearchService,
     private val flowableTaskService: FlowableTaskService
 ) {
@@ -87,7 +87,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
-                zaakafhandelParameterService.readZaakafhandelParameters(
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaaktype.url.extractUuid()
                 ).let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let {
@@ -97,7 +97,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing
+                            parameters.einddatumGeplandWaarschuwing!!
                         )
                     }
                     parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
@@ -107,7 +107,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing!!
                         )
                     }
                 }

@@ -1,5 +1,5 @@
 {
-  "priority": 20,
+  "priority": 30,
   "request": {
     "urlPathPattern": "/haalcentraal/api/brp/personen.*",
     "headers": {

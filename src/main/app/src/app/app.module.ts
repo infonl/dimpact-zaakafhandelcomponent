@@ -7,7 +7,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { Injector, NgModule } from "@angular/core";
+import { Injector, isDevMode, NgModule } from "@angular/core";
 
 import {
   APP_BASE_HREF,
@@ -16,9 +16,11 @@ import {
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
 import {
-  QueryClient,
   provideTanStackQuery,
+  QueryClient,
+  QueryFeatures,
 } from "@tanstack/angular-query-experimental";
+import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -37,6 +39,10 @@ import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
+
+const tanstackQueryFeatures: QueryFeatures[] = [];
+
+if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
 
 @NgModule({
   declarations: [AppComponent, ToolbarComponent],
@@ -63,7 +69,7 @@ import { ZoekenModule } from "./zoeken/zoeken.module";
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideTanStackQuery(new QueryClient()),
+    provideTanStackQuery(new QueryClient(), ...tanstackQueryFeatures),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })

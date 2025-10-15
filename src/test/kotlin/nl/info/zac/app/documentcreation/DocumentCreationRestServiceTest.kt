@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.model.createZaak
@@ -20,7 +20,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.test.org.flowable.task.api.createTestTask
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
@@ -43,7 +43,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val bpmnService = mockk<BpmnService>()
     val documentCreationRestService = DocumentCreationRestService(
@@ -52,7 +52,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         cmmnDocumentCreationService = cmmnDocumentCreationService,
         bpmnDocumentCreationService = bpmnDocumentCreationService,
         zrcClientService = zrcClientService,
-        zaakafhandelParameterService = zaakafhandelParameterService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         flowableTaskService = flowableTaskService
     )
 
@@ -92,7 +92,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { policyService.readTaakRechten(task).creerenDocument } returns true
-            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
+            every { zaaktypeCmmnConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
                 restDocumentCreationAttendedData
@@ -154,16 +154,16 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called with disabled document creation") {
-            val zaakafhandelParameters = createZaakafhandelParameters()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { policyService.readTaakRechten(task).creerenDocument } returns true
-            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
+            every { zaaktypeCmmnConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakafhandelParameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
 
             val exception = shouldThrow<SmartDocumentsDisabledException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)

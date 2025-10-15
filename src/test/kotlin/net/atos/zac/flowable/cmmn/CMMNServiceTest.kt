@@ -15,7 +15,7 @@ import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
@@ -41,7 +41,7 @@ class CMMNServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A zaak and zaakafhandelparameters for the related zaaktype") {
+    Given("A zaak and zaaktypeCmmnConfiguration for the related zaaktype") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaakType = createZaakType(
@@ -51,7 +51,7 @@ class CMMNServiceTest : BehaviorSpec({
             zaakTypeURI = zaakType.url,
             uuid = zaakUUID
         )
-        val zaakafhandelparameters = createZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeUUID = zaakTypeUUID
         )
         val zaakData = mapOf("fakeKey" to "fakeValue")
@@ -61,7 +61,7 @@ class CMMNServiceTest : BehaviorSpec({
         every { cmmnRuntimeService.createCaseInstanceBuilder() } returns caseInstanceBuilder
         every {
             caseInstanceBuilder
-                .caseDefinitionKey(zaakafhandelparameters.caseDefinitionID)
+                .caseDefinitionKey(zaaktypeCmmnConfiguration.caseDefinitionID)
                 .businessKey(zaakUUID.toString())
                 .variable("zaakUUID", zaak.uuid)
                 .variable("zaakIdentificatie", zaak.identificatie)
@@ -72,7 +72,7 @@ class CMMNServiceTest : BehaviorSpec({
         every { caseInstanceBuilder.start() } returns caseInstance
 
         When("the zaak is started using the CMMN service") {
-            cmmnService.startCase(zaak, zaakType, zaakafhandelparameters, zaakData)
+            cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, zaakData)
 
             Then("it is successfully started") {
                 verify(exactly = 1) {

@@ -11,34 +11,30 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.BrpDoelbindingen
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
+import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.util.Optional
 
 const val ZAAK = "ZAAK-2000-00002"
-const val CONTEXT = "$ZAAK-134"
-const val ACTION = "E-mail verzenden"
-const val QUERY_PERSONEN_PURPOSE = "testQueryPurpose"
-const val RETRIEVE_PERSOON_PURPOSE = "testRetrievePurpose"
-const val REQUEST_CONTEXT = "$CONTEXT@$ACTION"
 
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()
     val zrcClientService: ZrcClientService = mockk()
-    val zaakafhandelParameterService: ZaakafhandelParameterService = mockk()
+    val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService = mockk()
+    val brpConfiguration = createBrpConfiguration()
     val configuredBrpClientService = BrpClientService(
-        personenApi,
-        Optional.of(QUERY_PERSONEN_PURPOSE),
-        Optional.of(RETRIEVE_PERSOON_PURPOSE),
-        zrcClientService,
-        zaakafhandelParameterService
+        personenApi = personenApi,
+        brpConfiguration = brpConfiguration,
+        zrcClientService = zrcClientService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
     )
     beforeEach {
         checkUnnecessaryStub()
@@ -54,9 +50,11 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val zaak = createZaak()
         val retrievePersoonPurpose = "raadpleegWaarde"
-        val zaakafhandelParameters = createZaakafhandelParameters(
-            brpDoelbindingen = BrpDoelbindingen().apply {
+        val processingValue = "Leerplicht"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
+                verwerkingsregisterWaarde = processingValue
             }
         )
 
@@ -64,18 +62,18 @@ class BrpClientServiceTest : BehaviorSpec({
             zrcClientService.readZaakByID(ZAAK)
         } returns zaak
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
-        } returns zaakafhandelParameters
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
         every {
             personenApi.personen(
                 any(),
                 eq(retrievePersoonPurpose),
-                eq(REQUEST_CONTEXT)
+                eq("$processingValue@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}")
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+            val personResponse = configuredBrpClientService.retrievePersoon(bsn, ZAAK)
 
             Then("it should return the person") {
                 personResponse shouldBe person
@@ -85,11 +83,11 @@ class BrpClientServiceTest : BehaviorSpec({
 
     Given("No person for a given BSN") {
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
+            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault")
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = emptyList())
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", REQUEST_CONTEXT)
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", ZAAK)
 
             Then("it should return null") {
                 personResponse shouldBe null
@@ -103,11 +101,11 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            personenApi.personen(any(), RETRIEVE_PERSOON_PURPOSE, REQUEST_CONTEXT)
+            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault")
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", REQUEST_CONTEXT)
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", ZAAK)
 
             Then("it should return the first person") {
                 personResponse shouldBe persons[0]
@@ -125,9 +123,10 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val zaak = createZaak()
         val queryPersonenPurpose = "zoekWaarde"
-        val zaakafhandelParameters = createZaakafhandelParameters(
-            brpDoelbindingen = BrpDoelbindingen().apply {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 zoekWaarde = queryPersonenPurpose
+                verwerkingsregisterWaarde = "Leerplicht"
             }
         )
 
@@ -135,20 +134,20 @@ class BrpClientServiceTest : BehaviorSpec({
             zrcClientService.readZaakByID(ZAAK)
         } returns zaak
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid())
-        } returns zaakafhandelParameters
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
         every {
             personenApi.personen(
                 any(),
                 eq(queryPersonenPurpose),
-                eq(REQUEST_CONTEXT)
+                eq("Leerplicht@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}")
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("a query is run on personen for this BSN") {
             val personResponse = configuredBrpClientService.queryPersonen(
                 createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                REQUEST_CONTEXT
+                ZAAK
             )
 
             Then("it should return the person") {
@@ -165,22 +164,21 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val brpConfiguration = createBrpConfiguration(queryPersonenDefaultPurpose = Optional.empty())
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenDefaultPurpose = Optional.empty(),
-            retrievePersoonDefaultPurpose = Optional.of(RETRIEVE_PERSOON_PURPOSE),
+            brpConfiguration = brpConfiguration,
             zrcClientService = zrcClientService,
-            zaakafhandelParameterService = zaakafhandelParameterService
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
         )
 
         every {
-            personenApi.personen(any(), null, REQUEST_CONTEXT)
+            personenApi.personen(any(), null, "processingRegisterDefault")
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("queryPersonen is called") {
             val personResponse = brpClientService.queryPersonen(
-                createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                REQUEST_CONTEXT
+                createRaadpleegMetBurgerservicenummer(listOf(bsn))
             )
 
             Then("it should return the person") {
@@ -197,20 +195,20 @@ class BrpClientServiceTest : BehaviorSpec({
         val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val brpConfiguration = createBrpConfiguration(retrievePersoonDefaultPurpose = Optional.empty())
         val brpClientService = BrpClientService(
             personenApi = personenApi,
-            queryPersonenDefaultPurpose = Optional.of(QUERY_PERSONEN_PURPOSE),
-            retrievePersoonDefaultPurpose = Optional.empty(),
+            brpConfiguration = brpConfiguration,
             zrcClientService = zrcClientService,
-            zaakafhandelParameterService = zaakafhandelParameterService
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
         )
 
         every {
-            personenApi.personen(any(), null, REQUEST_CONTEXT)
+            personenApi.personen(any(), null, "processingRegisterDefault")
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
-            val personResponse = brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
 
             Then("it should return the person") {
                 personResponse shouldBe person
@@ -218,7 +216,126 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A person exists for a given BSN") {
+    Given("No processing value configured for BRP person retrieval") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpConfiguration = createBrpConfiguration(processingRegisterDefault = Optional.empty())
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+
+        every {
+            personenApi.personen(any(), "retrievePersoonPurpose", null)
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("Unicode processing value configured for BRP person retrieval") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+        val zaak = createZaak()
+        val retrievePersoonPurpose = "raadpleegWaarde"
+        val processingValue = "Bíj́na"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+                raadpleegWaarde = retrievePersoonPurpose
+                verwerkingsregisterWaarde = processingValue
+            }
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
+        every {
+            // Since we have a processing value in Unicode, the default value is used instead
+            personenApi.personen(any(), retrievePersoonPurpose, "processingRegisterDefault@fakeZaaktypeOmschrijving")
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should still return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("Processing value with whitespaces") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpConfiguration = createBrpConfiguration()
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+        val zaak = createZaak()
+        val retrievePersoonPurpose = "raadpleegWaarde"
+        val processingValue = "  \t Process ing\tvalue\t with whitespaces \t"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+                raadpleegWaarde = retrievePersoonPurpose
+                verwerkingsregisterWaarde = processingValue
+            }
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
+        every {
+            // Since we have a processing value in Unicode, the default value is used instead
+            personenApi.personen(any(), retrievePersoonPurpose, "Process ing\tvalue\t with whitespaces@fakeZaaktypeOmschrijving")
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should still return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("A person exists for a given BSN, but no zaak is found for the given audit event ") {
         val bsn = "123456789"
         val person = createPersoon(
             bsn = bsn
@@ -234,13 +351,13 @@ class BrpClientServiceTest : BehaviorSpec({
         every {
             personenApi.personen(
                 any(),
-                eq(RETRIEVE_PERSOON_PURPOSE),
-                eq(REQUEST_CONTEXT)
+                "retrievePersoonPurpose",
+                "processingRegisterDefault"
             )
         } returns raadpleegMetBurgerservicenummerResponse
 
-        When("no zaak is found for the given audit event and retrieve persoon is called") {
-            val personResponse = configuredBrpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+        When("retrieve persoon is called") {
+            val personResponse = configuredBrpClientService.retrievePersoon(bsn, ZAAK)
 
             Then("retrieving a person should still work") {
                 personResponse shouldBe person

@@ -5,8 +5,8 @@
 
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.admin.model.BetrokkeneKoppelingen
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -17,18 +17,18 @@ data class RestBetrokkeneKoppelingen(
     var kvkKoppelen: Boolean = false,
 )
 
-fun BetrokkeneKoppelingen.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
+fun ZaaktypeCmmnBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
     RestBetrokkeneKoppelingen().apply {
         id = this@toRestBetrokkeneKoppelingen.id
-        brpKoppelen = this@toRestBetrokkeneKoppelingen.brpKoppelen
-        kvkKoppelen = this@toRestBetrokkeneKoppelingen.kvkKoppelen
+        this@toRestBetrokkeneKoppelingen.brpKoppelen?.let { brpKoppelen = it }
+        this@toRestBetrokkeneKoppelingen.kvkKoppelen?.let { kvkKoppelen = it }
     }
 
 fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(
-    zaakafhandelParameters: ZaakafhandelParameters
-): BetrokkeneKoppelingen = BetrokkeneKoppelingen().apply {
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+): ZaaktypeCmmnBetrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters().apply {
     id = this@toBetrokkeneKoppelingen.id
     brpKoppelen = this@toBetrokkeneKoppelingen.brpKoppelen
     kvkKoppelen = this@toBetrokkeneKoppelingen.kvkKoppelen
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }

@@ -79,7 +79,7 @@ class ZacClient {
     }
 
     @Suppress("LongMethod", "LongParameterList")
-    fun createZaakAfhandelParameters(
+    fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
@@ -87,11 +87,12 @@ class ZacClient {
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@info.nl",
         automaticEmailConfirmationReply: String = "reply@info.nl"
     ): Response {
         logger.info {
-            "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
@@ -279,7 +280,8 @@ class ZacClient {
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
-                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde"
+                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
+                "verwerkingWaarde": "$brpVerwerkingWaarde"
               },
               "automaticEmailConfirmation": {
                 "enabled": true,

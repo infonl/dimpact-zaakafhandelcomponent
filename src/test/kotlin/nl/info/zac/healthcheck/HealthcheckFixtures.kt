@@ -27,7 +27,7 @@ fun createZaaktypeInrichtingscheck(
     resultaattypeAanwezig: Boolean = true,
     zaakafhandelParametersValide: Boolean = true,
     besluittypeAanwezig: Boolean = true,
-    brpDoelbindingenAanwezig: Boolean = true,
+    brpInstellingenCorrect: Boolean = true
 ) = ZaaktypeInrichtingscheck(zaaktype).apply {
     isStatustypeIntakeAanwezig = statustypeIntakeAanwezig
     isStatustypeInBehandelingAanwezig = statustypeInBehandelingAanwezig
@@ -42,7 +42,7 @@ fun createZaaktypeInrichtingscheck(
     isResultaattypeAanwezig = resultaattypeAanwezig
     isZaakafhandelParametersValide = zaakafhandelParametersValide
     isBesluittypeAanwezig = besluittypeAanwezig
-    isBrpDoelbindingenAanwezig = brpDoelbindingenAanwezig
+    isBrpInstellingenCorrect = brpInstellingenCorrect
 }
 
 fun createBuildInformation(

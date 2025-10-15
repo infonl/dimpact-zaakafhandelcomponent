@@ -5,8 +5,7 @@
 package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.HumanTaskParameters
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -18,6 +17,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestTaakRechten
@@ -34,7 +34,7 @@ class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val formulierDefinitieService: FormulierDefinitieService,
     private val formioService: FormioService,
 ) {
@@ -120,19 +120,19 @@ class RestTaskConverter @Inject constructor(
         zaaktypeUUID: UUID,
         taskDefinitionKey: String
     ) {
-        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID)
-            .humanTaskParametersCollection
-            .first { taskDefinitionKey == it.planItemDefinitionID }?.let {
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID)
+            .getHumanTaskParametersCollection()
+            .first { taskDefinitionKey == it.planItemDefinitionID }.let {
                 verwerkZaakafhandelParameters(restTask, it)
             }
     }
 
     private fun verwerkZaakafhandelParameters(
         restTask: RestTask,
-        humanTaskParameters: HumanTaskParameters
+        zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters
     ) {
-        restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
-        humanTaskParameters.referentieTabellen.forEach { humanTaskReferentieTabel ->
+        restTask.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID()
+        zaaktypeCmmnHumantaskParameters.getReferentieTabellen().forEach { humanTaskReferentieTabel ->
             restTask.tabellen[humanTaskReferentieTabel.veld] = humanTaskReferentieTabel.tabel.values
                 .map { it.name }
         }

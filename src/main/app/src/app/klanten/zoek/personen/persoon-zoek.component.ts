@@ -40,8 +40,6 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
 
-  protected action = input.required<string>();
-  protected context = input.required<string>();
   protected blockSearch = input<boolean>(false);
 
   private readonly destroy$ = new Subject<void>();
@@ -55,7 +53,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     "acties",
   ] as const;
   personen = new MatTableDataSource<GeneratedType<"RestPersoon">>();
-  foutmelding?: string;
+  foutmelding?: string | null = null;
   loading = false;
   uuid = crypto.randomUUID();
 
@@ -254,17 +252,11 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.personen.data = [];
     const { value } = this.formGroup;
     this.klantenService
-      .listPersonen(
-        {
-          ...value,
-          geboortedatum: value.geboortedatum?.toISOString(),
-          gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
-        },
-        {
-          context: this.context(),
-          action: this.action(),
-        },
-      )
+      .listPersonen({
+        ...value,
+        geboortedatum: value.geboortedatum?.toISOString(),
+        gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
+      })
       .subscribe({
         next: (personen) => {
           this.personen.data = personen.resultaten ?? [];

@@ -58,4 +58,8 @@ class ConfiguratieRestService @Inject constructor(
     @GET
     @Path("gemeente")
     fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configuratieService.readGemeenteNaam())
+
+    @GET
+    @Path("brp/protocollering-provider")
+    fun readBrpProtocolleringProvider(): String = configuratieService.readBrpConfiguration().readBrpProtocolleringProvider()
 }

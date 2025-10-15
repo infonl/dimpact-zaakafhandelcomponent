@@ -78,7 +78,7 @@ describe(InformatieObjectEditComponent.name, () => {
     fromPartial<GeneratedType<"RestTaal">>({
       id: "nl",
       naam: "Nederlands",
-      code: "nl",
+      code: "dut",
       name: "Dutch",
       local: "Nederlands",
     }),

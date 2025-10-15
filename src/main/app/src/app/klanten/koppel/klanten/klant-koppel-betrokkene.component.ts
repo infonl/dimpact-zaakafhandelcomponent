@@ -6,7 +6,6 @@
 import {
   Component,
   EventEmitter,
-  input,
   Input,
   OnInit,
   Output,
@@ -51,9 +50,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
       <zac-persoon-zoek
         *ngIf="type === 'persoon'"
         #zoek
-        [context]="this.context()"
         [blockSearch]="form.invalid"
-        action="klant-koppelen-betrokkene"
         [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
@@ -72,8 +69,6 @@ export class KlantKoppelBetrokkeneComponent implements OnInit {
   @Input() zaaktypeUUID?: string | null = null;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
   @ViewChild("zoek") zoek!: PersoonZoekComponent | BedrijfZoekComponent;
-
-  context = input.required<string>();
 
   protected readonly form = this.formBuilder.group({
     betrokkeneRoltype:

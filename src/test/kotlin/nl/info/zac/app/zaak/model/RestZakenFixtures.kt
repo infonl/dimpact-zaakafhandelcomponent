@@ -10,7 +10,7 @@ import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.admin.createRestZaakAfhandelParameters
+import nl.info.zac.app.admin.createRestZaakafhandelParameters
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
@@ -52,7 +52,6 @@ fun createRestDecision(
 @Suppress("LongParameterList")
 fun createRestDecisionCreateData(
     zaakUuid: UUID = UUID.randomUUID(),
-    resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "fakeToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
@@ -65,7 +64,6 @@ fun createRestDecisionCreateData(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
-        resultaattypeUuid = resultaattypeUuid,
         toelichting = toelichting,
         vervaldatum = vervaldatum,
         zaakUuid = zaakUuid,
@@ -76,7 +74,6 @@ fun createRestDecisionCreateData(
 @Suppress("LongParameterList")
 fun createRestDecisionChangeData(
     besluitUUID: UUID = UUID.randomUUID(),
-    resultTypeUUID: UUID = UUID.randomUUID(),
     description: String = "besluitFakeDescription",
     effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
     expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
@@ -86,7 +83,6 @@ fun createRestDecisionChangeData(
     reason: String = "fakeReason"
 ) = RestDecisionChangeData(
     besluitUuid = besluitUUID,
-    resultaattypeUuid = resultTypeUUID,
     toelichting = description,
     ingangsdatum = effectiveDate,
     vervaldatum = expirationDate,
@@ -174,6 +170,7 @@ fun createRestZaak(
     uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
     publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
+    startdatumBewaartermijn = LocalDate.of(2032, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
     communicatiekanaal = communicatiekanaal,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
@@ -377,7 +374,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaakafhandelParameters: RestZaakafhandelParameters = createRestZaakAfhandelParameters()
+    zaaktypeCmmnConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",
@@ -395,7 +392,7 @@ fun createRestZaaktype(
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),
-    zaakafhandelparameters = zaakafhandelParameters
+    zaakafhandelparameters = zaaktypeCmmnConfiguration
 )
 
 private fun createZaakData() = mapOf(

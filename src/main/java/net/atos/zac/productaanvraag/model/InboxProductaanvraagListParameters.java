@@ -45,4 +45,12 @@ public class InboxProductaanvraagListParameters extends ListParameters {
     public void setInitiatorID(final String initiatorID) {
         this.initiatorID = initiatorID;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "InboxProductaanvraagListParameters{ontvangstdatum=%s, type=%s, initiatorID=%s, sorting=%s, paging=%s}",
+                ontvangstdatum, type, initiatorID, getSorting(), getPaging()
+        );
+    }
 }

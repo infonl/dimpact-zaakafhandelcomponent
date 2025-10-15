@@ -55,16 +55,13 @@ class SearchRestService @Inject constructor(
         @Valid restZoekParameters: RestZoekParameters
     ): RestZoekResultaat<out AbstractRestZoekObject> {
         when (restZoekParameters.type) {
-            ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> assertPolicy(
-                policyService.readWerklijstRechten().zakenTaken
-            )
+            ZoekObjectType.ZAAK, ZoekObjectType.TAAK ->
+                assertPolicy(policyService.readWerklijstRechten().zakenTaken)
             else -> assertPolicy(policyService.readOverigeRechten().zoeken)
         }
-        return restZoekZaakParametersConverter.convert(restZoekParameters).let {
-            searchService.zoek(it).let {
-                restZoekResultaatConverter.convert(it, restZoekParameters)
-            }
-        }
+        val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
+        val zoekResultaat = searchService.zoek(zoekParameters)
+        return restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters)
     }
 
     @PUT
@@ -87,8 +84,8 @@ class SearchRestService @Inject constructor(
     }
 
     private fun isDocumentLinkable(zaakIdentification: String, informationObjectTypeUuid: UUID) =
-        zrcClientService.readZaakByID(zaakIdentification).zaaktype.extractUuid().let {
-            ztcClientService.readZaaktype(it).informatieobjecttypen.any {
+        zrcClientService.readZaakByID(zaakIdentification).zaaktype.extractUuid().let { zaaktypeUUID ->
+            ztcClientService.readZaaktype(zaaktypeUUID).informatieobjecttypen.any {
                 it.extractUuid() == informationObjectTypeUuid
             }
         }

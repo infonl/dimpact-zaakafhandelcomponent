@@ -19,7 +19,7 @@ describe("FoutAfhandelingService", () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: MatDialog, useValue: { open() {} } },
+        { provide: MatDialog, useValue: { open() {}, closeAll() {} } },
         { provide: UtilService, useValue: { openSnackbarError() {} } },
         {
           provide: TranslateService,

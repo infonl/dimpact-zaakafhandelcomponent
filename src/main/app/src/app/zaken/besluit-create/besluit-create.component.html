@@ -15,12 +15,6 @@
   <fieldset>
     <zac-select
       [form]="form"
-      key="resultaat"
-      [options]="resultaattypes"
-      optionDisplayValue="naam"
-    />
-    <zac-select
-      [form]="form"
       key="besluit"
       [options]="besluittypes"
       optionDisplayValue="naam"
@@ -65,9 +59,7 @@
       <zac-date [form]="form" key="uiterlijkereactiedatum" />
     </fieldset>
   </section>
-  <fieldset>
-    <mfb-form-field [field]="documentenField" />
-  </fieldset>
+  <zac-documents [form]="form" key="documenten" [options]="documents" />
   <fieldset>
     <mat-action-row>
       <button

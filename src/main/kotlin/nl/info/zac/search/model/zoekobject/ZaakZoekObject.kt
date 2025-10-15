@@ -95,13 +95,13 @@ data class ZaakZoekObject(
     var redenOpschorting: String? = null,
 
     @Field("zaak_zaaktypeUuid")
-    var zaaktypeUuid: String? = null,
+    var zaaktypeUuid: String,
 
     @Field("zaak_zaaktypeIdentificatie")
-    var zaaktypeIdentificatie: String? = null,
+    var zaaktypeIdentificatie: String,
 
     @Field("zaak_zaaktypeOmschrijving")
-    var zaaktypeOmschrijving: String? = null,
+    var zaaktypeOmschrijving: String,
 
     @Field("zaak_resultaattypeOmschrijving")
     var resultaattypeOmschrijving: String? = null,

@@ -60,11 +60,20 @@
     <div class="flex-row flex-wrap gap-10">
       <mat-card class="taak-formulier w50 flex">
         <mat-card-content>
+          <zac-form
+            *ngIf="formFields.length"
+            [form]="form"
+            [fields]="formFields"
+            [readonly]="isReadonly()"
+            [config]="_formConfig"
+            (formSubmitted)="onHardCodedFormSubmit($event, false)"
+            (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
+          />
           <div class="form">
             <mfb-form
               *ngIf="formulier"
-              (formPartial)="onHardCodedFormPartial($event)"
-              (formSubmit)="onHardCodedFormSubmit($event)"
+              (formPartial)="onHardCodedFormSubmit($event, true)"
+              (formSubmit)="onHardCodedFormSubmit($event, false)"
               [formFields]="formulier.form"
               [config]="formConfig"
             ></mfb-form>
@@ -87,7 +96,12 @@
               (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
+              *ngIf="
+                !formulier &&
+                !formulierDefinitie &&
+                !formioFormulier &&
+                !formFields.length
+              "
               mode="query"
             ></mat-progress-bar>
           </div>

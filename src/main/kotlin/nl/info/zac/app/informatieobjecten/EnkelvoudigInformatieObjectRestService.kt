@@ -196,10 +196,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
 
         val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
-            when {
-                isTaakObject -> restInformatieobjectConverter::convertTaakObject
-                else -> restInformatieobjectConverter::convertZaakObject
-            }
+            restInformatieobjectConverter::convertEnkelvoudigInformatieObject
         )
         val zaakInformatieobject = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
             zaak = zaak,

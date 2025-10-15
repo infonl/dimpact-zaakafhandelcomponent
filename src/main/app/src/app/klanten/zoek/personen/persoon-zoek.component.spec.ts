@@ -105,10 +105,7 @@ describe(PersoonZoekComponent.name, () => {
       const spy = jest.spyOn(klantenService, "listPersonen");
       component.zoekPersonen();
 
-      expect(spy).toHaveBeenCalledWith(expect.any(Object), {
-        context: "test-context",
-        action: "test-action",
-      });
+      expect(spy).toHaveBeenCalledWith(expect.any(Object));
     });
 
     it("should pass the fields in the request when the form is valid", async () => {
@@ -124,10 +121,6 @@ describe(PersoonZoekComponent.name, () => {
         expect.objectContaining({
           bsn: "999990408",
         }),
-        {
-          context: "test-context",
-          action: "test-action",
-        },
       );
     });
 

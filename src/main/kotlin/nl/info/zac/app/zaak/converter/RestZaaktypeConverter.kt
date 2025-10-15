@@ -5,7 +5,7 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
@@ -20,7 +20,7 @@ import java.time.Period
 
 class RestZaaktypeConverter @Inject constructor(
     private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     fun convert(zaaktype: ZaakType): RestZaaktype {
         val zaaktypeRelaties = ArrayList<RestZaaktypeRelatie>()
@@ -58,8 +58,8 @@ class RestZaaktypeConverter @Inject constructor(
             zaaktypeRelaties = zaaktypeRelaties,
             informatieobjecttypes = zaaktype.informatieobjecttypen.map { it.extractUuid() },
             referentieproces = zaaktype.referentieproces?.naam,
-            zaakafhandelparameters = zaakafhandelParametersConverter.toRestZaakafhandelParameters(
-                zaakafhandelParameterService.readZaakafhandelParameters(zaaktype.url.extractUuid()),
+            zaakafhandelparameters = zaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktype.url.extractUuid()),
                 true
             )
         )

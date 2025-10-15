@@ -11,7 +11,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, of, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
-import { HttpParamsError } from "../shared/http/zac-http-client";
+import { HttpParamsError } from "../shared/http/http-client";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 
@@ -84,6 +84,7 @@ export class FoutAfhandelingService {
     details: string,
     showServerErrorTexts?: boolean,
   ) {
+    this.dialog.closeAll(); // Make sure that only one error dialog is open at a time
     this.dialog.open(FoutDetailedDialogComponent, {
       data: {
         error,

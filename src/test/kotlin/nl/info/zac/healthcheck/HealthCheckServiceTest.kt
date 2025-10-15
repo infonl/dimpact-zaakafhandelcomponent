@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
@@ -21,7 +21,8 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createReferenceTableValue
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.ZonedDateTime
@@ -31,7 +32,7 @@ import java.util.UUID
 class HealthCheckServiceTest : BehaviorSpec({
 
     @Suppress("UNCHECKED_CAST")
-    Given("A zaaktype with two initiator role types") {
+    Given("A zaaktype with two initiator role types and invalid BRP parameters") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
         val versionNumber = Optional.of("0.0.0") as Optional<String?>
@@ -39,7 +40,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         val zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
 
         val referenceTableService = mockk<ReferenceTableService>()
-        val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+        val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -47,15 +48,15 @@ class HealthCheckServiceTest : BehaviorSpec({
             commitHash,
             versionNumber,
             referenceTableService,
-            zaakafhandelParameterService,
+            zaaktypeCmmnConfigurationService,
             ztcClientService
         )
 
         every { ztcClientService.resetCacheTimeToNow() } returns ZonedDateTime.now()
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns createZaakType(zaaktypeUri)
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
-        } returns createZaakafhandelParameters(groupId = "fakeGroupId")
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } returns createZaaktypeCmmnConfiguration(groupId = "fakeGroupId")
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
@@ -94,12 +95,40 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE.name)
         } returns createReferenceTable()
+        every {
+            referenceTableService.readReferenceTable(SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE.name)
+        } returns createReferenceTable(
+            values = mutableListOf(
+                createReferenceTableValue(name = "Algemeen"),
+                createReferenceTableValue(name = "Bíj́na")
+            )
+        )
 
         When("controleerZaaktype is called") {
             val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
 
             Then("The zaaktypeInrichtingscheck is invalid") {
                 zaaktypeInrichtingscheck.isValide shouldBe false
+            }
+
+            Then("The reason for the invalidity is reported") {
+                with(zaaktypeInrichtingscheck) {
+                    isStatustypeIntakeAanwezig shouldBe true
+                    isStatustypeInBehandelingAanwezig shouldBe true
+                    isStatustypeHeropendAanwezig shouldBe true
+                    isStatustypeAanvullendeInformatieVereist shouldBe true
+                    isStatustypeAfgerondAanwezig shouldBe true
+                    isStatustypeAfgerondLaatsteVolgnummer shouldBe true
+                    isResultaattypeAanwezig shouldBe true
+                    aantalInitiatorroltypen shouldBe 2
+                    aantalBehandelaarroltypen shouldBe 1
+                    isRolOverigeAanwezig shouldBe true
+                    isInformatieobjecttypeEmailAanwezig shouldBe true
+                    isBesluittypeAanwezig shouldBe true
+                    resultaattypesMetVerplichtBesluit shouldBe arrayOf("fakeOmschrijving")
+                    isZaakafhandelParametersValide shouldBe true
+                    isBrpInstellingenCorrect shouldBe false
+                }
             }
 
             And("the number of initiator roles is detected") {

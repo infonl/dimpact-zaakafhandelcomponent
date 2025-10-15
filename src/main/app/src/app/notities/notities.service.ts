@@ -4,11 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import {
-  PatchBody,
-  PostBody,
-  ZacHttpClient,
-} from "../shared/http/zac-http-client";
+import { PatchBody, PostBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",

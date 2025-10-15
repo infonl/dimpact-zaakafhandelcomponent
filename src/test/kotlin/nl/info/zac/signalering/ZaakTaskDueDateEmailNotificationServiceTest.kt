@@ -12,7 +12,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -20,7 +20,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.search.SearchService
@@ -35,7 +35,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
     val configuratieService = mockk<ConfiguratieService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val searchService = mockk<SearchService>()
     val flowableTaskService = mockk<FlowableTaskService>()
 
@@ -43,7 +43,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         signaleringService,
         configuratieService,
         ztcClientService,
-        zaakafhandelParameterService,
+        zaaktypeCmmnConfigurationService,
         searchService,
         flowableTaskService
     )
@@ -65,11 +65,11 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             omschrijving = "fakeZaakTypeOmschrijving2"
         )
         val zaakTypen = listOf(zaakType1, zaakType2)
-        val zaakAfhandelParameters1 = createZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration1 = createZaaktypeCmmnConfiguration(
             zaaktypeUUID = zaakTypeUUID1,
             einddatumGeplandWaarschuwing = 1
         )
-        val zaakAfhandelParameters2 = createZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration2 = createZaaktypeCmmnConfiguration(
             zaaktypeUUID = zaakTypeUUID2
         )
         val assigneeName = "fakeAssignee"
@@ -92,8 +92,12 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
 
         every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID1) } returns zaakAfhandelParameters1
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID2) } returns zaakAfhandelParameters2
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID1)
+        } returns zaaktypeCmmnConfiguration1
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID2)
+        } returns zaaktypeCmmnConfiguration2
         every { flowableTaskService.listOpenTasksDueNow() } returns emptyList()
         every {
             signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, assigneeName)
@@ -132,8 +136,8 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             omschrijving = "fakeZaakTypeOmschrijving2"
         )
         val zaakTypen = listOf(zaakType1, zaakType2)
-        val zaakAfhandelParameters1 = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID1)
-        val zaakAfhandelParameters2 = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID2)
+        val zaaktypeCmmnConfiguration1 = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID1)
+        val zaaktypeCmmnConfiguration2 = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID2)
         val assigneeName = "fakeAssignee"
         val openTask = mockk<Task>()
         every { openTask.assignee } returns assigneeName
@@ -154,8 +158,12 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         )
         every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID1) } returns zaakAfhandelParameters1
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID2) } returns zaakAfhandelParameters2
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID1)
+        } returns zaaktypeCmmnConfiguration1
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID2)
+        } returns zaaktypeCmmnConfiguration2
         every { flowableTaskService.listOpenTasksDueNow() } returns listOf(openTask)
         every {
             signaleringService.readInstellingenUser(any<SignaleringType.Type>(), assigneeName)

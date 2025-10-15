@@ -4,12 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import {
-  DeleteBody,
-  PostBody,
-  PutBody,
-  ZacHttpClient,
-} from "../shared/http/zac-http-client";
+import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({

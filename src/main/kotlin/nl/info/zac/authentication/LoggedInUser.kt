@@ -15,9 +15,14 @@ class LoggedInUser(
     email: String?,
     val roles: Set<String>,
     val groupIds: Set<String>,
+
     /**
      * List of zaaktypen for which the logged-in user is authorised, or 'null' if the user is authorised for all zaaktypen.
      */
+    @Deprecated(
+        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+            "since a user is always authorised for a zaaktype _for specific application roles_."
+    )
     val geautoriseerdeZaaktypen: Set<String>? = null,
 
     /**
@@ -27,14 +32,19 @@ class LoggedInUser(
     val applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
 
 ) : User(id, firstName, lastName, displayName, email) {
+    @Deprecated(
+        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+            "since a user is always authorised for a zaaktype _for specific application roles_."
+    )
     fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
+    /**
+     * Check if a zaaktype is authorised when PABC is disabled
+     */
+    @Deprecated(
+        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
+            "since a user is always authorised for a zaaktype _for specific application roles_."
+    )
     fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String) =
         geautoriseerdeZaaktypen?.contains(zaaktypeOmschrijving) ?: true
-
-    /**
-     * If PABC-based authorization is active, use the map of application roles per zaaktype.
-     */
-    fun isAuthorisedForZaaktypePabc(zaaktypeOmschrijving: String) =
-        applicationRolesPerZaaktype[zaaktypeOmschrijving]?.isNotEmpty() == true
 }

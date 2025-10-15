@@ -27,39 +27,58 @@ export class BetrokkeneIdentificatie
     this.type = this.getType(betrokkene);
     switch (this.type) {
       case "BSN":
-        if ("bsn" in betrokkene) {
+        if ("bsn" in betrokkene && betrokkene.bsn !== null) {
           this.bsnNummer = betrokkene.bsn;
           break;
         }
-        if ("bsnNummer" in betrokkene) {
+        if ("bsnNummer" in betrokkene && betrokkene.bsnNummer !== null) {
           this.bsnNummer = betrokkene.bsnNummer;
           break;
         }
         throw new Error(
           `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
         );
-        break;
       case "VN":
-        if ("kvkNummer" in betrokkene || "vestigingsnummer" in betrokkene) {
-          this.kvkNummer = betrokkene.kvkNummer;
+        if (
+          "vestigingsnummer" in betrokkene &&
+          betrokkene.vestigingsnummer !== null
+        ) {
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
           this.vestigingsnummer = betrokkene.vestigingsnummer;
           break;
         }
+
+        if (
+          "identificatie" in betrokkene &&
+          betrokkene.identificatie !== null
+        ) {
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
+          this.vestigingsnummer = betrokkene.identificatie;
+          break;
+        }
+
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or vestigingsnummer`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a vestigingsnummer`,
         );
       case "RSIN":
-        if ("kvkNummer" in betrokkene || "rsin" in betrokkene) {
+        if (
+          ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) ||
+          ("rsin" in betrokkene && betrokkene.rsin !== null)
+        ) {
           this.kvkNummer = betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN
           this.rsin = betrokkene.rsin; // For backwards compatibility
           break;
         }
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a kvkNummer or rsin`,
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a kvkNummer or rsin`,
         );
       default:
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${this.type}`,
+          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type "${this.type}"`,
         );
     }
   }
@@ -84,7 +103,7 @@ export class BetrokkeneIdentificatie
         case "BSN":
           return betrokkene.type as GeneratedType<"IdentificatieType">;
         default:
-          throw new Error(`Unsupported betrokkene type ${betrokkene.type}`);
+          throw new Error(`Unsupported betrokkene type "${betrokkene.type}"`);
       }
     }
 

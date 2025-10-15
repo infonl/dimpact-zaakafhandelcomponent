@@ -12,10 +12,12 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
@@ -29,12 +31,14 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec({
@@ -56,12 +60,12 @@ class IdentityServiceTest : BehaviorSpec({
     Given(
         """
             Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
-            zaakafhandelparameters for a given zaaktype UUID
+            zaaktypeCmmnConfiguration for a given zaaktype UUID
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
                 "only those groups which have the domain role are returned"
@@ -81,12 +85,12 @@ class IdentityServiceTest : BehaviorSpec({
     Given(
         """
             Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
-            zaakafhandelparameters for a given domein role
+            zaaktypeCmmnConfiguration for a given domein role
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_3_UUID"
             )
             Then(
                 "all groups are returned"
@@ -101,12 +105,12 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("All 8 specific users are returned") {
+            Then("All specific users are returned") {
                 response.isSuccessful shouldBe true
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
+                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_USERNAME",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
@@ -122,6 +126,10 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_BEHANDELAAR_1_NAME"
                                 },
                                 {
+                                    "id": "$TEST_BEHANDELAAR_2_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_2_NAME"
+                                },
+                                {
                                     "id": "$TEST_RAADPLEGER_1_USERNAME",
                                     "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
@@ -134,8 +142,12 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_USER_2_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
                                     "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_2_USERNAME",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_2_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_WITHOUT_ANY_ROLE_USERNAME",

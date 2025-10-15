@@ -39,10 +39,10 @@ import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
@@ -101,10 +101,11 @@ class SearchRestServiceTest : BehaviorSpec({
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+
                 // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
-                        "foutmelding": "",                      
+                        "foutmelding": "",
                         "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN + TOTAL_COUNT_INDEXED_TASKS + TOTAL_COUNT_INDEXED_DOCUMENTS},
                         "filters": {
                             "TYPE": [
@@ -124,11 +125,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             "ZAAKTYPE": [
                                 {
                                     "aantal": 7,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 14,
-                                    "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                    "aantal": 19,
+                                    "naam": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 6,
@@ -143,7 +144,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 13,
+                                    "aantal": 15,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 },
                                 {
@@ -153,7 +154,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 15,
+                                    "aantal": 17,
                                     "naam": "false"
                                 },
                                 {
@@ -167,7 +168,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 7,
                                     "naam": "Intake"
                                 },
                                 {
@@ -179,15 +180,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "In behandeling"
                                 }
                             ],
-                            "ZAAK_RESULTAAT": [
-                              {
-                                "aantal": 2,
-                                "naam": "Buiten behandeling"
-                              },
-                              {
-                                "aantal": 1,
-                                "naam": "Toegekend"
-                              }
+                           "ZAAK_RESULTAAT" : [
+
+                                { "aantal": 2, "naam": "Buiten behandeling" }
+
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -205,13 +201,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 5,
                                     "naam": "E-formulier"
                                 }                               
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 14,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -243,7 +239,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 10,
                                     "naam": "definitief"
                                 },
                                 {
@@ -253,11 +249,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                                 },
                                 {
@@ -268,15 +264,15 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 11,
+                                    "aantal": 14,
                                     "naam": "ONDERTEKEND"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "VERZONDEN"
                                 }
                             ]
@@ -305,7 +301,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "filters": {
                         "ZAAKTYPE": {
                              "values": [
-                               "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                               "$ZAAKTYPE_TEST_2_DESCRIPTION"
                              ],
                              "inverse": "false"
                         }
@@ -333,11 +329,11 @@ class SearchRestServiceTest : BehaviorSpec({
                       "totaal" : 4,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 4,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 6,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         }, {
                           "aantal" : 4,
-                          "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                          "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
@@ -367,14 +363,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             } 
                          ],
                         "ZAAK_RESULTAAT" : [
-                         {
-                            "aantal": 1,
-                            "naam": "Toegekend"
-                          },                       
                           {
-                             "aantal" : 3,
-                             "naam" : "-NULL-"
-                           } 
+                            "aantal" : 4,
+                            "naam" : "-NULL-"
+                          }
                         ],
                         "ZAAK_INDICATIES" : [                    
                           {                       
@@ -587,7 +579,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "status": "TOEGEKEND",
                                 "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
                                 "zaakToelichting": "null",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                             },
                             {
                                 "type": "TAAK",
@@ -604,7 +596,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
                                 "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
                                 "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                             },
                             {
                               "type": "TAAK",
@@ -630,11 +622,11 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                                 }
                             ],
                             "BEHANDELAAR": [
@@ -717,24 +709,24 @@ class SearchRestServiceTest : BehaviorSpec({
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 9,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 12,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 7,
+                          "aantal" : 10,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         }, {
                           "aantal" : 4,
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 7,
+                          "aantal" : 9,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
@@ -748,10 +740,10 @@ class SearchRestServiceTest : BehaviorSpec({
                           "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
-                          "aantal" : 10,
+                          "aantal" : 11,
                           "naam" : "GEBRUIKSRECHT"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "VERZONDEN"
                         } ]
                       }                                                                  
@@ -821,30 +813,34 @@ class SearchRestServiceTest : BehaviorSpec({
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK",
                         "zaakIdentificatie" : "$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
                         "zaakRelatie" : "Hoort bij, omgekeerd: kent",
-                        "zaaktypeIdentificatie" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                        "zaaktypeUuid" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                        "zaaktypeIdentificatie" : "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "zaaktypeUuid" : "$ZAAKTYPE_TEST_3_UUID"
+                      }, {
+                        "type" : "DOCUMENT" 
+                      }, {
+                        "type" : "DOCUMENT"
                       } ],
-                      "totaal" : 1.0,
+                      "totaal" : 3.0,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 1,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 3,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "-NULL-"
                         } ],
                         "DOCUMENT_INDICATIES" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "ONDERTEKEND"
                         } ]
                       }                   

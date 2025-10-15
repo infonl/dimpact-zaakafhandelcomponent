@@ -14,6 +14,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -30,10 +31,8 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.model.ZaakbeeindigParameter
-import net.atos.zac.admin.model.ZaakbeeindigReden
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
@@ -69,9 +68,11 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.admin.model.ZaakbeeindigReden
+import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakAfzender
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
@@ -111,7 +112,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
@@ -122,6 +123,7 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechten
@@ -171,7 +173,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -180,37 +182,37 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryService = mockk<ZaakHistoryService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
-        decisionService = decisionService,
-        cmmnService = cmmnService,
-        identityService = identityService,
-        inboxProductaanvraagService = inboxProductaanvraagService,
-        loggedInUserInstance = loggedInUserInstance,
-        objectsClientService = objectsClientService,
-        policyService = policyService,
-        productaanvraagService = productaanvraagService,
-        restZaakConverter = restZaakConverter,
-        zaakafhandelParameterService = zaakafhandelParameterService,
-        zaakVariabelenService = zaakVariabelenService,
-        zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService,
-        zaakService = zaakService,
-        indexingService = indexingService,
-        zaakHistoryLineConverter = zaakHistoryLineConverter,
-        restDecisionConverter = restDecisionConverter,
-        bpmnService = bpmnService,
-        brcClientService = brcClientService,
-        configuratieService = configuratieService,
-        drcClientService = drcClientService,
-        eventingService = eventingService,
-        healthCheckService = healthCheckService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
-        opschortenZaakHelper = opschortenZaakHelper,
-        restZaakOverzichtConverter = restZaakOverzichtConverter,
-        signaleringService = signaleringService,
-        flowableTaskService = flowableTaskService,
-        restZaaktypeConverter = restZaaktypeConverter,
-        zaakHistoryService = zaakHistoryService,
         zgwApiService = zgwApiService,
+        productaanvraagService = productaanvraagService,
+        decisionService = decisionService,
+        brcClientService = brcClientService,
+        drcClientService = drcClientService,
+        ztcClientService = ztcClientService,
+        zrcClientService = zrcClientService,
+        eventingService = eventingService,
+        identityService = identityService,
+        signaleringService = signaleringService,
+        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        indexingService = indexingService,
+        policyService = policyService,
+        cmmnService = cmmnService,
+        bpmnService = bpmnService,
+        flowableTaskService = flowableTaskService,
+        objectsClientService = objectsClientService,
+        inboxProductaanvraagService = inboxProductaanvraagService,
+        zaakVariabelenService = zaakVariabelenService,
+        configuratieService = configuratieService,
+        loggedInUserInstance = loggedInUserInstance,
+        restZaakConverter = restZaakConverter,
+        restZaaktypeConverter = restZaaktypeConverter,
+        restDecisionConverter = restDecisionConverter,
+        restZaakOverzichtConverter = restZaakOverzichtConverter,
+        zaakHistoryLineConverter = zaakHistoryLineConverter,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        healthCheckService = healthCheckService,
+        opschortenZaakHelper = opschortenZaakHelper,
+        zaakService = zaakService,
+        zaakHistoryService = zaakHistoryService,
         dispatcher = testDispatcher
     )
 
@@ -247,7 +249,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val rolMedewerker = createRolMedewerker()
             val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
             val user = createLoggedInUser()
-            val zaakAfhandelParameters = createZaakafhandelParameters()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val zaakObjectPand = createZaakobjectPand()
             val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
             val zaak = createZaak(zaakTypeURI = zaakType.url)
@@ -259,7 +261,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagBpmnSupport() } returns false
             every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
             every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
-            every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
+            every { cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null) } just runs
             every {
                 inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
             } just runs
@@ -283,8 +285,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakAfhandelParameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
             every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
             every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
             every {
@@ -330,7 +332,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     restZaakReturned shouldBe restZaak
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
-                        cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
+                        cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null)
                     }
                     verify(exactly = 2) {
                         zrcClientService.createZaakobject(any())
@@ -363,7 +365,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 restZaakCreateData = createRestZaakCreateData(communicatiekanaal = null)
             )
             every { zaakService.readZaakTypeByUUID(any()) } returns zaakType
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak creation is attempted") {
                 val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -382,7 +386,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 restZaakCreateData = createRestZaakCreateData(communicatiekanaal = "      ")
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak creation is attempted") {
                 val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -402,8 +408,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(any())
-            } returns createZaakafhandelParameters()
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak creation is attempted") {
                 val exception = shouldThrow<DueDateNotAllowed> {
@@ -422,17 +428,18 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("This is not allowed in the zaak afhandel parameters") {
                 val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
                     brpKoppelen = false,
-                    zaakafhandelParameters = createZaakafhandelParameters()
+                    zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
                 )
-                val zaakafhandelParameters = createZaakafhandelParameters(betrokkeneKoppelingen = betrokkeneKoppelingen)
+                val zaaktypeCmmnConfiguration =
+                    createZaaktypeCmmnConfiguration(zaaktypeCmmnBetrokkeneParameters = betrokkeneKoppelingen)
                 val zaakType = createZaakType()
                 val restZaakCreateData = createRestZaakCreateData()
                 val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(restZaakCreateData = restZaakCreateData)
 
                 every { zaakService.readZaakTypeByUUID(restZaakCreateData.zaaktype.uuid) } returns zaakType
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(restZaakCreateData.zaaktype.uuid)
-                } returns zaakafhandelParameters
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(restZaakCreateData.zaaktype.uuid)
+                } returns zaaktypeCmmnConfiguration
 
                 val exception = shouldThrow<BetrokkeneNotAllowedException> {
                     zaakRestService.createZaak(zaakAanmaakGegevens)
@@ -1025,7 +1032,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak final date is set to a later date") {
                 val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -1060,7 +1069,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
             every { identityService.validateIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested") {
                 shouldThrow<InputValidationFailedException> {
@@ -1084,7 +1095,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -1130,7 +1143,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -1173,7 +1188,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zaakafhandelParameterService.readZaakafhandelParameters(any()) } returns createZaakafhandelParameters()
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<DueDateNotAllowed> {
@@ -1482,18 +1499,18 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaakTypeURI = zaakType.url)
-            val zaakAfhandelParameters = createZaakafhandelParameters()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakAfhandelParameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
             every {
                 zgwApiService.createResultaatForZaak(
                     zaak,
-                    zaakAfhandelParameters.nietOntvankelijkResultaattype,
+                    zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                     "Zaak is niet ontvankelijk"
                 )
             } just runs
@@ -1510,7 +1527,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.createResultaatForZaak(
                             zaak,
-                            zaakAfhandelParameters.nietOntvankelijkResultaattype,
+                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
                         zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk")
@@ -1553,9 +1570,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaakTypeURI = zaakType.url)
             val resultTypeUUID = UUID.randomUUID()
-            val zaakAfhandelParameters = createZaakafhandelParameters(
-                zaakbeeindigParameters = setOf(
-                    ZaakbeeindigParameter().apply {
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeCmmnCompletionParameters = setOf(
+                    ZaaktypeCmmnCompletionParameters().apply {
                         id = 123
                         resultaattype = resultTypeUUID
                         zaakbeeindigReden = ZaakbeeindigReden().apply {
@@ -1570,8 +1587,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakAfhandelParameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
             every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
             every { zgwApiService.endZaak(zaak, "-2 name") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
@@ -1603,10 +1620,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing zaak types") {
+    Context("Listing zaak types that can be used for zaak creation") {
         Given(
             """
-        Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
+        Two existing CMMN zaaktypes in the configured catalogue for which the logged in user is authorised
         and which are valid on the current date
         """
         ) {
@@ -1626,46 +1643,37 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
             )
             val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
-            val loggedInUser = createLoggedInUser(
-                zaakTypes = zaaktypes.map { it.omschrijving }.toSet()
-            )
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-            every { loggedInUserInstance.get() } returns loggedInUser
             zaaktypes.forEach {
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
             }
-            And("BPMN support is disabled") {
-                every { configuratieService.featureFlagBpmnSupport() } returns false
+            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { configuratieService.featureFlagBpmnSupport() } returns false
 
-                When("the zaaktypes are requested") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+            When("the zaaktypes are requested") {
+                val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                    Then("the zaaktypes are returned for which the user is authorised") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe restZaaktypes
+                Then("only CMMN zaaktypes are returned for which the user is authorised") {
+                    verify(exactly = 1) {
+                        ztcClientService.listZaaktypen(defaultCatalogueURI)
                     }
+                    returnedRestZaaktypes shouldHaveSize 2
+                    returnedRestZaaktypes shouldBe restZaaktypes
                 }
             }
         }
 
-        Given(
-            """
-        Two existing zaaktypes in the configured catalogue for which the logged in user is authorised
-        and which are valid on the current date and of which the first zaaktype has valid zaakafhandelparameters
-        """
-        ) {
+        Given("Two CMMN and one BPMN zaaktypes valid on the current date") {
             clearAllMocks()
             val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
             val now = LocalDate.now()
             val zaakType1UUID = UUID.randomUUID()
             val zaakType2UUID = UUID.randomUUID()
+            val zaakType3UUID = UUID.randomUUID()
             val zaaktypes = listOf(
                 createZaakType(
                     omschrijving = "Zaaktype 1",
@@ -1678,34 +1686,66 @@ class ZaakRestServiceTest : BehaviorSpec({
                     identification = "ZAAKTYPE2",
                     uri = URI("https://example.com/zaaktypes/$zaakType2UUID"),
                     beginGeldigheid = now.minusDays(1)
-                )
+                ),
+                createZaakType(
+                    omschrijving = "Zaaktype 3",
+                    identification = "ZAAKTYPE3",
+                    uri = URI("https://example.com/zaaktypes/$zaakType3UUID"),
+                    beginGeldigheid = now.minusDays(1)
+                ),
             )
-            val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
-            val loggedInUser = createLoggedInUser(
-                zaakTypes = zaaktypes.map { it.omschrijving }.toSet()
-            )
+            val restZaaktype1 = createRestZaaktype()
+            val restZaaktype2 = createRestZaaktype()
+            val restZaaktype3 = createRestZaaktype()
+            val restZaaktypes = listOf(restZaaktype1, restZaaktype2, restZaaktype3)
             val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
-            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
-            every { configuratieService.featureFlagBpmnSupport() } returns true
-            every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { healthCheckService.controleerZaaktype(zaaktypes[0].url) } returns zaaktypeInrichtingscheck
-            zaaktypes.forEach {
+            zaaktypes.slice(0..1).forEach {
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+                every { bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) } returns null
+            }
+            zaaktypes.last().let {
+                every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+                every {
+                    bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid())
+                } returns createZaaktypeBpmnConfiguration()
             }
 
-            And(
-                "BPMN support is enabled and a BPMN process definition exists for the second but not for the first zaaktype"
-            ) {
+            And("all zaaktypes are authorised") {
+                zaaktypes.forEach {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
+                }
+
                 every { configuratieService.featureFlagBpmnSupport() } returns true
-                every { configuratieService.featureFlagPabcIntegration() } returns false
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType1UUID) } returns null
-                every { bpmnService.findProcessDefinitionForZaaktype(zaakType2UUID) } returns createZaaktypeBpmnProcessDefinition()
+                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+                every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
-                When("the zaaktypes are requested") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+                When("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                    Then("the zaaktypes are returned for which the user is authorised") {
+                    Then("all zaaktypes are returned") {
+                        verify(exactly = 1) {
+                            ztcClientService.listZaaktypen(defaultCatalogueURI)
+                        }
+                        verify(exactly = 3) {
+                            bpmnService.findProcessDefinitionForZaaktype(any())
+                        }
+                        returnedRestZaaktypes shouldHaveSize 3
+                        returnedRestZaaktypes shouldBe restZaaktypes
+                    }
+                }
+            }
+            And("a user is not authorised for a CMMN zaaktype, because of missing startenZaak right") {
+                clearMocks(ztcClientService, bpmnService, answers = false)
+                zaaktypes[1].let {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten(startenZaak = false)
+                }
+
+                When("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                    Then("only the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
@@ -1713,7 +1753,29 @@ class ZaakRestServiceTest : BehaviorSpec({
                             bpmnService.findProcessDefinitionForZaaktype(any())
                         }
                         returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe restZaaktypes
+                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
+                    }
+                }
+            }
+            And("user is not authorised for a CMMN zaaktype") {
+                clearMocks(ztcClientService, bpmnService, answers = false)
+                zaaktypes[1].let {
+                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
+                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns false
+                }
+
+                When("the zaaktypes are listed") {
+                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
+
+                    Then("the authorised zaaktypes are returned") {
+                        verify(exactly = 1) {
+                            ztcClientService.listZaaktypen(defaultCatalogueURI)
+                        }
+                        verify(exactly = 2) {
+                            bpmnService.findProcessDefinitionForZaaktype(any())
+                        }
+                        returnedRestZaaktypes shouldHaveSize 2
+                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
                     }
                 }
             }
@@ -1926,35 +1988,28 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing afzenders for zaak and reading the default afzender for a zaak") {
-        Given("Zaakafhandelparameters with zaakafzenders, one of which uses 'special mails'") {
+        Given("ZaaktypeCmmnConfiguration object with zaakafzenders, one of which uses 'special mails'") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
                 zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
-            val zaakafhandelparameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
-            val zaakAfzenders = setOf(
-                createZaakAfzender(
-                    id = 1L,
-                    zaakafhandelParameters = zaakafhandelparameters,
-                    defaultMail = false,
-                    mail = "test@example.com",
-                    replyTo = null
-                ),
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
+            val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
                 createZaakAfzender(
                     id = 2L,
-                    zaakafhandelParameters = zaakafhandelparameters,
+                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     defaultMail = true,
                     mail = "GEMEENTE",
                     replyTo = "MEDEWERKER"
-                ),
+                )
             )
-            zaakafhandelparameters.setZaakAfzenders(zaakAfzenders)
+            zaaktypeCmmnConfiguration.setZaakAfzenders(zaakAfzenders)
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakafhandelparameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
             every { configuratieService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 email = "fake-medewerker@example.com"
@@ -1970,7 +2025,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         // should be added automatically
                         size shouldBe 3
                         first().apply {
-                            id shouldBe 2L
+                            id shouldBe null
                             defaultMail shouldBe true
                             mail shouldBe "fake-gemeente@example.com"
                             replyTo shouldBe "fake-medewerker@example.com"
@@ -1984,10 +2039,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                             speciaal shouldBe true
                         }
                         last().apply {
-                            id shouldBe 1L
+                            id shouldBe null
                             defaultMail shouldBe false
-                            mail shouldBe "test@example.com"
-                            replyTo shouldBe null
+                            mail shouldBe "mail@example.com"
+                            replyTo shouldBe "replyTo@example.com"
                             speciaal shouldBe false
                         }
                     }
@@ -2000,7 +2055,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 Then("the default afzender is returned with the email address of the special mail type") {
                     returnedDefaultRestZaakAfzender shouldNotBe null
                     with(returnedDefaultRestZaakAfzender!!) {
-                        id shouldBe 2L
+                        id shouldBe null
                         defaultMail shouldBe true
                         mail shouldBe "fake-gemeente@example.com"
                         replyTo shouldBe "fake-medewerker@example.com"
@@ -2010,19 +2065,19 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Zaakafhandelparameters without any zaakafzenders") {
+        Given("ZaaktypeCmmnConfiguration without any zaakafzenders") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
                 zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
-            val zaakafhandelparameters = createZaakafhandelParameters(zaaktypeUUID = zaakTypeUUID)
-            zaakafhandelparameters.setZaakAfzenders(emptyList())
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
+            zaaktypeCmmnConfiguration.setZaakAfzenders(emptyList())
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
-            } returns zaakafhandelparameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
             every { configuratieService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 email = "fake-medewerker@example.com"

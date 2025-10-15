@@ -22,15 +22,11 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.6@sha256:82c5b7a110456dbd42b86ea572e728878549954cc8bd03cd65410d75328095d2
+    image: quay.io/keycloak/keycloak:26.3.5@sha256:357829ec7c4693397533035092ad13b0644bcc95ded311f33a3738c4d9e9bdba
     depends_on:
       keycloak-database:
         condition: service_healthy
     ports:
-      # Workaround to avoid the 'We are sorry... HTTPS required' error when trying to access the Keycloak master
-      # realm on macOS (with Docker Desktop).
-      # See: https://github.com/keycloak/keycloak/issues/30112
-      # This issue may be solved in a future Docker Desktop for the Mac version.
       - "127.0.0.1:8081:8080"
       - "9001:9000"
     healthcheck:
@@ -42,22 +38,28 @@ services:
       timeout: 10s
       retries: 10
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
+      - KC_HOSTNAME=http://localhost:8081
       - KC_HTTP_ENABLED=true
-      - DB_VENDOR=postgres
-      - DB_ADDR=keycloak-database
-      - DB_USER=keycloak
-      - DB_NAME=keycloak
-      - DB_PASSWORD=keycloak
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-database
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak
+      - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
       - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
       - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
+      - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuserdomaintest1@example.com}
+      - ZAC_TESTUSER_DOMEIN_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_2_EMAIL_ADDRESS:-testuserdomaintest2@example.com}
       - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
       - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
       - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
       - ZAC_COORDINATOR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_1_EMAIL_ADDRESS:-coordinator1@example.com}
       - ZAC_BEHANDELAAR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_1_EMAIL_ADDRESS:-behandelaar1@example.com}
+      - ZAC_BEHANDELAAR_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_2_EMAIL_ADDRESS:-behandelaar2@example.com}
       - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
@@ -71,8 +73,6 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
-      - "--features=hostname:v1"
-      - "--hostname-url=http://localhost:8081"
 
   openzaak-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -163,7 +163,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.5@sha256:49061c0de5717822cf6702ef3197f6817f26b98d46765c308c1e23e6b261997b
+    image: redis:7.4.6@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -244,7 +244,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.8.0-static@sha256:3c350b0f3130e71000c43c859e1479d8bb9c693442e7e5180e59026b61c068a1
+    image: docker.io/openpolicyagent/opa:1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -255,13 +255,13 @@ services:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
     ports:
-      - "5052:8080"
+      - "18084:8080"
     depends_on:
       brp-personen-mock:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202508211438@sha256:43062e9200a1ae7cb92f1830acf0ab7ca19272dea0756400caaeb4748bed9fa5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202509221256@sha256:551ea5a7cab3dd96b2d682a7acebb5d162049d8b3d27b5195e59559e0d6132d5
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -349,7 +349,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.8.0@sha256:0917dda453560b65798d3c78caed0376c4db0708f1e4df5724058a5dfd412948
+    image: docker.io/openpolicyagent/opa:1.9.0@sha256:bd7e1216865884be8095726fb80282ece2f6b531883bc86f9f8917f2fc52de61
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -358,14 +358,14 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a
     platform: linux/amd64
     ports:
       - "8083:8080"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.134.1@sha256:c8e0fde6d4d8dd17da0d2a6a3c882a894718ad5cde64aa516dc46ab6385fe42b
+    image: docker.io/otel/opentelemetry-collector:0.137.0@sha256:089a8b3c81d328a190f6f0740b30c15b0c7f1f2cfeadeb810355574d5158b31c
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -381,7 +381,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:2.8.2@sha256:0ef775495967cd5d7a6b2e146b6ea695d624803c8db8349fb8ce4164f719f9b7
+    image: docker.io/grafana/tempo:2.9.0@sha256:65a5789759435f1ef696f1953258b9bbdb18eb571d5ce711ff812d2e128288a4
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -395,7 +395,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    image: docker.io/prom/prometheus:v3.6.0@sha256:76947e7ef22f8a698fc638f706685909be425dbe09bd7a2cd7aca849f79b5f64
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -408,7 +408,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    image: docker.io/grafana/grafana:12.2.0@sha256:74144189b38447facf737dfd0f3906e42e0776212bf575dc3334c3609183adf7
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -431,7 +431,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.5@sha256:8a2024725c7b1ce8f720644bccb6f237781992a8cbf283023446eb7d29326ad0
+    image: docker.io/greenmail/standalone:2.1.7@sha256:d4208fff461fd1809a108073681a2bdbdbbc13bee9557fe77d1f2f05a7a1a37d
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -573,7 +573,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -624,7 +624,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -638,7 +638,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -654,7 +654,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.1.0@sha256:64219b232f7efa49e8c3fcd134920c6e47664ca8b8416691c1371dc46a10a7a1
+    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -664,7 +664,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.29.1@sha256:33e0bbc7ca9ecf108140af6288c7c9d1ecc77548cbfd3952fd8466a75edefe57
+    image: nginx:1.29.2@sha256:3b7732505933ca591ce4a6d860cb713ad96a3176b82f7979a8dfa9973486a0d6
     ports:
       - "8005:80"
     volumes:
@@ -752,14 +752,16 @@ services:
       - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
       - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
+      - BRP_VERWERKINGSREGISTER=Algemeen
+      - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac
       - DB_PASSWORD=password
       - DB_USER=zac
-      - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-false}
-      - FEATURE_FLAG_PABC_INTEGRATION=${FEATURE_FLAG_PABC_INTEGRATION:-false}
+      - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-true}
+      - FEATURE_FLAG_PABC_INTEGRATION=${FEATURE_FLAG_PABC_INTEGRATION:-true}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-FakeZacGemeente}

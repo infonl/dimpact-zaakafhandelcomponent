@@ -10,7 +10,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -26,18 +25,9 @@ export class BesluitCreateComponent implements OnInit {
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
   protected besluittypes: GeneratedType<"RestDecisionType">[] = [];
-
-  protected documentenField = new DocumentenLijstFieldBuilder()
-    .id("documenten")
-    .label("documenten")
-    .build();
+  protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
-    resultaat:
-      this.formBuilder.control<GeneratedType<"RestResultaattype"> | null>(
-        null,
-        Validators.required,
-      ),
     besluit: this.formBuilder.control<GeneratedType<"RestDecisionType"> | null>(
       null,
       Validators.required,
@@ -53,6 +43,9 @@ export class BesluitCreateComponent implements OnInit {
     publicationEnabled: this.formBuilder.control(false),
     publicatiedatum: this.formBuilder.control<Moment | null>(moment()),
     uiterlijkereactiedatum: this.formBuilder.control<Moment | null>(null),
+    documenten: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([]),
   });
 
   // For dynamically add minimum date validators
@@ -65,18 +58,6 @@ export class BesluitCreateComponent implements OnInit {
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly formBuilder: FormBuilder,
   ) {
-    this.form.controls.resultaat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((value) => {
-        if (value?.vervaldatumBesluitVerplicht) {
-          this.form.controls.vervaldatum.addValidators([Validators.required]);
-        } else {
-          this.form.controls.vervaldatum.removeValidators([
-            Validators.required,
-          ]);
-        }
-      });
-
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -108,10 +89,8 @@ export class BesluitCreateComponent implements OnInit {
             zaakUUID: this.zaak.uuid,
             besluittypeUUID: value.id,
           })
-          .subscribe((documenten) => {
-            this.documentenField.formControl.setValue(
-              documenten.map((document) => document.uuid).join(";"),
-            );
+          .subscribe((documents) => {
+            this.documents = documents;
           });
 
         this.form.controls.publicationEnabled.setValue(
@@ -174,10 +153,6 @@ export class BesluitCreateComponent implements OnInit {
       .subscribe((besluittypes) => {
         this.besluittypes = besluittypes;
       });
-
-    this.form.patchValue({
-      resultaat: this.zaak.resultaat?.resultaattype,
-    });
   }
 
   submit() {
@@ -187,11 +162,12 @@ export class BesluitCreateComponent implements OnInit {
       .createBesluit({
         ...value,
         zaakUuid: this.zaak.uuid,
-        resultaattypeUuid: value.resultaat!.id,
         besluittypeUuid: value.besluit!.id,
         ingangsdatum: value.ingangsdatum?.toISOString(),
         vervaldatum: value.vervaldatum?.toISOString(),
-        informatieobjecten: this.documentenField.value.toString().split(";"),
+        informatieobjecten: value.documenten
+          ?.map(({ uuid }) => uuid!)
+          .filter(Boolean),
         ...(value.publicationEnabled
           ? {
               publicationDate: value.publicatiedatum?.toISOString(),

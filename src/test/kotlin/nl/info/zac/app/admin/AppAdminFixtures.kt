@@ -72,7 +72,7 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakAfhandelParameters(
+fun createRestZaakafhandelParameters(
     id: Long? = 1234L,
     domein: String = "fakeDomein",
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
@@ -134,10 +134,27 @@ fun createRestZaakbeeindigReden(
     this.naam = name
 }
 
+@Suppress("LongParameterList")
+fun createRestResultaattype(
+    id: UUID = UUID.randomUUID(),
+    name: String = "fakeRestResultaattype",
+    genericName: String = "fakeGenericName",
+    vervaldatumBesluitVerplicht: Boolean = false,
+    datumKenmerkVerplicht: Boolean = false,
+    besluitVerplicht: Boolean = false
+) = RestResultaattype(
+    id = id,
+    naam = name,
+    naamGeneriek = genericName,
+    vervaldatumBesluitVerplicht = vervaldatumBesluitVerplicht,
+    datumKenmerkVerplicht = datumKenmerkVerplicht,
+    besluitVerplicht = besluitVerplicht
+)
+
 fun createRestZaakbeeindigParameter(
     id: Long = 1L,
     zaakbeeindigReden: RESTZaakbeeindigReden = createRestZaakbeeindigReden(),
-    resultaattype: RestResultaattype
+    resultaattype: RestResultaattype = createRestResultaattype()
 ) = RESTZaakbeeindigParameter().apply {
     this.id = id
     this.zaakbeeindigReden = zaakbeeindigReden

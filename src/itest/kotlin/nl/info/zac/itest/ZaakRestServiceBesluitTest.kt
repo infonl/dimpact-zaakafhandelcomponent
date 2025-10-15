@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
@@ -47,7 +47,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         lateinit var besluitUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
@@ -82,7 +82,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
             with(JSONArray(body.string())) {
                 // we expect 4 resultaat types for this zaak type
@@ -92,7 +92,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+            "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
             with(JSONArray(body.string())) {
                 // we expect 2 besluit types for this zaak type

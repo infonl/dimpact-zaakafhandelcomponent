@@ -150,7 +150,7 @@ describe(ParameterEditComponent.name, () => {
       const caseHandlerSelect = selectFields[3];
 
       const value = await caseHandlerSelect.getValueText();
-      expect(value).toBe("test-user");
+      expect(value).toBe("-kies.generiek-");
     });
 
     it.skip("should update the case handlers when the group changes", async () => {

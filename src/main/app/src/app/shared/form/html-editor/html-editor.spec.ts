@@ -7,6 +7,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { CommonModule } from "@angular/common";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
@@ -36,6 +37,7 @@ interface TestForm extends Record<string, AbstractControl> {
 
 describe(ZacHtmlEditor.name, () => {
   let component: ZacHtmlEditor<TestForm, keyof TestForm>;
+  let componentRef: ComponentRef<typeof component>;
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
 
@@ -69,13 +71,14 @@ describe(ZacHtmlEditor.name, () => {
 
     fixture = TestBed.createComponent(ZacHtmlEditor<TestForm, keyof TestForm>);
     component = fixture.componentInstance;
+    componentRef = fixture.componentRef;
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("Basic functionality", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "content";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
     });
 
@@ -95,26 +98,28 @@ describe(ZacHtmlEditor.name, () => {
     });
 
     it("should bind to the form control", () => {
-      component.form.controls.content.setValue("Test content");
+      component.form().controls.content.setValue("Test content");
       fixture.detectChanges();
 
-      expect(component.form.controls.content.value).toBe("<p>Test content</p>");
+      expect(component.form().controls.content.value).toBe(
+        "<p>Test content</p>",
+      );
     });
   });
 
   describe("Toolbar configuration", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "content";
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
     });
 
     it("should use custom toolbar when provided", () => {
       const customToolbar: Toolbar = [["bold", "italic"]];
-      component.toolbar = customToolbar;
+      componentRef.setInput("toolbar", customToolbar);
       fixture.detectChanges();
 
-      expect(component.toolbar).toEqual(customToolbar);
+      expect(component["computedToolbar"]()).toEqual(customToolbar);
     });
   });
 
@@ -122,8 +127,8 @@ describe(ZacHtmlEditor.name, () => {
     it("should apply maxlength constraint", () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.maxLength(100));
-      component.form = form;
-      component.key = "content";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
 
       const editorElement = fixture.nativeElement.querySelector("ngx-editor");
@@ -133,8 +138,8 @@ describe(ZacHtmlEditor.name, () => {
     it("should display required validation error when field is empty and has required validator", async () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.required);
-      component.form = form;
-      component.key = "content";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
 
       const error = await loader.getHarness(
@@ -148,8 +153,8 @@ describe(ZacHtmlEditor.name, () => {
     it("should not display validation error when field is valid", async () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.required);
-      component.form = form;
-      component.key = "content";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
 
       form.controls.content.setValue("Valid content");
@@ -166,8 +171,8 @@ describe(ZacHtmlEditor.name, () => {
     it("should display maxlength validation error when content exceeds limit", async () => {
       const form = createTestForm();
       form.controls.content.addValidators(Validators.maxLength(10));
-      component.form = form;
-      component.key = "content";
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
       fixture.detectChanges();
 
       form.controls.content.setValue(
@@ -186,21 +191,21 @@ describe(ZacHtmlEditor.name, () => {
 
   describe("Plain text schema", () => {
     beforeEach(() => {
-      component.form = createTestForm();
-      component.key = "content";
-      component.isPlainText = true;
+      componentRef.setInput("form", createTestForm());
+      componentRef.setInput("key", "content");
+      componentRef.setInput("isPlainText", true);
       fixture.detectChanges();
     });
 
     it("should use plain text schema when isPlainText is true", () => {
-      expect(component.toolbar).toEqual([]);
+      expect(component["computedToolbar"]()).toEqual([]);
     });
 
     it("should strip html tags", () => {
-      component.form.controls.content.setValue("Test content");
+      component.form().controls.content.setValue("Test content");
       fixture.detectChanges();
 
-      expect(component.form.controls.content.value).toBe("Test content");
+      expect(component.form().controls.content.value).toBe("Test content");
     });
   });
 });

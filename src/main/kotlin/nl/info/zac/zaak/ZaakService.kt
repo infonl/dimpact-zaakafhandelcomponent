@@ -12,7 +12,7 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
@@ -66,7 +66,7 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -219,7 +219,7 @@ class ZaakService @Inject constructor(
      * @return true if the group has access to the zaak's domain, false otherwise
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
             val hasAccess = params.domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value ||
                 this.zacClientRoles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value) ||
                 params.domein?.let {

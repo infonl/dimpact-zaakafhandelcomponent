@@ -14,21 +14,20 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.HumanTaskParameters
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
@@ -54,7 +53,6 @@ import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util.Optional
 import java.util.UUID
 
 /**
@@ -71,8 +69,7 @@ class PlanItemsRestService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private var cmmnService: CMMNService,
     private var zrcClientService: ZrcClientService,
-    private var brcClientService: BrcClientService,
-    private var zaakafhandelParameterService: ZaakafhandelParameterService,
+    private var zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private var planItemConverter: RESTPlanItemConverter,
     private var zgwApiService: ZGWApiService,
     private var indexingService: IndexingService,
@@ -131,7 +128,7 @@ class PlanItemsRestService @Inject constructor(
         cmmnService.readOpenPlanItem(planItemId).let { planItemInstance ->
             zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
                 zaakVariabelenService.readZaaktypeUUID(planItemInstance).let { zaaktypeUUID ->
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).let { zaps ->
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).let { zaps ->
                         planItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaps)
                     }
                 }
@@ -147,11 +144,11 @@ class PlanItemsRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
         assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
 
-        val fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak)?.also {
+        val fatalDate = calculateFatalDate(humanTaskData, zaaktypeCmmnConfiguration, planItem, zaak)?.also {
             if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
                 val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
@@ -164,9 +161,9 @@ class PlanItemsRestService @Inject constructor(
         if (humanTaskData.taakStuurGegevens.sendMail && humanTaskData.taakStuurGegevens.mail != null) {
             val mail = Mail.valueOf(humanTaskData.taakStuurGegevens.mail as String)
 
-            val mailTemplate = zaakafhandelParameters.mailtemplateKoppelingen
-                .map { it.mailTemplate }
-                .firstOrNull { it.mail == mail }
+            val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+                ?.map { it.mailTemplate }
+                ?.firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readMailtemplate(mail)
 
             val afzender = configuratieService.readGemeenteNaam()
@@ -248,25 +245,20 @@ class PlanItemsRestService @Inject constructor(
         if (userEventListenerData.zaakOntvankelijk) return
 
         zaakService.checkZaakAfsluitbaar(zaak)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
-        zgwApiService.createResultaatForZaak(
-            zaak,
-            zaakafhandelParameters.nietOntvankelijkResultaattype,
-            userEventListenerData.resultaatToelichting
-        )
+        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
+            zgwApiService.createResultaatForZaak(
+                zaak,
+                resultaattypeUUID,
+                userEventListenerData.resultaatToelichting
+            )
+        }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
         zaakService.checkZaakAfsluitbaar(zaak)
-
-        if (!brcClientService.listBesluiten(zaak).isEmpty()) {
-            val resultaat = zrcClientService.readResultaat(zaak.resultaat)
-            resultaat.toelichting = userEventListenerData.resultaatToelichting
-            zrcClientService.updateResultaat(resultaat)
-            return
-        }
 
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zaakService.processBrondatumProcedure(
@@ -289,11 +281,11 @@ class PlanItemsRestService @Inject constructor(
 
     private fun calculateFatalDate(
         humanTaskData: RESTHumanTaskData,
-        zaakafhandelParameters: ZaakafhandelParameters,
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         planItem: PlanItemInstance,
         zaak: Zaak
     ): LocalDate? {
-        val humanTaskParameters = zaakafhandelParameters.findHumanTaskParameter(planItem.planItemDefinitionId)
+        val humanTaskParameters = zaaktypeCmmnConfiguration.findHumanTaskParameter(planItem.planItemDefinitionId)
         val zaakFatalDate = zaak.uiterlijkeEinddatumAfdoening
 
         humanTaskData.fataledatum?.let {
@@ -308,17 +300,16 @@ class PlanItemsRestService @Inject constructor(
     }
 
     private fun calculateFatalDateFromLeadTime(
-        humanTaskParameters: Optional<HumanTaskParameters>,
+        zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters?,
         zaakFatalDate: LocalDate?
     ): LocalDate? {
-        if (humanTaskParameters.isPresent && humanTaskParameters.get().doorlooptijd != null) {
-            var calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().doorlooptijd.toLong())
-            if (calculatedFinalDate.isAfter(zaakFatalDate)) {
+        zaaktypeCmmnHumantaskParameters?.doorlooptijd?.let { days ->
+            var calculatedFinalDate = LocalDate.now().plusDays(days.toLong())
+            if (zaakFatalDate != null && calculatedFinalDate.isAfter(zaakFatalDate)) {
                 calculatedFinalDate = zaakFatalDate
             }
             return calculatedFinalDate
         }
-
         return null
     }
 

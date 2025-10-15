@@ -4,11 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import {
-  PostBody,
-  PutBody,
-  ZacHttpClient,
-} from "../shared/http/zac-http-client";
+import { PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -81,6 +78,12 @@ export class ReferentieTabelService {
   listBrpViewValues() {
     return this.zacHttpClient.GET(
       "/rest/referentietabellen/brp-doelbinding-raadpleeg-waarde",
+    );
+  }
+
+  listBrpProcessingValues() {
+    return this.zacHttpClient.GET(
+      "/rest/referentietabellen/brp-verwerkingsregister-waarde",
     );
   }
 }

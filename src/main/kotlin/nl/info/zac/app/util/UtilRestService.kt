@@ -11,7 +11,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -31,7 +31,7 @@ import kotlin.time.toDuration
 @Suppress("TooManyFunctions")
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val policyService: PolicyService
 ) {
     companion object {
@@ -155,14 +155,14 @@ class UtilRestService @Inject constructor(
     private fun clearAllZhpsCaches() =
         ZHPS + ul(
             listOf(
-                zaakafhandelParameterService.clearManagedCache(),
-                zaakafhandelParameterService.clearListCache()
+                zaaktypeCmmnConfigurationService.clearManagedCache(),
+                zaaktypeCmmnConfigurationService.clearListCache()
             )
         )
 
     private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
-    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
+    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeCmmnConfigurationService)
 
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
         val cacheStatistics = caching.cacheStatistics()

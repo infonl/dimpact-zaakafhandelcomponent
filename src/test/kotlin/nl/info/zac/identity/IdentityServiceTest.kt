@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.identity.exception.GroupNotFoundException
@@ -23,10 +23,10 @@ import java.util.UUID
 class IdentityServiceTest : BehaviorSpec({
     val zacKeycloakClientId = "fakeZacKeycloakClientId"
     val realmResource = mockk<RealmResource>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
-        zaakafhandelParameterService = zaakafhandelParameterService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zacKeycloakClientId = zacKeycloakClientId
     )
 
@@ -289,7 +289,7 @@ class IdentityServiceTest : BehaviorSpec({
     Given(
         """
             One Keycloak group with a ZAC client role that is equal to the domein role configured in the 
-            zaakafhandelparameters for a zaaktype uuid, and another Keycloak group with a different ZAC client role.
+            zaaktypeCmmnConfiguration for a zaaktype uuid, and another Keycloak group with a different ZAC client role.
         """.trimIndent()
     ) {
         val zaaktypeUuid = UUID.randomUUID()
@@ -306,7 +306,7 @@ class IdentityServiceTest : BehaviorSpec({
         every {
             realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
         } returns listOf(groupRepresentation1, groupRepresentation2)
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein } returns domeinRole
+        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domeinRole
 
         When("groups for the zaaktype UUID are listed") {
             val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
@@ -336,7 +336,7 @@ class IdentityServiceTest : BehaviorSpec({
             realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
         } returns listOf(groupRepresentation1, groupRepresentation2)
         every {
-            zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
         } returns "domein_elk_zaaktype"
 
         When("groups for the zaaktype UUID are listed") {
@@ -354,7 +354,7 @@ class IdentityServiceTest : BehaviorSpec({
         val zaaktypeUuid = UUID.randomUUID()
         val domain = "anyDomain"
         every { realmResource.groups().groups("", 0, Integer.MAX_VALUE, false) } returns emptyList()
-        every { zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein } returns domain
+        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domain
 
         When("groups for the zaaktype UUID are listed") {
             val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)

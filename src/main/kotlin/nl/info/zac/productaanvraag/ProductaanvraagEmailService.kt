@@ -7,12 +7,12 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.SoortDigitaalAdresEnum
-import net.atos.zac.admin.model.AutomaticEmailConfirmation
-import net.atos.zac.admin.model.ZaakAfzender
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
@@ -44,12 +44,16 @@ class ProductaanvraagEmailService @Inject constructor(
     fun sendEmailForZaakFromProductaanvraag(
         zaak: Zaak,
         betrokkene: Betrokkene?,
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
-        zaakafhandelParameters.automaticEmailConfirmation?.takeIf { it.enabled }?.let { automaticEmailConfirmation ->
+        LOG.fine {
+            "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
+                "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
+        }
+        zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
-                    sendMail(automaticEmailConfirmation, to, zaak)
+                    sendMail(zaaktypeCmmnEmailParameters, to, zaak)
                 } ?: LOG.fine(
                     "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."
@@ -64,23 +68,28 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = ::fetchEmail,
-            onVestigingIdentity = ::fetchEmail,
+            onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
     private fun fetchEmail(identity: String): String? =
-        klantClientService.findDigitalAddressesByNumber(identity)
+        klantClientService.findDigitalAddresses(identity)
+            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            ?.adres
+
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
+        klantClientService.findDigitalAddresses(vestigingsNummer ?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
     private fun sendMail(
-        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         zaakFromProductaanvraag: Zaak
     ) {
-        automaticEmailConfirmation.templateName?.let { templateName ->
+        zaaktypeCmmnEmailParameters.templateName?.let { templateName ->
             mailTemplateService.findMailtemplateByName(templateName)?.let { mailTemplate ->
-                configureEmail(automaticEmailConfirmation, to, mailTemplate)?.let { mailGegevens ->
+                configureEmail(zaaktypeCmmnEmailParameters, to, mailTemplate)?.let { mailGegevens ->
                     mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
@@ -89,7 +98,7 @@ class ProductaanvraagEmailService @Inject constructor(
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.warning(
-                "No mail template found with name: '${automaticEmailConfirmation.templateName}'. " +
+                "No mail template found with name: '${zaaktypeCmmnEmailParameters.templateName}'. " +
                     "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
@@ -99,14 +108,14 @@ class ProductaanvraagEmailService @Inject constructor(
     }
 
     private fun configureEmail(
-        automaticEmailConfirmation: AutomaticEmailConfirmation,
+        zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         mailTemplate: MailTemplate
-    ) = automaticEmailConfirmation.emailSender?.let { emailSender ->
+    ) = zaaktypeCmmnEmailParameters.emailSender?.let { emailSender ->
         MailGegevens(
             from = emailSender.generateMailAddress(configuratieService),
             to = MailAdres(email = to, name = null),
-            replyTo = automaticEmailConfirmation.emailReply?.generateMailAddress(configuratieService),
+            replyTo = zaaktypeCmmnEmailParameters.emailReply?.generateMailAddress(configuratieService),
             subject = mailTemplate.onderwerp,
             body = mailTemplate.body,
             attachments = null,
@@ -116,7 +125,7 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun String.generateMailAddress(configurationService: ConfiguratieService) =
         when (this) {
-            ZaakAfzender.SpecialMail.GEMEENTE.toString() -> MailAdres(
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE.toString() -> MailAdres(
                 email = configurationService.readGemeenteMail(),
                 name = configurationService.readGemeenteNaam()
             )

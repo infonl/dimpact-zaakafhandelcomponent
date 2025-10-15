@@ -34,9 +34,9 @@ public interface Caching {
 
     String ZTC_ZAAKTYPE_INFORMATIEOBJECTTYPE = "ztc-zaaktypeinformatieobjecttype";
 
-    String ZAC_ZAAKAFHANDELPARAMETERS_MANAGED = "zac-zaakafhandelparameters-read";
+    String ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED = "zac-zaaktypecmmnconfiguration-read";
 
-    String ZAC_ZAAKAFHANDELPARAMETERS = "zac-zaakafhandelparameters-list";
+    String ZAC_ZAAKTYPECMMNCONFIGURATION = "zac-zaaktypecmmnconfiguration-list";
 
     Map<String, CacheStats> cacheStatistics();
 

@@ -44,10 +44,14 @@ class ZaakZoekObjectConverter @Inject constructor(
 
     @Suppress("LongMethod")
     private fun convert(zaak: Zaak): ZaakZoekObject {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
             id = zaak.uuid.toString(),
             type = ZoekObjectType.ZAAK.name,
-            identificatie = zaak.identificatie
+            identificatie = zaak.identificatie,
+            zaaktypeIdentificatie = zaaktype.identificatie,
+            zaaktypeOmschrijving = zaaktype.omschrijving,
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
@@ -88,11 +92,6 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaakZoekObject.behandelaarNaam = it.getFullName()
             zaakZoekObject.behandelaarGebruikersnaam = it.id
             zaakZoekObject.isToegekend = true
-        }
-        ztcClientService.readZaaktype(zaak.zaaktype).let {
-            zaakZoekObject.zaaktypeIdentificatie = it.identificatie
-            zaakZoekObject.zaaktypeOmschrijving = it.omschrijving
-            zaakZoekObject.zaaktypeUuid = it.url.extractUuid().toString()
         }
         zaak.status?.let {
             val status = zrcClientService.readStatus(it)

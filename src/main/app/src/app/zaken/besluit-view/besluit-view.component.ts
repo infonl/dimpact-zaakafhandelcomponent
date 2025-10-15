@@ -43,7 +43,6 @@ import { ZakenService } from "../zaken.service";
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];
-  @Input({ required: true }) result!: GeneratedType<"RestZaakResultaat">;
   @Input({ required: true }) readonly!: boolean;
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
   @Output() doIntrekking = new EventEmitter();

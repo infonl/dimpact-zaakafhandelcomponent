@@ -34,6 +34,7 @@ import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppe
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
+import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
 import { ZaakdataComponent } from "./zaakdata/zaakdata.component";
@@ -51,6 +52,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BesluitViewComponent,
     IntakeAfrondenDialogComponent,
     ZaakViewComponent,
+    BetrokkeneLinkComponent,
     ZaakVerkortComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,

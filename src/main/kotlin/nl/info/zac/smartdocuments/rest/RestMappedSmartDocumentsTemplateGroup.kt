@@ -5,7 +5,7 @@
 
 package nl.info.zac.smartdocuments.rest
 
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.info.zac.util.AllOpen
@@ -25,10 +25,10 @@ fun Set<RestMappedSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<Str
     this.flatMap { convertTemplateGroupToStringRepresentation(it, null) }.toSet()
 
 fun Set<RestMappedSmartDocumentsTemplateGroup>.toSmartDocumentsTemplateGroupSet(
-    zaakafhandelParameters: ZaakafhandelParameters
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 ): Set<SmartDocumentsTemplateGroup> =
     this.mapTo(mutableSetOf()) {
-        convertTemplateGroupToModel(it, null, zaakafhandelParameters)
+        convertTemplateGroupToModel(it, null, zaaktypeCmmnConfiguration)
     }
 
 fun Set<SmartDocumentsTemplateGroup>.toRestSmartDocumentsTemplateGroup(): Set<RestMappedSmartDocumentsTemplateGroup> =
@@ -37,10 +37,10 @@ fun Set<SmartDocumentsTemplateGroup>.toRestSmartDocumentsTemplateGroup(): Set<Re
 private fun createModelTemplateGroup(
     smartDocumentsTemplateGroup: RestMappedSmartDocumentsTemplateGroup,
     parentGroup: SmartDocumentsTemplateGroup?,
-    zaakafhandelParams: ZaakafhandelParameters
+    zaakafhandelParams: ZaaktypeCmmnConfiguration
 ) = SmartDocumentsTemplateGroup().apply {
     smartDocumentsId = smartDocumentsTemplateGroup.id
-    zaakafhandelParameters = zaakafhandelParams
+    zaaktypeCmmnConfiguration = zaakafhandelParams
     name = smartDocumentsTemplateGroup.name
     parent = parentGroup
     creationDate = ZonedDateTime.now()
@@ -49,10 +49,10 @@ private fun createModelTemplateGroup(
 private fun createModelTemplate(
     smartDocumentsTemplate: RestMappedSmartDocumentsTemplate,
     parentGroup: SmartDocumentsTemplateGroup,
-    zaakafhandelParams: ZaakafhandelParameters
+    zaakafhandelParams: ZaaktypeCmmnConfiguration
 ) = SmartDocumentsTemplate().apply {
     smartDocumentsId = smartDocumentsTemplate.id
-    zaakafhandelParameters = zaakafhandelParams
+    zaaktypeCmmnConfiguration = zaakafhandelParams
     informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
     name = smartDocumentsTemplate.name
     templateGroup = parentGroup
@@ -85,7 +85,7 @@ private fun convertTemplateGroupToRest(
 private fun convertTemplateGroupToModel(
     group: RestMappedSmartDocumentsTemplateGroup,
     parent: SmartDocumentsTemplateGroup?,
-    zaakafhandelParameterId: ZaakafhandelParameters
+    zaakafhandelParameterId: ZaaktypeCmmnConfiguration
 ): SmartDocumentsTemplateGroup =
     createModelTemplateGroup(group, parent, zaakafhandelParameterId).apply {
         templates = group.templates?.map {

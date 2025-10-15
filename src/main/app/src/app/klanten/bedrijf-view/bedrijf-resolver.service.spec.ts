@@ -3,95 +3,109 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRouteSnapshot, convertToParamMap } from "@angular/router";
+import { convertToParamMap } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { fromPartial } from "@total-typescript/shoehorn";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { BedrijfResolverService } from "./bedrijf-resolver.service";
 
 describe(BedrijfResolverService.name, () => {
   let bedrijfResolverService: BedrijfResolverService;
-  let klantenServiceMock: jest.Mocked<KlantenService>;
+  let foutAfhandelingService: FoutAfhandelingService;
+  let queryClient: QueryClient;
+
+  const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
+  const kvkNummer = "2".repeat(KVK_LENGTH);
+  const rsin = "3".repeat(KVK_LENGTH + 1); // langer dan KVK_LENGTH
 
   beforeEach(() => {
-    klantenServiceMock = {
-      readBedrijf: jest.fn(),
-    } as unknown as jest.Mocked<KlantenService>;
-
     TestBed.configureTestingModule({
       providers: [
         BedrijfResolverService,
-        { provide: KlantenService, useValue: klantenServiceMock },
+        FoutAfhandelingService,
+        KlantenService,
+        QueryClient,
+        provideHttpClient(withInterceptorsFromDi()),
       ],
+      imports: [TranslateModule.forRoot()],
     });
 
     bedrijfResolverService = TestBed.inject(BedrijfResolverService);
+
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    jest.spyOn(foutAfhandelingService, "openFoutDialog").mockImplementation();
+
+    TestBed.inject(KlantenService);
+    queryClient = TestBed.inject(QueryClient);
+    jest
+      .spyOn(queryClient, "ensureQueryData")
+      .mockResolvedValue(fromPartial<GeneratedType<"RestBedrijf">>({}));
   });
 
-  const makeRoute = (id: string | null): ActivatedRouteSnapshot =>
-    ({
-      paramMap: convertToParamMap(id ? { id } : {}),
-    }) as ActivatedRouteSnapshot;
-
-  it("should throw an error if no id is provided", () => {
-    const route = makeRoute(null);
-
-    expect(() => bedrijfResolverService.resolve(route)).toThrowError(
-      "BedrijfResolverService: no 'id' found in route",
-    );
+  it("should throw an error if no id is provided", async () => {
+    await expect(async () =>
+      bedrijfResolverService.resolve(
+        fromPartial({
+          get paramMap() {
+            return convertToParamMap({ id: null });
+          },
+        }),
+      ),
+    ).rejects.toThrowError("BedrijfResolverService: no 'id' found in route");
   });
 
-  it("should resolve a vestigingsnummer (VN)", () => {
-    const vestigingsnummer = "1".repeat(VESTIGINGSNUMMER_LENGTH);
-    const route = makeRoute(vestigingsnummer);
-
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
+  describe(BedrijfResolverService.prototype.resolve.name, () => {
+    it.each([
+      { params: { id: kvkNummer }, type: "RSIN" },
+      {
+        params: { id: kvkNummer, vestigingsnummer: vestigingsnummer },
         type: "VN",
-        bsnNummer: null,
-        vestigingsnummer,
-        kvkNummer: null,
-        rsin: null,
-      }),
+      },
+      { params: { id: rsin }, type: "RSIN" },
+    ])(
+      "should determine the correct type based on the passed parameters",
+      async ({ params }) => {
+        await bedrijfResolverService.resolve(
+          fromPartial({
+            get paramMap() {
+              return convertToParamMap(params);
+            },
+          }),
+        );
+
+        expect(queryClient.ensureQueryData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            queryKey: expect.arrayContaining([
+              expect.stringContaining("/rest/klanten/"),
+            ]),
+          }),
+        );
+      },
     );
-  });
 
-  it("should resolve a KVK number", () => {
-    const kvk = "2".repeat(KVK_LENGTH);
-    const route = makeRoute(kvk);
+    it("shouldn't call the error handling when trying to call just a vestigingsnummer", async () => {
+      const spy = jest.spyOn(foutAfhandelingService, "openFoutDialog");
+      await bedrijfResolverService.resolve(
+        fromPartial({
+          get paramMap() {
+            return convertToParamMap({ id: vestigingsnummer });
+          },
+        }),
+      );
 
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "RSIN",
-        bsnNummer: null,
-        vestigingsnummer: null,
-        kvkNummer: kvk,
-        rsin: null,
-      }),
-    );
-  });
-
-  it("should resolve a RSIN", () => {
-    const rsin = "3".repeat(KVK_LENGTH + 1); // langer dan KVK_LENGTH
-    const route = makeRoute(rsin);
-
-    bedrijfResolverService.resolve(route);
-
-    expect(klantenServiceMock.readBedrijf).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "RSIN",
-        bsnNummer: null,
-        vestigingsnummer: null,
-        kvkNummer: null,
-        rsin,
-      }),
-    );
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });

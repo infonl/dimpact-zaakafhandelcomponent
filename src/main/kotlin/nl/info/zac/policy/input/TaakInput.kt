@@ -11,5 +11,10 @@ data class TaakInput(
     val loggedInUser: LoggedInUser,
 
     @field:JsonbProperty("taak")
-    val taakData: TaakData
-) : UserInput(loggedInUser)
+    val taakData: TaakData,
+
+    val featureFlagPabcIntegration: Boolean
+) : UserInput(
+    loggedInUser = loggedInUser,
+    featureFlagPabcIntegration = featureFlagPabcIntegration
+)

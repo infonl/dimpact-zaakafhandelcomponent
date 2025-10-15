@@ -28,6 +28,8 @@ object ItestConfiguration {
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
+    val FEATURE_FLAG_PABC_INTEGRATION = (System.getProperty("featureFlagPabcIntegration") ?: "true").toBoolean()
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
@@ -40,6 +42,7 @@ object ItestConfiguration {
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
+    const val BETROKKENE_IDENTIFACTION_TYPE_KVK = "RSIN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
@@ -48,6 +51,7 @@ object ItestConfiguration {
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
     const val DOMEIN_TEST_1 = "domein_test_1"
+    const val DOMEIN_TEST_2 = "domein_test_2"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val HUMAN_TASK_TYPE = "HUMAN_TASK"
@@ -65,8 +69,11 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
+    const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
+    const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
+    const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
@@ -82,6 +89,7 @@ object ItestConfiguration {
     const val PABC_API_KEY = "zac-test-api-key"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
+    const val PRODUCTAANVRAAG_TYPE_3 = "productaanvraag-type-3"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val REFERENCE_TABLE_ADVIES_CODE = "ADVIES"
@@ -98,6 +106,8 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM = "BRP Doelbinding Zoekwaarde"
     const val REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE = "BRP_DOELBINDING_RAADPLEEG_WAARDE"
     const val REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM = "BRP Doelbinding Raadpleegwaarde"
+    const val REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE = "BRP_VERWERKINGSREGISTER_WAARDE"
+    const val REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM = "BRP Verwerkingsregister Waarde"
     const val RESULTAAT_TYPE_GEWEIGERD_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
     const val ROLTYPE_NAME_BELANGHEBBENDE = "Belanghebbende"
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
@@ -126,10 +136,10 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
     const val TEST_SPEC_ORDER_AFTER_KOPPELEN = 11
 
-    const val TOTAL_COUNT_INDEXED_ZAKEN = 12
-    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 2
+    const val TOTAL_COUNT_INDEXED_ZAKEN = 14
+    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 4
     const val TOTAL_COUNT_INDEXED_TASKS = 4
-    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 11
+    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 14
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -145,11 +155,11 @@ object ItestConfiguration {
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
-    const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 62
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
+    const val TEST_KVK_EMAIL = "fake.kvk@example.com"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
     const val TEST_USER_1_USERNAME = "testuser1"
@@ -163,9 +173,13 @@ object ItestConfiguration {
      * Test user 2 does not have a first name, so their full name should be equal to their last name.
      */
     const val TEST_USER_2_NAME = "User2"
-    const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_USERNAME = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
-    const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
+    const val TEST_USER_DOMEIN_TEST_2_USERNAME = "testuserdomeintest2"
+    const val TEST_USER_DOMEIN_TEST_2_PASSWORD = "testuserdomeintest2"
+    const val TEST_USER_DOMEIN_TEST_2_NAME = "Test Testuserdomeintest2"
+    const val TEST_FUNCTIONAL_ADMIN_1_USERNAME = "functioneelbeheerder1"
+    const val TEST_FUNCTIONAL_ADMIN_1_PASSWORD = "functioneelbeheerder1"
     const val TEST_FUNCTIONAL_ADMIN_1_NAME = "Test Functioneelbeheerder1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
@@ -175,6 +189,9 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_1_USERNAME = "behandelaar1"
     const val TEST_BEHANDELAAR_1_PASSWORD = "behandelaar1"
     const val TEST_BEHANDELAAR_1_NAME = "Test Behandelaar1"
+    const val TEST_BEHANDELAAR_2_USERNAME = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_PASSWORD = "behandelaar2"
+    const val TEST_BEHANDELAAR_2_NAME = "Test Behandelaar2"
     const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
     const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
@@ -195,6 +212,8 @@ object ItestConfiguration {
     const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "Test group Raadplegers"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
+    const val TEST_GROUP_DOMEIN_TEST_2_ID = "test-group-domein-test-2"
+    const val TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION = "Test group which has access to domein_test_2 only"
     const val TEST_GROUPS_ALL =
         """
             [
@@ -225,6 +244,10 @@ object ItestConfiguration {
                 {
                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
                     "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_DOMEIN_TEST_2_ID",
+                    "naam": "$TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION"
                 }
             ]
         """
@@ -245,6 +268,8 @@ object ItestConfiguration {
     val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
     val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
     val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
+    val DOCUMENT_5_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000005"
+    val DOCUMENT_6_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000006"
 
     /**
      * Constants used in the KVK WireMock template response
@@ -326,6 +351,16 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
 
+    /**
+     * Invalid zaak that should not be created due to only vestigingsNummer (no kvkNummer).
+     */
+    const val ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION = "ZAAK-1997-0000000001"
+
+    /**
+     * Zaak created from productaanvraag with both kvkNummer and vestigingsNummer.
+     */
+    const val ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION = "ZAAK-1996-0000000001"
+
     const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
     const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
     const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
@@ -361,9 +396,7 @@ object ItestConfiguration {
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
 
-    /**
-     * Zaak beeindig constants
-     */
+    // Zaak beeindig constants
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
     const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
     const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID = "-2"
@@ -404,39 +437,33 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
-    val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
-        UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
-    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
+    val ZAAKTYPE_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
+    const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
 
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN_IDENTIFICATIE =
-        "indienen-aansprakelijkstelling-behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
-        "Indienen aansprakelijkstelling door derden behandelen"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
-        "74799b20-0350-457d-8773-a0f1ab16b299"
+    val ZAAKTYPE_TEST_2_UUID: UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
+    const val ZAAKTYPE_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
+    const val ZAAKTYPE_TEST_2_DESCRIPTION = "Test zaaktype 2"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
+    const val ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+
+    val ZAAKTYPE_TEST_3_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    const val ZAAKTYPE_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
+    const val ZAAKTYPE_TEST_3_DESCRIPTION = "Test zaaktype 3"
+    const val ZAAKTYPE_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
-    /**
-     * BPMN tests constants
-     */
+    // BPMN tests constants
     val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
-
-    val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_IDENTIFICATIE = "bpmn-evenementen-vooroverleg"
-    const val ZAAKTYPE_BPMN_EVENEMENTEN_VOOROVERLEG_DESCRIPTION = "BPMN Evenementen Vooroverleg"
 
     const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
@@ -446,6 +473,8 @@ object ItestConfiguration {
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
     const val BPMN_TEST_FORM_NAME = "Test form"
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
+
+    const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
 
     /**
      * Global variable to store the id of a task that is created in the integration tests as
@@ -475,6 +504,18 @@ object ItestConfiguration {
      * from a productaanvraag.
      */
     lateinit var zaakProductaanvraag3Uuid: UUID
+
+    /**
+     * Global variable to store the UUID of an invalid zaak that should not be created
+     * from a productaanvraag with only vestigingsNummer.
+     */
+    lateinit var zaakProductaanvraagInvalidUuid: UUID
+
+    /**
+     * Global variable to store the UUID of a zaak created from a productaanvraag
+     * with both kvkNummer and vestigingsNummer.
+     */
+    lateinit var zaakProductaanvraagComboUuid: UUID
 
     /**
      * Global variable to store the UUID of an uploaded file in the integration tests.

@@ -22,7 +22,7 @@ import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -49,7 +49,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -72,7 +72,7 @@ class ZaakServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val identityService = mockk<IdentityService>()
-    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
@@ -80,7 +80,7 @@ class ZaakServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         lockService = lockService,
         identityService = identityService,
-        zaakafhandelParameterService = zaakafhandelParameterService
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -93,7 +93,7 @@ class ZaakServiceTest : BehaviorSpec({
     val rolTypeBehandelaar = createRolType(
         omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
     )
-    val zaakafhandelParameters = createZaakafhandelParameters()
+    val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -105,8 +105,8 @@ class ZaakServiceTest : BehaviorSpec({
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns zaakafhandelParameters
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -157,8 +157,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
             every {
-                zaakafhandelParameterService.readZaakafhandelParameters(openZaak.zaaktype.extractUuid())
-            } returns zaakafhandelParameters
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(openZaak.zaaktype.extractUuid())
+            } returns zaaktypeCmmnConfiguration
             every {
                 ztcClientService.readRoltype(
                     openZaak.zaaktype,
@@ -240,8 +240,8 @@ class ZaakServiceTest : BehaviorSpec({
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns zaakafhandelParameters
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -284,8 +284,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns createZaakafhandelParameters(domein = null)
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns createZaaktypeCmmnConfiguration(domein = null)
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -336,8 +336,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns createZaakafhandelParameters()
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns createZaaktypeCmmnConfiguration()
             }
             val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
             every { identityService.isUserInGroup(user.id, groupWithDomain.id) } returns true
@@ -374,8 +374,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns createZaakafhandelParameters(domein = null)
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns createZaaktypeCmmnConfiguration(domein = null)
             }
             val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
             every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
@@ -422,13 +422,13 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns createZaakafhandelParameters(domein = "zaaktype_domain")
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns createZaaktypeCmmnConfiguration(domein = "zaaktype_domain")
             }
             zaken[1].let {
                 every {
-                    zaakafhandelParameterService.readZaakafhandelParameters(it.zaaktype.extractUuid())
-                } returns createZaakafhandelParameters(domein = "another_domein")
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
+                } returns createZaaktypeCmmnConfiguration(domein = "another_domein")
             }
             val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
             every { identityService.isUserInGroup(user.id, group.id) } returns true

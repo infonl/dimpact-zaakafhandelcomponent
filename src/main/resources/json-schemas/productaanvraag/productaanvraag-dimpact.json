@@ -307,10 +307,20 @@
           "maxLength": 9
         },
         "vestigingsNummer": {
-          "title": "Vestigings nummer",
-          "description": "Korte unieke aanduiding van de Vestiging",
+          "title": "KVK vestigingsnummer",
+          "description": "Korte unieke aanduiding van de vestiging",
           "type": "string",
-          "maxLength": 24
+          "minLength": 12,
+          "maxLength": 12,
+          "pattern": "^\\d{12}$"
+        },
+        "kvkNummer": {
+          "title": "KVK nummer",
+          "description": "Unieke identificatie van de onderneming bij de Kamer van Koophandel (KVK)",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8,
+          "pattern": "^\\d{8}$"
         },
         "organisatorischeEenheidIdentificatie": {
           "title": "Organisatorische eenheid identificatie",
@@ -370,10 +380,18 @@
           "required": ["innNnpId", "roltypeOmschrijving"]
         },
         {
-          "required": ["vestigingsNummer", "rolOmschrijvingGeneriek"]
+          "required": ["kvkNummer", "rolOmschrijvingGeneriek"],
+          "optional": ["vestigingsNummer"]
         },
         {
-          "required": ["vestigingsNummer", "roltypeOmschrijving"]
+          "required": ["kvkNummer", "roltypeOmschrijving"],
+          "optional": ["vestigingsNummer"]
+        },
+        {
+          "required": ["kvkNummer", "rolOmschrijvingGeneriek"]
+        },
+        {
+          "required": ["kvkNummer", "roltypeOmschrijving"]
         },
         {
           "required": [

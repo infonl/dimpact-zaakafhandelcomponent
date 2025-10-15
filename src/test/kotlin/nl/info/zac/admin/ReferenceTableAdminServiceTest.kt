@@ -20,7 +20,7 @@ import jakarta.persistence.criteria.Root
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import nl.info.zac.exception.InputValidationFailedException
 
@@ -111,7 +111,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
             }
 
             Then("an exception is thrown and the reference table is not deleted") {
-                exception.errorCode shouldBe ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
+                exception.errorCode shouldBe ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
                 exception.message shouldBe null
                 verify(exactly = 0) {
                     entityManager.remove(referenceTable)

@@ -3,14 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, ViewChild } from "@angular/core";
+import { Component, inject, OnDestroy, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { EMPTY, Observable, of, Subject, takeUntil } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, of, Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -30,6 +33,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-create.component.html",
 })
 export class ZaakCreateComponent implements OnDestroy {
+  private readonly queryClient = inject(QueryClient);
   private readonly destroy$ = new Subject<void>();
   static DEFAULT_CHANNEL = "E-formulier";
 
@@ -41,12 +45,19 @@ export class ZaakCreateComponent implements OnDestroy {
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
-  protected caseTypes = this.zakenService.listZaaktypes();
+  protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
   );
+
+  protected createZaakMutation = injectMutation(() => ({
+    ...this.zakenService.createZaak(),
+    onSuccess: ({ identificatie }) =>
+      this.router.navigate(["/zaken/", identificatie]),
+    onError: () => this.form.reset(),
+  }));
 
   protected readonly form = this.formBuilder.group({
     zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
@@ -143,33 +154,23 @@ export class ZaakCreateComponent implements OnDestroy {
     this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  formSubmit(): void {
+  formSubmit() {
     const { value } = this.form;
 
-    this.zakenService
-      .createZaak({
-        zaak: {
-          ...value,
-          initiatorIdentificatie: value.initiatorIdentificatie
-            ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
-            : null,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          startdatum: value.startdatum?.toISOString(),
-          omschrijving: value.omschrijving!,
-          zaaktype: value.zaaktype!,
-        },
-        bagObjecten: value.bagObjecten,
-        inboxProductaanvraag: this.inboxProductaanvraag,
-      })
-      .pipe(
-        catchError(() => {
-          this.form.reset();
-          return EMPTY;
-        }),
-      )
-      .subscribe((zaak) =>
-        this.router.navigate(["/zaken/", zaak?.identificatie]),
-      );
+    this.createZaakMutation.mutate({
+      zaak: {
+        ...value,
+        initiatorIdentificatie: value.initiatorIdentificatie
+          ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
+          : null,
+        vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+        startdatum: value.startdatum?.toISOString(),
+        omschrijving: value.omschrijving!,
+        zaaktype: value.zaaktype!,
+      },
+      bagObjecten: value.bagObjecten,
+      inboxProductaanvraag: this.inboxProductaanvraag,
+    });
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
@@ -180,7 +181,7 @@ export class ZaakCreateComponent implements OnDestroy {
     await this.actionsSidenav.close();
   }
 
-  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
+  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
@@ -211,7 +212,7 @@ export class ZaakCreateComponent implements OnDestroy {
     await this.actionsSidenav.open();
   }
 
-  private handleProductRequest(
+  private async handleProductRequest(
     productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     if (!productRequest?.initiatorID) return;
@@ -223,33 +224,28 @@ export class ZaakCreateComponent implements OnDestroy {
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
       case BSN_LENGTH: {
-        this.klantenService
-          .readPersoon(initiatorID, {
-            context: "ZAAK_AANMAKEN",
-            action: "find user",
-          })
-          .subscribe((result) => {
-            this.form.controls.initiatorIdentificatie.setValue({
-              ...result,
-              type: result.identificatieType!,
-            });
-          });
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readPersoon(initiatorID),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
+        });
         break;
       }
       case VESTIGINGSNUMMER_LENGTH: {
-        this.klantenService
-          .readBedrijf(
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readBedrijf(
             new BetrokkeneIdentificatie({
               identificatie: initiatorID,
               identificatieType: "VN",
             }),
-          )
-          .subscribe((result) => {
-            this.form.controls.initiatorIdentificatie.setValue({
-              ...result,
-              type: result.identificatieType!,
-            });
-          });
+          ),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
+        });
         break;
       }
     }

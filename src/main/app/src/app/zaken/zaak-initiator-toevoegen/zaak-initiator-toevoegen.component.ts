@@ -11,7 +11,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
   styleUrls: ["./zaak-initiator-toevoegen.component.less"],
 })
 export class ZaakInitiatorToevoegenComponent {
-  @Input() toevoegenToegestaan: boolean;
+  @Input({ required: true }) toevoegenToegestaan = false;
   @Output() add = new EventEmitter<void>();
 
   constructor() {}

@@ -20,6 +20,8 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDI
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
@@ -57,59 +59,61 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         """
                         [
                             {
+                                "aantalWaarden": 5,
                                 "code": "$REFERENCE_TABLE_ADVIES_CODE", 
                                 "naam": "$REFERENCE_TABLE_ADVIES_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 5
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_AFZENDER_CODE", 
                                 "naam": "$REFERENCE_TABLE_AFZENDER_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             },
                             {
                                 "aantalWaarden": 15,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
-                                "id": 7,
                                 "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
+                                "systeem": true
                             },
                             {
                                 "aantalWaarden": 4,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
-                                "id": 6,
                                 "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 1,
+                                "code": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE",
+                                "naam": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM",
+                                "systeem": true
+                            },
+                            {
+                                "aantalWaarden": 8,
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
                                 "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 8
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
                                 "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 
                                 "naam": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             }
                         ]
                         """.trimIndent()
                     )
                 }
                 with(JSONArray(responseBody)) {
-                    communicationChannelReferenceTableId = getJSONObject(4).getInt("id")
-                    domeinReferenceTableId = getJSONObject(5).getInt("id")
-                    serverErrorTextErrorReferenceTableId = getJSONObject(6).getInt("id")
+                    communicationChannelReferenceTableId = getJSONObject(5).getInt("id")
+                    domeinReferenceTableId = getJSONObject(6).getInt("id")
+                    serverErrorTextErrorReferenceTableId = getJSONObject(7).getInt("id")
                 }
             }
         }

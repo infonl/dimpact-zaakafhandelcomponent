@@ -18,6 +18,8 @@ data class RestZaaktypeBpmnProcessDefinition(
     @field:NotNull
     var zaaktypeOmschrijving: String,
 
+    var bpmnProcessDefinitionKey: String,
+
     var productaanvraagtype: String?,
 
     @field:NotNull
