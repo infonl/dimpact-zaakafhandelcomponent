@@ -785,113 +785,81 @@
               ></mat-slide-toggle>
               <p>{{ "gegevens.koppelen.brp" | translate }}</p>
             </div>
-            <form
-              [formGroup]="brpProtocoleringFormGroup"
-              *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+            <ng-container
+              *ngIf="
+                showDoelbindingen &&
+                betrokkeneKoppelingen.controls.brpKoppelen.value
+              "
             >
-              {{ "actie.opslaan" | translate }}
-            </button>
-          </div>
-        </ng-template>
-      </mat-step>
-      <mat-step
-        [stepControl]="smartDocumentsEnabledForm"
-        [hasError]="
-          !isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid
-        "
-      >
-        <ng-template matStepLabel
-          >{{ "gegevens.koppelingen" | translate }}
-        </ng-template>
-        <ng-template matStepContent>
-          <mat-card>
-            <mat-card-content>
-              <h2>
-                {{ "gegevens.landelijk.koppelingen" | translate }}
-              </h2>
-              <p>
-                {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
-              </p>
-              <section class="flex-col">
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.zoekWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="
-                      brpProtocoleringFormGroup.controls.zoekWaarde
-                    "
+              <form [formGroup]="brpProtocoleringFormGroup">
+                <p>
+                  {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                </p>
+                <section class="flex-col">
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
                   >
-                    <mat-option
-                      *ngFor="let value of brpSearchValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
-              <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
-                <div class="flex-row items-center gap-8">
-                  <mat-slide-toggle
-                    formControlName="brpKoppelen"
-                    (click)="$event.stopPropagation()"
-                    color="primary"
-                  ></mat-slide-toggle>
-                  <p>{{ "gegevens.koppelen.brp" | translate }}</p>
-                </div>
-                <form
-                  [formGroup]="brpProtocoleringFormGroup"
-                  *ngIf="
-                    showDoelbindingen &&
-                    betrokkeneKoppelingen.controls.brpKoppelen.value
-                  "
-                >
-                  <p>
-                    {{
-                      "title.admin.parameters.step.brpDoelbinding" | translate
-                    }}
-                  </p>
-                  <section class="flex-col">
-                    <mat-form-field
-                      class="flex-1 w33 w100-md"
-                      floatLabel="always"
+                    <mat-label>{{
+                      "brpDoelbinding.zoekWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpProtocoleringFormGroup.controls.zoekWaarde
+                      "
                     >
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.raadpleegWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="
-                      brpProtocoleringFormGroup.controls.raadpleegWaarde
-                    "
+                      <mat-option
+                        *ngFor="let value of brpSearchValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
                   >
-                    <mat-option
-                      *ngFor="let value of brpConsultingValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+                    <mat-label>{{
+                      "brpDoelbinding.raadpleegWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpProtocoleringFormGroup.controls.raadpleegWaarde
+                      "
                     >
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field class="flex-1 w33 w100-md" floatLabel="always">
-                  <mat-label>{{
-                    "brpDoelbinding.verwerkingsregisterWaarde" | translate
-                  }}</mat-label>
-                  <mat-select
-                    placeholder="{{ 'resultaat.-kies-' | translate }}"
-                    [formControl]="
-                      brpProtocoleringFormGroup.controls
-                        .verwerkingsregisterWaarde
-                    "
+                      <mat-option
+                        *ngFor="let value of brpConsultingValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
                   >
-                    <mat-option
-                      *ngFor="let value of brpProcessingValues"
-                      [value]="value"
-                      >{{ value }}</mat-option
+                    <mat-label>{{
+                      "brpDoelbinding.verwerkingregisterWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpProtocoleringFormGroup.controls
+                          .verwerkingregisterWaarde
+                      "
                     >
-                  </mat-select>
-                </mat-form-field>
-              </section>
-            </form>
+                      <mat-option
+                        *ngFor="let value of brpProcessingValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </section>
+              </form>
+            </ng-container>
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
                 formControlName="kvkKoppelen"
@@ -936,89 +904,6 @@
             class="form-disabled-feedback"
           >
             {{ "msg.smartdocuments.form.disabled" | translate }}
-                      <mat-label>{{
-                        "brpDoelbinding.verwerkingregisterWaarde" | translate
-                      }}</mat-label>
-                      <mat-select
-                        placeholder="{{ 'resultaat.-kies-' | translate }}"
-                        [formControl]="
-                          brpProtocoleringFormGroup.controls
-                            .verwerkingregisterWaarde
-                        "
-                      >
-                        <mat-option
-                          *ngFor="let value of brpProcessingValues"
-                          [value]="value"
-                          >{{ value }}</mat-option
-                        >
-                      </mat-select>
-                    </mat-form-field>
-                  </section>
-                </form>
-                <div class="flex-row items-center gap-8">
-                  <mat-slide-toggle
-                    formControlName="kvkKoppelen"
-                    (click)="$event.stopPropagation()"
-                    color="primary"
-                  ></mat-slide-toggle>
-                  <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
-                </div>
-              </form>
-            </mat-card-content>
-          </mat-card>
-          <mat-card *ngIf="parameters.smartDocuments.enabledGlobally">
-            <mat-card-content>
-              <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
-                <div class="flex-row items-center">
-                  <section class="flex-1">
-                    <h2>
-                      {{ "title.smartdocuments.form" | translate }}
-                    </h2>
-                    <p>
-                      {{
-                        "title.admin.parameters.step.smart-documents"
-                          | translate
-                      }}
-                    </p>
-                  </section>
-                  <mat-slide-toggle
-                    formControlName="enabledForZaaktype"
-                    (click)="$event.stopPropagation()"
-                    color="primary"
-                  ></mat-slide-toggle>
-                </div>
-              </form>
-              <mat-divider class="my-3"></mat-divider>
-              <smart-documents-form
-                *ngIf="
-                  smartDocumentsEnabledForm.get('enabledForZaaktype').value
-                "
-                [zaakTypeUuid]="parameters.zaaktype.uuid"
-                #smartDocumentsFormRef
-              >
-              </smart-documents-form>
-              <div
-                *ngIf="
-                  !smartDocumentsEnabledForm.get('enabledForZaaktype').value
-                "
-                class="form-disabled-feedback"
-              >
-                {{ "msg.smartdocuments.form.disabled" | translate }}
-              </div>
-            </mat-card-content>
-          </mat-card>
-          <div class="button-group flex-row flex-wrap">
-            <button mat-raised-button matStepperPrevious>
-              {{ "actie.terug" | translate }}
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              [disabled]="!isValid() || loading"
-              (click)="opslaan()"
-            >
-              {{ "actie.opslaan" | translate }}
-            </button>
           </div>
         </mat-card-content>
       </mat-card>
