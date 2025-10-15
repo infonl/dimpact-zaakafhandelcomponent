@@ -9,6 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
+import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
 import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
@@ -17,7 +18,7 @@ class BrpConfigurationTest : BehaviorSpec({
         val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
 
         When("reading BRP audit log provider") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
                 brpConfiguration.readBrpProtocolleringProvider()
             }
 
@@ -33,7 +34,7 @@ class BrpConfigurationTest : BehaviorSpec({
         val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
 
         When("reading BRP audit log provider") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
                 brpConfiguration.readBrpProtocolleringProvider()
             }
 
