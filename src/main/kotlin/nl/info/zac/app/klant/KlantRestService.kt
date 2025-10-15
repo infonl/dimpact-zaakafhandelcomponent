@@ -79,7 +79,8 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddresses(bsn) }
+            val klantPersoonDigitalAddresses =
+                async { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) }
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
