@@ -20,22 +20,13 @@ class KlantClientService @Inject constructor(
     @RestClient
     private val klantClient: KlantClient
 ) {
-    @Deprecated("Use findDigitalAddresses(objectType: CodeObjecttypeEnum, number: String) instead")
-    fun findDigitalAddresses(number: String): List<DigitaalAdres> =
-        klantClient.partijenList(
-            expand = "digitaleAdressen",
-            page = 1,
-            pageSize = 1,
-            partijIdentificatorObjectId = number,
-        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
-
     fun findDigitalAddresses(objectType: CodeObjecttypeEnum, number: String): List<DigitaalAdres> =
         klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = 1,
             partijIdentificatorCodeObjecttype = objectType.toString(),
-            partijIdentificatorObjectId = number,
+            partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
     fun listBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =

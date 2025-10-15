@@ -10,6 +10,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import nl.info.client.klant.model.CodeObjecttypeEnum
 
 class KlantClientServiceTest : BehaviorSpec({
     val klantClient = mockk<KlantClient>()
@@ -28,6 +29,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     expand = "digitaleAdressen",
                     page = 1,
                     pageSize = 1,
+                    partijIdentificatorCodeObjecttype = "natuurlijk_persoon",
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
@@ -38,8 +40,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             }
 
-            When("digital addresses are retrieved") {
-                val result = klantClientService.findDigitalAddresses(number)
+            When("digital addresses are retrieved for natuurlijk persoon type") {
+                val result = klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, number)
 
                 Then("it should return the digital addresses") {
                     result shouldContainExactly digitalAddresses
@@ -54,6 +56,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     expand = "digitaleAdressen",
                     page = 1,
                     pageSize = 1,
+                    partijIdentificatorCodeObjecttype = "vestiging",
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
@@ -64,8 +67,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             }
 
-            When("digital addresses are retrieved") {
-                val result = klantClientService.findDigitalAddresses(number)
+            When("digital addresses are retrieved for vestiging type") {
+                val result = klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, number)
 
                 Then("it should return an empty list") {
                     result.shouldBeEmpty()
