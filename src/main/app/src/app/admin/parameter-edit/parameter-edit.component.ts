@@ -241,9 +241,7 @@ export class ParameterEditComponent
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.showDoelbindingen = this.getProtocolering(
-            brpProtocollering,
-          );
+          this.showDoelbindingen = this.getProtocolering(brpProtocollering);
           await this.createForm();
         },
       );
@@ -358,7 +356,7 @@ export class ParameterEditComponent
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
     if (this.showDoelbindingen) {
-        this.createBrpDoelbindingForm();
+      this.createBrpDoelbindingForm();
     }
     this.createAutomatischeOntvangstbevestigingForm();
   }

@@ -113,7 +113,7 @@ export class ConfiguratieService {
     return this.bpmnSupport$;
   }
 
-    readBrpProtocollering(): Observable<string> {
+  readBrpProtocollering(): Observable<string> {
     if (!this.brpProtocollering$) {
       this.brpProtocollering$ = this.http
         .get(`${this.basepath}/brp/protocollering-provider`, {
