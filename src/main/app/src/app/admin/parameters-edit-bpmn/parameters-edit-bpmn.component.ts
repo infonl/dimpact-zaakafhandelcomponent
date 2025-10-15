@@ -21,7 +21,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
   templateUrl: "./parameters-edit-bpmn.component.html",
   styleUrls: ["./parameters-edit-bpmn.component.less"],
 })
-export class ParameterEditBpmnComponent {
+export class ParametersEditBpmnComponent {
   @Input({ required: false }) selectedIndexStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 

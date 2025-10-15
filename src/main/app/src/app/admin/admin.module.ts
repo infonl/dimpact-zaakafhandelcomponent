@@ -20,7 +20,7 @@ import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component"
 import { ParametersEditCmmnComponent } from "./parameter-edit/parameter-edit.component";
 import { SmartDocumentsFormItemComponent } from "./parameter-edit/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 import { SmartDocumentsFormComponent } from "./parameter-edit/smart-documents-form/smart-documents-form.component";
-import { ParameterEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
+import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
 import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-select-process-definition/parameters-edit-select-process-definition.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
@@ -35,7 +35,7 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditCmmnComponent,
-    ParameterEditBpmnComponent,
+    ParametersEditBpmnComponent,
     FormulierDefinitiesComponent,
     FormulierDefinitieEditComponent,
     ReferentieTabellenComponent,
