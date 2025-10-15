@@ -23,7 +23,7 @@ fun ZaaktypeCmmnBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
         id = this@toRestBrpDoelbindingen.id
         zoekWaarde = this@toRestBrpDoelbindingen.zoekWaarde
         raadpleegWaarde = this@toRestBrpDoelbindingen.raadpleegWaarde
-        verwerkingsregisterWaarde = this@toRestBrpDoelbindingen.verwerkingsregisterWaarde
+        verwerkingsregisterWaarde = this@toRestBrpDoelbindingen.verwerkingregisterWaarde
     }
 
 fun RestBrpDoelbindingen.toBrpDoelbindingen(
@@ -32,6 +32,6 @@ fun RestBrpDoelbindingen.toBrpDoelbindingen(
     id = this@toBrpDoelbindingen.id
     zoekWaarde = this@toBrpDoelbindingen.zoekWaarde
     raadpleegWaarde = this@toBrpDoelbindingen.raadpleegWaarde
-    verwerkingsregisterWaarde = this@toBrpDoelbindingen.verwerkingsregisterWaarde
+    verwerkingregisterWaarde = this@toBrpDoelbindingen.verwerkingsregisterWaarde
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }

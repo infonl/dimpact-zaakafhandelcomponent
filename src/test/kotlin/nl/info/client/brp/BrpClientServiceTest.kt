@@ -54,7 +54,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -126,7 +126,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 zoekWaarde = queryPersonenPurpose
-                verwerkingsregisterWaarde = "Leerplicht"
+                verwerkingregisterWaarde = "Leerplicht"
             }
         )
 
@@ -266,7 +266,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -311,7 +311,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -357,7 +357,7 @@ class BrpClientServiceTest : BehaviorSpec({
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 zoekWaarde = ""
                 raadpleegWaarde = ""
-                verwerkingsregisterWaarde = ""
+                verwerkingregisterWaarde = ""
             }
         )
 
