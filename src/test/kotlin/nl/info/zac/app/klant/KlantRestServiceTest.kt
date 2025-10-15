@@ -20,6 +20,7 @@ import nl.info.client.brp.model.createPersoonBeperkt
 import nl.info.client.brp.model.createZoekMetGeslachtsnaamEnGeboortedatumResponse
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
+import nl.info.client.klant.model.CodeObjecttypeEnum
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
 import nl.info.client.kvk.model.createResultaatItem
@@ -71,7 +72,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddresses(vestigingsnummer)
+                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer") {
@@ -118,7 +119,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns kvkResultaatItem
             every {
-                klantClientService.findDigitalAddresses(vestigingsnummer)
+                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -143,7 +144,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns null
             every {
-                klantClientService.findDigitalAddresses(vestigingsnummer)
+                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -179,7 +180,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddresses(vestigingsnummer)
+                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
@@ -220,7 +221,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
             } returns null
             every {
-                klantClientService.findDigitalAddresses(vestigingsnummer)
+                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
