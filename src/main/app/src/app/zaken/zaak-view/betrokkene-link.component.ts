@@ -16,17 +16,19 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   styleUrls: [],
 })
 export class BetrokkeneLinkComponent {
+  constructor(private readonly klantenService: KlantenService) {}
+
   protected readonly persoonQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
 
-    if (betrokkene.type !== "BSN" && betrokkene.identificatieType !== "BSN") {
+    if (!this.isBsnType()) {
       return {
         queryKey: ["persoon", betrokkene.identificatie],
         enabled: false,
       };
     }
 
-    const persoonQuery = this.klantService.readPersoon(
+    const persoonQuery = this.klantenService.readPersoon(
       betrokkene.identificatie,
     );
 
@@ -39,14 +41,14 @@ export class BetrokkeneLinkComponent {
   protected bedrijfQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
 
-    if (betrokkene.type === "BSN" || betrokkene.identificatieType === "BSN") {
+    if (this.isBsnType()) {
       return {
         queryKey: ["bedrijf", betrokkene.identificatie],
         enabled: false,
       };
     }
 
-    const bedrijfQuery = this.klantService.readBedrijf(
+    const bedrijfQuery = this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie(betrokkene),
     );
 
@@ -63,5 +65,8 @@ export class BetrokkeneLinkComponent {
     buildBedrijfRouteLink(this.betrokkene()),
   );
 
-  constructor(private readonly klantService: KlantenService) {}
+  private isBsnType() {
+    const betrokkene = this.betrokkene();
+    return betrokkene.type === "BSN" || betrokkene.identificatieType === "BSN";
+  }
 }
