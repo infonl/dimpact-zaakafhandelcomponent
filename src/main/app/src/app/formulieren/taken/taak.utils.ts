@@ -75,7 +75,7 @@ type ToelichtingMapping<
 };
 
 const DEFAULT_TOELICHTING_MAPPING: ToelichtingMapping = {
-  uitkomst: "uitkomst",
+  uitkomst: "uitkomst", // Should map to the field that contains the decision/outcome
   bijlagen: "bijlagen",
   opmerking: "toelichting",
 };
@@ -93,6 +93,11 @@ function getToelichtingMapping(
       return {
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "advies",
+      };
+    case "EXTERN_ADVIES_VASTLEGGEN":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "externAdvies",
       };
     case "GOEDKEUREN":
       return {
