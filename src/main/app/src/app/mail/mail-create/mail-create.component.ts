@@ -100,7 +100,7 @@ export class MailCreateComponent implements OnInit {
       return;
 
     this.klantenService
-      .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
+      .getContactDetailsForPerson(this.zaak.initiatorIdentificatie.bsnNummer)
       .subscribe((contactGegevens) => {
         if (!contactGegevens.emailadres) return;
         this.contactGegevens = contactGegevens;

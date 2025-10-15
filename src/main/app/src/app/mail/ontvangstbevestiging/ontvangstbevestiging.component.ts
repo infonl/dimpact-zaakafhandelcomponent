@@ -84,7 +84,7 @@ export class OntvangstbevestigingComponent implements OnInit {
     if (!this.zaak.initiatorIdentificatie?.bsnNummer) return;
 
     this.klantenService
-      .ophalenContactGegevens(this.zaak.initiatorIdentificatie.bsnNummer)
+      .getContactDetailsForPerson(this.zaak.initiatorIdentificatie.bsnNummer)
       .subscribe((gegevens) => {
         this.contactGegevens = gegevens;
       });
