@@ -208,10 +208,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.route.data.subscribe((data) => {
+      if (!data || !data.parameters) {
+        return;
+      }
+
       this.parameters = data.parameters.zaakafhandelParameters;
 
       this.isSavedZaakafhandelParameters =
-        data?.parameters.isSavedZaakafhandelParameters;
+        data.parameters.isSavedZaakafhandelParameters;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail

@@ -86,11 +86,15 @@ export class ParameterEditBpmnComponent {
     protected readonly utilService: UtilService,
   ) {
     this.route.data.subscribe(async (data) => {
+      if (!data?.parameters?.zaakafhandelParameters) {
+        return;
+      }
+
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
       this.isSavedZaakafhandelParameters =
-        data?.parameters.isSavedZaakafhandelParameters;
-      this.bpmnDefinitions = data?.parameters.bpmnProcessDefinitionsList || [];
+        data.parameters.isSavedZaakafhandelParameters;
+      this.bpmnDefinitions = data.parameters.bpmnProcessDefinitionsList || [];
       this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
 
       await this.createForm();
