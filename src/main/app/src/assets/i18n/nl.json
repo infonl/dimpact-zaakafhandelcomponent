@@ -836,6 +836,7 @@
   "msg.error.document.has.already.been.signed": "Dit document is al ondertekend.",
   "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
   "msg.error.kvk.unknown": "KvK-nummer is onbekend.",
+  "msg.error.bad.brp.protocollering.configuration": "Ongeldige BRP Protocollering-configuratie.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.email.verstuurd": "E-mail is verstuurd",

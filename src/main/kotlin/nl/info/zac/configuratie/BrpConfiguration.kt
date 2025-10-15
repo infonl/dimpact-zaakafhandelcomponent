@@ -6,7 +6,7 @@ package nl.info.zac.configuratie
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.zac.configuratie.exception.BrpProtocolleringProviderNotFound
+import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -43,7 +43,7 @@ class BrpConfiguration @Inject constructor(
 
     fun readBrpProtocolleringProvider(): String =
         auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }
-            ?: throw BrpProtocolleringProviderNotFound(
+            ?: throw BrpProtocolleringConfigurationException(
                 SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
                     if (auditLogProvider.isPresent) {
                         "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: $it"
