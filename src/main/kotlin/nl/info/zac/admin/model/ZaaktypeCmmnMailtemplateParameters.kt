@@ -61,9 +61,7 @@ class ZaaktypeCmmnMailtemplateParameters :
     }
 
     @Suppress("ExceptionRaisedInUnexpectedLocation", "UseCheckOrError")
-    override fun hashCode(): Int =
-        mailTemplate?.let { Objects.hash(it.id) }
-            ?: throw IllegalStateException("mailTemplate is null")
+    override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
 
     @Suppress("UseCheckOrError")
     override fun isModifiedFrom(original: ZaaktypeCmmnMailtemplateParameters): Boolean {
