@@ -357,16 +357,14 @@ export class ParameterEditComponent
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
-    this.createBrpDoelbindingForm();
+    if (this.showDoelbindingen) {
+        this.createBrpDoelbindingForm();
+    }
     this.createAutomatischeOntvangstbevestigingForm();
   }
 
   private getProtocolering(provider: string) {
-    const clean = (provider ?? "")
-      .toString()
-      .replace(/['"\n\r\t]+/g, "")
-      .trim();
-    return clean === "iConnect";
+    return provider === "iConnect";
   }
 
   protected isHumanTaskParameterValid(
