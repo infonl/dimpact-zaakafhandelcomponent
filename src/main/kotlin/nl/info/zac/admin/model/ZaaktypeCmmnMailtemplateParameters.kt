@@ -46,7 +46,7 @@ class ZaaktypeCmmnMailtemplateParameters :
     @field:NotNull
     var mailTemplate: MailTemplate? = null
 
-    @Suppress("ExceptionRaisedInUnexpectedLocation", "UseCheckOrError")
+    @Suppress("ExceptionRaisedInUnexpectedLocation")
     override fun equals(other: Any?): Boolean {
         if (other !is ZaaktypeCmmnMailtemplateParameters) {
             return false
@@ -57,7 +57,7 @@ class ZaaktypeCmmnMailtemplateParameters :
                 Objects.equals(mailtemplate.id, that.id)
             }
         }
-        return result ?: throw IllegalStateException("mailTemplate is null")
+        return checkNotNull(result) { "mailTemplate is null" }
     }
 
     override fun hashCode(): Int = mailTemplate?.let { Objects.hash(it.id) } ?: 0
