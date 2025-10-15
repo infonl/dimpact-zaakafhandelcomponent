@@ -49,14 +49,15 @@ class KlantClientServiceTest : BehaviorSpec({
         }
 
         Given("A vestigingsnumber for which no digital addresses exist") {
-            val number = "67890"
+            val kvkNummer = "54321"
+            val vestigingsnummer = "67890"
             every {
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
                     pageSize = 1,
                     partijIdentificatorCodeObjecttype = "vestiging",
-                    partijIdentificatorObjectId = number
+                    partijIdentificatorObjectId = vestigingsnummer
                 )
             } returns mockk {
                 every { getResults() } returns listOf(
@@ -67,7 +68,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
 
             When("digital addresses are retrieved for vestiging type") {
-                val result = klantClientService.findDigitalAddressesForVestiging(number)
+                val result = klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
 
                 Then("it should return an empty list") {
                     result.shouldBeEmpty()

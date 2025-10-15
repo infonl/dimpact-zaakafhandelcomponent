@@ -20,17 +20,26 @@ class KlantClientService @Inject constructor(
     @RestClient
     private val klantClient: KlantClient
 ) {
-    // TODO: also use KVK number here..
     fun findDigitalAddressesForVestiging(
-        vestigingsnummer: String
-    ): List<DigitaalAdres> =
-        klantClient.partijenList(
+        vestigingsnummer: String,
+        kvkNummer: String? = null
+    ): List<DigitaalAdres> {
+        val expandPartij = klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = 1,
             partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.VESTIGING.toString(),
             partijIdentificatorObjectId = vestigingsnummer
-        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+        ).getResults().firstOrNull()
+        if (kvkNummer != null && expandPartij != null) {
+            expandPartij.partijIdentificatoren.firstOrNull()?.run {
+                // val subIdentificatorVan = klantClient.identificator(this.subIdentificatorVan.uuid) or something similar..
+                // TODO: check if kvkNummer in subIdentificatorVan matches with the provided kvkNummer
+                // what to do if it does not match? throw exception?
+            }
+        }
+        return expandPartij?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+    }
 
     fun findDigitalAddressesForNonNaturalPerson(kvkNummer: String): List<DigitaalAdres> =
         klantClient.partijenList(

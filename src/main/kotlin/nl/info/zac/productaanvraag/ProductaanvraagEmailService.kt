@@ -79,7 +79,7 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
         val digitalAddresses = if (vestigingsNummer != null) {
-            klantClientService.findDigitalAddressesForVestiging(vestigingsNummer)
+            klantClientService.findDigitalAddressesForVestiging(vestigingsNummer, kvkNummer)
         } else {
             // KVK companies are always stored as non-natural persons in Open Klant
             klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)

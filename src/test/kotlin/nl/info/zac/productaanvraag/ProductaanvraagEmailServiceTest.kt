@@ -222,7 +222,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         )
 
         every {
-            klantClientService.findDigitalAddressesForVestiging(betrokkene.vestigingsNummer)
+            klantClientService.findDigitalAddressesForVestiging(betrokkene.vestigingsNummer, betrokkene.kvkNummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)

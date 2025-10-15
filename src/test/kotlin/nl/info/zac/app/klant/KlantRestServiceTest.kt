@@ -179,7 +179,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
@@ -220,7 +220,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
             } returns null
             every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {

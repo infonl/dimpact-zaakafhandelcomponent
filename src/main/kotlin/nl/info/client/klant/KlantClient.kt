@@ -31,6 +31,7 @@ import java.util.UUID
 @Path("/klantinteracties/api/v1")
 @Suppress("LongParameterList")
 interface KlantClient {
+
     @GET
     @Path("/partijen")
     @Produces(MediaType.APPLICATION_JSON)
