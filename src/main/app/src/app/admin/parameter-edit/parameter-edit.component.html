@@ -755,9 +755,9 @@
           !isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid
         "
       >
-        <ng-template matStepLabel>{{
-          "gegevens.koppelingen" | translate
-        }}</ng-template>
+        <ng-template matStepLabel
+          >{{ "gegevens.koppelingen" | translate }}
+        </ng-template>
         <ng-template matStepContent>
           <mat-card>
             <mat-card-content>
@@ -778,7 +778,10 @@
                 </div>
                 <form
                   [formGroup]="brpProtocoleringFormGroup"
-                  *ngIf="betrokkeneKoppelingen.controls.brpKoppelen.value"
+                  *ngIf="
+                    showDoelbindingen &&
+                    betrokkeneKoppelingen.controls.brpKoppelen.value
+                  "
                 >
                   <p>
                     {{
@@ -831,13 +834,13 @@
                       floatLabel="always"
                     >
                       <mat-label>{{
-                        "brpDoelbinding.verwerkingsregisterWaarde" | translate
+                        "brpDoelbinding.verwerkingregisterWaarde" | translate
                       }}</mat-label>
                       <mat-select
                         placeholder="{{ 'resultaat.-kies-' | translate }}"
                         [formControl]="
                           brpProtocoleringFormGroup.controls
-                            .verwerkingsregisterWaarde
+                            .verwerkingregisterWaarde
                         "
                       >
                         <mat-option
