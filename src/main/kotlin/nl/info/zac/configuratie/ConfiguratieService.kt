@@ -65,6 +65,8 @@ class ConfiguratieService @Inject constructor(
 
     @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
     private val catalogusDomein: String,
+
+    private val brpConfiguration: BrpConfiguration
 ) {
     companion object {
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
@@ -168,4 +170,6 @@ class ConfiguratieService @Inject constructor(
     fun readVerantwoordelijkeOrganisatie(): String = verantwoordelijkeOrganisatie
 
     fun readCatalogusDomein(): String = catalogusDomein
+
+    fun readBrpConfiguration(): BrpConfiguration = brpConfiguration
 }

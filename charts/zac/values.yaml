@@ -103,6 +103,8 @@ brpApi:
   apiKey: ""
   protocollering:
     originOin: ""
+    # -- Supported providers: iConnect, 2Secure
+    aanbieder: "iConnect"
     doelbinding:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
@@ -561,7 +563,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.1@sha256:45d9d4f263e6f5b19d1518b9ef6e0dca706456480fbe263991faf238ae5537ca
+    tag: 1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
   service:
     type: ClusterIP
     port: 80
