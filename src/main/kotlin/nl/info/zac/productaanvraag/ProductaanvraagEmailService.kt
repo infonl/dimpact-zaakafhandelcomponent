@@ -8,7 +8,6 @@ package nl.info.zac.productaanvraag
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.klant.KlantClientService
-import nl.info.client.klant.model.CodeObjecttypeEnum
 import nl.info.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
@@ -74,18 +73,18 @@ class ProductaanvraagEmailService @Inject constructor(
         )
 
     private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
-        klantClientService.findDigitalAddressesForPerson(identity)
+        klantClientService.findDigitalAddressesForNaturalPerson(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
-        val objectType = if (vestigingsNummer != null) {
-            CodeObjecttypeEnum.VESTIGING
+        val digitalAddresses = if (vestigingsNummer != null) {
+            klantClientService.findDigitalAddressesForVestiging(vestigingsNummer)
         } else {
             // KVK companies are always stored as non-natural persons in Open Klant
-            CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
+            klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
         }
-        return klantClientService.findDigitalAddresses(objectType, vestigingsNummer ?: kvkNummer)
+        return digitalAddresses
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
     }

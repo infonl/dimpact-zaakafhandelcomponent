@@ -20,7 +20,6 @@ import nl.info.client.brp.model.createPersoonBeperkt
 import nl.info.client.brp.model.createZoekMetGeslachtsnaamEnGeboortedatumResponse
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
-import nl.info.client.klant.model.CodeObjecttypeEnum
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
 import nl.info.client.kvk.model.createResultaatItem
@@ -72,7 +71,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer") {
@@ -119,7 +118,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns kvkResultaatItem
             every {
-                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -144,7 +143,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns null
             every {
-                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -180,7 +179,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
@@ -221,7 +220,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
             } returns null
             every {
-                klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -251,7 +250,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 email = emailAddress
             )
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns digitaalAdresses
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
             every { brpClientService.retrievePersoon(bsn, ZAAK) } returns persoon
 
             When("when the person is retrieved") {
@@ -271,7 +272,9 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn, ZAAK) } returns persoon
 
             When("when the person is retrieved") {
@@ -296,7 +299,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 phone = telephoneNumber,
                 email = emailAddress
             )
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns digitaalAdresses
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
             every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
 
             When("when the person is retrieved") {
@@ -312,7 +317,9 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn) } returns null
 
             When("when the person is retrieved") {
@@ -361,7 +368,9 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn) } returns persoon
 
             When("when the person is retrieved") {
@@ -386,7 +395,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 phone = telephoneNumber,
                 email = emailAddress
             )
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns digitaalAdresses
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
             every { brpClientService.retrievePersoon(bsn) } returns null
 
             When("when the person is retrieved") {
@@ -402,7 +413,9 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
 
             When("when the person is retrieved") {
@@ -451,7 +464,9 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn) } returns persoon
 
             When("when the person is retrieved") {
@@ -476,7 +491,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 phone = telephoneNumber,
                 email = emailAddress
             )
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns digitaalAdresses
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
             every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
 
             When("when the person is retrieved") {
@@ -492,7 +509,9 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
-            every { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn) } returns emptyList()
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
             every { brpClientService.retrievePersoon(bsn) } returns null
 
             When("when the person is retrieved") {

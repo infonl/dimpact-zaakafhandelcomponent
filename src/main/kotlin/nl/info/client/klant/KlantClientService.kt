@@ -20,16 +20,28 @@ class KlantClientService @Inject constructor(
     @RestClient
     private val klantClient: KlantClient
 ) {
-    fun findDigitalAddresses(objectType: CodeObjecttypeEnum, number: String): List<DigitaalAdres> =
+    // TODO: also use KVK number here..
+    fun findDigitalAddressesForVestiging(
+        vestigingsnummer: String
+    ): List<DigitaalAdres> =
         klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = 1,
-            partijIdentificatorCodeObjecttype = objectType.toString(),
-            partijIdentificatorObjectId = number
+            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.VESTIGING.toString(),
+            partijIdentificatorObjectId = vestigingsnummer
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
-    fun findDigitalAddressesForPerson(number: String): List<DigitaalAdres> =
+    fun findDigitalAddressesForNonNaturalPerson(kvkNummer: String): List<DigitaalAdres> =
+        klantClient.partijenList(
+            expand = "digitaleAdressen",
+            page = 1,
+            pageSize = 1,
+            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON.toString(),
+            partijIdentificatorObjectId = kvkNummer
+        ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
+
+    fun findDigitalAddressesForNaturalPerson(number: String): List<DigitaalAdres> =
         klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,

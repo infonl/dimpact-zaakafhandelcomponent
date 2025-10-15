@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.klant.model.CodeObjecttypeEnum
 
 class KlantClientServiceTest : BehaviorSpec({
     val klantClient = mockk<KlantClient>()
@@ -41,7 +40,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
 
             When("digital addresses are retrieved for natuurlijk persoon type") {
-                val result = klantClientService.findDigitalAddressesForPerson(number)
+                val result = klantClientService.findDigitalAddressesForNaturalPerson(number)
 
                 Then("it should return the digital addresses") {
                     result shouldContainExactly digitalAddresses
@@ -49,7 +48,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A number for which no digital addresses exist") {
+        Given("A vestigingsnumber for which no digital addresses exist") {
             val number = "67890"
             every {
                 klantClient.partijenList(
@@ -68,7 +67,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
 
             When("digital addresses are retrieved for vestiging type") {
-                val result = klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, number)
+                val result = klantClientService.findDigitalAddressesForVestiging(number)
 
                 Then("it should return an empty list") {
                     result.shouldBeEmpty()

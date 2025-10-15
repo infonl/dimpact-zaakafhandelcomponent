@@ -22,7 +22,6 @@ import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
-import nl.info.client.klant.model.CodeObjecttypeEnum
 import nl.info.client.klant.model.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
@@ -80,7 +79,7 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantPersoonDigitalAddresses =
-                async { klantClientService.findDigitalAddressesForPerson(bsn) }
+                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
@@ -183,7 +182,7 @@ class KlantRestService @Inject constructor(
     fun getContactDetailsForPerson(
         @PathParam("bsn") bsn: String
     ): RestContactDetails =
-        klantClientService.findDigitalAddressesForPerson(bsn).toContactDetails().let {
+        klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
             RestContactDetails(
                 telefoonnummer = it.telephoneNumber,
                 emailadres = it.emailAddress
@@ -209,7 +208,7 @@ class KlantRestService @Inject constructor(
             val klantVestigingDigitalAddresses =
                 // we should also use the KVK number to find the digital addresses of the vestiging in future since the
                 // vestigingsnummer alone is not a unique identification for a vestiging
-                async { klantClientService.findDigitalAddresses(CodeObjecttypeEnum.VESTIGING, vestigingsnummer) }
+                async { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
                 vestiging.await()?.toRestBedrijf()?.apply {
