@@ -179,11 +179,11 @@ class KlantRestService @Inject constructor(
         ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactgegevens/{initiatorIdentificatie}")
-    fun ophalenContactGegevens(
-        @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
+    @Path("contactdetails/bsn/{bsn}")
+    fun getContactDetailsForPerson(
+        @PathParam("bsn") bsn: String
     ): RestContactDetails =
-        klantClientService.findDigitalAddresses(initiatorIdentificatie).toContactDetails().let {
+        klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, bsn).toContactDetails().let {
             RestContactDetails(
                 telefoonnummer = it.telephoneNumber,
                 emailadres = it.emailAddress
