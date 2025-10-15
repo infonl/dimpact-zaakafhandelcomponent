@@ -29,7 +29,7 @@ plugins {
     alias(libs.plugins.openapi)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.owasp.dependencycheck)
+    alias(libs.plugins.owasp-dependencycheck)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
 }
