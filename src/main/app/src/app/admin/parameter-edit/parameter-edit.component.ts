@@ -364,7 +364,7 @@ export class ParameterEditComponent
   }
 
   private getProtocolering(protocolering: string) {
-    return protocolering.trim() === "iConnect";
+    return protocolering?.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(
