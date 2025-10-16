@@ -15,7 +15,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import nl.info.zac.app.admin.model.RestProcessDefinition
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
@@ -23,19 +23,19 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("process-definitions")
+@Path("bpmn-process-definitions")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
-class ProcessDefinitionRestService @Inject constructor(
+class BpmnProcessDefinitionRestService @Inject constructor(
     private val bpmnService: BpmnService,
     private val policyService: PolicyService
 ) {
     @GET
-    fun listProcessDefinitions(): List<RestProcessDefinition> {
+    fun listProcessDefinitions(): List<RestBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return bpmnService.listProcessDefinitions()
-            .map { RestProcessDefinition(it.id, it.name, it.version, it.key) }
+            .map { RestBpmnProcessDefinition(it.id, it.name, it.version, it.key) }
     }
 
     @POST

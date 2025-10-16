@@ -34,7 +34,7 @@ class ZaaktypeBpmnConfiguration {
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_configuration", strategy = GenerationType.SEQUENCE)
-    var id: Long = 0
+    var id: Long? = null
 
     @NotNull
     @Column(name = "zaaktype_uuid")
