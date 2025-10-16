@@ -477,8 +477,8 @@ test_toevoegen_nieuwe_versie_recordmanager if {
         with input.document.ondertekend as false
 }
 
-test_toevoegen_nieuwe_versie_recordmanager_ondertekend_fails if {
-    not toevoegen_nieuwe_versie
+test_toevoegen_nieuwe_versie_recordmanager_ondertekend if {
+    toevoegen_nieuwe_versie
         with input.user.rollen as ["recordmanager"]
         with input.document.ondertekend as true
 }
