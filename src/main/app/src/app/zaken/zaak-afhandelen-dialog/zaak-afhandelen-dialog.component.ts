@@ -112,7 +112,7 @@ export class ZaakAfhandelenDialogComponent {
     this.formGroup.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (value?.besluitVerplicht) {
+        if (value?.besluitVerplicht && !data.zaak.besluiten?.length) {
           this.formGroup.controls.toelichting.disable();
           this.formGroup.controls.sendMail.disable();
           this.formGroup.controls.verzender.disable();
