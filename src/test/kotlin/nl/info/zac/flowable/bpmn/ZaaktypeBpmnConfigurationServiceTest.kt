@@ -4,10 +4,8 @@
  */
 package nl.info.zac.flowable.bpmn
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -21,9 +19,6 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
-import nl.info.zac.admin.exception.ZaaktypeInUseException
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.Optional
@@ -37,9 +32,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     val pathUuid = mockk<Path<UUID>>()
     val pathProductAanvraagType = mockk<Path<String>>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-    val zaaktypeBpmnConfigurationService =
-        ZaaktypeBpmnConfigurationService(entityManager, zaaktypeCmmnConfigurationBeheerService)
+    val zaaktypeBpmnConfigurationService = ZaaktypeBpmnConfigurationService(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -48,9 +41,6 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     Context("Creating a zaaktype - BPMN process definition") {
         Given("A zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(id = null)
-            every {
-                zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
-            } returns null
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
             every { entityManager.flush() } just Runs
             every {
@@ -70,33 +60,11 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        Given("A zaaktype and existing CMMN mapping for it") {
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
-            every {
-                zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
-            } returns createZaaktypeCmmnConfiguration()
-
-            When("the zaaktype BPMN process definition relation is created") {
-                val exception = shouldThrow<ZaaktypeInUseException> {
-                    zaaktypeBpmnConfigurationService.storeConfiguration(
-                        zaaktypeBpmnProcessDefinition
-                    )
-                }
-
-                Then("an exception is thrown") {
-                    exception.message shouldContain zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-                }
-            }
-        }
     }
 
     Context("Updating a zaaktype - BPMN process definition") {
         Given("An existing zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
-            every {
-                zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
-            } returns null
             every { entityManager.merge(zaaktypeBpmnProcessDefinition) } returns zaaktypeBpmnProcessDefinition
 
             When("the zaaktype BPMN process definition relation is created") {
