@@ -108,7 +108,7 @@ When(
       .click();
 
     await this.page
-      .getByPlaceholder("Taak toekennen aan medewerker")
+      .getByRole("combobox", { name: "Taak toekennen aan medewerker" })
       .first()
       .click();
     await this.page
