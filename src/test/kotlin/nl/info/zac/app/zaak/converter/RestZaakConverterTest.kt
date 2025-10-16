@@ -118,7 +118,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -172,7 +172,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -226,7 +226,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -276,7 +276,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -320,7 +320,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -369,7 +369,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -429,7 +429,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -470,7 +470,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
         When("converting a zaak to a rest zaak") {
             val testCases = listOf(

@@ -26,16 +26,50 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { ParametersEditCmmnComponent } from "./parameter-edit.component";
+import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn.component";
 
-describe(ParametersEditCmmnComponent.name, () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
+describe(ParametersEditBpmnComponent.name, () => {
+  let fixture: ComponentFixture<ParametersEditBpmnComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let loader: HarnessLoader;
   let utilService: UtilService;
+
+  const bpmnZaakafhandelParameters: Partial<
+    GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
+      zaaktype: GeneratedType<"RestZaaktype">;
+    }
+  > = fromPartial({
+    zaaktypeUuid: "zaaktypeuuid",
+    zaaktypeOmschrijving: "omschrijving",
+    bpmnProcessDefinitionKey: "bpmnProcessDefinitionKey",
+    productaanvraagtype: null,
+    groepNaam: "test-group-bpmn",
+    zaaktype: {
+      uuid: "test-uuid",
+      identificatie: "test-definitie",
+      doel: "test-doel",
+      omschrijving: "test-omschrijving",
+    },
+  });
+
+  const bpmnProcessDefinitionsList: GeneratedType<"RestBpmnProcessDefinition">[] =
+    [
+      {
+        id: "RestBpmnProcessDefinition-1",
+        key: "itProcessDefinition-2",
+        name: "BPMN Process Definition - 2",
+        version: 1,
+      },
+      {
+        id: "RestBpmnProcessDefinition-2",
+        key: "itProcessDefinition-2",
+        name: "BPMN Process Definition - 2",
+        version: 1,
+      },
+    ];
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -45,21 +79,12 @@ describe(ParametersEditCmmnComponent.name, () => {
     zaaktype: {
       uuid: "test-uuid",
     },
-    humanTaskParameters: [],
-    userEventListenerParameters: [],
-    mailtemplateKoppelingen: [],
-    zaakAfzenders: [],
-    smartDocuments: {},
-    brpDoelbindingen: {},
-    automaticEmailConfirmation: {
-      enabled: false,
-    },
   });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        ParametersEditCmmnComponent,
+        ParametersEditBpmnComponent,
         SideNavComponent,
         StaticTextComponent,
       ],
@@ -80,6 +105,8 @@ describe(ParametersEditCmmnComponent.name, () => {
             data: of({
               parameters: {
                 zaakafhandelParameters,
+                bpmnZaakafhandelParameters,
+                bpmnProcessDefinitionsList,
                 isSavedZaakafhandelParameters: true,
               },
             }),
@@ -105,9 +132,6 @@ describe(ParametersEditCmmnComponent.name, () => {
       .mockReturnValue(of([]));
     jest
       .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listBpmnZaakafhandelParameters")
       .mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
@@ -148,29 +172,25 @@ describe(ParametersEditCmmnComponent.name, () => {
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
+    fixture = TestBed.createComponent(ParametersEditBpmnComponent);
+    await fixture.whenStable();
+
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("Case handler", () => {
-    it("should set the case handlers which are in the selected group", async () => {
+    it("should set the case handlers selected group", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-      const caseHandlerSelect = selectFields[3];
+      const processDefinitionField = selectFields[0];
 
-      const value = await caseHandlerSelect.getValueText();
-      expect(value).toBe("-kies.generiek-");
-    });
+      const processDefinitionFieldValue =
+        await processDefinitionField.getValueText();
+      expect(processDefinitionFieldValue).toBe("-kies.generiek-");
 
-    it("should update the case handlers when the group changes", async () => {
-      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-      const groupField = selectFields[2];
+      const groupField = selectFields[1];
 
-      await groupField.clickOptions({ text: "test-group-2" });
-
-      const caseHandlerSelect = selectFields[3];
-      const value = await caseHandlerSelect.getValueText();
-
-      expect(value).toBe("-kies.generiek-");
+      const value = await groupField.getValueText();
+      expect(value).toBe("test-group");
     });
   });
 });
