@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.Called
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -29,6 +30,7 @@ import net.atos.zac.webdav.WebdavHelper
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
@@ -41,6 +43,7 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConfidentialityCannotBeChangedException
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
@@ -347,6 +350,57 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("it throws exception with no message") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    Given("an enkelvoudig informatieobject is uploaded and signed, and the zaak is open") {
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+        val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
+        val restEnkelvoudigInformatieObjectVersieGegevens =
+            createRestEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            ondertekening = createOndertekening()
+        )
+
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+        } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
+        } returns enkelvoudigInformatieObjectWithLockData
+        every {
+            enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObject.url.extractUuid(),
+                enkelvoudigInformatieObjectWithLockData,
+                null
+            )
+        } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+        } returns restEnkelvoudigInformatieobject
+
+        When("the enkelvoudig informatieobject confidentiality of signed document is updated") {
+            every {
+                policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+            } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
+
+            val exception = shouldThrow<EnkelvoudigInformatieObjectConfidentialityCannotBeChangedException> {
+                enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                    restEnkelvoudigInformatieObjectVersieGegevens.apply {
+                        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+                    }
+                )
+            }
+
+            Then("it throws exception with no message") {
+                exception.message shouldBe null
+            }
+
+            And("no changes are stored") {
+                verify { enkelvoudigInformatieObjectUpdateService wasNot Called }
             }
         }
     }

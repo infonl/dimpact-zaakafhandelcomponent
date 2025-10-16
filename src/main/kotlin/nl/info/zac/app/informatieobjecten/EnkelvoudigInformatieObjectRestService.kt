@@ -51,10 +51,12 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConfidentialityCannotBeChangedException
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -386,9 +388,20 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
             ).toevoegenNieuweVersie
         )
+        if (document.isSigned() && document.isConfidentialityChanged(enkelvoudigInformatieObjectVersieGegevens)) {
+            throw EnkelvoudigInformatieObjectConfidentialityCannotBeChangedException()
+        }
+
         val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
     }
+
+    private fun EnkelvoudigInformatieObject.isConfidentialityChanged(
+        documentUpdates: RestEnkelvoudigInformatieObjectVersieGegevens
+    ): Boolean =
+        this.vertrouwelijkheidaanduiding !=
+            VertrouwelijkheidaanduidingEnum.valueOf(documentUpdates.vertrouwelijkheidaanduiding.uppercase())
+
 
     @POST
     @Path("/informatieobject/{uuid}/lock")
