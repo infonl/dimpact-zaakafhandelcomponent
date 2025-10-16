@@ -7,8 +7,9 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.CodeObjecttypeEnum
+import nl.info.client.klant.model.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
@@ -67,20 +68,27 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
-            onNatuurlijkPersoonIdentity = ::fetchEmail,
+            onNatuurlijkPersoonIdentity = ::fetchEmailForNatuurlijkPersoon,
             onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
-    private fun fetchEmail(identity: String): String? =
-        klantClientService.findDigitalAddressesByNumber(identity)
+    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
+        klantClientService.findDigitalAddresses(CodeObjecttypeEnum.NATUURLIJK_PERSOON, identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
-    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
-        klantClientService.findDigitalAddressesByNumber(vestigingsNummer ?: kvkNummer)
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
+        val objectType = if (vestigingsNummer != null) {
+            CodeObjecttypeEnum.VESTIGING
+        } else {
+            // KVK companies are always stored as non-natural persons in Open Klant
+            CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
+        }
+        return klantClientService.findDigitalAddresses(objectType, vestigingsNummer ?: kvkNummer)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
+    }
 
     private fun sendMail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,

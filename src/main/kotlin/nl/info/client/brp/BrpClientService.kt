@@ -141,8 +141,10 @@ class BrpClientService @Inject constructor(
             zaakIdentificatie = zaakIdentificatie,
             defaultValue = defaultProcessingRegisterValue,
             valueDescription = "processing value",
-            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingsregisterWaarde },
-            buildFunction = { resolvedValue, configuration -> "$resolvedValue@${configuration.zaaktypeOmschrijving}" }
+            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde },
+            buildFunction = { resolvedValue, configuration ->
+                "${resolvedValue ?: defaultProcessingRegisterValue}@${configuration.zaaktypeOmschrijving}"
+            }
         )
 
     private fun resolveBRPValue(
@@ -167,6 +169,17 @@ class BrpClientService @Inject constructor(
             defaultValue
         }
 
+    /**
+     * Resolves a value using the zaakafhandelparameters settings of the zaaktype
+     *
+     * @this zaakIdentificatie the UUID of the zaaktype
+     * @param valueDescription a description of the value to resolve, for logging purposes
+     * @param defaultValue the default value to use if no value can be resolved
+     * @param resolveFunction the function to use to resolve the value
+     * @param buildFunction the function to use to build the final value
+     *
+     * @return the resolved value, or null if only whitespace characters are present in the resolved value
+     */
     private fun String.resolveValueFromZaaktypeCmmnConfiguration(
         valueDescription: String,
         defaultValue: String?,
@@ -177,11 +190,13 @@ class BrpClientService @Inject constructor(
             .zaaktype.extractUuid()
             .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
             .let { zaaktypeCmmnConfiguration ->
-                resolveFunction(zaaktypeCmmnConfiguration)?.let {
-                    if (it.isPureAscii()) {
-                        it
+                resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
+                    if (resolvedValue.isPureAscii()) {
+                        resolvedValue.trim().takeIf { it.isNotBlank() }
                     } else {
-                        LOG.warning { "Resolved $valueDescription '$it' contains non-ASCII characters. Using '$defaultValue' instead" }
+                        LOG.warning {
+                            "Resolved $valueDescription '$resolvedValue' contains non-ASCII characters. Using '$defaultValue' instead"
+                        }
                         defaultValue
                     }
                 }.let { buildFunction(it, zaaktypeCmmnConfiguration) }

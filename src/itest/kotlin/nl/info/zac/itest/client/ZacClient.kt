@@ -10,6 +10,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -176,7 +178,32 @@ class ZacClient {
                   "doorlooptijd": null
                 }
               ],
-              "mailtemplateKoppelingen": [],
+              "mailtemplateKoppelingen": [
+                {
+                  "mailtemplate": {
+                    "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                    "defaultMailtemplate": true,
+                    "id": 2,
+                    "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                    "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
+                    "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                    "variabelen": [
+                      "GEMEENTE",
+                      "ZAAK_NUMMER",
+                      "ZAAK_TYPE",
+                      "ZAAK_STATUS",
+                      "ZAAK_REGISTRATIEDATUM",
+                      "ZAAK_STARTDATUM",
+                      "ZAAK_STREEFDATUM",
+                      "ZAAK_FATALEDATUM",
+                      "ZAAK_OMSCHRIJVING",
+                      "ZAAK_TOELICHTING",
+                      "ZAAK_INITIATOR",
+                      "ZAAK_INITIATOR_ADRES"
+                    ]
+                  }
+                }
+              ],
               "userEventListenerParameters": [
                 {
                   "id": "INTAKE_AFRONDEN",

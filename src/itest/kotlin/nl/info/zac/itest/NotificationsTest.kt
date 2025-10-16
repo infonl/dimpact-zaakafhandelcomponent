@@ -46,7 +46,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -157,7 +157,7 @@ class NotificationsTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
@@ -366,7 +366,7 @@ class NotificationsTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
@@ -454,7 +454,7 @@ class NotificationsTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         getBoolean("isProcesGestuurd") shouldBe false
@@ -637,7 +637,7 @@ class NotificationsTest : BehaviorSpec({
                             "actie" to "partial_update",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
@@ -703,7 +703,7 @@ class NotificationsTest : BehaviorSpec({
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
