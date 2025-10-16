@@ -92,7 +92,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(zaak.initiatorIdentificatie.bsnNummer)
+        .getContactDetailsForPerson(zaak.initiatorIdentificatie.bsnNummer)
         .subscribe((value) => {
           if (!value.emailadres) return;
           emailControl.setValue(value.emailadres);

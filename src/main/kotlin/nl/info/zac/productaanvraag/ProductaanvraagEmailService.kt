@@ -67,20 +67,27 @@ class ProductaanvraagEmailService @Inject constructor(
 
     private fun extractBetrokkeneEmail(betrokkene: Betrokkene) =
         betrokkene.performAction(
-            onNatuurlijkPersoonIdentity = ::fetchEmail,
+            onNatuurlijkPersoonIdentity = ::fetchEmailForNatuurlijkPersoon,
             onKvkIdentity = ::fetchEmail,
             onNoIdentity = { null }
         )
 
-    private fun fetchEmail(identity: String): String? =
-        klantClientService.findDigitalAddresses(identity)
+    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
+        klantClientService.findDigitalAddressesForNaturalPerson(identity)
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
 
-    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? =
-        klantClientService.findDigitalAddresses(vestigingsNummer ?: kvkNummer)
+    private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
+        val digitalAddresses = if (vestigingsNummer != null) {
+            klantClientService.findDigitalAddressesForVestiging(vestigingsNummer, kvkNummer)
+        } else {
+            // KVK companies are always stored as non-natural persons in Open Klant
+            klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+        }
+        return digitalAddresses
             .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
             ?.adres
+    }
 
     private fun sendMail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,

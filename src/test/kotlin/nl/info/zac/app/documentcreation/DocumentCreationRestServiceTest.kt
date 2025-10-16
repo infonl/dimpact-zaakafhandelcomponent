@@ -83,7 +83,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             cmmnDocumentCreationService.createCmmnDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
         every {
-            bpmnService.isProcessDriven(any())
+            bpmnService.isZaakProcessDriven(any())
         } returns false
 
         When("createDocument is called by a role that is allowed to change the zaak") {

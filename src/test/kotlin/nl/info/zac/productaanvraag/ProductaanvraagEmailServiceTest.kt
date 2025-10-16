@@ -56,7 +56,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -112,7 +112,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -163,7 +163,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -222,7 +222,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         )
 
         every {
-            klantClientService.findDigitalAddresses(betrokkene.vestigingsNummer)
+            klantClientService.findDigitalAddressesForVestiging(betrokkene.vestigingsNummer, betrokkene.kvkNummer)
         } returns listOf(digitalAddress)
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -271,7 +271,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val digitalAddress = createDigitalAddress()
 
         every {
-            klantClientService.findDigitalAddresses(betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {

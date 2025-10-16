@@ -282,3 +282,7 @@ src/app/modified-component.ts:15:7 - error TS2564: Property 'data' has no initia
 ❌ TypeScript check failed on changed files
 💡 Changed files must follow strict TypeScript standards
 ```
+
+## Using Visual Studio Code
+
+Visual Studio Code does not show proper errors in HTML files by default. To fix this one of the options is to use the official Angular VSC extension called 'Angular Language Service'.

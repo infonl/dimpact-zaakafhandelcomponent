@@ -35,10 +35,11 @@ import nl.info.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijf
 import nl.info.zac.app.klant.model.bedrijven.toRestResultaat
 import nl.info.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
+import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.app.klant.model.contactmoment.RestContactmoment
 import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment
-import nl.info.zac.app.klant.model.klant.RestContactGegevens
+import nl.info.zac.app.klant.model.klant.RestContactDetails
 import nl.info.zac.app.klant.model.klant.RestRoltype
 import nl.info.zac.app.klant.model.klant.toRestRoltypes
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
@@ -46,7 +47,7 @@ import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersoon
 import nl.info.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
-import nl.info.zac.app.klant.model.personen.toRechtsPersonen
+import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.util.AllOpen
@@ -77,14 +78,15 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddresses(bsn) }
+            val klantPersoonDigitalAddresses =
+                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaakIdentification)
             }
-            klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
+            klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
-                    telefoonnummer = klantPersoon.telefoonnummer
-                    emailadres = klantPersoon.emailadres
+                    telefoonnummer = contactDetails.telephoneNumber
+                    emailadres = contactDetails.emailAddress
                 } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             }
         }
@@ -151,7 +153,7 @@ class KlantRestService @Inject constructor(
                     .toRestResultaat()
             }
             ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
-                .toRechtsPersonen()
+                .toRestPersonen()
                 .toRestResultaat()
 
     @PUT
@@ -176,14 +178,14 @@ class KlantRestService @Inject constructor(
         ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactgegevens/{initiatorIdentificatie}")
-    fun ophalenContactGegevens(
-        @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens =
-        klantClientService.findDigitalAddresses(initiatorIdentificatie).toRestPersoon().let {
-            RestContactGegevens(
-                telefoonnummer = it.telefoonnummer,
-                emailadres = it.emailadres
+    @Path("contactdetails/bsn/{bsn}")
+    fun getContactDetailsForPerson(
+        @PathParam("bsn") bsn: String
+    ): RestContactDetails =
+        klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
+            RestContactDetails(
+                telefoonnummer = it.telephoneNumber,
+                emailadres = it.emailAddress
             )
         }
 
@@ -204,13 +206,13 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
-                async { klantClientService.findDigitalAddresses(vestigingsnummer) }
+                async { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
+            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
                 vestiging.await()?.toRestBedrijf()?.apply {
                     if (kvkNummer == null) this.kvkNummer = null
-                    emailadres = klantVestigingRestPersoon.emailadres
-                    telefoonnummer = klantVestigingRestPersoon.telefoonnummer
+                    emailadres = contactDetails.emailAddress
+                    telefoonnummer = contactDetails.telephoneNumber
                 } ?: throw VestigingNotFoundException(
                     "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
                         (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")

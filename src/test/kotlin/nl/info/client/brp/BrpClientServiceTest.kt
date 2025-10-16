@@ -54,7 +54,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -126,7 +126,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 zoekWaarde = queryPersonenPurpose
-                verwerkingsregisterWaarde = "Leerplicht"
+                verwerkingregisterWaarde = "Leerplicht"
             }
         )
 
@@ -266,7 +266,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -311,7 +311,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
-                verwerkingsregisterWaarde = processingValue
+                verwerkingregisterWaarde = processingValue
             }
         )
 
@@ -322,8 +322,54 @@ class BrpClientServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
         } returns zaaktypeCmmnConfiguration
         every {
-            // Since we have a processing value in Unicode, the default value is used instead
+            // Since we have a whitespace prefix and suffix, the value is trimmed
             personenApi.personen(any(), retrievePersoonPurpose, "Process ing\tvalue\t with whitespaces@fakeZaaktypeOmschrijving")
+        } returns raadpleegMetBurgerservicenummerResponse
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon(bsn, ZAAK)
+
+            Then("it should still return the person") {
+                personResponse shouldBe person
+            }
+        }
+    }
+
+    Given("Only whitespaces for BRP in zaakafhandelparameters") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        val brpConfiguration = createBrpConfiguration(
+            auditLogProvider = Optional.of("2Secure")
+        )
+        val brpClientService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zrcClientService = zrcClientService,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        )
+        val zaak = createZaak()
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+                zoekWaarde = ""
+                raadpleegWaarde = ""
+                verwerkingregisterWaarde = ""
+            }
+        )
+
+        every {
+            zrcClientService.readZaakByID(ZAAK)
+        } returns zaak
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+        } returns zaaktypeCmmnConfiguration
+        every {
+            // We have no zaakafhandelparameter values, so the defaults are used instead
+            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault@fakeZaaktypeOmschrijving")
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
