@@ -64,7 +64,7 @@ eclipse-yasson = "3.0.4"
 kotest = "5.9.1"
 mockk = "1.14.6"
 
-testcontainers = "1.21.3"
+testcontainers = "2.0.1"
 
 json-json = "20250517"
 slf4j-simple = "2.0.17"
