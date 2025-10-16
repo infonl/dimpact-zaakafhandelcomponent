@@ -65,6 +65,7 @@ import java.io.IOException
 import java.net.URI
 import java.util.UUID
 
+@Suppress("LargeClass")
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()

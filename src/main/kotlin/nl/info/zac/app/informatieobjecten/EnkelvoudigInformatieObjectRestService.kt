@@ -389,7 +389,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
             ).toevoegenNieuweVersie
         )
-        if (document.isSigned() && document.isConfidentialityChanged(enkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)) {
+        if (document.isSigned() &&
+            document.isConfidentialityChanged(enkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
+        ) {
             throw EnkelvoudigInformatieObjectConfidentialityCannotBeChangedException()
         }
 
