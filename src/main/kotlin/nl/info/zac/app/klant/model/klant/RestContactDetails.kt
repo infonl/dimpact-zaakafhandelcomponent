@@ -9,7 +9,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-data class RestContactGegevens(
+data class RestContactDetails(
     var emailadres: String? = null,
     var telefoonnummer: String? = null
 )

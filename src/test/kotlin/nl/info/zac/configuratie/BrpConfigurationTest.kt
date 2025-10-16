@@ -9,15 +9,28 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
+import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
 import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
 
-    Given("No BRP audit log provider specified") {
+    Given("BRP protocollering disabled") {
+        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+
+        When("reading BRP audit log provider") {
+            val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
+
+            Then("empty string is returned") {
+                protocolleringProvider shouldContain ""
+            }
+        }
+    }
+
+    Given("BRP protocollering enabled, but no audit log provider specified") {
         val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
 
         When("reading BRP audit log provider") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
                 brpConfiguration.readBrpProtocolleringProvider()
             }
 
@@ -33,7 +46,7 @@ class BrpConfigurationTest : BehaviorSpec({
         val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
 
         When("reading BRP audit log provider") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
                 brpConfiguration.readBrpProtocolleringProvider()
             }
 
