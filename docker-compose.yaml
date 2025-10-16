@@ -5,6 +5,7 @@
 services:
   keycloak-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    platform: linux/amd64
     ports:
       - "54326:5432"
     healthcheck:
@@ -228,6 +229,7 @@ services:
 
   solr:
     image: docker.io/solr:9.9.0-slim@sha256:0ef1dd94cb9255011b7e58cb56137bd68e52021bc7eb66be45ef458acfb8478a
+    platform: linux/amd64
     ports:
       - "8983:8983"
     volumes:
@@ -268,6 +270,7 @@ services:
 
   openklant-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    platform: linux/amd64
     ports:
       - "54325:5432"
     healthcheck:
@@ -673,6 +676,7 @@ services:
 
   pabc-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    platform: linux/amd64
     ports:
       - "54329:5432"
     environment:
@@ -715,6 +719,7 @@ services:
 
   zac-database:
     image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    platform: linux/amd64
     ports:
       - "54320:5432"
     healthcheck:
@@ -793,7 +798,6 @@ services:
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
-      - KEEP_CONTAINERS_RUNNING=true
     ports:
       - "8080:8080"
       - "9990:9990"
