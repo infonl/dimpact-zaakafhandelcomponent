@@ -8,7 +8,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createZaaktypeBpmnConfiguration(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     zaaktypeUuid: UUID = UUID.randomUUID(),
     bpmnProcessDefinitionKey: String = "bpmnProcessDefinitionKey",
     zaaktypeOmschrijving: String = "zaaktypeOmschrijving",

@@ -1,0 +1,38 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-stepper orientation="horizontal" [linear]="true">
+  <mat-step>
+    <ng-template matStepLabel>{{
+      "gegevens.proces-definitie" | translate
+    }}</ng-template>
+
+    <p>
+      {{ "zaps.step.proces-definitie.intro" | translate }}
+    </p>
+
+    <zac-radio
+      [form]="cmmnBpmnFormGroup"
+      key="options"
+      label="Welke koppeling wil je maken?"
+      [options]="zaakProcessDefinitionOptions"
+      optionDisplayValue="label"
+    ></zac-radio>
+
+    <div class="flex-row items-center gap-10 ml-1 my-3">
+      <mat-icon color="warn" class="pr-3">warning</mat-icon>
+      <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
+    </div>
+
+    <div class="button-group flex-row flex-wrap">
+      <button mat-raised-button (click)="onNext()">
+        {{ "actie.volgende" | translate }}
+      </button>
+      <button mat-raised-button color="primary" disabled>
+        {{ "actie.opslaan" | translate }}
+      </button>
+    </div>
+  </mat-step>
+</mat-stepper>

@@ -8,11 +8,11 @@ import jakarta.ws.rs.core.MultivaluedMap
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
-class KlantRuntimeResponseExceptionMapper : ResponseExceptionMapper<RuntimeException?> {
-    override fun handles(status: Int, headers: MultivaluedMap<String?, Any?>?): Boolean {
-        return status >= Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
+class KlantRuntimeResponseExceptionMapper : ResponseExceptionMapper<RuntimeException> {
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean {
+        return status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
     }
 
     override fun toThrowable(response: Response): RuntimeException =
-        RuntimeException("Server response from Klanten: ${response.status} (${response.statusInfo})")
+        KlantRuntimeException("Server response from Klanten: ${response.status} (${response.statusInfo})")
 }

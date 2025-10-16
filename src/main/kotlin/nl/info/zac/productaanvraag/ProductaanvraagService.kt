@@ -470,7 +470,7 @@ class ProductaanvraagService @Inject constructor(
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
             .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraag.type)
-        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationService.findByProductAanvraagType(
+        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(
             productaanvraag.type
         )
         val hasCmmnDefinition = zaaktypeCmmnConfiguration.isNotEmpty()
