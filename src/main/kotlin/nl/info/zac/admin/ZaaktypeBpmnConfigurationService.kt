@@ -46,7 +46,6 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                     "BPMN zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
                 )
         }
-    }
 
     fun deleteConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         entityManager.remove(zaaktypeBpmnConfiguration)
