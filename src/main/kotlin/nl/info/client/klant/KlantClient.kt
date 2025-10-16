@@ -6,12 +6,14 @@ package nl.info.client.klant
 
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.klant.exception.KlantRuntimeResponseExceptionMapper
 import nl.info.client.klant.model.PaginatedExpandPartijList
+import nl.info.client.klant.model.PartijIdentificator
 import nl.info.client.klant.util.KlantClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
@@ -62,4 +64,10 @@ interface KlantClient {
         @QueryParam("vertegenwoordigdePartij__url") vertegenwoordigdePartijUrl: String? = null,
         @QueryParam("vertegenwoordigdePartij__uuid") vertegenwoordigdePartijUuid: UUID? = null
     ): PaginatedExpandPartijList
+
+    @GET
+    @Path("/partij-identificatoren/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Throws(ProcessingException::class)
+    fun getPartijIdentificator(@PathParam("uuid") uuid: UUID): PartijIdentificator
 }

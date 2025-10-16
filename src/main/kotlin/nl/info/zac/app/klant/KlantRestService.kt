@@ -206,8 +206,6 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
-                // we should also use the KVK number to find the digital addresses of the vestiging in future since the
-                // vestigingsnummer alone is not a unique identification for a vestiging
                 async { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer) }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
