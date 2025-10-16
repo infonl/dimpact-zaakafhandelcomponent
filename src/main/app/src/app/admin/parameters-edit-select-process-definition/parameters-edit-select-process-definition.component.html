@@ -20,9 +20,6 @@
       [options]="zaakProcessDefinitionOptions"
       optionDisplayValue="label"
     ></zac-radio>
-    <mat-hint *ngIf="!featureFlagBpmnSupport">{{
-      "zaps.step.proces-definitie.bpmn-feature-flag-off.hint" | translate
-    }}</mat-hint>
 
     <div class="flex-row items-center gap-10 ml-1 my-3">
       <mat-icon color="warn" class="pr-3">warning</mat-icon>

@@ -21,7 +21,9 @@ export class ParametersEditWrapperComponent
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
-  processDefinitionType!: ZaakProcessDefinition;
+  protected isLoading: boolean = true; // wait for data since mat-stepper cannot load its steps dynamically
+  protected featureFlagBpmnSupport: boolean = false;
+  protected processDefinitionType!: ZaakProcessDefinition;
 
   constructor(
     public readonly utilService: UtilService,
@@ -35,13 +37,22 @@ export class ParametersEditWrapperComponent
     this.setupMenu("title.parameters.wijzigen");
 
     this.route.data.subscribe(({ parameters }) => {
+      this.isLoading = false;
+      this.featureFlagBpmnSupport =
+        parameters.featureFlagBpmnSupport as boolean;
+
+      if (!this.featureFlagBpmnSupport) {
+        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
+        return;
+      }
+
       if (parameters.isBpmn) {
-        this.processDefinitionType = { type: "BPMN" };
+        this.processDefinitionType = { type: "BPMN", selectedIndexStart: 1 };
         return;
       }
 
       if (parameters.isSavedZaakafhandelParameters) {
-        this.processDefinitionType = { type: "CMMN" };
+        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
         return;
       }
 
