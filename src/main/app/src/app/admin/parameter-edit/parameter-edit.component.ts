@@ -932,6 +932,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       .subscribe({
         next: (data) => {
           this.isLoading = false;
+          this.cmmnBpmnFormGroup.disable(); // disable form to prevent modifications until explicitly enabled again
+
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
