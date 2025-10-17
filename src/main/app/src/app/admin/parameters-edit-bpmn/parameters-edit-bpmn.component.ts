@@ -148,7 +148,9 @@ export class ParametersEditBpmnComponent {
       .subscribe({
         next: (data) => {
           this.isLoading = false;
-          this.bpmnZaakafhandelParameters.id = data.id; // needed when save on this case type is repeated
+          this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
+          this.cmmnBpmnFormGroup.disable(); // as long as not saved and not coming from DB force it here
+
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );

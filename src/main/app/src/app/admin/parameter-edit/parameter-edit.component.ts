@@ -932,6 +932,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       .subscribe({
         next: (data) => {
           this.isLoading = false;
+          this.cmmnBpmnFormGroup.disable(); // as long as not saved and not coming from DB force it here
+
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
