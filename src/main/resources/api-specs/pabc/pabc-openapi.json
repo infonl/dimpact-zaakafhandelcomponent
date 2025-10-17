@@ -1152,8 +1152,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": { }
+        }
       },
       "ValidationProblemDetails": {
         "type": "object",
@@ -1188,8 +1187,7 @@
               }
             }
           }
-        },
-        "additionalProperties": { }
+        }
       }
     },
     "securitySchemes": {
