@@ -8,9 +8,7 @@
   "paths": {
     "/api/v1/domains/{id}": {
       "delete": {
-        "tags": [
-          "DeleteDomain"
-        ],
+        "tags": ["DeleteDomain"],
         "parameters": [
           {
             "name": "id",
@@ -59,9 +57,7 @@
         }
       },
       "get": {
-        "tags": [
-          "GetDomain"
-        ],
+        "tags": ["GetDomain"],
         "parameters": [
           {
             "name": "id",
@@ -107,9 +103,7 @@
         }
       },
       "put": {
-        "tags": [
-          "PutDomain"
-        ],
+        "tags": ["PutDomain"],
         "parameters": [
           {
             "name": "id",
@@ -196,9 +190,7 @@
     },
     "/api/v1/entity-types/{id}": {
       "delete": {
-        "tags": [
-          "DeleteEntityType"
-        ],
+        "tags": ["DeleteEntityType"],
         "parameters": [
           {
             "name": "id",
@@ -247,9 +239,7 @@
         }
       },
       "get": {
-        "tags": [
-          "GetEntityType"
-        ],
+        "tags": ["GetEntityType"],
         "parameters": [
           {
             "name": "id",
@@ -295,9 +285,7 @@
         }
       },
       "put": {
-        "tags": [
-          "PutEntityType"
-        ],
+        "tags": ["PutEntityType"],
         "parameters": [
           {
             "name": "id",
@@ -384,9 +372,7 @@
     },
     "/api/v1/functional-roles/{id}": {
       "delete": {
-        "tags": [
-          "DeleteFunctionalRole"
-        ],
+        "tags": ["DeleteFunctionalRole"],
         "parameters": [
           {
             "name": "id",
@@ -435,9 +421,7 @@
         }
       },
       "get": {
-        "tags": [
-          "GetFunctionalRole"
-        ],
+        "tags": ["GetFunctionalRole"],
         "parameters": [
           {
             "name": "id",
@@ -483,9 +467,7 @@
         }
       },
       "put": {
-        "tags": [
-          "PutFunctionalRole"
-        ],
+        "tags": ["PutFunctionalRole"],
         "parameters": [
           {
             "name": "id",
@@ -572,9 +554,7 @@
     },
     "/api/v1/application-roles-per-entity-type": {
       "post": {
-        "tags": [
-          "GetApplicationRolesPerEntityType"
-        ],
+        "tags": ["GetApplicationRolesPerEntityType"],
         "operationId": "Get application roles per entity type",
         "requestBody": {
           "content": {
@@ -619,16 +599,14 @@
         },
         "security": [
           {
-            "ApiKey": [ ]
+            "ApiKey": []
           }
         ]
       }
     },
     "/api/v1/domains": {
       "get": {
-        "tags": [
-          "GetDomains"
-        ],
+        "tags": ["GetDomains"],
         "responses": {
           "200": {
             "description": "OK",
@@ -646,9 +624,7 @@
         }
       },
       "post": {
-        "tags": [
-          "PostDomain"
-        ],
+        "tags": ["PostDomain"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -714,9 +690,7 @@
     },
     "/api/v1/entity-types": {
       "get": {
-        "tags": [
-          "GetEntityTypes"
-        ],
+        "tags": ["GetEntityTypes"],
         "responses": {
           "200": {
             "description": "OK",
@@ -734,9 +708,7 @@
         }
       },
       "post": {
-        "tags": [
-          "PostEntityType"
-        ],
+        "tags": ["PostEntityType"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -802,9 +774,7 @@
     },
     "/api/v1/functional-roles": {
       "get": {
-        "tags": [
-          "GetFunctionalRoles"
-        ],
+        "tags": ["GetFunctionalRoles"],
         "responses": {
           "200": {
             "description": "OK",
@@ -822,9 +792,7 @@
         }
       },
       "post": {
-        "tags": [
-          "PostFunctionalRole"
-        ],
+        "tags": ["PostFunctionalRole"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -892,10 +860,7 @@
   "components": {
     "schemas": {
       "ApplicationRoleModel": {
-        "required": [
-          "application",
-          "name"
-        ],
+        "required": ["application", "name"],
         "type": "object",
         "properties": {
           "name": {
@@ -912,10 +877,7 @@
         "additionalProperties": false
       },
       "Domain": {
-        "required": [
-          "description",
-          "name"
-        ],
+        "required": ["description", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -941,10 +903,7 @@
         "additionalProperties": false
       },
       "DomainUpsertModel": {
-        "required": [
-          "description",
-          "name"
-        ],
+        "required": ["description", "name"],
         "type": "object",
         "properties": {
           "name": {
@@ -959,11 +918,7 @@
         "additionalProperties": false
       },
       "EntityType": {
-        "required": [
-          "entityTypeId",
-          "name",
-          "type"
-        ],
+        "required": ["entityTypeId", "name", "type"],
         "type": "object",
         "properties": {
           "id": {
@@ -991,11 +946,7 @@
         "additionalProperties": false
       },
       "EntityTypeModel": {
-        "required": [
-          "id",
-          "name",
-          "type"
-        ],
+        "required": ["id", "name", "type"],
         "type": "object",
         "properties": {
           "id": {
@@ -1017,11 +968,7 @@
         "additionalProperties": false
       },
       "EntityTypeUpsertModel": {
-        "required": [
-          "entityTypeId",
-          "name",
-          "type"
-        ],
+        "required": ["entityTypeId", "name", "type"],
         "type": "object",
         "properties": {
           "entityTypeId": {
@@ -1045,9 +992,7 @@
         "additionalProperties": false
       },
       "FunctionalRole": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "id": {
@@ -1062,9 +1007,7 @@
         "additionalProperties": false
       },
       "FunctionalRoleUpsertModel": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -1075,9 +1018,7 @@
         "additionalProperties": false
       },
       "GetApplicationRolesRequest": {
-        "required": [
-          "functionalRoleNames"
-        ],
+        "required": ["functionalRoleNames"],
         "type": "object",
         "properties": {
           "functionalRoleNames": {
@@ -1086,18 +1027,13 @@
               "type": "string"
             },
             "description": "The functional roles of the logged in user",
-            "example": [
-              "GemeenteRol1",
-              "GemeenteRol2"
-            ]
+            "example": ["GemeenteRol1", "GemeenteRol2"]
           }
         },
         "additionalProperties": false
       },
       "GetApplicationRolesResponse": {
-        "required": [
-          "results"
-        ],
+        "required": ["results"],
         "type": "object",
         "properties": {
           "results": {
@@ -1110,9 +1046,7 @@
         "additionalProperties": false
       },
       "GetApplicationRolesResponseModel": {
-        "required": [
-          "applicationRoles"
-        ],
+        "required": ["applicationRoles"],
         "type": "object",
         "properties": {
           "entityType": {

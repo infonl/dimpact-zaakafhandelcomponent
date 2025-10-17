@@ -50,7 +50,7 @@ constructor(
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
     }
 
-    private val ADMIN_URI_PREFIXES = listOf(
+    private val adminUriPrefixes = listOf(
         "/admin/",
         "/rest/admin/util/",
         "/rest/admin/cmmn/"
@@ -98,12 +98,13 @@ constructor(
         filterChain.doFilter(servletRequest, servletResponse)
     }
 
+    @Suppress("ReturnCount")
     private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
         val session = request.getSession(false) ?: return true
         val user = getLoggedInUser(session) ?: return true
 
         val path = request.requestURI.removePrefix(request.contextPath ?: "")
-        val isAdmin = ADMIN_URI_PREFIXES.any { prefix -> path.startsWith(prefix) }
+        val isAdmin = adminUriPrefixes.any { prefix -> path.startsWith(prefix) }
 
         return if (pabcIntegrationEnabled) {
             if (isAdmin) {
@@ -118,7 +119,7 @@ constructor(
             if (isAdmin) {
                 user.roles.contains("beheerder")
             } else {
-                user.roles.any { it in setOf("raadpleger","behandelaar","coordinator","recordmanager","beheerder") }
+                user.roles.any { it in setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder") }
             }
         }
     }
