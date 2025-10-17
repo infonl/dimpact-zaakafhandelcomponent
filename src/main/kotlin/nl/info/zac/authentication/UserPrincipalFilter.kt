@@ -50,12 +50,25 @@ constructor(
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
     }
 
+    private val ADMIN_URI_PREFIXES = listOf(
+        "/admin/",
+        "/rest/admin/util/",
+        "/rest/admin/cmmn/"
+    )
+
     override fun doFilter(
         servletRequest: ServletRequest,
         servletResponse: ServletResponse,
         filterChain: FilterChain
     ) {
-        (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
+        val request = servletRequest as? HttpServletRequest
+        val response = servletResponse as? jakarta.servlet.http.HttpServletResponse
+        if (request == null || response == null) {
+            filterChain.doFilter(servletRequest, servletResponse)
+            return
+        }
+
+        servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
 
             getLoggedInUser(httpSession)?.let { loggedInUser ->
@@ -76,7 +89,64 @@ constructor(
                     setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
                 }
         }
+
+        if (!isAuthorizationAllowed(request)) {
+            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN)
+            return
+        }
+
         filterChain.doFilter(servletRequest, servletResponse)
+    }
+
+    private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
+        val session = request.getSession(false) ?: return true
+        val user = getLoggedInUser(session) ?: return true
+
+        val path = request.requestURI.removePrefix(request.contextPath ?: "")
+        val isAdmin = ADMIN_URI_PREFIXES.any { prefix -> path.startsWith(prefix) }
+
+        return if (pabcIntegrationEnabled) {
+            if (isAdmin) {
+                // PABC enabled: admin allowed if the user is authorized for ALL entity types
+                isAuthorizedForAllEntityTypes(user)
+            } else {
+                // PABC enabled: access allowed if the user has >=1 app role on >=1 zaaktype
+                hasAnyPabcApplicationRole(user)
+            }
+        } else {
+            // PABC disabled: legacy web.xml rules on token roles
+            if (isAdmin) {
+                user.roles.contains("beheerder")
+            } else {
+                user.roles.any { it in setOf("raadpleger","behandelaar","coordinator","recordmanager","beheerder") }
+            }
+        }
+    }
+
+    private fun hasAnyPabcApplicationRole(user: LoggedInUser): Boolean =
+        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() }
+
+    private fun isAuthorizedForAllEntityTypes(user: LoggedInUser): Boolean {
+        val cmmn = zaaktypeCmmnConfigurationService
+            .listZaaktypeCmmnConfiguration()
+            .groupBy { it.zaaktypeOmschrijving }
+            .values
+            .map { list -> list.maxBy { v -> v.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN) } }
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        val bpmn = zaaktypeBpmnConfigurationService
+            .listConfigurations()
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        val allKnown = cmmn + bpmn
+        if (allKnown.isEmpty()) {
+            return false
+        }
+
+        val perZt = user.applicationRolesPerZaaktype
+        return allKnown.all { ztId -> perZt[ztId]?.isNotEmpty() == true }
     }
 
     fun setLoggedInUserOnHttpSession(
