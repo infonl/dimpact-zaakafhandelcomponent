@@ -55,6 +55,7 @@ class ProjectConfig : AbstractProjectConfig() {
 
     // All variables below have to be overridable in the docker-compose.yaml file
     private val dockerComposeOverrideEnvironment = mapOf(
+        "APP_ENV" to "itest",
         "AUTH_SSL_REQUIRED" to "none",
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
@@ -148,7 +149,6 @@ class ProjectConfig : AbstractProjectConfig() {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
         return ComposeContainer(File("docker-compose.yaml"))
-            .withLocalCompose(true)
             .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
