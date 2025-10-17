@@ -28,7 +28,7 @@ import java.util.UUID
 @AllOpen
 class ZaaktypeBpmnConfiguration {
     companion object {
-        const val PRODUCTAANVRAAGTTYPE_VARIABLE_NAME = "productaanvraagtype"
+        const val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = "productaanvraagtype"
         const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
     }
 

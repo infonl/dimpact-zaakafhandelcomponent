@@ -88,7 +88,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                 query.from(ZaaktypeBpmnConfiguration::class.java).let {
                     query.where(
                         criteriaBuilder.equal(
-                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTTYPE_VARIABLE_NAME),
+                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTYPE_VARIABLE_NAME),
                             productAanvraagType
                         )
                     )
