@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,17 +15,16 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import java.time.LocalDate
-import java.util.Optional
 
 class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
@@ -44,14 +43,14 @@ class SuspensionZaakHelperTest : BehaviorSpec({
 
     Given("a zaak that is open and not yet postponed and does not have an planned end date") {
         val numberOfDaysPostponed = 123L
-        val postPonementReason = "dummyReason"
+        val postPonementReason = "fakeReason"
         val zaak = createZaak(
             opschorting = createOpschorting(reden = null),
             einddatumGepland = null,
             uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(1)
         )
         val postponedZaak = createZaak(
-            opschorting = createOpschorting(reden = "dummyReason"),
+            opschorting = createOpschorting(reden = "fakeReason"),
             einddatumGepland = null,
             uiterlijkeEinddatumAfdoening = LocalDate.now()
                 .plusDays(1 + numberOfDaysPostponed)
@@ -105,7 +104,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe postPonementReason
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe postponedZaak.uiterlijkeEinddatumAfdoening
-                    isEerderOpgeschort shouldBe true
                 }
             }
         }
@@ -126,10 +124,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
     }
 
     Given("a zaak that is postponed and does not have an planned end date") {
-        val reasonResumed = "dummyResumeReason"
+        val reasonResumed = "fakeResumeReason"
         val zaak = createZaak(
             opschorting = createOpschorting(
-                reden = "dummyPostponementReason",
+                reden = "fakePostponementReason",
                 indicatie = true
             ),
             einddatumGepland = null,
@@ -142,8 +140,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         )
         val patchedZaak = slot<Zaak>()
 
-        every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns Optional.empty()
-        every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) } returns Optional.empty()
+        every { zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) } returns null
+        every { zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) } returns null
         every {
             zrcClientService.patchZaak(
                 zaak.uuid,
@@ -173,7 +171,6 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe reasonResumed
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe resumedZaak.uiterlijkeEinddatumAfdoening
-                    isEerderOpgeschort shouldBe true
                 }
             }
         }

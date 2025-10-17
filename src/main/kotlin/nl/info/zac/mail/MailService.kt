@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.mail
@@ -24,14 +24,12 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.mailtemplates.MailTemplateHelper
-import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
@@ -40,6 +38,8 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.MailTemplateHelper
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -54,6 +54,12 @@ import java.util.Base64
 import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.ByteArray
+import kotlin.String
+import kotlin.Suppress
+import kotlin.apply
+import kotlin.let
+import kotlin.takeIf
 
 @ApplicationScoped
 @NoArgConstructor
@@ -68,7 +74,7 @@ class MailService @Inject constructor(
     private var loggedInUserInstance: Instance<LoggedInUser>,
 
     @ConfigProperty(name = "SMTP_USERNAME")
-    private val smtpUsername: Optional<String> = Optional.empty(),
+    private val smtpUsername: Optional<String> = Optional.empty()
 ) {
     companion object {
         private val LOG = Logger.getLogger(MailService::class.java.name)
@@ -96,11 +102,9 @@ class MailService @Inject constructor(
             configuratieService.readGemeenteNaam()
         )
 
-    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
-        val subject = StringUtils.abbreviate(
-            resolveVariabelen(mailGegevens.subject, bronnen),
-            SUBJECT_MAX_WIDTH
-        )
+    fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
+        val subject =
+            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()
@@ -128,6 +132,7 @@ class MailService @Inject constructor(
             }
         } catch (messagingException: MessagingException) {
             LOG.log(Level.SEVERE, "Failed to send mail with subject '$subject'.", messagingException)
+            return null
         }
 
         return body
@@ -138,9 +143,9 @@ class MailService @Inject constructor(
     private fun initPasswordAuthentication() {
         // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
         // has no authentication. In this case we disable SMTP authentication in the mail session to prevent sending
-        // the default dummy credentials configured in src/main/resources/wildfly/configure-wildfly.cli
+        // the default fake credentials configured in src/main/resources/wildfly/configure-wildfly.cli
         //
-        // Without the dummy credentials, the SMTP mail session is not properly configured, and:
+        // Without the fake credentials, the SMTP mail session is not properly configured, and:
         //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
         //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
         if (!smtpUsername.isPresent) {
@@ -241,23 +246,29 @@ class MailService @Inject constructor(
             .map { ztcClientService.readInformatieobjecttype(it) }
             .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
-    private fun getAttachments(bijlagenString: Array<String>): List<Attachment> =
-        bijlagenString.map(UUIDUtil::uuid).map { uuid ->
-            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-            val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            Attachment(
-                contentType = enkelvoudigInformatieobject.formaat,
-                filename = enkelvoudigInformatieobject.bestandsnaam,
-                base64Content = String(Base64.getEncoder().encode(byteArrayInputStream.readAllBytes()))
-            )
-        }
+    private fun getAttachments(attachmentUUIDs: List<String>): List<Attachment> =
+        attachmentUUIDs
+            // currently the client is able to provide empty strings in the attachment UUID array,
+            // so we filter them out first
+            // ideally we should not allow empty strings in the first place in the corresponding ZAC API endpoint
+            .filter(String::isNotBlank)
+            .map(UUIDUtil::uuid)
+            .map { uuid ->
+                val infoObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).readAllBytes()
+                Attachment(
+                    contentType = infoObject.formaat,
+                    filename = infoObject.bestandsnaam,
+                    base64Content = Base64.getEncoder().encodeToString(content)
+                )
+            }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
-        mailTemplateHelper.resolveVariabelen(tekst).let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak)
+        mailTemplateHelper.resolveGemeenteVariable(tekst).let {
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.document)
+            mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo)
+            mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
         }
 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,18 +9,20 @@ import jakarta.json.JsonObject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
+import nl.info.zac.app.policy.model.createRestTaakRechten
 import nl.info.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRestTask(
-    id: String = "dummyId",
+    id: String = "fakeId",
     behandelaar: RestUser = createRestUser(),
     taakData: MutableMap<String, Any> = emptyMap<String, Any>().toMutableMap(),
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap(),
-    zaakIdentificatie: String = "dummyZaakIndentificatie",
+    zaakIdentificatie: String = "fakeZaakIndentificatie",
     zaakUuid: UUID = UUID.randomUUID(),
-    formioFormulier: JsonObject? = null
+    formioFormulier: JsonObject? = null,
+    toelichting: String? = "fakeToelichting"
 ) = RestTask(
     id = id,
     behandelaar = behandelaar,
@@ -28,12 +30,14 @@ fun createRestTask(
     tabellen = tabellen,
     zaakIdentificatie = zaakIdentificatie,
     zaakUuid = zaakUuid,
-    formioFormulier = formioFormulier
+    formioFormulier = formioFormulier,
+    rechten = createRestTaakRechten(),
+    toelichting = toelichting
 )
 
 fun createRestTaskDocumentData(
-    bestandsnaam: String = "dummyBestandsNaam",
-    documentTitel: String = "dummyDocumentTitel",
+    bestandsnaam: String = "fakeBestandsNaam",
+    documentTitel: String = "fakeDocumentTitel",
     documentType: RestInformatieobjecttype = createRestInformatieobjecttype()
 ) = RestTaskDocumentData(
     bestandsnaam = bestandsnaam,
@@ -42,11 +46,11 @@ fun createRestTaskDocumentData(
 )
 
 fun createRestTaskAssignData(
-    taakId: String = "dummyTaakId",
+    taakId: String = "fakeTaakId",
     zaakUuid: UUID = UUID.randomUUID(),
-    groepId: String = "dummyGroepId",
-    behandelaarId: String? = "dummyBehandelaarId",
-    reden: String = "dummyReden"
+    groepId: String = "fakeGroepId",
+    behandelaarId: String? = "fakeBehandelaarId",
+    reden: String = "fakeReden"
 ) = RestTaskAssignData(
     taakId = taakId,
     zaakUuid = zaakUuid,
@@ -56,7 +60,7 @@ fun createRestTaskAssignData(
 )
 
 fun createRestTaskDistributeTask(
-    taakId: String = "dummyTaakId",
+    taakId: String = "fakeTaakId",
     zaakUuid: UUID = UUID.randomUUID()
 ) = RestTaskDistributeTask(
     taakId = taakId,
@@ -65,10 +69,10 @@ fun createRestTaskDistributeTask(
 
 fun createRestTaskDistributeData(
     taken: List<RestTaskDistributeTask> = listOf(createRestTaskDistributeTask()),
-    groepId: String = "dummyGroepId",
-    behandelaarGebruikersnaam: String? = "dummyBehandelaarGebruikersnaam",
-    reden: String = "dummyReason",
-    screenEventResourceId: String? = "dummyScreenEventResourceId"
+    groepId: String = "fakeGroepId",
+    behandelaarGebruikersnaam: String? = "fakeBehandelaarGebruikersnaam",
+    reden: String = "fakeReason",
+    screenEventResourceId: String? = "fakeScreenEventResourceId"
 ) = RestTaskDistributeData(
     taken = taken,
     groepId = groepId,
@@ -79,8 +83,8 @@ fun createRestTaskDistributeData(
 
 fun createRestTaskReleaseData(
     taken: List<RestTaskDistributeTask> = listOf(createRestTaskDistributeTask()),
-    reden: String = "dummyReason",
-    screenEventResourceId: String? = "dummyScreenEventResourceId"
+    reden: String = "fakeReason",
+    screenEventResourceId: String? = "fakeScreenEventResourceId"
 ) = RestTaskReleaseData(
     taken = taken,
     reden = reden,

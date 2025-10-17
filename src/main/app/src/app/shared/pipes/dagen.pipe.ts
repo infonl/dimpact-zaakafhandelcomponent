@@ -11,24 +11,29 @@ import moment from "moment";
 export class DagenPipe implements PipeTransform {
   constructor(private translate: TranslateService) {}
 
-  transform(value: any): string {
-    if (value) {
-      const vandaag = moment().startOf("day");
-      const verloopt = moment(value).startOf("day");
-      const dagen = verloopt.diff(vandaag, "days");
-      if (0 <= dagen) {
-        switch (dagen) {
-          case 0:
-            return this.translate.instant("verloopt.vandaag");
-          case 1:
-            return this.translate.instant("verloopt.over.dag");
-          default:
-            return this.translate.instant("verloopt.over.dagen", {
-              dagen: dagen,
-            });
-        }
-      }
+  transform(value: unknown) {
+    if (!value) return null;
+
+    const today = moment().startOf("day");
+    const verloopt = moment(value).startOf("day");
+    const daysDifference = verloopt.diff(today, "days");
+
+    switch (Math.abs(daysDifference)) {
+      case 0:
+        return this.translate.instant("verloopt.vandaag");
+      case 1:
+        return this.translate.instant(
+          daysDifference > 0 ? "verloopt.over.dag" : "verloopt.verleden.dag",
+        );
+      default:
+        return this.translate.instant(
+          daysDifference > 0
+            ? "verloopt.over.dagen"
+            : "verloopt.verleden.dagen",
+          {
+            dagen: Math.abs(daysDifference),
+          },
+        );
     }
-    return null;
   }
 }

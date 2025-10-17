@@ -4,7 +4,7 @@
  */
 
 import { Component, EventEmitter, Output } from "@angular/core";
-import { Klant } from "../../model/klanten/klant";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-klant-zoek",
@@ -12,11 +12,11 @@ import { Klant } from "../../model/klanten/klant";
   styleUrls: ["./klant-zoek.component.less"],
 })
 export class KlantZoekComponent {
-  @Output() klant = new EventEmitter<Klant>();
+  @Output() klant = new EventEmitter<
+    GeneratedType<"RestBedrijf" | "RestPersoon">
+  >();
 
-  constructor() {}
-
-  klantGeselecteerd(klant: Klant): void {
+  klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
     this.klant.emit(klant);
   }
 }

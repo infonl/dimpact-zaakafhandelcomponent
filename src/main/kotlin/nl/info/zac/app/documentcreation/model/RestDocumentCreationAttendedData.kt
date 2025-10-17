@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.documentcreation.model
@@ -27,9 +27,12 @@ data class RestDocumentCreationAttendedData(
     @field:NotNull
     var creationDate: ZonedDateTime,
 
-    @field:NotNull
-    var smartDocumentsTemplateGroupId: String,
+    // CMMN fields
+    var smartDocumentsTemplateGroupId: String?,
+    var smartDocumentsTemplateId: String?,
 
-    @field:NotNull
-    var smartDocumentsTemplateId: String
+    // BPMN fields
+    var informatieobjecttypeUuid: UUID?,
+    var smartDocumentsTemplateGroupName: String?,
+    var smartDocumentsTemplateName: String?
 )

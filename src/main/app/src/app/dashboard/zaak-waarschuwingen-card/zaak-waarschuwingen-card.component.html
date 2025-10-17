@@ -41,13 +41,17 @@
         {{ "uiterlijkeEinddatumAfdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
-        {{ zaak.uiterlijkeEinddatumAfdoening | datum | empty }}
-        <mat-icon
-          class="error"
-          [title]="'msg.datum.overschreden' | translate"
-          *ngIf="isAfterDate(zaak.uiterlijkeEinddatumAfdoening, zaak.einddatum)"
-          >warning
-        </mat-icon>
+        <div class="flex-row items-center gap-10">
+          {{ zaak.uiterlijkeEinddatumAfdoening | datum | empty }}
+          <mat-icon
+            *ngIf="
+              isAfterDate(zaak.uiterlijkeEinddatumAfdoening, zaak.einddatum)
+            "
+            [title]="'msg.datum.overschreden' | translate"
+            class="error"
+            >warning
+          </mat-icon>
+        </div>
       </td>
     </ng-container>
     <ng-container matColumnDef="dagenTotFataledatum">

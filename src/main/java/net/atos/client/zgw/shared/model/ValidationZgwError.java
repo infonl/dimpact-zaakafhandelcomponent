@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.zgw.shared.model;
@@ -12,6 +12,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * ZGW error indicating a validation error.
+ * The structure of these errors comply to the <a href="https://datatracker.ietf.org/doc/html/rfc7807">Problem Details Standard</a>.
  */
 public class ValidationZgwError extends ZgwError {
 

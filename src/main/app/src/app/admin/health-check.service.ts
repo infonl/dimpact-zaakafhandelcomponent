@@ -3,62 +3,35 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { BuildInformatie } from "./model/build-informatie";
-import { ZaaktypeInrichtingscheck } from "./model/zaaktype-inrichtingscheck";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class HealthCheckService {
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  private basepath = "/rest/health-check";
-
-  listZaaktypeInrichtingschecks(): Observable<ZaaktypeInrichtingscheck[]> {
-    return this.http
-      .get<ZaaktypeInrichtingscheck[]>(`${this.basepath}/zaaktypes`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZaaktypeInrichtingschecks() {
+    return this.zacHttpClient.GET("/rest/health-check/zaaktypes");
   }
 
-  readBestaatCommunicatiekanaalEformulier(): Observable<boolean> {
-    return this.http
-      .get<boolean>(`${this.basepath}/bestaat-communicatiekanaal-eformulier`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readBestaatCommunicatiekanaalEformulier() {
+    return this.zacHttpClient.GET(
+      "/rest/health-check/bestaat-communicatiekanaal-eformulier",
+    );
   }
 
-  clearZTCCaches(): Observable<string> {
-    return this.http
-      .delete<string>(`${this.basepath}/ztc-cache`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  clearZTCCaches() {
+    return this.zacHttpClient.DELETE("/rest/health-check/ztc-cache");
   }
 
   readZTCCacheTime(): Observable<string> {
-    return this.http
-      .get<string>(`${this.basepath}/ztc-cache`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET("/rest/health-check/ztc-cache");
   }
 
-  readBuildInformatie(): Observable<BuildInformatie> {
-    return this.http
-      .get<BuildInformatie>(`${this.basepath}/build-informatie`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readBuildInformatie() {
+    return this.zacHttpClient.GET("/rest/health-check/build-informatie");
   }
 }

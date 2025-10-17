@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.notification
@@ -26,7 +26,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -56,7 +56,7 @@ class NotificationReceiver @Inject constructor(
     private val productaanvraagService: ProductaanvraagService,
     private val indexingService: IndexingService,
     private val inboxDocumentenService: InboxDocumentenService,
-    private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
@@ -103,13 +103,14 @@ class NotificationReceiver @Inject constructor(
         ).also {
             LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
         }
-        signaleringService.deleteSignaleringVerzonden(
-            SignaleringVerzondenZoekParameters(
-                SignaleringSubject.ZAAK,
-                zaakUUID.toString()
+        if (signaleringService.deleteSignaleringVerzonden(
+                SignaleringVerzondenZoekParameters(
+                    SignaleringSubject.ZAAK,
+                    zaakUUID.toString()
+                )
             )
-        ).also {
-            LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
+        ) {
+            LOG.info("Deleted 1 'zaak signaleringen verzonden' record for zaak with UUID '$zaakUUID'.")
         }
         taskService.listTasksForZaak(zaakUUID).forEach { task ->
             signaleringService.deleteSignaleringen(
@@ -122,17 +123,16 @@ class NotificationReceiver @Inject constructor(
                     "Deleted $it taak signaleringen for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
                 )
             }
-            signaleringService.deleteSignaleringVerzonden(
-                SignaleringVerzondenZoekParameters(
-                    SignaleringSubject.TAAK,
-                    task.id
+            if (signaleringService.deleteSignaleringVerzonden(
+                    SignaleringVerzondenZoekParameters(
+                        SignaleringSubject.TAAK,
+                        task.id
+                    )
                 )
-            ).also {
+            ) {
                 LOG.info(
-                    """
-                        Deleted $it 'taak signaleringen verzonden' records for task with ID '${task.id}' and 
-                        zaak with UUID: '$zaakUUID'.
-                    """.trimIndent()
+                    "Deleted 1 'taak signaleringen verzonden' record for task with ID '${task.id}' and " +
+                        "zaak with UUID: '$zaakUUID'."
                 )
             }
         }
@@ -160,10 +160,14 @@ class NotificationReceiver @Inject constructor(
         }
     }
 
+    /**
+     * Determines whether the notification is a Dimpact productaanvraag notification and if so,
+     * handles it accordingly by creating a zaak and starting a zaakafhandel process.
+     * Only attempts to handle a productaanvraag if the notification resource is an object with 'CREATE' action
+     * and has an object type defined.
+     */
     private fun handleProductaanvraag(notification: Notification) {
         val objecttypeUri = notification.properties?.let { it[OBJECTTYPE_KENMERK] }
-        // only attempt to handle productaanvraag if the notification resource is an object with 'CREATE' action
-        // and has an object type defined
         if (notification.resource == Resource.OBJECT && notification.action == Action.CREATE && objecttypeUri?.isNotEmpty() == true) {
             productaanvraagService.handleProductaanvraag(notification.resourceUrl.extractUuid())
         }
@@ -187,7 +191,7 @@ class NotificationReceiver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun handleSignaleringen(notification: Notification) {
         try {
-            // in case of a 'zaak destroy' notification remove any existing zaak
+            // in case of a 'zaak destroy' notification, remove any existing zaak
             // and task signaleringen for this zaak
             if (notification.channel == Channel.ZAKEN &&
                 notification.resource == Resource.ZAAK &&
@@ -269,10 +273,13 @@ class NotificationReceiver @Inject constructor(
         }
         try {
             if (notification.action == Action.CREATE) {
-                val enkelvoudigInformatieobjectUuid = notification.resourceUrl.extractUuid()
                 when (notification.resource) {
-                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(enkelvoudigInformatieobjectUuid)
-                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(enkelvoudigInformatieobjectUuid)
+                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(
+                        notification.resourceUrl.extractUuid()
+                    )
+                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(
+                        notification.resourceUrl.extractUuid()
+                    )
                     else -> {}
                 }
             }
@@ -286,7 +293,7 @@ class NotificationReceiver @Inject constructor(
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(notification.resourceUrl)
+                zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

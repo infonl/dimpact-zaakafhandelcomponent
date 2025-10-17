@@ -5,10 +5,10 @@
 
 import { Subject } from "rxjs";
 
-export class ActionIcon {
+export class ActionIcon<T = unknown> {
   constructor(
     public icon: string,
     public title: string,
-    public iconClicked: Subject<any>,
+    public iconClicked: Subject<T>,
   ) {}
 }

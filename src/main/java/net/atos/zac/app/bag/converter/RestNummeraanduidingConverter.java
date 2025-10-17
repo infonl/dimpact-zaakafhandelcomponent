@@ -1,14 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.bag.converter;
 
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
@@ -18,6 +16,7 @@ import nl.info.client.bag.model.generated.NummeraanduidingIOHal;
 import nl.info.client.bag.model.generated.NummeraanduidingIOHalBasis;
 import nl.info.client.bag.model.generated.StatusNaamgeving;
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 
 public class RestNummeraanduidingConverter {
     public static RESTNummeraanduiding convertToREST(final NummeraanduidingIOHalBasis nummeraanduidingIO) {

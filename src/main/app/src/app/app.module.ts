@@ -1,14 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import {
-  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { Injector, NgModule } from "@angular/core";
+import { Injector, isDevMode, NgModule } from "@angular/core";
 
 import {
   APP_BASE_HREF,
@@ -16,16 +15,15 @@ import {
   PathLocationStrategy,
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import {
+  provideTanStackQuery,
   QueryClient,
-  provideAngularQuery,
+  QueryFeatures,
 } from "@tanstack/angular-query-experimental";
+import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { ActionBarComponent } from "./core/actionbar/action-bar.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { DashboardModule } from "./dashboard/dashboard.module";
@@ -42,11 +40,12 @@ import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
 
-const httpLoaderFactory = (http: HttpClient) =>
-  new TranslateHttpLoader(http, "./assets/i18n/", ".json");
+const tanstackQueryFeatures: QueryFeatures[] = [];
+
+if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
 
 @NgModule({
-  declarations: [AppComponent, ToolbarComponent, ActionBarComponent],
+  declarations: [AppComponent, ToolbarComponent],
   exports: [ToolbarComponent],
   bootstrap: [AppComponent],
   imports: [
@@ -66,18 +65,11 @@ const httpLoaderFactory = (http: HttpClient) =>
     AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
   ],
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideAngularQuery(new QueryClient()),
+    provideTanStackQuery(new QueryClient(), ...tanstackQueryFeatures),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })

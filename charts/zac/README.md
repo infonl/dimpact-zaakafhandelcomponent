@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.33](https://img.shields.io/badge/Version-1.0.33-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.133](https://img.shields.io/badge/Version-1.0.133-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,8 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @bitnami | solr | 9.6.1 |
-| @opentelemetry | opentelemetry-collector | 0.104.0 |
+| @opentelemetry | opentelemetry-collector | 0.136.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -23,7 +22,6 @@ A Helm chart for installing Zaakafhandelcomponent
 Make sure you have helm installed. Add the required repositories as follows:
 ```
 helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add solr https://solr.apache.org/charts
 ```
 
@@ -40,15 +38,21 @@ And install zac:
 helm install my-release zac/zaakafhandelcomponent
 ```
 
+## Changes to the helm chart
+
+The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
+
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
-| auth.clientId | string | `""` | Client ID and secret as defined in the realm |
+| auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |
+| auth.sslRequired | string | `""` | Whether communication with the Keycloak OpenID provider should be over HTTPS. Valid values are: "all" - to always require HTTPS, "external" - to only require HTTPS for external requests, "none" - if HTTPS is not required. This should be set to "all" in production environments. |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
@@ -57,22 +61,28 @@ helm install my-release zac/zaakafhandelcomponent
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
-| brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
-| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
+| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
+| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
+| brpApi.protocollering.originOin | string | `""` |  |
+| brpApi.protocollering.verwerkingsregister | string | `"Algemeen"` |  |
 | brpApi.url | string | `""` |  |
-| catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
+| catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
-| db.host | string | `""` |  |
+| db.host | string | `""` | database.internal or 1.2.3.4 |
 | db.name | string | `""` |  |
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` |  |
+| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off; defaults to false |
+| featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
 | gemeente.naam | string | `""` |  |
+| global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
+| global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
+| global.curlImage.tag | string | `"8.16.0@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -84,17 +94,17 @@ helm install my-release zac/zaakafhandelcomponent
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
-| initContainer | object | `{"enabled":true,"image":{"repository":"curlimages/curl","tag":"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"}}` | set initContainer parameters |
+| initContainer.enabled | bool | `true` |  |
+| javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
-| mail | object | `{"smtp":{"password":"","port":"587","server":"","username":""}}` | Email sending connection. SPF record needs to be properly setup in DNS |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
-| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
+| mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
 | mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |
@@ -158,7 +168,7 @@ helm install my-release zac/zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.27.4@sha256:7f5f11aecd21f0f95267396b8e0fb839312368fdaa51b15199d28f03d91ccdc3"` |  |
+| nginx.image.tag | string | `"1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -181,14 +191,14 @@ helm install my-release zac/zaakafhandelcomponent
 | nginx.service.type | string | `"ClusterIP"` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
-| notificationsSecretKey | string | `""` | Configuration of the notifications receiving endpoint. |
+| notificationsSecretKey | string | `""` | API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties |
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.0@sha256:48da70902307f27ad92a27ddf5875310464fd4d4a2f53ce53e1a6f9b3b4c3355"` |  |
+| office_converter.image.tag | string | `"1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -207,9 +217,9 @@ helm install my-release zac/zaakafhandelcomponent
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.3.0-static@sha256:44f0f4b1c09260eaf5e24fc3931fe10f80cffd13054ef3ef62cef775d5cbd272"` |  |
+| opa.image.tag | string | `"1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
-| opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
+| opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
 | opa.podAnnotations | object | `{}` |  |
 | opa.podSecurityContext | object | `{}` |  |
@@ -220,9 +230,9 @@ helm install my-release zac/zaakafhandelcomponent
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
-| opa.sidecar | bool | `false` | set sidecar to true to run the opa service together with the zac pod |
+| opa.sidecar | bool | `true` | set sidecar to true to run the opa service as a sidecar container within the ZAC pod (set to false to run as a standalone pod and service) |
 | opa.tolerations | list | `[]` |  |
-| openForms.url | string | `""` |  |
+| openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
 | opentelemetry-collector.config.receivers.prometheus | object | `{}` |  |
 | opentelemetry-collector.config.receivers.zipkin | object | `{}` |  |
@@ -230,7 +240,9 @@ helm install my-release zac/zaakafhandelcomponent
 | opentelemetry-collector.config.service.pipelines.metrics | object | `{}` |  |
 | opentelemetry-collector.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
 | opentelemetry-collector.enabled | bool | `false` |  |
+| opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| opentelemetry-collector.image.tag | string | `"0.137.0@sha256:886722fe0f37af9d1fe24d29529253ec59fbf263b3b1df4facaf221373e19d23"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -238,15 +250,19 @@ helm install my-release zac/zaakafhandelcomponent
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
+| opentelemetry_zaakafhandelcomponent.disabled | string | `"-true"` | Enables or disables the ZAC OpenTelemetry integration. Disabled by default. |
+| opentelemetry_zaakafhandelcomponent.endpoint | string | `""` | OpenTelemetry collector endpoint URL |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
+| pabcApi.apiKey | string | `""` |  |
+| pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
-| replicaCount | int | `1` | the number of replicas to run |
+| replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{}` |  |
+| securityContext | object | `{}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -258,9 +274,6 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.deleteOldSignaleringenSchedule | string | `"0 3 * * *"` | Schedule of the 'delete old signaleringen' send job in CRON job format |
 | signaleringen.deleteOlderThanDays | string | `"14"` | Delete any signaleringen older than this number of days when the corresponding admin endpoint is called. |
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
-| signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
-| signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -272,8 +285,9 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.tolerations | list | `[]` |  |
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
-| smartDocuments.fixedUserName | string | `""` | If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
+| smartDocuments.fixedUserName | string | `""` | If set this overrides the sending of the username of the user that is logged in to ZAC to SmartDocuments with a fixed value. This username is sent to SmartDocuments when creating a new document as an HTTP header. For most target environments, this should not be set, assuming that all users that are available in ZAC are also available in the SmartDocuments environment with the same username. If this setting is set, then templates in SmartDocuments cannot use user-specific values. |
 | smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| smartDocuments.wizardAuthEnabled | bool | `true` | [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
@@ -287,18 +301,15 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:45fb3214fa75ede765da7fa85a18a96d0973c26d84dac49b1af23923e627a219"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:facb103d02c3e0fcf34e272264b7d7deea98e1b2861075d2c9c4dd329d4c1c0d"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.8.1@sha256:16983468366aaf62417bb6a2a4b703b486b199b8461192df131455071c263916"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.9.0@sha256:9f220fd72cb887cd5229ca3a6536fc3c8accc1ed2c53a3b1e1206db8f2e489ae"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
-| solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
-| solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.13.0@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
@@ -333,37 +344,12 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
-| solr.auth.enabled | bool | `false` |  |
-| solr.cloudBootstrap | bool | `false` |  |
-| solr.cloudEnabled | bool | `false` |  |
-| solr.collectionReplicas | int | `1` |  |
-| solr.coreNames[0] | string | `"zac"` |  |
-| solr.customLivenessProbe.failureThreshold | int | `6` |  |
-| solr.customLivenessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customLivenessProbe.httpGet.port | string | `"http"` |  |
-| solr.customLivenessProbe.initialDelaySeconds | int | `40` |  |
-| solr.customLivenessProbe.periodSeconds | int | `10` |  |
-| solr.customLivenessProbe.successThreshold | int | `1` |  |
-| solr.customLivenessProbe.timeoutSeconds | int | `15` |  |
-| solr.customReadinessProbe.failureThreshold | int | `6` |  |
-| solr.customReadinessProbe.httpGet.path | string | `"/solr/zac/admin/ping"` |  |
-| solr.customReadinessProbe.httpGet.port | string | `"http"` |  |
-| solr.customReadinessProbe.initialDelaySeconds | int | `60` |  |
-| solr.customReadinessProbe.periodSeconds | int | `10` |  |
-| solr.customReadinessProbe.successThreshold | int | `1` |  |
-| solr.customReadinessProbe.timeoutSeconds | int | `15` |  |
-| solr.enabled | bool | `false` | set enabled to true to provision bitnami solr version with the zac core |
-| solr.extraEnvVars[0].name | string | `"ZK_CREATE_CHROOT"` |  |
-| solr.extraEnvVars[0].value | string | `"true"` |  |
-| solr.persistence.size | string | `"1Gi"` |  |
-| solr.replicaCount | int | `1` |  |
-| solr.service.ports.http | int | `80` |  |
-| solr.zookeeper.enabled | bool | `false` |  |
+| solr.url | string | `""` | The location of an existing solr instance to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
+| zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
 | zgwApis.url | string | `""` |  |
-| zgwApis.urlExtern | string | `""` |  |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

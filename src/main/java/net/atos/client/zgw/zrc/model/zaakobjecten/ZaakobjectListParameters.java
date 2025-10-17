@@ -1,19 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
 
 import jakarta.ws.rs.QueryParam;
 
-import net.atos.client.zgw.zrc.model.Objecttype;
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 
-/**
- *
- */
+
 public class ZaakobjectListParameters {
 
     /**
@@ -57,12 +54,12 @@ public class ZaakobjectListParameters {
         this.object = object;
     }
 
-    public Objecttype getObjectType() {
-        return Objecttype.fromValue(objectType);
+    public ObjectTypeEnum getObjectType() {
+        return ObjectTypeEnum.fromValue(objectType);
     }
 
-    public void setObjectType(final Objecttype objectType) {
-        this.objectType = objectType.toValue();
+    public void setObjectType(final ObjectTypeEnum objectType) {
+        this.objectType = objectType.toString();
     }
 
     public Integer getPage() {

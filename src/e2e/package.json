@@ -1,6 +1,10 @@
 {
   "name": "app",
   "version": "0.0.1",
+  "engines": {
+    "node": "22.20.0",
+    "npm": "10.9.4"
+  },
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
@@ -8,16 +12,16 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "11.2.0",
+    "@cucumber/cucumber": "12.2.0",
     "@types/uniqid": "5.3.4",
     "cross-fetch": "4.1.0",
-    "pdf-parse": "1.1.1",
+    "pdf-parse": "2.3.12",
     "uniqid": "5.4.0",
-    "zod": "3.24.2"
+    "zod": "4.1.12"
   },
   "devDependencies": {
-    "@types/node": "22.14.1",
-    "@playwright/test": "1.51.1",
+    "@types/node": "22.18.10",
+    "@playwright/test": "1.56.0",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",
     "ts-node": "10.9.2",

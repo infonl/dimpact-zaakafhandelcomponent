@@ -8,7 +8,9 @@ import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class DocumentenLijstFormField extends AbstractFormControlField {
+export class DocumentenLijstFormField<
+  T extends string = string,
+> extends AbstractFormControlField<T> {
   fieldType = FieldType.DOCUMENTEN_LIJST;
   documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>;
   documentenChecked: string[];

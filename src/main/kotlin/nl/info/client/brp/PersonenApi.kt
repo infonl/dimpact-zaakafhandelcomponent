@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.brp
 
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -12,7 +13,9 @@ import jakarta.ws.rs.core.MediaType
 import nl.info.client.brp.exception.BrpResponseExceptionMapper
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
-import nl.info.client.brp.util.BRPClientHeadersFactory
+import nl.info.client.brp.util.BrpClientHeadersFactory
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_DOELBINDING
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_VERWERKING
 import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
@@ -32,7 +35,7 @@ import java.time.temporal.ChronoUnit
  * Zie de [Functionele documentatie](https://brp-api.github.io/Haal-Centraal-BRP-bevragen) voor nadere toelichting.
  */
 @RegisterRestClient(configKey = "BRP-API-Client")
-@RegisterClientHeaders(BRPClientHeadersFactory::class)
+@RegisterClientHeaders(BrpClientHeadersFactory::class)
 @RegisterProvider(BrpResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("/personen")
@@ -52,10 +55,16 @@ interface PersonenApi {
      * 5. Zoek met straat, huisnummer en gemeente van inschrijving
      * 6. Zoek met nummeraanduiding identificatie
      *
+     *@param personenQuery de zoekcriteria voor personen
+     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocollering en autorisatie
      *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
      */
     @POST
-    fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
+    fun personen(
+        personenQuery: PersonenQuery,
+        @HeaderParam(X_DOELBINDING) purpose: String?,
+        @HeaderParam(X_VERWERKING) auditEvent: String?
+    ): PersonenQueryResponse
 }

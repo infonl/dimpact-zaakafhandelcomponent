@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,10 +8,8 @@ import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import moment from "moment";
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
-import { OverigeRechten } from "../../policy/model/overige-rechten";
-import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
@@ -30,19 +28,20 @@ import { WebsocketService } from "../websocket/websocket.service";
   styleUrls: ["./toolbar.component.less"],
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
-  @Input() zoekenSideNav: MatSidenav;
+  @Input({ required: true }) zoekenSideNav!: MatSidenav;
   zoekenFormControl = new FormControl<string>("");
   hasSearched = false;
 
-  headerTitle$: Observable<string>;
-  hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: GeneratedType<"RestUser">;
-  overigeRechten = new OverigeRechten();
-  werklijstRechten = new WerklijstRechten();
+  headerTitle$?: Observable<string>;
+  hasNewSignaleringen = false;
+  ingelogdeMedewerker?: GeneratedType<"RestUser">;
+  overigeRechten?: GeneratedType<"RestOverigeRechten">;
+  werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
   medewerkerNaamToolbar = "";
 
-  private subscription$: Subscription;
-  private signaleringListener: WebsocketListener;
+  private subscription$?: Subscription;
+  private signaleringListener?: WebsocketListener;
+  private destroy$ = new Subject<void>();
 
   constructor(
     public utilService: UtilService,
@@ -56,17 +55,27 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.zoekenService.trefwoorden$.subscribe((trefwoorden) => {
-      if (this.zoekenFormControl.value !== trefwoorden) {
-        this.zoekenFormControl.setValue(trefwoorden);
-      }
+    this.zoekenService.trefwoorden$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((trefwoorden) => {
+        if (this.zoekenFormControl.value !== trefwoorden) {
+          this.zoekenFormControl.setValue(trefwoorden);
+        }
+      });
+    this.zoekenService.hasSearched$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((hasSearched) => {
+        this.hasSearched = hasSearched;
+      });
+    this.zoekenFormControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((trefwoorden) => {
+        this.zoekenService.trefwoorden$.next(trefwoorden || "");
+      });
+    this.zoekenService.reset$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.zoekenFormControl.setValue("");
     });
-    this.zoekenService.hasSearched$.subscribe((hasSearched) => {
-      this.hasSearched = hasSearched;
-    });
-    this.zoekenFormControl.valueChanges.subscribe((trefwoorden) => {
-      this.zoekenService.trefwoorden$.next(trefwoorden);
-    });
+
     this.headerTitle$ = this.utilService.headerTitle$;
     this.identityService.readLoggedInUser().subscribe((medewerker) => {
       this.ingelogdeMedewerker = medewerker;
@@ -92,8 +101,13 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription$.unsubscribe();
-    this.websocketService.removeListener(this.signaleringListener);
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.subscription$?.unsubscribe();
+
+    if (this.signaleringListener) {
+      this.websocketService.removeListener(this.signaleringListener);
+    }
   }
 
   setSignaleringen(): void {

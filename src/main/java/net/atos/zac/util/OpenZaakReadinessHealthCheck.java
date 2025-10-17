@@ -14,6 +14,7 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.CatalogusListParameters;
 import nl.info.zac.configuratie.ConfiguratieService;
@@ -34,6 +35,7 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
     }
 
     @Override
+    @WithSpan(value = "GET OpenZaakReadinessHealthCheck")
     public HealthCheckResponse call() {
         try {
             ztcClientService.listCatalogus(CATALOGUS_LIST_PARAMETERS);

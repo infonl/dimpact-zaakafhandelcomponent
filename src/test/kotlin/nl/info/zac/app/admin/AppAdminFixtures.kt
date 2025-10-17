@@ -1,23 +1,28 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
 
-import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
+import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.RestBrpDoelbindingen
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
+import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
 import java.util.UUID
 
 fun createRestFormioFormulierContent(
     filename: String = "testForm.json",
-    content: String = """{ "dummyKey": "dummyValue" }"""
+    content: String = """{ "fakeKey": "fakeValue" }"""
 ) = RestFormioFormulierContent(
     filename = filename,
     content = content
@@ -26,8 +31,8 @@ fun createRestFormioFormulierContent(
 @Suppress("LongParameterList")
 fun createRestReferenceTable(
     id: Long = 1L,
-    code: String = "dummyCode",
-    naam: String = "dummyName",
+    code: String = "fakeCode",
+    naam: String = "fakeName",
     systeem: Boolean = false,
     aantalWaarden: Int = 2,
     waarden: List<RestReferenceTableValue> = listOf(
@@ -45,7 +50,7 @@ fun createRestReferenceTable(
 
 fun createRestReferenceTableUpdate(
     code: String? = null,
-    naam: String = "dummyUpdatedName",
+    naam: String = "fakeUpdatedName",
     waarden: List<RestReferenceTableValue> = listOf(
         createRestReferenceTableValue(),
         createRestReferenceTableValue()
@@ -58,7 +63,7 @@ fun createRestReferenceTableUpdate(
 
 fun createRestReferenceTableValue(
     id: Long = 1234L,
-    name: String = "dummyWaarde1",
+    name: String = "fakeWaarde1",
     isSystemValue: Boolean = false
 ) = RestReferenceTableValue(
     id = id,
@@ -67,13 +72,15 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakAfhandelParameters(
+fun createRestZaakafhandelParameters(
     id: Long? = 1234L,
-    domein: String = "dummyDomein",
-    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
+    domein: String = "fakeDomein",
+    restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
     defaultGroupId: String? = null,
-    defaultBehandelaarId: String? = null
+    defaultBehandelaarId: String? = null,
+    restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
+    restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
@@ -84,30 +91,72 @@ fun createRestZaakAfhandelParameters(
         enabledForZaaktype = false
     ),
     defaultBehandelaarId = defaultBehandelaarId,
-    defaultGroepId = defaultGroupId
+    defaultGroepId = defaultGroupId,
+    betrokkeneKoppelingen = restBetrokkeneKoppelingen,
+    brpDoelbindingen = restBrpDoelbindingen
 )
+
+fun createRestBetrokkeneKoppelingen(
+    brpKoppelen: Boolean = false,
+    kvkKoppelen: Boolean = false
+) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
 
 @Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
-    identificatie: String = "dummyIdentificatie",
-    doel: String = "dummyDoel",
-    omschrijving: String = "dummyOmschrijving",
+    identificatie: String = "fakeIdentificatie",
+    doel: String = "fakeDoel",
+    omschrijving: String = "fakeOmschrijving",
     servicenorm: Boolean = false,
     versiedatum: LocalDate = LocalDate.now(),
     beginGeldigheid: LocalDate = LocalDate.now(),
     eindeGeldigheid: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     nuGeldig: Boolean = true
-) = RESTZaaktypeOverzicht().apply {
-    this.uuid = uuid
-    this.identificatie = identificatie
-    this.doel = doel
-    this.omschrijving = omschrijving
-    this.servicenorm = servicenorm
-    this.versiedatum = versiedatum
-    this.beginGeldigheid = beginGeldigheid
-    this.eindeGeldigheid = eindeGeldigheid
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.nuGeldig = nuGeldig
+) = RestZaaktypeOverzicht(
+    uuid = uuid,
+    identificatie = identificatie,
+    doel = doel,
+    omschrijving = omschrijving,
+    servicenorm = servicenorm,
+    versiedatum = versiedatum,
+    beginGeldigheid = beginGeldigheid,
+    eindeGeldigheid = eindeGeldigheid,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    nuGeldig = nuGeldig
+)
+
+fun createRestZaakbeeindigReden(
+    id: String = "fakeZaakbeeindigRedenId",
+    name: String = "fakeZaakbeeindigRedenName"
+) = RESTZaakbeeindigReden().apply {
+    this.id = id
+    this.naam = name
+}
+
+@Suppress("LongParameterList")
+fun createRestResultaattype(
+    id: UUID = UUID.randomUUID(),
+    name: String = "fakeRestResultaattype",
+    genericName: String = "fakeGenericName",
+    vervaldatumBesluitVerplicht: Boolean = false,
+    datumKenmerkVerplicht: Boolean = false,
+    besluitVerplicht: Boolean = false
+) = RestResultaattype(
+    id = id,
+    naam = name,
+    naamGeneriek = genericName,
+    vervaldatumBesluitVerplicht = vervaldatumBesluitVerplicht,
+    datumKenmerkVerplicht = datumKenmerkVerplicht,
+    besluitVerplicht = besluitVerplicht
+)
+
+fun createRestZaakbeeindigParameter(
+    id: Long = 1L,
+    zaakbeeindigReden: RESTZaakbeeindigReden = createRestZaakbeeindigReden(),
+    resultaattype: RestResultaattype = createRestResultaattype()
+) = RESTZaakbeeindigParameter().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
 }

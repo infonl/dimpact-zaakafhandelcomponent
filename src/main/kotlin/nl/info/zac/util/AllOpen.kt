@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.util
@@ -7,7 +7,7 @@ package nl.info.zac.util
 /**
  * Custom annotation so that WildFly's dependency injection framework (Weld)
  * can proxy our Kotlin classes when they have our custom annotation.
- * Because by default Kotlin classes are final.
+ * Because by default, Kotlin classes are final.
  */
 @AllOpen
 annotation class AllOpen

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.smartdocuments
@@ -31,6 +31,13 @@ interface SmartDocumentsClient {
     fun attendedDeposit(
         @HeaderParam("Authorization") authenticationToken: String,
         @HeaderParam("Username") userName: String,
+        deposit: Deposit
+    ): AttendedResponse
+
+    @POST
+    @Path("/wsxmldeposit/deposit/wizard_no_auth")
+    fun attendedDepositNoAuth(
+        @HeaderParam("Authorization") authenticationToken: String,
         deposit: Deposit
     ): AttendedResponse
 

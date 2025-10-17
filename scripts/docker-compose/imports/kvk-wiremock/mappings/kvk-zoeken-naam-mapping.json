@@ -1,6 +1,6 @@
 {
   "request": {
-    "url": "/api/v2/zoeken?naam=dummyNaam1",
+    "url": "/api/v2/zoeken?naam=fakeNaam1",
     "method": "GET",
     "headers": {
       "Accept": {

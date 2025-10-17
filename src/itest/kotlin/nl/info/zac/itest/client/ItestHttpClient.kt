@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest.client
@@ -73,6 +73,26 @@ class ItestHttpClient {
             )
             .url(url)
             .get()
+            .build()
+        return okHttpClient.newCall(request).execute()
+    }
+
+    fun performHeadRequest(
+        url: String,
+        headers: Headers = buildHeaders(acceptType = null),
+        addAuthorizationHeader: Boolean = true
+    ): Response {
+        logger.info { "Performing HEAD request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                if (addAuthorizationHeader) {
+                    cloneHeadersWithAuthorization(headers, url)
+                } else {
+                    headers
+                }
+            )
+            .url(url)
+            .head()
             .build()
         return okHttpClient.newCall(request).execute()
     }
@@ -178,8 +198,8 @@ class ItestHttpClient {
         headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
 
     private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-        generateToken()
+        generateOpenZaakJwtToken()
     } else {
-        KeycloakClient.requestAccessToken()
+        refreshAccessToken()
     }
 }

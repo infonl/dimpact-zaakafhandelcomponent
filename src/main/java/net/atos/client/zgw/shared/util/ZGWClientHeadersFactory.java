@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -49,10 +49,6 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         } finally {
             clearAuditToelichting(loggedInUser);
         }
-    }
-
-    public String generateJWTToken() {
-        return JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get());
     }
 
     public void setAuditToelichting(final String toelichting) {

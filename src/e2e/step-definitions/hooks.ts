@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,7 +27,6 @@ After({ timeout: ONE_MINUTE_IN_MS }, async function (this: CustomWorld) {
 });
 
 AfterAll(async function (this: CustomWorld) {
-  console.log();
   fs.unlinkSync(testStorageFile);
   console.log("Deleted test storage file successfully.");
   fs.unlinkSync(authFile);

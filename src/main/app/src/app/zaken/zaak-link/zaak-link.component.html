@@ -1,0 +1,127 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>account_tree</mat-icon>
+  <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (ngSubmit)="searchCases()">
+  <fieldset>
+    <legend>
+      <p>
+        {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak.identificatie } }}
+      </p>
+    </legend>
+    <zac-select
+      [form]="form"
+      key="caseRelationType"
+      label="zaak.koppelen.label"
+      [options]="caseRelationOptionsList"
+      [optionDisplayValue]="'label'"
+    ></zac-select>
+    <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
+      <mat-hint
+        *ngIf="form.controls.caseRelationType.value?.value === 'HOOFDZAAK'"
+        >{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</mat-hint
+      >
+      <mat-hint
+        *ngIf="form.controls.caseRelationType.value?.value === 'DEELZAAK'"
+        >{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</mat-hint
+      >
+    </zac-input>
+  </fieldset>
+  <fieldset class="flex-row gap-5 button-row">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="!form.valid || loading"
+    >
+      {{ "actie.zoeken" | translate }}
+    </button>
+    <button mat-raised-button (click)="reset()">
+      {{ "actie.wissen" | translate }}
+    </button>
+  </fieldset>
+</form>
+
+<div class="table-wrapper">
+  <table mat-table [dataSource]="cases" matSort>
+    <ng-container matColumnDef="identificatie">
+      <th *matHeaderCellDef mat-header-cell>
+        {{ "zaak.identificatie" | translate }}
+      </th>
+      <td *matCellDef="let row" mat-cell>
+        {{ row.identificatie | empty }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="zaaktypeOmschrijving">
+      <th *matHeaderCellDef mat-header-cell>
+        {{ "zaaktypeOmschrijving" | translate }}
+      </th>
+      <td *matCellDef="let row" mat-cell>
+        {{ row.zaaktypeOmschrijving | empty }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="statustypeOmschrijving">
+      <th *matHeaderCellDef mat-header-cell>
+        {{ "status" | translate }}
+      </th>
+      <td *matCellDef="let row" mat-cell>
+        {{ row?.statustypeOmschrijving | empty }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="omschrijving">
+      <th *matHeaderCellDef mat-header-cell>
+        {{ "omschrijving" | translate }}
+      </th>
+      <td *matCellDef="let row" mat-cell>
+        {{ row.omschrijving | empty }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="acties" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" class="text-right">
+        <button
+          mat-icon-button
+          color="primary"
+          title="{{ 'actie.zaak.koppelen' | translate }}"
+          [disabled]="rowDisabled(row)"
+          (click)="selectCase(row)"
+        >
+          <mat-icon [ngClass]="{ disabled: rowDisabled(row) }"
+            >account_tree</mat-icon
+          >
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: caseColumns"
+      [ngClass]="{ disabled: rowDisabled(row) }"
+    ></tr>
+  </table>
+
+  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+  <p
+    *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
+    class="feedback"
+  >
+    <mat-divider class="mat-divider-wrapper"></mat-divider>
+    {{ "msg.zaak.koppelem.meer-dan-10-gevonden" | translate }}
+  </p>
+  <mat-action-row class="px-3">
+    <button mat-raised-button (click)="close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
+</div>

@@ -9,10 +9,22 @@ import { Pipe, PipeTransform } from "@angular/core";
   name: "empty",
 })
 export class EmptyPipe implements PipeTransform {
-  transform(value: any, ...args: string[]): string {
-    if (args.length > 0) {
-      return !value || !value[args[0]] ? "-" : value[args[0]];
+  private readonly EMPTY_STRING = "-";
+
+  transform(value: unknown, property?: string) {
+    if (!value) return this.EMPTY_STRING;
+
+    if (property && value instanceof Object) {
+      if (property in value) {
+        const objectValue = value[property as keyof typeof value];
+        if (!objectValue) return this.EMPTY_STRING;
+        return objectValue.length ? String(objectValue) : this.EMPTY_STRING;
+      }
+      return this.EMPTY_STRING;
     }
-    return !value || value.length < 1 ? "-" : value;
+
+    if (!String(value)) return this.EMPTY_STRING;
+
+    return String(value);
   }
 }

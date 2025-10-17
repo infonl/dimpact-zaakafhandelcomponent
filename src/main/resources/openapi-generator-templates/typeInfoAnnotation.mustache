@@ -1,4 +1,4 @@
-{{! Lifely/INFO temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
+{{! INFO.nl temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
 {{! generates '@JsonbTypeInfo(key = "type")' annotations in the generated model classes both for }}
 {{! parent and child polymorphic classes resulting in errors such as: }}
 {{! "Caused by: jakarta.json.bind.JsonbException: One polymorphic chain cannot have two conflicting property names. }}
@@ -27,5 +27,5 @@
 {{/discriminator.mappedModels}}
 {{/jackson}}
 {{#jsonbPolymorphism}}
-{{! Workaround Lifely/INFO: the original code has been removed for reasons see above }}
+{{! Workaround INFO.nl: the original code has been removed for reasons see above }}
 {{/jsonbPolymorphism}}

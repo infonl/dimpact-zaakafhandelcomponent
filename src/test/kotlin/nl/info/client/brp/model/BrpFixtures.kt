@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,6 +9,7 @@ import nl.info.client.brp.model.generated.AbstractVerblijfplaats
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Adressering
 import nl.info.client.brp.model.generated.AdresseringBeperkt
+import nl.info.client.brp.model.generated.NaamPersoon
 import nl.info.client.brp.model.generated.OpschortingBijhouding
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.PersoonBeperkt
@@ -19,6 +20,7 @@ import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerRespons
 import nl.info.client.brp.model.generated.RniDeelnemer
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.brp.model.generated.Waardetabel
+import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse
 
 fun createAdres(
     verblijfAdresBinnenland: VerblijfadresBinnenland = createVerblijfadresBinnenland()
@@ -48,18 +50,20 @@ fun createPersoon(
     indicationCuratoriesRegister: Boolean? = false,
     rniDeelnemerList: List<RniDeelnemer>? = null,
     address: Adressering? = null,
-    verblijfplaats: AbstractVerblijfplaats? = null
+    verblijfplaats: AbstractVerblijfplaats? = null,
+    name: NaamPersoon? = null
 ) =
     Persoon().apply {
-        burgerservicenummer = bsn
-        leeftijd = age
-        geheimhoudingPersoonsgegevens = confidentialPersonalData
-        inOnderzoek = personInResearch
-        opschortingBijhouding = suspensionMaintenance
-        indicatieCurateleRegister = indicationCuratoriesRegister
-        rni = rniDeelnemerList
-        adressering = address
+        this.burgerservicenummer = bsn
+        this.leeftijd = age
+        this.geheimhoudingPersoonsgegevens = confidentialPersonalData
+        this.inOnderzoek = personInResearch
+        this.opschortingBijhouding = suspensionMaintenance
+        this.indicatieCurateleRegister = indicationCuratoriesRegister
+        this.rni = rniDeelnemerList
+        this.adressering = address
         this.verblijfplaats = verblijfplaats
+        this.naam = name
     }
 
 @Suppress("LongParameterList")
@@ -74,7 +78,6 @@ fun createPersoonBeperkt(
 ) = PersoonBeperkt().apply {
     burgerservicenummer = bsn
     leeftijd = age
-    burgerservicenummer = "burgerservicenummer"
     geheimhoudingPersoonsgegevens = confidentialPersonalData
     inOnderzoek = personInResearch
     opschortingBijhouding = suspensionMaintenance
@@ -94,6 +97,12 @@ fun createRaadpleegMetBurgerservicenummerResponse(
     personen = persons
 }
 
+fun createZoekMetGeslachtsnaamEnGeboortedatumResponse(
+    persons: List<PersoonBeperkt> = listOf(createPersoonBeperkt())
+) = ZoekMetGeslachtsnaamEnGeboortedatumResponse().apply {
+    personen = persons
+}
+
 fun createVerblijfadresBinnenland(
     officieleStraatnaam: String = "officieleStraatnaam",
     huisnummer: Int = 123,
@@ -107,8 +116,8 @@ fun createVerblijfadresBinnenland(
 }
 
 fun createWaardeTabel(
-    code: String = "dummyCode",
-    omschrijving: String = "dummyOmschrijving"
+    code: String = "fakeCode",
+    omschrijving: String = "fakeOmschrijving"
 ) = Waardetabel().apply {
     this.code = code
     this.omschrijving = omschrijving

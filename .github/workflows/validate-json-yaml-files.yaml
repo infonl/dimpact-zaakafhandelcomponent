@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Lifely
+# SPDX-FileCopyrightText: 2025 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
 name: Validate json and yaml files in the repo
@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: json-yaml-validate
         id: json-yaml-validate
-        uses: GrantBirki/json-yaml-validate@e42e6ece9b97f2b220274c909a9a98e380c2c9fd # v3.2.1
+        uses: GrantBirki/json-yaml-validate@250fa0dc7d7f4a888b24dc2a6b2ff589753fba70 # v3.3.2
         with:
           comment: true
           allow_multiple_documents: true
-          yaml_exclude_regex: "charts/.+\\.ya?ml$" # validation will break on helm charts. We have linting already in place
+          exclude_file: .github/config/json-yaml-validate-exclude.txt

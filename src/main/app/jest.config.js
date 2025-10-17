@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -15,6 +15,7 @@ module.exports = {
     "^src/(.*)$": "<rootDir>/src/$1",
   },
   reporters: [
+    "default",
     ["github-actions", { silent: false }],
     ["jest-junit", { outputDirectory: "reports", outputName: "report.xml" }],
     "summary",

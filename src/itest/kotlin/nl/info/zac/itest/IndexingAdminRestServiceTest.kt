@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -10,10 +10,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,9 +29,13 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("""Two zaken, a task and a document have been created""") {
-        When("""the reindexing endpoint is called for type 'zaak'""") {
+        When("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
                 addAuthorizationHeader = false
             )
             Then(
@@ -56,13 +62,17 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_ZAKEN
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
                 }
             }
         }
         When("""the reindexing endpoint is called for type 'task'""") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/TAAK",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
                 addAuthorizationHeader = false
             )
             Then(
@@ -89,13 +99,18 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_TASKS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
                 }
             }
         }
         When("""the reindexing endpoint is called for type 'document'""") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT"
+                "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
+                addAuthorizationHeader = false
             )
             Then(
                 """the response is successful and all documents are indexed"""
@@ -121,7 +136,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 }
             }
         }

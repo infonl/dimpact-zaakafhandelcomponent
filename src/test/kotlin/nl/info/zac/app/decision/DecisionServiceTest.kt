@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.decision
@@ -9,12 +9,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.Besluit
@@ -38,16 +35,13 @@ class DecisionServiceTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
+    val zgwApiService = mockk<ZGWApiService>()
 
     val decisionService = DecisionService(
         brcClientService,
         drcClientService,
         ztcClientService,
-        zrcClientService,
-        zgwApiService,
         restDecisionConverter
     )
 
@@ -77,9 +71,6 @@ class DecisionServiceTest : BehaviorSpec({
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
         every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
-        every {
-            zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
-        } just runs
         every { brcClientService.createBesluit(besluit) } returns besluit
         every {
             drcClientService.readEnkelvoudigInformatieobject(
@@ -114,9 +105,6 @@ class DecisionServiceTest : BehaviorSpec({
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
         every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
-        every {
-            zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
-        } just runs
         every { brcClientService.createBesluit(besluit) } returns besluit
         every {
             drcClientService.readEnkelvoudigInformatieobject(
@@ -253,7 +241,7 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("update is requested") {
             besluitType.publicatieIndicatie(true)
-            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -281,7 +269,7 @@ class DecisionServiceTest : BehaviorSpec({
         } returns besluitInformatieObject
 
         When("update is requested") {
-            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -301,7 +289,7 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("Besluit update is requested") {
             val exception = shouldThrow<DecisionPublicationDisabledException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -324,7 +312,7 @@ class DecisionServiceTest : BehaviorSpec({
             restBesluitWijzigenGegevens.publicationDate = null
 
             val exception = shouldThrow<DecisionPublicationDateMissingException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -347,7 +335,7 @@ class DecisionServiceTest : BehaviorSpec({
             restBesluitWijzigenGegevens.publicationDate = null
 
             val exception = shouldThrow<DecisionPublicationDateMissingException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -368,13 +356,41 @@ class DecisionServiceTest : BehaviorSpec({
 
         When("Besluit update is requested") {
             val exception = shouldThrow<DecisionResponseDateInvalidException> {
-                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
+                decisionService.updateDecision(besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
                 exception.message shouldBe "Response date ${restBesluitWijzigenGegevens.lastResponseDate}" +
                     " is before calculated response date " +
                     "${restBesluitWijzigenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
+            }
+        }
+    }
+
+    Given("Zaak without resultaat, when a decision is made") {
+        val zaakWithoutResultaat = createZaak(resultaat = null)
+        val besluitToevoegenGegevens = createRestDecisionCreateData()
+        val besluit = createBesluit()
+
+        every { ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid) } returns besluitType
+        every { restDecisionConverter.convertToBesluit(zaakWithoutResultaat, besluitToevoegenGegevens) } returns besluit
+        every { brcClientService.createBesluit(besluit) } returns besluit
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(
+                besluitToevoegenGegevens.informatieobjecten!!.first()
+            )
+        } returns enkelvoudigInformatieObject
+        every {
+            brcClientService.createBesluitInformatieobject(any<BesluitInformatieObject>(), "Aanmaken besluit")
+        } returns besluitInformatieObject
+
+        When("createDecision is called") {
+            decisionService.createDecision(zaakWithoutResultaat, besluitToevoegenGegevens)
+
+            Then("zaak.resultaat should still be null") {
+                verify(exactly = 0) {
+                    zgwApiService.createResultaatForZaak(zaakWithoutResultaat, any<UUID>(), any<String>())
+                }
             }
         }
     }

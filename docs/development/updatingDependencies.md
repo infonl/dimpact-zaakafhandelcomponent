@@ -47,7 +47,7 @@ something like: `https://<open-zaak-url>/zaken/api/v1/schema/openapi.yaml` and p
 2. Replace the existing OpenAPI specification in the [api-secs](../../src/main/resources/api-specs) folder with the new version.
 3. Do a diff of the newly generated OpenAPI specification with the current version and make sure that
 any manual changes that were made to the current version are also made to the new version (if they still apply).
-These manual changes are indicated with a code comment containing the term `Lifely`.
+These manual changes are indicated with a code comment containing the term `INFO.nl`.
 Some of these manual changes include:
    1. Added `readOnly: false` attributes to properties that were missing a setter (or constructor) in the generated
 Java client code but which need to be set by ZAC.

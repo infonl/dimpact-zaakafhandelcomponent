@@ -1,452 +1,318 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import {
-  AbstractControl,
-  FormGroup,
-  ValidatorFn,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import moment from "moment";
-import { Observable, Subject, Subscription, forkJoin, takeUntil } from "rxjs";
+import moment, { Moment } from "moment";
+import {
+  defaultIfEmpty,
+  EMPTY,
+  firstValueFrom,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+} from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
-import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
-import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
-import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MedewerkerGroepFieldBuilder } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { MedewerkerGroepFormField } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
-import { SelectFormField } from "src/app/shared/material-form-builder/form-components/select/select-form-field";
-import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
-import { TextareaFormField } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field";
-import { TextareaFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
-import { OrderUtil } from "src/app/shared/order/order-util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { Geometry } from "../model/geometry";
-import { Zaak } from "../model/zaak";
+import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
-  styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
-export class CaseDetailsEditComponent implements OnDestroy, OnInit {
-  @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
+export class CaseDetailsEditComponent implements OnInit, OnDestroy {
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
 
-  formFields: Array<AbstractFormField[]> = [];
-  formConfig: FormConfig;
+  private readonly destroy$ = new Subject<void>();
 
-  private medewerkerGroepFormField!: MedewerkerGroepFormField;
-  private communicatiekanalen: Observable<string[]>;
-  private communicatiekanaalField!: SelectFormField;
-  private startDatumField!: DateFormField;
-  private einddatumGeplandField!: DateFormField | InputFormField;
-  private uiterlijkeEinddatumAfdoeningField!: DateFormField;
-  private vertrouwelijkheidaanduidingField!: SelectFormField;
-  private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
-  private omschrijving!: TextareaFormField;
-  private toelichtingField!: TextareaFormField;
-  reasonField: TextareaFormField;
-  private ngDestroy = new Subject<void>();
-  private initialZaakGeometry!: Geometry;
+  formFields: Array<AbstractFormField[]> = [];
+
+  protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
+  protected users: GeneratedType<"RestUser">[] = [];
+  protected communicationChannels: string[] = [];
+  protected confidentialityDesignations = this.utilService.getEnumAsSelectList(
+    "vertrouwelijkheidaanduiding",
+    Vertrouwelijkheidaanduiding,
+  );
+
+  protected readonly form = this.formBuilder.group({
+    groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+      Validators.required,
+    ]),
+    behandelaar: this.formBuilder.control<GeneratedType<"RestUser"> | null>(
+      null,
+    ),
+    communicatiekanaal: this.formBuilder.control<string | null>(null, [
+      Validators.required,
+    ]),
+    startdatum: this.formBuilder.control<Moment>(moment(), [
+      Validators.required,
+    ]),
+    einddatumGepland: this.formBuilder.control<Moment | null>(null),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<Moment | null>(null),
+    vertrouwelijkheidaanduiding: this.formBuilder.control<{
+      label: string;
+      value: string;
+    } | null>(null, [Validators.required]),
+    omschrijving: this.formBuilder.control("", [
+      Validators.required,
+      Validators.maxLength(80),
+    ]),
+    toelichting: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(1000),
+    ]),
+    reden: this.formBuilder.control("", [
+      Validators.required,
+      Validators.maxLength(80),
+    ]),
+  });
 
   constructor(
-    private zakenService: ZakenService,
-    private referentieTabelService: ReferentieTabelService,
-    private utilService: UtilService,
-  ) {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.opslaan")
-      .cancelText("actie.annuleren")
-      .requireUserChanges(true)
-      .build();
-
-    this.communicatiekanalen =
-      this.referentieTabelService.listCommunicatiekanalen();
-
-    this.vertrouwelijkheidaanduidingenList =
-      this.utilService.getEnumAsSelectList(
-        "vertrouwelijkheidaanduiding",
-        Vertrouwelijkheidaanduiding,
-      );
-
-    this.reasonField = new InputFormFieldBuilder()
-      .id("reason")
-      .label("reden")
-      .maxlength(80)
-      .validators(Validators.required)
-      .disabled()
-      .build();
-
-    // Forcing the set value to sync tabs
-    this.reasonField.formControl.valueChanges.subscribe((value) => {
-      this.reasonField.formControl.setValue(value, { emitEvent: false });
-    });
-  }
+    private readonly zakenService: ZakenService,
+    private readonly referentieTabelService: ReferentieTabelService,
+    private readonly utilService: UtilService,
+    private readonly formBuilder: FormBuilder,
+    private readonly identityService: IdentityService,
+  ) {}
 
   ngOnInit() {
-    this.initialZaakGeometry = this.zaak.zaakgeometrie;
-
-    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-      !this.zaak.rechten.toekennen,
-      this.zaak?.groep.id,
-      this.zaak?.behandelaar?.id,
+    const dateChangesAllowed = Boolean(
+      !this.zaak.isProcesGestuurd &&
+        this.zaak.rechten.wijzigen &&
+        this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
-    this.communicatiekanaalField = new SelectFormFieldBuilder(
-      this.zaak.communicatiekanaal,
-    )
-      .id("communicatiekanaal")
-      .label("communicatiekanaal")
-      .options(this.communicatiekanalen)
-      .disabled(!this.zaak.rechten.wijzigen)
-      .validators(Validators.required)
-      .build();
+    this.groups = this.identityService.listGroups(this.zaak.zaaktype.uuid);
 
-    this.startDatumField = this.createDateFormField(
-      "startdatum",
-      this.zaak.startdatum,
-      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
-      [Validators.required, (control) => this.validateStartDatum(control)],
-    );
+    if (!this.zaak.rechten.wijzigen) {
+      this.form.controls.communicatiekanaal.disable();
+      this.form.controls.vertrouwelijkheidaanduiding.disable();
+      this.form.controls.omschrijving.disable();
+      this.form.controls.toelichting.disable();
+    }
 
-    this.einddatumGeplandField = this.createDateFormField(
-      "einddatumGepland",
-      this.zaak.einddatumGepland,
-      !!this.zaak.einddatumGepland &&
-        (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
-      [
-        this.zaak.einddatumGepland
-          ? Validators.required
-          : Validators.nullValidator,
-        (control) => this.validateEinddatumGepland(control),
-      ],
-    );
+    if (!this.zaak.zaaktype.servicenorm) {
+      this.form.controls.einddatumGepland.disable();
+    }
 
-    this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
-      "uiterlijkeEinddatumAfdoening",
-      this.zaak.uiterlijkeEinddatumAfdoening,
-      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
-      [
-        Validators.required,
-        (control) => this.validateUiterlijkeEinddatumAfdoening(control),
-      ],
-    );
+    this.form.controls.behandelaar.disable();
+    if (!this.zaak.rechten.toekennen) {
+      this.form.controls.groep.disable();
+    }
 
-    this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder(
-      this.vertrouwelijkheidaanduidingenList.find(
-        (o) => o.value === this.zaak.vertrouwelijkheidaanduiding.toLowerCase(),
+    if (!dateChangesAllowed) {
+      this.form.controls.startdatum.disable();
+      this.form.controls.uiterlijkeEinddatumAfdoening.disable();
+
+      if (this.zaak.einddatumGepland) {
+        this.form.controls.einddatumGepland.disable();
+      }
+    }
+
+    this.form.controls.reden.disable();
+    this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (!this.form.dirty) return;
+      this.form.controls.reden.enable({ emitEvent: false });
+    });
+
+    this.form.patchValue({
+      ...this.zaak,
+      startdatum: moment(this.zaak.startdatum),
+      uiterlijkeEinddatumAfdoening: moment(
+        this.zaak.uiterlijkeEinddatumAfdoening,
       ),
-    )
-      .id("vertrouwelijkheidaanduiding")
-      .label("vertrouwelijkheidaanduiding")
-      .optionLabel("label")
-      .options(this.vertrouwelijkheidaanduidingenList)
-      .optionsOrder(OrderUtil.orderAsIs())
-      .disabled(!this.zaak.rechten.wijzigen)
-      .validators(Validators.required)
-      .build();
+      einddatumGepland: this.zaak.einddatumGepland
+        ? moment(this.zaak.einddatumGepland)
+        : null,
+      vertrouwelijkheidaanduiding:
+        this.confidentialityDesignations.find(
+          ({ value }) =>
+            value === this.zaak.vertrouwelijkheidaanduiding?.toLowerCase(),
+        ) ?? null,
+    });
 
-    this.omschrijving = new InputFormFieldBuilder(this.zaak.omschrijving)
-      .id("omschrijving")
-      .label("omschrijving")
-      .maxlength(80)
-      .disabled(!this.zaak.rechten.wijzigen)
-      .validators(Validators.required)
-      .build();
-
-    this.toelichtingField = new TextareaFormFieldBuilder(this.zaak.toelichting)
-      .id("toelichting")
-      .label("toelichting")
-      .maxlength(1000)
-      .disabled(!this.zaak.rechten.wijzigen)
-      .build();
-
-    this.formFields = [
-      [this.medewerkerGroepFormField, this.communicatiekanaalField],
-      [
-        this.startDatumField,
-        this.einddatumGeplandField,
-        this.uiterlijkeEinddatumAfdoeningField,
-      ],
-      [this.vertrouwelijkheidaanduidingField],
-      [this.omschrijving],
-      [this.toelichtingField],
-      [this.reasonField],
-    ];
-
-    this.formFields.flat().forEach((field) => {
-      //Subscriptions to enable reason field on field changes
-      if (field.formControl.enabled) {
-        field.formControl.valueChanges
-          .pipe(takeUntil(this.ngDestroy))
-          .subscribe(() => {
-            if (
-              field.formControl.dirty &&
-              this.reasonField.formControl.disabled
-            ) {
-              this.reasonField.formControl.enable({ emitEvent: false });
-            }
-          });
-      }
-
-      // Subscription(s) to revalidate 'other' enabled date field(s) after a date change, so 'other' date error messages are updated
-      if (field instanceof DateFormField && field.formControl.enabled) {
-        if (field.formControl.enabled) {
-          field.formControl.valueChanges
-            .pipe(takeUntil(this.ngDestroy))
-            .subscribe(() => {
-              this.formFields
-                .flat()
-                .filter(
-                  (f) =>
-                    f instanceof DateFormField &&
-                    f.id !== field.id &&
-                    f.formControl.hasError("custom"),
-                )
-                .forEach((otherDateField) =>
-                  otherDateField.formControl.updateValueAndValidity({
-                    emitEvent: false,
-                  }),
-                );
-            });
+    this.referentieTabelService
+      .listCommunicatiekanalen()
+      .subscribe((channels) => {
+        if (this.zaak.communicatiekanaal) {
+          channels.push(this.zaak.communicatiekanaal);
         }
-      }
-    });
-  }
-
-  private createDateFormField(
-    id: string,
-    value: any,
-    disabled: boolean,
-    validators: ValidatorFn[],
-  ): DateFormField {
-    return new DateFormFieldBuilder(value)
-      .id(id)
-      .label(id)
-      .validators(...validators)
-      .disabled(disabled)
-      .build();
-  }
-
-  private validateStartDatum(control: AbstractControl) {
-    const startDatum = moment(control.value);
-    const einddatumGepland = moment(
-      this.einddatumGeplandField.formControl.value,
-    );
-    const uiterlijkeEinddatumAfdoening = moment(
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-    );
-
-    if (startDatum.isAfter(uiterlijkeEinddatumAfdoening)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.start-na-fatale" },
-      };
-    }
-
-    if (!this.einddatumGeplandField.formControl.value) return null;
-
-    if (startDatum.isAfter(einddatumGepland)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.start-na-streef" },
-      };
-    }
-
-    return null;
-  }
-
-  private validateEinddatumGepland(control: AbstractControl) {
-    const startDatum = moment(this.startDatumField.formControl.value);
-    const einddatumGepland = moment(control.value);
-    const uiterlijkeEinddatumAfdoening = moment(
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-    );
-
-    if (einddatumGepland.isBefore(startDatum)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.streef-voor-start" },
-      };
-    }
-
-    if (einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.streef-na-fatale" },
-      };
-    }
-
-    return null;
-  }
-
-  private validateUiterlijkeEinddatumAfdoening(control: AbstractControl) {
-    const startDatum = moment(this.startDatumField.formControl.value);
-    const einddatumGepland = moment(
-      this.einddatumGeplandField.formControl.value,
-    );
-    const uiterlijkeEinddatumAfdoening = moment(control.value);
-
-    if (uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.fatale-voor-start" },
-      };
-    }
-
-    if (!this.einddatumGeplandField.formControl.value) return null;
-
-    if (uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)) {
-      return {
-        custom: { message: "msg.error.date.invalid.datum.fatale-voor-streef" },
-      };
-    }
-
-    return null;
-  }
-
-  saveFromFormView(formGroup?: FormGroup): void {
-    if (!formGroup) {
-      void this.sideNav.close();
-      return;
-    }
-    const updates = Object.entries(formGroup.controls).reduce(
-      (acc, [key, control]) => {
-        const value = control.value;
-        acc[key] = key === "vertrouwelijkheidaanduiding" ? value.value : value;
-        return acc;
-      },
-      {},
-    );
-
-    void this.updateZaak(this.createZaakPatch(updates));
-  }
-
-  saveFromMapView() {
-    const updates = this.formFields.reduce((acc, fields) => {
-      fields.forEach((field) => {
-        const value = field.formControl.value;
-        acc[field.id] =
-          field.id === "vertrouwelijkheidaanduiding" ? value.value : value;
+        this.communicationChannels = Array.from(new Set(channels));
       });
-      return acc;
-    }, {});
 
-    void this.updateZaak(this.createZaakPatch(updates));
+    this.form.controls.groep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((group) => {
+        if (!group) {
+          this.form.controls.behandelaar.reset();
+          this.form.controls.behandelaar.disable();
+          return;
+        }
+
+        if (this.zaak.rechten.toekennen) {
+          this.form.controls.behandelaar.enable();
+        }
+
+        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+          this.users = users;
+
+          const zaakUser = users.find(
+            ({ id }) => id === this.zaak.behandelaar?.id,
+          );
+          const changedUser = users.find(
+            ({ id }) => id === this.form.controls.behandelaar.value?.id,
+          );
+          this.form.controls.behandelaar.setValue(
+            changedUser ?? zaakUser ?? null,
+          );
+        });
+      });
+
+    this.groups.subscribe((groups) => {
+      const group = groups.find(({ id }) => id === this.zaak.groep?.id);
+      this.form.controls.groep.setValue(group ?? null);
+    });
+
+    const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
+      this.zaak;
+
+    this.form.controls.startdatum.setValidators(
+      startdatum ? [Validators.required] : [],
+    );
+    this.form.controls.einddatumGepland.setValidators(
+      einddatumGepland ? [Validators.required] : [],
+    );
+    this.form.controls.uiterlijkeEinddatumAfdoening.setValidators(
+      uiterlijkeEinddatumAfdoening ? [Validators.required] : [],
+    );
+
+    this.form.controls.startdatum.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
+    this.form.controls.einddatumGepland.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
+    this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(this.validateDates.bind(this));
   }
 
-  locationChanged(update?: Geometry) {
-    this.zaak.zaakgeometrie = update;
-    this.reasonField.formControl.enable();
-  }
+  private validateDates() {
+    const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
+      this.form.getRawValue();
 
-  private createZaakPatch(update: Record<string, any>) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { assignment, reason, ...updates } = update;
+    this.form.controls.startdatum.setErrors(null);
+    this.form.controls.einddatumGepland.setErrors(null);
+    this.form.controls.uiterlijkeEinddatumAfdoening.setErrors(null);
 
-    return {
-      ...updates,
-      groep: assignment.groep,
-      behandelaar: assignment.medewerker,
-    } satisfies Partial<Zaak>;
-  }
-
-  private async updateZaak(zaak: Partial<Zaak>) {
-    const reason = this.reasonField.formControl.value;
-    const subscriptions: Subscription[] = [];
-
-    this.patchBehandelaar(zaak, reason);
-
-    this.patchLocation(reason).subscribe(() => {
-      // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
-      subscriptions.push(
-        this.zakenService
-          .updateZaak(this.zaak.uuid, { zaak, reden: reason })
-          .subscribe(() => {}),
+    if (
+      startdatum &&
+      einddatumGepland &&
+      moment(startdatum).isAfter(moment(einddatumGepland))
+    ) {
+      this.form.controls.startdatum.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.start-na-streef",
+        ),
       );
-
-      forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
-    });
-  }
-
-  private patchLocation(reason?: string) {
-    if (
-      JSON.stringify(this.zaak.zaakgeometrie) ===
-      JSON.stringify(this.initialZaakGeometry)
-    ) {
-      return new Observable((observer) => {
-        observer.next(null);
-        observer.complete();
-      });
     }
 
-    return this.zakenService.updateZaakLocatie(
-      this.zaak.uuid,
-      reason,
-      this.zaak.zaakgeometrie,
+    if (
+      startdatum &&
+      uiterlijkeEinddatumAfdoening &&
+      startdatum.isAfter(moment(uiterlijkeEinddatumAfdoening))
+    ) {
+      this.form.controls.startdatum.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.start-na-fatale",
+        ),
+      );
+    }
+
+    if (
+      einddatumGepland &&
+      uiterlijkeEinddatumAfdoening &&
+      moment(einddatumGepland).isAfter(moment(uiterlijkeEinddatumAfdoening))
+    ) {
+      this.form.controls.einddatumGepland.setErrors(
+        FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.streef-na-fatale",
+        ),
+      );
+    }
+  }
+
+  protected async onSubmit(form: typeof this.form) {
+    const value = form.getRawValue();
+
+    await firstValueFrom(
+      this.patchBehandelaar(value, value.reden ?? "").pipe(
+        defaultIfEmpty(null),
+      ),
     );
+
+    this.zakenService
+      .updateZaak(this.zaak.uuid, {
+        zaak: {
+          ...value,
+          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+          startdatum: value.startdatum?.toISOString(),
+          einddatumGepland: value.einddatumGepland?.toISOString(),
+          uiterlijkeEinddatumAfdoening:
+            value.uiterlijkeEinddatumAfdoening?.toISOString(),
+          omschrijving: value.omschrijving ?? "",
+        },
+        reden: value.reden ?? "",
+      })
+      .subscribe({
+        next: () => {
+          void this.sideNav.close();
+        },
+        error: (err) => {
+          console.error("Fout bij bijwerken zaak:", err);
+        },
+      });
   }
 
-  private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
-    if (
-      zaak.behandelaar?.id === this.zaak.behandelaar?.id &&
-      zaak.groep?.id === this.zaak.groep?.id
-    ) {
-      return;
-    }
+  private patchBehandelaar(
+    zaak: Pick<GeneratedType<"RestZaak">, "behandelaar" | "groep">,
+    reason?: string,
+  ) {
+    const isSameBehandelaar =
+      zaak.behandelaar?.id === this.zaak.behandelaar?.id;
+
+    const isSameGroup = zaak.groep?.id === this.zaak.groep?.id;
+    if (isSameBehandelaar && isSameGroup) return EMPTY;
 
     if (zaak.behandelaar?.id === this.loggedInUser.id) {
-      return this.zakenService
-        .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
-        .subscribe(() => {});
+      return this.zakenService.toekennenAanIngelogdeMedewerker({
+        zaakUUID: this.zaak.uuid,
+        groepId: zaak.groep?.id as string,
+        reden: reason,
+      });
     }
 
-    return this.zakenService
-      .toekennen(this.zaak.uuid, {
-        reason,
-        groupId: zaak.groep?.id,
-        behandelaarId: zaak?.behandelaar?.id,
-      })
-      .subscribe(() => {});
+    return this.zakenService.toekennen({
+      zaakUUID: this.zaak.uuid,
+      groepId: zaak.groep?.id as string,
+      behandelaarGebruikersnaam: zaak.behandelaar?.id,
+      reden: reason,
+    });
   }
 
-  exit() {
-    this.zaak.zaakgeometrie = this.initialZaakGeometry;
-    void this.sideNav.close();
-  }
-
-  private getMedewerkerGroupFormField(
-    disabled: boolean = false,
-    groupId?: string,
-    employeeId?: string,
-  ): MedewerkerGroepFormField {
-    return new MedewerkerGroepFieldBuilder(
-      groupId
-        ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
-        : undefined,
-      employeeId
-        ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
-        : undefined,
-    )
-      .id("assignment")
-      .groepLabel("actie.zaak.toekennen.groep")
-      .medewerkerLabel("actie.zaak.toekennen.medewerker")
-      .groepRequired()
-      .styleClass("row case-details-edit-form")
-      .disabled(disabled)
-      .build();
-  }
-
-  ngOnDestroy(): void {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

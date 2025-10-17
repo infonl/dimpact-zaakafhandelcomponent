@@ -1,16 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.planitems.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ReferenceTableValue
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.UserEventListenerActie
@@ -20,11 +20,11 @@ import java.time.LocalDate
 import java.util.UUID
 
 class RESTPlanItemConverter @Inject constructor(
-    val zaakafhandelParameterService: ZaakafhandelParameterService
+    val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem> =
         zaak.zaaktype.extractUuid().let { zaaktypeUUID ->
-            zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).let { zaakafhandelParameters ->
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).let { zaakafhandelParameters ->
                 planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }
             }
         }
@@ -32,7 +32,7 @@ class RESTPlanItemConverter @Inject constructor(
     fun convertPlanItem(
         planItem: PlanItemInstance,
         zaakUuid: UUID,
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ): RESTPlanItem =
         RESTPlanItem(
             id = planItem.id,
@@ -41,8 +41,8 @@ class RESTPlanItemConverter @Inject constructor(
             zaakUuid = zaakUuid
         ).apply {
             when (type) {
-                PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(this, planItem, zaakafhandelParameters)
-                PlanItemType.HUMAN_TASK -> convertHumanTask(this, planItem, zaakafhandelParameters)
+                PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(this, planItem, zaaktypeCmmnConfiguration)
+                PlanItemType.HUMAN_TASK -> convertHumanTask(this, planItem, zaaktypeCmmnConfiguration)
                 PlanItemType.PROCESS_TASK -> {}
             }
         }
@@ -50,32 +50,37 @@ class RESTPlanItemConverter @Inject constructor(
     private fun convertUserEventListener(
         restPlanItem: RESTPlanItem,
         userEventListenerPlanItem: PlanItemInstance,
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ): RESTPlanItem =
         restPlanItem.apply {
             userEventListenerActie = UserEventListenerActie.valueOf(userEventListenerPlanItem.planItemDefinitionId)
-            toelichting = zaakafhandelParameters.readUserEventListenerParameters(
+            toelichting = zaaktypeCmmnConfiguration.readUserEventListenerParameters(
                 userEventListenerPlanItem.planItemDefinitionId
             ).toelichting
         }
 
+    @Suppress("ExplicitItLambdaParameter")
     private fun convertHumanTask(
         restPlanItem: RESTPlanItem,
         humanTaskPlanItem: PlanItemInstance,
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ): RESTPlanItem =
         restPlanItem.apply {
-            zaakafhandelParameters.findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId).ifPresent {
-                actief = it.isActief
-                formulierDefinitie = FormulierDefinitie.valueOf(it.formulierDefinitieID)
-                it.referentieTabellen.forEach { rt ->
-                    tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
+            zaaktypeCmmnConfiguration
+                .findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
+                ?.let { it ->
+                    actief = it.actief
+                    it.getFormulierDefinitieID()?.let { fd ->
+                        formulierDefinitie = FormulierDefinitie.valueOf(fd)
+                    }
+                    it.getReferentieTabellen().forEach { rt ->
+                        tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
+                    }
+                    groepId = it.groepID
+                    it.doorlooptijd?.let { days ->
+                        fataleDatum = LocalDate.now().plusDays(days.toLong())
+                    }
                 }
-                groepId = it.groepID
-                if (it.doorlooptijd != null) {
-                    fataleDatum = LocalDate.now().plusDays(it.doorlooptijd.toLong())
-                }
-            }
         }
 
     private fun convertDefinitionType(planItemDefinitionType: String): PlanItemType =

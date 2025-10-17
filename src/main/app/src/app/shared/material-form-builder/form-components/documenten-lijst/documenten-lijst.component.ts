@@ -58,9 +58,9 @@ export class DocumentenLijstComponent
       this.data.documenten.subscribe((documenten) => {
         this.selection.clear();
         for (const document of documenten) {
-          document.creatiedatum = this.datumPipe.transform(
-            document.creatiedatum,
-          ); // nodig voor zoeken
+          document.creatiedatum = this.datumPipe
+            .transform(document.creatiedatum)
+            ?.toString(); // nodig voor zoeken
           document["viewLink"] = `/informatie-objecten/${document.uuid}`;
           document["downloadLink"] =
             this.informatieObjectenService.getDownloadURL(document.uuid);

@@ -18,7 +18,6 @@
 Make sure you have helm installed. Add the required repositories as follows:
 ```
 helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add solr https://solr.apache.org/charts
 ```
 
@@ -34,6 +33,10 @@ And install zac:
 ```
 helm install my-release zac/zaakafhandelcomponent
 ```
+
+## Changes to the helm chart
+
+The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
 
 {{ template "chart.valuesSection" . }}
 

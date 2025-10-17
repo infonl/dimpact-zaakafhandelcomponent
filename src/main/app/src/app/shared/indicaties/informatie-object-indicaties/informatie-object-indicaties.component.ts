@@ -8,19 +8,11 @@ import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { MaterialModule } from "../../material/material.module";
-import { Indicatie } from "../../model/indicatie";
+import { IndicatieItem } from "../../model/indicatie-item";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { PipesModule } from "../../pipes/pipes.module";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
-
-export enum InformatieobjectIndicatie {
-  VERGRENDELD = "VERGRENDELD",
-  ONDERTEKEND = "ONDERTEKEND",
-  BESLUIT = "BESLUIT",
-  GEBRUIKSRECHT = "GEBRUIKSRECHT",
-  VERZONDEN = "VERZONDEN",
-}
 
 @Component({
   standalone: true,
@@ -53,49 +45,52 @@ export class InformatieObjectIndicatiesComponent
     const indicaties = this.documentZoekObject
       ? this.documentZoekObject.indicaties
       : this.document.indicaties;
-    indicaties.forEach((indicatie: InformatieobjectIndicatie) => {
+
+    indicaties?.forEach((indicatie) => {
       switch (indicatie) {
-        case InformatieobjectIndicatie.VERGRENDELD:
+        case "VERGRENDELD":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "lock",
               this.getVergrendeldToelichting(),
             ).temporary(),
           );
           break;
-        case InformatieobjectIndicatie.ONDERTEKEND:
+        case "ONDERTEKEND":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "fact_check",
               this.getOndertekeningToelichting(),
             ),
           );
           break;
-        case InformatieobjectIndicatie.BESLUIT:
+        case "BESLUIT":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "gavel",
               this.translateService.instant("msg.document.besluit"),
             ),
           );
           break;
-        case InformatieobjectIndicatie.GEBRUIKSRECHT:
+        case "GEBRUIKSRECHT":
           this.indicaties.push(
-            new Indicatie(indicatie, "privacy_tip", "").temporary(),
+            new IndicatieItem(indicatie, "privacy_tip", "").temporary(),
           );
           break;
-        case InformatieobjectIndicatie.VERZONDEN:
+        case "VERZONDEN":
           this.indicaties.push(
-            new Indicatie(
+            new IndicatieItem(
               indicatie,
               "local_post_office",
-              this.getVerzondenToelichting(),
+              this.getVerzondenToelichting()?.toString() ?? "",
             ),
           );
           break;
+        default:
+          console.warn("Indicatie " + indicatie + " is niet gedefinieerd.");
       }
     });
   }
@@ -116,7 +111,7 @@ export class InformatieObjectIndicatiesComponent
     }
   }
 
-  private getVerzondenToelichting(): string {
+  private getVerzondenToelichting() {
     if (this.documentZoekObject) {
       return this.datumPipe.transform(this.documentZoekObject.verzenddatum);
     } else {

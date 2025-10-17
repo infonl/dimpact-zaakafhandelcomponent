@@ -64,10 +64,7 @@
     <mat-icon
       [attr.outlined]="actieveZoekopdracht == null ? true : null"
       title="{{
-        (actieveZoekopdracht
-          ? actieveZoekopdracht.naam
-          : 'actie.zoekopdracht.opslaan'
-        ) | translate
+        actieveZoekopdracht?.naam ?? 'actie.zoekopdracht.opslaan' | translate
       }}"
     >
       star

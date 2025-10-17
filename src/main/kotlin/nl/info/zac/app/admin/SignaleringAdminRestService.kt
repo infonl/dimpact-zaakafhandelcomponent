@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -18,17 +18,23 @@ import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
 import nl.info.zac.app.admin.model.RESTDeletedSignaleringenResponse
 import nl.info.zac.authentication.ActiveSession
+import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
-@Path("admin/signaleringen")
+/**
+ * Internal REST service to send signaleringen and delete old signaleringen.
+ * Not intended to be called by the ZAC frontend but rather by a system cron job or similar.
+ */
+@Path("internal/signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
+@InternalEndpoint
 class SignaleringAdminRestService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val eventingService: EventingService,

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -19,8 +19,8 @@ fun createScreenEvent(
     )
 
 fun createScreenEventId(
-    resource: String = "dummyResource",
-    detail: String = "dummyDetail"
+    resource: String = "fakeResource",
+    detail: String = "fakeDetail"
 ) =
     ScreenEventId(
         resource,

@@ -1,20 +1,21 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>
-    <mat-icon>error</mat-icon>
-    {{ "dialoog.titel.fout" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>error</mat-icon>
+  <span class="flex-grow-1">
+    {{ "dialoog.error.titel.algemeen" | translate }}
+  </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div mat-dialog-content>
-  <div>{{ data }}</div>
+  <div>{{ data | translate }}</div>
 </div>
 <div mat-dialog-actions>
   <button autofocus mat-raised-button (click)="close()">

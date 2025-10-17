@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.exception
@@ -13,17 +13,18 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import net.atos.client.bag.BagClientService
-import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
-import net.atos.zac.policy.exception.PolicyException
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.brp.BrpClientService
+import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
 import nl.info.zac.exception.ErrorCode
@@ -31,6 +32,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
@@ -41,7 +43,9 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -75,13 +79,13 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
-        when {
-            exception is WebApplicationException &&
-                Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
+        when (exception) {
+            is WebApplicationException if
+            Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception)
             }
             // handle execution exceptions thrown from asynchronous Java concurrent methods
-            exception is ExecutionException && (exception.cause is WebApplicationException) &&
+            is ExecutionException if (exception.cause is WebApplicationException) &&
                 Response.Status.Family.familyOf(
                     (
                         exception.cause as WebApplicationException
@@ -89,39 +93,40 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 ) != Response.Status.Family.SERVER_ERROR -> {
                 createResponse(exception.cause as WebApplicationException)
             }
-            exception is ZgwRuntimeException -> handleZgwRuntimeException(exception)
-            exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
+            is ZgwRuntimeException -> handleZgwRuntimeException(exception)
+            is ZgwValidationErrorException -> handleZgwValidationErrorException(exception)
+            is FlowableZgwValidationErrorException -> handleZgwValidationErrorException(exception.cause)
+            is ProcessingException if (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }
-            exception is PolicyException -> generateResponse(
+            is PolicyException -> generateResponse(
                 responseStatus = Response.Status.FORBIDDEN,
                 errorCode = ERROR_CODE_FORBIDDEN,
                 exception = exception
             )
-            exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
+            is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
                 exception = exception
             )
-            exception is InputValidationFailedException -> generateResponse(
+            is InputValidationFailedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
                 exception = exception
             )
-            exception is ServerErrorException -> generateResponse(
+            is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
+                exception = exception
+            )
+            is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
             )
             // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
-
-    private fun createResponse(exception: WebApplicationException) =
-        Response.status(exception.response.status)
-            .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
-            .build()
 
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
         when (exception) {
@@ -144,6 +149,15 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
+
+    private fun handleZgwValidationErrorException(exception: ZgwValidationErrorException): Response =
+        generateResponse(
+            responseStatus = Response.Status.BAD_REQUEST,
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_ZGW,
+            exception = exception,
+            // we only want to set the 'reason' field for the invalid parameters in the response
+            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason }
+        )
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
@@ -179,6 +193,35 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             }
         }
 
+    private fun createResponse(exception: WebApplicationException): Response =
+        Response.status(exception.response.status)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
+            .build()
+
+    private fun generateResponse(
+        responseStatus: Response.Status,
+        errorCode: ErrorCode? = null,
+        exception: Exception,
+        exceptionMessage: String? = null
+    ): Response = Response.status(responseStatus)
+        .type(MediaType.APPLICATION_JSON)
+        .entity(
+            getJSONMessage(
+                errorMessage = errorCode?.value ?: "",
+                exceptionMessage = exceptionMessage
+            )
+        )
+        .build().also {
+            log(
+                logger = LOG,
+                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
+                message = exception.message
+                    ?: "Exception was thrown. Returning response with error code: '${errorCode?.value}'.",
+                throwable = exception
+            )
+        }
+
     private fun generateServerErrorResponse(
         exception: Exception,
         errorCode: ErrorCode? = null,
@@ -189,29 +232,6 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         exception = exception,
         exceptionMessage = exceptionMessage
     )
-
-    private fun generateResponse(
-        responseStatus: Response.Status,
-        errorCode: ErrorCode,
-        exception: Exception,
-        exceptionMessage: String? = null
-    ) = Response.status(responseStatus)
-        .type(MediaType.APPLICATION_JSON)
-        .entity(
-            getJSONMessage(
-                errorMessage = errorCode.value,
-                exceptionMessage = exceptionMessage
-            )
-        )
-        .build().also {
-            log(
-                logger = LOG,
-                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
-                message = exception.message
-                    ?: "Exception was thrown. Returning response with error message: '${errorCode.value}'.",
-                throwable = exception
-            )
-        }
 
     private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
         try {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
@@ -17,9 +17,6 @@ import java.util.UUID
 data class RestDecisionChangeData(
     @field:NotNull
     var besluitUuid: UUID,
-
-    @field:NotNull
-    var resultaattypeUuid: UUID,
 
     var toelichting: String? = null,
 

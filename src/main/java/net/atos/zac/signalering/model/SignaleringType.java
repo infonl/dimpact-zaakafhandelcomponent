@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,7 +7,7 @@ package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
 import java.util.Arrays;
 import java.util.Collections;

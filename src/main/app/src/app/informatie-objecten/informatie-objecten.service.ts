@@ -1,27 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import moment from "moment";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { HistorieRegel } from "../shared/historie/model/historie-regel";
-import { createFormData } from "../shared/utils/form-data";
+import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { DocumentCreationData } from "./model/document-creation-data";
-import { DocumentCreationResponse } from "./model/document-creation-response";
-import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
-import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
-import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
-import { Informatieobjecttype } from "./model/informatieobjecttype";
-import { ZaakInformatieobject } from "./model/zaak-informatieobject";
-
-const formatDateForFormData = ([k, v]: [string, string]) =>
-  [k, v && moment(v).format("YYYY-MM-DDThh:mmZ")] as const;
 
 @Injectable({
   providedIn: "root",
@@ -29,120 +15,103 @@ const formatDateForFormData = ([k, v]: [string, string]) =>
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  // Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
+  /**
+   * Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
+   */
   readEnkelvoudigInformatieobject(uuid: string, zaakUuid?: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestEnkelvoudigInformatieobject">
-      >(InformatieObjectenService.addZaakParameter(`${this.basepath}/informatieobject/${uuid}`, zaakUuid))
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}",
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 
-  readEnkelvoudigInformatieobjectVersie(uuid: string, versie: number) {
-    return this.http
-      .get<
-        GeneratedType<"RestEnkelvoudigInformatieobject">
-      >(`${this.basepath}/informatieobject/versie/${uuid}/${versie}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readEnkelvoudigInformatieobjectVersie(uuid: string, version: number) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/versie/{uuid}/{version}",
+      {
+        path: { uuid, version },
+      },
+    );
   }
 
-  listInformatieobjecttypes(
-    zaakTypeID: string,
-  ): Observable<Informatieobjecttype[]> {
-    return this.http
-      .get<
-        Informatieobjecttype[]
-      >(`${this.basepath}/informatieobjecttypes/${zaakTypeID}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listInformatieobjecttypes(zaakTypeUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobjecttypes/{zaakTypeUuid}",
+      {
+        path: { zaakTypeUuid },
+      },
+    );
   }
 
-  listInformatieobjecttypesForZaak(
-    zaakUUID: string,
-  ): Observable<Informatieobjecttype[]> {
-    return this.http
-      .get<
-        Informatieobjecttype[]
-      >(`${this.basepath}/informatieobjecttypes/zaak/${zaakUUID}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listInformatieobjecttypesForZaak(zaakUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobjecttypes/zaak/{zaakUuid}",
+      {
+        path: { zaakUuid },
+      },
+    );
   }
 
   createEnkelvoudigInformatieobject(
     zaakUuid: string,
-    documentReferentieId: string,
+    documentReferenceId: string,
     infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
       bestand: File;
     },
     taakObject: boolean,
   ) {
-    const formData = createFormData(infoObject, {
-      bestandsnaam: true,
-      titel: true,
-      bestandsomvang: true,
-      formaat: true,
-      informatieobjectTypeUUID: true,
-      vertrouwelijkheidaanduiding: true,
-      status: true,
-      creatiedatum: formatDateForFormData,
-      ontvangstdatum: formatDateForFormData,
-      verzenddatum: formatDateForFormData,
-      auteur: true,
-      taal: true,
-      beschrijving: true,
-      bestand: ([, value]) => ["file", value, infoObject.bestandsnaam],
-    });
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(infoObject)) {
+      if (value === undefined || value === null) continue;
+      switch (key) {
+        case "creatiedatum":
+        case "ontvangstdatum":
+        case "verzenddatum":
+          formData.append(
+            key,
+            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
+          );
+          break;
+        case "bestand":
+          formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          break;
+        default:
+          formData.append(key, value.toString());
+          break;
+      }
+    }
 
-    return this.http
-      .post<GeneratedType<"RestEnkelvoudigInformatieobject">>(
-        `${this.basepath}/informatieobject/${zaakUuid}/${documentReferentieId}`,
-        formData,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-          params: {
-            taakObject,
-          },
-        },
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+      formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
+      {
+        path: { zaakUuid, documentReferenceId },
+        query: { taakObject },
+      },
+    );
   }
 
   createDocumentAttended(
-    documentCreationData: DocumentCreationData,
-  ): Observable<DocumentCreationResponse> {
-    return this.http
-      .post<DocumentCreationResponse>(
-        `rest/document-creation/create-document-attended`,
-        documentCreationData,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    documentCreationData: GeneratedType<"RestDocumentCreationAttendedData">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/document-creation/create-document-attended",
+      documentCreationData,
+    );
   }
 
   readHuidigeVersieEnkelvoudigInformatieObject(uuid: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
-      >(`${this.basepath}/informatieobject/${uuid}/huidigeversie`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/huidigeversie",
+      {
+        path: { uuid },
+      },
+    );
   }
 
   updateEnkelvoudigInformatieobject(
@@ -150,147 +119,125 @@ export class InformatieObjectenService {
     zaakUuid: string,
     infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
-    const formData = createFormData(
-      { ...infoObject, uuid, zaakUuid },
-      {
-        uuid: true,
-        zaakUuid: true,
-        titel: true,
-        vertrouwelijkheidaanduiding: true,
-        auteur: true,
-        status: true,
-        taal: ([k, v]) => [k, JSON.stringify(v)],
-        bestandsnaam: true,
-        formaat: true,
-        file: ([k, v]) => [k, v as unknown as Blob, infoObject.bestandsnaam],
-        beschrijving: true,
-        verzenddatum: formatDateForFormData,
-        ontvangstdatum: formatDateForFormData,
-        toelichting: true,
-        informatieobjectTypeUUID: true,
-      },
-    );
+    const formData = new FormData();
+    const data = { ...infoObject, uuid, zaakUuid };
+    for (const [key, value] of Object.entries(data)) {
+      if (value === undefined || value === null) continue;
+      switch (key) {
+        case "ontvangstdatum":
+        case "verzenddatum":
+          formData.append(
+            key,
+            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
+          );
+          break;
+        case "file":
+          formData.append(
+            "file",
+            value as unknown as Blob,
+            infoObject.bestandsnaam!,
+          );
+          break;
+        case "taal":
+          formData.append(key, JSON.stringify(value));
+          break;
+        default:
+          formData.append(key, value.toString());
+          break;
+      }
+    }
 
-    return this.http
-      .post<GeneratedType<"RestEnkelvoudigInformatieobject">>(
-        `${this.basepath}/informatieobject/update`,
-        formData,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        },
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/update",
+      formData as PostBody<"/rest/informatieobjecten/informatieobject/update">,
+    );
   }
 
   listEnkelvoudigInformatieobjecten(
-    zoekParameters: InformatieobjectZoekParameters,
+    body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
   ) {
-    return this.http
-      .put<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[]
-      >(`${this.basepath}/informatieobjectenList`, zoekParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.PUT(
+      "/rest/informatieobjecten/informatieobjectenList",
+      body,
+    );
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestEnkelvoudigInformatieobject">
-      >(`${this.basepath}/zaakinformatieobject/${uuid}/informatieobject`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/zaakinformatieobject/{uuid}/informatieobject",
+      {
+        path: { uuid },
+      },
+    );
   }
 
-  listZaakInformatieobjecten(uuid: string): Observable<ZaakInformatieobject[]> {
-    return this.http
-      .get<
-        ZaakInformatieobject[]
-      >(`${this.basepath}/informatieobject/${uuid}/zaakinformatieobjecten`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZaakInformatieobjecten(uuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/zaakinformatieobjecten",
+      {
+        path: { uuid },
+      },
+    );
   }
 
   listInformatieobjectenVoorVerzenden(zaakUuid: string) {
-    return this.http
-      .get<
-        GeneratedType<"RestEnkelvoudigInformatieobject">[]
-      >(`${this.basepath}/informatieobjecten/zaak/${zaakUuid}/teVerzenden`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
+      {
+        path: { zaakUuid },
+      },
+    );
   }
 
   verzenden(
-    gegevens: DocumentVerzendGegevens,
-  ): Observable<DocumentCreationResponse> {
-    return this.http
-      .post<DocumentCreationResponse>(
-        `${this.basepath}/informatieobjecten/verzenden`,
-        gegevens,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/informatieobjecten/informatieobjecten/verzenden">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobjecten/verzenden",
+      body,
+    );
   }
 
-  listHistorie(uuid: string): Observable<HistorieRegel[]> {
-    return this.http
-      .get<
-        HistorieRegel[]
-      >(`${this.basepath}/informatieobject/${uuid}/historie`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listHistorie(uuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/historie",
+      {
+        path: { uuid },
+      },
+    );
   }
 
   lockInformatieObject(uuid: string, zaakUuid: string) {
-    return this.http
-      .post<void>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}/lock`,
-          zaakUuid,
-        ),
-        null,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/lock",
+      undefined as never,
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 
   unlockInformatieObject(uuid: string, zaakUuid: string) {
-    return this.http
-      .post<void>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}/unlock`,
-          zaakUuid,
-        ),
-        null,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
+      undefined as never,
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 
   ondertekenInformatieObject(uuid: string, zaakUuid: string) {
-    return this.http
-      .post<void>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}/onderteken`,
-          zaakUuid,
-        ),
-        null,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/onderteken",
+      undefined as never,
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 
   getDownloadURL(uuid: string, versie?: number): string {
@@ -300,100 +247,70 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(uuids: string[]): Observable<Blob> {
-    return this.http
-      .post(`${this.basepath}/download/zip`, uuids, { responseType: "blob" })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  getZIPDownload(body: PostBody<"/rest/informatieobjecten/download/zip">) {
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/download/zip",
+      body,
+      {
+        responseType: "blob",
+      } as Record<string, unknown>,
+    );
   }
 
-  getUploadURL(documentReferentieId: string): string {
-    return `${this.basepath}/informatieobject/upload/${documentReferentieId}`;
-  }
-
-  getPreviewUrl(uuid: string, versie?: number): string {
-    let url = `${this.basepath}/informatieobject/${uuid}/preview`;
+  getPreviewUrl(uuid: string, versie?: number | null): string {
     if (versie) {
-      url = `${this.basepath}/informatieobject/${uuid}/${versie}/preview`;
+      return `${this.basepath}/informatieobject/${uuid}/${versie}/preview`;
     }
-    return url;
+    return `${this.basepath}/informatieobject/${uuid}/preview`;
   }
 
-  editEnkelvoudigInformatieObjectInhoud(
-    uuid: string,
-    zaakUuid: string,
-  ): Observable<string> {
-    return this.http
-      .get<string>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}/edit`,
-          zaakUuid,
-        ),
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  editEnkelvoudigInformatieObjectInhoud(uuid: string, zaakUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{uuid}/edit",
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 
   linkDocumentToCase(
-    linkDocumentDetails: GeneratedType<"RESTDocumentVerplaatsGegevens">,
-  ): Observable<void> {
-    return this.http
-      .post<void>(
-        `${this.basepath}/informatieobject/verplaats`,
-        linkDocumentDetails,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/informatieobjecten/informatieobject/verplaats">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/verplaats",
+      body,
+    );
   }
 
   deleteEnkelvoudigInformatieObject(
     uuid: string,
-    zaakUuid: string,
-    reden: string,
-  ): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/informatieobject/${uuid}`, {
-        body: new DocumentVerwijderenGegevens(zaakUuid, reden),
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">,
+  ) {
+    return this.zacHttpClient.DELETE(
+      "/rest/informatieobjecten/informatieobject/{uuid}",
+      { path: { uuid } },
+      body,
+    );
   }
 
-  listZaakIdentificatiesForInformatieobject(
-    documentUUID: string,
-  ): Observable<string[]> {
-    return this.http
-      .get<
-        string[]
-      >(`${this.basepath}/informatieobject/${documentUUID}/zaakidentificaties`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZaakIdentificatiesForInformatieobject(informatieObjectUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/informatieobjecten/informatieobject/{informatieObjectUuid}/zaakidentificaties",
+      {
+        path: { informatieObjectUuid },
+      },
+    );
   }
 
   convertInformatieObjectToPDF(uuid: string, zaakUuid: string) {
-    return this.http
-      .post<void>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}/convert`,
-          zaakUuid,
-        ),
-        null,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  private static addZaakParameter(url: string, zaakUuid?: string): string {
-    if (zaakUuid) {
-      return url.concat(`?zaak=${zaakUuid}`);
-    } else {
-      return url;
-    }
+    return this.zacHttpClient.POST(
+      "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+      undefined as never,
+      {
+        path: { uuid },
+        query: { zaak: zaakUuid },
+      },
+    );
   }
 }

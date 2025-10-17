@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package nl.info.zac.signalering.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringSubject
@@ -14,10 +13,25 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.app.signalering.model.RestSignaleringInstellingen
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
+
+fun createRestSignaleringInstellingen(
+    id: Long = 1234L,
+    type: SignaleringType = createSignaleringType(),
+    isDashboard: Boolean = true,
+    isMail: Boolean = true,
+) = RestSignaleringInstellingen(
+    id = id,
+    type = type.type,
+    subjecttype = type.subjecttype,
+    dashboard = isDashboard,
+    mail = isMail
+)
 
 @Suppress("LongParameterList")
 fun createSignalering(
@@ -55,7 +69,7 @@ fun createSignaleringInstellingen(
         this.subjecttype = SignaleringSubject.ZAAK
     },
     ownerType: SignaleringTarget = SignaleringTarget.USER,
-    ownerId: String = "dummyMedewerker",
+    ownerId: String = "fakeMedewerker",
     isDashboard: Boolean = true,
     isMail: Boolean = true,
 ) =
@@ -71,7 +85,7 @@ fun createSignaleringInstellingen(
 
 fun createSignaleringZoekParameters(
     signaleringSubject: SignaleringSubject = SignaleringSubject.ZAAK,
-    subject: String = "dummySubject"
+    subject: String = "fakeSubject"
 ) = SignaleringZoekParameters(
     signaleringSubject,
     subject

@@ -1,15 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { TextareaFormField } from "./textarea-form-field";
 
-export class TextareaFormFieldBuilder extends AbstractFormFieldBuilder {
-  readonly formField: TextareaFormField;
+export class TextareaFormFieldBuilder<
+  T extends string,
+> extends AbstractFormFieldBuilder<T> {
+  readonly formField: TextareaFormField<T>;
 
-  constructor(value?: any) {
+  constructor(value?: T | null) {
     super();
     this.formField = new TextareaFormField();
     this.formField.initControl(value);

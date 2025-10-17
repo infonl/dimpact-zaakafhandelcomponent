@@ -4,11 +4,9 @@
  */
 
 import { UtilService } from "../../core/service/util.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 /**
@@ -16,19 +14,23 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
  */
 export class ZakenMijnDatasource extends ZoekenDataSource<ZaakZoekObject> {
   constructor(zoekenService: ZoekenService, utilService: UtilService) {
-    super(Werklijst.MIJN_ZAKEN, zoekenService, utilService);
+    super("MIJN_ZAKEN", zoekenService, utilService);
   }
 
-  protected initZoekparameters(zoekParameters: ZoekParameters) {
-    ZakenMijnDatasource.mijnLopendeZaken(zoekParameters);
+  protected initZoekparameters(
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return ZakenMijnDatasource.mijnLopendeZaken(zoekParameters);
   }
 
   public static mijnLopendeZaken(
-    zoekParameters: ZoekParameters,
-  ): ZoekParameters {
-    zoekParameters.type = ZoekObjectType.ZAAK;
-    zoekParameters.alleenMijnZaken = true;
-    zoekParameters.alleenOpenstaandeZaken = true;
-    return zoekParameters;
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return {
+      ...zoekParameters,
+      type: "ZAAK",
+      alleenOpenstaandeZaken: true,
+      alleenMijnZaken: true,
+    } satisfies GeneratedType<"RestZoekParameters">;
   }
 }

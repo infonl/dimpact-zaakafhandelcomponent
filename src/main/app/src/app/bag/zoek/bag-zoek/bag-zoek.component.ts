@@ -10,16 +10,13 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 import { MatTable, MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { UtilService } from "../../../core/service/util.service";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BAGService } from "../../bag.service";
-import { Adres } from "../../model/adres";
-import { BAGObject } from "../../model/bagobject";
-import { BAGObjecttype } from "../../model/bagobjecttype";
-import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 
 @Component({
   selector: "zac-bag-zoek",
@@ -27,16 +24,17 @@ import { ListAdressenParameters } from "../../model/list-adressen-parameters";
   styleUrls: ["./bag-zoek.component.less"],
 })
 export class BagZoekComponent {
-  @Output() bagObject = new EventEmitter<BAGObject>();
-  @Input() gekoppeldeBagObjecten: BAGObject[];
-  @Input() sideNav: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) table: MatTable<BAGObject>;
-  BAGObjecttype = BAGObjecttype;
+  @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
+  @Input() gekoppeldeBagObjecten:
+    | GeneratedType<"RESTBAGObject">[]
+    | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
+  @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
+  @ViewChild(MatTable) table!: MatTable<GeneratedType<"RESTBAGObject">>;
   trefwoorden = new FormControl("", [Validators.maxLength(255)]);
-  bagObjecten: MatTableDataSource<BAGObject> =
-    new MatTableDataSource<BAGObject>();
+  bagObjecten = new MatTableDataSource<
+    GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
+  >();
   loading = false;
-  formGroup: FormGroup;
   columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
 
   constructor(
@@ -51,87 +49,113 @@ export class BagZoekComponent {
       this.loading = true;
       this.utilService.setLoading(true);
       this.bagService
-        .listAdressen(new ListAdressenParameters(this.trefwoorden.value))
+        .listAdressen({
+          trefwoorden: this.trefwoorden.value,
+        })
+
         .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten;
+          this.bagObjecten.data = adressen.resultaten ?? [];
           this.loading = false;
           this.utilService.setLoading(false);
         });
     }
   }
 
-  selectBagObject(bagObject: BAGObject): void {
-    this.gekoppeldeBagObjecten.push(bagObject);
+  selectBagObject(bagObject: GeneratedType<"RESTBAGObject">): void {
+    if (this.gekoppeldeBagObjecten instanceof FormControl) {
+      this.gekoppeldeBagObjecten.setValue([
+        ...(this.gekoppeldeBagObjecten.value ?? []),
+        bagObject,
+      ]);
+    } else {
+      this.gekoppeldeBagObjecten.push(bagObject);
+    }
     this.bagObject.emit(bagObject);
   }
 
-  expandable(bagObject: BAGObject) {
-    if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
-      const adres: Adres = bagObject as Adres;
-      return (
-        adres.openbareRuimte ||
-        adres.nummeraanduiding ||
-        adres.woonplaats ||
-        adres.panden?.length
-      );
+  expandable(bagObject: GeneratedType<"RESTBAGObject">) {
+    if (bagObject.bagObjectType !== "ADRES") {
+      return false;
     }
-    return false;
+
+    const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
+    return (
+      adres.openbareRuimte ||
+      adres.nummeraanduiding ||
+      adres.woonplaats ||
+      adres.panden?.length
+    );
   }
 
-  expand(bagObject) {
+  expand(
+    bagObject: GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+      expanded: boolean;
+    },
+  ) {
     this.bagObjecten.data = this.bagObjecten.data.filter(
-      (b) => b["child"] !== true,
+      (b) => (b as { child?: boolean })["child"] !== true,
     );
     if (bagObject.expanded) {
       bagObject.expanded = false;
       return;
     }
 
-    this.bagObjecten.data.forEach((b) => (b["expanded"] = false));
+    this.bagObjecten.data.forEach(
+      (b) => ((b as { expanded?: boolean })["expanded"] = false),
+    );
     bagObject.expanded = true;
 
-    const childeren: BAGObject[] = [];
-    if (bagObject.bagObjectType === BAGObjecttype.ADRES) {
-      const adres: Adres = bagObject as Adres;
+    const children: (GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
+      expanded?: boolean;
+      child?: boolean;
+    })[] = [];
+    if (bagObject.bagObjectType === "ADRES") {
+      const adres: GeneratedType<"RESTBAGAdres"> = bagObject;
       if (adres.nummeraanduiding) {
-        childeren.push(adres.nummeraanduiding);
+        children.push(adres.nummeraanduiding);
       }
       if (adres.openbareRuimte) {
-        childeren.push(adres.openbareRuimte);
+        children.push(adres.openbareRuimte);
       }
       if (adres.woonplaats) {
-        childeren.push(adres.woonplaats);
+        children.push(adres.woonplaats);
       }
       if (adres.panden?.length) {
-        adres.panden.forEach((p) => childeren.push(p));
+        adres.panden.forEach((p) => children.push(p));
       }
     }
-    childeren.forEach((d) => (d["child"] = true));
+    children.forEach((d) => (d["child"] = true));
     this.bagObjecten.data.splice(
       this.bagObjecten.data.indexOf(bagObject) + 1,
       0,
-      ...childeren,
+      ...children,
     );
     this.table.renderRows();
   }
 
-  reedsGekoppeld(row: BAGObject): boolean {
-    if (this.gekoppeldeBagObjecten?.length) {
-      return this.gekoppeldeBagObjecten.some(
-        (b) =>
-          b.identificatie === row.identificatie &&
-          b.bagObjectType === row.bagObjectType,
-      );
-    }
-    return false;
+  reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+    const objects =
+      this.gekoppeldeBagObjecten instanceof FormControl
+        ? (this.gekoppeldeBagObjecten.value ?? [])
+        : this.gekoppeldeBagObjecten;
+    return objects.some(
+      (b) =>
+        b.identificatie === row.identificatie &&
+        b.bagObjectType === row.bagObjectType,
+    );
   }
 
-  openBagTonenPagina(bagObject: BAGObject): void {
+  openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">): void {
     this.sideNav?.close();
     this.router.navigate([
       "/bag-objecten",
-      bagObject.bagObjectType.toLowerCase(),
+      bagObject.bagObjectType?.toLowerCase(),
       bagObject.identificatie,
     ]);
+  }
+
+  wissen() {
+    this.trefwoorden.reset();
+    this.bagObjecten.data = [];
   }
 }

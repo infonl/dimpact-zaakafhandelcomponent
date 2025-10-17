@@ -1,17 +1,16 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024-2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title" *ngIf="bagObject.observed">
-  <h3>
-    <mat-icon>add_home_work</mat-icon>
-    {{ "actie.bagObject.toevoegen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16" *ngIf="bagObject.observed">
+  <mat-icon>add_home_work</mat-icon>
+  <h3 class="flex-grow-1">{{ "actie.bagObject.koppelen" | translate }}</h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
-  </button>
-</div>
+  </button></mat-toolbar
+>
+<mat-divider></mat-divider>
 
 <div class="form">
   <div class="flex-row flex-col-md gap-10 flex-wrap">
@@ -37,9 +36,22 @@
           placeholder="{{ 'msg.zoeken.bagObject.label' | translate }}"
           [formControl]="trefwoorden"
         />
-        <mat-hint align="end">{{ trefwoorden.value.length }}/255</mat-hint>
+        <mat-hint align="end"
+          >{{ trefwoorden.value?.length ?? 0 }}/255</mat-hint
+        >
       </mat-form-field>
     </div>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="trefwoorden.invalid || loading"
+      (click)="zoek()"
+    >
+      {{ "actie.zoeken" | translate }}
+    </button>
+    <button mat-raised-button (click)="wissen()">
+      {{ "actie.wissen" | translate }}
+    </button>
   </div>
 </div>
 
@@ -90,25 +102,23 @@
         mat-cell
         [ngSwitch]="bagObject.bagObjectType"
       >
-        <span *ngSwitchCase="BAGObjecttype.ADRES">
+        <span *ngSwitchCase="'ADRES'">
           {{ bagObject.openbareRuimteNaam }} {{ bagObject.huisnummerWeergave }},
           {{ bagObject.postcode }} {{ bagObject.woonplaatsNaam }}
         </span>
-        <span *ngSwitchCase="BAGObjecttype.NUMMERAANDUIDING"
+        <span *ngSwitchCase="'NUMMERAANDUIDING'"
           >{{ bagObject.huisnummerWeergave }} ({{ bagObject.postcode }})</span
         >
-        <span *ngSwitchCase="BAGObjecttype.PAND">
+        <span *ngSwitchCase="'PAND'">
           {{ "bouwjaar" | translate }}:
           {{ bagObject.oorspronkelijkBouwjaar }} ({{
             "bagObject.pand.status." + bagObject.status | translate
           }})
         </span>
-        <span *ngSwitchCase="BAGObjecttype.OPENBARE_RUIMTE"
+        <span *ngSwitchCase="'OPENBARE_RUIMTE'"
           >{{ bagObject.naam }} ({{ bagObject.type }})</span
         >
-        <span *ngSwitchCase="BAGObjecttype.WOONPLAATS">{{
-          bagObject.naam
-        }}</span>
+        <span *ngSwitchCase="'WOONPLAATS'">{{ bagObject.naam }}</span>
       </td>
     </ng-container>
     <ng-container matColumnDef="acties" stickyEnd>
@@ -120,7 +130,7 @@
           color="primary"
           [disabled]="reedsGekoppeld(row)"
           (click)="selectBagObject(row)"
-          title="{{ 'actie.selecteren' | translate }}"
+          title="{{ 'actie.koppelen' | translate }}"
         >
           <mat-icon>add_home_work</mat-icon>
         </button>
@@ -142,8 +152,13 @@
       *matRowDef="let bagObject; columns: columns"
     ></tr>
   </table>
-  <p *ngIf="bagObjecten.data.length == 0 && !loading">
+  <p *ngIf="bagObjecten.data.length === 0 && !loading">
     {{ "msg.geen.gegevens.gevonden" | translate }}
   </p>
   <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+  <mat-action-row class="px-3">
+    <button mat-raised-button (click)="sideNav.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
 </div>

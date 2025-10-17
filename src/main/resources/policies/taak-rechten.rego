@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # When updating this file, please make sure to also update the policy documentation
@@ -18,7 +18,7 @@ taak_rechten := {
     "lezen": lezen,
     "wijzigen": wijzigen,
     "toekennen": toekennen,
-    "creeeren_document": creeeren_document,
+    "creeren_document": creeren_document,
     "toevoegen_document": toevoegen_document
 }
 
@@ -48,8 +48,8 @@ toekennen if {
     zaaktype_allowed
 }
 
-default creeeren_document := false
-creeeren_document if {
+default creeren_document := false
+creeren_document if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     taak.open

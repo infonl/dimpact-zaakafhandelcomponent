@@ -1,18 +1,23 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -39,11 +44,15 @@ class ZaakZoekObjectConverter @Inject constructor(
 
     @Suppress("LongMethod")
     private fun convert(zaak: Zaak): ZaakZoekObject {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
             id = zaak.uuid.toString(),
-            type = ZoekObjectType.ZAAK.name
+            type = ZoekObjectType.ZAAK.name,
+            identificatie = zaak.identificatie,
+            zaaktypeIdentificatie = zaaktype.identificatie,
+            zaaktypeOmschrijving = zaaktype.omschrijving,
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
-            identificatie = zaak.identificatie
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = convertToDate(zaak.registratiedatum)
@@ -54,24 +63,25 @@ class ZaakZoekObjectConverter @Inject constructor(
             publicatiedatum = convertToDate(zaak.publicatiedatum)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
-            isAfgehandeld = !zaak.isOpen
+            isAfgehandeld = !zaak.isOpen()
             zgwApiService.findInitiatorRoleForZaak(zaak)?.also(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
             archiefActiedatum = convertToDate(zaak.archiefactiedatum)
-            if (zaak.isVerlengd) {
+            if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
-                duurVerlenging = zaak.verlenging.duur.toString()
+                duurVerlenging = zaak.verlenging.duur
                 redenVerlenging = zaak.verlenging.reden
             }
-            if (zaak.isOpgeschort) {
+            if (zaak.isOpgeschort()) {
                 redenOpschorting = zaak.opschorting.reden
                 setIndicatie(ZaakIndicatie.OPSCHORTING, true)
             }
-            zaak.archiefnominatie?.let { archiefNominatie = it.toString() }
-            setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak)
-            setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.is_Hoofdzaak)
+            // we use the name of this enum in the search index (i.e., capitalized)
+            zaak.archiefnominatie?.let { archiefNominatie = it.name }
+            setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak())
+            setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.isHoofdzaak())
         }
         addBetrokkenen(zaak, zaakZoekObject)
         findGroup(zaak)?.let {
@@ -83,11 +93,6 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaakZoekObject.behandelaarGebruikersnaam = it.id
             zaakZoekObject.isToegekend = true
         }
-        ztcClientService.readZaaktype(zaak.zaaktype).let {
-            zaakZoekObject.zaaktypeIdentificatie = it.identificatie
-            zaakZoekObject.zaaktypeOmschrijving = it.omschrijving
-            zaakZoekObject.zaaktypeUuid = it.url.extractUuid().toString()
-        }
         zaak.status?.let {
             val status = zrcClientService.readStatus(it)
             zaakZoekObject.statusToelichting = status.statustoelichting
@@ -95,11 +100,11 @@ class ZaakZoekObjectConverter @Inject constructor(
             val statustype = ztcClientService.readStatustype(status.statustype)
             zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
             zaakZoekObject.isStatusEindstatus = statustype.isEindstatus
-            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, StatusTypeUtil.isHeropend(statustype))
+            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, statustype.isHeropend())
         }
         zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
         zaak.resultaat?.let { zaakResultaat ->
-            zrcClientService.readResultaat(zaakResultaat)?.let { resultaat ->
+            zrcClientService.readResultaat(zaakResultaat).let { resultaat ->
                 ztcClientService.readResultaattype(resultaat.resultaattype).let { resultaattype ->
                     zaakZoekObject.resultaattypeOmschrijving = resultaattype.omschrijving
                     zaakZoekObject.resultaatToelichting = resultaat.toelichting
@@ -111,8 +116,16 @@ class ZaakZoekObjectConverter @Inject constructor(
     }
 
     private fun addBetrokkenen(zaak: Zaak, zaakZoekObject: ZaakZoekObject) {
-        for (rol in zrcClientService.listRollen(zaak)) {
-            zaakZoekObject.addBetrokkene(rol.omschrijving, rol.identificatienummer)
+        for (role in zrcClientService.listRollen(zaak)) {
+            // It is possible for a role in the ZGW zaakregister to not have an identification number.
+            // This can happen when a rol for some reason no longer has an underlying 'identity' object (like a Natuurlijk Persoon etc.).
+            // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
+            role.identificatienummer?.run {
+                zaakZoekObject.addBetrokkene(
+                    rol = role.omschrijving,
+                    identificatie = this
+                )
+            }
         }
     }
 
@@ -134,6 +147,6 @@ class ZaakZoekObjectConverter @Inject constructor(
             .results
             .filter { it.isBagObject }
             .map { it.waarde }
-            .let { if (it.isNotEmpty()) it else emptyList() }
+            .let { it.ifEmpty { emptyList() } }
     }
 }

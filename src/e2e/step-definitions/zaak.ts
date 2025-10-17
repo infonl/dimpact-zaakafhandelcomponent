@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import fs from "fs";
+import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
@@ -20,8 +21,8 @@ const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
 
 async function checkZaakAssignment(
   this: CustomWorld,
-  zaakNumber: any,
-  userProfile: any,
+  zaakNumber: number,
+  userProfile: { group: string; username: string },
 ) {
   await this.expect(
     this.page
@@ -49,6 +50,13 @@ async function checkZaakAssignment(
   ).toBeVisible();
 }
 
+async function openZaak(this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  worldUsers.parse(user);
+  const caseNumber = this.testStorage.get("caseNumber");
+
+  await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`);
+}
+
 Given(
   "Employee {string} is on the newly created zaak with status {string}",
   { timeout: ONE_MINUTE_IN_MS },
@@ -57,18 +65,20 @@ Given(
     user: z.infer<typeof worldUsers>,
     status: z.infer<typeof zaakStatus>,
   ) {
-    worldUsers.parse(user);
-    const caseNumber = this.testStorage.get("caseNumber");
+    await openZaak.call(this, user, status);
 
     const parsedStatus = zaakStatus.parse(status);
-
-    await this.page.goto(
-      `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
-    );
-
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
     ).toBeVisible();
+  },
+);
+
+Given(
+  "Employee {string} is on the newly created zaak",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await openZaak.call(this, user);
   },
 );
 
@@ -86,17 +96,12 @@ When(
 
     await this.page.getByText("Aanvullende informatie").first().click();
 
-    await this.page.getByText("- Kies een e-mailadres -").first().click();
     await this.page
-      .getByText("E2etestuser1@team-dimpact.info.nl")
-      .first()
-      .click();
-    await this.page
-      .getByLabel("E-mailadres")
+      .locator("mat-label", { hasText: "E-mailadres" })
       .first()
       .fill("e2e-test@team-dimpact.info.nl");
 
-    await this.page.getByPlaceholder("- Kies een groep -").first().click();
+    await this.page.getByLabel("Taak toekennen aan groep").first().click();
     await this.page
       .getByRole("option", { name: user2Profile.group })
       .first()
@@ -117,25 +122,69 @@ When(
 );
 
 When(
-  "{string} wants to create a new zaak",
+  "Employee {string} assigns the zaak to group {string} and user {string}",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    groupName: string,
+    userName: string,
+  ) {
+    await this.page
+      .getByRole("tabpanel", { name: "Gegevens" })
+      .getByRole("button")
+      .click();
+    await this.page
+      .getByRole("combobox", { name: "Groep" })
+      .locator("svg")
+      .click();
+    await this.page.getByText(groupName).click();
+    await this.page
+      .getByRole("combobox", { name: "Behandelaar Kies een" })
+      .locator("svg")
+      .click();
+    await this.page.getByText(userName, { exact: true }).click();
+    await this.page.getByRole("textbox", { name: "Reden" }).click();
+    await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
+    await this.page.getByRole("button", { name: "Opslaan" }).click();
+    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
+      groupName,
+    );
+    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
+      userName,
+    );
+  },
+);
+
+When(
+  "{string} wants to create a new {string} zaak",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    zaakType: string,
+  ) {
+    const bpmnZaakType: boolean = zaakType === "BPMN";
+    const zaakTypeName: string = bpmnZaakType
+      ? "Zaaktype voor BPMN e2e testen"
+      : "Zaaktype voor e2e testen";
+
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
-    await this.page
-      .getByRole("option", { name: "Zaaktype voor e2e testen" })
-      .click();
-    await this.page
-      .locator("div")
-      .filter({ hasText: /^person$/ })
-      .click();
-    await this.page.getByLabel("BSN").click();
-    await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
-    await this.page
-      .getByLabel("emoji_people Persoon")
-      .getByRole("button", { name: "Zoeken" })
-      .click();
-    await this.page.getByRole("button", { name: "Select" }).click();
+    await this.page.getByRole("option", { name: zaakTypeName }).click();
+    if (!bpmnZaakType) {
+      await this.page
+        .locator("div")
+        .filter({ hasText: /^person$/ })
+        .click();
+      await this.page.getByLabel("BSN").click();
+      await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
+      await this.page
+        .getByLabel("emoji_people Persoon")
+        .getByRole("button", { name: "Zoeken" })
+        .click();
+      await this.page.getByRole("button", { name: "Select" }).click();
+    }
     await this.page
       .locator("div")
       .filter({ hasText: /^gps_fixed$/ })
@@ -147,14 +196,17 @@ When(
       .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
       .press("Enter");
     await this.page
-      .getByRole("row", {
-        name: "Meelbeskamp 49, 1112GV Diemen",
-      })
-      .getByTitle("Selecteren")
+      .getByRole("row", { name: /1112GV/ })
+      .first()
+      .getByRole("button", { name: "Koppelen" })
       .click();
-    await this.page.getByText("close").click();
+    await this.page
+      .locator("mat-toolbar button mat-icon", { hasText: "close" })
+      .click();
 
-    const group = this.page.getByPlaceholder("kies een groep");
+    const group = this.page.getByRole("combobox", {
+      name: "Zaak toekennen aan groep",
+    });
     await group.fill("test gr");
     await group.focus();
     await this.page.getByRole("listbox").first().click();
@@ -230,8 +282,9 @@ Then(
   "{string} sees the created zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.waitForTimeout(3000);
+    await this.page.reload();
     const caseNumber = this.testStorage.get("caseNumber");
-
     await this.page
       .getByText(caseNumber)
       .first()
@@ -250,6 +303,16 @@ Then(
     ).toBeVisible();
     await this.expect(
       this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER),
+    ).toBeVisible();
+  },
+);
+
+Then(
+  "{string} sees the indication that no acknowledgment has been sent",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.expect(
+      this.page.getByRole("option", { name: "Geen bevestiging verstuurd" }),
     ).toBeVisible();
   },
 );
@@ -286,15 +349,14 @@ Then(
     const filePath = "ExportData/" + suggestedFileName;
     await download.saveAs(filePath);
 
-    const pdf = require("pdf-parse");
     const dataBuffer = fs.readFileSync("./ExportData/" + suggestedFileName);
-    await pdf(dataBuffer).then(function (data: any) {
-      fs.writeFileSync("./ExportData/actual.txt", data.text);
-    });
-
-    let actual_export_values = fs
-      .readFileSync("./ExportData/actual.txt", "utf-8")
-      .replace(/(\r\n|\n|\r)/gm, "");
-    this.expect(actual_export_values).toContain(openFormsTestId);
+    const parser = new PDFParse({ data: dataBuffer });
+    try {
+      const pdfText = await parser.getText();
+      let actual_export_values = pdfText.text.replace(/(\r\n|\n|\r)/gm, "");
+      this.expect(actual_export_values).toContain(openFormsTestId);
+    } finally {
+      await parser.destroy();
+    }
   },
 );

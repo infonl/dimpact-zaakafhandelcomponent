@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,16 +16,16 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
 
@@ -47,12 +47,12 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         lateinit var besluitUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            JSONObject(body!!.string()).run {
+            JSONObject(body.string()).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
                 }
@@ -61,7 +61,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            JSONArray(body!!.string()).getJSONObject(0).run {
+            JSONArray(body.string()).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
             }
         }
@@ -78,13 +78,13 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body!!.string()}" }
-            code shouldBe HTTP_STATUS_NO_CONTENT
+            logger.info { "Response: ${body.string()}" }
+            code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
-            with(JSONArray(body!!.string())) {
+            with(JSONArray(body.string())) {
                 // we expect 4 resultaat types for this zaak type
                 shouldHaveSize(4)
                 resultaatType1Uuid = getJSONObject(0).getString("id").let(UUID::fromString)
@@ -92,9 +92,9 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+            "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
-            with(JSONArray(body!!.string())) {
+            with(JSONArray(body.string())) {
                 // we expect 2 besluit types for this zaak type
                 shouldHaveSize(2)
                 besluitType1Uuid = getJSONObject(0).getString("id").let(UUID::fromString)
@@ -114,7 +114,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     "zaakUuid":"$zaakUUID",
                     "resultaattypeUuid":"$resultaatType1Uuid",
                     "besluittypeUuid":"$besluitType1Uuid",
-                    "toelichting":"dummyToelichting",
+                    "toelichting":"fakeToelichting",
                     "ingangsdatum":"$today",
                     "vervaldatum":"$tomorrow",
                     "publicationDate": "$publicationDate",
@@ -122,22 +122,22 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 }
                 """.trimIndent()
             ).run {
-                logger.info { "Response: ${body!!.string()}" }
-                code shouldBe HTTP_STATUS_OK
+                logger.info { "Response: ${body.string()}" }
+                code shouldBe HTTP_OK
             }
 
             Then("the besluit has been created successfully") {
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
                 ).use { response ->
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     besluiten.getJSONObject(0).run {
                         getString("uuid") shouldNotBe null
-                        getString("toelichting") shouldBe "dummyToelichting"
+                        getString("toelichting") shouldBe "fakeToelichting"
                         getString("ingangsdatum") shouldBe today.toString()
                         getString("vervaldatum") shouldBe tomorrow.toString()
                         getString("publicationDate") shouldBe publicationDate.toString()
@@ -160,7 +160,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             val fatalDate = LocalDate.now().plusDays(2)
             val newPublicationDate = LocalDate.now().plusMonths(3)
             val newResponseDate = LocalDate.now().plusMonths(4)
-            val updateReason = "dummyBesluitUpdateToelichting"
+            val updateReason = "fakeBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
@@ -175,9 +175,9 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 }
                 """.trimIndent()
             ).use { response ->
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("isIngetrokken", false)
                     shouldContainJsonKeyValue("toelichting", updateReason)
@@ -188,9 +188,9 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
                 ).use { response ->
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     besluiten.getJSONObject(0).run {
@@ -218,17 +218,17 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 requestBodyAsString = """
             {
                 "besluitUuid":"$besluitUuid",
-                "reden":"dummyReason",
+                "reden":"fakeReason",
                 "vervalreden":"ingetrokken_belanghebbende"
             }
                 """.trimIndent()
             ).use { response ->
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("isIngetrokken", true)
-                    shouldContainJsonKeyValue("toelichting", "dummyBesluitUpdateToelichting")
+                    shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
                     shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
                 }
             }
@@ -237,14 +237,14 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
                 ).use { response ->
-                    val responseBody = response.body!!.string()
+                    val responseBody = response.body.string()
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_STATUS_OK
+                    response.code shouldBe HTTP_OK
                     val besluiten = JSONArray(responseBody)
                     besluiten.shouldHaveSize(1)
                     with(besluiten.getJSONObject(0).toString()) {
                         shouldContainJsonKeyValue("isIngetrokken", true)
-                        shouldContainJsonKeyValue("toelichting", "dummyBesluitUpdateToelichting")
+                        shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
                         shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
                     }
                 }

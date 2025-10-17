@@ -1,0 +1,44 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <input
+    type="date"
+    matInput
+    autocomplete="off"
+    [min]="min()"
+    [max]="max()"
+    [formControlName]="key()"
+    [matDatepicker]="date"
+  />
+  <span *ngIf="showAmountOfDays()" matSuffix>{{
+    control()?.value | dagen
+  }}</span>
+  <button
+    *ngIf="!control()?.disabled && control()?.value"
+    matSuffix
+    mat-icon-button
+    type="button"
+    (click)="control()?.reset(null)"
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+  <mat-datepicker-toggle
+    *ngIf="!control()?.value"
+    matSuffix
+    [for]="date"
+  ></mat-datepicker-toggle>
+  <mat-datepicker #date></mat-datepicker>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</mat-form-field>

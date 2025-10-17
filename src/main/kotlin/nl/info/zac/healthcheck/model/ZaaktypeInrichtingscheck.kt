@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.healthcheck.model
@@ -21,13 +21,14 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     var isStatustypeAfgerondAanwezig: Boolean = false
     var isStatustypeAfgerondLaatsteVolgnummer: Boolean = false
     var isResultaattypeAanwezig: Boolean = false
-    var isRolInitiatorAanwezig: Boolean = false
-    var isRolBehandelaarAanwezig: Boolean = false
+    var aantalInitiatorroltypen: Int = 0
+    var aantalBehandelaarroltypen: Int = 0
     var isRolOverigeAanwezig: Boolean = false
     var isInformatieobjecttypeEmailAanwezig: Boolean = false
     var isBesluittypeAanwezig: Boolean = false
     val resultaattypesMetVerplichtBesluit: MutableList<String?> = ArrayList<String?>()
     var isZaakafhandelParametersValide: Boolean = false
+    var isBrpInstellingenCorrect: Boolean = false
 
     fun addResultaattypesMetVerplichtBesluit(resultaattypeMetVerplichtBesluit: String?) {
         this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit)
@@ -40,11 +41,12 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
             this.isStatustypeAfgerondAanwezig &&
             this.isStatustypeAfgerondLaatsteVolgnummer &&
             this.isStatustypeAanvullendeInformatieVereist &&
-            this.isRolInitiatorAanwezig &&
-            this.isRolBehandelaarAanwezig &&
+            this.aantalInitiatorroltypen == 1 &&
+            this.aantalBehandelaarroltypen == 1 &&
             this.isRolOverigeAanwezig &&
             this.isInformatieobjecttypeEmailAanwezig &&
             this.isResultaattypeAanwezig &&
             this.isZaakafhandelParametersValide &&
+            this.isBrpInstellingenCorrect &&
             (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
 }

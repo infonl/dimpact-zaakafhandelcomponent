@@ -31,7 +31,7 @@
               <button
                 (click)="clearZTCCache($event)"
                 [disabled]="loadingZaaktypes"
-                mat-flat-button
+                mat-raised-button
                 color="primary"
               >
                 <mat-icon>{{
@@ -147,7 +147,7 @@
                 <div
                   class="detail flex-col"
                   [@detailExpand]="
-                    row == expandedRow ? 'expanded' : 'collapsed'
+                    row === expandedRow ? 'expanded' : 'collapsed'
                   "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
@@ -179,10 +179,10 @@
                   <div *ngIf="!row.resultaattypeAanwezig">
                     {{ "resultaattype" | translate }}
                   </div>
-                  <div *ngIf="!row.rolInitiatorAanwezig">
+                  <div *ngIf="row.aantalInitiatorroltypen < 1">
                     {{ "rol" | translate }}
                   </div>
-                  <div *ngIf="!row.rolBehandelaarAanwezig">
+                  <div *ngIf="row.aantalBehandelaarroltypen < 1">
                     {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.rolOverigeAanwezig">
@@ -199,6 +199,9 @@
                   >
                     {{ "besluittype" | translate }}
                   </div>
+                  <div *ngIf="!row.isBrpInstellingenCorrect">
+                    {{ "brp-protocollering" | translate }}
+                  </div>
                 </div>
               </td>
             </ng-container>
@@ -211,7 +214,7 @@
                 <div
                   class="detail flex-col"
                   [@detailExpand]="
-                    row == expandedRow ? 'expanded' : 'collapsed'
+                    row === expandedRow ? 'expanded' : 'collapsed'
                   "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
@@ -267,15 +270,27 @@
                         | translate
                     }}
                   </div>
-                  <div *ngIf="!row.rolInitiatorAanwezig">
+                  <div *ngIf="row.aantalInitiatorroltypen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolInitiatorAanwezig"
                         | translate
                     }}
                   </div>
-                  <div *ngIf="!row.rolBehandelaarAanwezig">
+                  <div *ngIf="row.aantalBehandelaarroltypen < 1">
                     {{
                       "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
+                        | translate
+                    }}
+                  </div>
+                  <div *ngIf="row.aantalInitiatorroltypen > 1">
+                    {{
+                      "healthCheck.zaaktype.teVeelRolInitiatorAanwezig"
+                        | translate
+                    }}
+                  </div>
+                  <div *ngIf="row.aantalBehandelaarroltypen > 1">
+                    {{
+                      "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
                         | translate
                     }}
                   </div>
@@ -306,6 +321,11 @@
                             }
                     "
                   ></div>
+                  <div *ngIf="!row.brpInstellingenCorrect">
+                    {{
+                      "healthCheck.zaaktype.onjuisteBrpHeaderwaarde" | translate
+                    }}
+                  </div>
                 </div>
               </td>
             </ng-container>

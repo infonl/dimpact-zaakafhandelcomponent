@@ -1,48 +1,90 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>edit</mat-icon>
-    {{ "actie.zaak.wijzigen" | translate }}
-  </h3>
-  <button mat-icon-button (click)="exit()">
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>edit</mat-icon>
+  <span class="flex-grow-1">{{ "actie.zaak.wijzigen" | translate }}</span>
+  <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div>
-  <mat-tab-group mat-stretch-tabs="false">
-    <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
-      <ng-template mat-tab-label>
-        <mat-icon>topic</mat-icon>
-        {{ "gegevens.algemeen" | translate }}</ng-template
-      >
-      <div class="form">
-        <mfb-form
-          *ngIf="formFields"
-          [formFields]="formFields"
-          [config]="formConfig"
-          (formSubmit)="saveFromFormView($event)"
-          (formPartial)="saveFromFormView($event)"
-        ></mfb-form>
-      </div>
-    </mat-tab>
-    <mat-tab label="{{ 'locatie' | translate }}">
-      <ng-template mat-tab-label>
-        <mat-icon>place</mat-icon>
-        {{ "locatie" | translate }}
-      </ng-template>
-      <zac-locatie-zoek
-        [currentLocation]="zaak.zaakgeometrie"
-        [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
-        [reasonControl]="reasonField.formControl"
-        (locatie)="saveFromMapView()"
-        (locationChanged)="locationChanged($event)"
-        [sideNav]="sideNav"
-      ></zac-locatie-zoek>
-    </mat-tab>
-  </mat-tab-group>
-</div>
+<mat-drawer-container>
+  <form [formGroup]="form" (ngSubmit)="onSubmit(form)" class="">
+    <fieldset>
+      <section class="row">
+        <zac-select
+          class="col-12 col-md-4"
+          [form]="form"
+          key="groep"
+          [options]="groups"
+          optionDisplayValue="naam"
+        >
+        </zac-select>
+        <zac-select
+          class="col-12 col-md-4"
+          [form]="form"
+          key="behandelaar"
+          [options]="users"
+          optionDisplayValue="naam"
+        ></zac-select>
+        <zac-select
+          class="col-12 col-md-4"
+          [form]="form"
+          key="communicatiekanaal"
+          [options]="communicationChannels"
+        ></zac-select>
+      </section>
+      <section class="row">
+        <zac-date
+          class="col-12 col-md-4"
+          [form]="form"
+          key="startdatum"
+        ></zac-date>
+        <zac-date
+          class="col-12 col-md-4"
+          [form]="form"
+          key="einddatumGepland"
+        ></zac-date>
+        <zac-date
+          class="col-12 col-md-4"
+          [form]="form"
+          key="uiterlijkeEinddatumAfdoening"
+        ></zac-date>
+        <zac-select
+          class="col-12"
+          [form]="form"
+          key="vertrouwelijkheidaanduiding"
+          [options]="confidentialityDesignations"
+          optionDisplayValue="label"
+        >
+        </zac-select>
+        <zac-input class="col-12" [form]="form" key="omschrijving"> </zac-input>
+        <zac-textarea
+          class="col-12"
+          [form]="form"
+          key="toelichting"
+        ></zac-textarea>
+        <zac-input class="col-12" [form]="form" key="reden"> </zac-input>
+      </section>
+    </fieldset>
+    <fieldset>
+      <mat-action-row>
+        <button
+          mat-raised-button
+          type="submit"
+          color="primary"
+          [disabled]="!form.valid || form.pristine"
+        >
+          {{ "actie.opslaan" | translate }}
+        </button>
+        <button type="button" mat-raised-button (click)="sideNav.close()">
+          {{ "actie.annuleren" | translate }}
+        </button>
+      </mat-action-row>
+    </fieldset>
+  </form>
+</mat-drawer-container>

@@ -1,122 +1,79 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { DatumPipe } from "./datum.pipe";
 
 describe("DatumPipe", () => {
-  it("2021-06-23T00:00:00Z -> 23-06-2021 02:00", () => {
-    const pipe = new DatumPipe("nl");
+  const pipe = new DatumPipe("nl");
 
-    expect(pipe.transform("2021-06-23T00:00:00Z", "short")).toEqual(
-      "23\u201106\u20112021 02:00",
-    );
+  it.each([
+    ["2021-06-23T00:00:00Z", "short", "23\u201106\u20112021 02:00"],
+    ["2021-06-22T22:00:00Z", "short", "23\u201106\u20112021 00:00"],
+    ["2021-06-23T02:00:00Z", "short", "23\u201106\u20112021 04:00"],
+    ["2021-06-22T22:00:00Z", "medium", "23 jun. 2021 00:00"],
+    ["2021-06-22T22:00:00Z", "long", "23 juni 2021 00:00"],
+    ["2021-06-22T22:00:00Z", "full", "woensdag 23 juni 2021 00:00"],
+    ["2021-06-22T22:00:00Z", "shortDate", "23\u201106\u20112021"],
+    ["2021-06-22T22:00:00Z", "mediumDate", "23 jun. 2021"],
+    ["2021-06-22T22:00:00Z", "longDate", "23 juni 2021"],
+    ["2021-06-22T22:00:00Z", "fullDate", "woensdag, 23 juni 2021"],
+  ])("Transforms '%s' with format '%s' to '%s'", (input, format, expected) => {
+    const result = pipe.transform(input, format as "short");
+    expect(result).toEqual(expected);
   });
 
-  it("2021-06-22T22:00:00Z -> 23-06-2021 00:00", () => {
-    const pipe = new DatumPipe("nl");
-
-    expect(pipe.transform("2021-06-22T22:00:00Z", "short")).toEqual(
-      "23\u201106\u20112021 00:00",
-    );
+  describe("default format", () => {
+    it("picks the default format", () => {
+      const result = pipe.transform("2021-06-22T22:00:00Z");
+      expect(result).toEqual("23\u201106\u20112021");
+    });
   });
 
-  it("2021-06-23T02:00:00Z -> 23-06-2021 04:00", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-23T02:00:00Z", "short")).toEqual(
-      "23\u201106\u20112021 04:00",
-    );
-  });
+  describe("invalid local dates", () => {
+    it.each([
+      ["invalid-date-string", "invalid-date-string"],
+      ["2021-13-45T25:70:99Z", "2021-13-45T25:70:99Z"],
+      ["not-a-date", "not-a-date"],
+      ["2021/06/23", "2021/06/23"],
+      ["23-06-2021", "23-06-2021"],
+      ["", ""],
+      ["null", "null"],
+      ["undefined", "undefined"],
+    ])("Returns original value for invalid date '%s'", (input, expected) => {
+      const result = pipe.transform(input);
+      expect(result).toEqual(expected);
+    });
 
-  xit("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "01\u201104\u20111939 00:00",
-    );
-  });
+    it("handles null input", () => {
+      const result = pipe.transform(null);
+      expect(result).toBeNull();
+    });
 
-  it("default format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z")).toEqual(
-      "23\u201106\u20112021",
-    );
-  });
+    it("handles undefined input", () => {
+      const result = pipe.transform(undefined);
+      expect(result).toBeUndefined();
+    });
 
-  it("short format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "short")).toEqual(
-      "23\u201106\u20112021 00:00",
-    );
-  });
+    it("handles invalid date with format parameter", () => {
+      const result = pipe.transform("invalid-date", "short");
+      expect(result).toEqual("invalid-date");
+    });
 
-  it("medium format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "medium")).toEqual(
-      "23 jun. 2021 00:00",
-    );
-  });
+    it("handles malformed ISO date string", () => {
+      const result = pipe.transform("2021-06-23T25:00:00Z");
+      expect(result).toEqual("2021-06-23T25:00:00Z");
+    });
 
-  it("long format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "long")).toEqual(
-      "23 juni 2021 00:00",
-    );
-  });
+    it("handles date with invalid month", () => {
+      const result = pipe.transform("2021-13-23T00:00:00Z");
+      expect(result).toEqual("2021-13-23T00:00:00Z");
+    });
 
-  it("full format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "full")).toEqual(
-      "woensdag 23 juni 2021 00:00",
-    );
-  });
-
-  it("shortDate format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "shortDate")).toEqual(
-      "23\u201106\u20112021",
-    );
-  });
-
-  it("mediumDate format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "mediumDate")).toEqual(
-      "23 jun. 2021",
-    );
-  });
-
-  it("longDate format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "longDate")).toEqual(
-      "23 juni 2021",
-    );
-  });
-
-  it("fullDate format", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-06-22T22:00:00Z", "fullDate")).toEqual(
-      "woensdag, 23 juni 2021",
-    );
-  });
-
-  xit("1939-03-31T23:40:00Z -> 01-04-1939 00:00", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("1939-03-31T23:40:00Z", "short")).toEqual(
-      "01\u201104\u20111939 00:00",
-    );
-  });
-
-  it("iso date 1939-04-01 -> 1939-04-01", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("1939-04-01", "short")).toEqual(
-      "01\u201104\u20111939 00:00",
-    );
-  });
-
-  it("iso date 2021-05-24 -> 24-05-2021", () => {
-    const pipe = new DatumPipe("nl");
-    expect(pipe.transform("2021-05-24", "short")).toEqual(
-      "24\u201105\u20112021 00:00",
-    );
+    it("handles date with invalid day", () => {
+      const result = pipe.transform("2021-06-32T00:00:00Z");
+      expect(result).toEqual("2021-06-32T00:00:00Z");
+    });
   });
 });

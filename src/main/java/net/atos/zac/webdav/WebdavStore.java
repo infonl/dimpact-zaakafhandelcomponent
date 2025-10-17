@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.webdav;
@@ -56,8 +56,8 @@ public class WebdavStore implements IWebdavStore {
 
     private final EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
 
-    // De dummy parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
-    public WebdavStore(final File ignoredDummy) {
+    // De fake parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
+    public WebdavStore(final File ignoredFake) {
         webdavHelper = CDI.current().select(WebdavHelper.class).get();
         drcClientService = CDI.current().select(DrcClientService.class).get();
         enkelvoudigInformatieObjectUpdateService = CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();
@@ -92,8 +92,7 @@ public class WebdavStore implements IWebdavStore {
     public InputStream getResourceContent(final ITransaction transaction, final String resourceUri) {
         final String token = extraheerToken(resourceUri);
         if (StringUtils.isNotEmpty(token)) {
-            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
-                    .enkelvoudigInformatieibjectUUID();
+            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID();
             return drcClientService.downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
         } else {
             return null;

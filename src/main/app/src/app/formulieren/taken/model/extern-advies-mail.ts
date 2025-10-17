@@ -1,14 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Mail } from "../../../admin/model/mail";
-import { ZaakAfzender } from "../../../admin/model/zaakafzender";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
@@ -51,17 +48,17 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
 
   _initStartForm() {
     const fields = this.fields;
-    this.humanTaskData.taakStuurGegevens.sendMail = true;
-    this.humanTaskData.taakStuurGegevens.mail = Mail.TAAK_ADVIES_EXTERN;
+    if (this.humanTaskData.taakStuurGegevens) {
+      this.humanTaskData.taakStuurGegevens.sendMail = true;
+      this.humanTaskData.taakStuurGegevens.mail = "TAAK_ADVIES_EXTERN"; // TODO: taakStuurGegevens.mail should be of type `GeneratedType<"Mail">`
+    }
 
-    const zoekparameters = new InformatieobjectZoekParameters();
-    zoekparameters.zaakUUID = this.zaak.uuid;
     const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
-        zoekparameters,
-      );
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: this.zaak.uuid,
+      });
     const mailtemplate = this.mailtemplateService.findMailtemplate(
-      Mail.TAAK_ADVIES_EXTERN,
+      "TAAK_ADVIES_EXTERN",
       this.zaak.uuid,
     );
 
@@ -113,12 +110,12 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
     );
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender: ZaakAfzender) => {
-        const verzender: SelectFormField = this.getFormField(
+      (afzender) => {
+        const verzender = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
-          verzender.getOption(afzender)?.replyTo,
+          verzender.getOption(afzender as Record<string, unknown>)?.replyTo,
         );
       },
     );

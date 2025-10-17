@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,34 +9,55 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolMedewerker extends Rol<Medewerker> {
+/**
+ * Manually copied from {@link nl.info.client.zgw.zrc.model.generated.RolMedewerker} and modified to allow for
+ * polymorphism using a generic base {@link Rol} class.
+ * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * polymorphic relationships correctly.
+ */
+public class RolMedewerker extends Rol<MedewerkerIdentificatie> {
 
     public RolMedewerker() {
+    }
+
+    /**
+     * For testing purposes only where we need a UUID.
+     */
+    public RolMedewerker(
+            final UUID uuid,
+            final RolType roltype,
+            final String roltoelichting,
+            final MedewerkerIdentificatie betrokkeneIdentificatie
+    ) {
+        super(uuid, roltype, BetrokkeneTypeEnum.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }
 
     public RolMedewerker(
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker
+            // it is possible in the ZGW API to have a RolMedewerker without a Medewerker,
             // and this does occur in practice in certain circumstances
-            @Nullable final Medewerker betrokkeneIdentificatie
+            @Nullable final MedewerkerIdentificatie medewerkerIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, medewerkerIdentificatie, roltoelichting);
     }
 
     public String getNaam() {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        final Medewerker medewerker = getBetrokkeneIdentificatie();
+        final MedewerkerIdentificatie medewerker = getBetrokkeneIdentificatie();
         if (isNotBlank(medewerker.getAchternaam())) {
             final StringBuilder naam = new StringBuilder();
             if (isNotBlank(medewerker.getVoorletters())) {
@@ -55,8 +76,8 @@ public class RolMedewerker extends Rol<Medewerker> {
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final Medewerker identificatie) {
-        final Medewerker betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final MedewerkerIdentificatie identificatie) {
+        final MedewerkerIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }

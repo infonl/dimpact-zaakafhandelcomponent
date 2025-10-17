@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 name: Remove stale branches
@@ -43,7 +43,7 @@ jobs:
 
       - name: Send slack message with branches that can be deleted
         if: steps.deleted_branches.outputs.deleted_branches != '[]'
-        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search.model.zoekobject
@@ -10,10 +10,8 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
-@NoArgConstructor // required for Java bean inspection
+@NoArgConstructor
 data class ZaakZoekObject(
     /**
      * The UUID of the zaak.
@@ -25,7 +23,7 @@ data class ZaakZoekObject(
     private var type: String,
 
     @Field("zaak_identificatie")
-    var identificatie: String? = null,
+    var identificatie: String,
 
     @Field(OMSCHRIJVING_FIELD)
     var omschrijving: String? = null,
@@ -97,13 +95,13 @@ data class ZaakZoekObject(
     var redenOpschorting: String? = null,
 
     @Field("zaak_zaaktypeUuid")
-    var zaaktypeUuid: String? = null,
+    var zaaktypeUuid: String,
 
     @Field("zaak_zaaktypeIdentificatie")
-    var zaaktypeIdentificatie: String? = null,
+    var zaaktypeIdentificatie: String,
 
     @Field("zaak_zaaktypeOmschrijving")
-    var zaaktypeOmschrijving: String? = null,
+    var zaaktypeOmschrijving: String,
 
     @Field("zaak_resultaattypeOmschrijving")
     var resultaattypeOmschrijving: String? = null,
@@ -160,24 +158,14 @@ data class ZaakZoekObject(
 
     fun setInitiator(initiatorRole: Rol<*>) {
         this.initiatorIdentificatie = initiatorRole.getIdentificatienummer()
-        this.initiatorType = initiatorRole.betrokkeneType.toValue()
+        this.initiatorType = initiatorRole.betrokkeneType.toString()
     }
 
     fun isIndicatie(indicatie: ZaakIndicatie) = indicaties?.contains(indicatie.name) == true
 
     fun getZaakIndicaties(): EnumSet<ZaakIndicatie> =
-        if (indicaties == null) {
-            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
-        } else {
-            indicaties!!.stream().map<ZaakIndicatie>(ZaakIndicatie::valueOf)
-                .collect(
-                    Collectors.toCollection(
-                        Supplier {
-                            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
-                        }
-                    )
-                )
-        }
+        indicaties?.mapTo(EnumSet.noneOf(ZaakIndicatie::class.java)) { ZaakIndicatie.valueOf(it) }
+            ?: EnumSet.noneOf(ZaakIndicatie::class.java)
 
     fun setIndicatie(indicatie: ZaakIndicatie, value: Boolean) {
         updateIndicaties(indicatie, value)

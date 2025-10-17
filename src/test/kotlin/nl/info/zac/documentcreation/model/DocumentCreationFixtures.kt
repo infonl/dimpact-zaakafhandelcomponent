@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package nl.info.zac.documentcreation.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.GebruikerData
@@ -13,15 +12,17 @@ import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.UUID
 
 fun createAanvragerData(
-    naam: String = "dummyNaam",
-    straat: String = "dummyStraat",
-    huisnummer: String = "dummyHuisnummer",
-    postcode: String = "dummyPostcode",
-    woonplaats: String = "dummyWoonplaats",
+    naam: String = "fakeNaam",
+    straat: String = "fakeStraat",
+    huisnummer: String = "fakeHuisnummer",
+    postcode: String = "fakePostcode",
+    woonplaats: String = "fakeWoonplaats",
 ) = AanvragerData(
     naam = naam,
     straat = straat,
@@ -45,14 +46,14 @@ fun createData(
 )
 
 @Suppress("LongParameterList")
-fun createDocumentCreationDataAttended(
+fun createCmmnDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
-    taskId: String = "dummyTaskId",
+    taskId: String = "fakeTaskId",
     templateGroupId: String = "1",
     templateId: String = "2",
     title: String = "title",
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-) = DocumentCreationDataAttended(
+) = CmmnDocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,
@@ -61,43 +62,62 @@ fun createDocumentCreationDataAttended(
     creationDate = creationDate
 )
 
+@Suppress("LongParameterList")
+fun createBpmnDocumentCreationDataAttended(
+    zaak: Zaak = createZaak(),
+    taskId: String = "fakeTaskId",
+    informatieobjecttypeUuid: UUID = UUID.randomUUID(),
+    templateGroupName: String = "fakeGroup",
+    templateName: String = "fakeTemplate",
+    title: String = "title",
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
+) = BpmnDocumentCreationDataAttended(
+    zaak = zaak,
+    taskId = taskId,
+    informatieobjecttypeUuid = informatieobjecttypeUuid,
+    templateGroupName = templateGroupName,
+    templateName = templateName,
+    title = title,
+    creationDate = creationDate
+)
+
 fun createDocumentCreationAttendedResponse(
     message: String = "success",
-    redirectUri: URI = URI.create("https://example.com/dummyRedirectURI")
+    redirectUri: URI = URI.create("https://example.com/fakeRedirectURI")
 ) = DocumentCreationAttendedResponse(
     message = message,
     redirectUrl = redirectUri
 )
 
 fun createGebruikerData(
-    id: String = "dummyId",
-    naam: String = "dummyNaam"
+    id: String = "fakeId",
+    naam: String = "fakeNaam"
 ) = GebruikerData(
     id = id,
     naam = naam
 )
 
 fun createStartformulierData(
-    productAanvraagtype: String = "dummyProductAanvraagtype",
-    data: Map<String, Any> = mapOf("dummyKey" to "dummyValue")
+    productAanvraagtype: String = "fakeProductAanvraagtype",
+    data: Map<String, Any> = mapOf("fakeKey" to "fakeValue")
 ) = StartformulierData(
     productAanvraagtype = productAanvraagtype,
     data = data
 )
 
 fun createTaskData(
-    naam: String = "dummyNaam",
-    behandelaar: String = "dummyBehandelaar"
+    naam: String = "fakeNaam",
+    behandelaar: String = "fakeBehandelaar"
 ) = TaskData(
     naam = naam,
     behandelaar = behandelaar
 )
 
 fun createZaakData(
-    zaaktype: String = "dummyZaakType",
-    identificatie: String = "dummyIdentificatie",
-    omschrijving: String = "dummyOmschrijving",
-    toelichting: String = "dummyToelichting",
+    zaaktype: String = "fakeZaakType",
+    identificatie: String = "fakeIdentificatie",
+    omschrijving: String = "fakeOmschrijving",
+    toelichting: String = "fakeToelichting",
 ) = ZaakData(
     zaaktype = zaaktype,
     identificatie = identificatie,

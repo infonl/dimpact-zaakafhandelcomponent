@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,7 +13,7 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
   groepLabel: string;
   medewerkerLabel: string;
   maxlength: number;
-
+  zaaktypeUuid: string;
   maxGroupNameLength: number;
   maxGroupIdLength: number;
 
@@ -38,10 +38,16 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
     this.medewerker.markAsDirty();
   }
 
+  // This is actually a `FormControl<GeneratedType<"RestGroup"> | string>`
+  // When the user searches for a group, the value is a string
+  // This will get replaced when moving over to the Angular form builder for all forms
   get groep(): FormControl<GeneratedType<"RestGroup">> {
     return this.formControl.get("groep") as FormControl;
   }
 
+  // This is actually a `FormControl<GeneratedType<"RestUser"> | string>`
+  // When the user searches for a group, the value is a string
+  // This will get replaced when moving over to the Angular form builder for all forms
   get medewerker(): FormControl<GeneratedType<"RestUser">> {
     return this.formControl.get("medewerker") as FormControl;
   }

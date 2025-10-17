@@ -14,43 +14,45 @@
           <div id="persoonsgegevens" class="content flex-row flex-wrap gap-10">
             <zac-static-text
               class="flex-1"
-              [label]="'naam' | translate"
-              [value]="persoon.naam"
-            ></zac-static-text>
+              label="naam"
+              [value]="persoon?.naam"
+            />
             <zac-static-text
               class="flex-1"
-              [label]="'burgerservicenummer' | translate"
-              [value]="persoon.bsn"
-            ></zac-static-text>
+              label="burgerservicenummer"
+              [value]="persoon?.bsn"
+            />
             <zac-static-text
               class="flex-1"
-              [label]="'geboortedatum' | translate"
-              [value]="persoon.geboortedatum | datum"
-            ></zac-static-text>
+              label="geboortedatum"
+              [value]="persoon?.geboortedatum | datum"
+            />
             <zac-static-text
               class="flex-1"
-              [label]="'verblijfplaats' | translate"
-              [value]="persoon.verblijfplaats | empty"
-            ></zac-static-text>
+              label="verblijfplaats"
+              [value]="persoon?.verblijfplaats"
+            />
             <zac-static-text
               class="flex-1"
-              [label]="'telefoonnummer' | translate"
-              [value]="persoon.telefoonnummer | empty"
-            ></zac-static-text>
+              label="telefoonnummer"
+              [value]="persoon?.telefoonnummer"
+            />
             <zac-static-text
               class="flex-1"
-              [label]="'emailadres' | translate"
-              [value]="persoon.emailadres | empty"
-            ></zac-static-text>
+              label="emailadres"
+              [value]="persoon?.emailadres"
+            />
           </div>
         </mat-card-content>
       </mat-card>
       <div class="flex-1 w75">
         <zac-klant-zaken-tabel
-          [klantIdentificatie]="persoon.bsn"
+          *ngIf="persoon"
+          [klant]="persoon"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
-          [bsn]="persoon.bsn"
+          *ngIf="persoon && persoon.bsn"
+          [bsn]="persoon?.bsn"
         ></zac-klant-contactmomenten-tabel>
       </div>
     </div>

@@ -5,7 +5,7 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { DatumRange } from "../../../model/datum-range";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-date-filter",
@@ -13,28 +13,39 @@ import { DatumRange } from "../../../model/datum-range";
   styleUrls: ["./date-filter.component.less"],
 })
 export class DateFilterComponent implements OnInit {
-  @Input() range: DatumRange;
-  @Input() label: string;
-  @Output() changed = new EventEmitter<DatumRange>();
+  @Input() range?: GeneratedType<"RestDatumRange"> = {};
+  @Input({ required: true }) label!: string;
+  @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
 
-  dateVan: FormControl<Date> = new FormControl<Date>(null);
-  dateTM: FormControl<Date> = new FormControl<Date>(null);
+  dateVan = new FormControl<Date | null>(null);
+  dateTM = new FormControl<Date | null>(null);
 
-  ngOnInit(): void {
-    if (this.range == null) {
-      this.range = new DatumRange();
-    }
-    this.dateVan.setValue(this.range.van);
-    this.dateTM.setValue(this.range.tot);
+  ngOnInit() {
+    this.dateVan.setValue(this.range?.van ? new Date(this.range.van) : null);
+    this.dateTM.setValue(this.range?.tot ? new Date(this.range.tot) : null);
   }
 
-  change(): void {
-    this.range.van = this.dateVan.value;
-    this.range.tot = this.dateTM.value;
+  change() {
+    this.updateRangeProperty("van", this.dateVan);
+    this.updateRangeProperty("tot", this.dateTM);
     this.changed.emit(this.range);
   }
 
-  expanded(): boolean {
-    return this.range.van != null || this.range.tot != null;
+  private updateRangeProperty(
+    property: "van" | "tot",
+    control: FormControl<Date | null>,
+  ) {
+    if (this.range?.[property]) {
+      this.range[property] = control.value?.toISOString();
+    } else {
+      this.range = {
+        ...this.range,
+        [property]: control.value?.toISOString(),
+      };
+    }
+  }
+
+  expanded() {
+    return !!this.range?.van || !!this.range?.tot;
   }
 }

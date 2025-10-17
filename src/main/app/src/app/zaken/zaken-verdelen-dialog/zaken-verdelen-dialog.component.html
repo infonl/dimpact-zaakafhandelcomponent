@@ -3,21 +3,51 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.length == 1" mat-dialog-title>
-  {{ "title.zaak.verdelen" | translate }}
-</h1>
-<h1 *ngIf="data.length != 1" mat-dialog-title>
-  {{ "title.zaken.verdelen" | translate: { aantal: data.length } }}
-</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>assignment_ind</mat-icon>
+  <span *ngIf="data.length === 1" class="flex-grow-1">
+    {{ "title.zaak.verdelen" | translate }}
+  </span>
+  <span *ngIf="data.length !== 1" class="flex-grow-1">
+    {{ "title.zaken.verdelen" | translate: { aantal: data.length } }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
-  <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
-  <mfb-form-field [field]="redenFormField"></mfb-form-field>
-</div>
-<div mat-dialog-actions>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="groep"
+          optionDisplayValue="naam"
+          [options]="groups"
+        ></zac-auto-complete>
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="medewerker"
+          optionDisplayValue="naam"
+          [options]="users"
+        ></zac-auto-complete>
+      </section>
+    </fieldset>
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-input class="col-12" [form]="form" key="reden"></zac-input>
+      </section>
+    </fieldset>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     [disabled]="isDisabled()"
-    mat-button
+    mat-raised-button
     color="primary"
     (click)="verdeel()"
     id="zakenVerdelen_button"
@@ -27,7 +57,7 @@
     </mat-icon>
     {{ "actie.verdelen" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-button (click)="close()">
+  <button [disabled]="loading" autofocus mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

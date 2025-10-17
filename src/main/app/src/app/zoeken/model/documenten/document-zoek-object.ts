@@ -1,16 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DocumentRechten } from "../../../policy/model/document-rechten";
-import { InformatieobjectIndicatie } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { ZoekObject } from "../zoek-object";
-import { ZoekObjectType } from "../zoek-object-type";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
-export class DocumentZoekObject implements ZoekObject {
+/**
+ * @deprecated - use the `GeneratedType`
+ */
+export class DocumentZoekObject
+  implements
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+{
   id: string;
-  type: ZoekObjectType;
+  type: GeneratedType<"ZoekObjectType">;
   identificatie: string;
   titel: string;
   beschrijving: string;
@@ -39,6 +42,6 @@ export class DocumentZoekObject implements ZoekObject {
   indicatieVergrendeld: boolean;
   indicatieGebruiksrecht: boolean;
   vergrendeldDoor: string;
-  indicaties: InformatieobjectIndicatie[];
-  rechten: DocumentRechten;
+  indicaties: GeneratedType<"DocumentIndicatie">[];
+  rechten: GeneratedType<"RestDocumentRechten">;
 }

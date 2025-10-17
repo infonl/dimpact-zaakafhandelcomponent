@@ -8,8 +8,10 @@ import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 
-export class DocumentenLijstFieldBuilder extends AbstractFormFieldBuilder {
-  readonly formField: DocumentenLijstFormField;
+export class DocumentenLijstFieldBuilder<
+  T extends string = string,
+> extends AbstractFormFieldBuilder<T> {
+  readonly formField: DocumentenLijstFormField<T>;
 
   constructor() {
     super();

@@ -7,7 +7,7 @@ package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Objecttype;
+import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 
 /**
  * ZaakobjectMetObjectIdentificatie
@@ -32,7 +32,7 @@ public abstract class ZaakobjectMetObjectIdentificatie<OBJECT> extends Zaakobjec
     public ZaakobjectMetObjectIdentificatie(
             final URI zaak,
             final URI objectUri,
-            final Objecttype objectType,
+            final ObjectTypeEnum objectType,
             final OBJECT objectIdentificatie
     ) {
         super(zaak, objectUri, objectType);

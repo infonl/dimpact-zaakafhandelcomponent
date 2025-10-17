@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.admin
@@ -10,7 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.ReferenceTable
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import nl.info.zac.exception.InputValidationFailedException
@@ -61,7 +61,7 @@ class ReferenceTableAdminService @Inject constructor(
                 entityManager.createQuery(query).resultList.run {
                     if (this.isNotEmpty()) {
                         throw InputValidationFailedException(
-                            ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
+                            ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
                         )
                     }
                 }

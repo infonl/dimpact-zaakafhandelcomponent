@@ -1,43 +1,59 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Verlenging
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.zac.app.policy.converter.RestRechtenConverter
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.Verlenging
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isDeelzaak
+import nl.info.client.zgw.zrc.util.isEerderOpgeschort
+import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isHoofdzaak
+import nl.info.client.zgw.zrc.util.isIntake
+import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.policy.model.toRestZaakRechten
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTZaakKenmerk
 import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
-import nl.info.zac.app.zaak.model.toGeometry
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
-import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
-import java.time.LocalDate
+import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
+import nl.info.zac.search.model.ZaakIndicatie.HEROPEND
+import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
+import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
+import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
+import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.Period
-import java.util.EnumSet
+import java.util.EnumSet.noneOf
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -53,24 +69,31 @@ class RestZaakConverter @Inject constructor(
     private val restUserConverter: RestUserConverter,
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
-    private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BpmnService,
-    private val configuratieService: ConfiguratieService
+    private val bpmnService: BpmnService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
     }
 
-    fun toRestZaak(zaak: Zaak): RestZaak {
+    fun toRestZaak(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakRechten: ZaakRechten
+    ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
-        return toRestZaak(zaak, status, statustype)
+        return toRestZaak(zaak, zaakType, zaakRechten, status, statustype)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun toRestZaak(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+    fun toRestZaak(
+        zaak: Zaak,
+        zaakType: ZaakType,
+        zaakRechten: ZaakRechten,
+        status: Status?,
+        statustype: StatusType?
+    ): RestZaak {
         val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
                 restGroupConverter.convertGroupId(it.identificatie)
@@ -82,6 +105,8 @@ class RestZaakConverter @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
+
+        val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         return RestZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
@@ -96,17 +121,20 @@ class RestZaakConverter @Inject constructor(
             registratiedatum = zaak.registratiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
             archiefActiedatum = zaak.archiefactiedatum,
+            startdatumBewaartermijn = zaak.startdatumBewaartermijn,
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
-            zaaktype = restZaaktypeConverter.convert(zaaktype),
+            zaaktype = restZaaktypeConverter.convert(zaakType),
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
-            isOpgeschort = zaak.isOpgeschort,
-            isEerderOpgeschort = zaak.isEerderOpgeschort,
-            redenOpschorting = takeIf { zaak.isOpgeschort }?.let { zaak.opschorting?.reden },
-            isVerlengd = zaak.isVerlengd,
-            duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
-            redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
+            isOpgeschort = zaak.isOpgeschort(),
+            isEerderOpgeschort = zaak.isEerderOpgeschort(),
+            redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
+            isVerlengd = zaak.isVerlengd(),
+            // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
+            // so we use [Period.parse] to convert the duration string to a [Period] object
+            duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
+            redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
@@ -115,85 +143,43 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.identificatienummer,
-            initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
-                BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
-                BetrokkeneType.VESTIGING -> IdentificatieType.VN
-                BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
-                // betrokkeneType may be null
-                null -> null
-                else -> {
-                    LOG.warning(
-                        "Initiator identificatie type: '$betrokkeneType' is not supported for zaak with UUID: '${zaak.uuid}'"
-                    )
-                    null
-                }
-            },
-            isHoofdzaak = zaak.is_Hoofdzaak,
-            isDeelzaak = zaak.isDeelzaak,
-            isOpen = zaak.isOpen,
-            isHeropend = StatusTypeUtil.isHeropend(statustype),
-            isInIntakeFase = StatusTypeUtil.isIntake(statustype),
-            isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(
-                zaak.uuid
-            ).orElse(false),
-            isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
-            rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
+            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) },
+            isHoofdzaak = zaak.isHoofdzaak(),
+            isDeelzaak = zaak.isDeelzaak(),
+            isOpen = zaak.isOpen(),
+            isHeropend = statustype.isHeropend(),
+            isInIntakeFase = statustype.isIntake(),
+            isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
+            isProcesGestuurd = bpmnService.isZaakProcessDriven(zaak.uuid),
+            heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
+            rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
-            indicaties = when {
-                zaak.is_Hoofdzaak -> EnumSet.of(ZaakIndicatie.HOOFDZAAK)
-                zaak.isDeelzaak -> EnumSet.of(ZaakIndicatie.DEELZAAK)
-                StatusTypeUtil.isHeropend(statustype) -> EnumSet.of(ZaakIndicatie.HEROPEND)
-                zaak.isOpgeschort -> EnumSet.of(ZaakIndicatie.OPSCHORTING)
-                zaak.isVerlengd -> EnumSet.of(ZaakIndicatie.VERLENGD)
-                else -> EnumSet.noneOf(ZaakIndicatie::class.java)
+            indicaties = noneOf(ZaakIndicatie::class.java).apply {
+                if (zaak.isHoofdzaak()) add(HOOFDZAAK)
+                if (zaak.isDeelzaak()) add(DEELZAAK)
+                if (statustype.isHeropend()) add(HEROPEND)
+                if (zaak.isOpgeschort()) add(OPSCHORTING)
+                if (zaak.isVerlengd()) add(VERLENGD)
+                if (!hasSentConfirmationOfReceipt) {
+                    add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                }
             }
         )
     }
 
-    fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
-        zaaktype.url,
-        restZaak.startdatum,
-        configuratieService.readBronOrganisatie(),
-        configuratieService.readVerantwoordelijkeOrganisatie()
-    ).apply {
-        this.communicatiekanaalNaam = restZaak.communicatiekanaal
-        this.omschrijving = restZaak.omschrijving
-        this.toelichting = restZaak.toelichting
-        this.registratiedatum = LocalDate.now()
-        this.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            // convert this enum to uppercase in case the client sends it in lowercase
-            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-        }
-        this.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
-    }
-
-    fun convertToPatch(restZaak: RestZaak): Zaak {
-        val zaak = Zaak()
-        zaak.toelichting = restZaak.toelichting
-        zaak.omschrijving = restZaak.omschrijving
-        zaak.startdatum = restZaak.startdatum
-        zaak.einddatumGepland = restZaak.einddatumGepland
-        zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
-        zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            // convert this enum to uppercase in case the client sends it in lowercase
-            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
-        }
-        zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
-        return zaak
-    }
-
+    @Suppress("NestedBlockDepth")
     fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
         zrcClientService.readZaak(zaakUUID).let { zaak ->
             Zaak().apply {
                 einddatumGepland = verlengGegevens.einddatumGepland
                 uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-                verlenging = Verlenging(
-                    verlengGegevens.redenVerlenging,
-                    zaak.verlenging?.duur?.plusDays(verlengGegevens.duurDagen.toLong()) ?: Period.ofDays(verlengGegevens.duurDagen)
-                )
+                verlenging = Verlenging().apply {
+                    reden = verlengGegevens.redenVerlenging
+                    // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
+                    // so we use [Period.toString] to convert the duration to that format
+                    duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
+                        ?: Period.ofDays(verlengGegevens.duurDagen).toString()
+                }
             }
         }
 
@@ -215,5 +201,49 @@ class RestZaakConverter @Inject constructor(
             ?.map(restGerelateerdeZaakConverter::convert)
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
+    }
+
+    private fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
+        val betrokkeneIdentificatie = initiatorRole.betrokkeneIdentificatie
+        val initiatorIdentificatieType = when (val betrokkeneType = initiatorRole.betrokkeneType) {
+            NATUURLIJK_PERSOON -> IdentificatieType.BSN
+            VESTIGING -> IdentificatieType.VN
+            // the 'niet_natuurlijk_persoon' rol type is used both for rechtspersonen ('RSIN') as well as vestigingen
+            NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
+                when {
+                    // we support 'legacy' RSIN-type initiators with only an RSIN (no KVK nor vestigings number)
+                    it.innNnpId?.isNotBlank() == true ||
+                        (it.kvkNummer?.isNotBlank() == true && it.vestigingsNummer.isNullOrBlank()) -> IdentificatieType.RSIN
+                    // as well as new 'RSIN-type' initiators with only a KVK number (but no vestigingsnummer)
+                    it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
+                    else -> {
+                        LOG.warning(
+                            "Unsupported identification fields for betrokkene type: '$betrokkeneType' " +
+                                "for role with UUID: '${initiatorRole.uuid}'"
+                        )
+                        null
+                    }
+                }
+            }
+            // betrokkeneType may be null (sadly enough)
+            null -> null
+            else -> {
+                LOG.warning(
+                    "Unsupported betrokkene type: '$betrokkeneType' for role with UUID: '${initiatorRole.uuid}'"
+                )
+                null
+            }
+        }
+        return initiatorIdentificatieType?.let {
+            BetrokkeneIdentificatie(
+                type = it,
+                bsnNummer = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
+                kvkNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.kvkNummer,
+                rsin = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.innNnpId,
+                vestigingsnummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.vestigingsNummer
+                    // we also support the legacy type of vestiging role
+                    ?: (betrokkeneIdentificatie as? VestigingIdentificatie)?.vestigingsNummer
+            )
+        }
     }
 }

@@ -1,9 +1,10 @@
 /*
- *  SPDX-FileCopyrightText: 2025 Lifely
+ *  SPDX-FileCopyrightText: 2025 INFO.nl
  *  SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.search.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 
 data class RestZaakKoppelenZoekObject(
@@ -14,5 +15,18 @@ data class RestZaakKoppelenZoekObject(
     val toelichting: String? = null,
     val zaaktypeOmschrijving: String? = null,
     val statustypeOmschrijving: String? = null,
-    val documentKoppelbaar: Boolean = false
+    @get:JsonbProperty("isKoppelbaar")
+    val isKoppelbaar: Boolean = false
 ) : AbstractRestZoekObject(id, type, identificatie)
+
+fun RestZaakZoekObject.toRestZaakKoppelenZoekObject(documentLinkable: Boolean) =
+    RestZaakKoppelenZoekObject(
+        id = this.id,
+        type = this.type,
+        identificatie = this.identificatie,
+        omschrijving = this.omschrijving,
+        toelichting = this.toelichting,
+        zaaktypeOmschrijving = this.zaaktypeOmschrijving,
+        statustypeOmschrijving = this.statustypeOmschrijving,
+        isKoppelbaar = documentLinkable
+    )

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -17,7 +17,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -25,14 +24,17 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -61,7 +63,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             requestBodyAsString = """{"mail":true,"subjecttype":"TAAK","type":"TAAK_VERLOPEN"}""",
             addAuthorizationHeader = true
         )
-        response.code shouldBe HTTP_STATUS_OK
+        response.code shouldBe HTTP_OK
 
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
@@ -69,9 +71,9 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2024_01_01,
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body!!.string()).run {
+            JSONObject(body.string()).run {
                 zaakManual2Identification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
@@ -80,7 +82,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
         )
-        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body!!.string()
+        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body.string()
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
         getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
@@ -99,23 +101,24 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     }
             """.trimIndent()
         )
-        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body!!.string()
+
+        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
+        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
 
-        When("the admin endpoint to send signaleringen is called") {
+        When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/admin/signaleringen/send-signaleringen",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json"
-                ),
-                // the endpoint is a system / admin endpoint currently not requiring any authentication
+                url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+                ).toHeaders(),
                 addAuthorizationHeader = false
             )
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
-                sendSignaleringenResponse.code shouldBe HTTP_STATUS_OK
-                val sendSignaleringenResponseBody = sendSignaleringenResponse.body!!.string()
+                sendSignaleringenResponse.code shouldBe HTTP_OK
+                val sendSignaleringenResponseBody = sendSignaleringenResponse.body.string()
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
 
@@ -125,8 +128,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
                     )
-                    receivedMailsResponse.code shouldBe HTTP_STATUS_OK
-                    receivedMails = JSONArray(receivedMailsResponse.body!!.string())
+                    receivedMailsResponse.code shouldBe HTTP_OK
+                    receivedMails = JSONArray(receivedMailsResponse.body.string())
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {

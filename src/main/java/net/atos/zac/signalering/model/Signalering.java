@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.model;
 
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
@@ -10,8 +9,8 @@ import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
 
 import java.time.ZonedDateTime;
 
@@ -31,9 +30,9 @@ import jakarta.validation.constraints.NotNull;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.identity.model.Group;
 import nl.info.zac.identity.model.User;
 

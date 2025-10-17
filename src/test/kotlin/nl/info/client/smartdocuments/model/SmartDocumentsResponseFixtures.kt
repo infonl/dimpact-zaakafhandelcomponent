@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -24,15 +24,15 @@ import nl.info.client.smartdocuments.model.template.User
 import java.util.UUID
 
 fun createAttendedResponse(
-    ticket: String = "dummyTicket",
+    ticket: String = "fakeTicket",
 ) = AttendedResponse().apply {
     this.ticket = ticket
 }
 
 fun createFile(
-    fileName: String = "dummyFileName",
+    fileName: String = "fakeFileName",
     document: Document = createDocument(),
-    outputFormat: String = "dummyOutputFormat",
+    outputFormat: String = "fakeOutputFormat",
 ) = File(
     fileName = fileName,
     document = document,
@@ -40,7 +40,7 @@ fun createFile(
 )
 
 fun createDocument(
-    data: String = "dummyDocumentData"
+    data: String = "fakeDocumentData"
 ) = Document(
     data = data
 )
@@ -100,7 +100,7 @@ fun createTemplateGroups() = listOf(
         )
     ),
     createTemplateGroup(
-        "Indienen aansprakelijkstelling door derden behandelen",
+        "fakeTemplateGroup1",
         listOf(
             createTemplate("Data Test"),
             createTemplate("OpenZaakTest"),
@@ -146,8 +146,8 @@ fun createSmartDocument(
 )
 
 fun createSelection(
-    templateGroup: String = "dummyTemplateGroup",
-    template: String = "dummyTemplate"
+    templateGroup: String = "fakeTemplateGroup",
+    template: String = "fakeTemplate"
 ) = Selection(
     templateGroup = templateGroup,
     template = template

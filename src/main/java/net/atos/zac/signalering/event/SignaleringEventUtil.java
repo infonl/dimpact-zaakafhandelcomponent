@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.signalering.event;
 
 import java.net.URI;
@@ -12,9 +11,9 @@ import java.util.Set;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.signalering.model.SignaleringType;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.identity.model.User;
 import nl.info.zac.notification.Action;
 import nl.info.zac.notification.Channel;

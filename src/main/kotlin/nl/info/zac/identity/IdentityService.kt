@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.identity
@@ -7,17 +7,22 @@ package nl.info.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
+import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.UUID
+import kotlin.collections.filter
 
 @AllOpen
 @NoArgConstructor
@@ -25,7 +30,11 @@ import org.keycloak.admin.client.resource.RealmResource
 @Suppress("TooManyFunctions")
 class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
-    private val keycloakZacRealmResource: RealmResource
+    private val keycloakZacRealmResource: RealmResource,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+
+    @ConfigProperty(name = "AUTH_RESOURCE")
+    private val zacKeycloakClientId: String,
 ) {
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
@@ -35,8 +44,23 @@ class IdentityService @Inject constructor(
     fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
-        .map { it.toGroup() }
+        .map { it.toGroup(zacKeycloakClientId) }
         .sortedBy { it.name }
+
+    /**
+     * Returns the list of groups that have access to the given zaaktype UUID based on the ZAC domain roles (if any)
+     * of this group and the domein (if any) configured in the zaakafhandelparameters for this zaaktype.
+     */
+    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
+        // retrieve groups with 'full representation' or else the group attributes will not be filled
+        val groups = keycloakZacRealmResource.groups()
+            .groups("", 0, Integer.MAX_VALUE, false)
+            .map { it.toGroup(zacKeycloakClientId) }
+        val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
+        return groups
+            .filter { (domein == null || domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value) || it.zacClientRoles.contains(domein) }
+            .sortedBy { it.name }
+    }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
@@ -47,7 +71,7 @@ class IdentityService @Inject constructor(
     fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
-        .firstOrNull()?.toGroup()
+        .firstOrNull()?.toGroup(zacKeycloakClientId)
         // is this fallback really needed? better to return null or throw a custom exception
         ?: Group(groupId)
 
@@ -73,8 +97,11 @@ class IdentityService @Inject constructor(
             .map { it.name }
     }
 
-    fun checkIfUserIsInGroup(userId: String, groupId: String) {
-        if (!listGroupNamesForUser(userId).contains(groupId)) {
+    fun isUserInGroup(userId: String, groupId: String) =
+        listGroupNamesForUser(userId).contains(groupId)
+
+    fun validateIfUserIsInGroup(userId: String, groupId: String) {
+        if (!isUserInGroup(userId, groupId)) {
             throw UserNotInGroupException()
         }
     }

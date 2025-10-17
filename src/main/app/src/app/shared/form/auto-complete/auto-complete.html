@@ -1,0 +1,53 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <input
+    type="text"
+    matInput
+    [matAutocomplete]="auto"
+    [formControlName]="key()"
+  />
+  <button
+    *ngIf="!control()?.value"
+    mat-icon-button
+    matSuffix
+    [disabled]="control()?.disabled"
+    type="button"
+  >
+    <mat-icon>search</mat-icon>
+  </button>
+  <button
+    *ngIf="!control()?.disabled && control()?.value"
+    mat-icon-button
+    matSuffix
+    (click)="reset()"
+    type="button"
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
+    <mat-option *ngIf="isLoading()" disabled="true">
+      {{
+        "-laden.generiek-"
+          | translate: { label: (label() ?? key() | translate | lowercase) }
+      }}
+      <mat-spinner diameter="15" matPrefix></mat-spinner>
+    </mat-option>
+    <mat-option *ngFor="let option of filteredOptions()" [value]="option">
+      {{ displayWith(option) | translate }}
+    </mat-option>
+  </mat-autocomplete>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</mat-form-field>

@@ -42,7 +42,7 @@ export class ConfirmDialogData {
 
   constructor(
     private translation: { key: string; args?: object } | string,
-    public observable?: Observable<any>,
+    public observable?: Observable<unknown>,
     public uitleg?: string,
   ) {
     if (typeof translation === "string") {

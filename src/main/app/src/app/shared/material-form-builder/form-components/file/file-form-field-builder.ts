@@ -1,13 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AbstractFileFormFieldBuilder } from "../../model/abstract-file-form-field-builder";
 import { FileFormField } from "./file-form-field";
 
-export class FileFormFieldBuilder extends AbstractFileFormFieldBuilder {
-  readonly formField: FileFormField;
+export class FileFormFieldBuilder<
+  T extends File = File,
+> extends AbstractFileFormFieldBuilder<T> {
+  readonly formField: FileFormField<T>;
 
   uploadURL(url: string): this {
     this.formField.uploadURL = url;
@@ -21,7 +23,7 @@ export class FileFormFieldBuilder extends AbstractFileFormFieldBuilder {
     }
   }
 
-  constructor(value?: any) {
+  constructor(value?: T | null) {
     super();
     this.formField = new FileFormField();
     this.formField.initControl(value);

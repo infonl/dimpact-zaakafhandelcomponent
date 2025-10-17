@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # When updating this file, please make sure to also update the policy documentation
@@ -117,7 +117,6 @@ toevoegen_nieuwe_versie if {
 toevoegen_nieuwe_versie if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
-    document.ondertekend == false
 }
 
 default verplaatsen := false

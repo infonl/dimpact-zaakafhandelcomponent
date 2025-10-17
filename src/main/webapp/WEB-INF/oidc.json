@@ -5,6 +5,6 @@
   "credentials": {
     "secret": "${env.AUTH_SECRET}"
   },
-  "ssl-required": "external",
+  "ssl-required": "${env.AUTH_SSL_REQUIRED}",
   "principal-attribute": "preferred_username"
 }

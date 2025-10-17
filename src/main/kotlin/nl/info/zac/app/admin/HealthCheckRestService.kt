@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -12,14 +12,16 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
 import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
@@ -31,23 +33,29 @@ import java.time.ZonedDateTime
 class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
-    private val healthCheckService: HealthCheckService
+    private val healthCheckService: HealthCheckService,
+    private val policyService: PolicyService
 ) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks() =
-        listZaaktypes().map {
+    fun listZaaktypeInrichtingschecks(): List<RESTZaaktypeInrichtingscheck> {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return listZaaktypes().map {
             convertToREST(healthCheckService.controleerZaaktype(it.url))
         }
+    }
 
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
-    fun readBestaatCommunicatiekanaalEformulier() =
-        healthCheckService.bestaatCommunicatiekanaalEformulier()
+    fun readBestaatCommunicatiekanaalEformulier(): Boolean {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return healthCheckService.bestaatCommunicatiekanaalEformulier()
+    }
 
     @DELETE
     @Path("ztc-cache")
     fun clearZTCCaches(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
         ztcClientService.clearZaaktypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearResultaattypeCache()
@@ -61,13 +69,19 @@ class HealthCheckRestService @Inject constructor(
 
     @GET
     @Path("ztc-cache")
-    fun readZTCCacheTime() = ztcClientService.resetCacheTimeToNow()
+    fun readZTCCacheTime(): ZonedDateTime {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        return ztcClientService.resetCacheTimeToNow()
+    }
 
+    /**
+     * Returns the ZAC build information. This information may be read by all ZAC users.
+     */
     @GET
     @Path("build-informatie")
     fun readBuildInformatie() =
         healthCheckService.readBuildInformatie().let {
-            RESTBuildInformation(it.commit, it.buildId, it.buildDatumTijd, it.versienummer)
+            RESTBuildInformation(it.commit, it.buildId, it.buildDateTime, it.versionNumber)
         }
 
     private fun listZaaktypes() =
@@ -77,13 +91,13 @@ class HealthCheckRestService @Inject constructor(
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
         RESTZaaktypeInrichtingscheck(
-            zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype),
+            zaaktype = check.zaaktype.toRestZaaktypeOverzicht(),
             besluittypeAanwezig = check.isBesluittypeAanwezig,
             resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
             resultaattypeAanwezig = check.isResultaattypeAanwezig,
             informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
-            rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig,
-            rolInitiatorAanwezig = check.isRolInitiatorAanwezig,
+            aantalBehandelaarroltypen = check.aantalBehandelaarroltypen,
+            aantalInitiatorroltypen = check.aantalInitiatorroltypen,
             rolOverigeAanwezig = check.isRolOverigeAanwezig,
             statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,
             statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer,
@@ -92,6 +106,7 @@ class HealthCheckRestService @Inject constructor(
             statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
             statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
             zaakafhandelParametersValide = check.isZaakafhandelParametersValide,
+            brpInstellingenCorrect = check.isBrpInstellingenCorrect,
             valide = check.isValide
         )
 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.planitems.model
@@ -10,7 +10,7 @@ import java.util.UUID
 
 @NoArgConstructor
 data class RESTUserEventListenerData(
-    var zaakUuid: UUID? = null,
+    var zaakUuid: UUID,
 
     var planItemInstanceId: String? = null,
 
@@ -20,7 +20,13 @@ data class RESTUserEventListenerData(
 
     var resultaatToelichting: String? = null,
 
-    var resultaattypeUuid: UUID,
+    var resultaattypeUuid: UUID? = null,
 
-    var restMailGegevens: RESTMailGegevens? = null
+    var restMailGegevens: RESTMailGegevens? = null,
+
+    /**
+     * De einddatum van het processtermijn voor de zaak.
+     * Ook wel de 'brondatum' genoemd.
+     */
+    var brondatumEigenschap: String? = null
 )

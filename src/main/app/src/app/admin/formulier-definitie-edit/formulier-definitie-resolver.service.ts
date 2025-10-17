@@ -5,9 +5,9 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
-import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 
 @Injectable({
   providedIn: "root",
@@ -15,11 +15,27 @@ import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
 export class FormulierDefinitieResolverService {
   constructor(private service: FormulierDefinitieService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<FormulierDefinitie> {
-    const id: string = route.paramMap.get("id");
-    if (id === "add") {
-      return of(new FormulierDefinitie());
+  resolve(route: ActivatedRouteSnapshot) {
+    const id = route.paramMap.get("id");
+
+    if (!id) {
+      throw new Error(
+        `${FormulierDefinitieResolverService.name}: 'id' in not defined in route`,
+      );
     }
-    return this.service.read(id);
+
+    if (id === "add") {
+      return of({
+        veldDefinities: [],
+      } satisfies GeneratedType<"RESTFormulierDefinitie">);
+    }
+    const idAsNumber = Number(id);
+    if (isNaN(idAsNumber)) {
+      throw new Error(
+        `${FormulierDefinitieResolverService.name}: 'id' in route not a valid number`,
+      );
+    }
+
+    return this.service.read(idAsNumber);
   }
 }

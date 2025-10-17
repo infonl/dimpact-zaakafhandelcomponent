@@ -10,7 +10,7 @@ in the context of [zaakgericht werken](https://www.noraonline.nl/wiki/Zaakgerich
 It is used by various Dutch municipalities.
 
 ZAC was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhandelcomponent).
-Starting July 2023 the development of ZAC was taken over by Lifely and INFO, where INFO is a partner of Lifely.
+Starting July 2023 the development of ZAC was taken over by Lifely and INFO.nl, where INFO.nl is a partner of Lifely.
 
 ## Contributing
 

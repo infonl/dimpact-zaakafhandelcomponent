@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,10 +9,12 @@ import { ActionIcon } from "../../../edit/action-icon";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
-export class InputFormField extends AbstractFormControlField {
+export class InputFormField<
+  T extends string | number | boolean = string,
+> extends AbstractFormControlField<T> {
   fieldType: FieldType = FieldType.INPUT;
-  icons: ActionIcon[];
-  clicked: Subject<any> = new Subject<any>();
+  icons: ActionIcon[] = [];
+  clicked = new Subject<unknown>();
   onClear = new EventEmitter<void>();
   maxlength: number;
   externalInput = false;

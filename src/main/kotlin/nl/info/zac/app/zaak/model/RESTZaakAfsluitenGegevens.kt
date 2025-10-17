@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
@@ -13,5 +13,11 @@ import java.util.UUID
 data class RESTZaakAfsluitenGegevens(
     var reden: String? = null,
 
-    var resultaattypeUuid: UUID
+    var resultaattypeUuid: UUID,
+
+    /**
+     * De einddatum van het processtermijn voor de zaak.
+     * Ook wel de 'brondatum' genoemd.
+     */
+    var brondatumEigenschap: String? = null
 )

@@ -1,18 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RestDecision
 import nl.info.zac.app.zaak.model.RestDecisionCreateData
@@ -30,28 +30,26 @@ class RestDecisionConverter @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) {
     fun convertToRestDecision(besluit: Besluit) =
-        ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
-            RestDecision(
-                uuid = besluit.url.extractUuid(),
-                besluittype = besluitType.toRestDecisionType(),
-                datum = besluit.datum,
-                identificatie = besluit.identificatie,
-                url = besluit.url,
-                toelichting = besluit.toelichting,
-                ingangsdatum = besluit.ingangsdatum,
-                vervaldatum = besluit.vervaldatum,
-                vervalreden = besluit.vervalreden,
-                publicationDate = besluit.publicatiedatum,
-                lastResponseDate = besluit.uiterlijkeReactiedatum,
-                isIngetrokken = besluit.vervaldatum != null && (
-                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                        besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
-                    ),
-                informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-                    listDecisionInformationObjects(besluit)
-                )
+        RestDecision(
+            uuid = besluit.url.extractUuid(),
+            besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestDecisionType(),
+            datum = besluit.datum,
+            identificatie = besluit.identificatie,
+            url = besluit.url,
+            toelichting = besluit.toelichting,
+            ingangsdatum = besluit.ingangsdatum,
+            vervaldatum = besluit.vervaldatum,
+            vervalreden = besluit.vervalreden,
+            publicationDate = besluit.publicatiedatum,
+            lastResponseDate = besluit.uiterlijkeReactiedatum,
+            isIngetrokken = besluit.vervaldatum != null && (
+                besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+                ),
+            informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
+                listDecisionInformationObjects(besluit)
             )
-        }
+        )
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData) =
         ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->

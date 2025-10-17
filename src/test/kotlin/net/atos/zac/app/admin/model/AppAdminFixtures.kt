@@ -1,0 +1,27 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.app.admin.model
+
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
+
+@Suppress("LongParameterList")
+fun createRestMailTemplate(
+    id: Long = 1234L,
+    mailTemplateName: String = "fakeTemplateName",
+    subject: String = "fakeSubject",
+    body: String = "fakeBody",
+    mail: Mail = Mail.ZAAK_ALGEMEEN,
+    mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
+    defaultTemplate: Boolean = false
+) = RESTMailtemplate().apply {
+    this.id = id
+    this.mailTemplateNaam = mailTemplateName
+    this.onderwerp = subject
+    this.body = body
+    this.mail = mail
+    this.variabelen = mailTemplateVariables
+    this.defaultMailtemplate = defaultTemplate
+}

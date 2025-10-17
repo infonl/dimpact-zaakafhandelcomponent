@@ -3,9 +3,18 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{ "title.zoekopdrachten.opslaan" | translate }}</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>save</mat-icon>
+  <span class="flex-grow-1">
+    {{ "title.zoekopdrachten.opslaan" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
+<mat-dialog-content>
   <mat-form-field class="full-width" floatLabel="always">
     <mat-label>{{ "zoekopdracht" | translate }}</mat-label>
     <input
@@ -24,8 +33,8 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     [disabled]="loading || !formControl.value"
     mat-button
@@ -46,4 +55,4 @@
   >
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

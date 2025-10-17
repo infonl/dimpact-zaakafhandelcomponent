@@ -1,23 +1,61 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>mail</mat-icon>
-    {{ "actie.mail.versturen" | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>mail</mat-icon>
+  <span class="flex-grow-1">{{ "actie.mail.versturen" | translate }}</span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" class="mt-2" (submit)="onFormSubmit()">
+  <fieldset>
+    <zac-select
+      [form]="form"
+      key="verzender"
+      [options]="verzenderOptions"
+      optionDisplayValue="mail"
+      suffix="suffix"
+    />
+    <zac-input [form]="form" key="ontvanger">
+      <button
+        (click)="setOntvanger()"
+        *ngIf="this.contactGegevens?.emailadres"
+        type="button"
+        mat-icon-button
+        matSuffix
+      >
+        <mat-icon>person</mat-icon>
+      </button>
+    </zac-input>
+    <zac-html-editor
+      [form]="form"
+      key="onderwerp"
+      isPlainText
+      [variables]="variabelen"
+    />
+    <zac-html-editor [form]="form" key="body" [variables]="variabelen" />
+  </fieldset>
+  <fieldset class="px-3">
+    <zac-documents [form]="form" key="bijlagen" [options]="documents" />
+  </fieldset>
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        {{ "actie.versturen" | translate }}
+      </button>
+      <button mat-raised-button (click)="sideNav.close()" type="reset">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>

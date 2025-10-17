@@ -1,14 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.documenten;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +17,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -30,15 +27,14 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
-
 
 @ApplicationScoped
 @Transactional
@@ -46,11 +42,22 @@ public class OntkoppeldeDocumentenService {
 
     private static final String LIKE = "%%%s%%";
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+    private Instance<LoggedInUser> loggedInUserInstance;
+
+    @SuppressWarnings("unused")
+    public OntkoppeldeDocumentenService() {
+        // Default constructor for CDI
+    }
 
     @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+    public OntkoppeldeDocumentenService(
+            final EntityManager entityManager,
+            final Instance<LoggedInUser> loggedInUserInstance
+    ) {
+        this.entityManager = entityManager;
+        this.loggedInUserInstance = loggedInUserInstance;
+    }
 
 
     public OntkoppeldDocument create(
@@ -61,7 +68,7 @@ public class OntkoppeldeDocumentenService {
         final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
         ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
         ontkoppeldDocument.setDocumentUUID(extractUuid(informatieobject.getUrl()));
-        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
+        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum());
         ontkoppeldDocument.setTitel(informatieobject.getTitel());
         ontkoppeldDocument.setBestandsnaam(informatieobject.getBestandsnaam());
         ontkoppeldDocument.setOntkoppeldOp(ZonedDateTime.now());

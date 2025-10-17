@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.configuratie
@@ -54,6 +54,9 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
     private val bpmnSupport: Boolean,
 
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION")
+    private val pabcIntegration: Boolean,
+
     @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
     private val bronOrganisatie: String,
 
@@ -62,6 +65,8 @@ class ConfiguratieService @Inject constructor(
 
     @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
     private val catalogusDomein: String,
+
+    private val brpConfiguration: BrpConfiguration
 ) {
     companion object {
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
@@ -125,6 +130,8 @@ class ConfiguratieService @Inject constructor(
 
     fun featureFlagBpmnSupport(): Boolean = bpmnSupport
 
+    fun featureFlagPabcIntegration(): Boolean = pabcIntegration
+
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
 
     fun readAdditionalAllowedFileTypes(): List<String> =
@@ -163,4 +170,6 @@ class ConfiguratieService @Inject constructor(
     fun readVerantwoordelijkeOrganisatie(): String = verantwoordelijkeOrganisatie
 
     fun readCatalogusDomein(): String = catalogusDomein
+
+    fun readBrpConfiguration(): BrpConfiguration = brpConfiguration
 }

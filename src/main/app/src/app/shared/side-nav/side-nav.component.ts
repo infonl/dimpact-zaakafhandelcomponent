@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, inject, input, output, signal } from "@angular/core";
 import { finalize } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { rotate180, sideNavToggle } from "../animations/animations";
@@ -20,24 +20,22 @@ import { SideNavUtil } from "./side-nav.util";
   styleUrls: ["./side-nav.component.less"],
   animations: [rotate180, sideNavToggle],
 })
-export class SideNavComponent implements OnInit {
-  @Input() menu: MenuItem[];
-  @Input() activeItem: string | null;
-  @Output() mode = new EventEmitter<string>();
-  @Output() activeItemChange = new EventEmitter<string | null>();
+export class SideNavComponent {
+  private readonly utilService = inject(UtilService);
 
-  readonly menuItemType = MenuItemType;
-  menuMode = SideNavUtil.load();
-  menuState: string;
+  protected readonly menu = input.required<MenuItem[]>();
+  protected readonly activeItem = input<string | null>(null);
+  protected readonly mode = output<string>();
+  protected readonly activeItemChange = output<string | null>();
 
-  constructor(private utilService: UtilService) {}
+  protected readonly menuItemType = MenuItemType;
 
-  ngOnInit(): void {
-    this.menuState =
-      this.menuMode === MenuMode.OPEN ? MenuMode.OPEN : MenuMode.CLOSED;
-  }
+  protected menuMode = SideNavUtil.load();
+  protected readonly menuState = signal(
+    this.menuMode === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode,
+  );
 
-  toggleMenu(): void {
+  toggleMenu() {
     switch (this.menuMode) {
       case MenuMode.CLOSED:
         this.menuMode = MenuMode.AUTO;
@@ -45,13 +43,13 @@ export class SideNavComponent implements OnInit {
         break;
       case MenuMode.AUTO:
         this.menuMode = MenuMode.OPEN;
-        this.menuState = MenuState.OPEN;
+        this.menuState.set(MenuState.OPEN);
         this.mode.emit("side");
         break;
       case MenuMode.OPEN:
       default:
         this.menuMode = MenuMode.CLOSED;
-        this.menuState = MenuState.CLOSED;
+        this.menuState.set(MenuState.CLOSED);
         this.mode.emit("side");
     }
 
@@ -59,16 +57,18 @@ export class SideNavComponent implements OnInit {
   }
 
   mouseEnter() {
-    this.menuState =
-      this.menuMode === MenuMode.AUTO ? MenuState.OPEN : this.menuMode;
+    this.menuState.set(
+      this.menuMode === MenuMode.AUTO ? MenuState.OPEN : this.menuMode,
+    );
   }
 
   mouseLeave() {
-    this.menuState =
-      this.menuMode === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode;
+    this.menuState.set(
+      this.menuMode === MenuMode.AUTO ? MenuState.CLOSED : this.menuMode,
+    );
   }
 
-  onClick(buttonMenuItem: ButtonMenuItem): void {
+  onClick(buttonMenuItem: ButtonMenuItem) {
     if (buttonMenuItem.disabled) return;
     this.activeItemChange.emit(buttonMenuItem.title);
 

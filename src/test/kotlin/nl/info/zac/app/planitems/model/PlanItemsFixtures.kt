@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,7 +14,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRESTHumanTaskData(
-    planItemInstanceId: String = "dummyPlanItemInstanceId",
+    planItemInstanceId: String = "fakePlanItemInstanceId",
     groep: RestGroup = createRestGroup(),
     medewerker: RestUser? = null,
     fataledatum: LocalDate? = null,
@@ -42,11 +42,13 @@ fun createRESTTaakStuurGegevens(
 fun createRESTUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
-    restMailGegevens: RESTMailGegevens,
-    resultaattypeUuid: UUID = UUID.randomUUID()
+    restMailGegevens: RESTMailGegevens? = null,
+    resultaattypeUuid: UUID = UUID.randomUUID(),
+    brondatumEigenschap: String? = null
 ) = RESTUserEventListenerData(
     zaakUuid = zaakUuid,
     actie = actie,
     restMailGegevens = restMailGegevens,
-    resultaattypeUuid = resultaattypeUuid
+    resultaattypeUuid = resultaattypeUuid,
+    brondatumEigenschap = brondatumEigenschap
 )

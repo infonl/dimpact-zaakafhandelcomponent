@@ -1,15 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Observable } from "rxjs";
 import { AbstractChoicesFormFieldBuilder } from "../../model/abstract-choices-form-field-builder";
 import { SelectFormField } from "./select-form-field";
 
-export class SelectFormFieldBuilder extends AbstractChoicesFormFieldBuilder {
-  readonly formField: SelectFormField;
+type AllowedValue = Record<string, unknown> | string;
+type ValueType = AllowedValue | Observable<AllowedValue>;
 
-  constructor(value?: any) {
+export class SelectFormFieldBuilder<
+  T extends ValueType = Record<string, unknown>,
+> extends AbstractChoicesFormFieldBuilder<T> {
+  readonly formField: SelectFormField<T>;
+
+  constructor(value?: T | null) {
     super();
     this.formField = new SelectFormField();
     this.formField.initControl(value);

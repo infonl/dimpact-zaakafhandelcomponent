@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 # When updating this file, please make sure to also update the policy documentation
@@ -14,9 +14,6 @@ import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
 
-# Ensure user.rollen is iterable
-user_rollen := {r | r := user.rollen[_]}
-
 werklijst_rechten := {
     "inbox": inbox,
     "ontkoppelde_documenten_verwijderen": ontkoppelde_documenten_verwijderen,
@@ -28,30 +25,30 @@ werklijst_rechten := {
 
 default inbox := false
 inbox if {
-    behandelaar.rol in user_rollen
+    coordinator.rol in user.rollen
 }
 
 default ontkoppelde_documenten_verwijderen := false
 ontkoppelde_documenten_verwijderen if {
-    recordmanager.rol in user_rollen
+    recordmanager.rol in user.rollen
 }
 
 default inbox_productaanvragen_verwijderen := false
 inbox_productaanvragen_verwijderen if {
-    recordmanager.rol in user_rollen
+    recordmanager.rol in user.rollen
 }
 
 default zaken_taken := false
 zaken_taken if {
-    raadpleger.rol in user_rollen
+    raadpleger.rol in user.rollen
 }
 
 default zaken_taken_verdelen := false
 zaken_taken_verdelen if {
-    coordinator.rol in user_rollen
+    coordinator.rol in user.rollen
 }
 
 default zaken_taken_exporteren := false
 zaken_taken_exporteren if {
-    beheerder.rol in user_rollen
+    beheerder.rol in user.rollen
 }

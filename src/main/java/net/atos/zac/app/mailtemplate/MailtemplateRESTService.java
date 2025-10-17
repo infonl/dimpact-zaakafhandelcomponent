@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.mailtemplate;
 
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.util.UUID;
 
@@ -17,14 +17,15 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.admin.ZaakafhandelParameterService;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
-import net.atos.zac.mailtemplates.MailTemplateService;
-import net.atos.zac.mailtemplates.model.Mail;
+import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration;
+import nl.info.zac.mailtemplates.MailTemplateService;
+import nl.info.zac.mailtemplates.model.Mail;
+import nl.info.zac.mailtemplates.model.MailTemplate;
 
 @Singleton
 @Path("mailtemplates")
@@ -36,7 +37,7 @@ public class MailtemplateRESTService {
     private MailTemplateService mailTemplateService;
 
     @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterService;
+    private ZaaktypeCmmnConfigurationService zaaktypeCmmnConfigurationService;
 
     @Inject
     private ZrcClientService zrcClientService;
@@ -48,16 +49,17 @@ public class MailtemplateRESTService {
             @PathParam("zaakUUID") final UUID zaakUUID
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(extractUuid(
-                zaak.getZaaktype()));
+        final ZaaktypeCmmnConfiguration zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                extractUuid(
+                        zaak.getZaaktype()));
 
-        return zaakafhandelParameters.getMailtemplateKoppelingen().stream()
-                .filter(koppeling -> koppeling.getMailTemplate().getMail().equals(mail))
+        return zaaktypeCmmnConfiguration.getMailtemplateKoppelingen().stream()
+                .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
                 .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
                 .findFirst()
-                .orElseGet(() -> mailTemplateService.findDefaultMailtemplate(mail)
-                        .map(RESTMailtemplateConverter::convert)
-                        .orElse(null)
-                );
+                .orElseGet(() -> {
+                    MailTemplate mailTemplate = mailTemplateService.findDefaultMailtemplate(mail);
+                    return mailTemplate != null ? RESTMailtemplateConverter.convert(mailTemplate) : null;
+                });
     }
 }

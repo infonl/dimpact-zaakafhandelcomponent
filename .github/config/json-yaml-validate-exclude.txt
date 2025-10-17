@@ -1,0 +1,14 @@
+#
+# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Specifies files to exclude from JSON and YAML file validation in our GitHub workflow.
+# See: https://github.com/GrantBirki/json-yaml-validate for details.
+
+# Exclude validation on our Helm Charts since it will break. Also, we already have linting in place.
+charts/
+
+# Exclude validation on external OpenAPI specification files since it breaks on some of these files,
+# and it makes little sense for us to validate external files,
+# even though some of them include manual changes made by us.
+src/main/resources/api-specs

@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-accordion>
@@ -12,7 +12,7 @@
       <mat-panel-title> {{ besluit.identificatie }} </mat-panel-title>
       <mat-panel-description class="justify-end">
         <zac-besluit-indicaties
-          [layout]="indicatiesLayout.VIEW"
+          [layout]="indicatiesLayout.EXTENDED"
           [besluit]="besluit"
         ></zac-besluit-indicaties>
         <button
@@ -43,27 +43,22 @@
         <div class="content flex-row flex-wrap">
           <zac-static-text
             class="w25 w50-md"
-            [label]="'resultaat' | translate"
-            [value]="result?.resultaattype.naam"
-          ></zac-static-text>
+            label="besluit"
+            [value]="besluit.besluittype?.naam"
+          />
           <zac-static-text
             class="w25 w50-md"
-            [label]="'besluit' | translate"
-            [value]="besluit.besluittype.naam"
-          ></zac-static-text>
-          <zac-static-text
-            class="w25 w50-md"
-            [label]="'datum' | translate"
+            label="datum"
             [value]="besluit.datum | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
-            [label]="'ingangsdatum' | translate"
+            label="ingangsdatum"
             [value]="besluit.ingangsdatum | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
-            [label]="'vervaldatum' | translate"
+            label="vervaldatum"
             [value]="besluit.vervaldatum | datum"
             [icon]="besluit.vervalreden ? toolTipIcon : null"
             [matTooltip]="
@@ -77,24 +72,24 @@
                 ? ('besluit.vervalreden.' + besluit.vervalreden | translate)
                 : null
             "
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype.publication.enabled"
-            [label]="'publicatiedatum' | translate"
+            *ngIf="besluit.besluittype?.publication?.enabled"
+            label="publicatiedatum"
             [value]="besluit.publicationDate | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="besluit.besluittype.publication.enabled"
-            [label]="'uiterlijkereactiedatum' | translate"
+            *ngIf="besluit.besluittype?.publication?.enabled"
+            label="uiterlijkereactiedatum"
             [value]="besluit.lastResponseDate | datum"
-          ></zac-static-text>
+          />
           <zac-static-text
             class="flex-fill-row"
-            [label]="'besluitToelichting' | translate"
+            label="besluitToelichting"
             [value]="besluit.toelichting"
-          ></zac-static-text>
+          />
           <mfb-form-field
             class="flex-fill-row"
             *ngIf="besluitInformatieobjecten[besluit.uuid]"
@@ -203,7 +198,7 @@
               "
             ></tr>
           </table>
-          <p *ngIf="histories[besluit.uuid]?.data.length == 0">
+          <p *ngIf="histories[besluit.uuid]?.data?.length == 0">
             {{ "msg.geen.gegevens.gevonden" | translate }}
           </p>
         </div>

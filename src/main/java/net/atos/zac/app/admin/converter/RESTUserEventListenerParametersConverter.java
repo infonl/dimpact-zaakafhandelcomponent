@@ -8,27 +8,27 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
-import net.atos.zac.admin.model.UserEventListenerParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter;
+import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters;
 
 public final class RESTUserEventListenerParametersConverter {
 
     public static List<RESTUserEventListenerParameter> convertUserEventListenerParametersCollection(
-            final Set<UserEventListenerParameters> userEventListenerParametersCollection,
+            final Set<ZaaktypeCmmnUsereventlistenerParameters> zaaktypeCmmnUsereventlistenerParametersCollection,
             final List<RESTPlanItemDefinition> userEventListenerDefinitions
     ) {
         return userEventListenerDefinitions.stream()
                 .map(
                         userEventListenerDefinition -> convertUserEventListenerDefinition(
                                 userEventListenerDefinition,
-                                userEventListenerParametersCollection
+                                zaaktypeCmmnUsereventlistenerParametersCollection
                         )
                 )
                 .toList();
     }
 
-    public static List<UserEventListenerParameters> convertRESTUserEventListenerParameters(
+    public static List<ZaaktypeCmmnUsereventlistenerParameters> convertRESTUserEventListenerParameters(
             final List<RESTUserEventListenerParameter> restUserEventListenerParameters
     ) {
         return restUserEventListenerParameters.stream()
@@ -36,28 +36,29 @@ public final class RESTUserEventListenerParametersConverter {
                 .toList();
     }
 
-    private static UserEventListenerParameters convertRESTUserEventListenerParameter(
+    private static ZaaktypeCmmnUsereventlistenerParameters convertRESTUserEventListenerParameter(
             final RESTUserEventListenerParameter restUserEventListenerParameter
     ) {
-        final UserEventListenerParameters userEventListenerParameters = new UserEventListenerParameters();
-        userEventListenerParameters.setPlanItemDefinitionID(restUserEventListenerParameter.id);
-        userEventListenerParameters.setToelichting(restUserEventListenerParameter.toelichting);
-        return userEventListenerParameters;
+        final ZaaktypeCmmnUsereventlistenerParameters zaaktypeCmmnUsereventlistenerParameters = new ZaaktypeCmmnUsereventlistenerParameters();
+        zaaktypeCmmnUsereventlistenerParameters.setPlanItemDefinitionID(restUserEventListenerParameter.id);
+        zaaktypeCmmnUsereventlistenerParameters.setToelichting(restUserEventListenerParameter.toelichting);
+        return zaaktypeCmmnUsereventlistenerParameters;
     }
 
     private static RESTUserEventListenerParameter convertUserEventListenerDefinition(
             final RESTPlanItemDefinition userEventListenerDefinition,
-            final Set<UserEventListenerParameters> userEventListenerParametersCollection
+            final Set<ZaaktypeCmmnUsereventlistenerParameters> zaaktypeCmmnUsereventlistenerParametersCollection
     ) {
         final RESTUserEventListenerParameter restUserEventListenerParameter = new RESTUserEventListenerParameter();
         restUserEventListenerParameter.id = userEventListenerDefinition.id;
         restUserEventListenerParameter.naam = userEventListenerDefinition.naam;
-        userEventListenerParametersCollection.stream()
-                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(
+        zaaktypeCmmnUsereventlistenerParametersCollection.stream()
+                .filter(zaaktypeCmmnUsereventlistenerParameters -> zaaktypeCmmnUsereventlistenerParameters.getPlanItemDefinitionID().equals(
                         userEventListenerDefinition.id))
                 .findAny()
-                .ifPresent(userEventListenerParameters -> restUserEventListenerParameter.toelichting = userEventListenerParameters
-                        .getToelichting());
+                .ifPresent(
+                        zaaktypeCmmnUsereventlistenerParameters -> restUserEventListenerParameter.toelichting = zaaktypeCmmnUsereventlistenerParameters
+                                .getToelichting());
         return restUserEventListenerParameter;
     }
 }

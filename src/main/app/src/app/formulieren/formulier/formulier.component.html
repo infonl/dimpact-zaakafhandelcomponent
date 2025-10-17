@@ -173,16 +173,17 @@
         ></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
         <span
-          *ngIf="hasValue(veldDefinitie.systeemnaam)"
+          *ngIf="hasValue(veldDefinitie?.systeemnaam)"
           class="daysSuffix"
           matSuffix
-          >{{ days(veldDefinitie.systeemnaam) }} {{ "dagen" | translate }}</span
+          >{{ days(veldDefinitie?.systeemnaam) }}
+          {{ "dagen" | translate }}</span
         >
       </mat-form-field>
     </div>
     <div *ngSwitchCase="FormulierVeldtype.DOCUMENTEN_LIJST">
       <zac-documenten-formulier-veld
-        [control]="getControl(veldDefinitie.systeemnaam)"
+        [control]="getControl(veldDefinitie?.systeemnaam)"
         [veldDefinitie]="veldDefinitie"
         [zaak]="zaak"
       >

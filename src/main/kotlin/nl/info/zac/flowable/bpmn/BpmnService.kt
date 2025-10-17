@@ -7,10 +7,11 @@ package nl.info.zac.flowable.bpmn
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -32,7 +33,7 @@ class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
     private val processEngine: ProcessEngine,
-    private val zaaktypeBpmnProcessDefinitionService: ZaaktypeBpmnProcessDefinitionService
+    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -62,9 +63,9 @@ class BpmnService @Inject constructor(
                 )
         }
 
-    fun isProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
+    fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
-    fun findProcessDefinitionByprocessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
+    fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)
             .active()
@@ -72,7 +73,7 @@ class BpmnService @Inject constructor(
             .singleResult()
 
     fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
-        findProcessDefinitionByprocessDefinitionKey(processDefinitionKey)
+        findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             ?: throw ProcessDefinitionNotFoundException(
                 "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             )
@@ -119,7 +120,7 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        zaaktypeBpmnProcessDefinitionService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+        zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.

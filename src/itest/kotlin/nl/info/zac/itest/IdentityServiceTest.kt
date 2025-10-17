@@ -1,84 +1,78 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
 
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RAADPLEGERS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RAADPLEGERS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    Given("Keycloak contains 'test group a' and 'test group functional beheerders'") {
+    Given("The ZAC Keycloak realm contains several groups") {
         When("the 'list groups' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/groups"
             )
             Then(
-                "'All 7 specific groups are returned"
+                "all groups are returned"
             ) {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
-                            [
-                                {
-                                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
-                                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
-                                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_COORDINATORS_ID",
-                                    "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_RAADPLEGERS_ID",
-                                    "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
-                                },
-                                {
-                                    "id": "$TEST_GROUP_A_ID",
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
-                                },
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+            }
+        }
+    }
+    Given(
+        """
+            Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
+            zaaktypeCmmnConfiguration for a given zaaktype UUID
+        """.trimIndent()
+    ) {
+        When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
+            )
+            Then(
+                "only those groups which have the domain role are returned"
+            ) {
+                response.isSuccessful shouldBe true
+                response.body.string() shouldEqualSpecifiedJson """
+                            [                               
                                 {
                                     "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
                                     "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
@@ -88,17 +82,35 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
+    Given(
+        """
+            Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
+            zaaktypeCmmnConfiguration for a given domein role
+        """.trimIndent()
+    ) {
+        When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_3_UUID"
+            )
+            Then(
+                "all groups are returned"
+            ) {
+                response.isSuccessful shouldBe true
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+            }
+        }
+    }
     Given("Keycloak contains all provisioned test users") {
         When("the 'list users' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("All 8 specific users are returned") {
+            Then("All specific users are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_ID",
+                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_USERNAME",
                                     "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
@@ -114,7 +126,11 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_BEHANDELAAR_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_RAADPLEGER_1_ID",
+                                    "id": "$TEST_BEHANDELAAR_2_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_1_USERNAME",
                                     "naam": "$TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
@@ -125,9 +141,17 @@ class IdentityServiceTest : BehaviorSpec({
                                     "id": "$TEST_USER_2_ID",
                                     "naam": "$TEST_USER_2_NAME"
                                 },
-                                                                {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
                                     "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_2_USERNAME",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_USER_WITHOUT_ANY_ROLE_USERNAME",
+                                    "naam": "$TEST_USER_WITHOUT_ANY_ROLE_NAME"
                                 }
                             ]
                 """.trimIndent()
@@ -141,7 +165,7 @@ class IdentityServiceTest : BehaviorSpec({
             )
             Then("'testuser 1' and 'testuser 2' are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
+                response.body.string() shouldEqualJson """
                         [
                             {
                                 "id": "$TEST_USER_1_USERNAME",
@@ -163,7 +187,7 @@ class IdentityServiceTest : BehaviorSpec({
             )
             Then("both groups are returned") {
                 response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
                                 "id": "$TEST_USER_1_USERNAME",
                                 "naam": "$TEST_USER_1_NAME",

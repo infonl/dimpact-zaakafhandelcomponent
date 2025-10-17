@@ -1,27 +1,34 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaakAfzenders
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
-import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
-import nl.info.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
+import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
+import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestZaakAfzenders
+import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
+import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -35,89 +42,118 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
-    val zaakafhandelParameterService: ZaakafhandelParameterService,
-    val smartDocumentsService: SmartDocumentsService
+    val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
+    val smartDocumentsService: SmartDocumentsService,
 ) {
-    fun toRestZaakafhandelParameters(
-        zaakafhandelParameters: ZaakafhandelParameters,
+    @Suppress("LongMethod")
+    fun toRestZaaktypeCmmnConfiguration(
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         inclusiefRelaties: Boolean
     ): RestZaakafhandelParameters {
         val restZaakafhandelParameters = RestZaakafhandelParameters(
-            id = zaakafhandelParameters.id,
-            zaaktype = ztcClientService.readZaaktype(zaakafhandelParameters.zaakTypeUUID).let {
-                RESTZaaktypeOverzichtConverter.convert(it)
-            },
-            defaultGroepId = zaakafhandelParameters.groepID,
-            defaultBehandelaarId = zaakafhandelParameters.gebruikersnaamMedewerker,
-            einddatumGeplandWaarschuwing = zaakafhandelParameters.einddatumGeplandWaarschuwing,
-            uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters
+            id = zaaktypeCmmnConfiguration.id,
+            zaaktype = ztcClientService.readZaaktype(
+                zaaktypeCmmnConfiguration.zaakTypeUUID!!
+            ).toRestZaaktypeOverzicht(),
+            defaultGroepId = zaaktypeCmmnConfiguration.groepID,
+            defaultBehandelaarId = zaaktypeCmmnConfiguration.gebruikersnaamMedewerker,
+            einddatumGeplandWaarschuwing = zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing,
+            uiterlijkeEinddatumAfdoeningWaarschuwing = zaaktypeCmmnConfiguration
                 .uiterlijkeEinddatumAfdoeningWaarschuwing,
-            creatiedatum = zaakafhandelParameters.creatiedatum,
-            valide = zaakafhandelParameters.isValide,
-            caseDefinition = zaakafhandelParameters.caseDefinitionID?.let {
+            creatiedatum = zaaktypeCmmnConfiguration.creatiedatum,
+            valide = zaaktypeCmmnConfiguration.isValide(),
+            caseDefinition = zaaktypeCmmnConfiguration.caseDefinitionID?.let {
                 caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
             },
-            intakeMail = zaakafhandelParameters.intakeMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
-            afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
-            productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
-            domein = zaakafhandelParameters.domein,
+            intakeMail = zaaktypeCmmnConfiguration.intakeMail?.let {
+                ZaakafhandelparametersStatusMailOption.valueOf(
+                    it
+                )
+            },
+            afrondenMail = zaaktypeCmmnConfiguration.afrondenMail?.let {
+                ZaakafhandelparametersStatusMailOption.valueOf(
+                    it
+                )
+            },
+            productaanvraagtype = zaaktypeCmmnConfiguration.productaanvraagtype,
+            domein = zaaktypeCmmnConfiguration.domein,
             smartDocuments = RestSmartDocuments(
                 enabledGlobally = smartDocumentsService.isEnabled(),
-                enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
-            )
+                enabledForZaaktype = zaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
+            ),
+            betrokkeneKoppelingen = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
+                .toRestBetrokkeneKoppelingen(),
+            brpDoelbindingen = zaaktypeCmmnConfiguration.getBrpParameters()
+                .toRestBrpDoelbindingen(),
+            automaticEmailConfirmation = zaaktypeCmmnConfiguration.getAutomaticEmailConfirmation()
+                ?.toRestAutomaticEmailConfirmation()
+                ?: RestAutomaticEmailConfirmation(),
         )
-        restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
-            zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
-                ztcClientService.readResultaattype(it).let { resultaatType ->
-                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype = resultaatType.toRestResultaatType()
-                }
-            }
-            restZaakafhandelParameters.humanTaskParameters =
-                humanTaskParametersConverter.convertHumanTaskParametersCollection(
-                    zaakafhandelParameters.humanTaskParametersCollection,
-                    caseDefinition.humanTaskDefinitions
-                )
-            restZaakafhandelParameters.userEventListenerParameters = RESTUserEventListenerParametersConverter
-                .convertUserEventListenerParametersCollection(
-                    zaakafhandelParameters.userEventListenerParametersCollection,
-                    caseDefinition.userEventListenerDefinitions
-                )
-            restZaakafhandelParameters.zaakbeeindigParameters =
-                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                    zaakafhandelParameters.zaakbeeindigParameters
-                )
-            restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
-                zaakafhandelParameters.mailtemplateKoppelingen
-            )
-            restZaakafhandelParameters.zaakAfzenders = RESTZaakAfzenderConverter.convertZaakAfzenders(
-                zaakafhandelParameters.zaakAfzenders
-            )
+        if (inclusiefRelaties) {
+            restZaakafhandelParameters.addRelatedData(zaaktypeCmmnConfiguration)
         }
         return restZaakafhandelParameters
     }
 
-    fun toZaakafhandelParameters(
+    private fun RestZaakafhandelParameters.addRelatedData(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) {
+        this.caseDefinition?.let { caseDefinition ->
+            this.humanTaskParameters =
+                humanTaskParametersConverter.convertHumanTaskParametersCollection(
+                    zaaktypeCmmnConfiguration.getHumanTaskParametersCollection(),
+                    caseDefinition.humanTaskDefinitions
+                )
+            this.userEventListenerParameters = RESTUserEventListenerParametersConverter
+                .convertUserEventListenerParametersCollection(
+                    zaaktypeCmmnConfiguration.getUserEventListenerParametersCollection(),
+                    caseDefinition.userEventListenerDefinitions
+                )
+        }
+        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
+            ztcClientService.readResultaattype(it).let { resultaatType ->
+                this.zaakNietOntvankelijkResultaattype =
+                    resultaatType.toRestResultaatType()
+            }
+        }
+        this.zaakbeeindigParameters =
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                zaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+            )
+        this.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
+            zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+        )
+        this.zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().toRestZaakAfzenders()
+    }
+
+    @Suppress("ThrowsCount")
+    fun toZaaktypeCmmnConfiguration(
         restZaakafhandelParameters: RestZaakafhandelParameters
-    ): ZaakafhandelParameters =
-        zaakafhandelParameterService.readZaakafhandelParameters(
-            restZaakafhandelParameters.zaaktype.uuid
-        ).apply {
+    ): ZaaktypeCmmnConfiguration {
+        val zaaktypeCmmnConfiguration = restZaakafhandelParameters.zaaktype.uuid?.let { uuid ->
+            zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(uuid)
+        } ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.uuid is null")
+
+        return zaaktypeCmmnConfiguration.apply {
             id = restZaakafhandelParameters.id
             zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid
             zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
-            caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
+                ?: throw NullPointerException("restZaakafhandelParameters.zaaktype.omschrijving is null")
+            caseDefinitionID = (
+                restZaakafhandelParameters.caseDefinition
+                    ?: throw NullPointerException("restZaakafhandelParameters.caseDefinition is null")
+                ).key
+
             groepID = restZaakafhandelParameters.defaultGroepId
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-            nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
+            nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype?.id
+                ?: throw NullPointerException("restZaakafhandelParameters.zaakNietOntvankelijkResultaattype is null")
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
-            // trim to make sure accidentally added whitespace is removed
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
-            isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            smartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
@@ -139,8 +175,13 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     restZaakafhandelParameters.mailtemplateKoppelingen
                 )
             )
-            it.setZaakAfzenders(
-                convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
-            )
+            it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
+            it.zaaktypeCmmnBetrokkeneParameters =
+                restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            it.zaaktypeCmmnBrpParameters =
+                restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
+            it.zaaktypeCmmnEmailParameters =
+                restZaakafhandelParameters.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }
+    }
 }

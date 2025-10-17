@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,7 +9,8 @@ import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
 
 enum class MediaType(val value: String) {
-    APPLICATION_JSON("application/json");
+    APPLICATION_JSON("application/json"),
+    DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
     fun toMediaType() = value.toMediaType()
 }

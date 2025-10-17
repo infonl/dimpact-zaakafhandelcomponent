@@ -1,24 +1,29 @@
 /*
- * SPDX-FileCopyrightText:  2025 Lifely
+ * SPDX-FileCopyrightText:  2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Input } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
+import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const mockTranslateService = {
-  get(key: any): any {
+  get(key: unknown) {
     return of(key);
   },
   onTranslationChange: of({}),
   onLangChange: of({}),
-  onDefaultLangChange: of({}),
+  onFallbackLangChange: of({}),
 };
 
 const testPerson: GeneratedType<"RestPersoon"> = {
@@ -27,9 +32,7 @@ const testPerson: GeneratedType<"RestPersoon"> = {
 };
 
 describe("PersoonsgegevensComponent", () => {
-  let component: PersoonsgegevensComponent;
-  let fixture: ComponentFixture<PersoonsgegevensComponent>;
-  let klantenServiceMock: any;
+  let klantenServiceMock: Partial<KlantenService>;
 
   beforeEach(async () => {
     klantenServiceMock = {
@@ -38,16 +41,24 @@ describe("PersoonsgegevensComponent", () => {
 
     await TestBed.configureTestingModule({
       declarations: [PersoonsgegevensComponent],
-      imports: [TranslateModule.forRoot(), PipesModule],
+      imports: [
+        TranslateModule.forRoot(),
+        PipesModule,
+        MaterialModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
         { provide: TranslateService, useValue: mockTranslateService },
+        provideQueryClient(new QueryClient()),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PersoonsgegevensComponent);
-    component = fixture.componentInstance;
-    component.bsn = new Input(testPerson.bsn);
+    const fixture = TestBed.createComponent(PersoonsgegevensComponent);
+    const ref = fixture.componentRef;
+    ref.setInput("bsn", "20");
+    ref.setInput("zaakIdentificatie", "test");
+    ref.setInput("action", "test");
     fixture.detectChanges();
   });
 

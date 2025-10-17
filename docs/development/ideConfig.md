@@ -45,8 +45,9 @@
    Uncheck the `use default` for the startup script and select the `startupwithenv.sh` script from the project root (or `startupwithenv.bat` for windows).
    Next add a new env var called `APP_ENV` and set the value to `devlocal`.
    ![zac-intellij-runtime-wildfly-4.png](./attachments/images/zac-intellij-runtime-wildfly-4.png)
-6. If you wish to enable Open Telemetry tracing from ZAC set the `SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE` environment 
-   variable to `on` (it is turned off by default).
+6. If you wish to enable Open Telemetry tracing from ZAC set the `OTEL_SDK_DISABLED` environment 
+   variable to `false` (it is set to `true` by default) and set the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable
+   to `http://localhost:4317`.
    ![zac-intellij-runtime-wildfly-6.png](./attachments/images/zac-intellij-runtime-wildfly-6.png)
 7. Make sure you configured 1Password startup script for both `Run` and `Debug`
 

@@ -1,9 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -11,7 +17,6 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
@@ -22,9 +27,9 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenService } from "../taken.service";
 
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
@@ -34,7 +39,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
 })
 export class TakenMijnComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: TakenMijnDatasource;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -42,7 +47,6 @@ export class TakenMijnComponent
   @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
   expandedRow: TaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld = SorteerVeld;
 
   fataledatumIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
@@ -98,8 +102,8 @@ export class TakenMijnComponent
     ]);
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.WERKVOORRAAD_TAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "WERKVOORRAAD_TAKEN";
   }
 
   resetColumns(): void {

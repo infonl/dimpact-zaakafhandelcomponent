@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,10 +12,13 @@ import java.util.UUID
 fun createRestDocumentCreationAttendedData(
     zaakUuid: UUID = UUID.randomUUID(),
     taskId: String? = null,
-    smartDocumentsTemplateGroupId: String = "dummyGroupId",
-    smartDocumentsTemplateId: String = "dummyTtemplateId",
-    title: String = "dummyTitle",
-    author: String = "dummyAuthor",
+    smartDocumentsTemplateGroupId: String = "fakeGroupId",
+    smartDocumentsTemplateId: String = "fakeTtemplateId",
+    smartDocumentsTemplateGroupName: String? = null,
+    smartDocumentsTemplateName: String? = null,
+    informatieobjecttypeUuid: UUID? = null,
+    title: String = "fakeTitle",
+    author: String = "fakeAuthor",
     creationDate: ZonedDateTime = ZonedDateTime.now()
 ) = RestDocumentCreationAttendedData(
     zaakUuid = zaakUuid,
@@ -24,5 +27,8 @@ fun createRestDocumentCreationAttendedData(
     smartDocumentsTemplateId = smartDocumentsTemplateId,
     title = title,
     author = author,
-    creationDate = creationDate
+    creationDate = creationDate,
+    informatieobjecttypeUuid = informatieobjecttypeUuid,
+    smartDocumentsTemplateName = smartDocumentsTemplateName,
+    smartDocumentsTemplateGroupName = smartDocumentsTemplateGroupName
 )

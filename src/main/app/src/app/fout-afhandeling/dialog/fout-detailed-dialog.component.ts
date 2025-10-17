@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,7 +13,6 @@ import { MaterialModule } from "../../shared/material/material.module";
 @Component({
   standalone: true,
   templateUrl: "fout-detailed-dialog.component.html",
-  styleUrls: ["./fout-detailed-dialog.component.less"],
   imports: [TranslateModule, MaterialModule, NgIf, AsyncPipe, NgForOf],
 })
 export class FoutDetailedDialogComponent {

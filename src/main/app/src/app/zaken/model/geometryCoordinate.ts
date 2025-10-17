@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class GeometryCoordinate {
   constructor(
     public latitude: number,

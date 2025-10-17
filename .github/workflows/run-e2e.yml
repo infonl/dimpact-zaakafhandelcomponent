@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: 2023 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 name: Playwright Tests
@@ -12,7 +12,6 @@ on:
 permissions:
   contents: write
   pages: write
-  id-token: write
 
 jobs:
   playwright:
@@ -33,15 +32,15 @@ jobs:
           my_ip=$(curl https://api.ipify.org)
           echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
-        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
+        uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # v2.2.0
         with:
-          azcliversion: "latest"
+          azcliversion: latest
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: 20
+          node-version: 22
       - name: Install dependencies
         run: cd src/e2e && npm ci
       - name: Install Playwright Browsers
@@ -54,26 +53,23 @@ jobs:
       - name: copy report to seperate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
-
-      - name: Upload pages artifact
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
-        id: artifact
         with:
-          path: 'src/e2e/reports'
-          retention-days: 180
-
+          
+          path: src/e2e/reports
+          retention-days: 7
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        id: published_site
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./src/e2e/reports/ # directory of your reports
+          publish_branch: gh-pages # deploying to gh-pages branch
+          keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@1750b5085f3ec60384090fb7c52965ef822e869e # v3.18.0
+        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3.19.0
         with:
           status: custom
           fields: workflow,job,status
@@ -116,7 +112,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL (latest run only):*\n:link: ${{ steps.published_site.outputs.page_url }}/${{ steps.date.outputs.date }}/e2e-report.html\n*Archived report (max 6 months):* :floppy_disk: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact.outputs.artifact_id }}"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
                       }
                     },
                     {
@@ -126,15 +122,15 @@ jobs:
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "Latest Report"
+                            "text": "View Report"
                           },
-                          "url": "${{ steps.published_site.outputs.page_url }}/${{ steps.date.outputs.date }}/e2e-report.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
                         },
                         {
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "Latest Run"
+                            "text": "View Run"
                           },
                           "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                         },
@@ -142,9 +138,9 @@ jobs:
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "Latest Videos"
+                            "text": "View Videos"
                           },
-                          "url": "${{ steps.published_site.outputs.page_url }}/${{ steps.date.outputs.date }}/videos.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/videos.html"
                         }
                       ]
                     }
@@ -157,8 +153,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
-        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
+        uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # v2.2.0
         with:
-          azcliversion: "latest"
+          azcliversion: latest
           inlineScript: |
             az network nsg rule delete -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner

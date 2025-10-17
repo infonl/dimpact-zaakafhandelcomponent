@@ -1,9 +1,9 @@
 #
-# SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+# SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM docker.io/eclipse-temurin:21.0.6_7-jre-ubi9-minimal@sha256:8b762cfca033af2587ad2f36d2890eb1a3102036c55b57722852a6c6456cc965 AS runtime
+FROM docker.io/eclipse-temurin:21.0.8_9-jre-ubi9-minimal@sha256:e0934bc033d962fb9e15bd82893397c143f9f82e9ff44b5c6fefaa30e2d4af67 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
@@ -11,8 +11,8 @@ ARG versionNumber
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
 LABEL description="The zaakafhandelcomponent (ZAC) is an open-source, generic, workflow-based component for managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management."
-LABEL maintainer="Lifely/INFO"
-LABEL vendor="Lifely/INFO"
+LABEL maintainer="INFO.nl"
+LABEL vendor="INFO.nl"
 LABEL url="https://github.com/infonl/dimpact-zaakafhandelcomponent"
 LABEL git_commit=$commitHash
 # Unset labels set by the Temurin Ubi9 base Docker image

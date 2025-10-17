@@ -5,17 +5,16 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
-import { BAGObject } from "../model/bagobject";
 
 @Injectable({
   providedIn: "root",
 })
 export class BAGResolverService {
-  constructor(private bagService: BAGService) {}
+  constructor(private readonly bagService: BAGService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<BAGObject> {
+  resolve(route: ActivatedRouteSnapshot) {
     const type = route.paramMap.get("type");
     const id = route.paramMap.get("id");
 
@@ -25,6 +24,9 @@ export class BAGResolverService {
       );
     }
 
-    return this.bagService.read(type.toUpperCase(), id);
+    return this.bagService.read(
+      type.toUpperCase() as GeneratedType<"BAGObjectType">,
+      id,
+    );
   }
 }

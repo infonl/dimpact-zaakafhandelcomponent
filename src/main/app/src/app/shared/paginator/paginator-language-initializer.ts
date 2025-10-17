@@ -12,14 +12,14 @@ export function paginatorLanguageInitializerFactory(
   injector: Injector,
 ) {
   return () =>
-    new Promise<any>((resolve: any) => {
+    new Promise((resolve) => {
       const locationInitialized = injector.get(
         LOCATION_INITIALIZED,
         Promise.resolve(null),
       );
       locationInitialized.then(() => {
         const langToSet = "nl";
-        translateService.setDefaultLang("en");
+        translateService.setFallbackLang("en");
         translateService.use(langToSet).subscribe(() => {
           resolve(null);
         });

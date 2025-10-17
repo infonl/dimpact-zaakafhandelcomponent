@@ -1,14 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.client.zgw.drc.model
 
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.Ondertekening
+import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
@@ -29,7 +31,11 @@ fun createEnkelvoudigInformatieObject(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL,
     status: StatusEnum = StatusEnum.IN_BEWERKING,
     ontvangstdatum: LocalDate? = null,
-    formaat: String = "dummyformaat"
+    formaat: String = "fakeformaat",
+    informatieObjectType: URI = URI("http://example.com/informatieobjecttype/${UUID.randomUUID()}"),
+    bestandsomvang: Int = 1234,
+    title: String = "fakeTitle",
+    ondertekening: Ondertekening? = null
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -43,14 +49,18 @@ fun createEnkelvoudigInformatieObject(
     this.status = status
     this.ontvangstdatum = ontvangstdatum
     this.formaat = formaat
+    this.informatieobjecttype = informatieObjectType
+    this.bestandsomvang = bestandsomvang
+    this.titel = title
+    this.ondertekening = ondertekening
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
-    titel: String = "dummyTitle",
-    inhoud: String = "dummyContent"
+    titel: String = "fakeTitle",
+    inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
     this.link = url
     this.bronorganisatie = bronorganisatie
@@ -63,12 +73,24 @@ fun createEnkelvoudigInformatieObjectWithLockRequest(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
-    titel: String = "dummyTitle",
-    inhoud: String = "dummyContent"
+    titel: String = "fakeTitle",
+    inhoud: String = "fakeContent"
 ) = EnkelvoudigInformatieObjectWithLockRequest().apply {
     this.link = url
     this.bronorganisatie = bronorganisatie
     this.creatiedatum = creatiedatum
     this.titel = titel
     this.inhoud = inhoud
+}
+
+fun createLockEnkelvoudigInformatieObject(
+    lock: String = "fakeLock"
+) = LockEnkelvoudigInformatieObject(lock)
+
+fun createOndertekening(
+    type: SoortEnum = SoortEnum.DIGITAAL,
+    date: LocalDate = LocalDate.now()
+) = Ondertekening().apply {
+    this.soort = type
+    this.datum = date
 }

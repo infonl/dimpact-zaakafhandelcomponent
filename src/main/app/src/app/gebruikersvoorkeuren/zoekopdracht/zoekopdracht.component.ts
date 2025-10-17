@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,13 +13,11 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
-import { InboxDocumentListParameters } from "../../documenten/model/inbox-document-list-parameters";
-import { OntkoppeldDocumentListParameters } from "../../documenten/model/ontkoppeld-document-list-parameters";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { heeftActieveZoekFilters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
-import { Werklijst } from "../model/werklijst";
-import { Zoekopdracht } from "../model/zoekopdracht";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
+import { ZoekFilters } from "./zoekfilters.model";
 
 @Component({
   selector: "zac-zoekopdracht",
@@ -27,33 +25,35 @@ import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoe
   styleUrls: ["./zoekopdracht.component.less"],
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
-  @Input() werklijst: Werklijst;
-  @Input() zoekFilters: ZoekFilters;
-  @Output() zoekopdracht = new EventEmitter<Zoekopdracht>();
-  @Input() filtersChanged: EventEmitter<void>;
+  @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
+  @Input({ required: true }) zoekFilters!: ZoekFilters;
+  @Output() zoekopdracht = new EventEmitter<
+    GeneratedType<"RESTZoekopdracht">
+  >();
+  @Input({ required: true }) filtersChanged!: EventEmitter<void>;
 
-  zoekopdrachten: Zoekopdracht[] = [];
-  actieveZoekopdracht: Zoekopdracht;
-  actieveFilters: boolean;
-  filtersChangedSubscription$: Subscription;
+  zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
+  actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null = null;
+  actieveFilters = false;
+  filtersChangedSubscription$!: Subscription;
 
   constructor(
-    private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private dialog: MatDialog,
+    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    private readonly dialog: MatDialog,
   ) {}
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.filtersChangedSubscription$.unsubscribe();
   }
 
-  ngOnInit(): void {
-    this.loadZoekopdrachten();
+  ngOnInit() {
     this.filtersChangedSubscription$ = this.filtersChanged.subscribe(() => {
       this.clearActief();
     });
+    this.loadZoekopdrachten();
   }
 
-  saveSearch(): void {
+  saveSearch() {
     const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten,
@@ -68,7 +68,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     });
   }
 
-  setActief(zoekopdracht: Zoekopdracht): void {
+  setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -77,21 +77,24 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  deleteZoekopdracht($event: MouseEvent, zoekopdracht: Zoekopdracht): void {
+  deleteZoekopdracht(
+    $event: MouseEvent,
+    zoekopdracht: GeneratedType<"RESTZoekopdracht">,
+  ) {
     $event.stopPropagation();
     this.gebruikersvoorkeurenService
-      .deleteZoekOpdrachten(zoekopdracht.id)
+      .deleteZoekOpdrachten(zoekopdracht.id!)
       .subscribe(() => {
         this.loadZoekopdrachten();
       });
   }
 
-  clearActief(emit?: boolean): void {
+  clearActief(emit?: boolean) {
     this.actieveZoekopdracht = null;
     this.gebruikersvoorkeurenService
       .removeZoekopdrachtActief(this.werklijst)
       .subscribe();
-    if (emit) {
+    if (emit && this.actieveZoekopdracht) {
       this.actieveFilters = false;
       this.zoekopdracht.emit(this.actieveZoekopdracht);
     } else {
@@ -99,36 +102,41 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadZoekopdrachten(): void {
+  private loadZoekopdrachten() {
     this.gebruikersvoorkeurenService
       .listZoekOpdrachten(this.werklijst)
       .subscribe((zoekopdrachten) => {
         this.zoekopdrachten = zoekopdrachten;
-        this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief);
+        this.actieveZoekopdracht = zoekopdrachten.find((z) => z.actief) ?? null;
         this.actieveFilters = this.heeftActieveFilters();
+
+        if (!this.actieveZoekopdracht) return;
         this.zoekopdracht.emit(this.actieveZoekopdracht);
       });
   }
 
-  // Need to DIY the OO here, because typescript manages to lose the prototype :-(
   private heeftActieveFilters(): boolean {
     switch (this.zoekFilters.filtersType) {
       case "ZoekParameters":
-        return ZoekParameters.heeftActieveFilters(this.zoekFilters);
+        return heeftActieveZoekFilters(this.zoekFilters);
       case "OntkoppeldDocumentListParameters":
-        return OntkoppeldDocumentListParameters.heeftActieveFilters(
-          this.zoekFilters,
-        );
+        if (this.zoekFilters.zaakID) return true;
+        if (this.zoekFilters.ontkoppeldDoor) return true;
+        if (this.zoekFilters.ontkoppeldOp?.van) return true;
+        if (this.zoekFilters.ontkoppeldOp?.tot) return true;
+        if (this.zoekFilters.creatiedatum?.van) return true;
+        if (this.zoekFilters.creatiedatum?.tot) return true;
+        if (this.zoekFilters.titel) return true;
+        if (this.zoekFilters.reden) return true;
+        return false;
       case "InboxDocumentListParameters":
-        return InboxDocumentListParameters.heeftActieveFilters(
-          this.zoekFilters,
-        );
+        if (this.zoekFilters.identificatie) return true;
+        if (this.zoekFilters.creatiedatum?.van) return true;
+        if (this.zoekFilters.creatiedatum?.tot) return true;
+        if (this.zoekFilters.titel) return true;
+        return false;
       default:
         return false;
     }
   }
-}
-
-export interface ZoekFilters {
-  readonly filtersType: string;
 }

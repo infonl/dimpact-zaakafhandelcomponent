@@ -8,7 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ZoekParameters } from "../zoeken/model/zoek-parameters";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -21,7 +21,9 @@ export class CsvService {
 
   private basepath = "/rest/csv";
 
-  exportToCSV(zoekParameters: ZoekParameters): Observable<Blob> {
+  exportToCSV(
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ): Observable<Blob> {
     return this.http
       .post(`${this.basepath}/export`, zoekParameters, { responseType: "blob" })
       .pipe(

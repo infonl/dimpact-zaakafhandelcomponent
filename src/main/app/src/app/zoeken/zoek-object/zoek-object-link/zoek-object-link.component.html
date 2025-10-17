@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -19,12 +19,12 @@
   </div>
   <zac-zaak-indicaties
     *ngIf="zoekObject.type == 'ZAAK'"
-    [layout]="indicatiesLayout.ZOEKEN"
+    [layout]="indicatiesLayout.SEARCH"
     [zaakZoekObject]="zoekObject"
   ></zac-zaak-indicaties>
   <zac-informatie-object-indicaties
     *ngIf="zoekObject.type == 'DOCUMENT'"
-    [layout]="indicatiesLayout.ZOEKEN"
+    [layout]="indicatiesLayout.SEARCH"
     [documentZoekObject]="zoekObject"
   ></zac-informatie-object-indicaties>
 </div>

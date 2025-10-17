@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,40 +8,43 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError, shareReplay } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Taal } from "./model/taal";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class ConfiguratieService {
   private readonly basepath = "/rest/configuratie";
-  private talen$: Observable<Taal[]>;
-  private defaultTaal$: Observable<Taal>;
-  private maxFileSizeMB$: Observable<number>;
-  private additionalAllowedFileTypes$: Observable<string[]>;
-  private gemeenteCode$: Observable<string>;
-  private gemeenteNaam$: Observable<string>;
-  private bpmnSupport$: Observable<boolean>;
+  private talen$?: Observable<GeneratedType<"RestTaal">[]>;
+  private defaultTaal$?: Observable<GeneratedType<"RestTaal">>;
+  private maxFileSizeMB$?: Observable<number>;
+  private additionalAllowedFileTypes$?: Observable<string[]>;
+  private gemeenteCode$?: Observable<string>;
+  private gemeenteNaam$?: Observable<string>;
+  private bpmnSupport$?: Observable<boolean>;
+  private brpProtocollering$?: Observable<string>;
 
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listTalen(): Observable<Taal[]> {
+  listTalen() {
     if (!this.talen$) {
-      this.talen$ = this.http.get<Taal[]>(`${this.basepath}/talen`).pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-        shareReplay(1),
-      );
+      this.talen$ = this.http
+        .get<GeneratedType<"RestTaal">[]>(`${this.basepath}/talen`)
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+          shareReplay(1),
+        );
     }
     return this.talen$;
   }
 
-  readDefaultTaal(): Observable<Taal> {
+  readDefaultTaal() {
     if (!this.defaultTaal$) {
       this.defaultTaal$ = this.http
-        .get<Taal>(`${this.basepath}/talen/default`)
+        .get<GeneratedType<"RestTaal">>(`${this.basepath}/talen/default`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
@@ -108,5 +111,19 @@ export class ConfiguratieService {
         );
     }
     return this.bpmnSupport$;
+  }
+
+  readBrpProtocollering(): Observable<string> {
+    if (!this.brpProtocollering$) {
+      this.brpProtocollering$ = this.http
+        .get(`${this.basepath}/brp/protocollering-provider`, {
+          responseType: "text",
+        })
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+          shareReplay(1),
+        );
+    }
+    return this.brpProtocollering$;
   }
 }

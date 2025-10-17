@@ -6,12 +6,12 @@
     {
       "kvkNummer": "12345678",
       "vestigingsnummer": "000012345678",
-      "naam": "dummyNaam1",
+      "naam": "fakeNaam1",
       "adres": {
         "binnenlandsAdres": {
           "type": "bezoekadres",
-          "straatnaam": "dummyStraatnaam1",
-          "plaats": "dummyPlaats1"
+          "straatnaam": "fakeStraatnaam1",
+          "plaats": "fakePlaats1"
         }
       },
       "type": "nevenvestiging",

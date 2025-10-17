@@ -19,16 +19,19 @@
   "prConcurrentLimit": 5,
   "registryAliases": {
     "opentelemetry": "https://open-telemetry.github.io/opentelemetry-helm-charts",
-    "bitnami": "https://charts.bitnami.com/bitnami",
-    "solr": "https://solr.apache.org/charts"
+    "solr": "https://nightlies.apache.org/solr/release/helm-charts"
   },
   "helm-values": {
-    "fileMatch": "(^|/)ci/.+values\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/)ci/.+values\\.ya?ml$/"
+    ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^publiccode\\.yaml$"],
+      "managerFilePatterns": [
+        "/^publiccode\\.yaml$/"
+      ],
       "matchStrings": [
         "softwareVersion: \"(?<currentValue>[^\"]+)\"\\nreleaseDate: \"(?<releaseDate>[^\"]+)\""
       ],
@@ -38,13 +41,27 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
       "matchStrings": [
         "\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
       ],
       "datasourceTemplate": "java-version",
       "depNameTemplate": "java-jre",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+	"version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # helm version updated by renovate"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "helm/helm",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -75,7 +92,9 @@
         "gradle"
       ],
       "enabled": false,
-      "description": ["Updates for dependencies that are provided by WildFly"]
+      "description": [
+        "Updates for dependencies that are provided by WildFly"
+      ]
     },
     {
       "matchPackageNames": [
@@ -84,8 +103,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 25.0.6",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 26.4.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -94,8 +115,10 @@
       "matchDatasources": [
         "maven"
       ],
-      "allowedVersions": "<= 25.0.6",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 26.4.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -104,8 +127,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.1.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 3.2.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -114,8 +139,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 2.2.2",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 3.1.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -124,8 +151,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 2.3.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 2.10.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -134,8 +163,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 1.18.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 1.24.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -144,8 +175,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 1.8.0",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 1.11.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -154,8 +187,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "<= 7.4.1",
-      "description": ["Pinned by the next Dimpact PodiumD release"]
+      "allowedVersions": "< 7.5.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
     },
     {
       "matchPackageNames": [
@@ -163,9 +198,7 @@
       ],
       "matchDatasources": [
         "helm"
-      ],
-      "allowedVersions": "<= 0.104.0",
-      "description": ["Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"]
+      ]
     },
     {
       "matchPackageNames": [
@@ -180,7 +213,9 @@
         "pinDigest"
       ],
       "enabled": false,
-      "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
+      "description": [
+        "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+      ]
     },
     {
       "matchPackageNames": [
@@ -190,8 +225,12 @@
         "github-releases"
       ],
       "automerge": true,
-      "schedule": ["* 0-8 1,15 * *"],
-      "description": ["automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"]
+      "schedule": [
+        "* 0-8 1,15 * *"
+      ],
+      "description": [
+        "automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"
+      ]
     },
     {
       "matchPackageNames": [
@@ -212,7 +251,9 @@
         "com.diffplug.spotless"
       ],
       "allowedVersions": "< 7",
-      "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
+      "description": [
+        "Pinned - version 7 causes Connection refused and node/npm discovery issues"
+      ]
     },
     {
       "matchPackageNames": [
@@ -223,6 +264,36 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi9-minimal$/"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/brp-api/personen-mock"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d{12})$",
+      "description": [
+        "The BRP API Personen Mock Docker image uses a custom versioning scheme that Renovate does not support by default. Example: '2.7.0-202506301511'"
+      ]
     }
   ]
 }

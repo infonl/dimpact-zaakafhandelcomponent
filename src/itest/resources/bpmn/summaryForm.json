@@ -1,0 +1,93 @@
+{
+  "display": "form",
+  "name": "summaryForm",
+  "title": "Summary form",
+  "type": "form",
+  "components": [
+    {
+      "title": "Summary page",
+      "label": "Summary page",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "labelPosition": "left-left",
+          "key": "AM_TeamBehandelaar_Groep",
+          "type": "textfield",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "User",
+          "labelPosition": "left-left",
+          "key": "AM_TeamBehandelaar_Medewerker",
+          "type": "textfield",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Documents",
+          "labelPosition": "left-left",
+          "type": "select",
+          "key": "ZAAK_Documents_Select",
+          "input": true,
+          "widget": "choicesjs",
+          "multiple": true,
+          "dataSrc": "custom",
+          "customOptions": {
+            "choicesOptions": {
+              "removeItemButton": true,
+              "placeholder": false,
+              "searchEnabled": true,
+              "shouldSort": false
+            }
+          },
+          "disabled": true
+        },
+        {
+          "label": "Reference table value",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "RT_ReferenceTable_Values",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Zaak Result",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Result",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Zaak Status",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Status",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Mail receiver",
+          "labelPosition": "left-left",
+          "disabled": true,
+          "key": "TF_EMAIL_TO",
+          "type": "textfield",
+          "input": true,
+          "defaultValue": "shared-team-dimpact@info.nl"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Confirm",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

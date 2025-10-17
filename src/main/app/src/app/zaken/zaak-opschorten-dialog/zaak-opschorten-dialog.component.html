@@ -1,36 +1,51 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>
-    <mat-icon>pause</mat-icon>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>pause</mat-icon>
+  <span class="flex-grow-1">
     {{ "actie.zaak.opschorten" | translate }}
-  </h3>
+  </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
-  <mfb-form [formFields]="formFields"></mfb-form>
-</div>
-
-<div mat-dialog-actions>
-  <button
-    mat-raised-button
-    color="primary"
-    id="zaakOpschorten_button"
-    [disabled]="disabled()"
-    (click)="opschorten()"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.zaak.opschorten" | translate }}
-  </button>
-  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</div>
+<form [formGroup]="form" (submit)="opschorten()">
+  <mat-dialog-content>
+    <zac-input [form]="form" key="duurDagen" label="opschortduur"></zac-input>
+    <zac-date
+      [form]="form"
+      key="einddatumGepland"
+      *ngIf="data.zaak.einddatumGepland"
+    ></zac-date>
+    <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
+    <zac-textarea [form]="form" key="redenOpschorting"></zac-textarea>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      mat-raised-button
+      color="primary"
+      id="zaakOpschorten_button"
+      [disabled]="loading || !form.valid"
+      type="submit"
+    >
+      <mat-icon *ngIf="loading">
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+      {{ "actie.zaak.opschorten" | translate }}
+    </button>
+    <button
+      autofocus
+      mat-raised-button
+      [disabled]="loading"
+      (click)="close()"
+      type="button"
+    >
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

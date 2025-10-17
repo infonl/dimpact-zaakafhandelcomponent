@@ -1,12 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
-import { ReferentieTabel } from "./model/referentie-tabel";
 import { ReferentieTabelService } from "./referentie-tabel.service";
 
 @Injectable({
@@ -15,7 +13,7 @@ import { ReferentieTabelService } from "./referentie-tabel.service";
 export class ReferentieTabelResolver {
   constructor(private adminService: ReferentieTabelService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<ReferentieTabel> {
+  resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
     if (!id) {
       throw new Error(
@@ -23,6 +21,9 @@ export class ReferentieTabelResolver {
       );
     }
 
-    return this.adminService.readReferentieTabel(id);
+    const idAsNumber = Number(id);
+    if (isNaN(idAsNumber)) return null;
+
+    return this.adminService.readReferentieTabel(idAsNumber);
   }
 }

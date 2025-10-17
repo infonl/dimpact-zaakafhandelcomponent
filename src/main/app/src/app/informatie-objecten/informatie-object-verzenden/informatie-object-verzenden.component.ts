@@ -29,9 +29,8 @@ import { FormComponent } from "../../shared/material-form-builder/form/form/form
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Zaak } from "../../zaken/model/zaak";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 
 @Component({
   selector: "zac-informatie-verzenden",
@@ -41,7 +40,7 @@ import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() zaak: Zaak;
+  @Input() zaak: GeneratedType<"RestZaak">;
   @Input() sideNav: MatDrawer;
   @Output() documentSent = new EventEmitter<void>();
 
@@ -103,20 +102,19 @@ export class InformatieObjectVerzendenComponent
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens = new DocumentVerzendGegevens();
-      gegevens.verzenddatum = formGroup.controls["verzenddatum"].value;
-      gegevens.informatieobjecten = formGroup.controls["documenten"].value
-        ? formGroup.controls["documenten"].value.split(";")
-        : [];
-      gegevens.zaakUuid = this.zaak.uuid;
-      gegevens.toelichting = formGroup.controls["toelichting"].value;
-
+      const informatieobjecten =
+        formGroup.controls["documenten"].value?.split(";") ?? [];
       this.informatieObjectenService
-        .verzenden(gegevens)
+        .verzenden({
+          informatieobjecten,
+          verzenddatum: formGroup.controls["verzenddatum"].value,
+          zaakUuid: this.zaak.uuid,
+          toelichting: formGroup.controls["toelichting"].value,
+        })
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           this.utilService.openSnackbar(
-            gegevens.informatieobjecten.length > 1
+            informatieobjecten.length > 1
               ? "msg.documenten.verzenden.uitgevoerd"
               : "msg.document.verzenden.uitgevoerd",
           );

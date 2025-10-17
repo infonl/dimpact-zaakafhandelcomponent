@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.klant.model.bedrijven
 
-import net.atos.client.kvk.model.KvkZoekenParameters
+import nl.info.client.kvk.model.BedrijfType
+import nl.info.client.kvk.model.KvkSearchParameters
 
 data class RestListBedrijvenParameters(
     var kvkNummer: String? = null,
@@ -16,12 +17,12 @@ data class RestListBedrijvenParameters(
     var type: BedrijfType? = null,
 )
 
-fun RestListBedrijvenParameters.toKvkZoekenParameters() = KvkZoekenParameters().apply {
+fun RestListBedrijvenParameters.toKvkZoekenParameters() = KvkSearchParameters().apply {
     kvkNummer = this@toKvkZoekenParameters.kvkNummer
     vestigingsnummer = this@toKvkZoekenParameters.vestigingsnummer
     rsin = this@toKvkZoekenParameters.rsin
     naam = this@toKvkZoekenParameters.naam
-    type = this@toKvkZoekenParameters.type?.type
+    type = this@toKvkZoekenParameters.type
     postcode = this@toKvkZoekenParameters.postcode
     huisnummer = this@toKvkZoekenParameters.huisnummer?.toString()
 }

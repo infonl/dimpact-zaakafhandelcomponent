@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -36,9 +36,7 @@ import { Opcode } from "src/app/core/websocket/model/opcode";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -65,16 +63,15 @@ export class ZakenWerkvoorraadComponent
   ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
-  sorteerVeld = SorteerVeld;
 
-  einddatumGeplandIcon: TextIcon = new TextIcon(
+  einddatumGeplandIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
     "warning",
   );
-  uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
+  uiterlijkeEinddatumAfdoeningIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
@@ -143,8 +140,8 @@ export class ZakenWerkvoorraadComponent
     return columns;
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.WERKVOORRAAD_ZAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "WERKVOORRAAD_ZAKEN";
   }
 
   ngAfterViewInit(): void {
@@ -169,8 +166,11 @@ export class ZakenWerkvoorraadComponent
     return this.selection.selected.length > 0;
   }
 
-  countSelected() {
-    return this.selection.selected.length;
+  countSelected(checkIfZaakHasHandler = false): number {
+    return this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) =>
+        !checkIfZaakHasHandler || !!behandelaarGebruikersnaam,
+    ).length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -218,7 +218,10 @@ export class ZakenWerkvoorraadComponent
     $event.stopPropagation();
 
     this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject)
+      .toekennenAanIngelogdeMedewerkerVanuitLijst(
+        zaakZoekObject.id,
+        zaakZoekObject.groepId,
+      )
       .subscribe((zaak) => {
         if (!zaak.behandelaar) {
           return;
@@ -233,7 +236,7 @@ export class ZakenWerkvoorraadComponent
 
   showAssignToMe(zaakZoekObject: ZaakZoekObject): boolean {
     return (
-      zaakZoekObject.rechten.toekennen &&
+      Boolean(zaakZoekObject.rechten.toekennen) &&
       this.ingelogdeMedewerker?.id !==
         zaakZoekObject.behandelaarGebruikersnaam &&
       Boolean(
@@ -243,27 +246,22 @@ export class ZakenWerkvoorraadComponent
   }
 
   openVerdelenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(
-      ZakenVerdelenDialogComponent,
-      "msg.verdeeld.zaak",
-      "msg.verdeeld.zaken",
-    );
+    this.handleAssigmentOrReleaseWorkflow(ZakenVerdelenDialogComponent);
   }
 
   openVrijgevenScherm(): void {
-    this.handleAssigmentOrReleasementWorkflow(
-      ZakenVrijgevenDialogComponent,
-      "msg.vrijgegeven.zaak",
-      "msg.vrijgegeven.zaken",
-    );
+    this.handleAssigmentOrReleaseWorkflow(ZakenVrijgevenDialogComponent, true);
   }
 
-  private handleAssigmentOrReleasementWorkflow<T>(
+  private handleAssigmentOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
-    singleToken: string,
-    multipleToken: string,
+    release = false,
   ) {
-    const zaken = this.selection.selected;
+    const zaken = this.selection.selected.filter(
+      ({ behandelaarGebruikersnaam }) =>
+        !release || !!behandelaarGebruikersnaam,
+    );
+
     this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
@@ -273,14 +271,14 @@ export class ZakenWerkvoorraadComponent
           if (event.opcode !== Opcode.UPDATED) return;
 
           const zaak = this.dataSource.data.find((x) => x.id === id);
-          if (this.toekenning && zaak) {
-            zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
-            zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
-            if (this.toekenning.medewerker) {
-              zaak.behandelaarGebruikersnaam = this.toekenning.medewerker.id;
-              zaak.behandelaarNaam = this.toekenning.medewerker.naam;
-            }
-          }
+          if (!zaak) return;
+
+          zaak.groepNaam = this.toekenning?.groep?.naam ?? zaak.groepNaam;
+          zaak.groepId = this.toekenning?.groep?.id ?? zaak.groepId;
+
+          zaak.behandelaarGebruikersnaam =
+            this.toekenning?.medewerker?.id ?? "";
+          zaak.behandelaarNaam = this.toekenning?.medewerker?.naam ?? "";
         },
       },
       finally: () =>
@@ -288,41 +286,52 @@ export class ZakenWerkvoorraadComponent
           this.indexService.commitPendingChangesToSearchIndex(),
         ).then(() => {
           this.selection.clear();
-          this.dataSource.load();
+          this.dataSource.load(5_000); // We need to give the indexing service some time to finish
           this.zakenLoading.set(false);
           this.batchProcessService.stop();
         }),
     });
-    const dialogRef = this.dialog.open(dialogComponent, {
-      data: zaken,
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.toekenning = result;
+
+    this.dialog
+      .open(dialogComponent, {
+        data: zaken,
+      })
+      .beforeClosed()
+      .subscribe((result) => {
+        this.toekenning = typeof result === "object" ? result : undefined;
+        if (!result) {
+          this.batchProcessService.stop();
+          return;
+        }
+
+        if (!release) {
+          const notChanged = zaken
+            .filter(
+              (x) =>
+                this.toekenning?.groep?.id === x.groepId &&
+                this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
+            )
+            .map(({ id }) => id);
+          this.batchProcessService.update(notChanged);
+        }
         this.zakenLoading.set(true);
         const message =
           zaken.length === 1
-            ? this.translateService.instant(singleToken)
-            : this.translateService.instant(multipleToken, {
-                aantal: zaken.length,
-              });
+            ? this.translateService.instant(
+                release ? "msg.vrijgegeven.zaak" : "msg.verdeeld.zaak",
+              )
+            : this.translateService.instant(
+                release ? "msg.vrijgegeven.zaken" : "msg.verdeeld.zaken",
+                {
+                  aantal: zaken.length,
+                },
+              );
         this.batchProcessService.showProgress(message, {
           onTimeout: () => {
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
-        const notChanged = zaken
-          .filter(
-            (x) =>
-              this.toekenning?.groep?.id === x.groepId &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
-          )
-          .map(({ id }) => id);
-        this.batchProcessService.update(notChanged);
-      } else {
-        this.batchProcessService.stop();
-      }
-    });
+      });
   }
 
   ngOnDestroy(): void {

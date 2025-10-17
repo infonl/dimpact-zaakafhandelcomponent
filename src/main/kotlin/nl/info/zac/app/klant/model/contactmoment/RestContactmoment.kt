@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.klant.model.contactmoment
 
-import net.atos.client.klant.model.Actor
-import net.atos.client.klant.model.Klantcontact
+import nl.info.client.klant.model.Actor
+import nl.info.client.klant.model.Klantcontact
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils

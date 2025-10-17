@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,28 +17,23 @@ import {
   MatDialogConfig,
 } from "@angular/material/dialog";
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { SharedModule } from "../shared/shared.module";
 import { EnsureModuleLoadedOnceGuard } from "./ensure-module-loaded-once.guard";
 import { LoadingComponent } from "./loading/loading.component";
 import { UtilService } from "./service/util.service";
+import { createCacheBustingTranslateLoader } from "./translate-loader.service";
 
 registerLocaleData(localeNl, "nl-NL");
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
-}
 
 @NgModule({
   declarations: [LoadingComponent],
   exports: [LoadingComponent],
   imports: [
     TranslateModule.forRoot({
-      defaultLanguage: "nl",
+      fallbackLang: "nl",
       loader: {
         provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
+        useFactory: createCacheBustingTranslateLoader,
         deps: [HttpClient],
       },
     }),

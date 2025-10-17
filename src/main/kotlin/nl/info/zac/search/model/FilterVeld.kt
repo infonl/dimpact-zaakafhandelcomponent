@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search.model
@@ -11,6 +11,7 @@ enum class FilterVeld(val veld: String) {
     GROEP("groepNaam"),
     TOEGEKEND("isToegekend"),
 
+    ZAAK_IDENTIFICATIE("zaak_identificatie"),
     ZAAK_STATUS("zaak_statustypeOmschrijving"),
     ZAAK_ZAAKTYPE("zaak_zaaktypeOmschrijving"),
     ZAAK_ZAAKTYPE_UUID("zaak_zaaktypeUuid"),

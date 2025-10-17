@@ -1,0 +1,43 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <textarea
+    matInput
+    autocomplete="off"
+    cdkTextareaAutosize
+    [cdkAutosizeMinRows]="minRows()"
+    [cdkAutosizeMaxRows]="maxRows()"
+    [formControlName]="key()"
+    [maxLength]="maxlength() ?? 999999"
+    [readonly]="readonly()"
+  ></textarea>
+  <button
+    matSuffix
+    mat-icon-button
+    type="button"
+    *ngIf="!readonly() && !control()?.disabled && control()?.value?.length"
+    (click)="control()?.reset(null)"
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+  <span matSuffix>
+    <ng-content select="button"></ng-content>
+    <ng-content select="mat-icon"></ng-content>
+  </span>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+  <mat-hint align="end" *ngIf="maxlength()">
+    {{ control()?.value?.length ?? 0 }} / {{ maxlength() }}
+  </mat-hint>
+</mat-form-field>

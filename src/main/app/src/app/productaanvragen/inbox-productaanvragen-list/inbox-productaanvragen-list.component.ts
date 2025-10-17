@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,7 +14,7 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelectChange } from "@angular/material/select";
-import { MatSort } from "@angular/material/sort";
+import { MatSort, SortDirection } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -22,8 +22,6 @@ import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { detailExpand } from "../../shared/animations/animations";
 import {
@@ -31,11 +29,13 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
-import { InboxProductaanvraag } from "../model/inbox-productaanvraag";
-import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
 
 @Component({
   templateUrl: "./inbox-productaanvragen-list.component.html",
@@ -47,55 +47,56 @@ export class InboxProductaanvragenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource = new MatTableDataSource<InboxProductaanvraag>();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  displayedColumns: string[] = [
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RESTInboxProductaanvraag">
+  >();
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  displayedColumns = [
     "expand",
     "type",
     "ontvangstdatum",
     "initiator",
     "aantal_bijlagen",
     "actions",
-  ];
-  filterColumns: string[] = [
+  ] as const;
+  filterColumns = [
     "expand_filter",
     "type_filter",
     "ontvangstdatum_filter",
     "initiator_filter",
     "aantal_bijlagen_filter",
     "actions_filter",
-  ];
-  listParameters: InboxProductaanvraagListParameters;
-  expandedRow: InboxProductaanvraag | null;
+  ] as const;
+  listParameters = SessionStorageUtil.getItem(
+    `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
+    this.createDefaultParameters(),
+  );
+  expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
   filterType: string[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  previewSrc: SafeUrl = null;
+  previewSrc: SafeUrl | null = null;
 
   constructor(
-    private inboxProductaanvragenService: InboxProductaanvragenService,
-    private infoService: InformatieObjectenService,
-    private utilService: UtilService,
-    public dialog: MatDialog,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
-    private router: Router,
-    private sanitizer: DomSanitizer,
+    private readonly inboxProductaanvragenService: InboxProductaanvragenService,
+    private readonly infoService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    public readonly dialog: MatDialog,
+    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    public readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly sanitizer: DomSanitizer,
   ) {
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
     this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
-    this.listParameters = SessionStorageUtil.getItem(
-      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters(),
-    );
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
@@ -113,56 +114,56 @@ export class InboxProductaanvragenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal;
-        this.filterType = data.filterType;
-        this.dataSource.data = data.resultaten;
+        this.paginator.length = Number(data.totaal);
+        this.filterType = (data as { filterType: string[] }).filterType;
+        this.dataSource.data = data.resultaten ?? [];
       });
   }
 
-  updateListParameters(): void {
+  updateListParameters() {
     this.listParameters.sort = this.sort.active;
     this.listParameters.order = this.sort.direction;
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
-      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
 
-  getDownloadURL(ip: InboxProductaanvraag): string {
-    return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID);
+  getDownloadURL(ip: GeneratedType<"RESTInboxProductaanvraag">) {
+    return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
   filtersChanged(options: {
     event: MatSelectChange | string | DatumRange;
-    filter: keyof typeof this.listParameters;
-  }): void {
+    filter: keyof GeneratedType<"RESTInboxProductaanvraagListParameters">;
+  }) {
     this.listParameters[options.filter] =
       typeof options.event === "object" && "value" in options.event
-        ? options.event.value
-        : null;
+        ? (options.event.value as never)
+        : (undefined as never);
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
   }
 
-  resetSearch(): void {
+  resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
-      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort;
-    this.sort.direction = this.listParameters.order;
+    this.sort.active = this.listParameters.sort ?? "id";
+    this.sort.direction = this.listParameters.order as SortDirection;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
-    if (actieveZoekopdracht) {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+    if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort;
-      this.sort.direction = this.listParameters.order;
+      this.sort.active = this.listParameters.sort ?? "id";
+      this.sort.direction = this.listParameters.order as SortDirection;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -172,15 +173,15 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  createDefaultParameters(): InboxProductaanvraagListParameters {
-    return new InboxProductaanvraagListParameters("id", "desc");
+  createDefaultParameters(): GeneratedType<"RESTInboxProductaanvraagListParameters"> {
+    return { sort: "id", order: "desc" };
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.INBOX_PRODUCTAANVRAGEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "INBOX_PRODUCTAANVRAGEN";
   }
 
-  updateActive(selectedRow: InboxProductaanvraag) {
+  updateActive(selectedRow: GeneratedType<"RESTInboxProductaanvraag">) {
     if (this.expandedRow === selectedRow) {
       this.expandedRow = null;
       this.previewSrc = null;
@@ -188,26 +189,30 @@ export class InboxProductaanvragenListComponent
       this.expandedRow = selectedRow;
       this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
         this.inboxProductaanvragenService.pdfPreview(
-          selectedRow.aanvraagdocumentUUID,
+          selectedRow.aanvraagdocumentUUID!,
         ),
       );
     }
   }
 
-  aanmakenZaak(inboxProductaanvraag: InboxProductaanvraag): void {
+  aanmakenZaak(
+    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
+  ) {
     this.router.navigateByUrl("zaken/create", {
       state: { inboxProductaanvraag },
     });
   }
 
   inboxProductaanvragenVerwijderen(
-    inboxProductaanvraag: InboxProductaanvraag,
-  ): void {
+    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
+  ) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           "msg.inboxProductaanvraag.verwijderen.bevestigen",
-          this.inboxProductaanvragenService.delete(inboxProductaanvraag),
+          this.inboxProductaanvragenService.delete(
+            Number(inboxProductaanvraag.id),
+          ),
         ),
       })
       .afterClosed()
@@ -221,11 +226,11 @@ export class InboxProductaanvragenListComponent
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Make sure when returning to this comnponent, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
-      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
+      `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }

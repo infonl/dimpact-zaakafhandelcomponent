@@ -5,6 +5,9 @@
 
 import { ScreenEvent } from "./screen-event";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export interface EventCallback {
   (event: ScreenEvent): void;
 }

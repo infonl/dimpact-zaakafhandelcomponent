@@ -1,91 +1,119 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.zrc.model.Medewerker
-import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Point
-import net.atos.client.zgw.zrc.model.Point2D
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Verlenging
-import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.Verlenging
+import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
+import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
-import java.time.Period
+import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 
-fun createMedewerker(
-    identificatie: String = "dummyIdentificatie",
-    achternaam: String = "dummyAchternaam",
-    voorletters: String = "dummyVoorletters",
+fun createMedewerkerIdentificatie(
+    identificatie: String = "fakeIdentificatie",
+    achternaam: String = "fakeAchternaam",
+    voorletters: String = "fakeVoorletters",
     voorvoegselAchternaam: String? = null
-) = Medewerker().apply {
+) = MedewerkerIdentificatie().apply {
     this.identificatie = identificatie
     this.achternaam = achternaam
     this.voorletters = voorletters
     this.voorvoegselAchternaam = voorvoegselAchternaam
 }
 
-fun createNatuurlijkPersoon(bsn: String = "dummyBsn") = NatuurlijkPersoon(bsn)
+fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPersoonIdentificatie().apply {
+    this.inpBsn = bsn
+}
+
+fun createNietNatuurlijkPersoonIdentificatie(
+    innNnpId: String? = null,
+    vestigingsnummer: String? = "123456789123",
+    kvkNummer: String? = "12345678",
+    annIdentificatie: String? = null
+) = NietNatuurlijkPersoonIdentificatie().apply {
+    this.innNnpId = innNnpId
+    this.vestigingsNummer = vestigingsnummer
+    this.kvkNummer = kvkNummer
+    this.annIdentificatie = annIdentificatie
+}
+
+fun createOrganisatorischeEenheidIdentificatie(
+    identificatie: String = "fakeIdentificatie",
+    naam: String = "fakeNaam"
+) = OrganisatorischeEenheidIdentificatie().apply {
+    this.identificatie = identificatie
+    this.naam = naam
+}
 
 fun createObjectOpenbareRuimte(
-    identificatie: String = "dummyIdentificatie",
-    openbareRuimteNaam: String = "dummyopenbareRuimteNaam",
-    plaatsNaam: String = "dummyPlaatsNaam"
+    identificatie: String = "fakeIdentificatie",
+    openbareRuimteNaam: String = "fakeopenbareRuimteNaam",
+    plaatsNaam: String = "fakePlaatsNaam"
 ) = ObjectOpenbareRuimte(
     identificatie,
     openbareRuimteNaam,
     plaatsNaam
 )
 
-fun createObjectPand(identificatie: String = "dummyIdentificatie") = ObjectPand(identificatie)
+fun createObjectPand(identificatie: String = "fakeIdentificatie") = ObjectPand(identificatie)
 
 fun createOpschorting(
     reden: String? = null,
-    indicatie: Boolean = false
-) = Opschorting().apply {
+    indicatie: Boolean = false,
+    eerdereOpschorting: Boolean = false
+) = Opschorting(eerdereOpschorting).apply {
     this.reden = reden
     this.indicatie = indicatie
 }
 
 fun createOrganisatorischeEenheid(
-    identificatie: String = "dummyIdentificatie",
-    naam: String = "dummyNaam"
-) = OrganisatorischeEenheid().apply {
+    identificatie: String = "fakeIdentificatie",
+    naam: String = "fakeNaam"
+) = OrganisatorischeEenheidIdentificatie().apply {
     this.identificatie = identificatie
     this.naam = naam
 }
 
-fun createPoint(
-    coordinates: Point2D = createPoint2D()
-) = Point(coordinates)
-
-fun createPoint2D(
-    latitude: Double = 1.23,
-    longitude: Double = 4.56
-) = Point2D(
-    latitude,
-    longitude
-)
+fun createGeoJSONGeometryWithDeletionSupport(
+    longitude: BigDecimal = BigDecimal("4.56"),
+    latitude: BigDecimal = BigDecimal("1.23")
+) = DeleteGeoJSONGeometry().apply {
+    this.type = GeometryTypeEnum.POINT
+    this.coordinates = listOf(
+        longitude,
+        latitude
+    )
+}
 
 fun createResultaat(
     url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),
@@ -101,79 +129,171 @@ fun createResultaat(
 fun createRolMedewerker(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
-    roltoelichting: String = "dummyToelichting",
-    betrokkeneIdentificatie: Medewerker? = createMedewerker()
+    roltoelichting: String = "fakeToelichting",
+    medewerkerIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
     zaakURI,
     rolType,
     roltoelichting,
-    betrokkeneIdentificatie
+    medewerkerIdentificatie
+)
+
+fun createRolMedewerkerForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    roltoelichting: String = "fakeToelichting",
+    medewerkerIdentificatie: MedewerkerIdentificatie = createMedewerkerIdentificatie()
+) = RolMedewerker(
+    uuid,
+    rolType,
+    roltoelichting,
+    medewerkerIdentificatie
 )
 
 fun createRolNatuurlijkPersoon(
-    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
-    toelichting: String = "dummyToelichting",
-    natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaakURI),
+    toelichting: String = "fakeToelichting",
+    natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie? = createNatuurlijkPersoonIdentificatie()
 ) = RolNatuurlijkPersoon(
-    zaaktypeURI,
+    zaakURI,
     rolType,
     toelichting,
-    natuurlijkPersoon
+    natuurlijkPersoonIdentificatie
+)
+
+fun createRolNatuurlijkPersoonForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    natuurlijkPersoonIdentificatie: NatuurlijkPersoonIdentificatie? = createNatuurlijkPersoonIdentificatie()
+) = RolNatuurlijkPersoon(
+    uuid,
+    rolType,
+    toelichting,
+    natuurlijkPersoonIdentificatie
+)
+
+fun createRolNietNatuurlijkPersoon(
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaakURI),
+    toelichting: String = "fakeToelichting",
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
+) = RolNietNatuurlijkPersoon(
+    zaakURI,
+    rolType,
+    toelichting,
+    nietNatuurlijkPersoonIdentificatie
+)
+
+fun createRolNietNatuurlijkPersoonForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie? = createNietNatuurlijkPersoonIdentificatie()
+) = RolNietNatuurlijkPersoon(
+    uuid,
+    rolType,
+    toelichting,
+    nietNatuurlijkPersoonIdentificatie
 )
 
 fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
-    toelichting: String = "dummyToelichting",
-    organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
+    toelichting: String = "fakeToelichting",
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
     rolType,
     toelichting,
-    organisatorischeEenheid
+    organisatorischeEenheidIdentificatie
 )
+
+fun createRolOrganisatorischeEenheidForReads(
+    uuid: UUID = UUID.randomUUID(),
+    rolType: RolType = createRolType(),
+    roltoelichting: String = "fakeToelichting",
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie? =
+        createOrganisatorischeEenheidIdentificatie()
+) = RolOrganisatorischeEenheid(
+    uuid,
+    rolType,
+    roltoelichting,
+    organisatorischeEenheidIdentificatie
+)
+
+fun createRolVestiging(
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(),
+    toelichting: String = "fakeToelichting",
+    vestigingIdentificatie: VestigingIdentificatie = createVestigingIdentificatie()
+) = RolVestiging(
+    zaakURI,
+    rolType,
+    toelichting,
+    vestigingIdentificatie
+)
+
+fun createVestigingIdentificatie(
+    vestigingsNummer: String = "fakeVestigingsNummer",
+    handelsnaam: List<String>? = listOf("fakeHandelsnaam1", "fakeHandelsnaam2"),
+    kvkNummer: String = "fakeKvkNummer"
+) = VestigingIdentificatie().apply {
+    this.vestigingsNummer = vestigingsNummer
+    this.handelsnaam = handelsnaam
+    this.kvkNummer = kvkNummer
+}
 
 @Suppress("LongParameterList")
 fun createZaak(
+    uuid: UUID = UUID.randomUUID(),
     zaakTypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
-    bronOrganisatie: String = "dummyBronOrganisatie",
-    verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
+    endDate: LocalDate? = null,
+    bronOrganisatie: String = "fakeBronOrganisatie",
+    verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
-    archiefnominatie: Archiefnominatie? = null,
+    archiefnominatie: ArchiefnominatieEnum? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
-    identificatie: String = "dummyIdentificatie",
+    identificatie: String = "fakeIdentificatie",
     registratiedatum: LocalDate = LocalDate.now(),
     resultaat: URI? = null,
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
-    deelzaken: Set<URI>? = null,
-    uuid: UUID = UUID.randomUUID(),
-    omschrijving: String = "dummyOmschrijving"
+    hoofdzaakUri: URI? = null,
+    deelzaken: List<URI>? = null,
+    omschrijving: String = "fakeOmschrijving"
 ) = Zaak(
-    zaakTypeURI,
-    startDate,
-    bronOrganisatie,
-    verantwoordelijkeOrganisatie
+    URI("https://example.com/zaak/$uuid"),
+    uuid,
+    endDate,
+    null,
+    deelzaken,
+    null,
+    null,
+    status,
+    null,
+    null,
+    resultaat
 ).apply {
-    this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
-    this.uuid = uuid
+    this.zaaktype = zaakTypeURI
+    this.startdatum = startDate
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
     this.identificatie = identificatie
     this.registratiedatum = registratiedatum
-    this.resultaat = resultaat
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.status = status
     this.verlenging = verlenging
-    this.deelzaken = deelzaken
+    this.hoofdzaak = hoofdzaakUri
     this.omschrijving = omschrijving
+    this.bronorganisatie = bronOrganisatie
+    this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
 }
 
 fun createZaakobjectOpenbareRuimte(
@@ -186,14 +306,26 @@ fun createZaakobjectOpenbareRuimte(
     objectOpenbareRuimte
 )
 
-fun createZaakInformatieobject(
+fun createZaakInformatieobjectForCreatesAndUpdates(
     informatieobjectUUID: UUID = UUID.randomUUID(),
     zaakUUID: UUID = UUID.randomUUID(),
-    informatieObjectURL: URI = URI("http://example.com/$informatieobjectUUID"),
-    zaakURL: URI = URI("http://example.com/$zaakUUID")
+    informatieObjectURL: URI = URI("https://example.com/$informatieobjectUUID"),
+    zaakURL: URI = URI("https://example.com/$zaakUUID")
 ) = ZaakInformatieobject(
     informatieObjectURL,
     zaakURL
+)
+
+fun createZaakInformatieobjectForReads(
+    url: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
+    registratiedatum: ZonedDateTime = ZonedDateTime.now()
+) = ZaakInformatieobject(
+    url,
+    uuid,
+    aardRelatieWeergave,
+    registratiedatum
 )
 
 fun createZaakobjectProductaanvraag(
@@ -219,12 +351,24 @@ fun createZaakobjectPand(
 fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    datumStatusGezet: ZonedDateTime = ZonedDateTime.now()
-) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
+    zaakURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    statustypeURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
+) = Status(
+    uri,
+    uuid,
+    false,
+    emptyList()
+).apply {
+    this.zaak = zaakURI
+    this.statustype = statustypeURI
+    this.datumStatusGezet = datumStatusGezet
+}
 
 fun createVerlenging(
-    reden: String = "dummyReden",
-    duur: Period = Period.ZERO
-) = Verlenging(reden, duur)
+    reden: String = "fakeReden",
+    duur: String = "0"
+) = Verlenging().apply {
+    this.reden = reden
+    this.duur = duur
+}

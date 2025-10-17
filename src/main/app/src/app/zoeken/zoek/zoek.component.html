@@ -109,7 +109,7 @@
         matSuffix
         id="wissen-button"
       >
-        <mat-icon outlined>backspace</mat-icon>
+        <mat-icon outlined>close</mat-icon>
       </button>
       <button
         *ngIf="!hasSearched && zoekType === ZoekType.ZAC"
@@ -134,11 +134,11 @@
           *ngFor="let filter of zoekResultaat.filters | keyvalue: originalOrder"
         >
           <zac-multi-facet-filter
-            *ngIf="hasOption(filter.value)"
+            *ngIf="hasOption(filter.value ?? [])"
             [label]="filter.key"
             [filter]="zoekParameters.filters[filter.key]"
-            [opties]="filter.value"
-            (changed)="zoekParameters.filters[filter.key] = $event; zoek.emit()"
+            [opties]="filter.value ?? []"
+            (changed)="filterChanged(filter.key, $event)"
           >
           </zac-multi-facet-filter>
         </div>
@@ -152,38 +152,32 @@
             hasZaken ||
             hasTaken ||
             hasDocument ||
-            zoekParameters.datums.STARTDATUM?.hasValue()
+            !!zoekParameters.datums?.STARTDATUM
           "
           label="startdatum"
-          [range]="zoekParameters.datums.STARTDATUM"
-          (changed)="zoekParameters.datums.STARTDATUM = $event; zoek.emit()"
+          [range]="zoekParameters.datums?.STARTDATUM"
+          (changed)="dateFilterChange('STARTDATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || zoekParameters.datums.ZAAK_STREEFDATUM?.hasValue()"
+          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_STREEFDATUM"
           label="zaak.streefdatum"
-          [range]="zoekParameters.datums.ZAAK_STREEFDATUM"
-          (changed)="
-            zoekParameters.datums.ZAAK_STREEFDATUM = $event; zoek.emit()
-          "
+          [range]="zoekParameters.datums?.ZAAK_STREEFDATUM"
+          (changed)="dateFilterChange('ZAAK_STREEFDATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="
-            hasZaken || zoekParameters.datums.ZAAK_FATALE_DATUM?.hasValue()
-          "
+          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_FATALE_DATUM"
           label="zaak.fataledatum"
-          [range]="zoekParameters.datums.ZAAK_FATALE_DATUM"
-          (changed)="
-            zoekParameters.datums.ZAAK_FATALE_DATUM = $event; zoek.emit()
-          "
+          [range]="zoekParameters.datums?.ZAAK_FATALE_DATUM"
+          (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || zoekParameters.datums.ZAAK_EINDDATUM?.hasValue()"
+          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_EINDDATUM"
           label="zaak.einddatum"
-          [range]="zoekParameters.datums.ZAAK_EINDDATUM"
-          (changed)="zoekParameters.datums.ZAAK_EINDDATUM = $event; zoek.emit()"
+          [range]="zoekParameters.datums?.ZAAK_EINDDATUM"
+          (changed)="dateFilterChange('ZAAK_EINDDATUM', $event)"
         >
         </zac-date-filter>
       </div>
@@ -191,17 +185,17 @@
         <ng-container *ngFor="let zoekObject of zoekResultaat.resultaten">
           <ng-container [ngSwitch]="zoekObject.type">
             <zac-zaak-zoek-object
-              *ngSwitchCase="zoekObjectType.ZAAK"
+              *ngSwitchCase="'ZAAK'"
               [sideNav]="zoekenSideNav"
               [zaak]="getZaakZoekObject(zoekObject)"
             ></zac-zaak-zoek-object>
             <zac-taak-zoek-object
-              *ngSwitchCase="zoekObjectType.TAAK"
+              *ngSwitchCase="'TAAK'"
               [sideNav]="zoekenSideNav"
               [taak]="getTaakZoekObject(zoekObject)"
             ></zac-taak-zoek-object>
             <zac-document-zoek-object
-              *ngSwitchCase="zoekObjectType.DOCUMENT"
+              *ngSwitchCase="'DOCUMENT'"
               [sideNav]="zoekenSideNav"
               [document]="getDocumentZoekObject(zoekObject)"
             ></zac-document-zoek-object>
@@ -218,7 +212,7 @@
     </div>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.PERSONEN">
-    <zac-persoon-zoek [sideNav]="zoekenSideNav"></zac-persoon-zoek>
+    <zac-persoon-zoek [sideNav]="zoekenSideNav"> </zac-persoon-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BEDRIJVEN">
     <zac-bedrijf-zoek [sideNav]="zoekenSideNav"></zac-bedrijf-zoek>

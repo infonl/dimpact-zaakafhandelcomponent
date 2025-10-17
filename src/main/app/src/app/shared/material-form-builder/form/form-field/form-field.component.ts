@@ -25,20 +25,20 @@ import { FormFieldDirective } from "./form-field.directive";
   templateUrl: "./form-field.component.html",
   styleUrls: ["./form-field.component.less"],
 })
-export class FormFieldComponent implements OnInit, AfterViewInit {
-  @Input() field: AbstractFormField;
+export class FormFieldComponent<T = unknown> implements OnInit, AfterViewInit {
+  @Input({ required: true }) field!: AbstractFormField<T>;
 
-  @Output() valueChanges = new EventEmitter<any>();
+  @Output() valueChanges = new EventEmitter<T | null | undefined>();
 
-  private _field: FormItem;
-  private loaded: boolean;
-  private valueChangesSubscription: Subscription;
+  private _field!: FormItem;
+  private loaded = false;
+  private valueChangesSubscription?: Subscription;
 
-  @ViewChild(FormFieldDirective) formField: FormFieldDirective;
+  @ViewChild(FormFieldDirective) formField!: FormFieldDirective;
 
-  constructor(public mfbService: MaterialFormBuilderService) {}
+  constructor(private readonly mfbService: MaterialFormBuilderService) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this._field = this.mfbService.getFormItem(this.field);
     this.refreshComponent();
   }
@@ -49,7 +49,7 @@ export class FormFieldComponent implements OnInit, AfterViewInit {
 
   refreshComponent() {
     if (this.loaded) {
-      this.valueChangesSubscription.unsubscribe();
+      this.valueChangesSubscription?.unsubscribe();
       this.formField.viewContainerRef.clear();
       this.loadComponent();
     }
@@ -59,7 +59,7 @@ export class FormFieldComponent implements OnInit, AfterViewInit {
     if (this._field.data.readonly && !this._field.data.hasReadonlyView()) {
       this._field = new FormItem(
         ReadonlyComponent,
-        new ReadonlyFormFieldBuilder(this._field.data.formControl.value)
+        new ReadonlyFormFieldBuilder(String(this._field.data.formControl.value))
           .id(this._field.data.id)
           .label(this._field.data.label)
           .build(),
@@ -76,7 +76,7 @@ export class FormFieldComponent implements OnInit, AfterViewInit {
     if (this._field.data.hasFormControl()) {
       this.valueChangesSubscription =
         this._field.data.formControl.valueChanges.subscribe((value) => {
-          this.valueChanges.emit(value);
+          this.valueChanges.emit(value as T);
         });
     }
   }

@@ -1,22 +1,34 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import {
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Subscription } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
+import {
+  BSN_LENGTH,
+  KVK_LENGTH,
+  POSTAL_CODE_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "../../../shared/utils/constants";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
+import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
-import { Bedrijf } from "../../model/bedrijven/bedrijf";
-import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
@@ -24,181 +36,148 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
 })
-export class BedrijfZoekComponent implements OnInit {
-  @Output() bedrijf? = new EventEmitter<Bedrijf>();
+export class BedrijfZoekComponent implements OnInit, OnDestroy {
+  @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
-  @Input() syncEnabled: boolean = false;
-  bedrijven: MatTableDataSource<Bedrijf> = new MatTableDataSource<Bedrijf>();
-  foutmelding: string;
-  formGroup: FormGroup;
-  bedrijfColumns: string[] = [
+  @Input() syncEnabled = false;
+
+  protected blockSearch = input<boolean>(false);
+
+  bedrijven = new MatTableDataSource<GeneratedType<"RestBedrijf">>();
+  foutmelding?: string;
+  bedrijfColumns = [
     "naam",
     "kvk",
     "vestigingsnummer",
     "type",
     "adres",
     "acties",
-  ];
+  ] as const;
   loading = false;
-  types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
-  uuid: string;
-  private formSelectedSubscription!: Subscription;
+  types = [
+    "HOOFDVESTIGING",
+    "NEVENVESTIGING",
+    "RECHTSPERSOON",
+  ] satisfies GeneratedType<"BedrijfType">[];
+  uuid = crypto.randomUUID();
+  private readonly destroy$ = new Subject<void>();
 
-  kvkFormField: AbstractFormControlField;
-  vestigingsnummerFormField: AbstractFormControlField;
-  rsinFormField: AbstractFormControlField;
-  naamFormField: AbstractFormControlField;
-  typeFormField: AbstractFormControlField;
-  postcodeFormField: AbstractFormControlField;
-  huisnummerFormField: AbstractFormControlField;
-  plaatsFormField: AbstractFormControlField;
+  public readonly formGroup = this.formBuilder.group({
+    kvkNummer: this.formBuilder.control<number | null>(null, [
+      Validators.minLength(KVK_LENGTH),
+      Validators.maxLength(KVK_LENGTH),
+    ]),
+    naam: this.formBuilder.control<string | null>(null, [
+      CustomValidators.bedrijfsnaam,
+      Validators.maxLength(100),
+    ]),
+    vestigingsnummer: this.formBuilder.control<string | null>(null, [
+      Validators.minLength(VESTIGINGSNUMMER_LENGTH),
+      Validators.maxLength(VESTIGINGSNUMMER_LENGTH),
+    ]),
+    rsin: this.formBuilder.control<string | null>(null, [
+      Validators.minLength(BSN_LENGTH),
+      Validators.maxLength(BSN_LENGTH),
+    ]),
+    postcode: this.formBuilder.control<string | null>(null, [
+      CustomValidators.postcode,
+      Validators.maxLength(POSTAL_CODE_LENGTH),
+    ]),
+    huisnummer: this.formBuilder.control<number | null>(null, [
+      Validators.min(1),
+      Validators.max(99999),
+      Validators.maxLength(5),
+    ]),
+    plaats: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(50),
+    ]),
+    type: this.formBuilder.control<GeneratedType<"BedrijfType"> | null>(null),
+  });
 
   constructor(
-    private klantenService: KlantenService,
-    private utilService: UtilService,
-    private formCommunicationService: FormCommunicatieService,
-    private formBuilder: FormBuilder,
-    private router: Router,
-  ) {}
+    private readonly klantenService: KlantenService,
+    private readonly utilService: UtilService,
+    private readonly formCommunicationService: FormCommunicatieService,
+    private readonly formBuilder: FormBuilder,
+    private readonly router: Router,
+  ) {
+    this.formGroup.controls.type.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((type) => {
+        const rsinRequired = type === "RECHTSPERSOON";
+        if (rsinRequired) {
+          this.formGroup.controls.rsin.addValidators(Validators.required);
+        } else {
+          this.formGroup.controls.rsin.removeValidators(Validators.required);
+        }
+      });
 
-  ngOnInit(): void {
-    this.naamFormField = new InputFormFieldBuilder()
-      .id("naam")
-      .label("bedrijfsnaam")
-      .maxlength(100)
-      .validators(CustomValidators.bedrijfsnaam)
-      .build();
-    this.kvkFormField = new InputFormFieldBuilder()
-      .id("kvknummer")
-      .label("kvknummer")
-      .validators(CustomValidators.kvk)
-      .maxlength(8)
-      .build();
-    this.vestigingsnummerFormField = new InputFormFieldBuilder()
-      .id("vestigingsnummer")
-      .label("vestigingsnummer")
-      .validators(CustomValidators.vestigingsnummer)
-      .maxlength(12)
-      .build();
-    this.rsinFormField = new InputFormFieldBuilder()
-      .id("rsin")
-      .label("rsin")
-      .validators(CustomValidators.rsin)
-      .maxlength(9)
-      .build();
-    this.postcodeFormField = new InputFormFieldBuilder()
-      .id("postcode")
-      .label("postcode")
-      .validators(CustomValidators.postcode)
-      .maxlength(7)
-      .build();
-    this.typeFormField = new SelectFormFieldBuilder()
-      .id("type")
-      .label("type")
-      .options(this.types)
-      .build();
-    this.huisnummerFormField = new InputFormFieldBuilder()
-      .id("huisnummer")
-      .label("huisnummer")
-      .validators(
-        Validators.min(1),
-        Validators.max(99999),
-        CustomValidators.huisnummer,
-      )
-      .maxlength(5)
-      .build();
-    this.plaatsFormField = new InputFormFieldBuilder()
-      .id("plaats")
-      .label("plaats")
-      .maxlength(50)
-      .build();
+    this.formGroup.controls.postcode.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((postcode) => {
+        if (postcode) {
+          this.formGroup.controls.huisnummer.addValidators(Validators.required);
+        } else {
+          this.formGroup.controls.huisnummer.removeValidators(
+            Validators.required,
+          );
+        }
+      });
 
-    this.formGroup = this.formBuilder.group({
-      kvkNummer: this.kvkFormField.formControl,
-      naam: this.naamFormField.formControl,
-      vestigingsnummer: this.vestigingsnummerFormField.formControl,
-      rsin: this.rsinFormField.formControl,
-      postcode: this.postcodeFormField.formControl,
-      huisnummer: this.huisnummerFormField.formControl,
-      plaats: this.plaatsFormField.formControl,
-      type: this.typeFormField.formControl,
-    });
-
-    this.uuid = crypto.randomUUID(); // Generate a unique form ID
-
-    if (this.syncEnabled) {
-      // Subscribe to select event, ignore own event
-      this.formSelectedSubscription =
-        this.formCommunicationService.itemSelected$.subscribe(
-          ({ selected, uuid }) => {
-            if (selected && uuid !== this.uuid) {
-              this.wissen();
-            }
-          },
-        );
-    }
+    this.formGroup.controls.huisnummer.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((huisnummer) => {
+        if (huisnummer) {
+          this.formGroup.controls.postcode.addValidators(Validators.required);
+        } else {
+          this.formGroup.controls.postcode.removeValidators(
+            Validators.required,
+          );
+        }
+      });
   }
 
-  isValid(): boolean {
-    if (!this.formGroup.valid) {
-      return false;
-    }
-    const kvkNummer = this.kvkFormField.formControl.value;
-    const bedrijfsnaam = this.naamFormField.formControl.value;
-    const vestigingsnummer = this.vestigingsnummerFormField.formControl.value;
-    const rsin = this.rsinFormField.formControl.value;
-    const postcode = this.postcodeFormField.formControl.value;
-    const huisnummer = this.huisnummerFormField.formControl.value;
+  ngOnInit() {
+    if (!this.syncEnabled) return;
 
-    return (
-      kvkNummer ||
-      bedrijfsnaam ||
-      vestigingsnummer ||
-      rsin ||
-      (postcode && huisnummer)
-    );
-  }
-
-  createListParameters(): ListBedrijvenParameters {
-    return this.removeEmpty(this.formGroup.value);
-  }
-
-  removeEmpty<T>(parameters: T): T {
-    return Object.fromEntries(
-      Object.entries(parameters).filter(([, v]) => !!v),
-    ) as T;
+    this.formCommunicationService.itemSelected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ selected, uuid }) => {
+        if (selected && uuid !== this.uuid) {
+          this.wissen();
+        }
+      });
   }
 
   zoekBedrijven() {
     this.loading = true;
     this.utilService.setLoading(true);
     this.bedrijven.data = [];
+    const data = this.formGroup.value;
     this.klantenService
-      .listBedrijven(this.createListParameters())
+      .listBedrijven({
+        ...data,
+        kvkNummer: data.kvkNummer ? String(data.kvkNummer) : null,
+      })
       .subscribe((bedrijven) => {
-        this.bedrijven.data = bedrijven.resultaten;
+        this.bedrijven.data = bedrijven.resultaten ?? [];
         this.foutmelding = bedrijven.foutmelding;
         this.loading = false;
         this.utilService.setLoading(false);
       });
   }
 
-  typeChanged(type: any): void {
-    this.rsinFormField.required = type === "RECHTSPERSOON";
-  }
-
-  openBedrijfPagina(bedrijf: Bedrijf): void {
+  openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
     this.sideNav?.close();
-    this.router.navigate(["/bedrijf/", bedrijf.identificatie]);
+    void this.router.navigate(buildBedrijfRouteLink(bedrijf));
   }
 
-  selectBedrijf(bedrijf: Bedrijf): void {
-    this.bedrijf.emit(bedrijf);
+  selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {
+    this.bedrijf?.emit(bedrijf);
     this.wissen();
 
-    if (this.syncEnabled) {
-      this.formCommunicationService.notifyItemSelected(this.uuid);
-    }
+    if (!this.syncEnabled) return;
+    this.formCommunicationService.notifyItemSelected(this.uuid);
   }
 
   wissen() {
@@ -206,9 +185,14 @@ export class BedrijfZoekComponent implements OnInit {
     this.bedrijven.data = [];
   }
 
+  isValid() {
+    const value = this.formGroup.value;
+    const hasValues = Object.values(value).some(Boolean);
+    return hasValues && this.formGroup.valid && !this.blockSearch();
+  }
+
   ngOnDestroy() {
-    if (this.formSelectedSubscription) {
-      this.formSelectedSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

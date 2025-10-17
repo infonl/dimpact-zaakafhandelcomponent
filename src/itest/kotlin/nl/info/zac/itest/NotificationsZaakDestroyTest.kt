@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -14,21 +14,23 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -55,13 +57,13 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         lateinit var humanTaskItemAanvullendeInformatieId: String
         lateinit var aanvullendeInformatieTaskID: String
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
             behandelaarId = TEST_USER_2_ID,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             JSONObject(responseBody).run {
@@ -73,7 +75,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
@@ -87,11 +89,11 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
                     "taakStuurGegevens": {"sendMail":false},
                     "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                    "taakdata": { "dummyTestKey": "dummyTestValue" }
+                    "taakdata": { "fakeTestKey": "fakeTestValue" }
                 }
             """.trimIndent()
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
         }
@@ -99,7 +101,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
             JSONArray(responseBody).length() shouldBe 1
@@ -108,9 +110,13 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
+            headers = mapOf(
+                "Content-Type" to "application/json",
+                "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+            ).toHeaders(),
             addAuthorizationHeader = false
         ).run {
-            logger.info { "Response: ${body!!.string()}" }
+            logger.info { "Response: ${body.string()}" }
             this.isSuccessful shouldBe true
         }
         // wait for the indexing to complete
@@ -131,7 +137,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                 """.trimIndent()
-            ).body!!.string()
+            ).body.string()
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
@@ -162,17 +168,17 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     the task should be deleted and the zaak should be removed from the Solr index
                 """.trimIndent()
             ) {
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
                 // Retrieve the zaak and check that the zaakdata is no longer available.
                 // Note that in this test scenario the zaak is not deleted from OpenZaak
                 // and so ZAC should still return the zaak.
                 // However, all Flowable data related to the zaak should be deleted.
                 zacClient.retrieveZaak(zaakUUID).run {
-                    val responseBody = this.body!!.string()
+                    val responseBody = this.body.string()
                     logger.info { "Response: $responseBody" }
-                    this.code shouldBe HTTP_STATUS_OK
+                    this.code shouldBe HTTP_OK
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
                     responseBody.shouldContainJsonKeyValue("zaakdata", "")
                 }
@@ -181,7 +187,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
                 ).run {
-                    val responseBody = body!!.string()
+                    val responseBody = body.string()
                     logger.info { "Response: $responseBody" }
                     this.isSuccessful shouldBe true
                     JSONArray(responseBody).length() shouldBe 0
@@ -190,9 +196,9 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID"
                 ).run {
-                    val responseBody = body!!.string()
+                    val responseBody = body.string()
                     logger.info { "Response: $responseBody" }
-                    this.code shouldBe HTTP_STATUS_NOT_FOUND
+                    this.code shouldBe HTTP_NOT_FOUND
                     responseBody shouldEqualJson """
                         {"message":"No historic task with id '$aanvullendeInformatieTaskID' found"}
                     """.trimIndent()
@@ -215,7 +221,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                         """.trimIndent()
-                    ).body!!.string()
+                    ).body.string()
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }

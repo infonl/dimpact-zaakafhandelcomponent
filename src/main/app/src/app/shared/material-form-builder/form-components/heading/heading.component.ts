@@ -14,7 +14,7 @@ import { HeadingFormField, HeadingLevel } from "./heading-form-field";
 })
 export class HeadingComponent extends FormComponent {
   readonly headingLevel = HeadingLevel;
-  data: HeadingFormField;
+  data: HeadingFormField = new HeadingFormField();
 
   constructor(public translate: TranslateService) {
     super();

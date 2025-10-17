@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -34,22 +34,24 @@ When(
 );
 
 When(
-  "{string} distributes the taken to the first group available",
+  "{string} distributes the taken to the first group and user available",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Verdelen").click();
-    const expectedLabel = "Taak toekennen aan groep";
-    await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", { name: "test gr" }).first().click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
-    await this.page.getByRole("button", { name: /Verdelen/ }).click();
+    await this.page.getByRole("button", { name: "Verdelen" }).click();
+    await this.page.getByLabel(/groep/i).click();
+    await this.page.getByRole("option").first().click();
+    await this.page.getByLabel(/medewerker/i).isEnabled();
+    await this.page.getByLabel(/medewerker/i).click();
+    await this.page.getByRole("option").first().click();
+    await this.page.getByLabel(/reden/i).fill("Fake reason");
+    await this.page.getByRole("button", { name: "Verdelen" }).click();
   },
 );
 
 When(
   "{string} releases the taken",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Vrijgeven").click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
+    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
+    await this.page.getByLabel("Reden").fill("Fake reason");
     await this.page.getByRole("button", { name: /Vrijgeven/ }).click();
   },
 );
@@ -65,11 +67,11 @@ Then(
 );
 
 Then(
-  "{string} gets a message confirming that the releasement of taken is starting",
+  "{string} gets a message confirming that the release of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfTaken} taken worden vrijgegeven...`)
+      .getByText(/(\d+ taken worden vrijgegeven|De taak wordt vrijgegeven)/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );

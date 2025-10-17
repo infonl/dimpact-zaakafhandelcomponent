@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
@@ -15,45 +14,48 @@ import { TakenService } from "../taken.service";
   templateUrl: "./taken-vrijgeven-dialog.component.html",
   styleUrls: ["./taken-vrijgeven-dialog.component.less"],
 })
-export class TakenVrijgevenDialogComponent implements OnInit {
-  loading: boolean;
-  redenFormField: InputFormField;
+export class TakenVrijgevenDialogComponent {
+  loading = false;
+
+  protected readonly form = this.formBuilder.group({
+    reden: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(100),
+    ]),
+  });
 
   constructor(
-    public dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>,
+    public readonly dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: {
+    public readonly data: {
       taken: TaakZoekObject[];
       screenEventResourceId: string;
     },
-    private takenService: TakenService,
+    private readonly takenService: TakenService,
+    private readonly formBuilder: FormBuilder,
   ) {}
-
-  ngOnInit(): void {
-    this.redenFormField = new InputFormFieldBuilder()
-      .id("reden")
-      .label("reden")
-      .maxlength(100)
-      .build();
-  }
 
   close() {
     this.dialogRef.close(false);
   }
 
   vrijgeven() {
-    this.redenFormField.readonly = true;
     this.dialogRef.disableClose = true;
     this.loading = true;
-    const reden: string = this.redenFormField.formControl.value;
     this.takenService
-      .vrijgevenVanuitLijst(
-        this.data.taken,
-        reden,
-        this.data.screenEventResourceId,
-      )
+      .vrijgevenVanuitLijst({
+        reden: this.form.value.reden,
+        screenEventResourceId: this.data.screenEventResourceId,
+        taken: this.data.taken
+          .filter(
+            ({ behandelaarGebruikersnaam }) => !!behandelaarGebruikersnaam,
+          )
+          .map(({ zaakUuid, id }) => ({
+            taakId: id,
+            zaakUuid,
+          })),
+      })
       .subscribe(() => {
-        this.dialogRef.close(reden);
+        this.dialogRef.close(true);
       });
   }
 }

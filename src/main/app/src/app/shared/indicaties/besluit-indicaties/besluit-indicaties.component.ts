@@ -5,14 +5,10 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Indicatie } from "../../model/indicatie";
+import { BesluitIndicatie } from "../../model/indicatie";
+import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
-
-export enum BesluitIndicatie {
-  INGETROKKEN = "INGETROKKEN",
-}
-
 @Component({
   selector: "zac-besluit-indicaties",
   templateUrl: "../indicaties.component.html",
@@ -22,22 +18,22 @@ export class BesluitIndicatiesComponent
   extends IndicatiesComponent
   implements OnChanges
 {
-  @Input() besluit: GeneratedType<"RestDecision">;
+  @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
 
-  constructor(private translate: TranslateService) {
+  constructor(private readonly translate: TranslateService) {
     super();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     this.besluit = changes.besluit?.currentValue;
     this.loadIndicaties();
   }
 
-  private loadIndicaties(): void {
+  private loadIndicaties() {
     this.indicaties = [];
     if (this.besluit.isIngetrokken) {
       this.indicaties.push(
-        new Indicatie(
+        new IndicatieItem(
           BesluitIndicatie.INGETROKKEN,
           "stop",
           this.getIntrekToelichting(),
@@ -46,7 +42,7 @@ export class BesluitIndicatiesComponent
     }
   }
 
-  private getIntrekToelichting(): string {
+  private getIntrekToelichting() {
     return this.translate.instant(
       "besluit.vervalreden." + this.besluit.vervalreden,
     );

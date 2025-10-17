@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,17 +14,21 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun createBetrokkene(
-    inBsn: String = "dummyBsn",
-    roltypeOmschrijving: String = "dummyRoltypeOmschrijving",
+    inBsn: String? = "fakeBsn",
+    vestigingsNummer: String? = "fakeVestigingsNummer",
+    roltypeOmschrijving: String = "fakeRoltypeOmschrijving",
+    kvkNummer: String? = "fakeKvkNummer"
 ) =
     Betrokkene().apply {
         this.inpBsn = inBsn
+        this.vestigingsNummer = vestigingsNummer
         this.roltypeOmschrijving = roltypeOmschrijving
+        this.kvkNummer = kvkNummer
     }
 
 fun createBron(
-    naam: String = "dummyNaam",
-    kenmerk: String = "dummyKenmerk"
+    naam: String = "fakeNaam",
+    kenmerk: String = "fakeKenmerk"
 ) = Bron().apply {
     this.naam = naam
     this.kenmerk = kenmerk
@@ -36,8 +40,8 @@ fun createInboxProductaanvraag(
     productaanvraagObjectUUID: UUID = UUID.randomUUID(),
     aanvraagdocumentUUID: UUID = UUID.randomUUID(),
     ontvangstdatum: LocalDate = LocalDate.now(),
-    type: String = "dummyType",
-    initiatorID: String = "dummyInitiator",
+    type: String = "fakeType",
+    initiatorID: String = "fakeInitiator",
     aantalBijlagen: Int = 0
 ) = InboxProductaanvraag().apply {
     this.id = id
@@ -51,13 +55,13 @@ fun createInboxProductaanvraag(
 
 @Suppress("LongParameterList")
 fun createProductaanvraagDimpact(
-    type: String = "dummyType",
+    type: String = "fakeType",
     betrokkenen: List<Betrokkene> = listOf(createBetrokkene()),
-    pdfUrl: URI = URI("http://example.com/dummyPdf"),
-    csvUrl: URI = URI("http://example.com/dummyCsv"),
+    pdfUrl: URI = URI("http://example.com/fakePdf"),
+    csvUrl: URI = URI("http://example.com/fakeCsv"),
     attachments: List<URI> = listOf(
-        URI("http://example.com/dummyAttachment1"),
-        URI("http://example.com/dummyAttachment2")
+        URI("http://example.com/fakeAttachment1"),
+        URI("http://example.com/fakeAttachment2")
     )
 ) =
     ProductaanvraagDimpact().apply {

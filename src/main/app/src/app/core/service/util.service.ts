@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,7 +17,6 @@ import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
-import { ActionBarAction } from "../actionbar/model/action-bar-action";
 
 @Injectable({
   providedIn: "root",
@@ -31,8 +30,7 @@ export class UtilService {
   );
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();
-  public addAction$ = new Subject<ActionBarAction>();
-  public disableActionBar$ = new Subject<boolean>();
+  public disable$ = new Subject<boolean>();
 
   public loading$: Observable<boolean> = this.loading.pipe(
     switchMap((loading) =>
@@ -55,7 +53,7 @@ export class UtilService {
     );
 
   constructor(
-    @Optional() @Inject(DOCUMENT) private document: any,
+    @Optional() @Inject(DOCUMENT) private document: HTMLElement,
     private breakpointObserver: BreakpointObserver,
     private translate: TranslateService,
     private titleService: Title,
@@ -67,8 +65,8 @@ export class UtilService {
   /**
    * Check whether there is an active edit overlay on the screen eg. autocomplete or datepicker
    */
-  hasEditOverlay(): boolean {
-    const overlayElements: any[] = this.getOverlayElements(
+  hasEditOverlay() {
+    const overlayElements = this.getOverlayElements(
       "mat-autocomplete-panel",
       "mat-select-panel",
       "mat-datepicker-popup",
@@ -77,12 +75,12 @@ export class UtilService {
     return overlayElements.length > 0;
   }
 
-  private getOverlayElements(...classList): any[] {
-    const overlayElements: any[] = [];
-    for (const styleClass of classList) {
-      overlayElements.push(...this.document.getElementsByClassName(styleClass));
-    }
-    return overlayElements;
+  private getOverlayElements(...classList: string[]) {
+    return classList.reduce((acc, styleClass) => {
+      return acc.concat(
+        Array.from(this.document.getElementsByClassName(styleClass)),
+      );
+    }, [] as Element[]);
   }
 
   setTitle(title: string, params?: InterpolationParameters): void {
@@ -97,14 +95,11 @@ export class UtilService {
     this.loading.next(loading);
   }
 
-  getEnumAsSelectList(
-    prefix: string,
-    enumValue: any,
-  ): { label: string; value: string }[] {
+  getEnumAsSelectList(prefix: string, enumValue: object) {
     const list: { label: string; value: string }[] = [];
     Object.keys(enumValue).forEach((value) => {
       this.translate
-        .get(`${prefix}.${enumValue[value]}`)
+        .get(`${prefix}.${enumValue[value as keyof typeof enumValue]}`)
         .subscribe((result) => {
           list.push({ label: result, value: value });
         });
@@ -114,31 +109,34 @@ export class UtilService {
 
   getEnumAsSelectListExceptFor(
     prefix: string,
-    enum_: any,
+    enum_: object,
     exceptEnumValues: [string],
-  ): { label: string; value: string }[] {
+  ) {
     const list: { label: string; value: string }[] = [];
     Object.keys(enum_)
       .filter(
         (key) =>
           !exceptEnumValues.some(
-            (acceptEnumValue) => acceptEnumValue === enum_[key],
+            (acceptEnumValue) =>
+              acceptEnumValue === enum_[key as keyof typeof enum_],
           ),
       )
       .forEach((key) => {
-        this.translate.get(`${prefix}.${enum_[key]}`).subscribe((result) => {
-          list.push({ label: result, value: key });
-        });
+        this.translate
+          .get(`${prefix}.${enum_[key as keyof typeof enum_]}`)
+          .subscribe((result) => {
+            list.push({ label: result, value: key });
+          });
       });
     return list;
   }
 
-  getEnumKeyByValue(enum_: any, value: any) {
+  getEnumKeyByValue(enum_: object, value: string) {
     return Object.keys(enum_)[Object.values(enum_).indexOf(value)];
   }
 
   openSnackbarError(message: string, params?: Record<string, unknown>) {
-    this.openSnackbar(message, params, null);
+    this.openSnackbar(message, params);
   }
 
   openSnackbar(
@@ -161,7 +159,7 @@ export class UtilService {
         this.translate.instant(action, params),
         {
           panelClass: ["mat-snackbar"],
-          duration: durationSeconden != null ? durationSeconden * 1000 : null,
+          duration: durationSeconden ? durationSeconden * 1000 : undefined,
         },
       )
       .onAction();
@@ -169,7 +167,7 @@ export class UtilService {
 
   openSnackbarFromComponent<T>(
     component: ComponentType<T>,
-    config?: MatSnackBarConfig<any>,
+    config?: MatSnackBarConfig<unknown>,
   ) {
     return this.snackbar.openFromComponent(component, config);
   }
@@ -203,14 +201,6 @@ export class UtilService {
     this.dialog.closeAll();
   }
 
-  addAction(action: ActionBarAction) {
-    this.addAction$.next(action);
-  }
-
-  disableActionBar(state: boolean) {
-    this.disableActionBar$.next(state);
-  }
-
   reloadRoute(): void {
     const currentUrl = this.router.url;
     this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
@@ -218,20 +208,32 @@ export class UtilService {
     });
   }
 
-  getUniqueItemsList(
-    source: any[],
-    item: string,
-    key: string,
-    sortKey?: string,
-  ): any[] {
-    return source
-      .map((value) => value[item])
+  getUniqueItemsList<
+    T extends Array<Record<string, unknown>>,
+    Item extends keyof T[number],
+    Key extends keyof NonNullable<T[number][Item]>,
+    SortKey extends keyof NonNullable<T[number][Item]> | undefined,
+  >(source: T, item: Item, key: Key, sortKey?: SortKey) {
+    const uniqueItems = source
+      .map((value) => value[item as keyof typeof value])
       .filter((value, index, self) => {
         return (
-          value && self.findIndex((v) => v && v[key] === value[key]) === index
+          value &&
+          self.findIndex(
+            (v) =>
+              v &&
+              v[key as keyof typeof value] === value[key as keyof typeof value],
+          ) === index
         );
-      })
-      .sort(OrderUtil.orderBy(sortKey));
+      });
+    const sortedItems = sortKey
+      ? uniqueItems.sort(
+          // @ts-expect-error sortkey is not a key of T[number][Item]
+          OrderUtil.orderBy(sortKey),
+        )
+      : uniqueItems;
+
+    return sortedItems as NonNullable<T[number][Item]>[];
   }
 
   downloadBlobResponse(response: Blob, fileName: string) {
@@ -248,6 +250,10 @@ export class UtilService {
     );
     link.remove();
     window.URL.revokeObjectURL(link.href);
+  }
+
+  handleFormIOInitError(context: string, error: string): void {
+    this.openSnackbarError("msg.error.formio.init", { context, error });
   }
 
   /**

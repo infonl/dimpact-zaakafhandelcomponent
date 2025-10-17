@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,7 +18,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
     Given("REST enkelvoudig informatie object") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
-                bestandsnaam = "dummyFileName.txt"
+                bestandsnaam = "fakeFileName.txt"
             }
 
         When("no file content provided") {
@@ -41,7 +41,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         }
 
         When("file is provided") {
-            restEnkelvoudigInformatieobject.file = "dummy content".toByteArray()
+            restEnkelvoudigInformatieobject.file = "fake content".toByteArray()
 
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 

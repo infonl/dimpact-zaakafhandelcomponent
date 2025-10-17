@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export enum Vertrouwelijkheidaanduiding {
   "openbaar" = "OPENBAAR",
   "beperkt_openbaar" = "BEPERKT_OPENBAAR",

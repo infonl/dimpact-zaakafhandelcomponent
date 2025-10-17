@@ -1,10 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input } from "@angular/core";
-import { FormArray, FormControl, FormGroup } from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+} from "@angular/forms";
 
 @Component({
   selector: "zac-zaakdata-form",
@@ -12,12 +17,14 @@ import { FormArray, FormControl, FormGroup } from "@angular/forms";
   styleUrls: ["./zaakdata-form.component.less"],
 })
 export class ZaakdataFormComponent {
-  @Input() formItem: any;
-  @Input() label: string;
+  @Input({ required: true }) formItem!:
+    | FormControl
+    | FormGroup
+    | FormArray
+    | AbstractControl;
+  @Input() label?: string;
 
-  constructor() {}
-
-  getType(): "GROUP" | "CONTROL" | "ARRAY" {
+  getType() {
     if (this.formItem instanceof FormControl) {
       return "CONTROL";
     }

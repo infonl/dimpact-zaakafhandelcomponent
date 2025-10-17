@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,8 +13,8 @@ import { RadioFormField } from "./radio-form-field";
   styleUrls: ["./radio.component.less"],
 })
 export class RadioComponent extends FormComponent implements OnInit {
-  data: RadioFormField;
-  selectedValue: string;
+  data: RadioFormField<string>;
+  selectedValue?: string | null = null;
 
   constructor(public translate: TranslateService) {
     super();

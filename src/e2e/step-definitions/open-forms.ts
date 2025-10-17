@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -141,7 +141,7 @@ Given(
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
       .getByLabel(
-        "Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.",
+        "Ja, ik heb kennis genomen van het en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.",
       )
       .check();
   },

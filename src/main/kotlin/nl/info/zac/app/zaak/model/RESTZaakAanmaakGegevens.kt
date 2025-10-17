@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
@@ -14,7 +14,7 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 data class RESTZaakAanmaakGegevens(
     @field:Valid
-    var zaak: RestZaak,
+    var zaak: RestZaakCreateData,
 
     var inboxProductaanvraag: RESTInboxProductaanvraag? = null,
 

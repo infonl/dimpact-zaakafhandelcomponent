@@ -5,8 +5,8 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { Werklijst } from "../gebruikersvoorkeuren/model/werklijst";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { ZaakIdentificatieResolver } from "./zaak-identificatie-resolver.service";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
@@ -27,20 +27,24 @@ const routes: Routes = [
         path: "mijn",
         component: ZakenMijnComponent,
         resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: Werklijst.MIJN_ZAKEN },
+        data: { werklijst: "MIJN_ZAKEN" satisfies GeneratedType<"Werklijst"> },
       },
       {
         path: "werkvoorraad",
         component: ZakenWerkvoorraadComponent,
         resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: Werklijst.WERKVOORRAAD_ZAKEN },
+        data: {
+          werklijst: "WERKVOORRAAD_ZAKEN" satisfies GeneratedType<"Werklijst">,
+        },
       },
       { path: "create", component: ZaakCreateComponent },
       {
         path: "afgehandeld",
         component: ZakenAfgehandeldComponent,
         resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: Werklijst.AFGEHANDELDE_ZAKEN },
+        data: {
+          werklijst: "AFGEHANDELDE_ZAKEN" satisfies GeneratedType<"Werklijst">,
+        },
       },
       {
         path: ":zaakIdentificatie",

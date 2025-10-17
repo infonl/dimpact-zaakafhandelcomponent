@@ -1,0 +1,24 @@
+{
+  "priority": 10,
+  "request": {
+    "urlPathPattern": "/haalcentraal/api/brp/personen.*",
+    "headers": {
+      "X-DOELBINDING": {
+        "absent": true
+      },
+      "X-VERWERKING": {
+        "absent": true
+      }
+    }
+  },
+  "response": {
+    "status": 400,
+    "jsonBody": {
+      "code": "BRP-001",
+      "message": "Both X-DOELBINDING and X-VERWERKING headers are required"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -4,6 +4,7 @@
  */
 
 /**
+ * @deprecated - use the `GeneratedType`
  * Maps to ScreenObjectTypeEnum.java
  */
 export enum ObjectType {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,8 +7,8 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantenModule } from "../../klanten.module";
-import { Klant } from "../../model/klanten/klant";
 import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 
 @Component({
@@ -53,7 +53,7 @@ export class KlantKoppelInitiator {
   @Input() type: "persoon" | "bedrijf" = "persoon";
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 
-  klantGeselecteerd(klant: Klant): void {
+  klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
     this.klantGegevens.emit(new KlantGegevens(klant));
   }
 }

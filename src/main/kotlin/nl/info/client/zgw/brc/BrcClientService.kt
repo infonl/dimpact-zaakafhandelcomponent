@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.zgw.brc
@@ -8,11 +8,11 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.brc.model.BesluitenListParameters
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient

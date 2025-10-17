@@ -27,11 +27,14 @@ import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
-import { ZaakKoppelenDialogComponent } from "./zaak-koppelen/zaak-koppelen-dialog.component";
+import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
+import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
+import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
+import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
 import { ZaakdataComponent } from "./zaakdata/zaakdata.component";
@@ -41,7 +44,6 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
-import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component";
 
 @NgModule({
   declarations: [
@@ -50,6 +52,7 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     BesluitViewComponent,
     IntakeAfrondenDialogComponent,
     ZaakViewComponent,
+    BetrokkeneLinkComponent,
     ZaakVerkortComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
@@ -57,15 +60,16 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     ZakenAfgehandeldComponent,
     ZaakAfhandelenDialogComponent,
     ZakenVerdelenDialogComponent,
-    ZaakKoppelenDialogComponent,
     ZaakOntkoppelenDialogComponent,
     ZakenVrijgevenDialogComponent,
     ZaakOpschortenDialogComponent,
     ZaakVerlengenDialogComponent,
     ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
+    CaseLocationEditComponent,
+    ZaakLinkComponent,
     NotitiesComponent,
-    LocatieZoekComponent,
+    LocatieTonenComponent,
     ZaakDocumentenComponent,
     ZaakdataComponent,
     ZaakdataFormComponent,

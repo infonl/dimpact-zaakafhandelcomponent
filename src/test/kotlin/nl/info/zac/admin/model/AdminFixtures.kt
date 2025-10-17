@@ -1,47 +1,66 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package nl.info.zac.admin.model
 
-import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import net.atos.zac.admin.model.MailtemplateKoppeling
-import net.atos.zac.admin.model.ZaakAfzender
-import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakbeeindigParameter
-import net.atos.zac.mailtemplates.model.Mail
-import net.atos.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
 import java.util.UUID
 
+fun createBetrokkeneKoppelingen(
+    id: Long? = 1234L,
+    // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
+    brpKoppelen: Boolean = true,
+    kvkKoppelen: Boolean = true
+) = ZaaktypeCmmnBetrokkeneParameters().apply {
+    this.id = id
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.brpKoppelen = brpKoppelen
+    this.kvkKoppelen = kvkKoppelen
+}
+
+@Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
-    isActief: Boolean = true
-) = HumanTaskParameters().apply {
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
+    isActief: Boolean = true,
+    formulierDefinitieID: String? = "fakeFormulierDefinitieID",
+    planItemDefinitionID: String = "fakePlanItemDefinitionID",
+    groupId: String = "fakeGroupId",
+    leadTime: Int? = 1000000000,
+    referenceTables: List<HumanTaskReferentieTabel>? = emptyList()
+) = ZaaktypeCmmnHumantaskParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
-    this.isActief = isActief
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.actief = isActief
+    this.setFormulierDefinitieID(formulierDefinitieID)
+    this.planItemDefinitionID = planItemDefinitionID
+    this.groepID = groupId
+    this.doorlooptijd = leadTime
+    this.setReferentieTabellen((referenceTables ?: emptyList()).toMutableList())
 }
 
 fun createHumanTaskReferentieTabel(
     id: Long = 1234L,
     referenceTable: ReferenceTable = createReferenceTable(),
-    humanTaskParameters: HumanTaskParameters = createHumanTaskParameters(),
-    field: String = "dummyField",
+    zaaktypeCmmnHumantaskParameters: ZaaktypeCmmnHumantaskParameters = createHumanTaskParameters(),
+    field: String = "fakeField",
 ) = HumanTaskReferentieTabel().apply {
     this.id = id
     this.tabel = referenceTable
-    this.humantask = humanTaskParameters
+    this.humantask = zaaktypeCmmnHumantaskParameters
     this.veld = field
 }
 
 fun createReferenceTable(
     id: Long = 1234L,
-    code: String = "dummyCode",
-    name: String = "dummyReferentieTabel",
+    code: String = "fakeCode",
+    name: String = "fakeReferentieTabel",
     isSystemReferenceTable: Boolean = false,
     values: MutableList<ReferenceTableValue> = mutableListOf(createReferenceTableValue())
 ) = ReferenceTable().apply {
@@ -54,7 +73,7 @@ fun createReferenceTable(
 
 fun createReferenceTableValue(
     id: Long = 1234L,
-    name: String = "dummyReferentieTabelWaarde",
+    name: String = "fakeReferentieTabelWaarde",
     sortOrder: Int = 1,
     isSystemValue: Boolean = false
 ) = ReferenceTableValue().apply {
@@ -65,19 +84,27 @@ fun createReferenceTableValue(
 }
 
 @Suppress("LongParameterList")
-fun createZaakafhandelParameters(
+fun createZaaktypeCmmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String = "dummyDomein",
+    domein: String? = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
-    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
-    caseDefinitionId: String = "dummyCaseDefinitionId"
+    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
+    groupId: String? = null,
+    caseDefinitionId: String = "fakeCaseDefinitionId",
+    zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(),
+    zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = ZaaktypeCmmnBrpParameters().apply {
+        zoekWaarde = ""
+        raadpleegWaarde = ""
+        verwerkingregisterWaarde = ""
+    },
+    zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
 ) =
-    ZaakafhandelParameters().apply {
+    ZaaktypeCmmnConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
         this.domein = domein
@@ -86,49 +113,78 @@ fun createZaakafhandelParameters(
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
-                    zaakafhandelParameters = this,
+                    zaaktypeCmmnConfiguration = this,
                     mailTemplate = createMailTemplate()
                 )
             )
         )
-        setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
-        setZaakbeeindigParameters(zaakbeeindigParameters)
+        setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
+        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
+        val parameters = this
+        this.zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnBetrokkeneParameters.apply {
+            this.zaaktypeCmmnConfiguration = parameters
+        }
+        this.zaaktypeCmmnBrpParameters = zaaktypeCmmnBrpParameters.apply {
+            this?.zaaktypeCmmnConfiguration = parameters
+        }
+        this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
+            this.zaaktypeCmmnConfiguration = parameters
+        }
     }
 
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters,
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     mailTemplate: MailTemplate
-) = MailtemplateKoppeling().apply {
+) = ZaaktypeCmmnMailtemplateParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
     this.mailTemplate = mailTemplate
+}
+
+@Suppress("LongParameterList")
+fun createAutomaticEmailConfirmation(
+    id: Long? = 1234L,
+    enabled: Boolean = true,
+    templateName: String? = "fakeTemplateName",
+    emailSender: String? = "sender@info.nl",
+    emailReply: String? = "reply@info.nl",
+    // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
+) = ZaaktypeCmmnEmailParameters().apply {
+    this.id = id
+    this.enabled = enabled
+    this.templateName = templateName
+    this.emailSender = emailSender
+    this.emailReply = emailReply
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
 }
 
 fun createMailTemplate(
     mail: Mail = Mail.ZAAK_ALGEMEEN
 ) = MailTemplate().apply {
     this.id = 1234L
-    mailTemplateNaam = "dummyName"
-    onderwerp = "dummyOnderwerp"
-    body = "dummyBody"
+    mailTemplateNaam = "fakeName"
+    onderwerp = "fakeOnderwerp"
+    body = "fakeBody"
     this.mail = mail
 }
 
 fun createZaakAfzender(
     id: Long? = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters,
+    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     defaultMail: Boolean = false,
-    mail: String? = "mail@example.com",
+    mail: String = "mail@example.com",
     replyTo: String? = "replyTo@example.com",
-) = ZaakAfzender().apply {
+) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
-    this.isDefault = defaultMail
+    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.defaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
 }

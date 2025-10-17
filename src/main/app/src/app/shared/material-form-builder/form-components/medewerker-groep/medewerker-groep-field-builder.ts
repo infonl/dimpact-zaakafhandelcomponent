@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -33,6 +33,11 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
 
   medewerkerLabel(medewerkerLabel: string): this {
     this.formField.medewerkerLabel = medewerkerLabel;
+    return this;
+  }
+
+  setZaaktypeUuid(zaaktypeUuid: string): this {
+    this.formField.zaaktypeUuid = zaaktypeUuid;
     return this;
   }
 

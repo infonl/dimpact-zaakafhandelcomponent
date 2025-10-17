@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,18 +7,17 @@ import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../../gebruikersvoorkeuren/model/werklijst";
 
-import { WerklijstRechten } from "../../../policy/model/werklijst-rechten";
+import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
 
 @Component({ template: "" })
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;
   abstract route: ActivatedRoute;
-  aantalPerPagina: number;
-  pageSizeOptions: number[];
-  werklijstRechten: WerklijstRechten;
+  aantalPerPagina = 0;
+  pageSizeOptions = [0];
+  werklijstRechten: GeneratedType<"RestWerklijstRechten">;
 
   protected constructor() {}
 
@@ -40,5 +39,5 @@ export abstract class WerklijstComponent implements OnInit {
     }
   }
 
-  abstract getWerklijst(): Werklijst;
+  abstract getWerklijst(): GeneratedType<"Werklijst">;
 }

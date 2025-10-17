@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -38,14 +38,14 @@ export class HtmlEditorComponent
     this.editor = new Editor();
     if (this.data.mailtemplateBody$) {
       this.data.mailtemplateBody$.subscribe((mailtemplate) => {
-        this.data.value(mailtemplate.body);
-        this.data.variabelen = mailtemplate.variabelen;
+        this.data.value(mailtemplate.body!);
+        this.data.variabelen = mailtemplate.variabelen ?? [];
       });
     }
     if (this.data.mailtemplateOnderwerp$) {
       this.data.mailtemplateOnderwerp$.subscribe((mailtemplate) => {
-        this.data.value(mailtemplate.onderwerp);
-        this.data.variabelen = mailtemplate.variabelen;
+        this.data.value(mailtemplate.onderwerp!);
+        this.data.variabelen = mailtemplate.variabelen ?? [];
       });
     }
     if (this.data.emptyToolbar) {

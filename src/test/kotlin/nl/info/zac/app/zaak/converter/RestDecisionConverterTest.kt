@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -119,7 +119,7 @@ class RestDecisionConverterTest : BehaviorSpec({
                     }
                     datum shouldBe besluit.datum
                     ingangsdatum shouldBe besluit.datum
-                    toelichting shouldBe "dummyReason"
+                    toelichting shouldBe "fakeReason"
                     vervaldatum shouldBe besluit.vervaldatum
                     vervalreden shouldBe besluit.vervalreden
                     publicationDate shouldBe besluit.publicatiedatum

@@ -7,7 +7,7 @@ package net.atos.zac.app.gebruikersvoorkeuren.model;
 
 import java.util.List;
 
-import net.atos.zac.app.policy.model.RestWerklijstRechten;
+import nl.info.zac.app.policy.model.RestWerklijstRechten;
 
 public class RESTTabelGegevens {
 

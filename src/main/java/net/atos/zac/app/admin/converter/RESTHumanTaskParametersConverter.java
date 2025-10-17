@@ -10,10 +10,10 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.admin.model.HumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 public class RESTHumanTaskParametersConverter {
@@ -22,15 +22,15 @@ public class RESTHumanTaskParametersConverter {
     private RestHumanTaskReferenceTableConverter restHumanTaskReferenceTableConverter;
 
     public List<RESTHumanTaskParameters> convertHumanTaskParametersCollection(
-            final Collection<HumanTaskParameters> humanTaskParametersCollection,
+            final Collection<ZaaktypeCmmnHumantaskParameters> zaaktypeCmmnHumantaskParametersCollection,
             final List<RESTPlanItemDefinition> humanTaskDefinitions
     ) {
         return humanTaskDefinitions.stream()
-                .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition, humanTaskParametersCollection))
+                .map(humanTaskDefinition -> convertHumanTaskDefinition(humanTaskDefinition, zaaktypeCmmnHumantaskParametersCollection))
                 .toList();
     }
 
-    public List<HumanTaskParameters> convertRESTHumanTaskParameters(
+    public List<ZaaktypeCmmnHumantaskParameters> convertRESTHumanTaskParameters(
             final List<RESTHumanTaskParameters> restHumanTaskParametersList
     ) {
         return restHumanTaskParametersList.stream()
@@ -40,38 +40,39 @@ public class RESTHumanTaskParametersConverter {
 
     private RESTHumanTaskParameters convertHumanTaskDefinition(
             final RESTPlanItemDefinition humanTaskDefinition,
-            final Collection<HumanTaskParameters> humanTaskParametersCollection
+            final Collection<ZaaktypeCmmnHumantaskParameters> zaaktypeCmmnHumantaskParametersCollection
     ) {
-        return humanTaskParametersCollection.stream()
-                .filter(humanTaskParameters -> humanTaskParameters.getPlanItemDefinitionID()
+        return zaaktypeCmmnHumantaskParametersCollection.stream()
+                .filter(zaaktypeCmmnHumantaskParameters -> zaaktypeCmmnHumantaskParameters.getPlanItemDefinitionID()
                         .equals(humanTaskDefinition.id))
                 .findAny()
-                .map(humanTaskParameters -> convertToRESTHumanTaskParameters(humanTaskParameters, humanTaskDefinition))
+                .map(zaaktypeCmmnHumantaskParameters -> convertToRESTHumanTaskParameters(zaaktypeCmmnHumantaskParameters,
+                        humanTaskDefinition))
                 .orElseGet(() -> convertToRESTHumanTaskParameters(humanTaskDefinition));
     }
 
     private RESTHumanTaskParameters convertToRESTHumanTaskParameters(
-            final HumanTaskParameters humanTaskParameters,
+            final ZaaktypeCmmnHumantaskParameters zaaktypeCmmnHumantaskParameters,
             final RESTPlanItemDefinition humanTaskDefinition
     ) {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
-        restHumanTaskParameters.id = humanTaskParameters.getId();
-        restHumanTaskParameters.actief = humanTaskParameters.isActief();
-        restHumanTaskParameters.defaultGroepId = humanTaskParameters.getGroepID();
+        restHumanTaskParameters.id = zaaktypeCmmnHumantaskParameters.getId();
+        restHumanTaskParameters.actief = zaaktypeCmmnHumantaskParameters.getActief();
+        restHumanTaskParameters.defaultGroepId = zaaktypeCmmnHumantaskParameters.getGroepID();
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
-        restHumanTaskParameters.formulierDefinitieId = humanTaskParameters.getFormulierDefinitieID();
-        restHumanTaskParameters.doorlooptijd = humanTaskParameters.getDoorlooptijd();
-        restHumanTaskParameters.referentieTabellen = convertReferentieTabellen(humanTaskParameters,
+        restHumanTaskParameters.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID();
+        restHumanTaskParameters.doorlooptijd = zaaktypeCmmnHumantaskParameters.getDoorlooptijd();
+        restHumanTaskParameters.referentieTabellen = convertReferentieTabellen(zaaktypeCmmnHumantaskParameters,
                 humanTaskDefinition);
         return restHumanTaskParameters;
     }
 
     private List<RestHumanTaskReferenceTable> convertReferentieTabellen(
-            final HumanTaskParameters humanTaskParameters,
+            final ZaaktypeCmmnHumantaskParameters zaaktypeCmmnHumantaskParameters,
             final RESTPlanItemDefinition humanTaskDefinition
     ) {
         final List<RestHumanTaskReferenceTable> referentieTabellen = restHumanTaskReferenceTableConverter.convert(
-                humanTaskParameters.getReferentieTabellen());
+                zaaktypeCmmnHumantaskParameters.getReferentieTabellen());
         FormulierKoppelingConverterKt.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
                 .filter(veldDefinitie -> referentieTabellen.stream()
                         .noneMatch(referentieTabel -> veldDefinitie.name().equals(referentieTabel.veld)))
@@ -80,17 +81,17 @@ public class RESTHumanTaskParametersConverter {
         return referentieTabellen;
     }
 
-    private HumanTaskParameters convertRESTHumanTaskParameters(final RESTHumanTaskParameters restHumanTaskParameters) {
-        HumanTaskParameters humanTaskParameters = new HumanTaskParameters();
-        humanTaskParameters.setId(restHumanTaskParameters.id);
-        humanTaskParameters.setActief(restHumanTaskParameters.actief);
-        humanTaskParameters.setDoorlooptijd(restHumanTaskParameters.doorlooptijd);
-        humanTaskParameters.setPlanItemDefinitionID(restHumanTaskParameters.planItemDefinition.id);
-        humanTaskParameters.setGroepID(restHumanTaskParameters.defaultGroepId);
-        humanTaskParameters.setFormulierDefinitieID(restHumanTaskParameters.formulierDefinitieId);
-        humanTaskParameters.setReferentieTabellen(
+    private ZaaktypeCmmnHumantaskParameters convertRESTHumanTaskParameters(final RESTHumanTaskParameters restHumanTaskParameters) {
+        ZaaktypeCmmnHumantaskParameters zaaktypeCmmnHumantaskParameters = new ZaaktypeCmmnHumantaskParameters();
+        zaaktypeCmmnHumantaskParameters.setId(restHumanTaskParameters.id);
+        zaaktypeCmmnHumantaskParameters.setActief(restHumanTaskParameters.actief);
+        zaaktypeCmmnHumantaskParameters.setDoorlooptijd(restHumanTaskParameters.doorlooptijd);
+        zaaktypeCmmnHumantaskParameters.setPlanItemDefinitionID(restHumanTaskParameters.planItemDefinition.id);
+        zaaktypeCmmnHumantaskParameters.setGroepID(restHumanTaskParameters.defaultGroepId);
+        zaaktypeCmmnHumantaskParameters.setFormulierDefinitieID(restHumanTaskParameters.formulierDefinitieId);
+        zaaktypeCmmnHumantaskParameters.setReferentieTabellen(
                 restHumanTaskReferenceTableConverter.convert(restHumanTaskParameters.referentieTabellen));
-        return humanTaskParameters;
+        return zaaktypeCmmnHumantaskParameters;
     }
 
     private static RESTHumanTaskParameters convertToRESTHumanTaskParameters(final RESTPlanItemDefinition humanTaskDefinition) {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.notification
@@ -22,12 +22,12 @@ import net.atos.zac.documenten.model.InboxDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.createTestTask
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService
@@ -35,7 +35,7 @@ import nl.info.zac.task.TaskService
 import java.net.URI
 import java.util.UUID
 
-const val SECRET = "dummySecret"
+const val SECRET = "fakeSecret"
 
 class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
@@ -43,7 +43,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val signaleringService = mockk<SignaleringService>()
-    val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
+    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val cmmnService = mockk<CMMNService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val taskService = mockk<TaskService>()
@@ -55,7 +55,7 @@ class NotificationReceiverTest : BehaviorSpec({
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
         inboxDocumentenService = inboxDocumentenService,
-        zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
         signaleringService = signaleringService,
@@ -77,8 +77,8 @@ class NotificationReceiverTest : BehaviorSpec({
         val productaanvraagObjectUUID = UUID.randomUUID()
         val productTypeUUID = UUID.randomUUID()
         val notificatie = createNotificatie(
-            resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
-            properties = mutableMapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
+            resourceUrl = URI("http://example.com/fakeproductaanvraag/$productaanvraagObjectUUID"),
+            properties = mutableMapOf("objectType" to "http://example.com/fakeproducttype/$productTypeUUID")
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
@@ -103,14 +103,14 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype create notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -120,7 +120,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -130,7 +130,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -138,7 +138,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -148,7 +148,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -157,7 +157,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "A request without a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -173,7 +173,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
                 verify(exactly = 0) {
-                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -185,14 +185,14 @@ class NotificationReceiverTest : BehaviorSpec({
         """.trimIndent()
     ) {
         val zaakUUID = UUID.randomUUID()
-        val zaakUri = URI("http://example.com/dummyzaak/$zaakUUID")
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
         val notificatie = createNotificatie(
             channel = Channel.ZAKEN,
             resource = Resource.ZAAK,
             resourceUrl = zaakUri,
             action = Action.DELETE
         )
-        val taskId = "dummyTaskId"
+        val taskId = "fakeTaskId"
         val tasks = listOf(createTestTask(id = taskId))
         val signaleringZoekParametersSlot = mutableListOf<SignaleringZoekParameters>()
         val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
@@ -202,8 +202,8 @@ class NotificationReceiverTest : BehaviorSpec({
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
         every { indexingService.removeTaak(taskId) } just Runs
-        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
-        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } just Runs
+        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } returns 2
+        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } returns true
         every { taskService.listTasksForZaak(zaakUUID) } returns tasks
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
@@ -251,7 +251,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     Given("A 'create informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,
@@ -283,7 +283,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     Given("A 'destroy informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,

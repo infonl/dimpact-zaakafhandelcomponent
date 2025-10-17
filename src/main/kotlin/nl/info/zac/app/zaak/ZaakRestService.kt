@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak
@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
+import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -25,33 +26,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.AardRelatie
-import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
-import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
-import net.atos.client.zgw.zrc.model.RelevanteZaak
-import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
-import net.atos.zac.app.admin.model.RESTZaakAfzender
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
@@ -59,21 +48,40 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
+import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isHeropend
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.app.admin.model.RestZaakAfzender
+import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
+import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
+import nl.info.zac.app.zaak.exception.DueDateNotAllowed
+import nl.info.zac.app.zaak.exception.ExplanationRequiredException
+import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
@@ -88,19 +96,24 @@ import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.RestDecisionType
 import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
 import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
+import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
+import nl.info.zac.app.zaak.model.RestZaakCreateData
+import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
-import nl.info.zac.app.zaak.model.toGeometry
+import nl.info.zac.app.zaak.model.toGeoJSONGeometry
+import nl.info.zac.app.zaak.model.toPatchZaak
 import nl.info.zac.app.zaak.model.toRestDecisionTypes
-import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
+import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -109,6 +122,12 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.Group
+import nl.info.zac.identity.model.User
+import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
+import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -117,13 +136,11 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -159,7 +176,7 @@ class ZaakRestService @Inject constructor(
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
@@ -176,134 +193,128 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
+
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
+        const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
     }
 
     @GET
     @Path("zaak/{uuid}")
-    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak =
-        zrcClientService.readZaak(zaakUUID).let { zaak ->
-            restZaakConverter.toRestZaak(zaak).also {
-                assertPolicy(it.rechten.lezen)
-                signaleringService.deleteSignaleringenForZaak(zaak)
-            }
+    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.lezen)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten).also {
+            signaleringService.deleteSignaleringenForZaak(zaak)
         }
+    }
 
     @GET
     @Path("zaak/id/{identificatie}")
-    fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak =
-        zrcClientService.readZaakByID(identificatie).let { zaak ->
-            restZaakConverter.toRestZaak(zaak).also {
-                assertPolicy(it.rechten.lezen)
-                signaleringService.deleteSignaleringenForZaak(zaak)
-            }
+    fun readZaakById(@PathParam("identificatie") zaakIdentification: String): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakID(zaakIdentification)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.lezen)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten).also {
+            signaleringService.deleteSignaleringenForZaak(zaak)
         }
+    }
 
-    @PUT
+    @PATCH
     @Path("initiator")
-    fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
-        val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
+    fun updateInitiator(restZaakInitiatorGegevens: RestZaakInitiatorGegevens): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
-            removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
+            requireNotNull(restZaakInitiatorGegevens.toelichting) { throw ExplanationRequiredException() }
+            removeInitiator(zaakRechten, it, ROL_VERWIJDER_REDEN)
         }
-        addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
-        return restZaakConverter.toRestZaak(zaak)
+        val (identificationType, identification) = composeBetrokkeneIdentification(
+            restZaakInitiatorGegevens.betrokkeneIdentificatie
+        )
+        updateInitiator(
+            identificationType,
+            identification,
+            zaak,
+            zaakRechten,
+            restZaakInitiatorGegevens.toelichting
+        )
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
     @DELETE
     @Path("{uuid}/initiator")
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
-            removeInitiator(zaak, it, reden.reden)
+            removeInitiator(zaakRechten, it, reden.reden)
         }
-        return restZaakConverter.toRestZaak(zaak)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
     @POST
     @Path("betrokkene")
-    fun addBetrokkene(@Valid gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
-        val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
+    fun addBetrokkene(@Valid restZaakBetrokkeneGegevens: RestZaakBetrokkeneGegevens): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakBetrokkeneGegevens.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         addBetrokkeneToZaak(
-            roleTypeUUID = gegevens.roltypeUUID,
-            identificationType = gegevens.betrokkeneIdentificatieType,
-            identification = gegevens.betrokkeneIdentificatie,
-            explanation = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
-            zaak
+            roleTypeUUID = restZaakBetrokkeneGegevens.roltypeUUID,
+            betrokkeneIdentificatie = restZaakBetrokkeneGegevens.betrokkeneIdentificatie,
+            explanation = restZaakBetrokkeneGegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
+            zaak = zaak,
+            zaakRechten = zaakRechten,
         )
-        return restZaakConverter.toRestZaak(zaak)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
     @DELETE
     @Path("betrokkene/{uuid}")
     fun deleteBetrokkene(
-        @PathParam("uuid") betrokkeneUUID: UUID?,
+        @PathParam("uuid") betrokkeneUUID: UUID,
         reden: RESTReden
     ): RestZaak {
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
-        val zaak = zrcClientService.readZaak(betrokkene.zaak)
-        removeBetrokkene(zaak, betrokkene, reden.reden)
-        return restZaakConverter.toRestZaak(zaak)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(betrokkene.zaak)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        removeBetrokkene(zaakRechten, betrokkene, reden.reden)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
+    @Suppress("LongMethod")
     @POST
     @Path("zaak")
     fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
-        // make sure to use the omschrijving of the zaaktype that was retrieved to perform
-        // authorisation on zaaktype
+        val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
+        assertCanAddBetrokkene(restZaakAanmaakGegevens.zaak, zaaktypeUUID)
         assertPolicy(
-            policyService.readOverigeRechten().startenZaak &&
-                loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
+            policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
+                policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
-        val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
-        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
-            addInitiator(
-                restZaak.initiatorIdentificatieType!!,
-                restZaak.initiatorIdentificatie!!,
-                zaak
-            )
+        restZaak.einddatumGepland?.let {
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
-        // otherwise start a CMMN case
-        val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
-        if (configuratieService.featureFlagBpmnSupport() && processDefinition != null) {
-            bpmnService.startProcess(
-                zaak = zaak,
-                zaaktype = zaaktype,
-                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey
-            )
-        } else {
-            cmmnService.startCase(
-                zaak = zaak,
-                zaaktype = zaaktype,
-                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                    zaaktype.url.extractUuid()
-                )
-            )
-        }
+        val bronOrganisatie = configuratieService.readBronOrganisatie()
+        val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
+        val zaak = restZaak.toZaak(
+            zaaktype = zaakType,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
+        ).let(zgwApiService::createZaak)
+
+        addInitiator(restZaak, zaak, zaakType)
+        updateZaakRoles(restZaak, zaak)
+        startZaak(zaaktypeUUID, zaak, zaakType, restZaak)
+
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
-        return restZaakConverter.toRestZaak(zaak)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
     @PATCH
@@ -312,37 +323,43 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        with(policyService.readZaakRechten(zaak)) {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
+        with(zaakRechten) {
             assertPolicy(wijzigen)
-            if (zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
-                zaak.uiterlijkeEinddatumAfdoening != restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
+            if (
+                // do not compare LocalDate fields using identity-sensitive operators like '!=' because they are value-based
+                // see e.g., https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html
+                restZaakEditMetRedenGegevens.zaak.startdatum?.equals(zaak.startdatum) == false ||
+                restZaakEditMetRedenGegevens.zaak.einddatumGepland?.equals(zaak.einddatumGepland) == false ||
+                restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.equals(zaak.uiterlijkeEinddatumAfdoening) == false
             ) {
                 assertPolicy(verlengenDoorlooptijd)
+                assertPolicy(wijzigenDoorlooptijd)
             }
+        }
+        restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
+            zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
         restZaakEditMetRedenGegevens.zaak.run {
             behandelaar?.id?.let { behandelaarId ->
                 groep?.id?.let { groepId ->
-                    identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                    identityService.validateIfUserIsInGroup(behandelaarId, groepId)
                 }
             }
         }
-
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
-            restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
+            restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
-
-        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(oldFinalDate) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
+            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
-
-        return restZaakConverter.toRestZaak(updatedZaak)
+        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten)
     }
 
     @PATCH
@@ -351,16 +368,19 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         restZaakLocatieGegevens: RestZaakLocatieGegevens
     ): RestZaak {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.wijzigenLocatie)
         val zaakPatch = Zaak().apply {
-            zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
+            zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeoJSONGeometry()
+                ?: DeleteGeoJSONGeometry()
         }
         val updatedZaak = zrcClientService.patchZaak(
-            zaakUUID,
-            zaakPatch,
-            restZaakLocatieGegevens.reden
+            zaakUUID = zaakUUID,
+            zaak = zaakPatch,
+            explanation = restZaakLocatieGegevens.reden
         )
-        return restZaakConverter.toRestZaak(updatedZaak)
+        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten)
     }
 
     @PATCH
@@ -369,32 +389,31 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         opschortGegevens: RESTZaakOpschortGegevens
     ): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         return if (opschortGegevens.indicatieOpschorting) {
-            restZaakConverter.toRestZaak(
-                opschortenZaakHelper.suspendZaak(
-                    zaak,
-                    opschortGegevens.duurDagen,
-                    opschortGegevens.redenOpschorting
-                )
+            val suspendedZaak = opschortenZaakHelper.suspendZaak(
+                zaak = zaak,
+                numberOfDays = opschortGegevens.duurDagen,
+                suspensionReason = opschortGegevens.redenOpschorting
             )
+            restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten)
         } else {
-            restZaakConverter.toRestZaak(
-                opschortenZaakHelper.resumeZaak(zaak, opschortGegevens.redenOpschorting)
-            )
+            val resumedZaak = opschortenZaakHelper.resumeZaak(zaak, opschortGegevens.redenOpschorting)
+            restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten)
         }
     }
 
     @GET
     @Path("zaak/{uuid}/opschorting")
     fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        val zaakOpschorting = RESTZaakOpschorting()
-        zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            .ifPresent { datumtijdOpgeschort -> zaakOpschorting.vanafDatumTijd = datumtijdOpgeschort }
-        zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID)
-            .ifPresent { verwachteDagenOpgeschort -> zaakOpschorting.duurDagen = verwachteDagenOpgeschort }
-        return zaakOpschorting
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.lezen)
+        return RESTZaakOpschorting().apply {
+            vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
+            duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
+        }
     }
 
     @PATCH
@@ -403,16 +422,17 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         restZaakVerlengGegevens: RESTZaakVerlengGegevens
     ): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak).verlengen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.verlengen)
         val toelichting = "$VERLENGING: ${restZaakVerlengGegevens.redenVerlenging}"
         val updatedZaak = zrcClientService.patchZaak(
-            zaakUUID,
-            restZaakConverter.convertToPatch(
+            zaakUUID = zaakUUID,
+            zaak = restZaakConverter.convertToPatch(
                 zaakUUID,
                 restZaakVerlengGegevens
             ),
-            toelichting
+            explanation = toelichting
         )
         if (restZaakVerlengGegevens.takenVerlengen) {
             val aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen.toLong())
@@ -420,17 +440,7 @@ class ZaakRestService @Inject constructor(
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
-        val status = if (zaak.status != null) {
-            zrcClientService.readStatus(zaak.status)
-        } else {
-            null
-        }
-        val statustype = if (status != null) {
-            ztcClientService.readStatustype(status.statustype)
-        } else {
-            null
-        }
-        return restZaakConverter.toRestZaak(updatedZaak, status, statustype)
+        return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten)
     }
 
     @PUT
@@ -474,25 +484,26 @@ class ZaakRestService @Inject constructor(
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
-        zaakafhandelParameterService.listZaakafhandelParameters().forEach {
-            if (it.einddatumGeplandWaarschuwing != null) {
-                einddatumGeplandWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
-                    vandaag,
-                    it.einddatumGeplandWaarschuwing
-                )
+
+        zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
+            zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
-            if (it.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
-                uiterlijkeEinddatumAfdoeningWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
-                    vandaag,
-                    it.uiterlijkeEinddatumAfdoeningWaarschuwing
-                )
+            zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                    uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
+                }
             }
         }
+
         val zaakListParameters = ZaakListParameters().apply {
             rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
         }
+
         return zrcClientService.listZaken(zaakListParameters).results
-            .filter { it.isOpen }
+            .filter { it.isOpen() }
             .filter {
                 isWaarschuwing(
                     it,
@@ -505,66 +516,57 @@ class ZaakRestService @Inject constructor(
     }
 
     @GET
-    @Path("zaaktypes")
-    fun listZaaktypes(): List<RestZaaktype> =
+    @Path("zaaktypes-for-creation")
+    fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
+            .filter {
+                policyService.readOverigeRechten(it.omschrijving).startenZaak &&
+                    policyService.isAuthorisedForZaaktype(it.omschrijving)
+            }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
                 // return zaaktypes for which a BPMN process definition key
-                // or a valid (CMMN) zaakafhandelparameters has been configured
-                (
-                    configuratieService.featureFlagBpmnSupport() &&
-                        bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
-                    ) || healthCheckService.controleerZaaktype(it.url).isValide
+                // or a valid zaaktypeCmmnConfiguration has been configured
+                it.hasBPMNProcessDefinition() || healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map(restZaaktypeConverter::convert)
+
+    private fun ZaakType.hasBPMNProcessDefinition() =
+        configuratieService.featureFlagBpmnSupport() &&
+            bpmnService.findProcessDefinitionForZaaktype(this.url.extractUuid()) != null
 
     @PUT
     @Path("zaakdata")
     fun updateZaakdata(restZaak: RestZaak): RestZaak {
-        val zaak = zrcClientService.readZaak(restZaak.uuid)
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-        zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaak.uuid)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).wijzigen)
+        restZaak.zaakdata?.let {
+            zaakVariabelenService.setZaakdata(restZaak.uuid, it)
+        }
         return restZaak
     }
 
     @PATCH
     @Path("toekennen")
-    fun assignZaak(@Valid toekennenGegevens: RestZaakAssignmentData): RestZaak {
-        val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID).also {
-            assertPolicy(policyService.readZaakRechten(it).toekennen)
-        }
-        toekennenGegevens.assigneeUserName?.let { behandelaarId ->
-            toekennenGegevens.groupId.let { groepId ->
-                identityService.checkIfUserIsInGroup(behandelaarId, groepId)
-            }
+    fun assignZaak(@Valid restZaakAssignmentData: RestZaakAssignmentData): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaakRechten.toekennen)
+
+        restZaakAssignmentData.assigneeUserName?.let {
+            identityService.validateIfUserIsInGroup(userId = it, groupId = restZaakAssignmentData.groupId)
         }
 
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
-        val isUpdated = AtomicBoolean(false)
-        if (behandelaar != toekennenGegevens.assigneeUserName) {
-            toekennenGegevens.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
-                val user = identityService.readUser(it)
-                zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), toekennenGegevens.reason)
-            } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
-            isUpdated.set(true)
-        }
-        // if the zaak is not already assigned to the requested group, assign it to this group
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-            if (currentGroupId == null || currentGroupId != toekennenGegevens.groupId) {
-                val group = identityService.readGroup(toekennenGegevens.groupId)
-                val role = zaakService.bepaalRolGroep(group, zaak)
-                zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
-                isUpdated.set(true)
-            }
-        }
-        if (isUpdated.get()) {
+        val (user, userUpdated) = assignUser(zaak, restZaakAssignmentData, behandelaar)
+        val (group, groupUpdated) = assignGroup(zaak, restZaakAssignmentData.groupId, restZaakAssignmentData.reason)
+        changeZaakDataAssignment(zaak.uuid, group, user)
+        if (userUpdated || groupUpdated) {
             indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
-        return restZaakConverter.toRestZaak(zaak)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
     }
 
     @PUT
@@ -572,11 +574,26 @@ class ZaakRestService @Inject constructor(
     fun assignZaakToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RestZaakOverzicht {
+        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val zaak = assignLoggedInUserToZaak(
-            zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        identityService.validateIfUserIsInGroup(
+            userId = loggedInUserInstance.get().id,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId
+        )
+
+        val user = assignLoggedInUserToZaak(
+            zaak = zaak,
             reason = restZaakAssignmentToLoggedInUserData.reason,
         )
+        val (group) = assignGroup(
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+        changeZaakDataAssignment(zaak.uuid, group, user)
         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         return restZaakOverzichtConverter.convert(zaak)
     }
@@ -588,8 +605,10 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("lijst/verdelen")
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
+        // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
+        // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation so run it asynchronously
+        // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
@@ -615,7 +634,7 @@ class ZaakRestService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation so run it asynchronously
+        // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
@@ -627,36 +646,43 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/{uuid}/afbreken")
+    @Suppress("NestedBlockDepth")
     fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afbrekenGegevens: RESTZaakAfbrekenGegevens
     ) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        val statustype = if (zaak.status != null) {
-            ztcClientService.readStatustype(
-                zrcClientService.readStatus(zaak.status).statustype
-            )
-        } else {
-            null
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val statustype = zaak.status?.let {
+            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
-        assertPolicy(policyService.readZaakRechten(zaak).afbreken)
-        assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).afbreken)
+        assertPolicy(zaak.isOpen() && !statustype.isHeropend())
+        zaak.resultaat?.run {
+            throw ZaakWithADecisionCannotBeTerminatedException(
+                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
+            )
+        }
         zaakService.checkZaakAfsluitbaar(zaak)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            zaak.zaaktype.extractUuid()
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+            zaakType.url.extractUuid()
         )
+
         if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
-            terminateZaak(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
+            // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattype ->
+                terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+            }
         } else {
             afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                zaakafhandelParameters.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
-                    terminateZaak(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
+                    param.zaakbeeindigReden.naam?.let { naam ->
+                        terminateZaak(zaak, param.resultaattype, naam)
+                    }
                 }
             }
         }
 
-        // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.
+        // Terminate case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }
 
@@ -672,11 +698,11 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("/zaak/{uuid}/heropenen")
     fun reopenZaak(
-        @PathParam("uuid") zaakUUID: UUID?,
+        @PathParam("uuid") zaakUUID: UUID,
         heropenenGegevens: RESTZaakHeropenenGegevens
     ) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(!zaak.isOpen && policyService.readZaakRechten(zaak).heropenen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).heropenen)
         zgwApiService.createStatusForZaak(
             zaak,
             ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
@@ -693,38 +719,49 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
-        zaakService.checkZaakAfsluitbaar(zaak)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+
+        zaakService.processBrondatumProcedure(
+            zaak,
+            afsluitenGegevens.resultaattypeUuid,
+            BrondatumArchiefprocedure().apply {
+                datumkenmerk = afsluitenGegevens.brondatumEigenschap
+            }
+        )
+
         zgwApiService.updateResultaatForZaak(
             zaak,
             afsluitenGegevens.resultaattypeUuid,
             afsluitenGegevens.reden
         )
+
         zgwApiService.closeZaak(zaak, afsluitenGegevens.reden)
     }
 
     @PATCH
     @Path("/zaak/koppel")
     fun linkZaak(restZaakLinkData: RestZaakLinkData) {
-        val zaak = zrcClientService.readZaak(restZaakLinkData.zaakUuid)
-        val zaakToLinkTo = zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid)
-        assertPolicy(zaak.isOpen == zaakToLinkTo.isOpen)
-        assertPolicy(policyService.readZaakRechten(zaak).koppelen)
-        assertPolicy(policyService.readZaakRechten(zaakToLinkTo).koppelen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid)
+        val (zaakToLinkTo, zaakToLinkToZaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(
+            restZaakLinkData.teKoppelenZaakUuid
+        )
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).koppelen)
+        assertPolicy(policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType).koppelen)
 
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
             RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
-            RelatieType.VERVOLG -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.VERVOLG)
-            RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.ONDERWERP)
-            RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.BIJDRAGE)
+            RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
+            RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
+            RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
+            RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
             when (reverseRelatieType) {
-                RelatieType.VERVOLG -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.VERVOLG)
-                RelatieType.ONDERWERP -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.ONDERWERP)
-                RelatieType.BIJDRAGE -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.BIJDRAGE)
+                RelatieType.VERVOLG -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.VERVOLG)
+                RelatieType.ONDERWERP -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.ONDERWERP)
+                RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.BIJDRAGE)
                 else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
@@ -733,32 +770,45 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("/zaak/ontkoppel")
     fun unlinkZaak(restZaakUnlinkData: RestZaakUnlinkData) {
-        val zaak = zrcClientService.readZaak(restZaakUnlinkData.zaakUuid)
-        val linkedZaak = zrcClientService.readZaakByID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-        assertPolicy(policyService.readZaakRechten(linkedZaak).wijzigen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakUnlinkData.zaakUuid)
+        val (linkedZaak, linkedZaakType) = zaakService.readZaakAndZaakTypeByZaakID(
+            restZaakUnlinkData.gekoppeldeZaakIdentificatie
+        )
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).wijzigen)
+        assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType).wijzigen)
 
         when (restZaakUnlinkData.relatieType) {
-            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(linkedZaak, zaak, restZaakUnlinkData.reden)
-            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(zaak, linkedZaak, restZaakUnlinkData.reden)
+            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(
+                hoofdZaak = linkedZaak,
+                deelZaak = zaak,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(
+                hoofdZaak = zaak,
+                deelZaak = linkedZaak,
+                explanation = restZaakUnlinkData.reden
+            )
             RelatieType.VERVOLG -> ontkoppelRelevantezaken(
-                zaak,
-                linkedZaak,
-                AardRelatie.VERVOLG,
-                restZaakUnlinkData.reden
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.VERVOLG,
+                explanation = restZaakUnlinkData.reden
             )
             RelatieType.ONDERWERP -> ontkoppelRelevantezaken(
-                zaak,
-                linkedZaak,
-                AardRelatie.ONDERWERP,
-                restZaakUnlinkData.reden
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.ONDERWERP,
+                explanation = restZaakUnlinkData.reden
             )
             RelatieType.BIJDRAGE -> ontkoppelRelevantezaken(
-                zaak,
-                linkedZaak,
-                AardRelatie.BIJDRAGE,
-                restZaakUnlinkData.reden
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.BIJDRAGE,
+                explanation = restZaakUnlinkData.reden
             )
+            RelatieType.OVERIG -> {
+                throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+            }
         }
     }
 
@@ -766,10 +816,27 @@ class ZaakRestService @Inject constructor(
     @Path("toekennen/mij")
     fun assignZaakToLoggedInUser(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RestZaak = assignLoggedInUserToZaak(
-        zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
-        reason = restZaakAssignmentToLoggedInUserData.reason
-    ).let { restZaakConverter.toRestZaak(it) }
+    ): RestZaak {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        identityService.validateIfUserIsInGroup(
+            userId = loggedInUserInstance.get().id,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId
+        )
+
+        val user = assignLoggedInUserToZaak(
+            zaak = zaak,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+        val (group) = assignGroup(
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+        changeZaakDataAssignment(zaak.uuid, group, user)
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+    }
 
     @GET
     @Path("zaak/{uuid}/historie")
@@ -778,11 +845,17 @@ class ZaakRestService @Inject constructor(
         return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
+    /**
+     * Returns the list of betrokkenen for a given zaak.
+     *
+     * We do filter out roles that do not have a [Rol.betrokkeneIdentificatie], which is technically possible in the ZGW API
+     * but for our purposes are invalid/incomplete roles.
+     */
     @GET
     @Path("zaak/{uuid}/betrokkene")
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak).lezen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).lezen)
         return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen()
     }
 
@@ -794,13 +867,13 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender")
-    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakAfzender> {
+    fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakAfzender> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
-                RESTZaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                ).stream()
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+                    .getZaakAfzenders()
+                    .toRestZaakAfzenders()
             )
         )
     }
@@ -813,17 +886,8 @@ class ZaakRestService @Inject constructor(
      */
     @GET
     @Path("zaak/{uuid}/afzender/default")
-    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID?): RESTZaakAfzender? {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        return resolveZaakAfzenderMail(
-            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
-                .filter { it.isDefault }
-                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
-                .stream()
-        )
-            .findAny()
-            .orElse(null)
-    }
+    fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? =
+        listAfzendersVoorZaak(zaakUUID).firstOrNull { it.defaultMail }
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
@@ -834,21 +898,19 @@ class ZaakRestService @Inject constructor(
 
     @POST
     @Path("besluit")
-    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData) =
-        zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid).let { zaak ->
-            ztcClientService.readZaaktype(zaak.zaaktype).let { zaaktype ->
-                assertPolicy(policyService.readZaakRechten(zaak, zaaktype).vastleggenBesluit)
-                assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
-            }
+    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData): RestDecision {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(besluitToevoegenGegevens.zaakUuid)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).vastleggenBesluit)
+        assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
-            decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
-                restDecisionConverter.convertToRestDecision(it).also {
-                    // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-                    // but open_zaak does not send that one, so emulate it here.
-                    eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-                }
+        return decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
+            restDecisionConverter.convertToRestDecision(it).also {
+                // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
+                // but open_zaak does not send that one, so emulate it here.
+                eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
             }
         }
+    }
 
     @PUT
     @Path("besluit")
@@ -857,7 +919,7 @@ class ZaakRestService @Inject constructor(
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(policyService.readZaakRechten(zaak).vastleggenBesluit)
 
-                decisionService.updateDecision(zaak, besluit, restDecisionChangeData).let {
+                decisionService.updateDecision(besluit, restDecisionChangeData).let {
                     restDecisionConverter.convertToRestDecision(besluit).also {
                         // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                         // but open_zaak does not send that one, so emulate it here.
@@ -872,7 +934,7 @@ class ZaakRestService @Inject constructor(
     fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
         decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
-                assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
+                assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak).behandelen)
 
                 decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
                     restDecisionConverter.convertToRestDecision(it).also {
@@ -910,9 +972,18 @@ class ZaakRestService @Inject constructor(
         assertPolicy(
             policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
         )
-        return ztcClientService.readResultaattypen(
-            ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+        return zaakService.listResultTypes(zaaktypeUUID)
+    }
+
+    @GET
+    @Path("statustypes/{zaaktypeUUID}")
+    fun listStatustypesForZaaktype(
+        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
+    ): List<RestStatustype> {
+        assertPolicy(
+            policyService.readWerklijstRechten().zakenTaken || policyService.readOverigeRechten().beheren
+        )
+        return zaakService.listStatusTypes(zaaktypeUUID)
     }
 
     @GET
@@ -928,16 +999,19 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("procesvariabelen")
-    fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
+    fun listProcesVariabelen(): List<String> = ZaakVariabelenService.ALL_ZAAK_VARIABLE_NAMES
+
+    private fun createVestigingIdentificationString(kvkNummer: String?, vestigingsnummer: String?): String =
+        listOfNotNull(kvkNummer, vestigingsnummer).joinToString(VESTIGING_IDENTIFICATIE_DELIMITER)
 
     private fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
-        identificationType: IdentificatieType,
-        identification: String,
+        betrokkeneIdentificatie: BetrokkeneIdentificatie,
         explanation: String,
-        zaak: Zaak
+        zaak: Zaak,
+        zaakRechten: ZaakRechten
     ) {
-        val zaakRechten = policyService.readZaakRechten(zaak)
+        val (identificationType, identification) = composeBetrokkeneIdentification(betrokkeneIdentificatie)
         when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
@@ -952,12 +1026,64 @@ class ZaakRestService @Inject constructor(
         )
     }
 
+    private fun composeBetrokkeneIdentification(
+        betrokkeneIdentificatie: BetrokkeneIdentificatie
+    ): Pair<IdentificatieType, String> {
+        return when (betrokkeneIdentificatie.type) {
+            IdentificatieType.BSN -> {
+                val bsn = betrokkeneIdentificatie.bsnNummer
+                require(!bsn.isNullOrBlank()) { "BSN is required for betrokkene identification type BSN" }
+                IdentificatieType.BSN to bsn
+            }
+            IdentificatieType.VN -> {
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                val vestiging = betrokkeneIdentificatie.vestigingsnummer
+                require(!kvk.isNullOrBlank() && !vestiging.isNullOrBlank()) {
+                    "KVK nummer and vestigingsnummer are required for betrokkene identification type VN"
+                }
+                IdentificatieType.VN to createVestigingIdentificationString(kvk, vestiging)
+            }
+            IdentificatieType.RSIN -> {
+                val kvk = betrokkeneIdentificatie.kvkNummer
+                require(!kvk.isNullOrBlank()) { "KVK nummer is required for type RSIN" }
+                IdentificatieType.RSIN to kvk
+            }
+        }
+    }
+
     private fun addInitiator(
+        restZaak: RestZaakCreateData,
+        zaak: Zaak,
+        zaakType: ZaakType
+    ) {
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+            val identification = when (initiator.type) {
+                IdentificatieType.BSN -> initiator.bsnNummer
+                // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available
+                IdentificatieType.RSIN -> initiator.kvkNummer ?: initiator.rsin
+                IdentificatieType.VN -> createVestigingIdentificationString(
+                    initiator.kvkNummer,
+                    initiator.vestigingsnummer
+                )
+            }
+            updateInitiator(
+                identificationType = initiator.type,
+                identification = identification ?: error("No identification provided for initiator"),
+                zaak = zaak,
+                zaakRechten = zaakRechten,
+                explanation = AANMAKEN_ZAAK_REDEN
+            )
+        }
+    }
+
+    private fun updateInitiator(
         identificationType: IdentificatieType,
         identification: String,
-        zaak: Zaak
+        zaak: Zaak,
+        zaakRechten: ZaakRechten,
+        explanation: String? = ROL_TOEVOEGEN_REDEN
     ) {
-        val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenInitiatorPersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
@@ -967,37 +1093,138 @@ class ZaakRestService @Inject constructor(
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
-            explanation = ROL_TOEVOEGEN_REDEN
+            explanation = explanation?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN
         )
+    }
+
+    private fun startZaak(
+        zaaktypeUUID: UUID,
+        zaak: Zaak,
+        zaakType: ZaakType,
+        restZaak: RestZaakCreateData
+    ) {
+        // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
+        // otherwise start a CMMN case
+        val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+        if (configuratieService.featureFlagBpmnSupport() && processDefinition != null) {
+            bpmnService.startProcess(
+                zaak = zaak,
+                zaaktype = zaakType,
+                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
+                zaakData = buildMap {
+                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
+                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
+                }
+            )
+        } else {
+            cmmnService.startCase(
+                zaak = zaak,
+                zaaktype = zaakType,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                    zaakType.url.extractUuid()
+                )
+            )
+        }
+    }
+
+    private fun updateZaakRoles(
+        restZaak: RestZaakCreateData,
+        zaak: Zaak
+    ) {
+        restZaak.groep?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
+        restZaak.behandelaar?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
     }
 
     private fun addRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaak: URI,
-        aardRelatie: AardRelatie
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak> {
-        val relevanteZaak = RelevanteZaak(andereZaak, aardRelatie)
+        val relevanteZaak = RelevanteZaak().apply {
+            this.url = andereZaakURI
+            this.aardRelatie = aardRelatie
+        }
         return relevanteZaken?.apply {
-            if (none { it.`is`(andereZaak, aardRelatie) }) add(relevanteZaak)
+            if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
         } ?: listOf(relevanteZaak)
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
-    private fun assignLoggedInUserToZaak(
-        zaakUUID: UUID,
+    private fun assignUser(
+        zaak: Zaak,
+        restZaakAssignmentData: RestZaakAssignmentData,
+        behandelaar: String?
+    ): Pair<User?, Boolean> {
+        var user: User? = null
+        var userUpdated = false
+        restZaakAssignmentData.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
+            user = identityService.readUser(it)
+            if (behandelaar != restZaakAssignmentData.assigneeUserName) {
+                zrcClientService.updateRol(
+                    zaak,
+                    zaakService.bepaalRolMedewerker(user, zaak),
+                    restZaakAssignmentData.reason
+                )
+                userUpdated = true
+            }
+        } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakAssignmentData.reason).also {
+            userUpdated = true
+        }
+        return Pair(user, userUpdated)
+    }
+
+    private fun assignGroup(
+        zaak: Zaak,
+        groupId: String,
         reason: String?
-    ): Zaak = zrcClientService.readZaak(zaakUUID).let { zaak ->
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
-        identityService.readUser(loggedInUserInstance.get().id).let { user ->
+    ): Pair<Group, Boolean> {
+        var groupUpdated = false
+        val group = identityService.readGroup(groupId)
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+            // if the zaak is not already assigned to the requested group, assign it to this group
+            if (currentGroupId == null || currentGroupId != groupId) {
+                val role = zaakService.bepaalRolGroep(group, zaak)
+                zrcClientService.updateRol(zaak, role, reason)
+                groupUpdated = true
+            }
+        }
+        return Pair(group, groupUpdated)
+    }
+
+    private fun changeZaakDataAssignment(
+        zaakUuid: UUID,
+        group: Group,
+        user: User?
+    ) {
+        if (bpmnService.isZaakProcessDriven(zaakUuid)) {
+            zaakVariabelenService.setGroup(zaakUuid, group.name)
+            user?.let {
+                zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+            } ?: zaakVariabelenService.removeUser(zaakUuid)
+        }
+    }
+
+    private fun assignLoggedInUserToZaak(zaak: Zaak, reason: String?) =
+        identityService.readUser(loggedInUserInstance.get().id).also {
             zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(user, zaak),
-                reason
+                zaak = zaak,
+                rol = zaakService.bepaalRolMedewerker(it, zaak),
+                toelichting = reason
             )
         }
-        zaak
-    }
 
     private fun isWaarschuwing(
         zaak: Zaak,
@@ -1030,9 +1257,12 @@ class ZaakRestService @Inject constructor(
         datum.isBefore(datumWaarschuwing)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(hoofdZaak.url))
-        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
-        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = hoofdZaak.url)
+        )
+        // Open Zaak only sends a notification for the deelzaak.
+        // So we manually send a ScreenEvent for the hoofdzaak.
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
@@ -1062,29 +1292,33 @@ class ZaakRestService @Inject constructor(
         )
     }
 
-    private fun koppelRelevantezaken(
+    private fun koppelRelevanteZaken(
         zaak: Zaak,
         andereZaak: Zaak,
-        aardRelatie: AardRelatie
+        aardRelatie: AardRelatieEnum
     ) {
         zrcClientService.patchZaak(
             zaak.uuid,
-            RelevantezaakZaakPatch(
-                addRelevanteZaak(
+            Zaak().apply {
+                relevanteAndereZaken = addRelevanteZaak(
                     zaak.relevanteAndereZaken,
                     andereZaak.url,
                     aardRelatie
                 )
-            )
+            }
         )
     }
 
     private fun ontkoppelHoofdEnDeelzaak(
         hoofdZaak: Zaak,
         deelZaak: Zaak,
-        reden: String
+        explanation: String
     ) {
-        zrcClientService.patchZaak(deelZaak.uuid, HoofdzaakZaakPatch(null), reden)
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = null),
+            explanation = explanation
+        )
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
@@ -1094,46 +1328,50 @@ class ZaakRestService @Inject constructor(
     private fun ontkoppelRelevantezaken(
         zaak: Zaak,
         andereZaak: Zaak,
-        aardRelatie: AardRelatie,
-        reden: String
+        aardRelatie: AardRelatieEnum,
+        explanation: String
     ) {
         zrcClientService.patchZaak(
-            zaak.uuid,
-            RelevantezaakZaakPatch(
-                removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+            zaakUUID = zaak.uuid,
+            zaak = NillableRelevanteZakenZaakPatch(
+                relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
             ),
-            reden
+            explanation = explanation
         )
     }
 
-    private fun removeBetrokkene(zaak: Zaak, betrokkene: Rol<*>, reden: String) {
-        assertPolicy(policyService.readZaakRechten(zaak).verwijderenBetrokkene)
+    private fun removeBetrokkene(zaakRechten: ZaakRechten, betrokkene: Rol<*>, reden: String) {
+        assertPolicy(zaakRechten.verwijderenBetrokkene)
         zrcClientService.deleteRol(betrokkene, reden)
     }
 
-    private fun removeInitiator(zaak: Zaak, initiator: Rol<*>, reden: String) {
-        assertPolicy(policyService.readZaakRechten(zaak).verwijderenInitiator)
+    private fun removeInitiator(zaakRechten: ZaakRechten, initiator: Rol<*>, reden: String) {
+        assertPolicy(zaakRechten.verwijderenInitiator)
         zrcClientService.deleteRol(initiator, reden)
     }
 
     private fun resolveZaakAfzenderMail(
-        afzenders: Stream<RESTZaakAfzender>
-    ): Stream<RESTZaakAfzender> {
-        return afzenders.peek { afzender ->
-            speciaalMail(afzender.mail)?.let { speciaal ->
-                afzender.suffix = "gegevens.mail.afzender.$speciaal"
-                afzender.mail = resolveMail(speciaal)
-            }
-            afzender.replyTo = afzender.replyTo?.let { replyTo ->
-                speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
-            }
-        }.filter { it.mail != null }
+        restZaakAfzenders: List<RestZaakAfzender>
+    ): List<RestZaakAfzender> = restZaakAfzenders.mapNotNull { restZaakAfzender ->
+        restZaakAfzender.mail?.let { mail ->
+            val specialMail = speciaalMail(mail)
+            RestZaakAfzender(
+                id = restZaakAfzender.id,
+                defaultMail = restZaakAfzender.defaultMail,
+                speciaal = specialMail != null,
+                mail = specialMail?.let { resolveSpecialMail(it) } ?: mail,
+                suffix = specialMail?.let { "gegevens.mail.afzender.$specialMail" },
+                replyTo = restZaakAfzender.replyTo?.let { replyTo ->
+                    speciaalMail(replyTo)?.let { resolveSpecialMail(it) } ?: replyTo
+                }
+            )
+        }
     }
 
-    private fun resolveMail(speciaal: Speciaal) =
-        when (speciaal) {
-            Speciaal.GEMEENTE -> configuratieService.readGemeenteMail()
-            Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
+    private fun resolveSpecialMail(specialMail: ZaaktypeCmmnZaakafzenderParameters.SpecialMail) =
+        when (specialMail) {
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
     private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
@@ -1166,34 +1404,47 @@ class ZaakRestService @Inject constructor(
 
     private fun removeRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaak: URI,
-        aardRelatie: AardRelatie
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak>? {
-        relevanteZaken?.removeAll(
-            relevanteZaken.filter { it.`is`(andereZaak, aardRelatie) }
-        )
+        relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
         return relevanteZaken
     }
 
     private fun sortAndRemoveDuplicateAfzenders(
-        afzenders: Stream<RESTZaakAfzender>
-    ): List<RESTZaakAfzender> {
-        val list = afzenders.sorted { a, b ->
-            val result: Int = a.mail.compareTo(b.mail)
-            if (result == 0) if (a.defaultMail) -1 else 0 else result
-        }.collect(Collectors.toList())
-        val i = list.iterator()
-        var previous: String? = null
-        while (i.hasNext()) {
-            val afzender: RESTZaakAfzender = i.next()
-            if (afzender.mail == previous) {
-                i.remove()
-            } else {
-                previous = afzender.mail
-            }
-        }
-        return list
+        afzenders: List<RestZaakAfzender>
+    ): List<RestZaakAfzender> =
+        afzenders
+            .sortedWith(
+                compareBy<RestZaakAfzender> { it.mail ?: "" }
+                    .thenByDescending { it.defaultMail }
+            )
+            .distinctBy { it.mail }
+
+    private fun speciaalMail(mail: String): ZaaktypeCmmnZaakafzenderParameters.SpecialMail? = if (!mail.contains(
+            "@"
+        )
+    ) {
+        ZaaktypeCmmnZaakafzenderParameters.SpecialMail.valueOf(mail)
+    } else {
+        null
     }
 
-    private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
+    private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
+        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+        val betrokkeneParameters = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
+
+        restZaak.initiatorIdentificatie?.let { initiator ->
+            betrokkeneParameters.kvkKoppelen?.let { enabled ->
+                if (initiator.type.isKvK && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
+            }
+            betrokkeneParameters.brpKoppelen?.let { enabled ->
+                if (initiator.type.isBsn && !enabled) {
+                    throw BetrokkeneNotAllowedException()
+                }
+            }
+        }
+    }
 }

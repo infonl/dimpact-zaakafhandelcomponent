@@ -20,7 +20,7 @@ We use the following code and API conventions:
 The license information for this project can be found in [LICENSE.md](LICENSE.md).
 We use [SPDX](https://spdx.dev/) license identifiers in source code files.
 
-When adding a new source code file or modifying an existing one as a Lifely/INFO developer, please update the `SPDX` license identifier accordingly:
+When adding a new source code file or modifying an existing one as a INFO.nl developer, please update the `SPDX` license identifier accordingly:
 
 ### Adding a new source code file
 
@@ -28,7 +28,7 @@ For most source code files (e.g. `.ts`, `.js`, `.kt` and `.java` files) please a
 
 ```
 /*
- * SPDX-FileCopyrightText: <YYYY> Lifely
+ * SPDX-FileCopyrightText: <YYYY> INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
@@ -39,7 +39,7 @@ For other file types (e.g. `.html` and `.xml` files) please add the following SP
 
 ```
  <!--
-  ~ SPDX-FileCopyrightText: <YYYY> Lifely
+  ~ SPDX-FileCopyrightText: <YYYY> INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 ```
@@ -48,7 +48,7 @@ Finally, for e.g. `.sh` files please add:
 
 ```
 #
-# SPDX-FileCopyrightText: <YYYY> Lifely
+# SPDX-FileCopyrightText: <YYYY> INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 ```
@@ -58,12 +58,12 @@ For example, in IntelliJ IDEA please follow the instructions on https://www.jetb
 
 ### Modifying an existing source code file
 
-If the file does not already include `Lifely` in the copyright text, please update the SPDX license identifier 
-on the top of the file by adding a `, <YYYY> Lifely` to the `SPDX-FileCopyrightText` identifier where `<YYYY>` is the current year. E.g.:
+If the file does not already include `INFO.nl` in the copyright text, please update the SPDX license identifier 
+on the top of the file by adding a `, <YYYY> INFO.nl` to the `SPDX-FileCopyrightText` identifier where `<YYYY>` is the current year. E.g.:
 
 ```
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```

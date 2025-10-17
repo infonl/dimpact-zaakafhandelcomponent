@@ -3,7 +3,7 @@
 set -e
 
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: 2023 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -41,7 +41,7 @@ volumeDataFolder="./scripts/docker-compose/volume-data"
 pullZac=false
 buildZac=false
 localZac=false
-enableZacOpenTelemetrySampler=off
+disableZacOpenTelemetry=true
 profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
@@ -70,7 +70,7 @@ while getopts ':dhzblmtona' OPTION; do
       ;;
     m)
       profiles+=("metrics")
-      enableZacOpenTelemetrySampler=on
+      disableZacOpenTelemetry=false
       ;;
     t)
       profiles+=("itest")
@@ -127,7 +127,6 @@ mkdir -p $volumeDataFolder/zac-keycloak-database-data
 mkdir -p $volumeDataFolder/solr-data
 mkdir -p $volumeDataFolder/zac-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
-mkdir -p $volumeDataFolder/zgw-referentielijsten-database-data
 
 # Build comma separated profile list
 profilesList=""
@@ -139,4 +138,4 @@ fi
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
 echo "Starting Docker Compose environment with profiles [$profilesList] ..."
-export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
+export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=disableZacOpenTelemetry && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d

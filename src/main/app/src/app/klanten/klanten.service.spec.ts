@@ -1,10 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import {
-  HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -13,13 +12,19 @@ import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "./klanten.service";
 
 describe(KlantenService.name, () => {
   let service: KlantenService;
-  let http: HttpClient;
+  let zacQueryClient: ZacQueryClient;
 
   const mockTranslateService = {
     instant: (arg: string) => {
@@ -38,29 +43,61 @@ describe(KlantenService.name, () => {
         FoutAfhandelingService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(new QueryClient()),
       ],
     });
 
-    http = TestBed.inject(HttpClient);
+    zacQueryClient = TestBed.inject(ZacQueryClient);
     service = TestBed.inject(KlantenService);
   });
 
   describe(KlantenService.prototype.readBedrijf.name, () => {
     test.each([
-      ["123456789", "rechtspersoon"],
-      ["12345678", "vestiging"],
-      ["1234567890", "vestiging"],
+      [
+        new BetrokkeneIdentificatie({
+          identificatieType: "VN",
+          kvkNummer: "12345678",
+          vestigingsnummer: "12345678",
+        }),
+        "vestiging",
+        { kvkNummer: "12345678", vestigingsnummer: "12345678" },
+      ],
+      [
+        new BetrokkeneIdentificatie({
+          identificatieType: "VN",
+          kvkNummer: null,
+          vestigingsnummer: "12345678",
+        }),
+        "vestiging",
+        { vestigingsnummer: "12345678" },
+      ],
+      [
+        new BetrokkeneIdentificatie({
+          identificatieType: "RSIN",
+          kvkNummer: "12345678",
+        }),
+        "rechtspersoon",
+        { kvkNummer: "12345678" },
+      ],
+      [
+        // legacy
+        new BetrokkeneIdentificatie({
+          identificatieType: "RSIN",
+          rsin: "123456789",
+        }),
+        "rechtspersoon",
+        { rsin: "123456789" },
+      ],
     ])(
-      "for the rsinOfVestigingsnummer %i it should call the %s endpoint",
-      (rsinOfVestigingsnummer, endpoint) => {
-        const get = jest.spyOn(http, "get");
+      "for betrokkeneIdentificatie %o it should call the %s endpoint",
+      (betrokkeneIdentificatie, endpoint, path) => {
+        const get = jest.spyOn(zacQueryClient, "GET");
 
-        service.readBedrijf(rsinOfVestigingsnummer);
+        service.readBedrijf(betrokkeneIdentificatie);
 
-        expect(get).toHaveBeenCalledTimes(1);
-        expect(get).toHaveBeenCalledWith(
-          expect.stringContaining(`${endpoint}/${rsinOfVestigingsnummer}`),
-        );
+        expect(get).toHaveBeenCalledWith(expect.stringContaining(endpoint), {
+          path,
+        });
       },
     );
   });

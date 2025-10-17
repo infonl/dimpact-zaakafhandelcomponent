@@ -1,0 +1,24 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>error</mat-icon>
+  <span class="flex-grow-1">
+    {{ "dialoog.error.titel.onmogelijk" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<div mat-dialog-content>
+  <div>{{ "dialoog.error.body.onmogelijk.opgeschort" | translate }}</div>
+</div>
+<div mat-dialog-actions>
+  <button autofocus mat-raised-button (click)="close()">
+    {{ "actie.sluiten" | translate }}
+  </button>
+</div>

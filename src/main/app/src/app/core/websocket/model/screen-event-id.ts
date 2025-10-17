@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ScreenEventId {
   resource: string;
-  detail: string;
+  detail?: string;
 
   constructor(objectId: string) {
     this.resource = objectId;

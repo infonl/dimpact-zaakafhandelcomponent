@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten.model
@@ -12,7 +12,7 @@ fun createRestDocumentVerzendGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
     verzenddatum: LocalDate = LocalDate.now(),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
-    toelichting: String = "dummyToelichting",
+    toelichting: String = "fakeToelichting",
 ) = RestDocumentVerzendGegevens().apply {
     this.zaakUuid = zaakUuid
     this.verzenddatum = verzenddatum

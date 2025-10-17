@@ -1,0 +1,22 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+:host {
+  flex-grow: 1;
+  width: 100%;
+
+  mat-slide-toggle {
+    display: flex;
+  }
+
+  ::ng-deep [mat-internal-form-field] {
+    display: flex;
+    flex-grow: 1;
+
+    label {
+      flex-grow: 1;
+    }
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest.config
@@ -12,27 +12,24 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.KeycloakClient
-import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
+import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
+import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
+import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
+import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -41,29 +38,33 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-private val logger = KotlinLogging.logger {}
-
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
 
 class ProjectConfig : AbstractProjectConfig() {
+    private val logger = KotlinLogging.logger {}
     private val itestHttpClient = ItestHttpClient()
+    private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
 
-    private val zacDockerImage = System.getProperty("zacDockerImage") ?: run {
-        ZAC_DEFAULT_DOCKER_IMAGE
-    }
-    private val dockerComposeEnvironment = mapOf(
+    // All variables below have to be overridable in the docker-compose.yaml file
+    private val dockerComposeOverrideEnvironment = mapOf(
+        "AUTH_SSL_REQUIRED" to "none",
         "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
         "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
         "FEATURE_FLAG_BPMN_SUPPORT" to "true",
+        "FEATURE_FLAG_PABC_INTEGRATION" to FEATURE_FLAG_PABC_INTEGRATION.toString(),
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
+        "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
+        "PABC_API_KEY" to PABC_API_KEY,
+        "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
         "SMARTDOCUMENTS_ENABLED" to "true",
         "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
@@ -78,7 +79,8 @@ class ProjectConfig : AbstractProjectConfig() {
             " -Xms1024m" +
             " -Xmx1024m" +
             " -jar zaakafhandelcomponent.jar",
-        "ZAC_DOCKER_IMAGE" to zacDockerImage
+        "ZAC_DOCKER_IMAGE" to zacDockerImage,
+        "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
     )
 
     override suspend fun beforeProject() {
@@ -99,7 +101,7 @@ class ProjectConfig : AbstractProjectConfig() {
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = KEYCLOAK_HEALTH_READY_URL,
                     addAuthorizationHeader = false
-                ).code shouldBe HTTP_STATUS_OK
+                ).code shouldBe HTTP_OK
             }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
@@ -109,42 +111,28 @@ class ProjectConfig : AbstractProjectConfig() {
                     url = ZAC_HEALTH_READY_URL,
                     addAuthorizationHeader = false
                 ).use { response ->
-                    response.code shouldBe HTTP_STATUS_OK
-                    JSONObject(response.body!!.string()).getString("status") shouldBe "UP"
+                    response.code shouldBe HTTP_OK
+                    JSONObject(response.body.string()).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }
-
-            KeycloakClient.authenticate()
-
-            ZacClient().createZaakAfhandelParameters(
-                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE,
-                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID,
-                ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION,
-                PRODUCTAANVRAAG_TYPE_1
-            ).use { response ->
-                response.isSuccessful shouldBe true
-            }
-            ZacClient().createZaakAfhandelParameters(
-                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE,
-                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
-                ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION,
-                PRODUCTAANVRAAG_TYPE_2
-            ).use { response ->
-                response.isSuccessful shouldBe true
-            }
+            authenticate(
+                username = TEST_USER_1_USERNAME,
+                password = TEST_USER_1_PASSWORD
+            )
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()
         }
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContaner ->
+        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
             logger.info { "Stopping ZAC Docker container" }
-            zacContaner.dockerClient
-                .stopContainerCmd(zacContaner.containerId)
+            zacContainer.dockerClient
+                .stopContainerCmd(zacContainer.containerId)
                 .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }
@@ -157,12 +145,12 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {
-        logger.info { "Using ZAC Docker image: '$zacDockerImage'" }
+        logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
         return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
             .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
-            .withEnv(dockerComposeEnvironment)
+            .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
                 "--profile itest"
@@ -202,6 +190,11 @@ class ProjectConfig : AbstractProjectConfig() {
                     .withStartupTimeout(3.minutes.toJavaDuration())
             )
             .waitingFor(
+                "pabc-api",
+                Wait.forLogMessage(".* Application started.*", 1)
+                    .withStartupTimeout(3.minutes.toJavaDuration())
+            )
+            .waitingFor(
                 "zac",
                 Wait.forLogMessage(".* WildFly .* started .*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
@@ -210,7 +203,7 @@ class ProjectConfig : AbstractProjectConfig() {
 
     /**
      * The integration tests assume a clean environment.
-     * For that reason we first need to remove any local Docker volume data that may have been created
+     * For that reason, we first need to remove any local Docker volume data that may have been created
      *  by a previous run.
      * Local Docker volume data is created because we reuse the same Docker Compose file that we also
      * use for running ZAC locally.

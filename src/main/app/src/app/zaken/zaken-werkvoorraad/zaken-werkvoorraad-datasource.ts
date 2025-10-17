@@ -4,11 +4,9 @@
  */
 
 import { UtilService } from "../../core/service/util.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
-import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 /**
@@ -16,11 +14,18 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
  */
 export class ZakenWerkvoorraadDatasource extends ZoekenDataSource<ZaakZoekObject> {
   constructor(zoekenService: ZoekenService, utilService: UtilService) {
-    super(Werklijst.WERKVOORRAAD_ZAKEN, zoekenService, utilService);
+    super("WERKVOORRAAD_ZAKEN", zoekenService, utilService);
   }
 
-  protected initZoekparameters(zoekParameters: ZoekParameters) {
-    zoekParameters.type = ZoekObjectType.ZAAK;
-    zoekParameters.alleenOpenstaandeZaken = true;
+  protected initZoekparameters(
+    zoekParameters: GeneratedType<"RestZoekParameters">,
+  ) {
+    return {
+      ...zoekParameters,
+      type: "ZAAK",
+      alleenOpenstaandeZaken: true,
+      sorteerVeld: "ZAAK_IDENTIFICATIE",
+      sorteerRichting: "asc",
+    } satisfies GeneratedType<"RestZoekParameters">;
   }
 }

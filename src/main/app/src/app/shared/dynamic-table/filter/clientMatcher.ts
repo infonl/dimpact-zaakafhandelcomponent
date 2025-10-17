@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,7 +7,7 @@ import moment from "moment";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 
 export class ClientMatcher {
-  static matchDatum(dataField: string, filterField: DatumRange): boolean {
+  static matchDatum(dataField: string, filterField: DatumRange) {
     if (!dataField) {
       return false;
     }
@@ -26,11 +26,15 @@ export class ClientMatcher {
     return false;
   }
 
-  static matchBoolean(dataField: boolean, filterField: boolean): boolean {
+  static matchBoolean(dataField: boolean, filterField: boolean) {
     return dataField === filterField;
   }
 
-  static matchObject<T>(dataField: T, filterField: T, key: string): boolean {
-    return dataField && dataField[key] === filterField[key];
+  static matchObject<T extends Record<string, unknown>>(
+    key: keyof T,
+    dataField?: T | null,
+    filterField?: T | null,
+  ) {
+    return dataField?.[key] === filterField?.[key];
   }
 }

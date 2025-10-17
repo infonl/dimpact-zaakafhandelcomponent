@@ -1,20 +1,28 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { isObservable, Observable, of as observableOf } from "rxjs";
-import { AbstractChoicesFormField } from "./abstract-choices-form-field";
+import {
+  AbstractChoicesFormField,
+  ResolvedType,
+} from "./abstract-choices-form-field";
 import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
 
-export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldBuilder {
-  abstract readonly formField: AbstractChoicesFormField;
+type AllowedValue = Record<string, unknown> | string;
+type ValueType = AllowedValue | Observable<AllowedValue>;
 
-  constructor() {
+export abstract class AbstractChoicesFormFieldBuilder<
+  T extends ValueType = Record<string, unknown>,
+> extends AbstractFormFieldBuilder<T> {
+  abstract readonly formField: AbstractChoicesFormField<T>;
+
+  protected constructor() {
     super();
   }
 
-  optionLabel(optionLabel: string): this {
+  optionLabel(optionLabel: keyof ResolvedType<T>): this {
     this.formField.optionLabel = optionLabel;
     return this;
   }
@@ -24,17 +32,19 @@ export abstract class AbstractChoicesFormFieldBuilder extends AbstractFormFieldB
     return this;
   }
 
-  optionValue(optionValue: string): this {
+  optionValue(optionValue: keyof ResolvedType<T>): this {
     this.formField.optionValue = optionValue;
     return this;
   }
 
-  optionsOrder(optionOrderFn: (a: any, b: any) => number): this {
+  optionsOrder(
+    optionOrderFn: (a: ResolvedType<T>, b: ResolvedType<T>) => number,
+  ): this {
     this.formField.optionOrderFn = optionOrderFn;
     return this;
   }
 
-  options(options: Observable<any[]> | any[]): this {
+  options(options: Observable<ResolvedType<T>[]> | ResolvedType<T>[]): this {
     if (isObservable(options)) {
       this.formField.options = options;
     } else {

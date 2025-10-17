@@ -12,7 +12,6 @@ import { DocumentenLijstComponent } from "./form-components/documenten-lijst/doc
 import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
 import { FileInputComponent } from "./form-components/file-input/file-input.component";
 import { FileComponent } from "./form-components/file/file.component";
-import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
 import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
@@ -77,8 +76,6 @@ export class MaterialFormBuilderService {
         return MedewerkerGroepComponent;
       case FieldType.CHECKBOX:
         return CheckboxComponent;
-      case FieldType.GOOGLEMAPS:
-        return GoogleMapsComponent;
       case FieldType.TAAK_DOCUMENT_UPLOAD:
         return TaakDocumentUploadComponent;
       case FieldType.DOCUMENTEN_LIJST:

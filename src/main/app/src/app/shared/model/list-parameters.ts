@@ -5,6 +5,9 @@
 
 import { SortDirection } from "@angular/material/sort";
 
+/**
+ * @deprecated - use the `GeneratedType`
+ */
 export class ListParameters {
   sort: string;
   order: SortDirection;

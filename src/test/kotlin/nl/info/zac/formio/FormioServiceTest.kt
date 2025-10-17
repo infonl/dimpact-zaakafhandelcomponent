@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.formio
@@ -32,7 +32,7 @@ class FormioServiceTest : BehaviorSpec({
 
     Given("A formio form") {
         val testFormName = "testForm"
-        val content = """{ "dummyKey": "dummyValue" }""".trimIndent()
+        val content = """{ "fakeKey": "fakeValue" }""".trimIndent()
         val formioFormulier = createFormioFormulier(
             name = testFormName,
             content = content
@@ -51,7 +51,7 @@ class FormioServiceTest : BehaviorSpec({
             val result = formioService.readFormioFormulier(testFormName)
 
             Then("the formio form as JSON object is returned") {
-                result.getString("dummyKey") shouldBe "dummyValue"
+                result.getString("fakeKey") shouldBe "fakeValue"
             }
         }
     }

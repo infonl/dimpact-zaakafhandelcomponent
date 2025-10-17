@@ -1,17 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 // Configured using https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md
 module.exports = {
-  root: true,
-  ignorePatterns: ["dist", "coverage"],
+  ignorePatterns: ["dist/**", "coverage/**"],
   parserOptions: {
     ecmaVersion: 2020,
   },
   overrides: [
     {
-      files: ["*.ts"],
+      files: ["**/*.ts"],
       parserOptions: {
         project: "tsconfig.json",
         tsconfigRootDir: __dirname,
@@ -21,7 +20,7 @@ module.exports = {
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:prettier/recommended",
+        // "plugin:prettier/recommended",
       ],
       rules: {
         /**
@@ -34,11 +33,11 @@ module.exports = {
             suffixes: ["Component", "Page", "Dialog"],
           },
         ],
-        "@typescript-eslint/no-explicit-any": "warn",
+        "@angular-eslint/use-lifecycle-interface": "error",
       },
     },
     {
-      files: ["*.html"],
+      files: ["**/*.html"],
       extends: [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility",

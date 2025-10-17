@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2025 Lifely
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -34,6 +34,11 @@
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       [taak]="taak"
+      [smartDocumentsGroupPath]="smartDocumentsGroupPath"
+      [smartDocumentsTemplateName]="smartDocumentsTemplateName"
+      [smartDocumentsInformatieobjecttypeUuid]="
+        smartDocumentsInformatieobjecttypeUuid
+      "
       (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
@@ -44,32 +49,40 @@
     ></zac-informatie-object-add>
     <zac-informatie-object-link
       *ngSwitchCase="'actie.document.verplaatsen'"
-      [actionLabel]="'actie.document.verplaatsen'"
+      actionLabel="actie.document.verplaatsen"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
-      [source]="zaak.identificatie"
+      [source]="zaak?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
-    ></zac-informatie-object-link>
+    />
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
       <mat-card class="taak-formulier w50 flex">
         <mat-card-content>
+          <zac-form
+            *ngIf="formFields.length"
+            [form]="form"
+            [fields]="formFields"
+            [readonly]="isReadonly()"
+            [config]="_formConfig"
+            (formSubmitted)="onHardCodedFormSubmit($event, false)"
+            (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
+          />
           <div class="form">
             <mfb-form
               *ngIf="formulier"
-              (formPartial)="onHardCodedFormPartial($event)"
-              (formSubmit)="onHardCodedFormSubmit($event)"
+              (formPartial)="onHardCodedFormSubmit($event, true)"
+              (formSubmit)="onHardCodedFormSubmit($event, false)"
               [formFields]="formulier.form"
               [config]="formConfig"
-              [submitted]="posts"
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
               (formPartial)="onConfigurableFormPartial($event)"
               (formSubmit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
-              [waarden]="taak.taakdata"
+              [waarden]="taak?.taakdata"
               [zaak]="zaak"
               [readonly]="isReadonly()"
             ></zac-formulier>
@@ -80,9 +93,15 @@
               [readOnly]="isReadonly()"
               (formSubmit)="onFormioFormSubmit($event)"
               (formChange)="onFormioFormChange($event)"
+              (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
+              *ngIf="
+                !formulier &&
+                !formulierDefinitie &&
+                !formioFormulier &&
+                !formFields.length
+              "
               mode="query"
             ></mat-progress-bar>
           </div>
@@ -100,22 +119,22 @@
                   class="content flex flex-row flex-wrap justify-start gap-10"
                 >
                   <zac-static-text
-                    [label]="'naam' | translate"
-                    [value]="taak.naam"
+                    label="naam"
+                    [value]="taak?.naam"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
-                    [label]="'taak.status' | translate"
-                    [value]="'taak.status.' + taak.status | translate"
+                    label="taak.status"
+                    [value]="'taak.status.' + taak?.status | translate"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
 
                   <div class="flex-double-item">
                     <zac-edit-groep-behandelaar
                       [formField]="editFormFields.get('medewerker-groep')"
                       [readonly]="
-                        this.taak.status === this.TaakStatusAfgerond ||
-                        !this.taak.rechten.toekennen
+                        this.taak?.status === this.TaakStatusAfgerond ||
+                        !this.taak?.rechten.toekennen
                       "
                       (saveField)="editToewijzing($event)"
                       [reasonField]="editFormFields.get('reden')"
@@ -127,16 +146,16 @@
                     <mat-divider></mat-divider>
                   </div>
                   <zac-static-text
-                    [label]="'creatiedatum' | translate"
-                    [value]="taak.creatiedatumTijd | datum"
+                    label="creatiedatum"
+                    [value]="taak?.creatiedatumTijd | datum"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                   <zac-static-text
-                    [label]="'fataledatum' | translate"
-                    [value]="taak.fataledatum | datum"
+                    label="fataledatum"
+                    [value]="taak?.fataledatum | datum"
                     [icon]="fataledatumIcon"
                     class="flex-item"
-                  ></zac-static-text>
+                  />
                 </div>
               </mat-tab>
               <mat-tab label="{{ 'historie' | translate }}">

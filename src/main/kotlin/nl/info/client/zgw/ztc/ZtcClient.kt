@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.zgw.ztc
 
 import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
@@ -62,6 +63,10 @@ interface ZtcClient {
     @GET
     @Path("eigenschappen")
     fun eigenschapList(@BeanParam parameters: EigenschapListParameters): Results<Eigenschap>
+
+    @POST
+    @Path("eigenschappen")
+    fun createEigenschap(eigenschap: Eigenschap): Eigenschap
 
     @GET
     @Path("informatieobjecttypen")

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -22,11 +22,11 @@ When(
   "Employee {string} clicks on Create Document button for the new zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    await this.page.getByText("note_addDocument maken").click();
+    await this.page.getByRole("button", { name: /Document maken/i }).click();
 
-    const sidebar = this.page.locator("div.sidenav-title");
-    await sidebar.waitFor({ state: "visible" });
-    await sidebar.getByText("Document maken");
+    await this.page
+      .getByRole("heading", { name: "Document maken" })
+      .waitFor({ state: "visible" });
   },
 );
 
@@ -47,8 +47,7 @@ When(
       .getByRole("option", { name: "Melding evenement organiseren behandelen" })
       .click();
 
-    await this.page.getByLabel("Sjabloon").last().click();
-    await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
+    // The only existing template is selected by default, so no need to click on it.
 
     const inputTitle = this.page.getByLabel(/Titel/i);
     await inputTitle.fill(documentInput.title);

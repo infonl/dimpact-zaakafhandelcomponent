@@ -1,14 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.websocket.event;
 
 import static net.atos.zac.event.Opcode.DELETED;
 import static net.atos.zac.event.Opcode.SKIPPED;
 import static net.atos.zac.event.Opcode.UPDATED;
-import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.EnumSet;
@@ -25,11 +24,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.signalering.model.Signalering;
 import nl.info.client.zgw.brc.model.generated.Besluit;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.app.zaak.model.RestZaakOverzicht;
 import nl.info.zac.notification.Channel;
 import nl.info.zac.notification.Notification;
@@ -416,6 +415,16 @@ public enum ScreenEventType {
      */
     public final ScreenEvent skipped(final Zaak zaak) {
         return event(SKIPPED, zaak);
+    }
+
+    /**
+     * Factory method for ScreenEvent to skip any `eventResourceId`.
+     *
+     * @param eventResourceId the skipped event.
+     * @return instance of the event
+     */
+    public final ScreenEvent skipped(final String eventResourceId) {
+        return event(SKIPPED, eventResourceId);
     }
 
     /**

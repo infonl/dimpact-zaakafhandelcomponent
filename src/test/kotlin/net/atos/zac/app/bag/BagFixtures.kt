@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -41,7 +41,7 @@ fun createRESTBAGAdres() = RESTBAGAdres().apply {
 
 fun createRESTListAdressenParameters(
     bagObjectType: BAGObjectType = BAGObjectType.ADRES,
-    trefwoorden: String = "dummyText",
+    trefwoorden: String = "fakeText",
     postcode: String = "1234AB",
     huisnummer: Int = 1,
 ) = RESTListAdressenParameters().apply {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,7 +7,6 @@
 
 package nl.info.zac.app.klant.model.personen
 
-import net.atos.client.klant.model.DigitaalAdres
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
@@ -32,8 +31,6 @@ import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingRe
 import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
-import nl.info.zac.app.klant.KlantRestService.Companion.EMAIL_SOORT_DIGITAAL_ADRES
-import nl.info.zac.app.klant.KlantRestService.Companion.TELEFOON_SOORT_DIGITAAL_ADRES
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
@@ -50,8 +47,8 @@ data class RestPersoon(
     var geslacht: String? = null,
     var geboortedatum: String? = null,
     var verblijfplaats: String? = null,
-    override var emailadres: String? = null,
     override var naam: String? = null,
+    override var emailadres: String? = null,
     override var telefoonnummer: String? = null,
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
@@ -67,10 +64,6 @@ data class RestPersoon(
 private const val DECEASED_CODE = "O"
 private const val MINISTRIAL_REGULATION_CODE = "M"
 private const val EMIGRATION_CODE = "E"
-
-fun List<Persoon>.toRestPersons(): List<RestPersoon> = this.map { it.toRestPersoon() }
-
-fun List<PersoonBeperkt>.toRestPersonen(): List<RestPersoon> = this.map { it.toRestPersoon() }
 
 fun Persoon.toRestPersoon() = RestPersoon(
     bsn = this.burgerservicenummer,
@@ -148,24 +141,14 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     }
 }
 
-fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
-    val restPersoon = RestPersoon()
-    for (digitalAdress in this) {
-        when (digitalAdress.soortDigitaalAdres) {
-            TELEFOON_SOORT_DIGITAAL_ADRES -> restPersoon.telefoonnummer = digitalAdress.adres
-            EMAIL_SOORT_DIGITAAL_ADRES -> restPersoon.emailadres = digitalAdress.adres
-        }
-    }
-    return restPersoon
-}
-fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
+fun PersonenQueryResponse.toRestPersonen(): List<RestPersoon> =
     when (this) {
-        is RaadpleegMetBurgerservicenummerResponse -> this.personen.toRestPersons()
-        is ZoekMetGeslachtsnaamEnGeboortedatumResponse -> this.personen.toRestPersonen()
-        is ZoekMetNaamEnGemeenteVanInschrijvingResponse -> this.personen.toRestPersonen()
-        is ZoekMetNummeraanduidingIdentificatieResponse -> this.personen.toRestPersonen()
-        is ZoekMetPostcodeEnHuisnummerResponse -> this.personen.toRestPersonen()
-        is ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse -> this.personen.toRestPersonen()
+        is RaadpleegMetBurgerservicenummerResponse -> this.personen.map { it.toRestPersoon() }
+        is ZoekMetGeslachtsnaamEnGeboortedatumResponse -> this.personen.map { it.toRestPersoon() }
+        is ZoekMetNaamEnGemeenteVanInschrijvingResponse -> this.personen.map { it.toRestPersoon() }
+        is ZoekMetNummeraanduidingIdentificatieResponse -> this.personen.map { it.toRestPersoon() }
+        is ZoekMetPostcodeEnHuisnummerResponse -> this.personen.map { it.toRestPersoon() }
+        is ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse -> this.personen.map { it.toRestPersoon() }
         else -> emptyList()
     }
 

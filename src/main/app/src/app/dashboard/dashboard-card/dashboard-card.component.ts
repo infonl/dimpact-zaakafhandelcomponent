@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,21 +27,25 @@ import { DashboardCard } from "../model/dashboard-card";
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
 })
-export abstract class DashboardCardComponent<T>
+export abstract class DashboardCardComponent<
+    T extends
+      GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> = GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
+    C extends readonly string[] = readonly string[],
+  >
   implements OnInit, AfterViewInit, OnDestroy
 {
   private readonly RELOAD_INTERVAL: number = 60; // 1 min.
 
-  @Input() data: DashboardCard;
+  @Input({ required: true }) data!: DashboardCard;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
+  @ViewChild(MatSort) sort?: MatSort;
   dataSource: MatTableDataSource<T> = new MatTableDataSource<T>();
 
-  protected reload: Observable<any>;
-  private reloader: Subscription;
+  protected reload: Observable<unknown> | null = null;
+  private reloader?: Subscription;
 
-  abstract columns: string[];
+  abstract readonly columns: C;
 
   constructor(
     protected identityService: IdentityService,
@@ -66,23 +70,23 @@ export abstract class DashboardCardComponent<T>
   }
 
   ngOnDestroy(): void {
-    this.reloader.unsubscribe();
+    this.reloader?.unsubscribe();
   }
 
   protected abstract onLoad(afterLoad: () => void): void;
 
   private readonly afterLoad = () => {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    if (this.paginator) this.dataSource.paginator = this.paginator;
+    if (this.sort) this.dataSource.sort = this.sort;
   };
 
-  protected refreshTimed(seconds: number): Observable<number> {
+  protected refreshTimed(seconds: number) {
     return interval(seconds * 1000);
   }
 
   protected refreshOnSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
-  ): Observable<void> {
+  ) {
     const reload$ = new Subject<void>();
     this.identityService.readLoggedInUser().subscribe((medewerker) => {
       this.websocketService.addListener(

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,7 +16,9 @@ import jakarta.annotation.Nullable;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
-import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer;
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.IndicatieMachtigingEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
 @JsonbTypeDeserializer(RolJsonbDeserializer.class)
@@ -56,7 +58,7 @@ public abstract class Rol<T> {
      * Betrokkene type
      * - Required
      */
-    private BetrokkeneType betrokkeneType;
+    private BetrokkeneTypeEnum betrokkeneType;
 
     /**
      * URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
@@ -97,9 +99,28 @@ public abstract class Rol<T> {
     @JsonbDateFormat(DATE_TIME_FORMAT_WITH_MILLISECONDS)
     private ZonedDateTime registratiedatum;
 
-    private IndicatieMachtiging indicatieMachtiging;
+    private IndicatieMachtigingEnum indicatieMachtiging;
 
     public Rol() {
+    }
+
+    /**
+     * For testing purposes only where a rol with a UUID is needed.
+     */
+    public Rol(
+            final UUID uuid,
+            final RolType roltype,
+            final BetrokkeneTypeEnum betrokkeneType,
+            final T betrokkeneIdentificatie,
+            final String roltoelichting
+    ) {
+        this.uuid = uuid;
+        this.betrokkeneIdentificatie = betrokkeneIdentificatie;
+        this.betrokkeneType = betrokkeneType;
+        this.roltype = roltype.getUrl();
+        this.roltoelichting = roltoelichting;
+        this.omschrijving = roltype.getOmschrijving();
+        this.omschrijvingGeneriek = roltype.getOmschrijvingGeneriek().name().toLowerCase();
     }
 
     /**
@@ -108,7 +129,7 @@ public abstract class Rol<T> {
     public Rol(
             final URI zaak,
             final RolType roltype,
-            final BetrokkeneType betrokkeneType,
+            final BetrokkeneTypeEnum betrokkeneType,
             final T betrokkeneIdentificatie,
             final String roltoelichting
     ) {
@@ -141,7 +162,7 @@ public abstract class Rol<T> {
         this.betrokkene = betrokkene;
     }
 
-    public BetrokkeneType getBetrokkeneType() {
+    public BetrokkeneTypeEnum getBetrokkeneType() {
         return betrokkeneType;
     }
 
@@ -165,16 +186,16 @@ public abstract class Rol<T> {
         return registratiedatum;
     }
 
-    public IndicatieMachtiging getIndicatieMachtiging() {
+    public IndicatieMachtigingEnum getIndicatieMachtiging() {
         return indicatieMachtiging;
     }
 
-    public void setIndicatieMachtiging(final IndicatieMachtiging indicatieMachtiging) {
+    public void setIndicatieMachtiging(final IndicatieMachtigingEnum indicatieMachtiging) {
         this.indicatieMachtiging = indicatieMachtiging;
     }
 
     /**
-     * Can be null according to the ZGW API and this does occur in practice in certain circumstances.
+     * Can be null, according to the ZGW API, and this does occur in practice in certain circumstances.
      *
      * @return the betrokkene identificatie; or null if there is none
      */
@@ -211,5 +232,11 @@ public abstract class Rol<T> {
 
     public abstract String getNaam();
 
+    /**
+     * Can be null, according to the ZGW API, and this does occur in practice in certain circumstances.
+     *
+     * @return the betrokkene identification number; or null if there is none
+     */
+    @Nullable
     public abstract String getIdentificatienummer();
 }

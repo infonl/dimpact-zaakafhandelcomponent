@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,12 +7,21 @@ package net.atos.client.zgw.zrc.model;
 
 import java.net.URI;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
+/**
+ * Manually copied from {@link nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon} and modified to allow for
+ * polymorphism using a generic base {@link Rol} class.
+ * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * polymorphic relationships correctly.
+ */
+public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoonIdentificatie> {
 
     public RolNietNatuurlijkPersoon() {
     }
@@ -21,26 +30,43 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            final NietNatuurlijkPersoon betrokkeneIdentificatie
+            final NietNatuurlijkPersoonIdentificatie betrokkeneIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
+    }
+
+    /**
+     * For testing purposes only where we need a UUID.
+     */
+    public RolNietNatuurlijkPersoon(
+            final UUID uuid,
+            final RolType roltype,
+            final String roltoelichting,
+            final NietNatuurlijkPersoonIdentificatie betrokkeneIdentificatie
+    ) {
+        super(uuid, roltype, BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final NietNatuurlijkPersoon identificatie) {
-        final NietNatuurlijkPersoon betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final NietNatuurlijkPersoonIdentificatie identificatie) {
+        final NietNatuurlijkPersoonIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }
-        if (identificatie == null) {
+        if (identificatie == null || betrokkeneIdentificatie == null) {
             return false;
-        }
-        // In volgorde van voorkeur (als er 1 matcht wordt de rest overgeslagen)
-        if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
-            return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
         }
         if (betrokkeneIdentificatie.getInnNnpId() != null || identificatie.getInnNnpId() != null) {
             return Objects.equals(betrokkeneIdentificatie.getInnNnpId(), identificatie.getInnNnpId());
+        }
+        if (betrokkeneIdentificatie.getKvkNummer() != null || identificatie.getKvkNummer() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getKvkNummer(), identificatie.getKvkNummer());
+        }
+        if (betrokkeneIdentificatie.getVestigingsNummer() != null || identificatie.getVestigingsNummer() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getVestigingsNummer(), identificatie.getVestigingsNummer());
+        }
+        if (betrokkeneIdentificatie.getAnnIdentificatie() != null || identificatie.getAnnIdentificatie() != null) {
+            return Objects.equals(betrokkeneIdentificatie.getAnnIdentificatie(), identificatie.getAnnIdentificatie());
         }
         return true;
     }
@@ -50,26 +76,46 @@ public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
         if (getBetrokkeneIdentificatie() == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam()) ? getBetrokkeneIdentificatie().getStatutaireNaam() :
-                getIdentificatienummer();
+        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getStatutaireNaam()) ?
+                getBetrokkeneIdentificatie().getStatutaireNaam() : getIdentificatienummer();
     }
 
     @Override
     public String getIdentificatienummer() {
-        if (getBetrokkeneIdentificatie() == null) {
+        NietNatuurlijkPersoonIdentificatie identificatie = getBetrokkeneIdentificatie();
+        if (identificatie == null) {
             return null;
         }
-        return StringUtils.isNotEmpty(getBetrokkeneIdentificatie().getAnnIdentificatie()) ? getBetrokkeneIdentificatie()
-                .getAnnIdentificatie() : getBetrokkeneIdentificatie().getInnNnpId();
+        // new 'RSIN-type' initiators only have a KVK number (but no vestigingsnummer)
+        if (StringUtils.isNotBlank(identificatie.getKvkNummer()) && StringUtils.isBlank(identificatie.getVestigingsNummer())) {
+            return identificatie.getKvkNummer();
+        }
+        // we also support 'legacy' RSIN-type initiators with only an RSIN (no KVK number)
+        if (StringUtils.isNotEmpty(identificatie.getInnNnpId())) {
+            return identificatie.getInnNnpId();
+        }
+        // lastly we support the 'vestiging-type' initiators that have both a KVK number and a vestigingsnummer
+        // note that the KVK number is not part of this class but returned differently
+        return identificatie.getVestigingsNummer();
     }
 
     @Override
     protected int hashCodeBetrokkeneIdentificatie() {
-        if (getBetrokkeneIdentificatie().getAnnIdentificatie() != null) {
-            return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
+        NietNatuurlijkPersoonIdentificatie identificatie = getBetrokkeneIdentificatie();
+        if (identificatie == null) {
+            return 0;
         }
-        if (getBetrokkeneIdentificatie().getInnNnpId() != null) {
+        if (identificatie.getInnNnpId() != null) {
             return Objects.hash(getBetrokkeneIdentificatie().getInnNnpId());
+        }
+        if (identificatie.getKvkNummer() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getKvkNummer());
+        }
+        if (identificatie.getVestigingsNummer() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getVestigingsNummer());
+        }
+        if (identificatie.getAnnIdentificatie() != null) {
+            return Objects.hash(getBetrokkeneIdentificatie().getAnnIdentificatie());
         }
         return 0;
     }

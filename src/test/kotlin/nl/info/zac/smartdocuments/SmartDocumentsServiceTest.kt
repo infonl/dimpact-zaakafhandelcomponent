@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,9 +27,9 @@ import java.net.URI
 import java.util.Optional
 
 class SmartDocumentsServiceTest : BehaviorSpec({
-    val smartDocumentsURL = "https://example.com/dummySmartDocumentsURL"
-    val authenticationToken = "dummyAuthenticationToken"
-    val fixedUserName = Optional.of("dummyFixedUserName")
+    val smartDocumentsURL = "https://example.com/fakeSmartDocumentsURL"
+    val authenticationToken = "fakeAuthenticationToken"
+    val fixedUserName = Optional.of("fakeFixedUserName")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val smartDocumentsClient = mockk<Instance<SmartDocumentsClient>>()
 
@@ -190,6 +190,50 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
             Then("it throws an exception") {
                 exception.message shouldBe "SMARTDOCUMENTS_CLIENT_MP_REST_URL environment variable required"
+            }
+        }
+    }
+
+    Given("SmartDocuments is enabled and wizard authentication is disabled") {
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val variables = Variables(
+            outputFormats = listOf(OutputFormat("DOCX")),
+            redirectMethod = "POST",
+            redirectUrl = "url"
+        )
+        val smartDocument = createSmartDocument(variables)
+        val attendedResponse = createAttendedResponse()
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        every {
+            smartDocumentsClient.get().attendedDepositNoAuth(any(), any())
+        } returns attendedResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName,
+            wizardAuthEnabled = Optional.of(false)
+        )
+
+        When("the 'createDocumentAttended' method is called without authorisation") {
+            val response = smartDocumentsService.createDocumentAttended(
+                data = data,
+                smartDocument = smartDocument
+            )
+
+            Then("it calls the attendedDepositNoAuth and returns the response") {
+                with(response) {
+                    redirectUrl shouldBe URI(
+                        "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"
+                    )
+                    message shouldBe null
+                }
             }
         }
     }

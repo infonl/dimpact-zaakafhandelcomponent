@@ -31,18 +31,18 @@ export class ColumnPickerComponent {
 
   @Output() columnsChanged = new EventEmitter<Map<string, ColumnPickerValue>>();
 
-  private _columnSrc: Map<string, ColumnPickerValue>;
-  private _columns: Map<string, string>;
-  private _selection: string[];
+  private _columnSrc = new Map<string, ColumnPickerValue>();
+  private _columns = new Map<string, string>();
+  private _selection: string[] = [];
   private changed = false;
 
-  constructor(private translate: TranslateService) {}
+  constructor(private readonly translate: TranslateService) {}
 
-  menuOpened(): void {
+  menuOpened() {
     this.changed = false;
   }
 
-  selectionChanged($event: MatSelectionListChange): void {
+  selectionChanged($event: MatSelectionListChange) {
     this.changed = true;
     $event.options.forEach((option) =>
       this._columnSrc.set(
@@ -54,17 +54,17 @@ export class ColumnPickerComponent {
     );
   }
 
-  updateColumns(): void {
+  updateColumns() {
     if (this.changed) {
       this.columnsChanged.emit(this._columnSrc);
     }
   }
 
-  get columns(): Map<string, string> {
+  get columns() {
     return this._columns;
   }
 
-  isSelected(column: string): boolean {
+  isSelected(column: string) {
     return this._selection.includes(column);
   }
 }

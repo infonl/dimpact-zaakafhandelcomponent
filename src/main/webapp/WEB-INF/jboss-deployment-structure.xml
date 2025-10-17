@@ -1,0 +1,12 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+-->
+
+<jboss-deployment-structure>
+    <deployment>
+        <dependencies>
+            <module name="org.bitbucket.jose4j" services="import"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>

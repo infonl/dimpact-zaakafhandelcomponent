@@ -1,143 +1,143 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Resultaat } from "../shared/model/resultaat";
-import { GeneratedType } from "../shared/utils/generated-types";
-import { Bedrijf } from "./model/bedrijven/bedrijf";
-import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
-import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
-import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { Roltype } from "./model/klanten/roltype";
-import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
-import { PersonenParameters } from "./model/personen/personen-parameters";
+import { inject, Injectable } from "@angular/core";
+import { PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 
 @Injectable({
   providedIn: "root",
 })
 export class KlantenService {
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  private basepath = "/rest/klanten";
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
-  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
-    return this.http
-      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readPersoon(bsn: string, zaakIdentification?: string) {
+    return this.zacQueryClient.GET("/rest/klanten/persoon/{bsn}", {
+      path: { bsn },
+      ...(zaakIdentification && {
+        header: { "X-ZAAK-ID": zaakIdentification },
+      }),
+    });
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string): Observable<Bedrijf> {
-    return rsinOfVestigingsnummer.length === 9
-      ? this.readRechtspersoon(rsinOfVestigingsnummer)
-      : this.readVestiging(rsinOfVestigingsnummer);
-  }
-
-  /* istanbul ignore next */
-  readVestiging(vestigingsnummer: string): Observable<Bedrijf> {
-    return this.http
-      .get<Bedrijf>(`${this.basepath}/vestiging/${vestigingsnummer}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  /* istanbul ignore next */
-  readVestigingsprofiel(
-    vestigingsnummer: string,
-  ): Observable<Vestigingsprofiel> {
-    return this.http
-      .get<Vestigingsprofiel>(
-        `${this.basepath}/vestigingsprofiel/${vestigingsnummer}`,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readBedrijf(betrokkeneIdentificatie: BetrokkeneIdentificatie) {
+    switch (betrokkeneIdentificatie.type) {
+      case "VN":
+        return this.readVestiging(
+          betrokkeneIdentificatie.vestigingsnummer,
+          betrokkeneIdentificatie.kvkNummer,
+        );
+      case "RSIN":
+        return this.readRechtspersoon(
+          betrokkeneIdentificatie.kvkNummer,
+          betrokkeneIdentificatie.rsin,
+        );
+      case "BSN":
+      default:
+        throw new Error(
+          `${KlantenService.name}: Unsupported identificatie type ${betrokkeneIdentificatie.type}`,
+        );
+    }
   }
 
   /* istanbul ignore next */
-  readRechtspersoon(rsin: string): Observable<Bedrijf> {
-    return this.http
-      .get<Bedrijf>(`${this.basepath}/rechtspersoon/${rsin}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+  private readRechtspersoon(kvkNummer?: string | null, rsin?: string | null) {
+    if (kvkNummer) {
+      return this.zacQueryClient.GET(
+        "/rest/klanten/rechtspersoon/kvknummer/{kvkNummer}",
+        {
+          path: { kvkNummer },
+        },
       );
+    }
+
+    if (!rsin) {
+      throw new Error("Rsin is required for rechtspersoon lookup.");
+    }
+
+    // legacy solution
+    return this.zacQueryClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
+      path: { rsin },
+    });
   }
 
   /* istanbul ignore next */
-  getPersonenParameters(): Observable<PersonenParameters[]> {
-    return this.http
-      .get<PersonenParameters[]>(`${this.basepath}/personen/parameters`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+  private readVestiging(
+    vestigingsnummer?: string | null,
+    kvkNummer?: string | null,
+  ) {
+    if (kvkNummer && vestigingsnummer) {
+      return this.zacQueryClient.GET(
+        "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
+        {
+          path: { vestigingsnummer, kvkNummer },
+        },
       );
+    }
+
+    if (!vestigingsnummer) {
+      throw new Error("Vestigingsnummer is required for vestiging lookup.");
+    }
+
+    // legacy solution
+    return this.zacQueryClient.GET(
+      "/rest/klanten/vestiging/{vestigingsnummer}",
+      {
+        path: { vestigingsnummer },
+      },
+    );
   }
 
   /* istanbul ignore next */
-  listPersonen(
-    listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
-    return this.http
-      .put<
-        Resultaat<GeneratedType<"RestPersoon">>
-      >(`${this.basepath}/personen`, listPersonenParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readVestigingsprofiel(vestigingsnummer: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/vestigingsprofiel/{vestigingsnummer}",
+      {
+        path: { vestigingsnummer },
+      },
+    );
   }
 
   /* istanbul ignore next */
-  listBedrijven(
-    listBedrijvenParameters: ListBedrijvenParameters,
-  ): Observable<Resultaat<Bedrijf>> {
-    return this.http
-      .put<
-        Resultaat<Bedrijf>
-      >(`${this.basepath}/bedrijven`, listBedrijvenParameters)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  getPersonenParameters() {
+    return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
   /* istanbul ignore next */
-  listBetrokkeneRoltypen(zaaktypeUuid: string): Observable<Roltype[]> {
-    return this.http
-      .get<Roltype[]>(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listPersonen(body: PutBody<"/rest/klanten/personen">) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body);
   }
 
   /* istanbul ignore next */
-  listRoltypen(): Observable<Roltype[]> {
-    return this.http
-      .get<Roltype[]>(`${this.basepath}/roltype`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
+    return this.zacHttpClient.PUT("/rest/klanten/bedrijven", body);
   }
 
   /* istanbul ignore next */
-  ophalenContactGegevens(
-    initiatorIdentificatie: string,
-  ): Observable<ContactGegevens> {
-    return this.http
-      .get<ContactGegevens>(
-        `${this.basepath}/contactgegevens/${initiatorIdentificatie}`,
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listBetrokkeneRoltypen(zaaktypeUuid: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/roltype/{zaaktypeUuid}/betrokkene",
+      {
+        path: { zaaktypeUuid },
+      },
+    );
+  }
+
+  /* istanbul ignore next */
+  listRoltypen() {
+    return this.zacHttpClient.GET("/rest/klanten/roltype");
+  }
+
+  /* istanbul ignore next */
+  getContactDetailsForPerson(bsn: string) {
+    return this.zacHttpClient.GET("/rest/klanten/contactdetails/bsn/{bsn}", {
+      path: { bsn },
+    });
   }
 }

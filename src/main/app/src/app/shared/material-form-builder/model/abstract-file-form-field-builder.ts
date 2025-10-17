@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,8 +9,10 @@ import { AbstractFileFormField } from "./abstract-file-form-field";
 import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
 import { FormFieldHint } from "./form-field-hint";
 
-export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuilder {
-  abstract readonly formField: AbstractFileFormField;
+export abstract class AbstractFileFormFieldBuilder<
+  T extends File = File,
+> extends AbstractFormFieldBuilder<T> {
+  abstract readonly formField: AbstractFileFormField<T>;
 
   constructor() {
     super();
@@ -30,8 +32,7 @@ export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuil
       if (fileTypes.length > 0) {
         fileTypes
           .map(
-            (fileType) =>
-              new FileIcon(fileType.trim().toLowerCase(), "fa-file"),
+            (fileType) => new FileIcon(fileType.trim().toLowerCase(), "draft"),
           )
           .forEach((fileIcon) => this.formField.fileIcons.push(fileIcon));
         this.formField.fileIcons.sort((fileIconA, fileIconB) =>

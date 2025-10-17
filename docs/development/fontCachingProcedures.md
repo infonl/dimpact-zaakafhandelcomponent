@@ -5,7 +5,7 @@ Zac implements font caching strategy to enhance performance and user experience.
 
 ## Caching Strategy
 - all .woff2 files on *.dimpact.lifely.nl are cached for 30 days
-- backend Expires/Cache-Control replies are overriden and expires is set to 30 days
+- backend Expires/Cache-Control replies are overridden and expires is set to 30 days
 - the first hit once the local cache expires returns the old cache entry and the server refreshes the cached file from the backend, all other requests after this wait until the refresh has finished
 - the files are cached locally in the nginx container in /tmp and do not persist on restarts
 

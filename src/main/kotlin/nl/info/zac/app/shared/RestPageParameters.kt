@@ -1,14 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.shared
 
-import jakarta.validation.constraints.Positive
-import nl.info.zac.util.NoArgConstructor
+interface RestPageParameters {
+    /**
+     * The search result page requested, starting at 0.
+     */
+    var page: Int
 
-@NoArgConstructor
-open class RestPageParameters(
-    @Positive open var page: Int,
-    @Positive open var rows: Int
-)
+    /**
+     * The number of search result rows requested.
+     */
+    var rows: Int
+}

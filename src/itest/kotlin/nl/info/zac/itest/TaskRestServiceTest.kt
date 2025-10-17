@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
@@ -17,7 +17,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
@@ -25,7 +24,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
@@ -33,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,12 +55,12 @@ class TaskRestServiceTest : BehaviorSpec({
             Then(
                 """the list of taken for this zaak is returned and contains the expected task"""
             ) {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonArray()
-                // the zaak is in the intake phase, so there should be only be one human task
-                // plan item: 'aanvullende informatie'
+                // the zaak is in the intake phase, and in a previous test two 'aanvullende informatie' tasks have been started
+                // for this zaak, so there should be two (identical) tasks in the list
                 JSONArray(responseBody).length() shouldBe 2
                 for (task in JSONArray(responseBody)) {
                     with(task.toString()) {
@@ -72,9 +73,10 @@ class TaskRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
                         shouldContainJsonKeyValue(
                             "zaaktypeOmschrijving",
-                            ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+                            ZAAKTYPE_TEST_3_DESCRIPTION
                         )
                         shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                        shouldContainJsonKeyValue("zaaktypeUUID", ZAAKTYPE_TEST_3_UUID.toString())
                         JSONObject(this,).getJSONObject("groep").apply {
                             getString("id") shouldBe TEST_GROUP_A_ID
                             getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
@@ -97,7 +99,7 @@ class TaskRestServiceTest : BehaviorSpec({
             )
 
             Then("the taak has been updated successfully") {
-                responseBody = response.body!!.string()
+                responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 responseBody.shouldBeJsonObject()
@@ -135,15 +137,15 @@ class TaskRestServiceTest : BehaviorSpec({
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                          "groepId":"$TEST_GROUP_A_ID",
                         "behandelaarGebruikersnaam":"$TEST_USER_2_ID",
-                        "reden":"dummyTasksAssignReason",
+                        "reden":"fakeTasksAssignReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }
                 """.trimIndent()
             )
             Then("the task is assigned correctly") {
-                val assignTasksResponseBody = assignTasksResponse.body!!.string()
+                val assignTasksResponseBody = assignTasksResponse.body.string()
                 logger.info { "Response: $assignTasksResponseBody" }
-                assignTasksResponse.code shouldBe HTTP_STATUS_NO_CONTENT
+                assignTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are assigned
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1
@@ -184,15 +186,15 @@ class TaskRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/taken/lijst/vrijgeven",
                 requestBodyAsString = """{
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
-                        "reden":"dummyTasksReleaseReason",
+                        "reden":"fakeTasksReleaseReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }
                 """.trimIndent()
             )
             Then("the task is released correctly") {
-                val assignTasksResponseBody = releaseTasksResponse.body!!.string()
+                val assignTasksResponseBody = releaseTasksResponse.body.string()
                 logger.info { "Response: $assignTasksResponseBody" }
-                releaseTasksResponse.code shouldBe HTTP_STATUS_NO_CONTENT
+                releaseTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are released
                 eventually(10.seconds) {
                     websocketListener.messagesReceived.size shouldBe 1

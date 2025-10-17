@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -28,27 +28,29 @@
     mode="over"
     position="end"
     [ngSwitch]="activeSideAction"
-    class="zaak-actions-drawer"
+    class="side-nav-container"
     (closedStart)="activeSideAction = null"
   >
     <zac-klant-koppel
-      *ngSwitchCase="'actie.initiator.toevoegen'"
+      *ngSwitchCase="'actie.initiator.koppelen'"
       [sideNav]="actionsSidenav"
+      [context]="zaak.identificatie"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
-      [allowBedrijf]="zaak.rechten.toevoegenInitiatorBedrijf"
-      [allowPersoon]="zaak.rechten.toevoegenInitiatorPersoon"
+      [allowBedrijf]="allowBedrijf()"
+      [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
     <zac-klant-koppel
-      *ngSwitchCase="'actie.betrokkene.toevoegen'"
+      *ngSwitchCase="'actie.betrokkene.koppelen'"
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
-      [allowBedrijf]="zaak.rechten.toevoegenBetrokkeneBedrijf"
-      [allowPersoon]="zaak.rechten.toevoegenBetrokkenePersoon"
+      [context]="zaak.identificatie"
+      [allowBedrijf]="allowBedrijf()"
+      [allowPersoon]="allowPersoon()"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="'actie.bagObject.toevoegen'"
+      *ngSwitchCase="'actie.bagObject.koppelen'"
       [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
       [sideNav]="actionsSidenav"
       (bagObject)="adresGeselecteerd($event)"
@@ -59,6 +61,12 @@
       [loggedInUser]="loggedInUser"
       [sideNav]="actionsSidenav"
     ></zac-case-details-edit>
+    <zac-case-location-edit
+      *ngSwitchCase="'actie.zaak.locatie.koppelen'"
+      [zaak]="zaak"
+      [sideNav]="actionsSidenav"
+      (locatie)="locationSelected()"
+    ></zac-case-location-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
@@ -117,12 +125,18 @@
     ></zac-besluit-edit>
     <zac-informatie-object-link
       *ngSwitchCase="'actie.document.verplaatsen'"
-      [actionLabel]="'actie.document.verplaatsen'"
+      actionLabel="actie.document.verplaatsen"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
       [source]="zaak.identificatie"
       (informationObjectLinked)="updateDocumentList()"
-    ></zac-informatie-object-link>
+    />
+    <zac-zaak-link
+      *ngSwitchCase="'actie.zaak.koppelen'"
+      [zaak]="zaak"
+      [sideNav]="actionsSidenav"
+      (zaakLinked)="zaakLinked()"
+    ></zac-zaak-link>
     <zac-zaakdata
       *ngSwitchCase="'actie.zaakdata.bekijken'"
       [readonly]="true"
@@ -131,52 +145,54 @@
     ></zac-zaakdata>
   </mat-drawer>
   <mat-drawer-content>
-    <div class="flex-row flex-wrap gap-10">
-      <zac-zaak-initiator-toevoegen
-        class="w100 flex-1"
-        *ngIf="!zaak.initiatorIdentificatieType"
-        [toevoegenToegestaan]="
-          zaak.rechten.toevoegenInitiatorPersoon ||
-          zaak.rechten.toevoegenInitiatorBedrijf
-        "
-        (add)="addOrEditZaakInitiator()"
-      >
-      </zac-zaak-initiator-toevoegen>
-      <zac-persoongegevens
-        class="w100 flex-1"
-        *ngIf="zaak.initiatorIdentificatieType === 'BSN'"
-        [bsn]="zaak.initiatorIdentificatie"
-        [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-        [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
-        (edit)="addOrEditZaakInitiator()"
-        (delete)="deleteInitiator()"
-      >
-      </zac-persoongegevens>
-      <zac-bedrijfsgegevens
-        class="w100 flex-1"
-        *ngIf="
-          zaak.initiatorIdentificatieType === 'VN' ||
-          zaak.initiatorIdentificatieType === 'RSIN'
-        "
-        [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
-        [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-        (edit)="addOrEditZaakInitiator()"
-        [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
-        (delete)="deleteInitiator()"
-      >
-      </zac-bedrijfsgegevens>
-
-      <mat-card class="zaken-card w50 flex-1">
-        <mat-card-header class="flex-row space-between">
-          <mat-card-title>{{ zaak.identificatie }}</mat-card-title>
-          <mat-card-subtitle>{{
-            zaak.zaaktype.omschrijving
-          }}</mat-card-subtitle>
+    <div class="flex-row flex-wrap gap-12">
+      <section *ngIf="showInitiator()" class="w100 flex-1">
+        <zac-zaak-initiator-toevoegen
+          *ngIf="!(showPersoonsgegevens() || showBedrijfsgegevens())"
+          class="w100 flex-1"
+          [toevoegenToegestaan]="allowedToAddBetrokkene()"
+          (add)="addOrEditZaakInitiator()"
+        >
+        </zac-zaak-initiator-toevoegen>
+        <zac-persoongegevens
+          *ngIf="showPersoonsgegevens()"
+          class="w100 flex-1"
+          [zaakIdentificatie]="zaak.identificatie"
+          [bsn]="zaak.initiatorIdentificatie?.bsnNummer"
+          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
+          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
+          (edit)="addOrEditZaakInitiator()"
+          (delete)="deleteInitiator()"
+        >
+        </zac-persoongegevens>
+        <zac-bedrijfsgegevens
+          *ngIf="showBedrijfsgegevens()"
+          class="w100 flex-1"
+          [initiatorIdentificatie]="zaak.initiatorIdentificatie"
+          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
+          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
+          (edit)="addOrEditZaakInitiator()"
+          (delete)="deleteInitiator()"
+        >
+        </zac-bedrijfsgegevens>
+      </section>
+      <mat-card class="w50 flex-1">
+        <mat-card-header class="flex-col gap-8">
           <div class="flex-row">
             <zac-zaak-indicaties
-              [layout]="indicatiesLayout.VIEW"
+              [layout]="indicatiesLayout.EXTENDED"
               [zaak]="zaak"
             ></zac-zaak-indicaties>
+          </div>
+          <section class="flex-row space-between items-center">
+            <div>
+              <mat-card-title>
+                {{ zaak.identificatie }}
+              </mat-card-title>
+              <mat-card-subtitle>{{
+                zaak.zaaktype.omschrijving
+              }}</mat-card-subtitle>
+            </div>
             <button
               *ngIf="zaak.isProcesGestuurd && zaak.isOpen && !zaak.isHeropend"
               class="proces-button"
@@ -186,7 +202,7 @@
             >
               <mat-icon> play_shapes </mat-icon>
             </button>
-          </div>
+          </section>
         </mat-card-header>
         <mat-card-content>
           <mat-tab-group mat-stretch-tabs="false">
@@ -195,50 +211,74 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
-              <div id="algemeneGegevens_tab" class="content">
-                <div class="flex flex-row flex-wrap justify-start gap-10">
+              <div class="content grid">
+                <div class="zaak-grid">
                   <zac-static-text
-                    [label]="'status' | translate"
+                    class="grid-text"
+                    label="status"
                     [value]="zaak.status | empty: 'naam'"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    [label]="'registratiedatum' | translate"
+                    class="grid-text"
+                    label="registratiedatum"
                     [value]="zaak.registratiedatum | datum"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    [label]="'resultaat' | translate"
+                    class="grid-text"
+                    label="resultaat"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
+                  <div class="grid-placeholder"></div>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
-                    [label]="'einddatum' | translate"
+                    label="einddatum"
                     [value]="zaak.einddatum | datum"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    *ngIf="zaak.startdatumBewaartermijn"
+                    label="startdatumBewaartermijn"
+                    [value]="zaak.startdatumBewaartermijn | datum"
+                  >
+                  </zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
-                    [label]="
-                      'archiefNominatie.datum.' + zaak.archiefNominatie
-                        | translate
-                    "
+                    [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
                     [value]="zaak.archiefActiedatum | datum | empty"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
-                    [label]="'archiefNominatie' | translate"
+                    label="archiefNominatie"
                     [value]="
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
-                    class="flex-item"
-                  ></zac-static-text>
-                </div>
-                <mat-divider class="mat-divider-wrapper"></mat-divider>
-
-                <div class="flex flex-row justify-start gap-10 editable">
+                  >
+                  </zac-static-text>
+                  <mat-divider
+                    class="mat-divider-wrapper full-width"
+                  ></mat-divider>
+                  <zac-static-text
+                    class="grid-text"
+                    label="groep"
+                    [value]="zaak.groep?.naam | empty"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    class="grid-text"
+                    label="behandelaar"
+                    [value]="zaak.behandelaar?.naam | empty"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    class="grid-text"
+                    label="communicatiekanaal"
+                    [value]="zaak.communicatiekanaal | empty"
+                  >
+                  </zac-static-text>
                   <button
                     *ngIf="zaak.rechten.wijzigen || zaak.rechten.toekennen"
                     mat-icon-button
@@ -247,110 +287,121 @@
                   >
                     <mat-icon>edit</mat-icon>
                   </button>
-
                   <zac-static-text
-                    [label]="'groep' | translate"
-                    [value]="zaak.groep.naam | empty"
-                    class="flex-item"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'behandelaar' | translate"
-                    [value]="zaak.behandelaar?.naam | empty"
-                    class="flex-item"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'communicatiekanaal' | translate"
-                    [value]="zaak.communicatiekanaal | empty"
-                    class="flex-item"
-                  ></zac-static-text>
-                </div>
-                <div class="flex flex-row justify-start gap-10">
-                  <zac-static-text
-                    [label]="'startdatum' | translate"
+                    class="grid-text"
+                    label="startdatum"
                     [value]="zaak.startdatum | datum | empty"
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    [label]="'streefdatum' | translate"
+                    class="grid-text"
+                    label="streefdatum"
                     [value]="zaak.einddatumGepland | datum | empty"
-                    [icon]="dateFieldIcon.get('einddatumGepland')"
-                    class="flex-item"
+                    [icon]="dateFieldIconMap.get('einddatumGepland')"
                   >
                     <mat-icon>label-icon</mat-icon>
                   </zac-static-text>
                   <zac-static-text
-                    [label]="'fataledatum' | translate"
+                    class="grid-text"
+                    label="fataledatum"
                     [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
-                    [icon]="dateFieldIcon.get('uiterlijkeEinddatumAfdoening')"
-                    class="flex-item"
-                  ></zac-static-text>
-                </div>
-                <div
-                  *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
-                  class="flex flex-row justify-start gap-10 remark"
-                >
-                  <div class="flex-col gap-5">
-                    <div
-                      class="flex-row items-center gap-5"
-                      *ngIf="zaakOpschorting?.duurDagen"
-                    >
-                      <mat-icon>pause</mat-icon>
-                      {{
-                        (zaakOpschorting?.duurDagen === 1
-                          ? "duurDagenOpschorting.enkelvoud"
-                          : "duurDagenOpschorting"
-                        ) | translate: { duur: zaakOpschorting?.duurDagen }
-                      }}
-                    </div>
-                    <div
-                      class="flex-row items-center gap-5"
-                      *ngIf="zaak.duurVerlenging"
-                    >
-                      <mat-icon>update</mat-icon>
-                      {{
-                        "duurVerlenging"
-                          | translate: { duur: zaak.duurVerlenging }
-                      }}
+                    [icon]="
+                      dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
+                    "
+                  >
+                  </zac-static-text>
+                  <div
+                    *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+                    class="full-width remark"
+                  >
+                    <div class="flex-col gap-5">
+                      <div
+                        class="flex-row items-center gap-5"
+                        *ngIf="zaakOpschorting?.duurDagen"
+                      >
+                        <mat-icon>pause</mat-icon>
+                        {{
+                          (zaakOpschorting?.duurDagen === 1
+                            ? "duurDagenOpschorting.enkelvoud"
+                            : "duurDagenOpschorting"
+                          ) | translate: { duur: zaakOpschorting?.duurDagen }
+                        }}
+                      </div>
+                      <div
+                        class="flex-row items-center gap-5"
+                        *ngIf="zaak.duurVerlenging"
+                      >
+                        <mat-icon>update</mat-icon>
+                        {{
+                          "duurVerlenging"
+                            | translate: { duur: zaak.duurVerlenging }
+                        }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
-                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    class="full-width"
+                    label="vertrouwelijkheidaanduiding"
                     [value]="
                       zaak.vertrouwelijkheidaanduiding
                         | vertrouwelijkaanduidingToTranslationKey
                         | translate
                         | empty
                     "
-                    class="flex-item"
-                  ></zac-static-text>
+                  >
+                  </zac-static-text>
                   <zac-static-text
-                    [label]="'locatie' | translate"
-                    [value]="zaak.zaakgeometrie | location | empty"
-                    class="flex-item"
-                  ></zac-static-text>
-                </div>
-
-                <div class="flex flex-col gap-10">
-                  <zac-static-text
-                    [label]="'omschrijving' | translate"
+                    class="full-width"
+                    label="omschrijving"
                     [value]="zaak.omschrijving | empty"
                   ></zac-static-text>
                   <zac-static-text
-                    [label]="'toelichting' | translate"
+                    class="full-width"
+                    label="toelichting"
                     [value]="zaak.toelichting | empty"
                   ></zac-static-text>
                 </div>
               </div>
             </mat-tab>
+            <mat-tab *ngIf="zaak.zaakgeometrie">
+              <ng-template mat-tab-label>
+                <mat-icon>place</mat-icon>
+                {{ "locatie" | translate }}</ng-template
+              >
+              <div class="table-wrapper">
+                <div class="flex flex-col gap-10 mt-2">
+                  <div class="flex flex-row space-between">
+                    <zac-static-text
+                      label="coordinates"
+                      [value]="zaak.zaakgeometrie | location"
+                      class="flex-item"
+                    />
+                    <button
+                      *ngIf="zaak.rechten.wijzigenLocatie"
+                      mat-icon-button
+                      mat-small-icon-button
+                      (click)="editLocationDetails()"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+                  <zac-locatie-tonen
+                    [currentLocation]="zaak.zaakgeometrie"
+                  ></zac-locatie-tonen>
+                </div>
 
-            <mat-tab *ngIf="zaak.gerelateerdeZaken.length > 0">
+                <zac-locatie-tonen
+                  [currentLocation]="zaak.zaakgeometrie"
+                ></zac-locatie-tonen>
+              </div>
+            </mat-tab>
+
+            <mat-tab *ngIf="zaak.gerelateerdeZaken?.length">
               <ng-template mat-tab-label>
                 <mat-icon>account_tree</mat-icon>
                 {{ "gerelateerdeZaken" | translate }}</ng-template
               >
-              <div id="gerelateerdeZaken_tab" class="table-wrapper">
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="zaak.gerelateerdeZaken">
                   <ng-container
                     *ngFor="let column of gerelateerdeZaakColumns"
@@ -363,7 +414,7 @@
                       {{ row[column] | empty | datum }}
                     </td>
                   </ng-container>
-                  <ng-container matColumnDef="url" stickyEnd>
+                  <ng-container matColumnDef="actions" stickyEnd>
                     <th mat-header-cell *matHeaderCellDef></th>
                     <td mat-cell *matCellDef="let row">
                       <a
@@ -391,13 +442,13 @@
                   </ng-container>
                   <tr
                     mat-header-row
-                    *matHeaderRowDef="gerelateerdeZaakColumns.concat(['url'])"
+                    *matHeaderRowDef="gerelateerdeZaakColumnsWithAction"
                   ></tr>
                   <tr
                     mat-row
                     *matRowDef="
                       let row;
-                      columns: gerelateerdeZaakColumns.concat(['url'])
+                      columns: gerelateerdeZaakColumnsWithAction
                     "
                   ></tr>
                 </table>
@@ -409,7 +460,7 @@
                 <mat-icon>history</mat-icon>
                 {{ "historie" | translate }}
               </ng-template>
-              <div id="historie_tab" class="table-wrapper historie-table">
+              <div class="table-wrapper">
                 <table
                   mat-table
                   matSort
@@ -523,12 +574,13 @@
               </div>
             </mat-tab>
 
-            <mat-tab *ngIf="betrokkenen.data.length > 0">
+            <mat-tab *ngIf="showBetrokkeneKoppelingen()">
               <ng-template mat-tab-label>
                 <mat-icon>groups</mat-icon>
                 {{ "betrokkenen" | translate }}
               </ng-template>
-              <div id="betrokkenen_tab" class="table-wrapper betrokkenen-table">
+
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="betrokkenen" matSort>
                   <ng-container matColumnDef="roltype">
                     <th mat-header-cell *matHeaderCellDef>
@@ -546,24 +598,44 @@
                       {{ "identificatie" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let betrokkene">
-                      {{ betrokkene.identificatie }}
+                      <span *ngIf="betrokkene.identificatie">
+                        {{ betrokkene.identificatie }}
+                      </span>
+                      <span
+                        *ngIf="betrokkene.identificatie && betrokkene.kvkNummer"
+                        >/</span
+                      >
+                      <span *ngIf="betrokkene.kvkNummer"
+                        >{{ betrokkene.kvkNummer }}&nbsp;</span
+                      >
+                      <span
+                        *ngIf="
+                          betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                          betrokkene.identificatieType === 'VN' &&
+                          !betrokkene.kvkNummer
+                        "
+                        >/ {{ "msg.error.kvk.unknown" | translate }}&nbsp;</span
+                      >
                       <span
                         *ngIf="betrokkene.type === 'NATUURLIJK_PERSOON'"
-                        [matTooltip]="
-                          'betrokkenetype.NATUURLIJK_PERSOON' | translate
-                        "
+                        [matTooltip]="'identificatieType.BSN' | translate"
                         >(P)</span
                       >
                       <span
-                        *ngIf="betrokkene.type === 'NIET_NATUURLIJK_PERSOON'"
-                        [matTooltip]="
-                          'betrokkenetype.NIET_NATUURLIJK_PERSOON' | translate
+                        *ngIf="
+                          betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                          betrokkene.identificatieType === 'RSIN'
                         "
+                        [matTooltip]="'identificatieType.RSIN' | translate"
                         >(R)</span
                       >
                       <span
-                        *ngIf="betrokkene.type === 'VESTIGING'"
-                        [matTooltip]="'betrokkenetype.VESTIGING' | translate"
+                        *ngIf="
+                          (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                            betrokkene.identificatieType === 'VN') ||
+                          betrokkene.type === 'VESTIGING'
+                        "
+                        [matTooltip]="'identificatieType.VN' | translate"
                         >(V)</span
                       >
                     </td>
@@ -574,15 +646,21 @@
                     </th>
                     <td mat-cell *matCellDef="let betrokkene">
                       <button
-                        mat-icon-button
                         *ngIf="!betrokkene.gegevens"
+                        mat-icon-button
+                        [disabled]="
+                          (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
+                            betrokkene.identificatieType === 'VN' &&
+                            !betrokkene.kvkNummer) ||
+                          !betrokkene.doesExistInKvK
+                        "
                         (click)="betrokkeneGegevensOphalen(betrokkene)"
                       >
                         <mat-icon>more_horiz</mat-icon>
                       </button>
                       <button
-                        mat-icon-button
                         *ngIf="betrokkene.gegevens === 'LOADING'"
+                        mat-icon-button
                       >
                         <mat-icon>hourglass_empty</mat-icon>
                       </button>
@@ -609,37 +687,7 @@
                   <ng-container matColumnDef="actions" stickyEnd>
                     <th mat-header-cell *matHeaderCellDef></th>
                     <td mat-cell *matCellDef="let betrokkene">
-                      <a
-                        *ngIf="betrokkene.type === 'NATUURLIJK_PERSOON'"
-                        mat-icon-button
-                        [routerLink]="['/persoon', betrokkene.identificatie]"
-                        (click)="$event.stopPropagation()"
-                        [id]="
-                          'persoonBekijken_' +
-                          betrokkene.identificatie +
-                          '_button'
-                        "
-                        title="{{ 'actie.persoon.bekijken' | translate }}"
-                      >
-                        <mat-icon>visibility</mat-icon>
-                      </a>
-                      <a
-                        *ngIf="
-                          betrokkene.type === 'NIET_NATUURLIJK_PERSOON' ||
-                          betrokkene.type === 'VESTIGING'
-                        "
-                        mat-icon-button
-                        [routerLink]="['/bedrijf', betrokkene.identificatie]"
-                        (click)="$event.stopPropagation()"
-                        [id]="
-                          'bedrijfBekijken_' +
-                          betrokkene.identificatie +
-                          '_button'
-                        "
-                        title="{{ 'actie.bedrijf.bekijken' | translate }}"
-                      >
-                        <mat-icon>visibility</mat-icon>
-                      </a>
+                      <betrokkene-link [betrokkene]="betrokkene" />
                       <button
                         *ngIf="zaak.rechten.verwijderenBetrokkene"
                         mat-icon-button
@@ -667,7 +715,7 @@
                 <mat-icon>gps_fixed</mat-icon>
                 {{ "bagObjecten" | translate }}
               </ng-template>
-              <div id="bagobjecten_tab" class="table-wrapper bagobjecten-table">
+              <div class="table-wrapper">
                 <table mat-table [dataSource]="bagObjectenDataSource" matSort>
                   <ng-container matColumnDef="identificatie">
                     <th mat-header-cell *matHeaderCellDef>
@@ -744,25 +792,22 @@
           </mat-tab-group>
         </mat-card-content>
       </mat-card>
-
-      <div class="w50 flex-1 flex-col">
+      <div class="w50 flex-1 flex-col gap-12">
         <zac-besluit-view
-          class="besluiten"
-          *ngIf="zaak.besluiten"
-          [besluiten]="zaak.besluiten"
+          *ngIf="zaak.besluiten?.length"
+          [besluiten]="zaak.besluiten ?? []"
           [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
           (doIntrekking)="doIntrekking($event)"
         ></zac-besluit-view>
 
-        <mat-card class="taken-card">
+        <mat-card class="flex-grow-1">
           <mat-card-header>
             <mat-card-title>{{ "taken" | translate }}</mat-card-title>
             <mat-slide-toggle
               [formControl]="toonAfgerondeTaken"
               color="primary"
-              id="takenAfgerondeToon_toggle"
               (change)="filterTakenOpStatus()"
               >{{ "toonAfgerondeTaken" | translate }}</mat-slide-toggle
             >
@@ -832,7 +877,18 @@
                     {{ "fataledatum" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let taak">
-                    {{ taak.data.fataledatum | datum | empty }}
+                    <div class="flex-row items-center gap-5">
+                      {{ taak.data.fataledatum | datum | empty }}
+                      <mat-icon
+                        *ngIf="
+                          taak.data.status !== 'AFGEROND' &&
+                          isAfterDate(taak.data.fataledatum)
+                        "
+                        [title]="'msg.datum.overschreden' | translate"
+                        class="error list-icon"
+                        >warning</mat-icon
+                      >
+                    </div>
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="groep">
@@ -851,7 +907,7 @@
                     {{ taak.data.behandelaar | empty: "naam" }}
                   </td>
                 </ng-container>
-                <ng-container matColumnDef="id" stickyEnd id="taakButtons">
+                <ng-container matColumnDef="id" stickyEnd>
                   <th mat-header-cell *matHeaderCellDef></th>
                   <td mat-cell *matCellDef="let row">
                     <div class="flex-row">
@@ -886,21 +942,21 @@
                     >
                       <div class="flex-row flex-wrap gap-10">
                         <zac-static-text
-                          [label]="'uitkomst' | translate"
+                          label="uitkomst"
                           [value]="
                             row.data.taakinformatie?.uitkomst | translate
                           "
-                        ></zac-static-text>
+                        />
                         <zac-static-text
-                          [label]="'bijlage' | translate"
+                          label="bijlage"
                           *ngIf="row.data.taakinformatie?.bijlagen"
                           [value]="row.data.taakinformatie?.bijlagen"
-                        ></zac-static-text>
+                        />
                         <zac-static-text
-                          [label]="'opmerking' | translate"
+                          label="opmerking"
                           *ngIf="row.data.taakinformatie?.opmerking"
                           [value]="row.data.taakinformatie?.opmerking"
-                        ></zac-static-text>
+                        />
                       </div>
                     </div>
                   </td>
@@ -934,14 +990,18 @@
           </mat-card-content>
         </mat-card>
       </div>
+      <zac-zaak-documenten
+        #zaakDocumentenComponent
+        class="w100"
+        [zaak]="zaak"
+        (documentMoveToCase)="documentMoveToCase($event)"
+      ></zac-zaak-documenten>
     </div>
-    <zac-zaak-documenten
-      #zaakDocumentenComponent
-      class="w100"
-      [zaak]="zaak"
-      (documentMoveToCase)="documentMoveToCase($event)"
-    ></zac-zaak-documenten>
-
-    <zac-notities [uuid]="zaak.uuid" [type]="notitieType"></zac-notities>
   </mat-drawer-content>
 </mat-drawer-container>
+
+<zac-notities
+  *ngIf="notitieRechten?.lezen || notitieRechten?.wijzigen"
+  [zaakUuid]="zaak.uuid"
+  [notitieRechten]="notitieRechten"
+></zac-notities>

@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
 
 @Component({
@@ -15,17 +14,20 @@ import { NotitieService } from "./notities.service";
   styleUrls: ["./notities.component.less"],
 })
 export class NotitiesComponent implements OnInit {
-  @Input() uuid: string;
-  @Input() type: string;
+  @Input({ required: true }) zaakUuid!: string;
+  @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
-  @ViewChild("notitieTekst") notitieTekst;
+  @ViewChild("notitieTekst") notitieTekst!: {
+    nativeElement: HTMLTextAreaElement;
+  };
+  @ViewChild("scrollTarget") scrollTarget!: ElementRef;
 
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
-  aantalNotities = 0;
-  laatNotitiesSchermZien = true;
-  geselecteerdeNotitieId: number;
-  notities: Notitie[] = [];
+  notities: GeneratedType<"RestNote">[] = [];
+  showNotes = false;
+
+  geselecteerdeNotitieId: number | null = null;
   maxLengteTextArea = 1000;
 
   constructor(
@@ -41,7 +43,7 @@ export class NotitiesComponent implements OnInit {
   }
 
   toggleNotitieContainer() {
-    this.laatNotitiesSchermZien = !this.laatNotitiesSchermZien;
+    this.showNotes = !this.showNotes;
   }
 
   pasNotitieAan(id: number) {
@@ -49,45 +51,56 @@ export class NotitiesComponent implements OnInit {
   }
 
   haalNotitiesOp() {
-    this.notitieService
-      .listNotities(this.type, this.uuid)
-      .subscribe((notities) => {
-        this.notities = notities;
-        this.notities
-          .sort((a, b) =>
-            a.tijdstipLaatsteWijziging.localeCompare(
-              b.tijdstipLaatsteWijziging,
-            ),
-          )
-          .reverse();
-        this.aantalNotities = this.notities.length;
+    this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
+      this.notities = notities;
+      this.notities.sort((a, b) => {
+        if (!a.tijdstipLaatsteWijziging) return -1;
+        if (!b.tijdstipLaatsteWijziging) return 1;
+
+        return b.tijdstipLaatsteWijziging.localeCompare(
+          a.tijdstipLaatsteWijziging,
+        );
       });
+    });
   }
 
   maakNotitieAan(tekst: string) {
-    if (tekst.length <= this.maxLengteTextArea) {
-      const notitie: Notitie = new Notitie();
-      notitie.zaakUUID = this.uuid;
-      notitie.tekst = tekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
+    if (!this.ingelogdeMedewerker?.id) return;
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
 
-      this.notitieService.createNotitie(notitie).subscribe((notitie) => {
+    this.notitieService
+      .createNotitie({
+        zaakUUID: this.zaakUuid,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
         this.notitieTekst.nativeElement.value = "";
-        this.aantalNotities = this.notities.length;
+        this.scrollTarget.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       });
-    }
   }
 
-  updateNotitie(notitie: Notitie, notitieTekst: string) {
-    if (notitieTekst.length <= this.maxLengteTextArea) {
-      notitie.tekst = notitieTekst;
-      notitie.gebruikersnaamMedewerker = this.ingelogdeMedewerker.id;
-      this.notitieService.updateNotitie(notitie).subscribe((updatedNotitie) => {
+  updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
+    if (!this.ingelogdeMedewerker?.id) return;
+
+    if (tekst.length === 0) return;
+    if (tekst.length > this.maxLengteTextArea) return;
+
+    this.notitieService
+      .updateNotitie({
+        ...notitie,
+        tekst,
+        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+      })
+      .subscribe((updatedNotitie) => {
         Object.assign(notitie, updatedNotitie);
         this.geselecteerdeNotitieId = null;
       });
-    }
   }
 
   annuleerUpdateNotitie() {
@@ -101,7 +114,6 @@ export class NotitiesComponent implements OnInit {
         this.notities.findIndex((n) => n.id === id),
         1,
       );
-      this.aantalNotities = this.notities.length;
     });
   }
 }

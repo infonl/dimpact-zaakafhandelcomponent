@@ -6,56 +6,50 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
-import { Geometry } from "../../zaken/model/geometry";
-import { Adres } from "../model/adres";
-import { BAGObject } from "../model/bagobject";
-import { BAGObjecttype } from "../model/bagobjecttype";
-import { Nummeraanduiding } from "../model/nummeraanduiding";
-import { OpenbareRuimte } from "../model/openbare-ruimte";
-import { Pand } from "../model/pand";
-import { Woonplaats } from "../model/woonplaats";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
 })
 export class BAGViewComponent implements OnInit {
-  bagObject: BAGObject;
-  adres: Adres;
-  openbareRuimte: OpenbareRuimte;
-  woonplaats: Woonplaats;
-  pand: Pand;
-  nummeraanduiding: Nummeraanduiding;
-  geometrie: Geometry;
+  protected bagIdentificatie!: string;
+  protected adres?: GeneratedType<"RESTBAGAdres">;
+  protected openbareRuimte?: GeneratedType<"RESTOpenbareRuimte">;
+  protected woonplaats?: GeneratedType<"RESTWoonplaats">;
+  protected pand?: GeneratedType<"RESTPand">;
+  protected nummeraanduiding?: GeneratedType<"RESTNummeraanduiding">;
+  protected geometrie?: GeneratedType<"RestGeometry">;
 
   constructor(
-    private utilService: UtilService,
-    private _route: ActivatedRoute,
+    private readonly utilService: UtilService,
+    private readonly activatedRoute: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.utilService.setTitle("bagobjectgegevens");
-    this._route.data.subscribe((data) => {
-      this.bagObject = data.bagObject;
-      switch (this.bagObject.bagObjectType) {
-        case BAGObjecttype.ADRES:
-          this.adres = this.bagObject as Adres;
+    this.activatedRoute.data.subscribe((data) => {
+      const bagObject: GeneratedType<"RESTBAGObject"> = data.bagObject;
+      this.bagIdentificatie = bagObject.identificatie!;
+      switch (bagObject.bagObjectType) {
+        case "ADRES":
+          this.adres = bagObject;
           this.geometrie = this.adres.geometry;
           break;
-        case BAGObjecttype.ADRESSEERBAAR_OBJECT:
+        case "ADRESSEERBAAR_OBJECT":
           break; // (Nog) geen zelfstandige entiteit
-        case BAGObjecttype.WOONPLAATS:
-          this.woonplaats = this.bagObject as Woonplaats;
+        case "WOONPLAATS":
+          this.woonplaats = bagObject;
           break;
-        case BAGObjecttype.PAND:
-          this.pand = this.bagObject as Pand;
+        case "PAND":
+          this.pand = bagObject;
           this.geometrie = this.pand.geometry;
           break;
-        case BAGObjecttype.OPENBARE_RUIMTE:
-          this.openbareRuimte = this.bagObject as OpenbareRuimte;
+        case "OPENBARE_RUIMTE":
+          this.openbareRuimte = bagObject;
           break;
-        case BAGObjecttype.NUMMERAANDUIDING:
-          this.nummeraanduiding = this.bagObject as Nummeraanduiding;
+        case "NUMMERAANDUIDING":
+          this.nummeraanduiding = bagObject;
           break;
       }
     });

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 import { Given, Then, When } from "@cucumber/cucumber";
@@ -8,6 +8,7 @@ import { worldPossibleZacUrls } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const ONE_SECOND_IN_MS = 1_000;
+const TEN_SECONDS_IN_MS = ONE_SECOND_IN_MS * 10;
 const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
 
 When(
@@ -15,7 +16,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const expectedUrl =
-      this.worldParameters.urls[worldPossibleZacUrls.Values.zac];
+      this.worldParameters.urls[worldPossibleZacUrls.enum.zac];
     await this.openUrl(expectedUrl);
   },
 );
@@ -25,7 +26,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user, path) {
     const expectedUrl =
-      this.worldParameters.urls[worldPossibleZacUrls.Values.zac] + path;
+      this.worldParameters.urls[worldPossibleZacUrls.enum.zac] + path;
 
     await this.openUrl(expectedUrl);
   },
@@ -48,6 +49,18 @@ Given(
   async function (this: CustomWorld) {
     await this.page.waitForResponse(/zoeken\/list/);
     await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+  },
+);
+
+Given(
+  "the page is done searching and reloaded",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld) {
+    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
+    await this.page.reload();
+    await this.page.waitForLoadState("networkidle", {
+      timeout: TEN_SECONDS_IN_MS,
+    });
   },
 );
 

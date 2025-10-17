@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.configuratie
@@ -58,4 +58,8 @@ class ConfiguratieRestService @Inject constructor(
     @GET
     @Path("gemeente")
     fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configuratieService.readGemeenteNaam())
+
+    @GET
+    @Path("brp/protocollering-provider")
+    fun readBrpProtocolleringProvider(): String = configuratieService.readBrpConfiguration().readBrpProtocolleringProvider()
 }

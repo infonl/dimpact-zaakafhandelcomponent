@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -26,26 +26,26 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.mailtemplates.model.MailGegevens
-import net.atos.zac.mailtemplates.model.createMailTemplate
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaak
-import nl.info.zac.app.shared.RestPageParameters
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
+import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
@@ -135,10 +135,10 @@ class SignaleringServiceTest : BehaviorSpec({
             ),
             zaak = null
         )
-        val gemeenteMailAdres = createMailAdres("dummy-gemeente@example.com")
+        val gemeenteMailAdres = createMailAdres("fake-gemeente@example.com")
         val signaleringMail = SignaleringTarget.Mail("testName", "test@example.com")
         val mailTemplate = createMailTemplate()
-        val mailBody = "dummyMailBody"
+        val mailBody = "fakeMailBody"
         val mailGegevensSlot = slot<MailGegevens>()
         every { signaleringenMailHelper.getTargetMail(signalering) } returns signaleringMail
         every { mailService.getGemeenteMailAdres() } returns gemeenteMailAdres
@@ -173,7 +173,7 @@ class SignaleringServiceTest : BehaviorSpec({
         val restZaakOverzicht = createRESTZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
-        val restPageParameters = RestPageParameters(pageNumber, pageSize)
+        val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
 
         every { loggedInUserInstance.get() } returns user
         every { user.id } returns id
@@ -218,8 +218,8 @@ class SignaleringServiceTest : BehaviorSpec({
             Then("paging is used to return the signalering") {
                 result.size shouldBe 1
                 verify(exactly = 1) {
-                    typedQuery.setFirstResult(pageNumber)
-                    typedQuery.setMaxResults(pageSize)
+                    typedQuery.firstResult = pageNumber
+                    typedQuery.maxResults = pageSize
                     typedQuery.resultList
                 }
             }
@@ -227,13 +227,13 @@ class SignaleringServiceTest : BehaviorSpec({
     }
     Given(
         """
-        Two zaak signaleringen and corresponding signalering zoek parameters with a subject type and subject
+        Two zaak signaleringen each with the same target and corresponding signalering zoek parameters with a subject type and subject
         """
     ) {
         val signaleringenZoekParameters = createSignaleringZoekParameters()
         val signaleringen = listOf(
-            createSignalering(),
-            createSignalering()
+            createSignalering(targetUser = createUser(id = "fakeId1")),
+            createSignalering(targetUser = createUser(id = "fakeId1"))
         )
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
@@ -256,10 +256,12 @@ class SignaleringServiceTest : BehaviorSpec({
         When("signaleringen are requested to be deleted") {
             signaleringService.deleteSignaleringen(signaleringenZoekParameters)
 
-            Then("the two signaleringen are deleted and one screen event is sent") {
+            Then("the two signaleringen are deleted") {
                 verify(exactly = 2) {
                     entityManager.remove(any<Signalering>())
                 }
+            }
+            And("only one screen event is sent") {
                 verify(exactly = 1) {
                     // we expect only one screen event since it concerns to signaleringen
                     // with the same target and type

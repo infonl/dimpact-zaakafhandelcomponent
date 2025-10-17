@@ -1,38 +1,168 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-sidenav-container autosize>
-  <mat-sidenav
-    #actionsSideNav
-    mode="over"
-    position="end"
-    [ngSwitch]="activeSideAction"
-  >
+<mat-sidenav-container class="p-2">
+  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
     <zac-klant-koppel
-      *ngSwitchCase="'actie.initiator.toevoegen'"
-      (klantGegevens)="initiatorGeselecteerd($event.klant)"
+      *ngSwitchCase="'actie.initiator.koppelen'"
+      (klantGegevens)="initiatorSelected($event.klant)"
+      [context]="'ZAAK_AANMAKEN'"
       [sideNav]="actionsSidenav"
       [initiator]="true"
-      [allowBedrijf]="true"
-      [allowPersoon]="true"
+      [allowBedrijf]="
+        form.controls.zaaktype.value?.zaakafhandelparameters
+          ?.betrokkeneKoppelingen?.kvkKoppelen ?? false
+      "
+      [allowPersoon]="
+        form.controls.zaaktype.value?.zaakafhandelparameters
+          ?.betrokkeneKoppelingen?.brpKoppelen ?? false
+      "
+      class="side-nav-container"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="'actie.bagObject.toevoegen'"
-      [gekoppeldeBagObjecten]="bagObjecten"
+      *ngSwitchCase="'actie.bagObject.koppelen'"
+      [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+      (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
-      (bagObject)="bagGeselecteerd($event)"
     ></zac-bag-zoek>
   </mat-sidenav>
-  <div class="content" class="zaak-create-form">
-    <div class="form">
-      <mfb-form
-        #mfbForm
-        *ngIf="createZaakFields"
-        (formSubmit)="onFormSubmit($event)"
-        [formFields]="createZaakFields"
-        [config]="formConfig"
-      ></mfb-form>
-    </div>
-  </div>
+  <form [formGroup]="form" (ngSubmit)="formSubmit()">
+    <fieldset>
+      <legend>
+        <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
+      </legend>
+      <section class="row">
+        <zac-auto-complete
+          key="zaaktype"
+          class="col-12 col-md-6"
+          [form]="form"
+          [options]="caseTypes"
+          [optionDisplayValue]="'omschrijving'"
+        >
+          <mat-hint>{{
+            "zaps.step.algemeen.zaaktype.hint" | translate
+          }}</mat-hint>
+        </zac-auto-complete>
+        <zac-input
+          key="initiatorIdentificatie"
+          label="initiator"
+          [form]="form"
+          readonly
+          class="col-12 col-md-6"
+          [displayValue]="'naam'"
+          (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
+        >
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="!canAddInitiator()"
+            (click)="
+              canAddInitiator() &&
+                (hasInitiator()
+                  ? clearInitiator()
+                  : openSideNav('actie.initiator.koppelen'));
+              $event.stopPropagation()
+            "
+          >
+            <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
+          </button>
+        </zac-input>
+      </section>
+      <section class="row">
+        <zac-date class="col-12 col-md-6" key="startdatum" [form]="form">
+        </zac-date>
+        <zac-input
+          key="bagObjecten"
+          [form]="form"
+          readonly
+          class="col-12 col-md-6"
+          [displayValue]="bagDisplayValue"
+          (click)="openSideNav('actie.bagObject.koppelen')"
+        >
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="
+              hasBagObject()
+                ? clearBagObjecten()
+                : openSideNav('actie.bagObject.koppelen');
+              $event.stopPropagation()
+            "
+          >
+            <mat-icon>{{ hasBagObject() ? "close" : "gps_fixed" }}</mat-icon>
+          </button>
+        </zac-input>
+      </section>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h2>{{ "gegevens.toekennen" | translate }}</h2>
+      </legend>
+      <section class="row">
+        <zac-auto-complete
+          key="groep"
+          class="col-12 col-md-6"
+          [form]="form"
+          [options]="groups"
+          [optionDisplayValue]="'naam'"
+        >
+          <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
+        </zac-auto-complete>
+        <zac-auto-complete
+          class="col-12 col-md-6"
+          key="behandelaar"
+          optionDisplayValue="naam"
+          [form]="form"
+          [options]="users"
+        >
+          <mat-label>{{
+            "actie.zaak.toekennen.medewerker" | translate
+          }}</mat-label>
+        </zac-auto-complete>
+      </section>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h2>{{ "gegevens.overig" | translate }}</h2>
+      </legend>
+      <section class="row">
+        <zac-select
+          class="col-12 col-md-6"
+          label="communicatiekanaal"
+          key="communicatiekanaal"
+          [form]="form"
+          [options]="communicationChannels"
+        >
+        </zac-select>
+        <zac-select
+          class="col-12 col-md-6"
+          key="vertrouwelijkheidaanduiding"
+          optionDisplayValue="label"
+          [form]="form"
+          [options]="confidentialityNotices"
+        >
+        </zac-select>
+      </section>
+      <zac-input key="omschrijving" [form]="form"> </zac-input>
+      <zac-textarea key="toelichting" [form]="form"></zac-textarea>
+    </fieldset>
+    <fieldset>
+      <mat-action-row>
+        <button
+          mat-raised-button
+          type="submit"
+          color="primary"
+          [disabled]="!form.valid || createZaakMutation.isPending()"
+        >
+          {{ "actie.aanmaken" | translate }}
+        </button>
+        <button type="button" mat-raised-button (click)="back()">
+          {{ "actie.annuleren" | translate }}
+        </button>
+      </mat-action-row>
+    </fieldset>
+  </form>
 </mat-sidenav-container>

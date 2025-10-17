@@ -1,173 +1,155 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnDestroy } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { Component, Inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import moment from "moment";
-import { Subject, takeUntil } from "rxjs";
-import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
-import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
-import { HiddenFormField } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field";
-import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import moment, { Moment } from "moment";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-opschorten-dialog.component.html",
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
 })
-export class ZaakOpschortenDialogComponent implements OnDestroy {
-  formFields: AbstractFormField[][] = [];
+export class ZaakOpschortenDialogComponent {
   loading = true;
 
-  duurDagenField: InputFormField;
-  einddatumGeplandField: DateFormField | HiddenFormField;
-  uiterlijkeEinddatumAfdoeningField: DateFormField;
-  redenOpschortingField: InputFormField;
-
-  private ngDestroy = new Subject<void>();
+  protected readonly form = this.formBuilder.group({
+    duurDagen: this.formBuilder.control<number | null>(null, [
+      Validators.required,
+      Validators.min(1),
+    ]),
+    einddatumGepland: this.formBuilder.control<Moment | null>(null, []),
+    uiterlijkeEinddatumAfdoening: this.formBuilder.control<Moment | null>(
+      null,
+      [Validators.required],
+    ),
+    redenOpschorting: this.formBuilder.control<string | null>(null, [
+      Validators.required,
+      Validators.maxLength(200),
+    ]),
+  });
 
   constructor(
-    public dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
-    private zakenService: ZakenService,
+    public readonly dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public readonly data: { zaak: GeneratedType<"RestZaak"> },
+    private readonly zakenService: ZakenService,
+    private readonly formBuilder: FormBuilder,
   ) {
-    this.duurDagenField = new InputFormFieldBuilder()
-      .id("opschortduur")
-      .label("opschortduur")
-      .validators(Validators.required, Validators.min(1))
-      .build();
-
-    this.einddatumGeplandField = data.zaak.einddatumGepland
-      ? new DateFormFieldBuilder(data.zaak.einddatumGepland)
-          .id("einddatumGepland")
-          .label("einddatumGepland")
-          .readonly(!data.zaak.einddatumGepland)
-          .validators(
-            data.zaak.einddatumGepland
-              ? Validators.required
-              : Validators.nullValidator,
-          )
-          .build()
-      : new HiddenFormFieldBuilder().id("einddatumGepland").build();
-
-    this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
-      data.zaak.uiterlijkeEinddatumAfdoening,
-    )
-      .id("uiterlijkeEinddatumAfdoening")
-      .label("uiterlijkeEinddatumAfdoening")
-      .validators(Validators.required)
-      .build();
-
-    this.redenOpschortingField = new InputFormFieldBuilder()
-      .id("reden")
-      .label("reden")
-      .validators(Validators.required)
-      .maxlength(200)
-      .build();
-
-    this.formFields = [
-      [this.duurDagenField],
-      [this.einddatumGeplandField],
-      [this.uiterlijkeEinddatumAfdoeningField],
-      [this.redenOpschortingField],
-    ];
-
-    this.duurDagenField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        let duur = Number(value);
-        if (value == null || isNaN(duur)) {
-          duur = 0;
-        }
-        this.updateDateFields(duur);
-      });
-
-    this.einddatumGeplandField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        if (value == null) {
-          this.resetFields();
-        }
-        this.updateDateFields(
-          moment(value).diff(data.zaak.einddatumGepland, "days"),
-        );
-      });
-
-    this.uiterlijkeEinddatumAfdoeningField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        if (value == null) {
-          this.resetFields();
-        }
-        this.updateDateFields(
-          moment(value).diff(data.zaak.uiterlijkeEinddatumAfdoening, "days"),
-        );
-      });
-
-    this.dialogRef.afterOpened().subscribe(() => {
-      this.loading = false;
-    });
-  }
-
-  private updateDateFields(duur: number): void {
-    if (duur <= 0) {
-      this.resetFields();
-      return;
+    if (this.data.zaak.einddatumGepland) {
+      this.form.controls.einddatumGepland.setValidators([
+        Validators.required,
+        Validators.min(
+          moment(this.data.zaak.einddatumGepland)
+            .add(1, "day")
+            .startOf("day")
+            .valueOf(),
+        ),
+      ]);
+      this.form.controls.einddatumGepland.valueChanges
+        .pipe(takeUntilDestroyed())
+        .subscribe((value) => {
+          if (!value) return this.resetFields();
+          this.updateDateFields(
+            moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+          );
+        });
     }
 
-    this.duurDagenField.formControl.setValue(duur, { emitEvent: false });
-    this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
-      moment(this.data.zaak.uiterlijkeEinddatumAfdoening).add(duur, "days"),
-      { emitEvent: false },
-    );
-
-    if (this.einddatumGeplandField.formControl.value === null) {
-      return;
+    if (this.data.zaak.uiterlijkeEinddatumAfdoening) {
+      this.form.controls.uiterlijkeEinddatumAfdoening.setValidators([
+        Validators.required,
+        Validators.min(
+          moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
+            .add(1, "day")
+            .startOf("day")
+            .valueOf(),
+        ),
+      ]);
+      this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
+        .pipe(takeUntilDestroyed())
+        .subscribe((value) => {
+          if (!value) return this.resetFields();
+          this.updateDateFields(
+            moment(value).diff(
+              this.data.zaak.uiterlijkeEinddatumAfdoening,
+              "days",
+            ),
+          );
+        });
     }
 
-    this.einddatumGeplandField.formControl.setValue(
-      moment(this.data.zaak.einddatumGepland).add(duur, "days"),
+    this.resetFields();
+
+    this.form.controls.duurDagen.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        this.updateDateFields(value ?? 0);
+      });
+
+    this.dialogRef
+      .afterOpened()
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.loading = false;
+      });
+  }
+
+  private updateDateFields(duur: number) {
+    if (duur <= 0) return this.resetFields();
+
+    this.form.patchValue(
+      {
+        duurDagen: duur,
+        einddatumGepland: this.data.zaak.einddatumGepland
+          ? moment(this.data.zaak.einddatumGepland).add(duur, "days")
+          : null,
+        uiterlijkeEinddatumAfdoening: moment(
+          this.data.zaak.uiterlijkeEinddatumAfdoening,
+        ).add(duur, "days"),
+      },
       { emitEvent: false },
     );
   }
 
-  private resetFields(): void {
-    this.duurDagenField.formControl.setValue(null, { emitEvent: false });
-    this.einddatumGeplandField.formControl.setValue(
-      moment(this.data.zaak.einddatumGepland),
+  private resetFields() {
+    this.form.setValue(
+      {
+        duurDagen: null,
+        einddatumGepland: this.data.zaak.einddatumGepland
+          ? moment(this.data.zaak.einddatumGepland)
+          : null,
+        uiterlijkeEinddatumAfdoening: this.data.zaak
+          .uiterlijkeEinddatumAfdoening
+          ? moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
+          : null,
+        redenOpschorting: null,
+      },
       { emitEvent: false },
     );
 
-    this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
-      moment(this.data.zaak.uiterlijkeEinddatumAfdoening),
-      { emitEvent: false },
-    );
+    this.form.updateValueAndValidity({ emitEvent: false });
   }
 
-  opschorten(): void {
+  opschorten() {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
-    const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> = {};
-    zaakOpschortGegevens.indicatieOpschorting = true;
-    zaakOpschortGegevens.duurDagen = this.duurDagenField.formControl.value;
-    zaakOpschortGegevens.einddatumGepland =
-      this.einddatumGeplandField.formControl.value;
-    zaakOpschortGegevens.uiterlijkeEinddatumAfdoening =
-      this.uiterlijkeEinddatumAfdoeningField.formControl.value;
-    zaakOpschortGegevens.redenOpschorting =
-      this.redenOpschortingField.formControl.value;
+    const value = this.form.getRawValue();
 
     this.zakenService
-      .opschortenZaak(this.data.zaak.uuid, zaakOpschortGegevens)
+      .opschortenZaak(this.data.zaak.uuid, {
+        ...value,
+        indicatieOpschorting: true,
+        einddatumGepland: value.einddatumGepland?.toISOString(),
+        uiterlijkeEinddatumAfdoening:
+          value.uiterlijkeEinddatumAfdoening?.toISOString(),
+      })
       .subscribe({
         next: (result) => {
           this.loading = false;
@@ -180,20 +162,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
       });
   }
 
-  close(): void {
+  close() {
     this.dialogRef.close();
-  }
-
-  disabled() {
-    return (
-      this.loading ||
-      (this.data.zaak &&
-        this.formFields.flat().some((field) => field.formControl.invalid))
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
   }
 }

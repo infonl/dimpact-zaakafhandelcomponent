@@ -8,9 +8,7 @@
   "openbareRuimteIdentificatie": "0363300000003186",
   "woonplaatsIdentificatie": "3594",
   "adresseerbaarObjectIdentificatie": "0363010003761571",
-  "pandIdentificaties": [
-    "0363100012168052"
-  ],
+  "pandIdentificaties": ["0363100012168052"],
   "adresregel5": "Dam 1",
   "adresregel6": "1012 JS  AMSTERDAM",
   "_links": {

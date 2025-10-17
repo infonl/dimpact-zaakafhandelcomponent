@@ -1,36 +1,58 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2024 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div mat-dialog-title>
-  <h3>
-    <mat-icon>update</mat-icon>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>update</mat-icon>
+  <span class="flex-grow-1">
     {{ "actie.zaak.verlengen" | translate }}
-  </h3>
+  </span>
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
-  <mfb-form [formFields]="formFields"></mfb-form>
-</div>
-
-<div mat-dialog-actions>
-  <button
-    mat-raised-button
-    color="primary"
-    id="zaakVerlengen_button"
-    [disabled]="disabled()"
-    (click)="verlengen()"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.zaak.verlengen" | translate }}
-  </button>
-  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
-    {{ "actie.annuleren" | translate }}
-  </button>
-</div>
+<mat-dialog-content>
+  <form [formGroup]="form" (submit)="verlengen()">
+    <fieldset class="flex-col">
+      <zac-input [form]="form" key="duurDagen" label="verlengduur">
+        <mat-hint>
+          {{ verlengduurHint }}
+        </mat-hint>
+      </zac-input>
+      <zac-date
+        *ngIf="data.zaak.einddatumGepland"
+        [form]="form"
+        key="einddatumGepland"
+      >
+      </zac-date>
+      <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
+      <zac-checkbox [form]="form" key="takenVerlengen" label="taken.verlengen">
+      </zac-checkbox>
+      <zac-input [form]="form" key="redenVerlenging" label="reden"> </zac-input>
+    </fieldset>
+    <fieldset class="mt-4 flex-row">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="loading || !form.valid"
+      >
+        <mat-icon *ngIf="loading">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        {{ "actie.zaak.verlengen" | translate }}
+      </button>
+      <button
+        autofocus
+        mat-raised-button
+        [disabled]="loading"
+        (click)="close()"
+      >
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </fieldset>
+  </form>
+</mat-dialog-content>

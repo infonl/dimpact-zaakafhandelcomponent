@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,7 +8,7 @@ package nl.info.zac.app.signalering.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.zac.flowable.createTestTask
+import nl.info.test.org.flowable.task.api.createTestTask
 import org.flowable.common.engine.api.scope.ScopeTypes.CMMN
 import java.time.Month
 import java.util.Calendar
@@ -19,7 +19,7 @@ class RESTSignaleringTaakConverterTest : BehaviorSpec({
     }
 
     Given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {
-        val zaakIdentificatie = "dummyZzaakIdentificatie"
+        val zaakIdentificatie = "fakeZzaakIdentificatie"
         val zaaktypeOmschrijving = "my-zaaktype-omschrijving"
         val cal = Calendar.getInstance()
         cal[Calendar.YEAR] = 1988

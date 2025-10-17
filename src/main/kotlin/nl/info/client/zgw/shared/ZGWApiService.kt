@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.client.zgw.shared
@@ -8,14 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.Status
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -23,8 +19,13 @@ import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
@@ -38,7 +39,6 @@ import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Service class for ZGW API's.
@@ -202,6 +202,8 @@ class ZGWApiService @Inject constructor(
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
+        // Gebruiksrechten are required for every created zaak-informatieobject or else
+        // the zaak in question can no longer be aborted or closed (OpenZaak will return a 400 error on aborting or closing in that case).
         val gebruiksrechten = Gebruiksrechten().apply {
             informatieobject = newInformatieObjectData.url
             startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
@@ -246,55 +248,82 @@ class ZGWApiService @Inject constructor(
     }
 
     /**
-     * Find [RolOrganisatorischeEenheid] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
+     * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
-     * @param zaak [Zaak]
+     * @param zaak [Zaak].
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
     fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
             it as RolOrganisatorischeEenheid
         }
 
     /**
-     * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
+     * Find [RolMedewerker] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
     fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)?.let {
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER)?.let {
             it as RolMedewerker
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? =
-        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
-            // there should be only one initiator role type,
-            // but in case there are multiple, we take the first one
-            .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult().getOrNull()
+    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? {
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple initiator role types found for zaaktype: '${zaak.zaaktype}', using the first one."
+                )
             }
+        }
+        return roleTypes.firstOrNull()?.let { rolType ->
+            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results.also {
+                check(it.size <= 1) {
+                    "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                }
+            }
+            roles.firstOrNull()
+        }
+    }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
-        betrokkeneType: BetrokkeneType
-    ): Rol<*>? = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
-        // there should be one and only one 'behandelaar' role type
-        // but in case there are multiple, we take the first one
-        .firstOrNull()?.let {
-            zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).singleResult.getOrNull()
+        betrokkeneType: BetrokkeneTypeEnum
+    ): Rol<*>? {
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple behandelaar role types found for zaaktype: '${zaak.zaaktype}', using the first one."
+                )
+            }
         }
+        return roleTypes.firstOrNull()?.let { roleType ->
+            val roles = zrcClientService.listRollen(
+                RolListParameters(zaak.url, roleType.url, betrokkeneType)
+            ).results.also {
+                check(it.size <= 1) {
+                    "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                }
+            }
+            roles.firstOrNull()
+        }
+    }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
-        val status = Status(zaakURI, statustypeURI, ZonedDateTime.now())
+        val status = Status().apply {
+            zaak = zaakURI
+            statustype = statustypeURI
+            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+        }
         status.statustoelichting = toelichting
         return zrcClientService.createStatus(status)
     }
 
     private fun calculateDoorlooptijden(zaak: Zaak) {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        zaaktype.servicenorm?.let {
-            zaak.einddatumGepland = zaak.startdatum.plus(Period.parse(it))
+        if (zaaktype.isServicenormAvailable()) {
+            zaak.einddatumGepland = zaak.startdatum.plus(Period.parse(zaaktype.servicenorm))
         }
         zaak.uiterlijkeEinddatumAfdoening = zaak.startdatum.plus(Period.parse(zaaktype.doorlooptijd))
     }
@@ -317,12 +346,12 @@ class ZGWApiService @Inject constructor(
         description: String,
         zaaktypeURI: URI
     ): ResultaatType = resultaattypes
-        .firstOrNull { StringUtils.equals(it.omschrijving, description) }
+        .firstOrNull { it.omschrijving == description }
         ?: throw ResultTypeNotFoundException(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
 
-    private fun berekenArchiveringsparameters(zaakUUID: UUID?) {
+    private fun berekenArchiveringsparameters(zaakUUID: UUID) {
         val zaak = zrcClientService.readZaak(zaakUUID)
         // refetch to get the einddatum (the archiefnominatie has also been set)
         val resultaattype = ztcClientService.readResultaattype(

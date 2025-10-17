@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,15 +18,12 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.DocumentRechten
-import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -39,6 +36,9 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.DocumentRechten
+import nl.info.zac.policy.output.createDocumentRechtenAllDeny
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
@@ -78,7 +78,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
         } returns providedInformatieObjectType
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert is invoked") {
@@ -88,7 +87,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             )
             Then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restTaakDocumentData.documentTitel
@@ -109,53 +107,15 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
-        val restFileUpload = createRESTFileUpload()
-        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
-        val providedInformatieObjectType = createInformatieObjectType()
-
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every {
-            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
-        } returns providedInformatieObjectType
-
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
-
-        When("convert taak object is invoked") {
-            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
-                restEnkelvoudigInformatieobject
-            )
-            Then("the provided data is converted correctly") {
-                with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
-                    bronorganisatie shouldBe "123443210"
-                    creatiedatum shouldHaveSameDayAs LocalDate.now()
-                    titel shouldBe restEnkelvoudigInformatieobject.titel
-                    auteur shouldBe loggedInUser.getFullName()
-                    // currently hardcoded
-                    taal shouldBe "dut"
-                    informatieobjecttype shouldBe providedInformatieObjectType.url
-                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                    formaat shouldBe restFileUpload.type
-                    bestandsnaam shouldBe restFileUpload.filename
-                    // status should always be DEFINITIEF
-                    status shouldBe StatusEnum.DEFINITIEF
-                    // vertrouwelijkheidaanduiding should always be OPENBAAR
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
-                }
-            }
-        }
-    }
-
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
             vertrouwelijkheidaanduiding = "vertrouwelijk",
             creatieDatum = LocalDate.now(),
-            auteur = "dummyAuteur",
-            taal = "dummyTaal",
-            bestandsNaam = "dummyBestandsNaam"
+            auteur = "fakeAuteur",
+            taal = "fakeTaal",
+            bestandsNaam = "fakeBestandsNaam"
         )
         val restFileUpload = createRESTFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
@@ -164,16 +124,14 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert zaak object is invoked") {
-            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
+            val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertEnkelvoudigInformatieObject(
                 restEnkelvoudigInformatieobject
             )
             Then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
-                    // currently hardcoded
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restEnkelvoudigInformatieobject.titel
@@ -221,11 +179,11 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             Then("the provided data is converted correctly") {
                 with(restEnkelvoudigInformatieObject) {
                     uuid shouldBe expectedUUID
-                    informatieobjectTypeOmschrijving shouldBe "dummyOmschrijving"
+                    informatieobjectTypeOmschrijving shouldBe "fakeOmschrijving"
                     informatieobjectTypeUUID shouldBe expectedUUID
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234
-                    bestandsomvang shouldBe 0
+                    bestandsomvang shouldBe 1234
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM.name
                 }
             }

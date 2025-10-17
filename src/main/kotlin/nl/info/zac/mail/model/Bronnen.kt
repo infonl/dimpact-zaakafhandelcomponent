@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.mail.model
 
-import net.atos.client.zgw.zrc.model.Zaak
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import org.flowable.task.api.TaskInfo
 
 class Bronnen private constructor(

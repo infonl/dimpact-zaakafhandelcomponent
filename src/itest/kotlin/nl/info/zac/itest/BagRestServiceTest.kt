@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,15 +14,15 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BAG_TEST_ADRES_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
-import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
@@ -37,14 +37,14 @@ class BagRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
-                        { "trefwoorden": "dummy search text"}
+                        { "trefwoorden": "fake search text"}
                 """.trimIndent()
             )
             Then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
             ) {
-                val responseBody = response.body!!.string()
-                response.code shouldBe HTTP_STATUS_OK
+                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
@@ -165,12 +165,12 @@ class BagRestServiceTest : BehaviorSpec({
     Given("An existing zaak") {
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body!!.string()
+            val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
@@ -196,13 +196,13 @@ class BagRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("it is successfully added to the zaak") {
-                response.code shouldBe HTTP_STATUS_NO_CONTENT
+                response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the BAG objects for the zaak
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/bag/zaak/$zaakUUID"
                 ).run {
-                    val responseBody = body!!.string()
+                    val responseBody = body.string()
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                         [
@@ -247,8 +247,8 @@ class BagRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION"
             )
             Then("the BAG object is successfully returned") {
-                val responseBody = response.body!!.string()
-                response.code shouldBe HTTP_STATUS_OK
+                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {

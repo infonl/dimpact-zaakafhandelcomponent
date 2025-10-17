@@ -1,17 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
@@ -59,8 +60,8 @@ class DocumentZoekObjectConverter @Inject constructor(
             zaaktypeIdentificatie = zaaktype.identificatie
             zaakIdentificatie = zaak.identificatie
             zaakUuid = zaak.uuid.toString()
-            gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toValue() }
-            isZaakAfgehandeld = zaak.isOpen
+            gekoppeldeZaakInformatieobject.aardRelatieWeergave?.let { zaakRelatie = it.toString() }
+            isZaakAfgehandeld = zaak.isOpen()
             creatiedatum = convertToDate(informatieobject.creatiedatum)
             registratiedatum = convertToDate(informatieobject.beginRegistratie.toZonedDateTime())
             ontvangstdatum = convertToDate(informatieobject.ontvangstdatum)
@@ -83,7 +84,11 @@ class DocumentZoekObjectConverter @Inject constructor(
                 setIndicatie(DocumentIndicatie.ONDERTEKEND, true)
             }
             setIndicatie(DocumentIndicatie.VERGRENDELD, informatieobject.locked)
-            setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, informatieobject.indicatieGebruiksrecht)
+            // indicatieGebruiksRecht may be `null` according to the ZGW API specification,
+            // where a null value indicates that it is not known yet
+            informatieobject.indicatieGebruiksrecht?.let {
+                setIndicatie(DocumentIndicatie.GEBRUIKSRECHT, it)
+            }
             setIndicatie(
                 DocumentIndicatie.BESLUIT,
                 brcClientService.isInformatieObjectGekoppeldAanBesluit(informatieobject.url)

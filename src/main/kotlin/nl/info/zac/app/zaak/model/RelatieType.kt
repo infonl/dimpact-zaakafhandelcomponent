@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
@@ -9,5 +9,6 @@ enum class RelatieType {
     DEELZAAK,
     VERVOLG,
     ONDERWERP,
-    BIJDRAGE
+    BIJDRAGE,
+    OVERIG
 }

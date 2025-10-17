@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -28,7 +28,7 @@ zaak_rechten := {
     "verlengen": verlengen,
     "opschorten": opschorten,
     "hervatten": hervatten,
-    "creeeren_document": creeeren_document,
+    "creeren_document": creeren_document,
     "toevoegen_document": toevoegen_document,
     "koppelen": koppelen,
     "versturen_email": versturen_email,
@@ -42,7 +42,8 @@ zaak_rechten := {
     "toevoegen_bag_object": toevoegen_bag_object,
     "starten_taak": starten_taak,
     "vastleggen_besluit": vastleggen_besluit,
-    "verlengen_doorlooptijd": verlengen_doorlooptijd
+    "verlengen_doorlooptijd": verlengen_doorlooptijd,
+    "wijzigen_locatie": wijzigen_locatie
 }
 
 default zaaktype_allowed := false
@@ -111,6 +112,7 @@ default wijzigen_doorlooptijd := false
 wijzigen_doorlooptijd if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
+    zaak.open
 }
 
 default verlengen := false
@@ -138,8 +140,8 @@ hervatten if {
     zaaktype_allowed
 }
 
-default creeeren_document := false
-creeeren_document if {
+default creeren_document := false
+creeren_document if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
@@ -288,4 +290,14 @@ verlengen_doorlooptijd if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+}
+
+default wijzigen_locatie := false
+wijzigen_locatie if {
+    wijzigen
+}
+
+wijzigen_locatie if {
+    wijzigen
+    recordmanager.rol in user.rollen
 }

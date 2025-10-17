@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,10 +13,8 @@ import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
-import { Zaaktype } from "../../zaken/model/zaaktype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { CaseDefinition } from "../model/case-definition";
-import { ZaakafhandelParameters } from "../model/zaakafhandel-parameters";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
@@ -33,23 +31,25 @@ export class ParametersComponent
   @ViewChild("parametersSort") parametersSort!: MatSort;
 
   filterParameters!: ZaakafhandelParametersListParameters;
-  parameters = new MatTableDataSource<ZaakafhandelParameters>();
+  parameters = new MatTableDataSource<
+    GeneratedType<"RestZaakafhandelParameters">
+  >();
   loading = false;
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: Zaaktype[] = [];
-  caseDefinitions: CaseDefinition[] = [];
+  zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
+  caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
+    public readonly utilService: UtilService,
+    public readonly configuratieService: ConfiguratieService,
+    private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
   ) {
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setupMenu("title.parameters");
     this.getZaakafhandelParameters();
     this.filterParameters = SessionStorageUtil.getItem(
@@ -59,22 +59,22 @@ export class ParametersComponent
     this.applyFilter();
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     super.ngAfterViewInit();
     this.parameters.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "omschrijving":
-          return item.zaaktype.omschrijving;
+          return String(item.zaaktype.omschrijving);
         case "model":
-          return item.caseDefinition?.naam;
+          return String(item.caseDefinition?.naam);
         case "geldig":
-          return item.zaaktype.nuGeldig;
+          return Number(item.zaaktype.nuGeldig);
         case "beginGeldigheid":
-          return item.zaaktype.beginGeldigheid;
+          return String(item.zaaktype.beginGeldigheid);
         case "eindeGeldigheid":
-          return item.zaaktype.eindeGeldigheid;
+          return String(item.zaaktype.eindeGeldigheid);
         default:
-          return item[property];
+          return String(item[property as keyof typeof item]);
       }
     };
 
@@ -90,7 +90,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            data.valide,
+            Boolean(data.valide),
             parsedFilter.valide === ToggleSwitchOptions.CHECKED,
           );
       }
@@ -99,7 +99,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchBoolean(
-            data.zaaktype.nuGeldig,
+            Boolean(data.zaaktype.nuGeldig),
             parsedFilter.geldig === ToggleSwitchOptions.CHECKED,
           );
       }
@@ -108,9 +108,9 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchObject(
-            data.zaaktype,
-            parsedFilter.zaaktype,
             "identificatie",
+            data.zaaktype,
+            parsedFilter.zaaktype as GeneratedType<"RestZaaktypeOverzicht">,
           );
       }
 
@@ -118,9 +118,9 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchObject(
+            "key",
             data.caseDefinition,
             parsedFilter.caseDefinition,
-            "key",
           );
       }
       if (
@@ -130,7 +130,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchDatum(
-            data.zaaktype.beginGeldigheid,
+            data.zaaktype.beginGeldigheid ?? "",
             parsedFilter.beginGeldigheid,
           );
       }
@@ -142,7 +142,7 @@ export class ParametersComponent
         match =
           match &&
           ClientMatcher.matchDatum(
-            data.zaaktype.eindeGeldigheid,
+            data.zaaktype.eindeGeldigheid ?? "",
             parsedFilter.eindeGeldigheid,
           );
       }
@@ -154,8 +154,7 @@ export class ParametersComponent
   applyFilter(options?: {
     event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
     filter?: keyof ZaakafhandelParametersListParameters;
-  }): void {
-    console.log("applyFilter typeof", options?.event);
+  }) {
     if (options) {
       const value =
         typeof options.event === "object"
@@ -174,7 +173,7 @@ export class ParametersComponent
     );
   }
 
-  private getZaakafhandelParameters(): void {
+  private getZaakafhandelParameters() {
     this.loading = true;
     this.zaakafhandelParametersService
       .listZaakafhandelParameters()
@@ -196,13 +195,16 @@ export class ParametersComponent
       });
   }
 
-  compareZaaktype = (zaaktype1: Zaaktype, zaaktype2: Zaaktype): boolean => {
+  compareZaaktype = (
+    zaaktype1?: GeneratedType<"RestZaaktype">,
+    zaaktype2?: GeneratedType<"RestZaaktype">,
+  ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
   compareCaseDefinition = (
-    caseDefinition1: CaseDefinition,
-    caseDefinition2: CaseDefinition,
-  ): boolean => {
+    caseDefinition1?: GeneratedType<"RESTCaseDefinition">,
+    caseDefinition2?: GeneratedType<"RESTCaseDefinition">,
+  ) => {
     return caseDefinition1?.key === caseDefinition2?.key;
   };
 }

@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldBeJsonObject
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -30,7 +29,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
         val tasksResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
         )
-        val responseBody = tasksResponse.body!!.string()
+        val responseBody = tasksResponse.body.string()
         logger.info { "Response: $responseBody" }
         tasksResponse.isSuccessful shouldBe true
 
@@ -47,17 +46,16 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = completeTaskResponse.body!!.string()
+                val responseBody = completeTaskResponse.body.string()
                 logger.info { "Response: $responseBody" }
                 completeTaskResponse.isSuccessful shouldBe true
-                responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
             And("the zaak status is set back to `Intake`") {
                 val response = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = response.body!!.string()
+                val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 

@@ -1,8 +1,8 @@
 #
-# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-package net.atos.zac.overig
+package net.atos.zac.zaak
 
 import rego.v1
 
@@ -18,7 +18,7 @@ import data.net.atos.zac.zaak.wijzigen_doorlooptijd
 import data.net.atos.zac.zaak.verlengen
 import data.net.atos.zac.zaak.opschorten
 import data.net.atos.zac.zaak.hervatten
-import data.net.atos.zac.zaak.creeeren_document
+import data.net.atos.zac.zaak.creeren_document
 import data.net.atos.zac.zaak.toevoegen_document
 import data.net.atos.zac.zaak.koppelen
 import data.net.atos.zac.zaak.koppelen_gerelateerd
@@ -34,6 +34,7 @@ import data.net.atos.zac.zaak.toevoegen_bag_object
 import data.net.atos.zac.zaak.starten_taak
 import data.net.atos.zac.zaak.vastleggen_besluit
 import data.net.atos.zac.zaak.verlengen_doorlooptijd
+import data.net.atos.zac.zaak.wijzigen_locatie
 
 
 ##################
@@ -64,7 +65,7 @@ test_lezen if {
 }
 
 test_lezen_wrong_role_fails if {
-    not lezen with input.user.rollen as [ "functioneel" ]
+    not lezen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_lezen_missing_role_fails if {
@@ -92,7 +93,7 @@ test_wijzigen_recordmanager if {
 }
 
 test_wijzigen_wrong_role_fails if {
-    not wijzigen with input.user.rollen as [ "functioneel" ]
+    not wijzigen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_wijzigen_missing_role_fails if {
@@ -120,7 +121,7 @@ test_toekennen_recordmanager if {
 }
 
 test_toekennen_wrong_role_fails if {
-    not toekennen with input.user.rollen as [ "functioneel" ]
+    not toekennen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toekennen_missing_role_fails if {
@@ -135,7 +136,7 @@ test_behandelen if {
 }
 
 test_behandelen_wrong_role_fails if {
-    not behandelen with input.user.rollen as [ "functioneel" ]
+    not behandelen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_behandelen_missing_role_fails if {
@@ -150,7 +151,7 @@ test_afbreken if {
 }
 
 test_afbreken_wrong_role_fails if {
-    not afbreken with input.user.rollen as [ "functioneel" ]
+    not afbreken with input.user.rollen as [ "fakeRole" ]
 }
 
 test_afbreken_missing_role_fails if {
@@ -165,7 +166,7 @@ test_heropenen if {
 }
 
 test_heropenen_wrong_role_fails if {
-    not heropenen with input.user.rollen as [ "functioneel" ]
+    not heropenen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_heropenen_missing_role_fails if {
@@ -191,15 +192,27 @@ test_bekijken_zaakdata_missing_role_fails if {
 # wijzigen_doorlooptijd
 #######################
 test_wijzigen_doorlooptijd if {
-    wijzigen_doorlooptijd with input.user.rollen as [ "behandelaar" ]
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
 }
 
 test_wijzigen_doorlooptijd_wrong_role_fails if {
-    not wijzigen_doorlooptijd with input.user.rollen as [ "functioneel" ]
+    not wijzigen_doorlooptijd
+        with input.user.rollen as [ "fakeRole" ]
+        with input.zaak.open as true
 }
 
 test_wijzigen_doorlooptijd_missing_role_fails if {
-    not wijzigen_doorlooptijd with input.user.key as "value"
+    not wijzigen_doorlooptijd
+        with input.user.key as "value"
+        with input.zaak.open as true
+}
+
+test_wijzigen_doorlooptijd_zaak_closed_fails if {
+    not wijzigen_doorlooptijd
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
 }
 
 ###########
@@ -251,7 +264,7 @@ test_verlengen_verlengd_fails if {
 }
 
 test_verlengen_wrong_role_fails if {
-    not verlengen with input.user.rollen as [ "functioneel" ]
+    not verlengen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_verlengen_missing_role_fails if {
@@ -294,7 +307,7 @@ test_opschorten_opgeschort_fails if {
 }
 
 test_opschorten_wrong_role_fails if {
-    not opschorten with input.user.rollen as [ "functioneel" ]
+    not opschorten with input.user.rollen as [ "fakeRole" ]
 }
 
 test_opschorten_missing_role_fails if {
@@ -309,7 +322,7 @@ test_hervatten if {
 }
 
 test_hervatten_wrong_role_fails if {
-    not hervatten with input.user.rollen as [ "functioneel" ]
+    not hervatten with input.user.rollen as [ "fakeRole" ]
 }
 
 test_hervatten_missing_role_fails if {
@@ -317,26 +330,26 @@ test_hervatten_missing_role_fails if {
 }
 
 ###################
-# creeeren_document
+# creeren_document
 ###################
-test_creeeren_document if {
-    creeeren_document
+test_creeren_document if {
+    creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
 }
 
-test_creeeren_document_zaak_closed_fails if {
-    not creeeren_document
+test_creeren_document_zaak_closed_fails if {
+    not creeren_document
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
 
-test_creeeren_document_wrong_role_fails if {
-    not creeeren_document with input.user.rollen as [ "functioneel" ]
+test_creeren_document_wrong_role_fails if {
+    not creeren_document with input.user.rollen as [ "fakeRole" ]
 }
 
-test_creeeren_document_missing_role_fails if {
-    not creeeren_document with input.user.key as "value"
+test_creeren_document_missing_role_fails if {
+    not creeren_document with input.user.key as "value"
 }
 
 ####################
@@ -361,7 +374,7 @@ test_toevoegen_document_recordmanager if {
 }
 
 test_toevoegen_document_wrong_role_fails if {
-    not toevoegen_document with input.user.rollen as [ "functioneel" ]
+    not toevoegen_document with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_document_missing_role_fails if {
@@ -389,7 +402,7 @@ test_koppelen_recordmanager if {
 }
 
 test_koppelen_wrong_role_fails if {
-    not koppelen with input.user.rollen as [ "functioneel" ]
+    not koppelen with input.user.rollen as [ "fakeRole" ]
 }
 
 test_koppelen_missing_role_fails if {
@@ -413,7 +426,7 @@ test_versturen_email_zaak_closed_fails if {
 }
 
 test_versturen_email_wrong_role_fails if {
-    not versturen_email with input.user.rollen as [ "functioneel" ]
+    not versturen_email with input.user.rollen as [ "fakeRole" ]
 }
 
 test_versturen_email_missing_role_fails if {
@@ -436,7 +449,7 @@ test_versturen_ontvangstbevestiging_zaak_closed_fails if {
 }
 
 test_versturen_ontvangstbevestiging_wrong_role_fails if {
-    not versturen_ontvangstbevestiging with input.user.rollen as [ "functioneel" ]
+    not versturen_ontvangstbevestiging with input.user.rollen as [ "fakeRole" ]
 }
 
 test_versturen_ontvangstbevestiging_missing_role_fails if {
@@ -464,7 +477,7 @@ test_toevoegen_initiator_persoon_recordmanager if {
 }
 
 test_toevoegen_initiator_persoon_wrong_role_fails if {
-    not toevoegen_initiator_persoon with input.user.rollen as [ "functioneel" ]
+    not toevoegen_initiator_persoon with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_initiator_persoon_missing_role_fails if {
@@ -492,7 +505,7 @@ test_toevoegen_initiator_bedrijf_recordmanager if {
 }
 
 test_toevoegen_initiator_bedrijf_wrong_role_fails if {
-    not toevoegen_initiator_bedrijf with input.user.rollen as [ "functioneel" ]
+    not toevoegen_initiator_bedrijf with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_initiator_bedrijf_missing_role_fails if {
@@ -520,7 +533,7 @@ test_verwijderen_initiator_recordmanager if {
 }
 
 test_verwijderen_initiator_wrong_role_fails if {
-    not verwijderen_initiator with input.user.rollen as [ "functioneel" ]
+    not verwijderen_initiator with input.user.rollen as [ "fakeRole" ]
 }
 
 test_verwijderen_initiator_missing_role_fails if {
@@ -548,7 +561,7 @@ test_toevoegen_betrokkene_persoon_recordmanager if {
 }
 
 test_toevoegen_betrokkene_persoon_wrong_role_fails if {
-    not toevoegen_betrokkene_persoon with input.user.rollen as [ "functioneel" ]
+    not toevoegen_betrokkene_persoon with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_betrokkene_persoon_missing_role_fails if {
@@ -576,7 +589,7 @@ test_toevoegen_betrokkene_bedrijf_recordmanager if {
 }
 
 test_toevoegen_betrokkene_bedrijf_wrong_role_fails if {
-    not toevoegen_betrokkene_bedrijf with input.user.rollen as [ "functioneel" ]
+    not toevoegen_betrokkene_bedrijf with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_betrokkene_bedrijf_missing_role_fails if {
@@ -604,7 +617,7 @@ test_verwijderen_betrokkene_recordmanager if {
 }
 
 test_verwijderen_betrokkene_wrong_role_fails if {
-    not verwijderen_betrokkene with input.user.rollen as [ "functioneel" ]
+    not verwijderen_betrokkene with input.user.rollen as [ "fakeRole" ]
 }
 
 test_verwijderen_betrokkene_missing_role_fails if {
@@ -632,7 +645,7 @@ test_toevoegen_bag_object_recordmanager if {
 }
 
 test_toevoegen_bag_object_wrong_role_fails if {
-    not toevoegen_bag_object with input.user.rollen as [ "functioneel" ]
+    not toevoegen_bag_object with input.user.rollen as [ "fakeRole" ]
 }
 
 test_toevoegen_bag_object_missing_role_fails if {
@@ -655,7 +668,7 @@ test_starten_taak_zaak_closed_fails if {
 }
 
 test_starten_taak_wrong_role_fails if {
-    not starten_taak with input.user.rollen as [ "functioneel" ]
+    not starten_taak with input.user.rollen as [ "fakeRole" ]
 }
 
 test_starten_taak_missing_role_fails if {
@@ -704,7 +717,7 @@ test_vastleggen_besluit_not_besluitd_fails if {
 }
 
 test_vastleggen_besluit_wrong_role_fails if {
-    not vastleggen_besluit with input.user.rollen as [ "functioneel" ]
+    not vastleggen_besluit with input.user.rollen as [ "fakeRole" ]
 }
 
 test_vastleggen_besluit_missing_role_fails if {
@@ -727,9 +740,36 @@ test_verlengen_doorlooptijd_zaak_closed_fails if {
 }
 
 test_verlengen_doorlooptijd_wrong_role_fails if {
-    not verlengen_doorlooptijd with input.user.rollen as [ "functioneel" ]
+    not verlengen_doorlooptijd with input.user.rollen as [ "fakeRole" ]
 }
 
 test_verlengen_doorlooptijd_missing_role_fails if {
     not verlengen_doorlooptijd with input.user.key as "value"
+}
+
+########################
+# wijzigen_locatie
+########################
+test_wijzigen_locatie if {
+    wijzigen_locatie
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_wijzigen_locatie_zaak_closed_fails if {
+    not wijzigen_locatie
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_close_case_recordmanager if {
+    wijzigen_locatie
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_wrong_role_fails if {
+    not wijzigen_locatie
+        with input.user.rollen as [ "fakeRole" ]
+        with input.zaak.open as false
 }

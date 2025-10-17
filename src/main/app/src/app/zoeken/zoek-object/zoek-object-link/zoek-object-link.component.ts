@@ -6,13 +6,11 @@
 import { Component, HostListener, Input } from "@angular/core";
 
 import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
-import { ZoekObject } from "../../model/zoek-object";
-import { ZoekObjectType } from "../../model/zoek-object-type";
 
 @Component({
   selector: "zac-zoek-object-link",
@@ -20,12 +18,11 @@ import { ZoekObjectType } from "../../model/zoek-object-type";
   templateUrl: "./zoek-object-link.component.html",
 })
 export class ZoekObjectLinkComponent {
-  @Input() zoekObject: ZoekObject;
-  @Input() sideNav: MatSidenav;
+  @Input({ required: true })
+  zoekObject!: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
+  @Input({ required: true }) sideNav!: MatSidenav;
   _newtab = false;
   indicatiesLayout = IndicatiesLayout;
-
-  constructor(private router: Router) {}
 
   @HostListener("document:keydown", ["$event"])
   handleKeydown(event: KeyboardEvent) {
@@ -41,25 +38,33 @@ export class ZoekObjectLinkComponent {
     }
   }
 
-  getLink(): any[] {
+  getLink() {
     switch (this.zoekObject.type) {
-      case ZoekObjectType.ZAAK:
+      case "ZAAK":
         return ["/zaken/", (this.zoekObject as ZaakZoekObject).identificatie];
-      case ZoekObjectType.TAAK:
+      case "TAAK":
         return ["/taken/", this.zoekObject.id];
-      case ZoekObjectType.DOCUMENT:
+      case "DOCUMENT":
         return ["/informatie-objecten/", this.zoekObject.id];
+      default:
+        throw new Error(
+          `Search object type ${this.zoekObject.type} is not supported`,
+        );
     }
   }
 
-  getName(): string {
+  getName() {
     switch (this.zoekObject.type) {
-      case ZoekObjectType.ZAAK:
+      case "ZAAK":
         return (this.zoekObject as ZaakZoekObject).identificatie;
-      case ZoekObjectType.TAAK:
+      case "TAAK":
         return (this.zoekObject as TaakZoekObject).naam;
-      case ZoekObjectType.DOCUMENT:
+      case "DOCUMENT":
         return (this.zoekObject as DocumentZoekObject).titel;
+      default:
+        throw new Error(
+          `Search object type ${this.zoekObject.type} is not supported`,
+        );
     }
   }
 }

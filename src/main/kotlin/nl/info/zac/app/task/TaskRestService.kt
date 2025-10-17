@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.task
@@ -25,8 +25,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.event.EventingService
@@ -41,8 +39,6 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierRuntimeService
-import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -50,6 +46,8 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -62,6 +60,10 @@ import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -75,6 +77,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.logging.Logger
 
 private const val REDEN_ZAAK_HERVATTEN = "Aanvullende informatie geleverd"
 private const val REDEN_TAAK_AFGESLOTEN = "Afgesloten"
@@ -114,6 +117,10 @@ class TaskRestService @Inject constructor(
      */
     private val dispatcher: CoroutineDispatcher
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(TaskRestService::class.java.name)
+    }
+
     @GET
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
@@ -156,16 +163,18 @@ class TaskRestService @Inject constructor(
     }
 
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {
-        flowableTaskService.readOpenTask(restTask.id).let {
-            it.description = restTask.toelichting
-            it.dueDate = DateTimeConverterUtil.convertToDate(restTask.fataledatum)
-            return flowableTaskService.updateTask(it)
+        flowableTaskService.readOpenTask(restTask.id).let { task ->
+            restTask.toelichting?.let { task.description = it }
+            restTask.fataledatum?.let { task.dueDate = DateTimeConverterUtil.convertToDate(it) }
+            return flowableTaskService.updateTask(task)
         }
     }
 
     @PUT
     @Path("lijst/verdelen")
     fun assignTasksFromList(@Valid restTaskDistributeData: RestTaskDistributeData) {
+        // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
+        // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
         CoroutineScope(dispatcher).launch {
@@ -196,10 +205,10 @@ class TaskRestService @Inject constructor(
     fun assignTaskToLoggedInUserFromList(
         restTaskAssignData: RestTaskAssignData
     ): RestTask {
+        // Checking the user's authorization for the task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        assignLoggedInUserToTask(restTaskAssignData).let {
-            return restTaskConverter.convert(it)
-        }
+        val task = assignLoggedInUserToTask(restTaskAssignData)
+        return restTaskConverter.convert(task)
     }
 
     @PATCH
@@ -276,7 +285,7 @@ class TaskRestService @Inject constructor(
                     toelichting = taakdata[TAAK_DATA_TOELICHTING]?.toString()
                 )
             }
-            ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
+            signEnkelvoudigInformatieobjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
@@ -362,9 +371,8 @@ class TaskRestService @Inject constructor(
         }
     }
 
-    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, Any>, zaak: Zaak) {
-        val signatures = readSignatures(taakdata)
-        signatures.ifPresent { signature ->
+    private fun signEnkelvoudigInformatieobjecten(taakdata: Map<String, Any>, zaak: Zaak) {
+        readSignatures(taakdata).ifPresent { signature ->
             signature.split(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -372,15 +380,15 @@ class TaskRestService @Inject constructor(
                 .map { UUID.fromString(it) }
                 .map { drcClientService.readEnkelvoudigInformatieobject(it) }
                 .forEach { enkelvoudigInformatieobject ->
-                    assertPolicy(
-                        (
-                            // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
-                    )
+                    // note: the DRC API can return an empty ondertekening soort when no signature is present,
+                    // even when this is not permitted according to the OpenAPI spec
+                    if (enkelvoudigInformatieobject.ondertekening?.let { it.soort != SoortEnum.EMPTY } == true) {
+                        LOG.warning {
+                            "Enkelvoudiginformatie object with ID '${enkelvoudigInformatieobject.identificatie}' has already been signed"
+                        }
+                        throw InputValidationFailedException(ErrorCode.ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED)
+                    }
+                    assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen)
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         enkelvoudigInformatieobject.url.extractUuid()
                     )

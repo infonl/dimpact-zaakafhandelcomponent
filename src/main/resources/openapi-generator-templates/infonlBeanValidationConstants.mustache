@@ -1,0 +1,12 @@
+{{! INFO.nl - add custom Java constants for values used in bean validation annotations }}
+{{! so that we can use these in our own code as well. }}
+{{#useBeanValidation}}
+{{#vars}}
+{{#minLength}}
+  public static final int {{nameInSnakeCase}}_MIN_LENGTH = {{minLength}};
+{{/minLength}}
+{{#maxLength}}
+  public static final int {{nameInSnakeCase}}_MAX_LENGTH = {{maxLength}};
+{{/maxLength}}
+{{/vars}}
+{{/useBeanValidation}}

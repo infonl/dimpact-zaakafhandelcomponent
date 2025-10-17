@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -20,13 +20,12 @@ import { ActivatedRoute } from "@angular/router";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
@@ -42,13 +41,12 @@ export class ZakenAfgehandeldComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: ZakenAfgehandeldDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  expandedRow: ZaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
+  expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
   readonly indicatiesLayout = IndicatiesLayout;
-  sorteerVeld = SorteerVeld;
 
   einddatumGeplandIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
@@ -109,8 +107,8 @@ export class ZakenAfgehandeldComponent
     ]);
   }
 
-  getWerklijst(): Werklijst {
-    return Werklijst.AFGEHANDELDE_ZAKEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "AFGEHANDELDE_ZAKEN";
   }
 
   ngAfterViewInit(): void {
@@ -118,8 +116,11 @@ export class ZakenAfgehandeldComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDate(datum): boolean {
-    return DateConditionals.isExceeded(datum);
+  isAfterDateLimit(
+    date: Date | moment.Moment | string,
+    dateLimit: Date | moment.Moment | string,
+  ): boolean {
+    return DateConditionals.isExceeded(date, dateLimit);
   }
 
   resetColumns(): void {

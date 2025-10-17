@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.Status
+import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -12,17 +12,15 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   templateUrl: "./persoon-view.component.html",
   styleUrls: ["./persoon-view.component.less"],
 })
-export class PersoonViewComponent implements OnInit {
-  persoon: GeneratedType<"RestPersoon">;
+export class PersoonViewComponent {
+  protected persoon: GeneratedType<"RestPersoon"> | null = null;
 
   constructor(
-    private utilService: UtilService,
-    private _route: ActivatedRoute,
-  ) {}
-
-  ngOnInit(): void {
+    private readonly utilService: UtilService,
+    private readonly route: ActivatedRoute,
+  ) {
     this.utilService.setTitle("persoonsgegevens");
-    this._route.data.subscribe((data) => {
+    this.route.data.subscribe((data) => {
       this.persoon = data.persoon;
     });
   }

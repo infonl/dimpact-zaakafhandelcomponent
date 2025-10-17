@@ -3,24 +3,54 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 *ngIf="data.taken.length === 1" mat-dialog-title>
-  {{ "msg.verdelen.taak" | translate }}
-</h1>
-<h1 *ngIf="data.taken.length !== 1" mat-dialog-title>
-  {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
-</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>assignment_ind</mat-icon>
+  <span *ngIf="data.taken.length === 1" class="flex-grow-1">
+    {{ "msg.verdelen.taak" | translate }}
+  </span>
+  <span *ngIf="data.taken.length !== 1" class="flex-grow-1">
+    {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
-  <mfb-form-field [field]="medewerkerGroepFormField"></mfb-form-field>
-  <mfb-form-field [field]="redenFormField"></mfb-form-field>
-</div>
-<div mat-dialog-actions>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="groep"
+          optionDisplayValue="naam"
+          [options]="groups"
+        ></zac-auto-complete>
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="medewerker"
+          optionDisplayValue="naam"
+          [options]="users"
+        ></zac-auto-complete>
+      </section>
+    </fieldset>
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-input class="col-12" [form]="form" key="reden"></zac-input>
+      </section>
+    </fieldset>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
     (click)="verdeel()"
-    [disabled]="isDisabled()"
+    [disabled]="isDisabled() || !data.taken.length"
     color="primary"
     id="takenVerdelen_button"
-    mat-button
+    mat-raised-button
   >
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
@@ -31,8 +61,8 @@
     (click)="close()"
     [disabled]="loading"
     id="annuleren_button"
-    mat-button
+    mat-raised-button
   >
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

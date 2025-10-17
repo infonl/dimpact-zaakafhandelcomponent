@@ -26,13 +26,14 @@ spec:
           restartPolicy: {{ .Values.signaleringen.restartPolicy }}
           containers:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren
-              image: "{{ .Values.signaleringen.image.repository }}:{{ .Values.signaleringen.image.tag }}"
-              imagePullPolicy: {{ .Values.signaleringen.image.pullPolicy }}
+              image: "{{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}"
+              imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               resources: 
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               args:
-                - -s
-                - {{ printf "http://%s.%s/rest/admin/signaleringen/send-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+                - -H
+                - 'X-API-KEY: {{ .Values.zacInternalEndpointsApiKey }}'
+                - {{ printf "http://%s.%s/rest/internal/signaleringen/send-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
           {{- with .Values.signaleringen.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}

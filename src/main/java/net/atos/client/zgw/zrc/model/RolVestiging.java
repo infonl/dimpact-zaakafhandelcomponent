@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,9 +10,22 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
+import nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon;
+import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie;
 import nl.info.client.zgw.ztc.model.generated.RolType;
 
-public class RolVestiging extends Rol<Vestiging> {
+/**
+ * Manually copied from {@link nl.info.client.zgw.zrc.model.generated.RolVestiging} and modified to allow for
+ * polymorphism using a generic base {@link Rol} class.
+ * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * polymorphic relationships correctly.
+ * <p>
+ * In ZAC, we only use the vestiging role for retrieving existing roles, but not / no longer for storing new roles.
+ * For storing new vestiging-type roles, please use {@link RolNietNatuurlijkPersoon} instead for vestigingen.
+ * For details see: <a href="https://github.com/open-zaak/open-zaak/issues/1935">Add 'vestigingsnummer' to NNP, deprecate 'vestiging'</a>.
+ */
+public class RolVestiging extends Rol<VestigingIdentificatie> {
 
     public RolVestiging() {
     }
@@ -21,14 +34,14 @@ public class RolVestiging extends Rol<Vestiging> {
             final URI zaak,
             final RolType roltype,
             final String roltoelichting,
-            final Vestiging betrokkeneIdentificatie
+            final VestigingIdentificatie betrokkeneIdentificatie
     ) {
-        super(zaak, roltype, BetrokkeneType.VESTIGING, betrokkeneIdentificatie, roltoelichting);
+        super(zaak, roltype, BetrokkeneTypeEnum.VESTIGING, betrokkeneIdentificatie, roltoelichting);
     }
 
     @Override
-    protected boolean equalBetrokkeneIdentificatie(final Vestiging identificatie) {
-        final Vestiging betrokkeneIdentificatie = getBetrokkeneIdentificatie();
+    protected boolean equalBetrokkeneIdentificatie(final VestigingIdentificatie identificatie) {
+        final VestigingIdentificatie betrokkeneIdentificatie = getBetrokkeneIdentificatie();
         if (betrokkeneIdentificatie == identificatie) {
             return true;
         }

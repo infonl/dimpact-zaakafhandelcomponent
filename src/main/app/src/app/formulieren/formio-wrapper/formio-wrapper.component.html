@@ -5,6 +5,7 @@
 
 <formio
   [submission]="submission"
+  [submitDone]="submissionDone"
   [form]="form"
   [readOnly]="readOnly"
   language="nl"
@@ -25,4 +26,5 @@
   }"
   (submit)="onSubmit($event)"
   (change)="onChange($event)"
+  (customEvent)="onCustomEvent($event)"
 ></formio>

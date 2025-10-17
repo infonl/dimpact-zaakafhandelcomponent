@@ -26,11 +26,18 @@ import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
 
+type SocketMessage = {
+  opcode: Opcode;
+  objectType: ObjectType;
+  objectId: ScreenEventId;
+  timestamp?: number;
+};
+
 @Injectable({
   providedIn: "root",
 })
 export class WebsocketService implements OnDestroy {
-  // This must be bigger then the SECONDS_TO_DELAY defined in ScreenEventObserver.java
+  // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
   private readonly PROTOCOL: string = window.location.protocol.replace(
@@ -46,13 +53,15 @@ export class WebsocketService implements OnDestroy {
   private readonly URL: string =
     this.PROTOCOL + "//" + this.HOST + "/websocket";
 
-  private connection$: WebSocketSubject<any>;
+  private connection$: WebSocketSubject<
+    SocketMessage | SubscriptionMessage
+  > | null = null;
 
   private destroyed$ = new Subject<void>();
 
-  private listeners: EventCallback[][] = [];
+  private listeners: Record<string, Record<string, EventCallback>> = {};
 
-  private suspended: EventSuspension[] = [];
+  private suspended: Record<string, EventSuspension> = {};
 
   constructor(
     private translate: TranslateService,
@@ -67,7 +76,7 @@ export class WebsocketService implements OnDestroy {
     this.close();
   }
 
-  private open(url: string): Observable<any> {
+  private open(url: string) {
     return of(url).pipe(
       switchMap((openUrl) => {
         if (!this.connection$) {
@@ -80,14 +89,16 @@ export class WebsocketService implements OnDestroy {
     );
   }
 
-  private receive(websocket: string) {
-    this.open(websocket).pipe(takeUntil(this.destroyed$)).subscribe({
-      next: this.onMessage,
-      error: this.onError,
-    });
+  private receive(url: string) {
+    this.open(url)
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe({
+        next: (message) => this.onMessage(message as SocketMessage),
+        error: this.onError,
+      });
   }
 
-  private send(data: any) {
+  private send(data: SubscriptionMessage) {
     if (this.connection$) {
       this.connection$.next(data);
     } else {
@@ -103,9 +114,9 @@ export class WebsocketService implements OnDestroy {
     }
   }
 
-  private onMessage = (message: any) => {
+  private onMessage = (message: SocketMessage) => {
     // message is a JSON representation of ScreenEvent.java
-    const event: ScreenEvent = new ScreenEvent(
+    const event = new ScreenEvent(
       message.opcode,
       message.objectType,
       message.objectId,
@@ -118,11 +129,11 @@ export class WebsocketService implements OnDestroy {
   };
 
   private dispatch(event: ScreenEvent, key: string) {
-    const callbacks: EventCallback[] = this.getCallbacks(key);
+    const callbacks = this.getCallbacks(key);
     for (const listenerId in callbacks) {
       try {
         if (!this.isSuspended(listenerId)) {
-          console.debug("listener call: " + key);
+          console.log("listener call: " + key);
           callbacks[listenerId](event);
         }
       } catch (error) {
@@ -132,7 +143,7 @@ export class WebsocketService implements OnDestroy {
     }
   }
 
-  private onError = (error: any) => {
+  private onError = (error: unknown) => {
     console.error("Websocket error:");
     console.error(error);
   };
@@ -142,15 +153,15 @@ export class WebsocketService implements OnDestroy {
     objectType: ObjectType,
     objectId: string,
     callback: EventCallback,
-  ): WebsocketListener {
-    const event: ScreenEvent = new ScreenEvent(
+  ) {
+    const event = new ScreenEvent(
       opcode,
       objectType,
       new ScreenEventId(objectId),
     );
-    const listener: WebsocketListener = this.addCallback(event, callback);
+    const listener = this.addCallback(event, callback);
     this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
-    console.debug("listener added: " + listener.key);
+    console.log("listener added: " + listener.key);
     return listener;
   }
 
@@ -159,7 +170,7 @@ export class WebsocketService implements OnDestroy {
     objectType: ObjectType,
     objectId: string,
     callback: EventCallback,
-  ): WebsocketListener {
+  ) {
     return this.addListener(opcode, objectType, objectId, (event) => {
       forkJoin({
         msgPart1: this.translate.get(
@@ -182,18 +193,18 @@ export class WebsocketService implements OnDestroy {
   }
 
   public suspendListener(
-    listener: WebsocketListener,
+    listener?: WebsocketListener,
     timeout: number = WebsocketService.DEFAULT_SUSPENSION_TIMEOUT,
   ): void {
-    if (listener) {
-      const suspension: EventSuspension = this.suspended[listener.id];
-      if (suspension) {
-        suspension.increment();
-      } else {
-        this.suspended[listener.id] = new EventSuspension(timeout);
-      }
-      console.debug("listener suspended: " + listener.key);
+    if (!listener) return;
+
+    const suspension: EventSuspension = this.suspended[listener.id];
+    if (suspension) {
+      suspension.increment();
+    } else {
+      this.suspended[listener.id] = new EventSuspension(timeout);
     }
+    console.log("listener suspended: " + listener.key);
   }
 
   public doubleSuspendListener(listener: WebsocketListener) {
@@ -201,14 +212,12 @@ export class WebsocketService implements OnDestroy {
     this.suspendListener(listener);
   }
 
-  public removeListener(listener: WebsocketListener): void {
-    if (listener) {
-      this.removeCallback(listener);
-      this.send(
-        new SubscriptionMessage(SubscriptionType.DELETE, listener.event),
-      );
-      console.debug("listener removed: " + listener.key);
-    }
+  public removeListener(listener?: WebsocketListener) {
+    if (!listener) return;
+
+    this.removeCallback(listener);
+    this.send(new SubscriptionMessage(SubscriptionType.DELETE, listener.event));
+    console.log("listener removed: " + listener.key);
   }
 
   public removeListeners(listeners: WebsocketListener[]): void {
@@ -225,7 +234,7 @@ export class WebsocketService implements OnDestroy {
   ): Observable<T> {
     /**
      * In the unlikely scenario that the back end never responds with an event,
-     * we want to eventually cleanup the websocket connection to prevent memory leaks
+     * we want to eventually clean up the websocket connection to prevent memory leaks
      * The back end process can take quite a while, so we chose a timeout of one hour.
      */
     const ARBITRARY_ONE_HOUR_TIMEOUT_TO_PREVENT_MEMORY_LEAKS_IN_EDGE_CASES =
@@ -250,25 +259,27 @@ export class WebsocketService implements OnDestroy {
     );
   }
 
-  private addCallback(
-    event: ScreenEvent,
-    callback: EventCallback,
-  ): WebsocketListener {
+  private addCallback(event: ScreenEvent, callback: EventCallback) {
     const listener: WebsocketListener = new WebsocketListener(event, callback);
-    const callbacks: EventCallback[] = this.getCallbacks(event.key);
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+      event.key,
+    );
+
     callbacks[listener.id] = callback;
     return listener;
   }
 
   private removeCallback(listener: WebsocketListener): void {
-    const callbacks: EventCallback[] = this.getCallbacks(listener.event.key);
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(
+      listener.event.key,
+    );
     delete callbacks[listener.id];
     delete this.suspended[listener.id];
   }
 
-  private getCallbacks(key: string): EventCallback[] {
+  private getCallbacks(key: string): Record<string, EventCallback> {
     if (!this.listeners[key]) {
-      this.listeners[key] = [];
+      this.listeners[key] = {};
     }
     return this.listeners[key];
   }

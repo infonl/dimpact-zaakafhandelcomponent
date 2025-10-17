@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -35,23 +35,33 @@ When(
 );
 
 When(
-  "{string} distributes the zaken to the first group available",
+  "{string} distributes the zaken to the first group and user available",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Verdelen").click();
-    const expectedLabel = "Zaak toekennen aan groep";
-    await this.page.getByLabel(expectedLabel).click();
-    await this.page.getByRole("option", { name: "test gr" }).first().click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
-    await this.page.getByRole("button", { name: /Verdelen/ }).click();
+    await this.page.getByRole("button", { name: /verdelen/i }).click();
+    await this.page.getByLabel(/groep/i).click();
+    await this.page.getByRole("option").first().click();
+    await this.page.getByLabel(/medewerker/i).isEnabled();
+    await this.page.getByLabel(/medewerker/i).click();
+    await this.page.getByRole("option").first().click();
+    await this.page.getByLabel(/reden/i).fill("Fake reason");
+    await this.page.getByRole("button", { name: /verdelen/i }).click();
   },
 );
 
 When(
   "{string} releases the zaken",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByTitle("Vrijgeven").click();
-    await this.page.getByLabel("Reden").fill("Dummy reason");
-    await this.page.getByRole("button", { name: /Vrijgeven/ }).click();
+    await this.page
+      .getByRole("button", { name: "Vrijgeven" })
+      .locator("span")
+      .first()
+      .click();
+
+    await this.page.getByLabel("Reden").fill("Fake reason");
+
+    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
+
+    await this.page.waitForTimeout(3000);
   },
 );
 
@@ -60,7 +70,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken worden verdeeld...`)
+      .getByText(/\d+ zaken worden verdeeld/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );
@@ -70,7 +80,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
-      .getByText(`${_noOfZaken} zaken worden vrijgegeven...`)
+      .getByText(/(\d+ zaken worden vrijgegeven|De zaak wordt vrijgegeven)/)
       .waitFor({ timeout: ONE_MINUTE_IN_MS });
   },
 );

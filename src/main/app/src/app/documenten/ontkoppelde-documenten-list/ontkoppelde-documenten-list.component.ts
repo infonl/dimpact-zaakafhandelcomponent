@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -13,7 +13,6 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
@@ -22,19 +21,19 @@ import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
-import { Zoekopdracht } from "../../gebruikersvoorkeuren/model/zoekopdracht";
+import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { PutBody } from "../../shared/http/http-client";
+import {
+  SessionStorageUtil,
+  WerklijstZoekParameter,
+} from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { DatumRange } from "../../zoeken/model/datum-range";
-import { OntkoppeldDocument } from "../model/ontkoppeld-document";
-import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 
 @Component({
@@ -46,12 +45,14 @@ export class OntkoppeldeDocumentenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource = new MatTableDataSource<OntkoppeldDocument>();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RESTOntkoppeldDocument">
+  >();
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
 
-  displayedColumns: string[] = [
+  displayedColumns = [
     "titel",
     "creatiedatum",
     "zaakID",
@@ -59,8 +60,8 @@ export class OntkoppeldeDocumentenListComponent
     "ontkoppeldOp",
     "reden",
     "actions",
-  ];
-  filterColumns: string[] = [
+  ] as const;
+  filterColumns = [
     "titel_filter",
     "creatiedatum_filter",
     "zaakID_filter",
@@ -68,34 +69,44 @@ export class OntkoppeldeDocumentenListComponent
     "ontkoppeldOp_filter",
     "reden_filter",
     "actions_filter",
-  ];
-  listParameters: OntkoppeldDocumentListParameters;
+  ] as const;
+  listParameters: PutBody<"/rest/ontkoppeldedocumenten"> = {};
+  listParametersSort: {
+    sort: keyof PutBody<"/rest/ontkoppeldedocumenten">;
+    order: "desc" | "asc";
+    filtersType: ZoekFilters["filtersType"];
+  } = {
+    sort: "ontkoppeldOp",
+    order: "desc",
+    filtersType: "OntkoppeldDocumentListParameters",
+  };
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  selectedInformationObject: OntkoppeldDocument | null = null;
+  selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument"> | null =
+    null;
 
   constructor(
-    private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
-    private infoService: InformatieObjectenService,
-    private utilService: UtilService,
-    public dialog: MatDialog,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute,
+    private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private readonly infoService: InformatieObjectenService,
+    private readonly utilService: UtilService,
+    public readonly dialog: MatDialog,
+    public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    public readonly route: ActivatedRoute,
   ) {
     super();
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
     this.utilService.setTitle("title.documenten.ontkoppeldeDocumenten");
     this.listParameters = SessionStorageUtil.getItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
     merge(this.sort.sortChange, this.paginator.page, this.filterChange)
       .pipe(
@@ -104,7 +115,10 @@ export class OntkoppeldeDocumentenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.ontkoppeldeDocumentenService.list(this.listParameters);
+          return this.ontkoppeldeDocumentenService.list({
+            ...this.listParameters,
+            ...this.listParametersSort,
+          });
         }),
         map((data) => {
           this.isLoadingResults = false;
@@ -113,83 +127,82 @@ export class OntkoppeldeDocumentenListComponent
         }),
       )
       .subscribe((data) => {
-        this.paginator.length = data.totaal;
-        this.filterOntkoppeldDoor = data.filterOntkoppeldDoor;
-        this.dataSource.data = data.resultaten;
+        this.paginator.length = data.totaal ?? 0;
+        this.filterOntkoppeldDoor =
+          data.resultaten?.map((result) => result.ontkoppeldDoor!) ?? [];
+        this.dataSource.data = data.resultaten ?? [];
       });
   }
 
-  openDrawer(selectedInformationObject: OntkoppeldDocument) {
-    this.selectedInformationObject = { ...selectedInformationObject };
-    this.actionsSidenav.open();
+  openDrawer(
+    selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument">,
+  ) {
+    this.selectedInformationObject = selectedInformationObject;
+    void this.actionsSidenav.open();
   }
 
-  updateListParameters(): void {
+  updateListParameters() {
     this.listParameters.sort = this.sort.active;
     this.listParameters.order = this.sort.direction;
     this.listParameters.page = this.paginator.pageIndex;
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }
 
-  getDownloadURL(od: OntkoppeldDocument): string {
-    return this.infoService.getDownloadURL(od.documentUUID);
+  getDownloadURL(ontkoppeldDocument: GeneratedType<"RESTOntkoppeldDocument">) {
+    if (!ontkoppeldDocument.documentUUID) return null;
+    return this.infoService.getDownloadURL(ontkoppeldDocument.documentUUID);
   }
 
-  documentVerwijderen(od: OntkoppeldDocument): void {
+  documentVerwijderen(
+    ontkoppeldDocument: GeneratedType<"RESTOntkoppeldDocument">,
+  ) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
             key: "msg.document.verwijderen.bevestigen",
-            args: { document: od.titel },
+            args: { document: ontkoppeldDocument.titel },
           },
-          this.ontkoppeldeDocumentenService.delete(od),
+          this.ontkoppeldeDocumentenService.delete(ontkoppeldDocument.id!),
         ),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: od.titel,
+            document: ontkoppeldDocument.titel,
           });
           this.filterChange.emit();
         }
       });
   }
 
-  filtersChanged(options: {
-    event: string | MatSelectChange | DatumRange;
-    filter: keyof typeof this.listParameters;
-  }): void {
-    this.listParameters[options.filter] =
-      typeof options.event === "object" && "value" in options.event
-        ? options.event.value
-        : null;
+  filtersChanged() {
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
   }
 
-  resetSearch(): void {
+  resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort;
-    this.sort.direction = this.listParameters.order;
+    this.sort.active = this.listParametersSort.sort;
+    this.sort.direction = this.listParametersSort.order;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: Zoekopdracht): void {
+  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (actieveZoekopdracht) {
-      this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort;
-      this.sort.direction = this.listParameters.order;
+      this.listParameters = JSON.parse(actieveZoekopdracht.json || "{}");
+      this.sort.active = this.listParametersSort.sort;
+      this.sort.direction = this.listParametersSort.order;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -199,12 +212,16 @@ export class OntkoppeldeDocumentenListComponent
     }
   }
 
-  retriggerSearch(): void {
+  retriggerSearch() {
     this.filterChange.emit();
   }
 
-  createDefaultParameters(): OntkoppeldDocumentListParameters {
-    return new OntkoppeldDocumentListParameters("ontkoppeldOp", "desc");
+  createDefaultParameters() {
+    return {
+      sort: "ontkoppeldOp",
+      order: "desc",
+      filtersType: "OntkoppeldDocumentListParameters",
+    } satisfies typeof this.listParametersSort;
   }
 
   compareUser = (
@@ -214,15 +231,15 @@ export class OntkoppeldeDocumentenListComponent
     return user1?.id === user2?.id;
   };
 
-  getWerklijst(): Werklijst {
-    return Werklijst.ONTKOPPELDE_DOCUMENTEN;
+  getWerklijst(): GeneratedType<"Werklijst"> {
+    return "ONTKOPPELDE_DOCUMENTEN";
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
-      Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS" satisfies WerklijstZoekParameter,
       this.listParameters,
     );
   }

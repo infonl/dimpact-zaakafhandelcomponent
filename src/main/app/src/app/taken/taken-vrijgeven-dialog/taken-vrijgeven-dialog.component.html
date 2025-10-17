@@ -3,19 +3,34 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{ "title.taken.vrijgeven" | translate }}</h1>
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>clear_all</mat-icon>
+  <span class="flex-grow-1">
+    {{ "title.taken.vrijgeven" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
-<div mat-dialog-content>
-  <mfb-form-field [field]="redenFormField"></mfb-form-field>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-input class="col-12" [form]="form" key="reden"></zac-input>
+      </section>
+    </fieldset>
+  </form>
   <p *ngIf="data.taken.length === 1">{{ "msg.vrijgeven.taak" | translate }}</p>
   <p *ngIf="data.taken.length !== 1">
     {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
   </p>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button
-    [disabled]="loading"
-    mat-button
+    [disabled]="loading || !data.taken.length"
+    mat-raised-button
     color="primary"
     (click)="vrijgeven()"
     id="taakVrijgeven_button"
@@ -27,10 +42,10 @@
   </button>
   <button
     [disabled]="loading"
-    mat-button
+    mat-raised-button
     (click)="close()"
     id="dialogClose_button"
   >
     {{ "actie.annuleren" | translate }}
   </button>
-</div>
+</mat-dialog-actions>

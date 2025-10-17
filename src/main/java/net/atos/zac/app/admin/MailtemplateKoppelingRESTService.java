@@ -5,7 +5,8 @@
 
 package net.atos.zac.app.admin;
 
-import static net.atos.zac.policy.PolicyService.assertPolicy;
+
+import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
 
@@ -21,11 +22,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import net.atos.zac.admin.MailTemplateKoppelingenService;
-import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
-import net.atos.zac.policy.PolicyService;
+import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
+import nl.info.zac.policy.PolicyService;
 
 @Singleton
 @Path("beheer/mailtemplatekoppeling")
@@ -45,25 +46,27 @@ public class MailtemplateKoppelingRESTService {
     @GET
     @Path("{id}")
     public RESTMailtemplateKoppeling readMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
         return RESTMailtemplateKoppelingConverter.convert(mailTemplateKoppelingenService.readMailtemplateKoppeling(id));
     }
 
     @DELETE
     @Path("{id}")
     public void deleteMailtemplateKoppeling(@PathParam("id") final long id) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
         mailTemplateKoppelingenService.delete(id);
     }
 
     @GET
     public List<RESTMailtemplateKoppeling> listMailtemplateKoppelingen() {
-        assertPolicy(policyService.readOverigeRechten().beheren());
-        final List<MailtemplateKoppeling> mailtemplateKoppelingList = mailTemplateKoppelingenService.listMailtemplateKoppelingen();
-        return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
-            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
+        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
+        final List<ZaaktypeCmmnMailtemplateParameters> zaaktypeCmmnMailtemplateParametersList = mailTemplateKoppelingenService
+                .listMailtemplateKoppelingen();
+        return zaaktypeCmmnMailtemplateParametersList.stream().map(zaaktypeCmmnMailtemplateParameters -> {
+            final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(
+                    zaaktypeCmmnMailtemplateParameters);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
-                    .toRestZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
+                    .toRestZaaktypeCmmnConfiguration(zaaktypeCmmnMailtemplateParameters.getZaaktypeCmmnConfiguration(), false);
             return restMailtemplateKoppeling;
         }).toList();
     }
@@ -73,7 +76,7 @@ public class MailtemplateKoppelingRESTService {
     public RESTMailtemplateKoppeling storeMailtemplateKoppeling(
             final RESTMailtemplateKoppeling mailtemplateKoppeling
     ) {
-        assertPolicy(policyService.readOverigeRechten().beheren());
+        assertPolicy(policyService.readOverigeRechten(null).getBeheren());
         return RESTMailtemplateKoppelingConverter.convert(
                 mailTemplateKoppelingenService.storeMailtemplateKoppeling(
                         RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling)

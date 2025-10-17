@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.mail.converter;
@@ -7,9 +7,9 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
-import net.atos.zac.mailtemplates.model.MailGegevens;
 import nl.info.zac.configuratie.ConfiguratieService;
 import nl.info.zac.mail.model.MailAdres;
+import nl.info.zac.mailtemplates.model.MailGegevens;
 
 public class RESTMailGegevensConverter {
 

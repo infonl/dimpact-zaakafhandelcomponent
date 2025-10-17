@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,9 +14,8 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { ProcessDefinition } from "../model/process-definition";
-import { ProcessDefinitionContent } from "../model/process-definition-content";
 import { ProcessDefinitionsService } from "../process-definitions.service";
 
 @Component({
@@ -27,14 +26,15 @@ export class ProcessDefinitionsComponent
   extends AdminComponent
   implements OnInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("fileInput", { static: false }) fileInput!: ElementRef;
 
   isLoadingResults = false;
   columns: string[] = ["name", "version", "key", "id"];
-  dataSource: MatTableDataSource<ProcessDefinition> =
-    new MatTableDataSource<ProcessDefinition>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestBpmnProcessDefinition">
+  >();
 
   constructor(
     public dialog: MatDialog,
@@ -46,7 +46,7 @@ export class ProcessDefinitionsComponent
     super(utilService, configuratieService);
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setupMenu("title.procesdefinities");
     this.loadProcessDefinitions();
   }
@@ -55,15 +55,18 @@ export class ProcessDefinitionsComponent
     this.fileInput.nativeElement.click();
   }
 
-  fileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
+  fileSelected(event: Event) {
+    if (event.target instanceof HTMLInputElement) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
       this.readFileContent(file)
         .then((content) => {
           this.processDefinitionsService
-            .uploadProcessDefinition(
-              new ProcessDefinitionContent(file.name, content),
-            )
+            .uploadProcessDefinition({
+              content,
+              filename: file.name,
+            })
             .subscribe(() => {
               this.loadProcessDefinitions();
             });
@@ -74,7 +77,7 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  delete(processDefinition: ProcessDefinition): void {
+  delete(processDefinition: GeneratedType<"RestBpmnProcessDefinition">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -83,7 +86,7 @@ export class ProcessDefinitionsComponent
             args: { naam: processDefinition.name },
           },
           this.processDefinitionsService.deleteProcessDefinition(
-            processDefinition,
+            processDefinition.key,
           ),
         ),
       })
@@ -99,7 +102,7 @@ export class ProcessDefinitionsComponent
       });
   }
 
-  private loadProcessDefinitions(): void {
+  private loadProcessDefinitions() {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
     this.processDefinitionsService
@@ -111,8 +114,8 @@ export class ProcessDefinitionsComponent
       });
   }
 
-  private readFileContent(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
+  private readFileContent(file: File) {
+    return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);

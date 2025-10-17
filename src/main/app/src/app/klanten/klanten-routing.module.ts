@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
@@ -25,7 +26,12 @@ const routes: Routes = [
     path: "bedrijf",
     children: [
       {
-        path: ":vesOrRSIN",
+        path: ":id", // This can only be a valid `RSIN` or `KVK` number
+        component: BedrijfViewComponent,
+        resolve: { bedrijf: BedrijfResolverService },
+      },
+      {
+        path: ":id/vestiging/:vestigingsnummer", // `id` must be a `kvkNummer`
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },
@@ -38,3 +44,14 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class KlantenRoutingModule {}
+
+export function buildBedrijfRouteLink(
+  bedrijf?: GeneratedType<"RestBedrijf"> | null,
+) {
+  const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
+  if (bedrijf?.vestigingsnummer)
+    path.push("vestiging", bedrijf?.vestigingsnummer);
+  else if (bedrijf?.kvkNummer && bedrijf?.identificatie)
+    path.push("vestiging", bedrijf?.identificatie);
+  return path;
+}

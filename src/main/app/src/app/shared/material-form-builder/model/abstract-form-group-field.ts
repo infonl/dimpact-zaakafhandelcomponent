@@ -13,7 +13,7 @@ export abstract class AbstractFormGroupField extends AbstractFormField {
     super();
   }
 
-  initControl(value: { [key: string]: FormControl<any> }): void {
+  initControl(value: Record<string, FormControl>): void {
     this.formControl = new FormGroup(value);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.util
@@ -11,17 +11,19 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.jacobras.humanreadable.HumanReadable.fileSize
-import org.apache.commons.text.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import java.lang.Runtime.getRuntime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-@Path("util")
+@Path("admin/util")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_HTML)
 @NoArgConstructor
@@ -29,19 +31,20 @@ import kotlin.time.toDuration
 @Suppress("TooManyFunctions")
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val policyService: PolicyService
 ) {
     companion object {
         private val ZTC: String = h(2, "ztcClientService")
         private val ZHPS: String = h(2, "zaakafhandelParameterService")
 
-        private fun links(url: List<String>) = ul(url.map { a("/rest/util/$it", it) })
+        private fun links(url: List<String>) = ul(url.map { a("/rest/admin/util/$it", it) })
 
         private fun body(utils: List<String>) = body(utils.joinToString())
 
         private fun body(utils: String) = "<html></head><body>$utils</body></html>"
 
-        private fun b(value: String) = "<b>" + StringEscapeUtils.escapeHtml4(value) + "</b>"
+        private fun b(value: String) = "<b>" + escapeHtml4(value) + "</b>"
 
         private fun h(i: Int, label: String) = "<h$i>$label</h$i>"
 
@@ -53,8 +56,9 @@ class UtilRestService @Inject constructor(
     }
 
     @GET
-    fun index() =
-        body(
+    fun index(): String {
+        checkBeherenPolicy()
+        return body(
             h(1, "Util") +
                 h(2, "Caches") +
                 links(listOf("cache", "cache/ztc", "cache/zhps")) +
@@ -62,44 +66,59 @@ class UtilRestService @Inject constructor(
                 h(2, "System") +
                 links(listOf("memory"))
         )
+    }
 
     @GET
     @Path("cache")
-    fun caches(): String = body(
-        listOf(
-            ztcClientCaches(),
-            zaakafhandelParameterServiceCaches()
+    fun caches(): String {
+        checkBeherenPolicy()
+        return body(
+            listOf(
+                ztcClientCaches(),
+                zaakafhandelParameterServiceCaches()
+            )
         )
-    )
+    }
 
     @GET
     @Path("cache/ztc")
-    fun ztcCaches(): String =
-        body(ztcClientCaches())
+    fun ztcCaches(): String {
+        checkBeherenPolicy()
+        return body(ztcClientCaches())
+    }
 
     @GET
     @Path("cache/zhps")
-    fun zhpsCaches(): String =
-        body(zaakafhandelParameterServiceCaches())
+    fun zhpsCaches(): String {
+        checkBeherenPolicy()
+        return body(zaakafhandelParameterServiceCaches())
+    }
 
     @GET
     @Path("cache/clear")
-    fun clearCaches(): String =
-        body(listOf(clearZtcClientCaches(), clearAllZhpsCaches()))
+    fun clearCaches(): String {
+        checkBeherenPolicy()
+        return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches()))
+    }
 
     @GET
     @Path("cache/ztc/clear")
-    fun clearAllZtcClientCaches() =
-        body(clearZtcClientCaches())
+    fun clearAllZtcClientCaches(): String {
+        checkBeherenPolicy()
+        return body(clearZtcClientCaches())
+    }
 
     @GET
     @Path("cache/zhps/clear")
-    fun clearAllZaakafhandelParameterServiceCaches() =
-        body(clearAllZhpsCaches())
+    fun clearAllZaakafhandelParameterServiceCaches(): String {
+        checkBeherenPolicy()
+        return body(clearAllZhpsCaches())
+    }
 
     @GET
     @Path("memory")
     fun memory(): String {
+        checkBeherenPolicy()
         val runtime = getRuntime()
         val freeMemory = runtime.freeMemory()
         val totalMemory = runtime.totalMemory()
@@ -116,6 +135,8 @@ class UtilRestService @Inject constructor(
                 )
         )
     }
+
+    private fun checkBeherenPolicy() = assertPolicy(policyService.readOverigeRechten().beheren)
 
     private fun clearZtcClientCaches() =
         ZTC + ul(
@@ -134,14 +155,14 @@ class UtilRestService @Inject constructor(
     private fun clearAllZhpsCaches() =
         ZHPS + ul(
             listOf(
-                zaakafhandelParameterService.clearManagedCache(),
-                zaakafhandelParameterService.clearListCache()
+                zaaktypeCmmnConfigurationService.clearManagedCache(),
+                zaaktypeCmmnConfigurationService.clearListCache()
             )
         )
 
     private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
-    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaakafhandelParameterService)
+    private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeCmmnConfigurationService)
 
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching): String {
         val cacheStatistics = caching.cacheStatistics()

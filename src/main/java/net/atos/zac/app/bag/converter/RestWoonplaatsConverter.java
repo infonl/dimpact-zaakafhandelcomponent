@@ -1,13 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
@@ -15,6 +13,7 @@ import nl.info.client.bag.model.generated.Indicatie;
 import nl.info.client.bag.model.generated.Woonplaats;
 import nl.info.client.bag.model.generated.WoonplaatsIOHal;
 import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 
 public class RestWoonplaatsConverter {
     public static RESTWoonplaats convertToREST(final WoonplaatsIOHalBasis woonplaatsIO) {

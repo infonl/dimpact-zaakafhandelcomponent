@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,7 +11,10 @@ import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import java.net.HttpURLConnection
+import java.net.URI
 import java.util.Locale
+
 
 plugins {
     java
@@ -86,14 +89,20 @@ val zacDockerImage by extra {
     }
 }
 
+val featureFlagPabcIntegration by extra {
+    if (project.hasProperty("featureFlagPabcIntegration")) {
+        project.property("featureFlagPabcIntegration").toString()
+    } else {
+        "true"
+    }
+}
+
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
 // For consistency, the layout of some known paths are determined here, and below as relative paths.
 // This means that we can use these and are less likely to make mistakes when using them
 val srcGenerated = layout.projectDirectory.dir("src/generated")
-val generatedPath = srcGenerated.toProjectRelativePath()
 val srcResources = layout.projectDirectory.dir("src/main/resources")
-val resourcesPath = srcResources.toProjectRelativePath()
 val srcApp = layout.projectDirectory.dir("src/main/app")
 val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
@@ -147,6 +156,8 @@ dependencies {
         exclude(group = "org.jboss.resteasy")
     }
     implementation(libs.jacobras.human.readable)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.urlconnection)
 
     // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
     detektPlugins(libs.detekt.formatting)
@@ -237,6 +248,7 @@ java {
         .srcDir(srcGenerated.dir("zgw/zrc/java"))
         .srcDir(srcGenerated.dir("zgw/ztc/java"))
         .srcDir(srcGenerated.dir("or/objects/java"))
+        .srcDir(srcGenerated.dir("pabc/java"))
 }
 
 jsonSchema2Pojo {
@@ -263,8 +275,41 @@ kotlin {
 }
 
 node {
+    fun isNodeVersionAvailable(version: String): Boolean {
+        val url = URI("https://nodejs.org/dist/v$version/").toURL()
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "HEAD"
+        return connection.responseCode == HttpURLConnection.HTTP_OK
+    }
+
+    fun getLatestAvailableVersion(version: String): String {
+        val baseVersion = version.substringBeforeLast('.')
+        var patchVersion = version.substringAfterLast('.').toInt()
+        while (patchVersion >= 0) {
+            val currentVersion = "$baseVersion.$patchVersion"
+            if (isNodeVersionAvailable(currentVersion)) {
+                return currentVersion
+            }
+            patchVersion--
+        }
+        error("No available version found for base version $baseVersion")
+    }
+
+    fun packageJsonNodeVersion(): String {
+        val packageJson = file("$srcApp/package.json").readText()
+        val regex = """"node":\s*"([^"]+)"""".toRegex()
+        return regex.find(packageJson)?.groups?.get(1)?.value ?: error("Node version not found")
+    }
+
+    fun packageJsonNpmVersion(): String {
+        val packageJson = file("$srcApp/package.json").readText()
+        val regex = """"npm":\s*"([^"]+)"""".toRegex()
+        return regex.find(packageJson)?.groups?.get(1)?.value ?: error("npm version not found")
+    }
+
     download.set(true)
-    version.set(libs.versions.nodejs.get())
+    version.set(packageJsonNodeVersion().let(::getLatestAvailableVersion))
+    npmVersion.set(packageJsonNpmVersion())
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(srcApp.asFile)
     if (System.getenv("CI") != null) {
@@ -278,9 +323,6 @@ smallryeOpenApi {
     infoTitle.set("Zaakafhandelcomponent backend API")
     schemaFilename.set("META-INF/openapi/openapi")
     operationIdStrategy.set(OperationIdStrategy.METHOD)
-    // note that the duplicateOperationIdBehavior property is not yet working, but we add it
-    // anyway, hoping that the following issue will be resolved in a future version of the plugin:
-    // https://github.com/smallrye/smallrye-open-api/issues/2230
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
     outputFileTypeFilter.set("YAML")
 }
@@ -341,7 +383,7 @@ configure<SpotlessExtension> {
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
-        target("src/**/*.json")
+        target("src/**/*.json", "scripts/**/*.json")
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
@@ -349,7 +391,9 @@ configure<SpotlessExtension> {
             "$appPath/dist/**",
             "$appPath/.angular/**",
             "src/**/package-lock.json",
-            "$appPath/coverage/**"
+            "$appPath/coverage/**",
+            "**/.venv/**",
+            "scripts/docker-compose/volume-data/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
@@ -424,6 +468,11 @@ tasks {
 
     compileKotlin {
         dependsOn("generateJavaClients")
+
+        compilerOptions {
+            // see: https://youtrack.jetbrains.com/issue/KT-73255
+            freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
+        }
     }
 
     jacocoTestReport {
@@ -458,10 +507,10 @@ tasks {
     // run all spotless frontend tasks after the frontend linting task because
     // the linting task has as it's output the frontend source files which are
     // input for the spotless tasks
-    getByName("spotlessApp").mustRunAfter("npmRunLint")
-    getByName("spotlessHtml").mustRunAfter("npmRunLint")
-    getByName("spotlessJson").mustRunAfter("npmRunLint")
-    getByName("spotlessLess").mustRunAfter("npmRunLint")
+    getByName("spotlessApp").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessHtml").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
 
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
@@ -528,14 +577,14 @@ tasks {
                 "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "useJakartaEe" to "true"
+                "useJakartaEe" to "true",
+                "useBeanValidation" to "true"
             )
         )
         // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator.
         // Both issues have to do with the support for JSON-B polymorphism type annotations introduced by
         // https://github.com/OpenAPITools/openapi-generator/pull/20164 in OpenAPI Generator version 7.11.
-        // Instead of overriding these Mustache templates the obvious workaround seems to set the additional property
+        // Instead of overriding these Mustache templates, the obvious workaround seems to set the additional property
         // 'jsonbPolymorphism' to false in this Gradle build file. However, that does not seem to work.
         // Probably because this property is set by the OpenAPI Generator library itself regardless of our configuration.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
@@ -574,27 +623,29 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("nl.info.client.bag.model.generated")
-        // we need to use the java8-localdatetime date library for this client
-        // or else certain date time fields for this client cannot be deserialized
-        configOptions.set(
-            mapOf(
-                "library" to "microprofile",
-                "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
-                "sourceFolder" to "",
-                "dateLibrary" to "java8-localdatetime",
-                "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "useJakartaEe" to "true"
-            )
-        )
+        // We need to use the `java8-localdatetime` date library for this client,
+        // or else certain date time fields for this client cannot be deserialized.
+        // This is because the BAG API uses the ISO 8601 standard for `date-time` fields, where a trailing time zone is optional,
+        // instead of the more commonly used RFC 3339 extension, where a trailing time zone is required.
+        // E.g., the BAG API uses `2024-01-01T00:00:00` instead of `2024-01-01T00:00:00Z` for `date-time` fields.
+        // See: https://github.com/lvbag/BAG-API/blob/master/Getting%20started.md
+        configOptions.put("dateLibrary", "java8-localdatetime")
     }
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
-        // disabled because (at least with our current settings) this results
-        // in uncompilable generated Java code
-        // this task was not enabled in the original Maven build either;
-        // these model files were added to the code base manually instead
+        // disabled because the generated Java code is not a working OpenKlanten client
         isEnabled = false
+
+        // To generate a new version of the client:
+        //
+        // 1. Modify OpenAPI definition to add empty enum value where `oneOf` construct is used
+        // 2. Copy the generated client from `src/generated/klanten` to `src/main/java/net/atos/client/klant/model`
+        // 3. Change in `ExpandPartijAllOfExpand`
+        //    a) jsob property name from `digitale_adressen` to `digitaleAdressen`
+        //       (see https://github.com/maykinmedia/open-klant/issues/396)
+        //    b) `Betrokkene` usage to `ExpandBetrokkene`
+        //       (see https://github.com/maykinmedia/open-klant/issues/216)
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
@@ -602,31 +653,28 @@ tasks {
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
-        description = "Generates Java client code for the BRC API"
+        description = "Generates Java client code for the ZGW BRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
         modelPackage.set("nl.info.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
-        description = "Generates Java client code for the DRC API"
+        description = "Generates Java client code for the ZGW DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
-        // this OpenAPI spec contains a schema validation error: `schema: null`
-        // so we disable the schema validation for this spec until this is fixed in a future version of this spec
-        validateSpec.set(false)
         modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZrcClient") {
-        description = "Generates Java client code for the ZRC API"
+        description = "Generates Java client code for the ZGW ZRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
         modelPackage.set("nl.info.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZtcClient") {
-        description = "Generates Java client code for the ZTC API"
+        description = "Generates Java client code for the ZGW ZTC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
         modelPackage.set("nl.info.client.zgw.ztc.model.generated")
@@ -637,6 +685,13 @@ tasks {
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objects/java")
         modelPackage.set("nl.info.client.or.objects.model.generated")
+    }
+
+    register<GenerateTask>("generatePabcClient") {
+        description = "Generates Java client code for the Platform Autorisatie Beheer Component API"
+        inputSpec.set("$rootDir/src/main/resources/api-specs/pabc/pabc-openapi.json")
+        outputDir.set("$rootDir/src/generated/pabc/java")
+        modelPackage.set("nl.info.client.pabc.model.generated")
     }
 
     register("generateJavaClients") {
@@ -653,7 +708,8 @@ tasks {
             "generateZgwDrcClient",
             "generateZgwZrcClient",
             "generateZgwZtcClient",
-            "generateOrObjectsClient"
+            "generateOrObjectsClient",
+            "generatePabcClient"
         )
     }
 
@@ -754,6 +810,7 @@ tasks {
         testClassesDirs = sourceSets["itest"].output.classesDirs
         classpath = sourceSets["itest"].runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
+        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
         // do not use the Gradle build cache for this task
         outputs.cacheIf { false }
     }

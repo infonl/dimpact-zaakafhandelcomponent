@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.signalering
@@ -7,8 +7,7 @@ package nl.info.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
@@ -18,6 +17,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.configuratie.ConfiguratieService
@@ -45,7 +45,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZtcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val searchService: SearchService,
     private val flowableTaskService: FlowableTaskService
 ) {
@@ -87,7 +87,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
-                zaakafhandelParameterService.readZaakafhandelParameters(
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaaktype.url.extractUuid()
                 ).let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let {
@@ -97,7 +97,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.einddatumGeplandWaarschuwing
+                            parameters.einddatumGeplandWaarschuwing!!
                         )
                     }
                     parameters.uiterlijkeEinddatumAfdoeningWaarschuwing?.let {
@@ -107,7 +107,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                         )
                         zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
                             zaaktype,
-                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                            parameters.uiterlijkeEinddatumAfdoeningWaarschuwing!!
                         )
                     }
                 }
@@ -146,13 +146,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
         zaakZoekObject.behandelaarGebruikersnaam?.let {
             signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, it).isMail &&
-                !signaleringService.findSignaleringVerzonden(
+                // only send signalering if it was not already sent before
+                signaleringService.findSignaleringVerzonden(
                     getZaakSignaleringVerzondenParameters(
                         it,
                         zaakZoekObject.getObjectId(),
                         detail
                     )
-                ).isPresent
+                ) == null
         } == true
 
     private fun buildZaakSignalering(
@@ -160,7 +161,20 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        val zaak = Zaak().apply { uuid = UUID.fromString(zaakZoekObject.getObjectId()) }
+        // refactor this? silly to create an entire Zaak object just to set it as a signalering subject
+        val zaak = Zaak(
+            null,
+            UUID.fromString(zaakZoekObject.getObjectId()),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
         return signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_VERLOPEND).apply {
             setTargetUser(target)
             setSubject(zaak)
@@ -261,10 +275,10 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             SignaleringType.Type.TAAK_VERLOPEN,
             task.assignee
         ).isMail &&
-            // skip signalering if it was already sent
-            !signaleringService.findSignaleringVerzonden(
+            // only send signalering if it was not already sent before
+            signaleringService.findSignaleringVerzonden(
                 getTaskSignaleringSentParameters(task.assignee, task.id)
-            ).isPresent
+            ) == null
 
     private fun buildTaskSignalering(target: String, task: Task): Signalering =
         signaleringService.signaleringInstance(

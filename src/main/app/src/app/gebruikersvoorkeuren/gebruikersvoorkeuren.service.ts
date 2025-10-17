@@ -4,130 +4,109 @@
  */
 
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-
-import { HttpClient } from "@angular/common/http";
-import { DashboardCardInstelling } from "../dashboard/model/dashboard-card-instelling";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { TabelGegevens } from "../shared/dynamic-table/model/tabel-gegevens";
-import { Werklijst } from "./model/werklijst";
-import { Zoekopdracht } from "./model/zoekopdracht";
+import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class GebruikersvoorkeurenService {
-  private basepath = "/rest/gebruikersvoorkeuren";
+  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  constructor(
-    private http: HttpClient,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {}
-
-  listZoekOpdrachten(werklijst: Werklijst): Observable<Zoekopdracht[]> {
-    return this.http
-      .get<Zoekopdracht[]>(`${this.basepath}/zoekopdracht/${werklijst}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listZoekOpdrachten(lijstID: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{lijstID}",
+      {
+        path: { lijstID },
+      },
+    );
   }
 
   createOrUpdateZoekOpdrachten(
-    zoekopdracht: Zoekopdracht,
-  ): Observable<Zoekopdracht> {
-    return this.http
-      .post<Zoekopdracht>(`${this.basepath}/zoekopdracht`, zoekopdracht)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PostBody<"/rest/gebruikersvoorkeuren/zoekopdracht">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/gebruikersvoorkeuren/zoekopdracht",
+      body,
+    );
   }
 
-  deleteZoekOpdrachten(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/zoekopdracht/${id}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  deleteZoekOpdrachten(id: number) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{id}",
+      {
+        path: { id },
+      },
+    );
   }
 
-  setZoekopdrachtActief(zoekopdracht: Zoekopdracht): Observable<void> {
-    return this.http
-      .put<void>(`${this.basepath}/zoekopdracht/actief`, zoekopdracht)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  setZoekopdrachtActief(
+    body: PutBody<"/rest/gebruikersvoorkeuren/zoekopdracht/actief">,
+  ) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/actief",
+      body,
+    );
   }
 
-  removeZoekopdrachtActief(werklijst: Werklijst): Observable<void> {
-    return this.http
-      .delete<void>(`${this.basepath}/zoekopdracht/${werklijst}/actief`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  removeZoekopdrachtActief(werklijst: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/zoekopdracht/{werklijst}/actief",
+      {
+        path: { werklijst },
+      },
+    );
   }
 
-  readTabelGegevens(werklijst: Werklijst): Observable<TabelGegevens> {
-    return this.http
-      .get<TabelGegevens>(`${this.basepath}/tabel-gegevens/${werklijst}`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  readTabelGegevens(werklijst: GeneratedType<"Werklijst">) {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/tabel-gegevens/{werklijst}",
+      {
+        path: { werklijst },
+      },
+    );
   }
 
-  updateAantalPerPagina(
-    werklijst: Werklijst,
-    aantal: number,
-  ): Observable<void> {
-    return this.http
-      .put<void>(
-        `${this.basepath}/aantal-per-pagina/${werklijst}/${aantal}`,
-        {},
-      )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
+      undefined as never,
+      {
+        path: { werklijst, aantal },
+      },
+    );
   }
 
-  listDashboardCards(): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .get<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard/actief`)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  listDashboardCards() {
+    return this.zacHttpClient.GET(
+      "/rest/gebruikersvoorkeuren/dasboardcard/actief",
+    );
   }
 
   updateDashboardCards(
-    cards: DashboardCardInstelling[],
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .put<
-        DashboardCardInstelling[]
-      >(`${this.basepath}/dasboardcard/actief`, cards)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard/actief">,
+  ) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/dasboardcard/actief",
+      body,
+    );
   }
 
-  addDashboardCard(
-    card: DashboardCardInstelling,
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .put<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard`, card)
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+  addDashboardCard(body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard">) {
+    return this.zacHttpClient.PUT(
+      "/rest/gebruikersvoorkeuren/dasboardcard",
+      body,
+    );
   }
 
   deleteDashboardCard(
-    card: DashboardCardInstelling,
-  ): Observable<DashboardCardInstelling[]> {
-    return this.http
-      .delete<DashboardCardInstelling[]>(`${this.basepath}/dasboardcard`, {
-        body: card,
-      })
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
+    body: DeleteBody<"/rest/gebruikersvoorkeuren/dasboardcard">,
+  ) {
+    return this.zacHttpClient.DELETE(
+      "/rest/gebruikersvoorkeuren/dasboardcard",
+      {},
+      body,
+    );
   }
 }

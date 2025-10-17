@@ -1,32 +1,38 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>{{ actionIcon }}</mat-icon>
-    {{ actionLabel | translate }}
-  </h3>
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>{{ actionIcon }}</mat-icon>
+  <span class="flex-grow-1">{{ actionLabel | translate }}</span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-toolbar>
+<mat-divider></mat-divider>
 
 <div class="form" *ngIf="infoObject">
   <p>{{ intro }}</p>
-  <mfb-form-field class="flex-1" [field]="caseSearchField"></mfb-form-field>
-  <button
-    mat-flat-button
-    color="primary"
-    [disabled]="!isValid || loading"
-    (click)="searchCases()"
-  >
-    {{ "actie.zoeken" | translate }}
-  </button>
-  <button mat-flat-button (click)="reset()">
-    {{ "actie.wissen" | translate }}
-  </button>
+  <form [formGroup]="form" (submit)="searchCases()" class="mt-2">
+    <fieldset class="p-0">
+      <zac-input [form]="form" key="caseSearch" label="zaak.identificatie" />
+    </fieldset>
+    <fieldset class="p-0">
+      <mat-action-row>
+        <button
+          mat-raised-button
+          type="submit"
+          [disabled]="form.invalid || loading"
+        >
+          {{ "actie.zoeken" | translate }}
+        </button>
+        <button mat-raised-button type="reset" (click)="reset()">
+          {{ "actie.wissen" | translate }}
+        </button>
+      </mat-action-row>
+    </fieldset>
+  </form>
 
   <div class="table-wrapper">
     <table mat-table [dataSource]="cases" matSort>
@@ -34,37 +40,37 @@
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaak.identificatie" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.identificatie | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.identificatie | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="zaaktypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "zaaktypeOmschrijving" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.zaaktypeOmschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.zaaktypeOmschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="statustypeOmschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "status" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case?.statustypeOmschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row?.statustypeOmschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="omschrijving">
         <th *matHeaderCellDef mat-header-cell>
           {{ "omschrijving" | translate }}
         </th>
-        <td *matCellDef="let case" mat-cell>
-          {{ case.omschrijving | empty }}
+        <td *matCellDef="let row" mat-cell>
+          {{ row.omschrijving | empty }}
         </td>
       </ng-container>
       <ng-container matColumnDef="acties" stickyEnd>
         <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row" class="text-right">
           <button
             mat-icon-button
             color="primary"
@@ -87,12 +93,13 @@
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
-    <p *ngIf="cases.data.length == 0 && !loading">
-      {{
-        foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
-      }}
+    <p *ngIf="!loading && cases.data.length === 0">
+      {{ "msg.geen.gegevens.gevonden" | translate }}
     </p>
-    <p *ngIf="totalCases > 10 && !loading" class="feedback">
+    <p
+      *ngIf="!loading && cases.data.length > 0 && totalCases > 10"
+      class="feedback"
+    >
       <mat-divider class="mat-divider-wrapper"></mat-divider>
       {{
         "Alleen de eerste 10 resultaten worden getoond. Scherp de zoekopdracht aan als het gewenste resultaat hier niet tussen staat."
@@ -100,4 +107,9 @@
       }}
     </p>
   </div>
+  <mat-action-row>
+    <button mat-raised-button (click)="sideNav.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-action-row>
 </div>
