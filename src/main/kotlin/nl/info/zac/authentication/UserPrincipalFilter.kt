@@ -140,13 +140,13 @@ constructor(
             .map { it.zaaktypeOmschrijving }
             .toSet()
 
-        val allKnown = cmmn + bpmn
-        if (allKnown.isEmpty()) {
+        val all = cmmn + bpmn
+        if (all.isEmpty()) {
             return false
         }
 
-        val perZt = user.applicationRolesPerZaaktype
-        return allKnown.all { ztId -> perZt[ztId]?.isNotEmpty() == true }
+        val rolesPerZaaktype = user.applicationRolesPerZaaktype
+        return all.all { zaaktype -> rolesPerZaaktype[zaaktype]?.isNotEmpty() == true }
     }
 
     fun setLoggedInUserOnHttpSession(
