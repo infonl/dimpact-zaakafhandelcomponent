@@ -13,6 +13,7 @@ import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -21,20 +22,31 @@ import java.util.UUID
 class ZaaktypeBpmnConfigurationService @Inject constructor(
     private val entityManager: EntityManager,
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
+    }
 
     fun storeConfiguration(
         zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
-    ): ZaaktypeBpmnConfiguration =
-        if (zaaktypeBpmnConfiguration.id != null) {
+    ): ZaaktypeBpmnConfiguration {
+        zaaktypeBpmnConfiguration.id?.let {
+            if (findConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid) == null) {
+                LOG.warning("BPMN configuration with zaaktype UUID '$it' not found, creating new configuration")
+                zaaktypeBpmnConfiguration.id = null
+            }
+        }
+
+        return if (zaaktypeBpmnConfiguration.id != null) {
             entityManager.merge(zaaktypeBpmnConfiguration)
         } else {
             entityManager.persist(zaaktypeBpmnConfiguration)
             entityManager.flush()
             findConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid)
                 ?: throw ZaaktypeConfigurationNotFoundException(
-                    "Zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
+                    "BPMN zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
                 )
         }
+    }
 
     fun deleteConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         entityManager.remove(zaaktypeBpmnConfiguration)
@@ -76,7 +88,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                 query.from(ZaaktypeBpmnConfiguration::class.java).let {
                     query.where(
                         criteriaBuilder.equal(
-                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME),
+                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTYPE_VARIABLE_NAME),
                             productAanvraagType
                         )
                     )
