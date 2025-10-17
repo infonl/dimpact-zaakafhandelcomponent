@@ -65,6 +65,8 @@ kotest = "5.9.1"
 mockk = "1.14.6"
 
 testcontainers = "2.0.1"
+testcontainers-mockserver = "2.0.0"
+testcontainers-postgresql = "1.21.3"
 
 json-json = "20250517"
 slf4j-simple = "2.0.17"
@@ -149,8 +151,8 @@ json = { group = "org.json", name = "json", version.ref = "json-json" }
 
 # integration test dependencies
 testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
-testcontainers-mockserver = { group = "org.testcontainers", name = "mockserver", version.ref = "testcontainers" }
-testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
+testcontainers-mockserver = { group = "org.testcontainers", name = "testcontainers-mockserver", version.ref = "testcontainers-mockserver" }
+testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers-postgresql" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
 github-kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "github-kotlin-logging" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
