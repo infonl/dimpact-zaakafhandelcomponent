@@ -19,6 +19,7 @@ import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
@@ -41,6 +42,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
     val zaaktypeCmmnConfigurationConverter = mockk<RestZaakafhandelParametersConverter>()
+    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
@@ -51,12 +53,13 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         cmmnService = cmmnService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
+        zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
         referenceTableService = referenceTableService,
         zaaktypeCmmnConfigurationConverter = zaaktypeCmmnConfigurationConverter,
         caseDefinitionConverter = caseDefinitionConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService,
-        identityService = identityService
+        identityService = identityService,
     )
 
     beforeEach {

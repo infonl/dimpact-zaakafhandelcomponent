@@ -1,0 +1,55 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+  <mat-sidenav-content class="flex-col gap-20">
+    @if (isLoading) {
+      <div class="flex-fill flex-row justify-center items-center">
+        <mat-spinner diameter="24"></mat-spinner>
+      </div>
+    } @else {
+      <ng-container [ngSwitch]="processDefinitionType.type">
+        <zac-parameters-edit-select-process-definition
+          *ngSwitchCase="'SELECT-PROCESS-DEFINITION'"
+          (switchProcessDefinition)="switchProcessDefinition($event)"
+        >
+        </zac-parameters-edit-select-process-definition>
+
+        <zac-parameters-edit-cmmn
+          *ngSwitchCase="'CMMN'"
+          [showFirstStep]="featureFlagBpmnSupport"
+          [selectedIndexStart]="
+            featureFlagBpmnSupport
+              ? (processDefinitionType.selectedIndexStart ?? 0)
+              : 0
+          "
+          (switchProcessDefinition)="switchProcessDefinition($event)"
+        >
+        </zac-parameters-edit-cmmn>
+
+        <zac-parameters-edit-bpmn
+          *ngSwitchCase="'BPMN'"
+          [selectedIndexStart]="processDefinitionType.selectedIndexStart ?? 0"
+          (switchProcessDefinition)="switchProcessDefinition($event)"
+        >
+          >
+        </zac-parameters-edit-bpmn>
+      </ng-container>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>

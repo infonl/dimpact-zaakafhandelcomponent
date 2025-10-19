@@ -140,7 +140,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given(
             """
-        ZAC Docker container is running, zaakafhandleparameters is created and a testuser1 is logged-in
+            ZAC Docker container is running, zaakafhandleparameters is created and a testuser1 is logged-in
             """.trimIndent()
         ) {
             authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
@@ -157,28 +157,28 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 And("the response body should contain the zaaktypes in all domains") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                [
-                  {
-                    "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
-                  },
-                  {
-                    "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                    "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
-                    "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
-                  }
-                ]
+                    [
+                      {
+                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                     },
+                      {
+                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                      }
+                    ]
                     """.trimIndent()
                 }
             }
@@ -456,7 +456,32 @@ class ZaakRestServiceTest : BehaviorSpec({
                           ],
                           "id": 1,
                           "intakeMail": "BESCHIKBAAR_UIT",
-                          "mailtemplateKoppelingen": [],
+                          "mailtemplateKoppelingen": [
+                            {
+                              "mailtemplate": {
+                                "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                                "defaultMailtemplate": true,
+                                "id": 2,
+                                "mail": "ZAAK_NIET_ONTVANKELIJK",
+                                "mailTemplateNaam": "Zaak niet ontvankelijk",
+                                "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                                "variabelen": [
+                                  "GEMEENTE",
+                                  "ZAAK_NUMMER",
+                                  "ZAAK_TYPE",
+                                  "ZAAK_STATUS",
+                                  "ZAAK_REGISTRATIEDATUM",
+                                  "ZAAK_STARTDATUM",
+                                  "ZAAK_STREEFDATUM",
+                                  "ZAAK_FATALEDATUM",
+                                  "ZAAK_OMSCHRIJVING",
+                                  "ZAAK_TOELICHTING",
+                                  "ZAAK_INITIATOR",
+                                  "ZAAK_INITIATOR_ADRES"
+                                ]
+                              }
+                            }
+                          ],
                           "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_1",
                           "userEventListenerParameters": [
                             {

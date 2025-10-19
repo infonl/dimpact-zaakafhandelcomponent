@@ -2,7 +2,7 @@
 
 # The number of expected records in the database migrations table after PABC has finished with the database migration scripts.
 # Note that this is expected to change in future versions of PABC, so this value should be updated accordingly.
-DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT=3
+DATABASE_MIGRATIONS_TABLE_RECORDS_COUNT=6
 
 echo ">>>> Waiting until PABC has initialized the database <<<<"
 useradd pabc
