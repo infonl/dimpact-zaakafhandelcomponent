@@ -56,7 +56,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns processInstance
 
         When("a check is done to see if the zaak is process driven") {
-            val isProcessDriven = bpmnService.isProcessDriven(uuid)
+            val isProcessDriven = bpmnService.isZaakProcessDriven(uuid)
 
             Then("'true is returned") {
                 isProcessDriven shouldBe true
@@ -73,7 +73,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns null
 
         When("a check is done to see if the zaak is process driven") {
-            val isProcessDriven = bpmnService.isProcessDriven(uuid)
+            val isProcessDriven = bpmnService.isZaakProcessDriven(uuid)
 
             Then("'false is returned") {
                 isProcessDriven shouldBe false
@@ -125,7 +125,7 @@ class BpmnServiceTest : BehaviorSpec({
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
         } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
@@ -139,7 +139,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationService.findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)

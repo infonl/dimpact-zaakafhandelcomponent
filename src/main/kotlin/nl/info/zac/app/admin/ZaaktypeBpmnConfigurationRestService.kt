@@ -15,12 +15,10 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
-import jakarta.ws.rs.core.UriInfo
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.app.admin.model.RestZaaktypeBpmnProcessDefinition
+import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
+import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -28,7 +26,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
-@Path("zaaktype-bpmn-process-definitions")
+@Path("zaaktype-bpmn-configuration")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
@@ -38,41 +36,47 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     @GET
-    fun listZaaktypeBpmnProcessDefinitions(): List<RestZaaktypeBpmnProcessDefinition> {
+    fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions().map {
-            it.toRestZaaktypeBpmnProcessDefinition()
+        return zaaktypeBpmnConfigurationService.listConfigurations().map {
+            it.toRestZaaktypeBpmnConfiguration()
         }
     }
 
     @GET
     @Path("{processDefinitionKey}")
-    fun listZaaktypeBpmnProcessDefinition(
+    fun getZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
-    ): RestZaaktypeBpmnProcessDefinition {
+    ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinitions = zaaktypeBpmnConfigurationService
-            .listBpmnProcessDefinitions()
+            .listConfigurations()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
 
         if (processDefinitions.isEmpty()) {
-            throw NotFoundException("No process definition found for key '$processDefinitionKey'")
+            throw NotFoundException(
+                "No zaaktype configuration found for process definition key '$processDefinitionKey'"
+            )
         }
-        check(processDefinitions.size == 1) { "Multiple process definitions found for key '$processDefinitionKey'" }
+        if (processDefinitions.size != 1) {
+            throw MultipleZaaktypeConfigurationsFoundException(
+                "Multiple zaaktype configurations found for process definition key '$processDefinitionKey'"
+            )
+        }
 
-        return processDefinitions.first().toRestZaaktypeBpmnProcessDefinition()
+        return processDefinitions.first().toRestZaaktypeBpmnConfiguration()
     }
 
     @POST
     @Path("{processDefinitionKey}")
-    fun createZaaktypeBpmnProcessDefinition(
+    fun createZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
-        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnProcessDefinition,
-        @Context uriInfo: UriInfo
-    ): Response {
+        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
+    ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        zaaktypeBpmnConfigurationService.createZaaktypeBpmnProcessDefinition(
+        val bpmnConfiguration = zaaktypeBpmnConfigurationService.storeConfiguration(
             ZaaktypeBpmnConfiguration().apply {
+                id = restZaaktypeBpmnProcessDefinition.id
                 zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
                 bpmnProcessDefinitionKey = processDefinitionKey
                 zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
@@ -80,11 +84,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 groupId = restZaaktypeBpmnProcessDefinition.groepNaam
             }
         )
-        return Response.created(uriInfo.requestUri).build()
+        return bpmnConfiguration.toRestZaaktypeBpmnConfiguration()
     }
 
-    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnProcessDefinition() =
-        RestZaaktypeBpmnProcessDefinition(
+    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
+        RestZaaktypeBpmnConfiguration(
+            id = this.id,
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,

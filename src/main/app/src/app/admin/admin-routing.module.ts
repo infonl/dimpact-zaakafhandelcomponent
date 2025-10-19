@@ -14,7 +14,7 @@ import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.c
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
@@ -38,7 +38,7 @@ const routes: Routes = [
       { path: "parameters", component: ParametersComponent },
       {
         path: "parameters/:uuid",
-        component: ParameterEditComponent,
+        component: ParametersEditWrapperComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
       { path: "processdefinitions", component: ProcessDefinitionsComponent },

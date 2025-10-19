@@ -1209,7 +1209,7 @@ class ZaakRestService @Inject constructor(
         group: Group,
         user: User?
     ) {
-        if (bpmnService.isProcessDriven(zaakUuid)) {
+        if (bpmnService.isZaakProcessDriven(zaakUuid)) {
             zaakVariabelenService.setGroup(zaakUuid, group.name)
             user?.let {
                 zaakVariabelenService.setUser(zaakUuid, it.getFullName())

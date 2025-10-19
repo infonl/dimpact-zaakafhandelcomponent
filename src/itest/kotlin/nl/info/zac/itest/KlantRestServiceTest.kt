@@ -141,11 +141,47 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("a vestiging is requested which is present in the KVK test environment") {
+        When(
+            """
+                A vestiging is requested by vestigingsnummer and KVK number which is present in the KVK test environment
+                and for which contact details are present in Open Klant
+            """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1"
+            )
+            Then("the vestiging is returned with the expected data including contact details") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.body.string()
+                logger.info { "Response: $responseBody" }
+                // since there is customer contact data linked to this vestiging in our Open Klant container
+                // the response should contain an email address and telephone number
+                responseBody shouldEqualJson """
+                    {
+                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "emailadres": "$TEST_VESTIGING_EMAIL",
+                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
+                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
+                      "naam": "$TEST_KVK_NAAM_1",
+                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
+                      "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                    }
+                """.trimIndent()
+            }
+        }
+
+        When(
+            """
+                A vestiging is requested by vestigingsnummer alone which is present in the KVK test environment
+                and for which contact details are present in Open Klant
+            """
+        ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
             )
-            Then("the vestiging is returned with the expected data") {
+            Then("the vestiging is returned with the expected data including contact details") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -165,6 +201,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
+
         When("a vestigingsprofiel is requested which is present in the KVK test environment") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"

@@ -17,10 +17,7 @@ export class ZacSelect<
   Key extends keyof Form,
   Option extends Form[Key]["value"],
   OptionDisplayValue extends keyof Option | ((option: Option) => string),
-  Compare extends (a: Option, b: Option) => boolean,
 > extends MultiInputFormField<Form, Key, Option, OptionDisplayValue> {
-  protected readonly compare = input<Compare>();
-
   /**
    * The suffix to display after the input field.
    * It will get translated using the `translate` pipe.
@@ -36,17 +33,5 @@ export class ZacSelect<
     if (suffix in option) return option[suffix];
 
     return suffix;
-  };
-
-  // Needs to be an arrow function to de-link the reference to `this`
-  // when used in the template `[compareWith]="compareWith"`
-  protected compareWith = (a: Option, b: Option) => {
-    const compare = this.compare();
-    if (compare) return compare.call(this, a, b);
-
-    if (this.optionDisplayValue())
-      return this.displayWith(a) === this.displayWith(b);
-
-    return a === b;
   };
 }

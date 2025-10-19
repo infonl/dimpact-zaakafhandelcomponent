@@ -26,10 +26,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { ParameterEditComponent } from "./parameter-edit.component";
+import { ParametersEditCmmnComponent } from "./parameter-edit.component";
 
-describe(ParameterEditComponent.name, () => {
-  let fixture: ComponentFixture<ParameterEditComponent>;
+describe(ParametersEditCmmnComponent.name, () => {
+  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
@@ -37,7 +37,7 @@ describe(ParameterEditComponent.name, () => {
   let loader: HarnessLoader;
   let utilService: UtilService;
 
-  const zaakAfhandelParamaters = fromPartial<
+  const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
@@ -59,7 +59,7 @@ describe(ParameterEditComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        ParameterEditComponent,
+        ParametersEditCmmnComponent,
         SideNavComponent,
         StaticTextComponent,
       ],
@@ -77,7 +77,12 @@ describe(ParameterEditComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ parameters: zaakAfhandelParamaters }),
+            data: of({
+              parameters: {
+                zaakafhandelParameters,
+                isSavedZaakafhandelParameters: true,
+              },
+            }),
           },
         },
       ],
@@ -100,6 +105,9 @@ describe(ParameterEditComponent.name, () => {
       .mockReturnValue(of([]));
     jest
       .spyOn(zaakafhandelParametersService, "listResultaattypes")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listBpmnZaakafhandelParameters")
       .mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
@@ -140,7 +148,7 @@ describe(ParameterEditComponent.name, () => {
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
-    fixture = TestBed.createComponent(ParameterEditComponent);
+    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
@@ -153,16 +161,16 @@ describe(ParameterEditComponent.name, () => {
       expect(value).toBe("-kies.generiek-");
     });
 
-    it.skip("should update the case handlers when the group changes", async () => {
+    it("should update the case handlers when the group changes", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-
       const groupField = selectFields[2];
+
       await groupField.clickOptions({ text: "test-group-2" });
 
-      const caseHandlerSelect = selectFields[4];
+      const caseHandlerSelect = selectFields[3];
       const value = await caseHandlerSelect.getValueText();
 
-      expect(value).toBe("behandelaar.-geen-");
+      expect(value).toBe("-kies.generiek-");
     });
   });
 });

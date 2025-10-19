@@ -16,7 +16,7 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.io.File
 
 @Order(TEST_SPEC_ORDER_INITIAL)
-class ProcessDefinitionRestServiceTest : BehaviorSpec({
+class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
@@ -28,7 +28,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
                 File(it.path)
             }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/process-definitions",
+                url = "$ZAC_API_URI/bpmn-process-definitions",
                 requestBodyAsString = """
                 {
                     "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
@@ -44,7 +44,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
         }
         When("the process definitions are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/process-definitions"
+                "$ZAC_API_URI/bpmn-process-definitions"
             )
             Then("the response contains the BPMN process definition that was just created") {
                 val responseBody = response.body.string()

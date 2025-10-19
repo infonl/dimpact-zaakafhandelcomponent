@@ -331,4 +331,69 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(panelText).toContain("Test Body");
     });
   });
+
+  describe("zaak afhandelen button visibility", () => {
+    test.each([
+      [
+        {
+          resultaatType: { id: "test-id-1", besluitVerplicht: true },
+          besluiten: [],
+        },
+        false,
+      ],
+      [
+        {
+          resultaatType: { id: "test-id-2", besluitVerplicht: true },
+          besluiten: [
+            fromPartial<GeneratedType<"RestDecision">>({
+              uuid: "mock-besluit-uuid",
+              url: "http://example.com/besluit",
+            }),
+          ],
+        },
+        true,
+      ],
+      [
+        {
+          resultaatType: { id: "test-id-3", besluitVerplicht: false },
+          besluiten: [
+            fromPartial<GeneratedType<"RestDecision">>({
+              uuid: "mock-besluit-uuid",
+              url: "http://example.com/besluit",
+            }),
+          ],
+        },
+        true,
+      ],
+      [
+        {
+          resultaatType: { id: "test-id-4", besluitVerplicht: false },
+          besluiten: [],
+        },
+        true,
+      ],
+    ])(
+      "should show submit button correctly for besluitVerplicht=%s and besluiten=%s",
+      async (state, showSubmitButton) => {
+        const component = fixture.componentInstance;
+
+        component.data.zaak.besluiten = state.besluiten;
+
+        component.formGroup.patchValue({ resultaattype: state.resultaatType });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const submitButton = await loader.getHarnessOrNull(
+          MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+        );
+
+        if (showSubmitButton) {
+          expect(submitButton).toBeTruthy();
+        } else {
+          expect(submitButton).toBeNull();
+        }
+      },
+    );
+  });
 });

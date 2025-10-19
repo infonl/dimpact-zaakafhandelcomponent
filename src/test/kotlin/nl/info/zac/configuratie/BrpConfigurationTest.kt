@@ -14,7 +14,19 @@ import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
 
-    Given("No BRP audit log provider specified") {
+    Given("BRP protocollering disabled") {
+        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+
+        When("reading BRP audit log provider") {
+            val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
+
+            Then("empty string is returned") {
+                protocolleringProvider shouldContain ""
+            }
+        }
+    }
+
+    Given("BRP protocollering enabled, but no audit log provider specified") {
         val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
 
         When("reading BRP audit log provider") {

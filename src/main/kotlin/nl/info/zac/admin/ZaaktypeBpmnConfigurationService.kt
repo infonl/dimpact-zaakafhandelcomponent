@@ -8,11 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import nl.info.zac.admin.exception.ZaaktypeInUseException
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -20,20 +21,34 @@ import java.util.UUID
 @AllOpen
 class ZaaktypeBpmnConfigurationService @Inject constructor(
     private val entityManager: EntityManager,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService
 ) {
-    fun createZaaktypeBpmnProcessDefinition(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
-        zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(
-            zaaktypeBpmnConfiguration.zaaktypeUuid
-        )?.let {
-            throw ZaaktypeInUseException(
-                "CMMN configuration for zaaktype '${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}' already exists"
-            )
-        }
-        entityManager.persist(zaaktypeBpmnConfiguration)
+    companion object {
+        private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
     }
 
-    fun deleteZaaktypeBpmnProcessDefinition(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
+    fun storeConfiguration(
+        zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
+    ): ZaaktypeBpmnConfiguration {
+        zaaktypeBpmnConfiguration.id?.let {
+            if (findConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid) == null) {
+                LOG.warning("BPMN configuration with zaaktype UUID '$it' not found, creating new configuration")
+                zaaktypeBpmnConfiguration.id = null
+            }
+        }
+
+        return if (zaaktypeBpmnConfiguration.id != null) {
+            entityManager.merge(zaaktypeBpmnConfiguration)
+        } else {
+            entityManager.persist(zaaktypeBpmnConfiguration)
+            entityManager.flush()
+            findConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid)
+                ?: throw ZaaktypeConfigurationNotFoundException(
+                    "BPMN zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
+                )
+        }
+    }
+
+    fun deleteConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         entityManager.remove(zaaktypeBpmnConfiguration)
     }
 
@@ -41,7 +56,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
      * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
      * if no BPMN process definition could be found for the given zaaktype UUID.
      */
-    fun findZaaktypeProcessDefinitionByZaaktypeUuid(zaaktypeUUID: UUID): ZaaktypeBpmnConfiguration? =
+    fun findConfigurationByZaaktypeUuid(zaaktypeUUID: UUID): ZaaktypeBpmnConfiguration? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java).let {
@@ -59,7 +74,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
     /**
      * Returns a list of all BPMN process definitions.
      */
-    fun listBpmnProcessDefinitions(): List<ZaaktypeBpmnConfiguration> =
+    fun listConfigurations(): List<ZaaktypeBpmnConfiguration> =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java)
@@ -67,13 +82,13 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
             }
         }
 
-    fun findByProductAanvraagType(productAanvraagType: String): ZaaktypeBpmnConfiguration? =
+    fun findConfigurationByProductAanvraagType(productAanvraagType: String): ZaaktypeBpmnConfiguration? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java).let {
                     query.where(
                         criteriaBuilder.equal(
-                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTTYPE_VARIABELE_NAME),
+                            it.get<String>(ZaaktypeBpmnConfiguration.PRODUCTAANVRAAGTYPE_VARIABLE_NAME),
                             productAanvraagType
                         )
                     )

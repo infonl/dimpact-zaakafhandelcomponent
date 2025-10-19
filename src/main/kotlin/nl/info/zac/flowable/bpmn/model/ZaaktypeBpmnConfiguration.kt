@@ -28,13 +28,13 @@ import java.util.UUID
 @AllOpen
 class ZaaktypeBpmnConfiguration {
     companion object {
-        const val PRODUCTAANVRAAGTTYPE_VARIABELE_NAME = "productaanvraagtype"
+        const val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = "productaanvraagtype"
         const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
     }
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_configuration", strategy = GenerationType.SEQUENCE)
-    var id: Long = 0
+    var id: Long? = null
 
     @NotNull
     @Column(name = "zaaktype_uuid")

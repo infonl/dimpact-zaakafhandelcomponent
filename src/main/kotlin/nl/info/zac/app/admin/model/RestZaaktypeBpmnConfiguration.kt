@@ -11,7 +11,9 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RestZaaktypeBpmnProcessDefinition(
+data class RestZaaktypeBpmnConfiguration(
+    var id: Long? = null,
+
     @field:NotNull
     var zaaktypeUuid: UUID,
 

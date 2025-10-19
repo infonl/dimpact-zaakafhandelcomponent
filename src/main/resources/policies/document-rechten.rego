@@ -117,7 +117,6 @@ toevoegen_nieuwe_versie if {
 toevoegen_nieuwe_versie if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
-    document.ondertekend == false
 }
 
 default verplaatsen := false

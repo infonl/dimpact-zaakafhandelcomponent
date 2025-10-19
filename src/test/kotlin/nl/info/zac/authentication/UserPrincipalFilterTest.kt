@@ -53,7 +53,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         val responseModel = mockk<GetApplicationRolesResponseModel>()
         val entityType = mockk<EntityTypeModel>()
         every { entityType.type } returns "zaaktype"
-        every { entityType.id } returns zaaktypeName
+        every { entityType.name } returns zaaktypeName
         every { responseModel.entityType } returns entityType
 
         val roleModels = names.map { roleName ->
@@ -147,7 +147,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
             } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions() } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -229,7 +229,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 pabcClientService.getApplicationRoles(any())
             } returns pabcRolesResponse("fakeZaaktypeOmschrijving1", *pabcRoleNames.toTypedArray())
             every {
-                zaaktypeBpmnConfigurationService.listBpmnProcessDefinitions()
+                zaaktypeBpmnConfigurationService.listConfigurations()
             } returns listOf(
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1"),
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn2")
