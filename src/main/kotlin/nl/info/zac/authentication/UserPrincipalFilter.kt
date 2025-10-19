@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
-import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.util.AllOpen
@@ -148,13 +147,12 @@ constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> =
         try {
-            val response: GetApplicationRolesResponse =
-                pabcClientService.getApplicationRoles(functionalRoles.toList())
-
-            response.results
+            pabcClientService.getApplicationRoles(functionalRoles.toList()).results
                 .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
                 .mapNotNull { res ->
-                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    // note that we have to use the name of the entityType (e.g. the name of the zaaktype) as the key
+                    // and not the (internal PABC) ID
+                    val key = res.entityType?.name?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
                     key to roleNames
                 }
@@ -198,7 +196,7 @@ constructor(
             // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
             // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
             val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationService
-                .listBpmnProcessDefinitions()
+                .listConfigurations()
                 .map { it.zaaktypeOmschrijving }
 
             zaaktypeCmmnConfigurationDescriptions + zaaktypeBpmnProcessDefinitionDescriptions

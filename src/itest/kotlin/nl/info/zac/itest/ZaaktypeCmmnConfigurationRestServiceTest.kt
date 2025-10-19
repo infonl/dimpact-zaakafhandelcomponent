@@ -49,7 +49,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         When(
             """
             the create zaakafhandelparameters endpoint is called to create a new zaaktypeCmmnConfiguration
-            for the 'melding klein evenement' zaaktype without specifying a 'domein'
+            for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype without specifying a 'domein'
             """.trimIndent()
         ) {
             val response = zacClient.createZaaktypeCmmnConfiguration(
@@ -68,7 +68,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         When(
             """
             the create zaakafhandelparameters endpoint is called to create a new zaakafhandelparameters
-            for the 'indienen aansprakelijkheidstelling' zaaktype with specifying the existing test domein
+            for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype with specifying the existing test domein
             """.trimIndent()
         ) {
             val response = zacClient.createZaaktypeCmmnConfiguration(
@@ -84,7 +84,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
             }
         }
-        When("the list zaakafhandelparameters endpoint is called for the 'melding klein evenement' zaaktype") {
+        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"
             )
@@ -100,12 +100,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When(
-            """
-                the list zaakafhandelparameters endpoint is called for the 
-                'indienen aansprakelijkheidstelling door derden' zaaktype"
-            """.trimIndent()
-        ) {
+        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_2_UUID"
             )
@@ -223,7 +218,32 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         } ]
                       } ],
                       "intakeMail" : "BESCHIKBAAR_UIT",
-                      "mailtemplateKoppelingen" : [ ],
+                      "mailtemplateKoppelingen" : [
+                        {
+                          "mailtemplate": {
+                            "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                            "defaultMailtemplate": true,
+                            "id": 2,
+                            "mail": "ZAAK_NIET_ONTVANKELIJK",
+                            "mailTemplateNaam": "Zaak niet ontvankelijk",
+                            "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                            "variabelen": [
+                              "GEMEENTE",
+                              "ZAAK_NUMMER",
+                              "ZAAK_TYPE",
+                              "ZAAK_STATUS",
+                              "ZAAK_REGISTRATIEDATUM",
+                              "ZAAK_STARTDATUM",
+                              "ZAAK_STREEFDATUM",
+                              "ZAAK_FATALEDATUM",
+                              "ZAAK_OMSCHRIJVING",
+                              "ZAAK_TOELICHTING",
+                              "ZAAK_INITIATOR",
+                              "ZAAK_INITIATOR_ADRES"
+                            ]
+                          }
+                        }
+                      ],
                       "productaanvraagtype" : "$PRODUCTAANVRAAG_TYPE_2",
                       "smartDocuments" : {
                         "enabledForZaaktype" : true,

@@ -8,8 +8,10 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  EventEmitter,
+  Input,
   OnDestroy,
-  OnInit,
+  Output,
   ViewChild,
 } from "@angular/core";
 import {
@@ -20,7 +22,6 @@ import {
 } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatSelectChange } from "@angular/material/select";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
@@ -28,32 +29,35 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
+import {
+  ZaakProcessDefinition,
+  ZaakProcessSelect,
+} from "../model/parameters/zaak-process-definition-type";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 @Component({
+  selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameter-edit.component.html",
   styleUrls: ["./parameter-edit.component.less"],
 })
-export class ParameterEditComponent
-  extends AdminComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
+  @Input({ required: true }) showFirstStep: boolean = false;
+  @Input({ required: false }) selectedIndexStart: number = 0;
+  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
 
-  isSmartDocumentsStepValid: boolean = true;
-
-  showDoelbindingen: boolean = false;
+  protected isSmartDocumentsStepValid: boolean = true;
+  protected isSavedZaakafhandelParameters: boolean = false;
+  protected featureFlagBpmnSupport: boolean = false;
+  protected showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -96,6 +100,21 @@ export class ParameterEditComponent
     GeneratedType<"RestZaakAfzender">
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
+
+  protected readonly zaakProcessDefinitionOptions: Array<{
+    label: string;
+    value: ZaakProcessSelect;
+  }> = [
+    { label: "CMMN", value: "CMMN" },
+    { label: "BPMN", value: "BPMN" },
+  ];
+
+  cmmnBpmnFormGroup = this.formBuilder.group({
+    options: this.formBuilder.control<{
+      value: ZaakProcessSelect;
+      label: string;
+    }>({ label: "CMMN", value: "CMMN" }, []),
+  });
 
   algemeenFormGroup = this.formBuilder.group({
     caseDefinition:
@@ -173,7 +192,7 @@ export class ParameterEditComponent
   zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
   mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   replyTos: GeneratedType<"RESTReplyTo">[] = [];
-  loading = false;
+  isLoading = false;
   subscriptions$: Subscription[] = [];
   brpConsultingValues: string[] = [];
   brpSearchValues: string[] = [];
@@ -191,9 +210,17 @@ export class ParameterEditComponent
     private readonly formBuilder: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
   ) {
-    super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
-      this.parameters = data.parameters;
+      if (!data || !data.parameters) {
+        return;
+      }
+
+      this.parameters = data.parameters.zaakafhandelParameters;
+
+      this.isSavedZaakafhandelParameters =
+        data.parameters.isSavedZaakafhandelParameters;
+      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
+
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
         : "BESCHIKBAAR_UIT";
@@ -247,10 +274,6 @@ export class ParameterEditComponent
         },
       );
     });
-  }
-
-  ngOnInit(): void {
-    this.setupMenu("title.parameters.wijzigen");
   }
 
   ngAfterViewInit(): void {
@@ -312,7 +335,11 @@ export class ParameterEditComponent
   }
 
   async createForm() {
-    this.algemeenFormGroup.patchValue(this.parameters, { emitEvent: true });
+    if (!this.featureFlagBpmnSupport || this.isSavedZaakafhandelParameters) {
+      this.cmmnBpmnFormGroup.disable();
+    }
+
+    this.algemeenFormGroup.patchValue(this.parameters);
 
     const { defaultGroepId, defaultBehandelaarId } = this.parameters;
 
@@ -761,6 +788,7 @@ export class ParameterEditComponent
 
   protected isValid(): boolean {
     return (
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
@@ -772,7 +800,7 @@ export class ParameterEditComponent
   }
 
   protected opslaan() {
-    this.loading = true;
+    this.isLoading = true;
     this.parameters = {
       ...this.parameters,
       ...this.algemeenFormGroup.value,
@@ -903,7 +931,9 @@ export class ParameterEditComponent
       .updateZaakafhandelparameters(this.parameters)
       .subscribe({
         next: (data) => {
-          this.loading = false;
+          this.isLoading = false;
+          this.cmmnBpmnFormGroup.disable(); // disable form to prevent modifications until explicitly enabled again
+
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
@@ -922,7 +952,7 @@ export class ParameterEditComponent
           }
         },
         error: () => {
-          this.loading = false;
+          this.isLoading = false;
         },
       });
 
@@ -983,7 +1013,6 @@ export class ParameterEditComponent
   }
 
   ngOnDestroy(): void {
-    super.ngOnDestroy();
     this.destroy$.next();
     this.destroy$.complete();
     for (const subscription of this.subscriptions$) {

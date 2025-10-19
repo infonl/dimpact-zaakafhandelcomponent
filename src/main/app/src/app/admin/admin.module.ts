@@ -17,9 +17,12 @@ import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signale
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
+import { ParametersEditCmmnComponent } from "./parameter-edit/parameter-edit.component";
 import { SmartDocumentsFormItemComponent } from "./parameter-edit/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 import { SmartDocumentsFormComponent } from "./parameter-edit/smart-documents-form/smart-documents-form.component";
+import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
+import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-select-process-definition/parameters-edit-select-process-definition.component";
+import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
@@ -28,8 +31,11 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
 @NgModule({
   declarations: [
     GroepSignaleringenComponent,
+    ParametersEditWrapperComponent,
     ParametersComponent,
-    ParameterEditComponent,
+    ParameterEditSelectProcessDefinitionComponent,
+    ParametersEditCmmnComponent,
+    ParametersEditBpmnComponent,
     FormulierDefinitiesComponent,
     FormulierDefinitieEditComponent,
     ReferentieTabellenComponent,
