@@ -107,7 +107,10 @@ When(
       .first()
       .click();
 
-    await this.page.getByPlaceholder("- Geen behandelaar -").first().click();
+    await this.page
+      .getByRole("combobox", { name: "Taak toekennen aan medewerker" })
+      .first()
+      .click();
     await this.page
       .getByRole("option", { name: user2Profile.username })
       .first()
