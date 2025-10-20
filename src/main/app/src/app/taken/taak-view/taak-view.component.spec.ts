@@ -83,6 +83,10 @@ describe(TaakViewComponent.name, () => {
       omschrijving: "Test Zaaktype",
       zaakafhandelparameters: {
         afrondenMail: "BESCHIKBAAR_AAN",
+          smartDocuments: {
+              enabledGlobally: true,
+              enabledForZaaktype: true
+          }
       },
     }),
     initiatorIdentificatie: fromPartial<
@@ -93,6 +97,7 @@ describe(TaakViewComponent.name, () => {
     }),
     resultaat: null,
     besluiten: [],
+
   });
 
   beforeEach(() => {
@@ -253,4 +258,27 @@ describe(TaakViewComponent.name, () => {
       expect(spy).toHaveBeenCalledWith(taak.formulierDefinitieId);
     });
   });
+
+  describe("menu items setup", () => {
+      it("should show both document action buttons in the side panel", () => {
+          // Bypass TS for protected properties
+          (component.instance as any).zaak = zaak;
+          (component.instance as any).taak = taak;
+
+          component.instance.ngOnInit();
+          fixture.detectChanges();
+
+          const menuButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('zac-side-nav button');
+
+          const documentButtons: HTMLButtonElement[] = Array.from(menuButtons).filter(
+              (btn: HTMLButtonElement) =>
+                  btn.textContent?.includes('actie.document.toevoegen') ||
+                  btn.textContent?.includes('actie.document.maken')
+          );
+
+          expect(documentButtons.length).toBe(2);
+          expect(documentButtons[0].textContent).toContain('actie.document.toevoegen');
+          expect(documentButtons[1].textContent).toContain('actie.document.maken');
+      });
+  })
 });
