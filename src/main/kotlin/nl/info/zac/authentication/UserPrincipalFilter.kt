@@ -53,6 +53,7 @@ constructor(
 
     private val adminUriPrefixes = listOf(
         "/rest/admin/",
+        "/admin/",
     )
 
     override fun doFilter(
@@ -124,7 +125,7 @@ constructor(
 
     private fun hasBeheerderApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { roles ->
-            roles.any { it == "beheerder" }
+            roles.any { it == ZACRole.BEHEERDER.value }
         }
 
     fun setLoggedInUserOnHttpSession(
