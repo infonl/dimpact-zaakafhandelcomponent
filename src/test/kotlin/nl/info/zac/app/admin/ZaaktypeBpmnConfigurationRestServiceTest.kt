@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
@@ -23,8 +24,13 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val policyService = mockk<PolicyService>()
+    val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationRestService =
-        ZaaktypeBpmnConfigurationRestService(zaaktypeBpmnConfigurationService, policyService)
+        ZaaktypeBpmnConfigurationRestService(
+            zaaktypeBpmnConfigurationService,
+            zaaktypeCmmnConfigurationBeheerService,
+            policyService
+        )
 
     beforeEach {
         checkUnnecessaryStub()
