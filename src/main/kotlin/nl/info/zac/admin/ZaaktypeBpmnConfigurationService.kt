@@ -38,7 +38,9 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
         zaaktypeBpmnConfiguration.productaanvraagtype?.let {
             findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
                 if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
-                    LOG.info("Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}")
+                    LOG.info(
+                        "Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
+                    )
                     throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
                 }
             }

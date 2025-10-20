@@ -93,7 +93,9 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
         val productaanvraagtype = "fakeProductaanvraagtypeUnderTest"
 
         Given("A productaanvraagtype is in use by a BPMN zaaktype") {
-            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(productaanvraagtype = productaanvraagtype)
+            val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
+                productaanvraagtype = productaanvraagtype
+            )
             every {
                 zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productaanvraagtype)
             } returns zaaktypeBpmnProcessDefinition
