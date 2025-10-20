@@ -628,9 +628,7 @@
                     [form]="automatischeOntvangstbevestigingFormGroup"
                     key="templateName"
                     label="title.mailtemplate"
-                    [options]="
-                      getBeschikbareMailtemplates('TAAK_ONTVANGSTBEVESTIGING')
-                    "
+                    [options]="ontvanhgstBevestigingsMailtemplates"
                     optionDisplayValue="mailTemplateNaam"
                   ></zac-select>
                   <zac-select
@@ -638,7 +636,7 @@
                     [form]="automatischeOntvangstbevestigingFormGroup"
                     key="emailSender"
                     label="mail.afzender"
-                    [options]="filterOutMedewerkerMail(replyTos)"
+                    [options]="filteredMedewerkerMail"
                     [optionDisplayValue]="replyToDisplayValue"
                   ></zac-select>
                   <zac-select
@@ -646,7 +644,7 @@
                     [form]="automatischeOntvangstbevestigingFormGroup"
                     key="emailReply"
                     label="mail.antwoord"
-                    [options]="filterOutMedewerkerMail(replyTos)"
+                    [options]="filteredMedewerkerMail"
                     [optionDisplayValue]="replyToDisplayValue"
                   ></zac-select>
                 </section>
