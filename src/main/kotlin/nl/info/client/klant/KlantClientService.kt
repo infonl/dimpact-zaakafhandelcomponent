@@ -24,6 +24,7 @@ class KlantClientService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(KlantClientService::class.java.name)
+        private const val DEFAULT_PAGE_SIZE = 100
     }
 
     /**
@@ -41,7 +42,7 @@ class KlantClientService @Inject constructor(
         val expandPartijen = klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
-            pageSize = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.VESTIGING.toString(),
             partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.VESTIGINGSNUMMER.toString(),
             partijIdentificatorObjectId = vestigingsnummer
@@ -68,7 +69,6 @@ class KlantClientService @Inject constructor(
             }
             null
         }
-
         return expandPartijWithCorrectKvkNumber?.getExpand()?.getDigitaleAdressen() ?: emptyList()
     }
 
@@ -76,7 +76,7 @@ class KlantClientService @Inject constructor(
         klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
-            pageSize = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON.toString(),
             partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.KVK_NUMMER.toString(),
             partijIdentificatorObjectId = kvkNummer
@@ -86,7 +86,7 @@ class KlantClientService @Inject constructor(
         klantClient.partijenList(
             expand = "digitaleAdressen",
             page = 1,
-            pageSize = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NATUURLIJK_PERSOON.toString(),
             partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.BSN.toString(),
             partijIdentificatorObjectId = number
@@ -96,7 +96,7 @@ class KlantClientService @Inject constructor(
         klantClient.partijenList(
             expand = "betrokkenen,betrokkenen.hadKlantcontact",
             page = page,
-            pageSize = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.betrokkenen ?: emptyList()
 }

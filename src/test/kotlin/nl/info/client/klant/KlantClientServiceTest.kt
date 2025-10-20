@@ -28,7 +28,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "natuurlijk_persoon",
                     partijIdentificatorCodeSoortObjectId = "bsn",
                     partijIdentificatorObjectId = number
@@ -50,11 +50,19 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A vestigingsnummer and KVK nummer combination for which digital addresses exist") {
+        Given(
+            """
+                A vestigingsnummer and KVK nummer combination for which digital addresses exist,
+                and where there are multiple partijen for the vestigingsnummer, only one of which
+                is linked to the requested KVK number
+                """
+        ) {
             val kvkNummer = "54321"
+            val otherKvkNummer = "99999"
             val vestigingsnummer = "67890"
             val digitalAddresses = createDigitalAddresses()
             val kvkIdentificatorUUID = UUID.randomUUID()
+            val otherKvkIdentificatorUUID = UUID.randomUUID()
             val kvkIdentificator = createPartijIdentificator(
                 partijIdentificator = createPartijIdentificatorGroepType(
                     codeObjecttype = "niet_natuurlijk_persoon",
@@ -63,8 +71,41 @@ class KlantClientServiceTest : BehaviorSpec({
                     objectId = kvkNummer
                 )
             )
+            val otherKvkIdentificator = createPartijIdentificator(
+                partijIdentificator = createPartijIdentificatorGroepType(
+                    codeObjecttype = "niet_natuurlijk_persoon",
+                    codeRegister = "fakeCodeRegister",
+                    codeSoortObjectId = "kvk_nummer",
+                    objectId = otherKvkNummer
+                )
+            )
             val paginatedExpandPartijList = createPaginatedExpandPartijList(
                 expandPartijen = listOf(
+                    // first partij does have the requested vestingsnummer but is linked
+                    // to a partij with a different KVK number and also has different digital addresses
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            digitaleAdressen = createDigitalAddresses(
+                                phone = "020-0000000",
+                                email = "fake-email@example.com"
+                            )
+                        ),
+                        partijIdentificatoren = listOf(
+                            createPartijIdentificator(
+                                partijIdentificator = createPartijIdentificatorGroepType(
+                                    codeObjecttype = "vestiging",
+                                    codeRegister = "fakeCodeRegister",
+                                    codeSoortObjectId = "vestigingsnummer",
+                                    objectId = vestigingsnummer
+                                ),
+                                subIdentificatorVan = createPartijIdentificatorForeignkey(
+                                    uuid = otherKvkIdentificatorUUID
+                                )
+                            )
+                        )
+                    ),
+                    // first partij has the requested vestingsnummer and is linked
+                    // to a partij with the requested KVK number
                     createExpandPartij(
                         expand = createExpandPartijAllOfExpand(
                             digitaleAdressen = digitalAddresses
@@ -77,7 +118,7 @@ class KlantClientServiceTest : BehaviorSpec({
                                     codeSoortObjectId = "vestigingsnummer",
                                     objectId = vestigingsnummer
                                 ),
-                                subIdentificatorVan = PartijIdentificatorForeignkey(
+                                subIdentificatorVan = createPartijIdentificatorForeignkey(
                                     uuid = kvkIdentificatorUUID
                                 )
                             )
@@ -89,13 +130,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "vestiging",
                     partijIdentificatorCodeSoortObjectId = "vestigingsnummer",
                     partijIdentificatorObjectId = vestigingsnummer
                 )
             } returns paginatedExpandPartijList
             every { klantClient.getPartijIdentificator(kvkIdentificatorUUID) } returns kvkIdentificator
+            every { klantClient.getPartijIdentificator(otherKvkIdentificatorUUID) } returns otherKvkIdentificator
 
             When("digital addresses are retrieved for vestiging type") {
                 val result = klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
@@ -139,7 +181,7 @@ class KlantClientServiceTest : BehaviorSpec({
                                     codeSoortObjectId = "vestigingsnummer",
                                     objectId = vestigingsnummer
                                 ),
-                                subIdentificatorVan = PartijIdentificatorForeignkey(
+                                subIdentificatorVan = createPartijIdentificatorForeignkey(
                                     uuid = kvkIdentificatorUUID
                                 )
                             )
@@ -151,7 +193,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "vestiging",
                     partijIdentificatorCodeSoortObjectId = "vestigingsnummer",
                     partijIdentificatorObjectId = vestigingsnummer
@@ -180,7 +222,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "betrokkenen,betrokkenen.hadKlantcontact",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
@@ -206,7 +248,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "betrokkenen,betrokkenen.hadKlantcontact",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
