@@ -157,7 +157,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     kvkKoppelen: new FormControl(false),
   });
   protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
-  protected ontvanhgstBevestigingsMailtemplates: GeneratedType<"RESTReplyTo">[] =
+  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RESTReplyTo">[] =
     [];
 
   protected automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
@@ -521,7 +521,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       (replyTo: GeneratedType<"RESTReplyTo">) =>
         !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
     );
-    this.ontvanhgstBevestigingsMailtemplates = this.getBeschikbareMailtemplates(
+    this.ontvangstBevestigingsMailtemplates = this.getBeschikbareMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
     );
   }
