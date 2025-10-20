@@ -693,7 +693,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.3@sha256:a1e3a4b009e1a8964881c341fdebf0a4a6b8ef78dac7e4f824c80eea55f7a4d9
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.4@sha256:dc8c8a1886f42d56f3d05b69a9112ea727dc5d959d6c9b860f6436fbe1d70f5f
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
