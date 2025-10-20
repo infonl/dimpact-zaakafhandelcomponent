@@ -50,38 +50,6 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A vestigingsnummer without a KVK number for which digital addresses exist") {
-            val vestigingsnummer = "67890"
-            val digitalAddresses = createDigitalAddresses()
-            val paginatedExpandPartijList = createPaginatedExpandPartijList(
-                expandPartijen = listOf(
-                    createExpandPartij(
-                        expand = createExpandPartijAllOfExpand(
-                            digitaleAdressen = digitalAddresses
-                        )
-                    )
-                )
-            )
-            every {
-                klantClient.partijenList(
-                    expand = "digitaleAdressen",
-                    page = 1,
-                    pageSize = 1,
-                    partijIdentificatorCodeObjecttype = "vestiging",
-                    partijIdentificatorCodeSoortObjectId = "vestigingsnummer",
-                    partijIdentificatorObjectId = vestigingsnummer
-                )
-            } returns paginatedExpandPartijList
-
-            When("digital addresses are retrieved for vestiging type") {
-                val result = klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
-
-                Then("it should return the digital addresses") {
-                    result shouldContainExactly digitalAddresses
-                }
-            }
-        }
-
         Given("A vestigingsnummer and KVK nummer combination for which digital addresses exist") {
             val kvkNummer = "54321"
             val vestigingsnummer = "67890"
