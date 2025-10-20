@@ -146,6 +146,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every {
+                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
+            } just runs
+            every {
                 zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {

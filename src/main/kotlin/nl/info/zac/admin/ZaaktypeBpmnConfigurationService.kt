@@ -28,11 +28,12 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
     }
 
-    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype: String) =
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype: String) {
         findConfigurationByProductAanvraagType(productaanvraagtype)?.let {
             LOG.info("Productaanvraagtype '$it' is already in use by BPMN zaaktype ${it.zaaktypeOmschrijving}")
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }
+    }
 
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         zaaktypeBpmnConfiguration.productaanvraagtype?.let {
