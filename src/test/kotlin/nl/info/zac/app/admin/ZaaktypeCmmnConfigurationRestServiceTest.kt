@@ -141,10 +141,13 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
             } returns zaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
-                    productaanvraagtype
+                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
+                    productaanvraagtype, updatedRestZaakafhandelParameters.zaaktype.omschrijving!!
                 )
-            } returns emptyList()
+            } just runs
+            every {
+                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
+            } just runs
             every {
                 zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
@@ -184,18 +187,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = null
             )
-            val activeZaakafhandelParametersForThisProductaanvraagtype = createZaaktypeCmmnConfiguration(
-                id = 1234L,
-                productaanvraagtype = productaanvraagtype,
-                zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
-            )
             every { policyService.readOverigeRechten().beheren } returns true
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
-                    productaanvraagtype
+                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
+                    productaanvraagtype, restZaakafhandelParameters.zaaktype.omschrijving!!
                 )
-            } returns
-                listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
+            } throws InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
 
             When("the zaakafhandelparameters are created") {
                 val exception = shouldThrow<InputValidationFailedException> {
