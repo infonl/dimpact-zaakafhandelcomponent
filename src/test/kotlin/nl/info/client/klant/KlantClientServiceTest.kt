@@ -28,7 +28,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "natuurlijk_persoon",
                     partijIdentificatorCodeSoortObjectId = "bsn",
                     partijIdentificatorObjectId = number
@@ -130,7 +130,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "vestiging",
                     partijIdentificatorCodeSoortObjectId = "vestigingsnummer",
                     partijIdentificatorObjectId = vestigingsnummer
@@ -193,7 +193,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "digitaleAdressen",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorCodeObjecttype = "vestiging",
                     partijIdentificatorCodeSoortObjectId = "vestigingsnummer",
                     partijIdentificatorObjectId = vestigingsnummer
@@ -222,7 +222,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "betrokkenen,betrokkenen.hadKlantcontact",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
@@ -248,7 +248,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.partijenList(
                     expand = "betrokkenen,betrokkenen.hadKlantcontact",
                     page = 1,
-                    pageSize = 1,
+                    pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
             } returns mockk {
