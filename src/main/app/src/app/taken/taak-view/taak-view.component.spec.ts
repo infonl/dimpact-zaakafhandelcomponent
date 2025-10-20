@@ -83,10 +83,7 @@ describe(TaakViewComponent.name, () => {
       omschrijving: "Test Zaaktype",
       zaakafhandelparameters: {
         afrondenMail: "BESCHIKBAAR_AAN",
-        smartDocuments: {
-          enabledGlobally: true,
-          enabledForZaaktype: true,
-        },
+        smartDocuments: {},
       },
     }),
     initiatorIdentificatie: fromPartial<
@@ -258,27 +255,77 @@ describe(TaakViewComponent.name, () => {
     });
   });
 
-  describe("menu items setup", () => {
-    it("should show both document action buttons in the side panel", () => {
-      component.instance.ngOnInit();
-      fixture.detectChanges();
+  describe("document action buttons visibility for smartDocuments settings", () => {
+    const smartDocumentVariants = [
+      {
+        enabledGlobally: true,
+        enabledForZaaktype: true,
+        showBothButtons: true,
+      },
+      { enabledGlobally: true, enabledForZaaktype: false, showButtons: false },
+      { enabledGlobally: true, enabledForZaaktype: null, showButtons: false },
+      { enabledGlobally: true, showButtons: false },
+      { enabledGlobally: false, enabledForZaaktype: true, showButtons: false },
+      { enabledGlobally: false, enabledForZaaktype: false, showButtons: false },
+      { enabledGlobally: false, enabledForZaaktype: null, showButtons: false },
+      { enabledGlobally: false, showButtons: false },
+      { enabledGlobally: null, enabledForZaaktype: true, showButtons: false },
+      { enabledGlobally: null, enabledForZaaktype: false, showButtons: false },
+      { enabledGlobally: null, enabledForZaaktype: null, showButtons: false },
+      { enabledGlobally: null, showButtons: false },
+      { enabledForZaaktype: true, showButtons: false },
+      { enabledForZaaktype: false, showButtons: false },
+      { enabledForZaaktype: null, showButtons: false },
+      { showButtons: false },
+    ];
 
-      const menuButtons: NodeListOf<HTMLButtonElement> =
-        fixture.nativeElement.querySelectorAll("zac-side-nav button");
+    test.each(smartDocumentVariants)(
+      "smartDocuments = %o",
+      async ({ enabledGlobally, enabledForZaaktype, showBothButtons }) => {
+        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
+          enabledGlobally;
+        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
+          enabledForZaaktype;
 
-      const documentButtons: HTMLButtonElement[] = Array.from(
-        menuButtons,
-      ).filter(
-        (btn: HTMLButtonElement) =>
-          btn.textContent?.includes("actie.document.toevoegen") ||
-          btn.textContent?.includes("actie.document.maken"),
-      );
+        jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
 
-      expect(documentButtons.length).toBe(2);
-      expect(documentButtons[0].textContent).toContain(
-        "actie.document.toevoegen",
-      );
-      expect(documentButtons[1].textContent).toContain("actie.document.maken");
-    });
+        component.instance.ngOnInit();
+        fixture.detectChanges();
+
+        const menuButtons: NodeListOf<HTMLButtonElement> =
+          fixture.nativeElement.querySelectorAll("zac-side-nav button");
+
+        const documentButtons: HTMLButtonElement[] = Array.from(
+          menuButtons,
+        ).filter(
+          (btn: HTMLButtonElement) =>
+            btn.textContent?.includes("actie.document.toevoegen") ||
+            btn.textContent?.includes("actie.document.maken"),
+        );
+
+        console.debug(
+          "Document buttons found:",
+          documentButtons.map((b) => ({
+            text: b.textContent?.trim(),
+            icon: b.querySelector("mat-icon")?.textContent?.trim(),
+          })),
+        );
+
+        if (showBothButtons) {
+          expect(documentButtons.length).toBe(2);
+          expect(documentButtons[0].textContent).toContain(
+            "actie.document.toevoegen",
+          );
+          expect(documentButtons[1].textContent).toContain(
+            "actie.document.maken",
+          );
+        } else {
+          expect(documentButtons.length).toBe(1);
+          expect(documentButtons[0].textContent).toContain(
+            "actie.document.toevoegen",
+          );
+        }
+      },
+    );
   });
 });

@@ -179,10 +179,12 @@ export class TaakViewComponent
     this.taak = taak;
     this.loadHistorie();
     this.setEditableFormFields();
+    this.setupMenu();
   }
 
   private init(taak: GeneratedType<"RestTask">, readZaak = true) {
     this.initialized = false;
+
     this.initTaakGegevens(taak);
 
     // For legacy forms, we need to re-create the form to fix the loading state
@@ -278,6 +280,7 @@ export class TaakViewComponent
     } catch (e) {
       console.warn(e);
       // Handle form in the old way
+      console.log("Handling form in the DEPRECATED way");
       this.formulier = this.taakFormulierenService
         .getFormulierBuilder(
           this.taak
@@ -624,6 +627,7 @@ export class TaakViewComponent
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */
   private createZaakFromTaak(taak: GeneratedType<"RestTask">) {
+    console.log("Creating zaak from taak:", taak);
     const zaaktype = {
       omschrijving: taak.zaaktypeOmschrijving,
     } satisfies Partial<
