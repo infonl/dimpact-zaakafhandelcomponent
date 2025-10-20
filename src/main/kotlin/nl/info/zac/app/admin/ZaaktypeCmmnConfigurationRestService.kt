@@ -39,7 +39,6 @@ import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
@@ -52,7 +51,6 @@ import nl.info.zac.smartdocuments.rest.isSubsetOf
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Logger
 
 @Singleton
 @Path("zaakafhandelparameters")
@@ -75,10 +73,6 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val identityService: IdentityService
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationRestService::class.java.name)
-    }
-
     /**
      * Retrieve all case definitions that can be linked to a ZAAKTYPE
      *
@@ -157,7 +151,10 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
 
         restZaakafhandelParameters.productaanvraagtype?.also { productaanvraagtype ->
             restZaakafhandelParameters.zaaktype.omschrijving?.also {
-                checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype, it)
+                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
+                    productaanvraagtype,
+                    it
+                )
             }
         }
         restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
@@ -319,32 +316,4 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
         zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).getZaakbeeindigParameters()
             .map { it.zaakbeeindigReden }
             .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
-
-    private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
-        productaanvraagtype: String,
-        zaaktypeOmschrijving: String
-    ) {
-        val activeZaaktypeCmmnConfigurationForProductaanvraagtype = zaaktypeCmmnConfigurationBeheerService
-            .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraagtype)
-        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
-            LOG.warning(
-                "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
-                    "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
-                    "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
-            )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
-        }
-        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size == 1 &&
-            activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
-        ) {
-            LOG.info(
-                "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
-                    "with zaaktype omschrijving: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
-                    "and zaaktype UUID: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaakTypeUUID}'. " +
-                    "Please use a unique productaanvraagtype per active zaaktypeCmmnConfiguration."
-            )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
-        }
-    }
 }

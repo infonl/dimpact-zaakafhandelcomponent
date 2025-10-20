@@ -74,17 +74,17 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        val bpmnConfiguration = zaaktypeBpmnConfigurationService.storeConfiguration(
-            ZaaktypeBpmnConfiguration().apply {
-                id = restZaaktypeBpmnProcessDefinition.id
-                zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
-                bpmnProcessDefinitionKey = processDefinitionKey
-                zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-                productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-                groupId = restZaaktypeBpmnProcessDefinition.groepNaam
-            }
-        )
-        return bpmnConfiguration.toRestZaaktypeBpmnConfiguration()
+        return ZaaktypeBpmnConfiguration().apply {
+            id = restZaaktypeBpmnProcessDefinition.id
+            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            bpmnProcessDefinitionKey = processDefinitionKey
+            zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+            productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
+            groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+        }.let {
+            zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
+            zaaktypeBpmnConfigurationService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
+        }
     }
 
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
