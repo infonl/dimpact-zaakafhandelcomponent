@@ -30,6 +30,8 @@ import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -202,6 +204,34 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                 mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
                 storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
             }
+        }
+    }
+
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
+        productaanvraagtype: String,
+        zaaktypeOmschrijving: String
+    ) {
+        val activeZaaktypeCmmnConfigurationForProductaanvraagtype =
+            findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraagtype)
+        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
+            LOG.warning(
+                "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
+                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
+                    "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
+                    "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
+            )
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
+        if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size == 1 &&
+            activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
+        ) {
+            LOG.info(
+                "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
+                    "with zaaktype omschrijving: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
+                    "and zaaktype UUID: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaakTypeUUID}'. " +
+                    "Please use a unique productaanvraagtype per active zaaktypeCmmnConfiguration."
+            )
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }
     }
 
