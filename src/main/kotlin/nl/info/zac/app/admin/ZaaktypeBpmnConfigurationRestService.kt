@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
@@ -33,6 +34,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService
 ) {
     @GET
@@ -82,7 +84,13 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
             groupId = restZaaktypeBpmnProcessDefinition.groepNaam
         }.let {
-            zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
+            it.productaanvraagtype?.let { productaanvraagtype ->
+                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
+                    productaanvraagtype,
+                    it.zaaktypeOmschrijving
+                )
+                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
+            }
             zaaktypeBpmnConfigurationService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }

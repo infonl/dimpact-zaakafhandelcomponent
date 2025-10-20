@@ -22,25 +22,23 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationService @Inject constructor(
-    private val entityManager: EntityManager,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService
+    private val entityManager: EntityManager
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
     }
 
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype: String) =
+        findConfigurationByProductAanvraagType(productaanvraagtype)?.let {
+            LOG.info("Productaanvraagtype '$it' is already in use by BPMN zaaktype ${it.zaaktypeOmschrijving}")
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
+
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         zaaktypeBpmnConfiguration.productaanvraagtype?.let {
-            zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                it,
-                zaaktypeBpmnConfiguration.zaaktypeOmschrijving
-            )
-            findConfigurationByProductAanvraagType(it)?.let { bpmnZaaktypeWithSameProductaanvraagtype ->
-                if (bpmnZaaktypeWithSameProductaanvraagtype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
-                    LOG.info(
-                        "Productaanvraagtype '$it' is already in use by another BPMN zaaktype " +
-                            bpmnZaaktypeWithSameProductaanvraagtype.zaaktypeOmschrijving
-                    )
+            findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
+                if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
+                    LOG.info("Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}")
                     throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
                 }
             }
