@@ -179,7 +179,6 @@ export class TaakViewComponent
     this.taak = taak;
     this.loadHistorie();
     this.setEditableFormFields();
-    this.setupMenu();
   }
 
   private init(taak: GeneratedType<"RestTask">, readZaak = true) {
@@ -196,6 +195,7 @@ export class TaakViewComponent
       this.zaak = zaak;
       this.createTaakForm(taak, zaak);
       this.initialized = true;
+      this.setupMenu();
     });
   }
 
