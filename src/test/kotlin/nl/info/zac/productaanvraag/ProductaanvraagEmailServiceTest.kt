@@ -7,6 +7,7 @@ package nl.info.zac.productaanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -41,6 +42,10 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         mailService,
         mailTemplateService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("zaak created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
