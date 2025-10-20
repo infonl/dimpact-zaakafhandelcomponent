@@ -303,14 +303,6 @@ describe(TaakViewComponent.name, () => {
             btn.textContent?.includes("actie.document.maken"),
         );
 
-        console.debug(
-          "Document buttons found:",
-          documentButtons.map((b) => ({
-            text: b.textContent?.trim(),
-            icon: b.querySelector("mat-icon")?.textContent?.trim(),
-          })),
-        );
-
         if (showBothButtons) {
           expect(documentButtons.length).toBe(2);
           expect(documentButtons[0].textContent).toContain(
