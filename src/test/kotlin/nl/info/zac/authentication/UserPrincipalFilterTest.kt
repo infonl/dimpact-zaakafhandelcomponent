@@ -17,8 +17,8 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
@@ -29,6 +29,7 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.identity.model.ZACRole
 import nl.info.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -41,7 +42,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val pabcClientService = mockk<PabcClientService>()
 
     val httpServletRequest = mockk<HttpServletRequest>()
-    val servletResponse = mockk<ServletResponse>()
+    val servletResponse = mockk<HttpServletResponse>()
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
     val oidcPrincipal = mockkClass(OidcPrincipal::class, relaxed = true)
@@ -85,6 +86,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = true
         )
+        val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
 
         Given(
             """
@@ -94,13 +96,18 @@ class UserPrincipalFilterTest : BehaviorSpec({
         ) {
             val userId = "fakeId"
             val loggedInUser = createLoggedInUser(
-                id = userId
+                id = userId,
+                pabcMappings = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
+
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.getSession(false) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { filterChain.doFilter(any(), any()) } just runs
             every { oidcPrincipal.name } returns userId
+            every { httpServletRequest.requestURI } returns "http://uri/no-admin"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
 
             When(" doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -117,16 +124,21 @@ class UserPrincipalFilterTest : BehaviorSpec({
             a user principal with a different id as the logged-in user"""
         ) {
             val userId = "fakeId"
-            val loggedInUser = createLoggedInUser(id = userId)
+            val loggedInUser = createLoggedInUser(
+                id = userId,
+                pabcMappings = mapOf("testZaaktype" to setOf("fakeAppRole1"))
+            )
             val roles = listOf("fakeRole1", "fakeRole2")
-            val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
             val zaaktypeName = "fakeZaaktypeOmschrijving1"
             val newHttpSession = mockk<HttpSession>()
             val capturedLoggedInUser = slot<LoggedInUser>()
 
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
+            every { httpServletRequest.getSession(false) } returns httpSession andThen newHttpSession
             every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
+            every { httpServletRequest.requestURI } returns "http://fake/request/uri"
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
@@ -211,6 +223,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.getSession(false) } returns httpSession
             // no logged-in user present in HTTP session
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { filterChain.doFilter(any(), any()) } just runs
@@ -289,7 +302,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
-            // no logged-in user present in HTTP session
+            every { httpServletRequest.getSession(false) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns null
             every { filterChain.doFilter(any(), any()) } just runs
             every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
@@ -329,6 +342,70 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("PABC ON: admin allowed when user has 'beheerder' role on at least one zaaktype") {
+            val loggedInUser = createLoggedInUser(
+                pabcMappings = mapOf("fakeZaaktype" to setOf(ZACRole.BEHEERDER.value))
+            )
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(false) } returns httpSession
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
+            every { httpServletRequest.getRequestURI() } returns "/admin/fake/path"
+            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { httpSession.invalidate() } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every {
+                pabcClientService.getApplicationRoles(any())
+            } returns pabcRolesResponse("fakeZaaktype", *pabcRoleNames.toTypedArray())
+            every {
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("chain continues - no 403") {
+                    verify(exactly = 1) { filterChain.doFilter(httpServletRequest, servletResponse) }
+                    verify(exactly = 0) { servletResponse.sendError(any()) }
+                }
+            }
+        }
+
+        Given("PABC ON: admin denied when user doesn't have 'beheerder' role") {
+            val loggedInUser = createLoggedInUser(
+                pabcMappings = mapOf("fakeZaaktype" to setOf(ZACRole.RAADPLEGER.value))
+            )
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(false) } returns httpSession
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
+            every { httpServletRequest.getRequestURI() } returns "/rest/admin/some/path"
+            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { httpSession.invalidate() } just runs
+            every { servletResponse.sendError(any()) } just runs
+            every {
+                pabcClientService.getApplicationRoles(any())
+            } returns pabcRolesResponse("fakeZaaktype", *pabcRoleNames.toTypedArray())
+            every {
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("403 is returned - chain not called") {
+                    verify(exactly = 1) { servletResponse.sendError(HttpServletResponse.SC_FORBIDDEN) }
+                    verify(exactly = 0) { filterChain.doFilter(any(), any()) }
+                }
+            }
+        }
     }
 
     Context("PABC integration is disabled") {
@@ -342,25 +419,25 @@ class UserPrincipalFilterTest : BehaviorSpec({
         Given(" user roles trigger PABC behavior") {
             val userId = "testUserId"
             val username = "user"
-            val roles = listOf(
-                "fakeRole1",
-                "domein_elk_zaaktype"
-            )
+            val roles = setOf(ZACRole.RAADPLEGER.value, ZACRole.RECORDMANAGER.value)
 
-            val loggedInUser = createLoggedInUser(id = userId)
+            val loggedInUser = createLoggedInUser(id = userId, roles = roles)
             val newHttpSession = mockk<HttpSession>()
             val loggedInUserSlot = slot<LoggedInUser>()
 
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
+            every { httpServletRequest.getSession(false) } returns httpSession andThen newHttpSession
+            every { httpServletRequest.requestURI } returns "http://fake/request/uri"
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
             every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
             every { oidcPrincipal.name } returns "differentUserId"
             every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
             every { oidcSecurityContext.token } returns accessToken
-            every { accessToken.rolesClaim } returns roles
+            every { accessToken.rolesClaim } returns roles.toList()
             every { accessToken.preferredUsername } returns username
             every { accessToken.givenName } returns "given"
             every { accessToken.familyName } returns "family"
@@ -368,6 +445,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { accessToken.email } returns "user@example.com"
             every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
             every { newHttpSession.setAttribute(any(), any()) } just runs
+            every {
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -386,9 +467,62 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     }
                     with(loggedInUserSlot.captured) {
                         this.id shouldBe username
-                        // null indicates that the user has access to all zaaktypen
-                        this.geautoriseerdeZaaktypen shouldBe null
+                        this.geautoriseerdeZaaktypen shouldBe emptyList()
                     }
+                }
+            }
+        }
+
+        Given("PABC OFF: admin denied without legacy 'beheerder' role") {
+            val loggedInUser = createLoggedInUser(roles = setOf(ZACRole.RAADPLEGER.value, ZACRole.COORDINATOR.value))
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(false) } returns httpSession
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
+            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { httpServletRequest.getRequestURI() } returns "/rest/admin/path"
+            every { httpSession.invalidate() } just runs
+            every { servletResponse.sendError(any()) } just runs
+            every {
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("403 is returned - chain not called") {
+                    verify(exactly = 1) { servletResponse.sendError(HttpServletResponse.SC_FORBIDDEN) }
+                    verify(exactly = 0) { filterChain.doFilter(any(), any()) }
+                }
+            }
+        }
+
+        Given("PABC OFF: admin allowed with legacy 'beheerder' role") {
+            val loggedInUser = createLoggedInUser(roles = setOf(ZACRole.BEHEERDER.value))
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(false) } returns httpSession
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.getContextPath() } returns "fakeContextPath"
+            every { httpServletRequest.getRequestURI() } returns "/rest/admin/cmmn/path"
+            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { httpSession.invalidate() } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every {
+                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
+            } returns emptyList()
+            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("chain continues - no 403") {
+                    verify(exactly = 1) { filterChain.doFilter(httpServletRequest, servletResponse) }
+                    verify(exactly = 0) { servletResponse.sendError(any()) }
                 }
             }
         }

@@ -12,6 +12,7 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
@@ -51,9 +52,7 @@ constructor(
     }
 
     private val adminUriPrefixes = listOf(
-        "/admin/",
-        "/rest/admin/util/",
-        "/rest/admin/cmmn/"
+        "/rest/admin/",
     )
 
     override fun doFilter(
@@ -61,12 +60,8 @@ constructor(
         servletResponse: ServletResponse,
         filterChain: FilterChain
     ) {
-        val request = servletRequest as? HttpServletRequest
-        val response = servletResponse as? jakarta.servlet.http.HttpServletResponse
-        if (request == null || response == null) {
-            filterChain.doFilter(servletRequest, servletResponse)
-            return
-        }
+        val request = servletRequest as HttpServletRequest
+        val response = servletResponse as HttpServletResponse
 
         servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
@@ -91,7 +86,7 @@ constructor(
         }
 
         if (!isAuthorizationAllowed(request)) {
-            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN)
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
 
@@ -109,7 +104,7 @@ constructor(
         return if (pabcIntegrationEnabled) {
             if (isAdmin) {
                 // PABC enabled: admin allowed if the user is authorized for ALL entity types
-                isAuthorizedForAllEntityTypes(user)
+                hasBeheerderApplicationRole(user)
             } else {
                 // PABC enabled: access allowed if the user has >=1 app role on >=1 zaaktype
                 hasAnyPabcApplicationRole(user)
@@ -117,9 +112,9 @@ constructor(
         } else {
             // PABC disabled: legacy web.xml rules on token roles
             if (isAdmin) {
-                user.roles.contains("beheerder")
+                user.roles.contains(ZACRole.BEHEERDER.value)
             } else {
-                user.roles.any { it in setOf("raadpleger", "behandelaar", "coordinator", "recordmanager", "beheerder") }
+                user.roles.any { it in ZACRole.entries.map { e -> e.value }.toSet() }
             }
         }
     }
@@ -127,28 +122,10 @@ constructor(
     private fun hasAnyPabcApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() }
 
-    private fun isAuthorizedForAllEntityTypes(user: LoggedInUser): Boolean {
-        val cmmn = zaaktypeCmmnConfigurationService
-            .listZaaktypeCmmnConfiguration()
-            .groupBy { it.zaaktypeOmschrijving }
-            .values
-            .map { list -> list.maxBy { v -> v.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN) } }
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
-
-        val bpmn = zaaktypeBpmnConfigurationService
-            .listConfigurations()
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
-
-        val all = cmmn + bpmn
-        if (all.isEmpty()) {
-            return false
+    private fun hasBeheerderApplicationRole(user: LoggedInUser): Boolean =
+        user.applicationRolesPerZaaktype.values.any { roles ->
+            roles.any { it == "beheerder" }
         }
-
-        val rolesPerZaaktype = user.applicationRolesPerZaaktype
-        return all.all { zaaktype -> rolesPerZaaktype[zaaktype]?.isNotEmpty() == true }
-    }
 
     fun setLoggedInUserOnHttpSession(
         oidcPrincipal: OidcPrincipal<*>,

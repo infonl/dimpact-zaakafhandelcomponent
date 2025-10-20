@@ -5,5 +5,13 @@
 package nl.info.zac.identity.model
 
 enum class ZACRole(val value: String) {
-    DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype")
+    @Deprecated(
+        message = "Not used in new PABC based IAM architecture"
+    )
+    DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype"),
+    BEHEERDER("beheerder"),
+    BEHANDELAAR("behandelaar"),
+    COORDINATOR("coordinator"),
+    RAADPLEGER("raadpleger"),
+    RECORDMANAGER("recordmanager"),
 }
