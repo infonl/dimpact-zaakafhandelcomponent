@@ -49,7 +49,10 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        private const val ADMIN_URI_PREFIX = "/rest/admin/"
+        private val ADMIN_URI_PREFIXES = listOf(
+            "/rest/admin/",
+            "/admin/",
+        )
     }
 
     override fun doFilter(
@@ -169,9 +172,8 @@ constructor(
     private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
         val session = request.getSession(false) ?: return true
         val user = getLoggedInUser(session) ?: return true
-
         val path = request.requestURI.removePrefix(request.contextPath ?: "")
-        val isAdmin = path.startsWith(ADMIN_URI_PREFIX)
+        val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
 
         return if (pabcIntegrationEnabled) {
             if (isAdmin) {
