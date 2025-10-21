@@ -365,7 +365,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.137.0@sha256:089a8b3c81d328a190f6f0740b30c15b0c7f1f2cfeadeb810355574d5158b31c
+    image: docker.io/otel/opentelemetry-collector:0.138.0@sha256:56951db9579bf00d3f32a4e934e19548183a86c14640798502bcd4c225976ea6
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -693,7 +693,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.3@sha256:a1e3a4b009e1a8964881c341fdebf0a4a6b8ef78dac7e4f824c80eea55f7a4d9
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.4@sha256:dc8c8a1886f42d56f3d05b69a9112ea727dc5d959d6c9b860f6436fbe1d70f5f
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -702,7 +702,7 @@ services:
         condition: "service_healthy"
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.3@sha256:6b6daddeddba9b3f44c217fb3fe02f364e01bb4a8961cc429f7aebeaae0626c9
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.4@sha256:3ec75e173c7c2662f9c720d79dd7bfdbda9bd08223ad9ae021dde2f05312bb8d
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"

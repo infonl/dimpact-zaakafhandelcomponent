@@ -16,5 +16,6 @@ data class ZaakInput(
     val featureFlagPabcIntegration: Boolean
 ) : UserInput(
     loggedInUser = loggedInUser,
+    zaaktype = zaakData.zaaktype,
     featureFlagPabcIntegration = featureFlagPabcIntegration
 )
