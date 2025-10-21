@@ -41,8 +41,8 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
 
 @Component({
   selector: "zac-parameters-edit-cmmn",
-  templateUrl: "./parameter-edit.component.html",
-  styleUrls: ["./parameter-edit.component.less"],
+  templateUrl: "./parameters-edit-cmmn.component.html",
+  styleUrls: ["./parameters-edit-cmmn.component.less"],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: true }) showFirstStep: boolean = false;
@@ -151,16 +151,16 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     verwerkingregisterWaarde: new FormControl(""),
   });
 
-  zaakbeeindigFormGroup = new FormGroup({});
-  smartDocumentsEnabledForm = new FormGroup({
-    enabledForZaaktype: new FormControl<boolean | undefined>(false),
-  });
-  betrokkeneKoppelingen = new FormGroup({
+  protected zaakbeeindigFormGroup = new FormGroup({});
+  protected betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
+  protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
+  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RESTReplyTo">[] =
+    [];
 
-  automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
+  protected automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
     enabled: this.formBuilder.control(false),
     templateName:
       this.formBuilder.control<GeneratedType<"RESTMailtemplate"> | null>(null),
@@ -181,23 +181,28 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
 
+  protected smartDocumentsEnabledForm = new FormGroup({
+    enabledForZaaktype: new FormControl<boolean | undefined>(false),
+  });
+
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
   protected domeinen = this.referentieTabelService.listDomeinen();
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
-  resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] = [];
-  referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
-  zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
-  mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
-  replyTos: GeneratedType<"RESTReplyTo">[] = [];
-  isLoading = false;
-  subscriptions$: Subscription[] = [];
-  brpConsultingValues: string[] = [];
-  brpSearchValues: string[] = [];
-  brpProcessingValues: string[] = [];
-  brpProtocollering: string = "";
+  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
+  protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
+    [];
+  protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
+  protected zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
+  protected mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
+  protected replyTos: GeneratedType<"RESTReplyTo">[] = [];
+  protected isLoading = false;
+  protected subscriptions$: Subscription[] = [];
+  protected brpConsultingValues: string[] = [];
+  protected brpSearchValues: string[] = [];
+  protected brpProcessingValues: string[] = [];
+  protected brpProtocollering: string = "";
 
   constructor(
     public readonly utilService: UtilService,
@@ -512,6 +517,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     for (const reden of this.zaakbeeindigRedenen) {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
+    this.filteredMedewerkerMail = this.replyTos.filter(
+      (replyTo: GeneratedType<"RESTReplyTo">) =>
+        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
+    );
+    this.ontvangstBevestigingsMailtemplates = this.getBeschikbareMailtemplates(
+      "TAAK_ONTVANGSTBEVESTIGING",
+    );
   }
 
   private createBetrokkeneKoppelingenForm() {
@@ -1001,15 +1013,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
       : replyTo.mail;
-  }
-
-  protected filterOutMedewerkerMail(
-    replyTos: GeneratedType<"RESTReplyTo">[],
-  ): GeneratedType<"RESTReplyTo">[] {
-    return replyTos.filter(
-      (replyTo: GeneratedType<"RESTReplyTo">) =>
-        !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
-    );
   }
 
   ngOnDestroy(): void {

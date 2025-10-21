@@ -26,7 +26,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { ParametersEditCmmnComponent } from "./parameter-edit.component";
+import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
 describe(ParametersEditCmmnComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;

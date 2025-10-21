@@ -53,10 +53,10 @@ class KlantRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Read vestiging by vestigingsnummer") {
+    Context("Read vestiging by vestigingsnummer but without KVK nummer") {
         Given(
             """
-        a vestiging for which a company exists in the KVK client and for which a customer exists in the klanten client
+        a vestiging for which a company exists in the KVK client
         """
         ) {
             val vestigingsnummer = "fakeVestigingsnummer"
@@ -68,20 +68,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkNummer = kvkNummer,
                 vestingsnummer = vestigingsnummer
             )
-            val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
-
-            every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
-            } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer)
                 } returns kvkResultaatItem
-
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
 
-                Then("it should return the vestiging including contact details") {
+                Then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
                         this.adres shouldBe with(adres.binnenlandsAdres) {
@@ -92,43 +86,6 @@ class KlantRestServiceTest : BehaviorSpec({
                         postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
-                        telefoonnummer shouldBe "+123-456-789"
-                        emailadres shouldBe "fake@example.com"
-                    }
-                }
-            }
-        }
-
-        Given(
-            """
-        a vestiging for which a company exists in the KVK client but for which no customer exists in the klanten client
-        """
-        ) {
-            clearAllMocks()
-            val vestigingsnummer = "fakeVestigingsnummer"
-            val kvkNummer = "fakeKvkNummer"
-            val adres = createAdresWithBinnenlandsAdres()
-            val kvkResultaatItem = createResultaatItem(
-                adres = adres,
-                type = "nevenvestiging",
-                kvkNummer = kvkNummer,
-                vestingsnummer = vestigingsnummer
-            )
-            every {
-                kvkClientService.findVestiging(vestigingsnummer)
-            } returns kvkResultaatItem
-            every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
-            } returns emptyList()
-
-            When("a request is made to get the vestiging") {
-                val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
-
-                Then("it should return the vestiging without contact details") {
-                    with(restBedrijf) {
-                        this.vestigingsnummer shouldBe vestigingsnummer
-                        naam shouldBe kvkResultaatItem.naam
-                        kvkNummer shouldBe kvkNummer
                         telefoonnummer shouldBe null
                         emailadres shouldBe null
                     }
@@ -136,15 +93,12 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a vestiging by vestigingsnummer which does not exist in the KVK client nor in in the klanten client") {
+        Given("a vestiging by vestigingsnummer which does not exist in the KVK client") {
             clearAllMocks()
             val vestigingsnummer = "fakeVestigingsnummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns null
-            every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer)
-            } returns emptyList()
 
             When("a request is made to get the vestiging") {
                 val exception =

@@ -174,8 +174,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         When(
             """
-                A vestiging is requested by vestigingsnummer alone which is present in the KVK test environment
-                and for which contact details are present in Open Klant
+                A vestiging is requested by vestigingsnummer alone which is present in the KVK test environment     
             """
         ) {
             val response = itestHttpClient.performGetRequest(
@@ -185,17 +184,16 @@ class KlantRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
-                // since there is customer contact data linked to this vestiging in our Open Klant container
-                // the response should contain an email address and telephone number
+                // even though there is customer contact data linked to this vestiging in our Open Klant container
+                // we do not support retrieving contact details when only the vestigingsnummer is provided,
+                // so the response should not contain an email address and telephone number
                 responseBody shouldEqualJson """
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
-                      "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
                     }
                 """.trimIndent()

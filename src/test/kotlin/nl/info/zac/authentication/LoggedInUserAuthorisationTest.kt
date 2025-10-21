@@ -19,13 +19,13 @@ class LoggedInUserAuthorisationTest : BehaviorSpec({
 
     Given("PABC integration is disabled -> functional roles are used") {
         val userAuthorizedForAllWithPabcDisabled = createLoggedInUser(
-            zaakTypes = null,
-            pabcMappings = emptyMap()
+            geautoriseerdeZaaktypen = null,
+            applicationRolesPerZaaktype = emptyMap()
         )
 
         val userAuthorizedWithPabcDisabled = createLoggedInUser(
-            zaakTypes = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING),
-            pabcMappings = emptyMap()
+            geautoriseerdeZaaktypen = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING),
+            applicationRolesPerZaaktype = emptyMap()
         )
 
         When("authorisation is evaluated without PABC mappings") {

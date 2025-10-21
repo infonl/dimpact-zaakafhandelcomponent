@@ -27,14 +27,11 @@ open class UserInput(
             else -> loggedInUser.roles
         },
         zaaktypen = if (featureFlagPabcIntegration) {
-            // This needs to be changed still for the new IAM architecture, probably including existing zaaktype checks
-            // in the OPA policy Rego files themselves.
-            // This is because with PABC integration enabled the concept of 'being authorised for a zaaktype' no longer exists,
-            // since users are always authorised for a zaaktype _for specific application roles_.
-            // When there is no zaaktype specified we now simply return `null` indicating that the user is
-            // 'authorised for all zaaktypes'.
-            if (zaaktype != null) setOf(zaaktype) else null
+            // In the new IAM architecture this can only ever be a single zaaktype, since zaaktype-specific policy
+            // checks are always evaluated in the context of a single specific zaaktype.
+            zaaktype?.let { setOf(it) }
         } else {
+            // In the old IAM architecture this is the list of zaaktypen the user is authorized for, regardless of roles.
             loggedInUser.geautoriseerdeZaaktypen
         }
     )

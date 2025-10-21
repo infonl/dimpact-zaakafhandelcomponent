@@ -206,7 +206,11 @@ class KlantRestService @Inject constructor(
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
             val klantVestigingDigitalAddresses =
-                async { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer) }
+                async {
+                    // we do not support retrieving contact details for a vestiging if no KVK number was provided
+                    kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
+                        ?: emptyList()
+                }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
             klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
                 vestiging.await()?.toRestBedrijf()?.apply {

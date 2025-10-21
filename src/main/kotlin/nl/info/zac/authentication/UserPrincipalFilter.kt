@@ -150,9 +150,7 @@ constructor(
             pabcClientService.getApplicationRoles(functionalRoles.toList()).results
                 .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
                 .mapNotNull { res ->
-                    // note that we have to use the name of the entityType (e.g. the name of the zaaktype) as the key
-                    // and not the (internal PABC) ID
-                    val key = res.entityType?.name?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                     val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
                     key to roleNames
                 }

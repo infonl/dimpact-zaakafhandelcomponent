@@ -17,6 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
@@ -33,6 +34,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService
 ) {
     @GET
@@ -74,17 +76,23 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        val bpmnConfiguration = zaaktypeBpmnConfigurationService.storeConfiguration(
-            ZaaktypeBpmnConfiguration().apply {
-                id = restZaaktypeBpmnProcessDefinition.id
-                zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
-                bpmnProcessDefinitionKey = processDefinitionKey
-                zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-                productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-                groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+        return ZaaktypeBpmnConfiguration().apply {
+            id = restZaaktypeBpmnProcessDefinition.id
+            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            bpmnProcessDefinitionKey = processDefinitionKey
+            zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+            productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
+            groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+        }.let {
+            it.productaanvraagtype?.let { productaanvraagtype ->
+                zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
+                    productaanvraagtype,
+                    it.zaaktypeOmschrijving
+                )
+                zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-        )
-        return bpmnConfiguration.toRestZaaktypeBpmnConfiguration()
+            zaaktypeBpmnConfigurationService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
+        }
     }
 
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =

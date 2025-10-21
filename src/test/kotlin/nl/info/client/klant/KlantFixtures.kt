@@ -111,7 +111,7 @@ fun createPartijIdentificator(
     this.subIdentificatorVan = subIdentificatorVan
 }
 
-fun PartijIdentificatorForeignkey(
+fun createPartijIdentificatorForeignkey(
     uri: URI = URI("https://example.com/fakeUri"),
     uuid: UUID = UUID.randomUUID()
 ) = PartijIdentificatorForeignkey(uri).apply {
