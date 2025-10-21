@@ -51,7 +51,7 @@ constructor(
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
         private val ADMIN_URI_PREFIXES = listOf(
             "/rest/admin/",
-            "/admin/",
+            "/admin",
         )
     }
 
