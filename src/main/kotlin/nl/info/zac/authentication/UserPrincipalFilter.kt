@@ -106,8 +106,6 @@ constructor(
         val path = request.requestURI.removePrefix(request.contextPath)
         val method = request.method.uppercase()
 
-        LOG.warning { "Checking public access for path '$path' and method '$method'" }
-
         if (path == "/rest/notificaties") {
             if (method == "POST") {
                 return true
