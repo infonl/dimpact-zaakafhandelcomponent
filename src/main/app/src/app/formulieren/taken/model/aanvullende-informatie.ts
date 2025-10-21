@@ -115,7 +115,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         type: "select",
         key: "verzender",
         options: verzenderOptions,
-        optionDisplayValue: "key",
+        optionDisplayValue: "value",
         control: verzenderControl,
       },
       {
