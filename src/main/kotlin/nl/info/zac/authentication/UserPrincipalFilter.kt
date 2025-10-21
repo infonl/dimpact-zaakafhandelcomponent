@@ -49,12 +49,8 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        private const val ADMIN_URI_PREFIX = "/rest/admin/"
     }
-
-    private val adminUriPrefixes = listOf(
-        "/rest/admin/",
-        "/admin/",
-    )
 
     override fun doFilter(
         servletRequest: ServletRequest,
@@ -175,14 +171,14 @@ constructor(
         val user = getLoggedInUser(session) ?: return true
 
         val path = request.requestURI.removePrefix(request.contextPath ?: "")
-        val isAdmin = adminUriPrefixes.any { prefix -> path.startsWith(prefix) }
+        val isAdmin = path.startsWith(ADMIN_URI_PREFIX)
 
         return if (pabcIntegrationEnabled) {
             if (isAdmin) {
-                // PABC enabled: admin allowed if the user is authorized for ALL entity types
-                hasBeheerderApplicationRole(user)
+                // access allowed if the user has the 'beheerder' application role for at least one zaaktype
+                hasAnyBeheerderApplicationRole(user)
             } else {
-                // PABC enabled: access allowed if the user has >=1 app role on >=1 zaaktype
+                // access allowed if the user has at least one application role for at least one zaaktype
                 hasAnyPabcApplicationRole(user)
             }
         } else {
@@ -198,7 +194,7 @@ constructor(
     private fun hasAnyPabcApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() }
 
-    private fun hasBeheerderApplicationRole(user: LoggedInUser): Boolean =
+    private fun hasAnyBeheerderApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { roles ->
             roles.any { it == ZACRole.BEHEERDER.value }
         }
