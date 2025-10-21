@@ -64,6 +64,11 @@ constructor(
         val request = servletRequest as HttpServletRequest
         val response = servletResponse as HttpServletResponse
 
+        if (isPublicUnauthenticated(request, response)) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
 
@@ -92,6 +97,78 @@ constructor(
         }
 
         filterChain.doFilter(servletRequest, servletResponse)
+    }
+
+    private fun isPublicUnauthenticated(
+        request: HttpServletRequest,
+        response: HttpServletResponse
+    ): Boolean {
+        val path = request.requestURI.removePrefix(request.contextPath)
+        val method = request.method.uppercase()
+
+        LOG.warning { "Checking public access for path '$path' and method '$method'" }
+
+        if (path == "/rest/notificaties") {
+            if (method == "POST") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path.startsWith("/rest/internal/")) {
+            if (method == "GET" || method == "DELETE") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path == "/websocket") {
+            if (method == "GET") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path.startsWith("/webdav/")) {
+            return true
+        }
+
+        if (path.startsWith("/rest/document-creation/smartdocuments/cmmn-callback/")) {
+            if (method == "POST") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path.startsWith("/rest/document-creation/smartdocuments/bpmn-callback/")) {
+            if (method == "POST") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path == "/static/smart-documents-result.html") {
+            if (method == "GET") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        if (path.startsWith("/assets/")) {
+            if (method == "GET") {
+                return true
+            }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return false
+        }
+
+        return false
     }
 
     @Suppress("ReturnCount")
