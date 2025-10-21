@@ -9,6 +9,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_PASSWORD
@@ -16,6 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_US
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_OK
 
 class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
