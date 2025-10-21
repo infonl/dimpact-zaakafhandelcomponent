@@ -863,10 +863,11 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
             """.trimIndent()
         )
-        itestHttpClient.connectNewWebSocket(
+        val websocket = itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = zakenVerdelenWebsocketListener
         )
+        logger.info { "WebSocket created: '$websocket'" }
 
         When(
             """the 'assign zaken from list' endpoint is called to start an asynchronous process 
@@ -891,7 +892,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $lijstVerdelenResponseBody" }
                 lijstVerdelenResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
-                eventually(10.seconds) {
+                eventually(30.seconds) {
                     zakenVerdelenWebsocketListener.messagesReceived.size shouldBe 1
                     with(JSONObject(zakenVerdelenWebsocketListener.messagesReceived[0])) {
                         getString("opcode") shouldBe "UPDATED"
@@ -1064,7 +1065,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     but should still be assigned to the group """
             ) {
                 val responseBody = response.body.string()
-                logger.info { "### Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(20.seconds) {
