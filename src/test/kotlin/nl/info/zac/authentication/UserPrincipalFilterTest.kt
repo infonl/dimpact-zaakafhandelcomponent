@@ -97,7 +97,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val userId = "fakeId"
             val loggedInUser = createLoggedInUser(
                 id = userId,
-                pabcMappings = mapOf("testZaaktype" to setOf("fakeAppRole1"))
+                applicationRolesPerZaaktype = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
 
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
@@ -126,7 +126,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val userId = "fakeId"
             val loggedInUser = createLoggedInUser(
                 id = userId,
-                pabcMappings = mapOf("testZaaktype" to setOf("fakeAppRole1"))
+                applicationRolesPerZaaktype = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
             val roles = listOf("fakeRole1", "fakeRole2")
             val zaaktypeName = "fakeZaaktypeOmschrijving1"
@@ -345,7 +345,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
         Given("PABC ON: admin allowed when user has 'beheerder' role on at least one zaaktype") {
             val loggedInUser = createLoggedInUser(
-                pabcMappings = mapOf("fakeZaaktype" to setOf(ZACRole.BEHEERDER.value))
+                applicationRolesPerZaaktype = mapOf("fakeZaaktype" to setOf(ZACRole.BEHEERDER.value))
             )
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(false) } returns httpSession
@@ -377,7 +377,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
         Given("PABC ON: admin denied when user doesn't have 'beheerder' role") {
             val loggedInUser = createLoggedInUser(
-                pabcMappings = mapOf("fakeZaaktype" to setOf(ZACRole.RAADPLEGER.value))
+                applicationRolesPerZaaktype = mapOf("fakeZaaktype" to setOf(ZACRole.RAADPLEGER.value))
             )
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(false) } returns httpSession

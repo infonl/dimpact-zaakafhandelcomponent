@@ -49,10 +49,6 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        private val ADMIN_URI_PREFIXES = listOf(
-            "/rest/admin/",
-            "/admin",
-        )
     }
 
     override fun doFilter(
@@ -60,13 +56,8 @@ constructor(
         servletResponse: ServletResponse,
         filterChain: FilterChain
     ) {
-        val request = servletRequest as HttpServletRequest
-        val response = servletResponse as HttpServletResponse
-
-        if (isPublicUnauthenticated(request, response)) {
-            filterChain.doFilter(request, response)
-            return
-        }
+        servletRequest as HttpServletRequest
+        servletResponse as HttpServletResponse
 
         servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
@@ -75,7 +66,8 @@ constructor(
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
                         "Invalidating HTTP session of user '${loggedInUser.id}' " +
-                            "on context path '${servletRequest.servletContext.contextPath}'"
+                            "on context path '${servletRequest.servletContext.contextPath}'. " +
+                            "Creating new session for user with user principal name '${userPrincipal.name}'."
                     )
                     httpSession.invalidate()
                     setLoggedInUserOnHttpSession(
@@ -90,116 +82,8 @@ constructor(
                 }
         }
 
-        if (!isAuthorizationAllowed(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return
-        }
-
         filterChain.doFilter(servletRequest, servletResponse)
     }
-
-    private fun isPublicUnauthenticated(
-        request: HttpServletRequest,
-        response: HttpServletResponse
-    ): Boolean {
-        val path = request.requestURI.removePrefix(request.contextPath)
-        val method = request.method.uppercase()
-
-        if (path == "/rest/notificaties") {
-            if (method == "POST") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path.startsWith("/rest/internal/")) {
-            if (method == "GET" || method == "DELETE") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path == "/websocket") {
-            if (method == "GET") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path.startsWith("/webdav/")) {
-            return true
-        }
-
-        if (path.startsWith("/rest/document-creation/smartdocuments/cmmn-callback/")) {
-            if (method == "POST") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path.startsWith("/rest/document-creation/smartdocuments/bpmn-callback/")) {
-            if (method == "POST") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path == "/static/smart-documents-result.html") {
-            if (method == "GET") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        if (path.startsWith("/assets/")) {
-            if (method == "GET") {
-                return true
-            }
-            response.sendError(HttpServletResponse.SC_FORBIDDEN)
-            return false
-        }
-
-        return false
-    }
-
-    @Suppress("ReturnCount")
-    private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
-        val session = request.getSession(false) ?: return true
-        val user = getLoggedInUser(session) ?: return true
-        val path = request.requestURI.removePrefix(request.contextPath ?: "")
-        val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
-
-        return if (pabcIntegrationEnabled) {
-            if (isAdmin) {
-                // access allowed if the user has the 'beheerder' application role for at least one zaaktype
-                hasAnyBeheerderApplicationRole(user)
-            } else {
-                // access allowed if the user has at least one application role for at least one zaaktype
-                hasAnyPabcApplicationRole(user)
-            }
-        } else {
-            // PABC disabled: legacy web.xml rules on token roles
-            if (isAdmin) {
-                user.roles.contains(ZACRole.BEHEERDER.value)
-            } else {
-                user.roles.any { it in ZACRole.entries.map { e -> e.value }.toSet() }
-            }
-        }
-    }
-
-    private fun hasAnyPabcApplicationRole(user: LoggedInUser): Boolean =
-        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() }
-
-    private fun hasAnyBeheerderApplicationRole(user: LoggedInUser): Boolean =
-        user.applicationRolesPerZaaktype.values.any { roles ->
-            roles.any { it == ZACRole.BEHEERDER.value }
-        }
 
     fun setLoggedInUserOnHttpSession(
         oidcPrincipal: OidcPrincipal<*>,
