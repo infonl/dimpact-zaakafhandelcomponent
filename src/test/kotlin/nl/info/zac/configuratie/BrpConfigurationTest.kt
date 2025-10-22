@@ -9,10 +9,53 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
-import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
 import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
+
+    Given("No default query persson doelbinding configured") {
+        When("configuration is created") {
+            val exception = shouldThrow<IllegalStateException> {
+                createBrpConfiguration(queryPersonenDefaultDoelbinding = Optional.empty())
+            }
+            Then("Exception is thrown") {
+                exception.message shouldContain "BRP_DOELBINDING_ZOEKMET"
+            }
+        }
+    }
+
+    Given("No default retrieve persoon doelbinding configured") {
+        When("configuration is created") {
+            val exception = shouldThrow<IllegalStateException> {
+                createBrpConfiguration(retrievePersoonDefaultDoelbinding = Optional.empty())
+            }
+            Then("Exception is thrown") {
+                exception.message shouldContain "BRP_DOELBINDING_RAADPLEEGMET"
+            }
+        }
+    }
+
+    Given("No default verwerkingsregister configured") {
+        When("configuration is created") {
+            val exception = shouldThrow<IllegalStateException> {
+                createBrpConfiguration(verwerkingregisterDefault = Optional.empty())
+            }
+            Then("Exception is thrown") {
+                exception.message shouldContain "BRP_VERWERKINGSREGISTER"
+            }
+        }
+    }
+
+    Given("No default audit log provider configured") {
+        When("configuration is created") {
+            val exception = shouldThrow<IllegalStateException> {
+                createBrpConfiguration(auditLogProvider = Optional.empty())
+            }
+            Then("Exception is thrown") {
+                exception.message shouldContain "BRP_PROTOCOLLERING"
+            }
+        }
+    }
 
     Given("BRP protocollering disabled") {
         val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
@@ -26,28 +69,10 @@ class BrpConfigurationTest : BehaviorSpec({
         }
     }
 
-    Given("BRP protocollering enabled, but no audit log provider specified") {
-        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
-
-        When("reading BRP audit log provider") {
-            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                brpConfiguration.readBrpProtocolleringProvider()
-            }
-
-            Then("Exception is thrown") {
-                BrpConfiguration.SUPPORTED_PROTOCOLLERING_PROVIDERS.forEach {
-                    exception.message shouldContain it
-                }
-            }
-        }
-    }
-
     Given("Invalid BRP audit log provider specified") {
-        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
-
-        When("reading BRP audit log provider") {
-            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                brpConfiguration.readBrpProtocolleringProvider()
+        When("configuration is created") {
+            val exception = shouldThrow<IllegalStateException> {
+                createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
             }
 
             Then("Exception is thrown") {

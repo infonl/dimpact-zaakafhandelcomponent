@@ -67,16 +67,23 @@ class BrpClientService @Inject constructor(
 
     fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
-            personenApi.personen(
-                personenQuery = updatedQuery,
-                purpose = resolvePurpose(zaakIdentificatie, brpConfiguration.queryPersonenDefaultPurpose.getOrNull()) {
-                    it.zaaktypeCmmnBrpParameters?.zoekWaarde
-                },
-                auditEvent = resoleProcessingValue(
-                    zaakIdentificatie,
-                    brpConfiguration.processingRegisterDefault.getOrNull()
+            if (brpConfiguration.isBrpProtocolleringEnabled()) {
+                personenApi.personen(
+                    personenQuery = updatedQuery,
+                    doelbinding = resolveDoelbinding(
+                        zaakIdentificatie,
+                        brpConfiguration.queryPersonenDefaultDoelbinding.getOrNull()
+                    ) {
+                        it.zaaktypeCmmnBrpParameters?.zoekWaarde
+                    },
+                    verwerking = resoleVerwerkingregister(
+                        zaakIdentificatie,
+                        brpConfiguration.verwerkingregisterDefault.getOrNull()
+                    )
                 )
-            )
+            } else {
+                personenApi.personen(updatedQuery)
+            }
         }
 
     /**
@@ -87,18 +94,28 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? = (
-        personenApi.personen(
-            personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = resolvePurpose(zaakIdentificatie, brpConfiguration.retrievePersoonDefaultPurpose.getOrNull()) {
-                it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
-            },
-            auditEvent = resoleProcessingValue(
-                zaakIdentificatie,
-                brpConfiguration.processingRegisterDefault.getOrNull()
-            )
-        ) as RaadpleegMetBurgerservicenummerResponse
-        ).personen?.firstOrNull()
+    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? =
+        createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
+            (
+                if (brpConfiguration.isBrpProtocolleringEnabled()) {
+                    personenApi.personen(
+                        personenQuery = personenQuery,
+                        doelbinding = resolveDoelbinding(
+                            zaakIdentificatie,
+                            brpConfiguration.retrievePersoonDefaultDoelbinding.getOrNull()
+                        ) {
+                            it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+                        },
+                        verwerking = resoleVerwerkingregister(
+                            zaakIdentificatie,
+                            brpConfiguration.verwerkingregisterDefault.getOrNull()
+                        )
+                    )
+                } else {
+                    personenApi.personen(personenQuery)
+                } as RaadpleegMetBurgerservicenummerResponse
+                ).personen?.firstOrNull()
+        }
 
     private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
         type = when (personenQuery) {
@@ -120,30 +137,30 @@ class BrpClientService @Inject constructor(
             fields = FIELDS_PERSOON
         }.addBurgerservicenummerItem(burgerservicenummer)
 
-    private fun resolvePurpose(
+    private fun resolveDoelbinding(
         zaakIdentificatie: String?,
-        defaultPurpose: String?,
-        extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
+        defaultDoelbinding: String?,
+        extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
     ): String? =
         resolveBRPValue(
             zaakIdentificatie = zaakIdentificatie,
-            defaultValue = defaultPurpose,
-            valueDescription = "purpose",
-            resolveFunction = extractPurpose,
+            defaultValue = defaultDoelbinding,
+            valueDescription = "doelbinding",
+            resolveFunction = extractDoelbinding,
             buildFunction = { resolvedValue, _ -> resolvedValue }
         )
 
-    private fun resoleProcessingValue(
+    private fun resoleVerwerkingregister(
         zaakIdentificatie: String?,
-        defaultProcessingRegisterValue: String?
+        defaultVerwerkingregisterValue: String?
     ): String? =
         resolveBRPValue(
             zaakIdentificatie = zaakIdentificatie,
-            defaultValue = defaultProcessingRegisterValue,
-            valueDescription = "processing value",
+            defaultValue = defaultVerwerkingregisterValue,
+            valueDescription = "verwerkingregister value",
             resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde },
-            buildFunction = { resolvedValue, configuration ->
-                "${resolvedValue ?: defaultProcessingRegisterValue}@${configuration.zaaktypeOmschrijving}"
+            buildFunction = { resolvedValue, zaakTypeConfiguration ->
+                "${resolvedValue ?: defaultVerwerkingregisterValue}@${zaakTypeConfiguration.zaaktypeOmschrijving}"
             }
         )
 

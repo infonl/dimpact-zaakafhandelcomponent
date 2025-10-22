@@ -86,14 +86,10 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("originOIN is present, no custom doelbinding or verwerking and a missing active user") {
+    Given("originOIN is present and a missing active user") {
         every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
 
-        val brpConfiguration = createBrpConfiguration(
-            queryPersonenDefaultPurpose = Optional.empty(),
-            retrievePersoonDefaultPurpose = Optional.empty(),
-            processingRegisterDefault = Optional.empty()
-        )
+        val brpConfiguration = createBrpConfiguration()
         val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
 
         When("headers are updated") {
@@ -175,25 +171,6 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
                     this shouldStartWith "General@aaa"
                     this shouldHaveLength MAX_HEADER_SIZE
                 }
-            }
-        }
-    }
-
-    Given("Invalid audit log provider") {
-        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("invalid"))
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
-
-        every { loggedInUserInstance.get().id } returns "username"
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("default iConnect headers are generated") {
-                headers shouldContainExactly mapOf(
-                    "X-API-KEY" to listOf(apiKey),
-                    "X-ORIGIN-OIN" to listOf(originOin),
-                    "X-GEBRUIKER" to listOf("username")
-                )
             }
         }
     }

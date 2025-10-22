@@ -6,7 +6,6 @@ package nl.info.zac.configuratie
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -27,32 +26,45 @@ class BrpConfiguration @Inject constructor(
     val auditLogProvider: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_ZOEKMET")
-    val queryPersonenDefaultPurpose: Optional<String>,
+    val queryPersonenDefaultDoelbinding: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_RAADPLEEGMET")
-    val retrievePersoonDefaultPurpose: Optional<String>,
+    val retrievePersoonDefaultDoelbinding: Optional<String>,
 
     @ConfigProperty(name = "BRP_VERWERKINGSREGISTER")
-    val processingRegisterDefault: Optional<String>
+    val verwerkingregisterDefault: Optional<String>
 ) {
     companion object {
         val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf("iConnect", "2Secure")
+    }
+
+    init {
+        if (isBrpProtocolleringEnabled()) {
+            check(
+                queryPersonenDefaultDoelbinding.isPresent
+            ) { "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_ORIGIN_OIN is set" }
+            check(
+                retrievePersoonDefaultDoelbinding.isPresent
+            ) { "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_ORIGIN_OIN is set" }
+            check(
+                verwerkingregisterDefault.isPresent
+            ) { "BRP_VERWERKINGSREGISTER environment variable is required when BRP_ORIGIN_OIN is set" }
+            check(
+                auditLogProvider.isPresent
+            ) { "BRP_PROTOCOLLERING environment variable is required when BRP_ORIGIN_OIN is set" }
+            checkNotNull(auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }) {
+                SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
+                    "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: $it"
+                }
+            }
+        }
     }
 
     fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 
     fun readBrpProtocolleringProvider(): String =
         if (isBrpProtocolleringEnabled()) {
-            auditLogProvider.getOrNull().takeIf { it in SUPPORTED_PROTOCOLLERING_PROVIDERS }
-                ?: throw BrpProtocolleringConfigurationException(
-                    SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
-                        if (auditLogProvider.isPresent) {
-                            "Invalid environment variable 'BRP_PROTOCOLLERING' value '$auditLogProvider'. Supported: $it"
-                        } else {
-                            "Missing environment variable 'BRP_PROTOCOLLERING'. Supported: $it"
-                        }
-                    }
-                )
+            auditLogProvider.get()
         } else {
             ""
         }
