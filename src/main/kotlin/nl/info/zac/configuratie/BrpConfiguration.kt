@@ -26,10 +26,10 @@ class BrpConfiguration @Inject constructor(
     val auditLogProvider: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_ZOEKMET")
-    val queryPersonenDefaultDoelbinding: Optional<String>,
+    val doelbindingZoekMetDefault: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_RAADPLEEGMET")
-    val retrievePersoonDefaultDoelbinding: Optional<String>,
+    val doelbindingRaadpleegMetDefault: Optional<String>,
 
     @ConfigProperty(name = "BRP_VERWERKINGSREGISTER")
     val verwerkingregisterDefault: Optional<String>
@@ -41,10 +41,10 @@ class BrpConfiguration @Inject constructor(
     init {
         if (isBrpProtocolleringEnabled()) {
             check(
-                queryPersonenDefaultDoelbinding.isPresent
+                doelbindingZoekMetDefault.isPresent
             ) { "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_ORIGIN_OIN is set" }
             check(
-                retrievePersoonDefaultDoelbinding.isPresent
+                doelbindingRaadpleegMetDefault.isPresent
             ) { "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_ORIGIN_OIN is set" }
             check(
                 verwerkingregisterDefault.isPresent

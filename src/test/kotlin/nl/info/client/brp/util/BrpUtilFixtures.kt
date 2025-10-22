@@ -20,7 +20,7 @@ fun createBrpConfiguration(
     apiKey = apiKey,
     originOIN = originOin,
     auditLogProvider = auditLogProvider,
-    queryPersonenDefaultDoelbinding = queryPersonenDefaultDoelbinding,
-    retrievePersoonDefaultDoelbinding = retrievePersoonDefaultDoelbinding,
+    doelbindingZoekMetDefault = queryPersonenDefaultDoelbinding,
+    doelbindingRaadpleegMetDefault = retrievePersoonDefaultDoelbinding,
     verwerkingregisterDefault = verwerkingregisterDefault
 )

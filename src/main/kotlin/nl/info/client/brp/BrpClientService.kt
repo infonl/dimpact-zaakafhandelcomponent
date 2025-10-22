@@ -72,7 +72,7 @@ class BrpClientService @Inject constructor(
                     personenQuery = updatedQuery,
                     doelbinding = resolveDoelbinding(
                         zaakIdentificatie,
-                        brpConfiguration.queryPersonenDefaultDoelbinding.getOrNull()
+                        brpConfiguration.doelbindingZoekMetDefault.getOrNull()
                     ) {
                         it.zaaktypeCmmnBrpParameters?.zoekWaarde
                     },
@@ -102,7 +102,7 @@ class BrpClientService @Inject constructor(
                         personenQuery = personenQuery,
                         doelbinding = resolveDoelbinding(
                             zaakIdentificatie,
-                            brpConfiguration.retrievePersoonDefaultDoelbinding.getOrNull()
+                            brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
                         ) {
                             it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
                         },
