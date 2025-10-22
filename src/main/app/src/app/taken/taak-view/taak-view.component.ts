@@ -263,7 +263,7 @@ export class TaakViewComponent
         ...(taak.taakdocumenten ?? []),
         ...((taak.taakdata?.bijlagen as string | undefined)
           ?.split(";")
-          .filter(Boolean) ?? []),
+          ?.filter(Boolean) ?? []),
       ];
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
