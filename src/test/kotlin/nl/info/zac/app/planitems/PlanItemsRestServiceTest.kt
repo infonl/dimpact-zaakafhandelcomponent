@@ -148,7 +148,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
-                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                val exception = shouldThrow<PolicyException> {
+                    planItemsRESTService.doHumanTaskplanItem(
+                        restHumanTaskData
+                    )
+                }
 
                 Then("it throws exception with no message") { exception.message shouldBe null }
             }
@@ -223,7 +227,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
 
             When("A human task plan item is started") {
-                shouldThrow<InputValidationFailedException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                shouldThrow<InputValidationFailedException> {
+                    planItemsRESTService.doHumanTaskplanItem(
+                        restHumanTaskData
+                    )
+                }
                 Then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
                     verify(exactly = 0) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
@@ -256,9 +264,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
             } returns
-                    createHumanTaskParameters().apply {
-                        doorlooptijd = 10
-                    }
+                createHumanTaskParameters().apply {
+                    doorlooptijd = 10
+                }
 
             every {
                 cmmnService.startHumanTaskPlanItem(
@@ -316,9 +324,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
             } returns
-                    createHumanTaskParameters().apply {
-                        doorlooptijd = 10
-                    }
+                createHumanTaskParameters().apply {
+                    doorlooptijd = 10
+                }
             every {
                 suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
             } returns extendedZaak
@@ -417,7 +425,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
-                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                val exception = shouldThrow<PolicyException> {
+                    planItemsRESTService.doHumanTaskplanItem(
+                        restHumanTaskData
+                    )
+                }
                 Then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
@@ -484,7 +496,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
                 every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
-                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                val exception = shouldThrow<PolicyException> {
+                    planItemsRESTService.doHumanTaskplanItem(
+                        restHumanTaskData
+                    )
+                }
                 Then("it throws exception with no message") { exception.message shouldBe null }
             }
         }

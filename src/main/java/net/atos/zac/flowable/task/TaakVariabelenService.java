@@ -172,7 +172,7 @@ public class TaakVariabelenService {
     }
 
     private static Optional<String> findObjectTaskDataElement(final Map<String, Object> taakData, final String elementName) {
-        if (taakData.get(elementName) instanceof String stringValue && StringUtils.isNotEmpty(stringValue)) {
+        if (taakData.get(elementName)instanceof String stringValue && StringUtils.isNotEmpty(stringValue)) {
             return Optional.of(stringValue);
         } else {
             return Optional.empty();
