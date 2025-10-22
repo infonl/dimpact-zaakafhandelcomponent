@@ -261,7 +261,10 @@ export class TaakViewComponent
       this.form.addControl("toelichting", explanationControl);
       this.formFields.push({ type: "textarea", key: "toelichting" });
 
-      const allAttachments = this.extracted(taak);
+        const allAttachments = [
+            ...(taak.taakdocumenten ?? []),
+            ...(((taak.taakdata?.bijlagen as string | undefined)?.split(";")) ?? []),
+        ];
 
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
@@ -307,17 +310,6 @@ export class TaakViewComponent
       ),
     });
   }
-
-    private extracted(taak: GeneratedType<"RestTask">) {
-        let allAttachments = []
-      if (taak.taakdocumenten) {
-        allAttachments = [...taak.taakdata!.bijlagen as string[], ...taak.taakdocumenten]
-      } else {
-          allAttachments = [...taak.taakdata!.bijlagen as string[]]
-      }
-        console.log('alle data bijlagen?:', allAttachments)
-        return allAttachments;
-    }
 
     private createConfigurableTaakForm(
     formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">,
