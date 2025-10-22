@@ -38,6 +38,8 @@ export class HumanTaskDoComponent implements OnInit {
   protected form = this.formBuilder.group({});
   protected formFields: FormField[] = [];
 
+  protected isSubmitting = false;
+
   protected _formConfig: NewFormConfig = {
     submitLabel: "actie.starten",
   };
@@ -146,6 +148,9 @@ export class HumanTaskDoComponent implements OnInit {
       return;
     }
 
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+
     try {
       if (!this.formulier) throw new Error("Handling form in Angular way");
       const taakData = this.formulier.getHumanTaskData(formGroup);
@@ -170,6 +175,7 @@ export class HumanTaskDoComponent implements OnInit {
         })
         .subscribe(() => {
           this.done.emit();
+          this.isSubmitting = false;
         });
     }
   }

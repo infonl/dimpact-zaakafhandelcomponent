@@ -24,6 +24,7 @@
     [form]="form"
     [fields]="formFields"
     [config]="_formConfig"
+    [readonly]="isSubmitting"
     (formSubmitted)="onFormSubmit($event)"
     (formCancelled)="onFormCancel()"
   />
