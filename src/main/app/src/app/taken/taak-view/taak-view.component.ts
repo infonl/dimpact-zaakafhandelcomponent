@@ -243,8 +243,6 @@ export class TaakViewComponent
           zaak,
         );
 
-      console.log("alle data taak?:", taak);
-
       formFields.forEach((formField) => {
         this.form.addControl(
           formField.key,
@@ -273,7 +271,6 @@ export class TaakViewComponent
           informatieobjectUUIDs: allAttachments,
         }),
       );
-      console.log("attachments:", attachments);
 
       const attachmentsControl =
         this.formBuilder.control<
