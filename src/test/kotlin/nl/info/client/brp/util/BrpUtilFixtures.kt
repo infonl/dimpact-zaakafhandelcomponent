@@ -13,14 +13,14 @@ fun createBrpConfiguration(
     apiKey: Optional<String> = Optional.of("apiKey"),
     originOin: Optional<String> = Optional.of("originOin"),
     auditLogProvider: Optional<String> = Optional.of("iConnect"),
-    queryPersonenDefaultDoelbinding: Optional<String> = Optional.of("queryPersonenPurpose"),
-    retrievePersoonDefaultDoelbinding: Optional<String> = Optional.of("retrievePersoonPurpose"),
+    doelbindingZoekMetDefault: Optional<String> = Optional.of("queryPersonenPurpose"),
+    doelbindingRaadpleegMetDefault: Optional<String> = Optional.of("retrievePersoonPurpose"),
     verwerkingregisterDefault: Optional<String> = Optional.of("processingRegisterDefault")
 ) = BrpConfiguration(
     apiKey = apiKey,
     originOIN = originOin,
     auditLogProvider = auditLogProvider,
-    doelbindingZoekMetDefault = queryPersonenDefaultDoelbinding,
-    doelbindingRaadpleegMetDefault = retrievePersoonDefaultDoelbinding,
+    doelbindingZoekMetDefault = doelbindingZoekMetDefault,
+    doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
     verwerkingregisterDefault = verwerkingregisterDefault
 )

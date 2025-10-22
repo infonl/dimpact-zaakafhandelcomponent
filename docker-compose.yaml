@@ -749,7 +749,7 @@ services:
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
-      - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
+      - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
       - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
       - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
       - BRP_VERWERKINGSREGISTER=Algemeen
