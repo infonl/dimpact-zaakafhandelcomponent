@@ -6,7 +6,7 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>assignment</mat-icon>
   <span class="flex-grow-1">
-    {{ "title.taak.starten" | translate: { taak: planItem.naam } }}
+    {{ "title.taak.starten" | translate: { taak: planItem?.naam || "" } }}
   </span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -14,8 +14,11 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<section *ngIf="!formFields.length && !formItems.length" class="flex p-5">
-  <mat-spinner />
+<section
+  *ngIf="!formFields.length && !formItems.length"
+  class="flex-fill flex-row justify-center items-center"
+>
+  <mat-spinner diameter="30" />
 </section>
 
 <!-- form using Angular form builder -->
@@ -24,7 +27,7 @@
     [form]="form"
     [fields]="formFields"
     [config]="_formConfig"
-    [readonly]="isSubmitting"
+    [loading]="loading"
     (formSubmitted)="onFormSubmit($event)"
     (formCancelled)="onFormCancel()"
   />

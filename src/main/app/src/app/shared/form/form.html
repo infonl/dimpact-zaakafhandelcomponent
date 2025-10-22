@@ -93,27 +93,33 @@
   <fieldset *ngIf="!readonly()">
     <mat-action-row>
       <button
-        mat-raised-button
         type="submit"
+        mat-raised-button
         color="primary"
-        [disabled]="form().invalid"
+        [disabled]="form().invalid || loading()"
       >
+        <mat-icon *ngIf="loading()">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
         {{ config().submitLabel ?? "actie.verstuur" | translate }}
       </button>
       <button
         *ngIf="config().hideCancelButton"
+        type="button"
         mat-raised-button
         color="accent"
-        [disabled]="form().invalid"
-        type="button"
+        [disabled]="form().invalid || loading()"
         (click)="partiallySubmitForm()"
       >
+        <mat-icon *ngIf="loading()">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
         {{ config().partialSubmitLabel ?? "actie.opslaan" | translate }}
       </button>
       <button
         *ngIf="!config().hideCancelButton"
-        mat-raised-button
         type="reset"
+        mat-raised-button
         (click)="cancelForm()"
       >
         {{ config().cancelLabel ?? "actie.annuleren" | translate }}
