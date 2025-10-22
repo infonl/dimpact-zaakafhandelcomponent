@@ -259,12 +259,19 @@ export class TaakViewComponent
       this.form.addControl("toelichting", explanationControl);
       this.formFields.push({ type: "textarea", key: "toelichting" });
 
+      const allAttachments = [
+        ...(taak.taakdocumenten ?? []),
+        ...((taak.taakdata?.bijlagen as string | undefined)
+          ?.split(";")
+          ?.filter(Boolean) ?? []),
+      ];
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
           zaakUUID: zaak.uuid,
-          informatieobjectUUIDs: taak.taakdocumenten,
+          informatieobjectUUIDs: allAttachments,
         }),
       );
+
       const attachmentsControl =
         this.formBuilder.control<
           GeneratedType<"RestEnkelvoudigInformatieobject">[]
