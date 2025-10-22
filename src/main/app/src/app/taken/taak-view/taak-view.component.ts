@@ -243,7 +243,7 @@ export class TaakViewComponent
           zaak,
         );
 
-      console.log('alle data taak?:', taak)
+      console.log("alle data taak?:", taak);
 
       formFields.forEach((formField) => {
         this.form.addControl(
@@ -261,18 +261,19 @@ export class TaakViewComponent
       this.form.addControl("toelichting", explanationControl);
       this.formFields.push({ type: "textarea", key: "toelichting" });
 
-        const allAttachments = [
-            ...(taak.taakdocumenten ?? []),
-            ...(((taak.taakdata?.bijlagen as string | undefined)?.split(";")) ?? []),
-        ];
-
+      const allAttachments = [
+        ...(taak.taakdocumenten ?? []),
+        ...((taak.taakdata?.bijlagen as string | undefined)
+          ?.split(";")
+          .filter(Boolean) ?? []),
+      ];
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
           zaakUUID: zaak.uuid,
-            informatieobjectUUIDs: allAttachments
+          informatieobjectUUIDs: allAttachments,
         }),
       );
-        console.log('attachments:', attachments)
+      console.log("attachments:", attachments);
 
       const attachmentsControl =
         this.formBuilder.control<
@@ -311,7 +312,7 @@ export class TaakViewComponent
     });
   }
 
-    private createConfigurableTaakForm(
+  private createConfigurableTaakForm(
     formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">,
   ) {
     this.formulierDefinitie = formulierDefinitie;
