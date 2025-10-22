@@ -144,8 +144,14 @@ export class ZacForm<Form extends _Form> {
 
   constructor() {
     effect(() => {
-      if (!this.readonly()) return;
-      this.form().disable({ onlySelf: true });
+      const _isReadOnly = this.readonly();
+      const _formGroup = this.form();
+
+      if (_isReadOnly && _formGroup.enabled) {
+        _formGroup.disable({ onlySelf: true });
+      } else if (!_isReadOnly && _formGroup.disabled) {
+        _formGroup.enable({ onlySelf: true });
+      }
     });
   }
 
