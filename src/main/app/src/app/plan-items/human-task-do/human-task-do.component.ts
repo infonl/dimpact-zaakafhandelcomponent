@@ -175,7 +175,7 @@ export class HumanTaskDoComponent implements OnInit {
             this.done.emit();
             this.loading = false;
           },
-          error: (err: any) => {
+          error: () => {
             this.loading = false;
           },
         });
