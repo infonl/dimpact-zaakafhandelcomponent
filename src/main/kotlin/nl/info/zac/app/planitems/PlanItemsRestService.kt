@@ -159,8 +159,8 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        val sendMail = humanTaskData.taakStuurGegevens?.sendMail ?: false || TaakVariabelenService.isSendDataSendMail(taakdata)
-        val mail = humanTaskData.taakStuurGegevens?.mail ?: TaakVariabelenService.readSendDataMail(taakdata).getOrNull()
+        val sendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.sendMail ?: false
+        val mail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
         if (sendMail && mail != null) {
             val mail = Mail.valueOf(mail)
 
