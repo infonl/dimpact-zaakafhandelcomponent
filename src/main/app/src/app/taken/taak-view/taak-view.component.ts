@@ -73,16 +73,18 @@ export class TaakViewComponent
   protected zaak?: GeneratedType<"RestZaak">;
   protected formulier?: AbstractTaakFormulier | null = null;
   protected formConfig?: FormConfig | null = null;
-  formulierDefinitie?: GeneratedType<"RESTFormulierDefinitie">;
-  formioFormulier?: FormioForm;
+  protected formulierDefinitie?: GeneratedType<"RESTFormulierDefinitie">;
+  protected formioFormulier?: FormioForm;
 
-  smartDocumentsGroupPath: string[] = [];
-  smartDocumentsTemplateName?: string;
-  smartDocumentsInformatieobjecttypeUuid?: string;
+  protected smartDocumentsGroupPath: string[] = [];
+  protected smartDocumentsTemplateName?: string;
+  protected smartDocumentsInformatieobjecttypeUuid?: string;
 
-  menu: MenuItem[] = [];
-  activeSideAction: string | null = null;
-  documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
+  protected menu: MenuItem[] = [];
+  protected activeSideAction: string | null = null;
+  protected documentToMove!: Partial<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >;
 
   protected historieSrc = new MatTableDataSource<
     GeneratedType<"RestTaskHistoryLine">
@@ -95,8 +97,8 @@ export class TaakViewComponent
     "toelichting",
   ] as const;
 
-  editFormFields = new Map<string, unknown>();
-  fataledatumIcon: TextIcon | null = null;
+  protected editFormFields = new Map<string, unknown>();
+  protected fataledatumIcon: TextIcon | null = null;
   protected initialized = false;
 
   private taakListener?: WebsocketListener;
@@ -311,7 +313,7 @@ export class TaakViewComponent
     });
   }
 
-  isReadonly() {
+  protected isReadonly() {
     return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
   }
 
