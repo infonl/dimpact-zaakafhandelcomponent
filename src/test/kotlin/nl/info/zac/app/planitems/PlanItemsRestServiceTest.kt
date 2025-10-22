@@ -33,12 +33,16 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
+import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
+import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.createMailGegevens
+import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
@@ -94,364 +98,505 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Valid REST human task data without a fatal date") {
-        val restHumanTaskData = createRESTHumanTaskData(
-            planItemInstanceId = planItemInstanceId,
-            taakdata = mapOf("fakeKey" to "fakeValue"),
-            fataledatum = null
-        )
-        val taskDataSlot = slot<Map<String, String>>()
-        val zaak = createZaak(
-            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
-            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
-        )
-        every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
-        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
-        every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
-        every {
-            cmmnService.startHumanTaskPlanItem(
-                planItemInstanceId,
-                restHumanTaskData.groep.id,
-                null,
-                any(),
-                restHumanTaskData.toelichting,
-                capture(taskDataSlot),
-                zaak.uuid
-            )
-        } just runs
+    Context("doHumanTaskplanItem") {
 
-        When("A human task plan item is started from user that has access") {
+        Given("Valid REST human task data without a fatal date") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf("fakeKey" to "fakeValue"),
+                fataledatum = null
+            )
+            val taskDataSlot = slot<Map<String, String>>()
+            val zaak = createZaak(
+                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    any(),
+                    restHumanTaskData.toelichting,
+                    capture(taskDataSlot),
+                    zaak.uuid
+                )
+            } just runs
+
+            When("A human task plan item is started from user that has access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                Then("A CMMN human task plan item is started and the zaak is re-indexed") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+                with(taskDataSlot.captured) {
+                    get("fakeKey") shouldBe "fakeValue"
+                }
+            }
+
+            When("the enkelvoudig informatieobject is updated by a user that has no access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+
+                Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
+            val opgeschorteZaak = createZaak()
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "fakeKey" to "fakeValue",
+                    "zaakOpschorten" to "true"
+                ),
+                fataledatum = LocalDate.now().plusDays(1)
+            )
+            val zaak = createZaak(
+                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
+                    restHumanTaskData.toelichting,
+                    any(),
+                    zaak.uuid
+                )
+            } just runs
+            every {
+                suspensionZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
+            } returns opgeschorteZaak
 
-            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+            When("A human task plan item is started from user with access") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
-            Then("A CMMN human task plan item is started and the zaak is re-indexed") {
-                verify(exactly = 1) {
-                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexingService.addOrUpdateZaak(any(), any())
+                Then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                        suspensionZaakHelper.suspendZaak(any(), any(), any())
+                    }
                 }
             }
-            with(taskDataSlot.captured) {
-                get("fakeKey") shouldBe "fakeValue"
-            }
         }
 
-        When("the enkelvoudig informatieobject is updated by a user that has no access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
-
-            val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
-
-            Then("it throws exception with no message") { exception.message shouldBe null }
-        }
-    }
-
-    Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
-        val opgeschorteZaak = createZaak()
-        val restHumanTaskData = createRESTHumanTaskData(
-            planItemInstanceId = planItemInstanceId,
-            taakdata = mapOf(
-                "fakeKey" to "fakeValue",
-                "zaakOpschorten" to "true"
-            ),
-            fataledatum = LocalDate.now().plusDays(1)
-        )
-        val zaak = createZaak(
-            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
-            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
-        )
-        every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
-        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
-        every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
-        every {
-            cmmnService.startHumanTaskPlanItem(
-                planItemInstanceId,
-                restHumanTaskData.groep.id,
-                null,
-                DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
-                restHumanTaskData.toelichting,
-                any(),
-                zaak.uuid
+        Given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "fakeKey" to "fakeValue"
+                ),
+                fataledatum = LocalDate.now().plusDays(3)
             )
-        } just runs
-        every {
-            suspensionZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
-        } returns opgeschorteZaak
-
-        When("A human task plan item is started from user with access") {
-            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
-
-            Then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
-                verify(exactly = 1) {
-                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexingService.addOrUpdateZaak(any(), any())
-                    suspensionZaakHelper.suspendZaak(any(), any(), any())
-                }
-            }
-        }
-    }
-
-    Given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
-        val restHumanTaskData = createRESTHumanTaskData(
-            planItemInstanceId = planItemInstanceId,
-            taakdata = mapOf(
-                "fakeKey" to "fakeValue"
-            ),
-            fataledatum = LocalDate.now().plusDays(3)
-        )
-        val zaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
-            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
-        )
-        every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
-        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
-        every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-
-        When("A human task plan item is started") {
-            shouldThrow<InputValidationFailedException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
-            Then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
-                verify(exactly = 0) {
-                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexingService.addOrUpdateZaak(any(), any())
-                }
-            }
-        }
-    }
-
-    Given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
-        val restHumanTaskData = createRESTHumanTaskData(
-            planItemInstanceId = planItemInstanceId,
-            taakdata = mapOf(
-                "fakeKey" to "fakeValue"
+            val zaak = createZaak(
+                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
-        )
-        val zaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
-        )
-        val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
 
-        every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
-        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
-        } returns zaaktypeCmmnConfigurationMock
-        every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every {
-            zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
-        } returns
-            createHumanTaskParameters().apply {
-                doorlooptijd = 10
+            When("A human task plan item is started") {
+                shouldThrow<InputValidationFailedException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                Then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
+                    verify(exactly = 0) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
             }
+        }
 
-        every {
-            cmmnService.startHumanTaskPlanItem(
-                planItemInstanceId,
-                restHumanTaskData.groep.id,
-                null,
-                DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening),
-                restHumanTaskData.toelichting,
-                any(),
-                zaak.uuid
+        Given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "fakeKey" to "fakeValue"
+                )
             )
-        } just runs
-        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
-
-        When("A human task plan item is started") {
-            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
-
-            Then("The task is created with the zaak fatal date") {
-                verify(exactly = 1) {
-                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexingService.addOrUpdateZaak(any(), any())
-                }
-            }
-        }
-    }
-
-    Given("Additional info human task with a fatal date after the fatal date of the related zaak") {
-        val numberOfDays = 3L
-        val additionalInfoPlanItemInstanceId = FormulierDefinitie.AANVULLENDE_INFORMATIE.toString()
-        val restHumanTaskData = createRESTHumanTaskData(
-            planItemInstanceId = additionalInfoPlanItemInstanceId,
-            taakdata = mapOf(
-                "fakeKey" to "fakeValue"
-            ),
-            fataledatum = LocalDate.now().plusDays(numberOfDays)
-        )
-        val zaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
-            uiterlijkeEinddatumAfdoening = LocalDate.now()
-        )
-        val extendedZaak = createZaak(
-            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
-            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
-        )
-        val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
-
-        every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
-        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
-        } returns zaaktypeCmmnConfigurationMock
-        every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
-        every {
-            zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
-        } returns
-            createHumanTaskParameters().apply {
-                doorlooptijd = 10
-            }
-        every {
-            suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
-        } returns extendedZaak
-        every {
-            cmmnService.startHumanTaskPlanItem(
-                additionalInfoPlanItemInstanceId,
-                restHumanTaskData.groep.id,
-                null,
-                DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
-                restHumanTaskData.toelichting,
-                any(),
-                zaak.uuid
+            val zaak = createZaak(
+                zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
             )
-        } just runs
-        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
 
-        When("A human task plan item is started") {
-            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfigurationMock
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every {
+                zaaktypeCmmnConfigurationMock.findHumanTaskParameter(planItemInstanceId)
+            } returns
+                    createHumanTaskParameters().apply {
+                        doorlooptijd = 10
+                    }
 
-            Then("The task is created with its own fatal date") {
-                verify(exactly = 1) {
-                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexingService.addOrUpdateZaak(any(), any())
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                    restHumanTaskData.toelichting,
+                    any(),
+                    zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+            When("A human task plan item is started") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                Then("The task is created with the zaak fatal date") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+            }
+        }
+
+        Given("Additional info human task with a fatal date after the fatal date of the related zaak") {
+            val numberOfDays = 3L
+            val additionalInfoPlanItemInstanceId = FormulierDefinitie.AANVULLENDE_INFORMATIE.toString()
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = additionalInfoPlanItemInstanceId,
+                taakdata = mapOf(
+                    "fakeKey" to "fakeValue"
+                ),
+                fataledatum = LocalDate.now().plusDays(numberOfDays)
+            )
+            val zaak = createZaak(
+                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now()
+            )
+            val extendedZaak = createZaak(
+                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
+            )
+            val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+
+            every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfigurationMock
+            every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
+            every {
+                zaaktypeCmmnConfigurationMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
+            } returns
+                    createHumanTaskParameters().apply {
+                        doorlooptijd = 10
+                    }
+            every {
+                suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
+            } returns extendedZaak
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    additionalInfoPlanItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
+                    restHumanTaskData.toelichting,
+                    any(),
+                    zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+            When("A human task plan item is started") {
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                Then("The task is created with its own fatal date") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+
+                And("zaak extend fatal date was performed") {
+                    verify(exactly = 1) {
+                        suspensionZaakHelper.extendZaakFatalDate(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        Given("Task data with send mail information") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "taakStuurGegevens.sendMail" to "true",
+                    "taakStuurGegevens.mail" to "TAAK_AANVULLENDE_INFORMATIE",
+                    "emailadres" to "example@example.com",
+                    "body" to "body"
+                ),
+                taakStuurGegevens = null,
+                fataledatum = null
+            )
+            val taskDataSlot = slot<Map<String, String>>()
+            val zaak = createZaak(
+                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
+            every { configuratieService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
+            every { mailService.sendMail(any(), any()) } returns "body"
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    any(),
+                    restHumanTaskData.toelichting,
+                    capture(taskDataSlot),
+                    zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+            When("A human task plan item is started from user that has access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                Then("A CMMN human task plan item is started and the zaak is re-indexed") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
+                }
+
+                And("the task data is set correctly") {
+                    taskDataSlot.captured shouldBe restHumanTaskData.taakdata
+                }
+
+                And("email was sent for the task") {
+                    verify(exactly = 1) {
+                        mailService.sendMail(any(), any())
+                    }
                 }
             }
 
-            And("zaak extend fatal date was performed") {
-                verify(exactly = 1) {
-                    suspensionZaakHelper.extendZaakFatalDate(any(), any(), any())
+            When("the enkelvoudig informatieobject is updated by a user that has no access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+
+        Given("Send mail information in TaakStuurGegevens object") {
+            val restHumanTaskData = createRESTHumanTaskData(
+                planItemInstanceId = planItemInstanceId,
+                taakdata = mapOf(
+                    "emailadres" to "example@example.com",
+                    "body" to "body"
+                ),
+                taakStuurGegevens = createRESTTaakStuurGegevens(true, "TAAK_AANVULLENDE_INFORMATIE"),
+                fataledatum = null
+            )
+            val taskDataSlot = slot<Map<String, String>>()
+            val zaak = createZaak(
+                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+            )
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
+            every { configuratieService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { mailService.getGemeenteMailAdres() } returns createMailAdres()
+            every { mailService.sendMail(any(), any()) } returns "body"
+            every {
+                cmmnService.startHumanTaskPlanItem(
+                    planItemInstanceId,
+                    restHumanTaskData.groep.id,
+                    null,
+                    any(),
+                    restHumanTaskData.toelichting,
+                    capture(taskDataSlot),
+                    zaak.uuid
+                )
+            } just runs
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+            When("A human task plan item is started from user that has access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+                planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+                Then("A CMMN human task plan item is started and the zaak is re-indexed") {
+                    verify(exactly = 1) {
+                        cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                        indexingService.addOrUpdateZaak(any(), any())
+                    }
                 }
+
+                And("the task data is set correctly") {
+                    taskDataSlot.captured shouldBe restHumanTaskData.taakdata
+                }
+
+                And("email was sent for the task") {
+                    verify(exactly = 1) {
+                        mailService.sendMail(any(), any())
+                    }
+                }
+            }
+
+            When("the enkelvoudig informatieobject is updated by a user that has no access") {
+                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                val exception = shouldThrow<PolicyException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
+                Then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
 
-    Given("Zaak exists") {
-        val zaak = createZaak(
-            resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
-        )
-        val mailGegevens = createMailGegevens()
-        val restMailGegevens = createRESTMailGegevens()
-        val restUserEventListenerData = createRESTUserEventListenerData(
-            zaakUuid = zaak.uuid,
-            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-            restMailGegevens = restMailGegevens,
-            resultaattypeUuid = UUID.randomUUID(),
-        )
-        restUserEventListenerData.planItemInstanceId = planItemInstanceId
+    Context("doUserEventListenerPlanItem") {
+        Given("Zaak exists") {
+            val zaak = createZaak(
+                resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
+            )
+            val mailGegevens = createMailGegevens()
+            val restMailGegevens = createRESTMailGegevens()
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = restMailGegevens,
+                resultaattypeUuid = UUID.randomUUID(),
+            )
+            restUserEventListenerData.planItemInstanceId = planItemInstanceId
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
-            startenTaak = true,
-            versturenEmail = true
-        )
-        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every {
-            zaakService.processBrondatumProcedure(any(), any(), any())
-        } just runs
-        every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
-        every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
-        every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-        every { mailService.sendMail(mailGegevens, any()) } returns ""
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                startenTaak = true,
+                versturenEmail = true
+            )
+            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every {
+                zaakService.processBrondatumProcedure(any(), any(), any())
+            } just runs
+            every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
+            every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+            every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
+            every { mailService.sendMail(mailGegevens, any()) } returns ""
 
-        When("A user event to settle the zaak and send a corresponding email is planned") {
-            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+            When("A user event to settle the zaak and send a corresponding email is planned") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-            Then("the zaak is settled and the email is sent") {
-                verify(exactly = 1) {
-                    mailService.sendMail(mailGegevens, any())
+                Then("the zaak is settled and the email is sent") {
+                    verify(exactly = 1) {
+                        mailService.sendMail(mailGegevens, any())
+                    }
                 }
             }
         }
-    }
 
-    Given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP") {
-        val zaak = createZaak(
-            resultaat = null,
-        )
-        val resultaattypeUuid = UUID.randomUUID()
-        val datumkenmerk = "testDatumkenmerk"
-        val brondatumEigenschap = "20231201"
+        Given("Zaak exists with resultaattype that has afleidingswijze EIGENSCHAP") {
+            val zaak = createZaak(
+                resultaat = null,
+            )
+            val resultaattypeUuid = UUID.randomUUID()
+            val datumkenmerk = "testDatumkenmerk"
+            val brondatumEigenschap = "20231201"
 
-        val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
-            afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-        }
-        brondatumArchiefprocedure.datumkenmerk = datumkenmerk
+            val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
+                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
+            }
+            brondatumArchiefprocedure.datumkenmerk = datumkenmerk
 
-        val restUserEventListenerData = createRESTUserEventListenerData(
-            zaakUuid = zaak.uuid,
-            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-            restMailGegevens = null,
-            resultaattypeUuid = resultaattypeUuid,
-            brondatumEigenschap = brondatumEigenschap
-        )
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = null,
+                resultaattypeUuid = resultaattypeUuid,
+                brondatumEigenschap = brondatumEigenschap
+            )
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
-        every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
 
-        When("the user event listener plan item is processed") {
-            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+            When("the user event listener plan item is processed") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-            Then("the processing of special brondatum procedure is requested") {
-                verify(exactly = 1) {
-                    zaakService.processBrondatumProcedure(
-                        zaak,
-                        resultaattypeUuid,
-                        match {
-                            it.datumkenmerk == brondatumEigenschap
-                        }
-                    )
+                Then("the processing of special brondatum procedure is requested") {
+                    verify(exactly = 1) {
+                        zaakService.processBrondatumProcedure(
+                            zaak,
+                            resultaattypeUuid,
+                            match {
+                                it.datumkenmerk == brondatumEigenschap
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    Given("Zaak without resultaat, when the zaak is closed") {
-        val zaak = createZaak(resultaat = null)
-        val resultaattypeUuid = UUID.randomUUID()
-        val restUserEventListenerData = createRESTUserEventListenerData(
-            zaakUuid = zaak.uuid,
-            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-            resultaattypeUuid = resultaattypeUuid,
-            restMailGegevens = null
-        )
+        Given("Zaak without resultaat, when the zaak is closed") {
+            val zaak = createZaak(resultaat = null)
+            val resultaattypeUuid = UUID.randomUUID()
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                resultaattypeUuid = resultaattypeUuid,
+                restMailGegevens = null
+            )
 
-        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
-        every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
-        every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
+            every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
 
-        When("doUserEventListenerPlanItem is called to close the zaak") {
-            planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+            When("doUserEventListenerPlanItem is called to close the zaak") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-            Then("createResultaatForZaak should be called to set the resultaat") {
-                verify(exactly = 1) {
-                    zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null)
+                Then("createResultaatForZaak should be called to set the resultaat") {
+                    verify(exactly = 1) {
+                        zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null)
+                    }
                 }
             }
         }

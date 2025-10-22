@@ -20,7 +20,7 @@ fun createRESTHumanTaskData(
     fataledatum: LocalDate? = null,
     toelichting: String? = null,
     taakdata: Map<String, String>? = null,
-    taakStuurGegevens: RESTTaakStuurGegevens = createRESTTaakStuurGegevens()
+    taakStuurGegevens: RESTTaakStuurGegevens? = createRESTTaakStuurGegevens()
 ) = RESTHumanTaskData(
     planItemInstanceId = planItemInstanceId,
     groep = groep,

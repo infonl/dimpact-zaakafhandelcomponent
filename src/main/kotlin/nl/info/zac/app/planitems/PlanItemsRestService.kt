@@ -54,6 +54,7 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Provides REST endpoints for CMMN plan items.
@@ -158,12 +159,14 @@ class PlanItemsRestService @Inject constructor(
             }
         }
 
-        if (humanTaskData.taakStuurGegevens.sendMail && humanTaskData.taakStuurGegevens.mail != null) {
-            val mail = Mail.valueOf(humanTaskData.taakStuurGegevens.mail as String)
+        val sendMail = humanTaskData.taakStuurGegevens?.sendMail ?: false || TaakVariabelenService.isSendDataSendMail(taakdata)
+        val mail = humanTaskData.taakStuurGegevens?.mail ?: TaakVariabelenService.readSendDataMail(taakdata).getOrNull()
+        if (sendMail && mail != null) {
+            val mail = Mail.valueOf(mail)
 
             val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
-                ?.map { it.mailTemplate }
-                ?.firstOrNull { it?.mail == mail }
+                .map { it.mailTemplate }
+                .firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readMailtemplate(mail)
 
             val afzender = configuratieService.readGemeenteNaam()
@@ -176,10 +179,10 @@ class PlanItemsRestService @Inject constructor(
                             .orElseGet { mailService.getGemeenteMailAdres() },
                         TaakVariabelenService.readMailTo(taakdata)
                             .map { MailAdres(it, null) }
-                            .orElse(null),
+                            .get(),
                         TaakVariabelenService.readMailReplyTo(taakdata)
                             .map { MailAdres(it, afzender) }
-                            .orElse(null),
+                            .getOrNull(),
                         mailTemplate.onderwerp,
                         TaakVariabelenService.readMailBody(taakdata).orElse(null),
                         TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
