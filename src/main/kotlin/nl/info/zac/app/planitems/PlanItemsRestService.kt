@@ -160,9 +160,9 @@ class PlanItemsRestService @Inject constructor(
         }
 
         val sendMail = TaakVariabelenService.isSendDataSendMail(taakdata) || humanTaskData.taakStuurGegevens?.sendMail ?: false
-        val mail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
-        if (sendMail && mail != null) {
-            val mail = Mail.valueOf(mail)
+        val sendDataMail = TaakVariabelenService.readSendDataMail(taakdata).getOrNull() ?: humanTaskData.taakStuurGegevens?.mail
+        if (sendMail && sendDataMail != null) {
+            val mail = Mail.valueOf(sendDataMail)
 
             val mailTemplate = zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
                 .map { it.mailTemplate }
