@@ -36,8 +36,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     const verzenderOptions = (
       await lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid))
     ).map((afzender) => ({
-      ...afzender,
-      key: afzender.id,
+      key: afzender.mail,
       value: afzender.mail,
     }));
     const verzenderControl =
@@ -116,7 +115,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         type: "select",
         key: "verzender",
         options: verzenderOptions,
-        optionDisplayValue: "mail",
+        optionDisplayValue: "value",
         control: verzenderControl,
       },
       {
