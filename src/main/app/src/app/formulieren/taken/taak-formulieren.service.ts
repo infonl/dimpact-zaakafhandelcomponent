@@ -19,6 +19,8 @@ import { ExternAdviesMail } from "./model/extern-advies-mail";
 import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
 import { GoedkeurenFormulier } from "./model/goedkeuren";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
+import { AanvullendeInformatieDeprecated } from "./model/deprecated/aanvullende-informatie";
+import { KlantenService } from "src/app/klanten/klanten.service";
 
 @Injectable({
   providedIn: "root",
@@ -33,6 +35,7 @@ export class TaakFormulierenService {
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly takenService: TakenService,
     private readonly zakenService: ZakenService,
+    private readonly klantenService: KlantenService,
     private readonly mailtemplateService: MailtemplateService,
   ) {}
 
@@ -43,8 +46,8 @@ export class TaakFormulierenService {
     switch (formulierDefinitie) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.requestForm(zaak);
-      case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieFormulier.requestForm(zaak);
+      // case "AANVULLENDE_INFORMATIE":
+      //   return this.aanvullendeInformatieFormulier.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -59,8 +62,8 @@ export class TaakFormulierenService {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.handleForm(taak);
-      case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
+      // case "AANVULLENDE_INFORMATIE":
+      //   return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
       default:
         throw new Error(
           `${taak.formulierDefinitie}: Onbekende formulierDefinitie for Angular`,
@@ -80,8 +83,15 @@ export class TaakFormulierenService {
           ),
         );
       case "AANVULLENDE_INFORMATIE":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
+        return new TaakFormulierBuilder(
+          new AanvullendeInformatieDeprecated(
+            this.translate,
+            this.takenService,
+            this.informatieObjectenService,
+            this.mailtemplateService,
+            this.klantenService,
+            this.zakenService,
+          ),
         );
       case "ADVIES":
         return new TaakFormulierBuilder(
