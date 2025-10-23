@@ -44,7 +44,7 @@ export class MailCreateComponent implements OnInit {
     body: this.formBuilder.control("", [Validators.required]),
     bijlagen: this.formBuilder.control<
       GeneratedType<"RestEnkelvoudigInformatieobject">[]
-    >([], [Validators.required]),
+    >([], []),
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];

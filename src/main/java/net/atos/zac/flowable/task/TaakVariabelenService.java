@@ -23,11 +23,11 @@ import org.flowable.task.api.TaskInfo;
 @ApplicationScoped
 @Transactional
 public class TaakVariabelenService {
+    public static final String TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER = ";";
+
     public static final String TAAK_DATA_DOCUMENTEN_VERZENDEN_POST = "documentenVerzendenPost";
     public static final String TAAK_DATA_VERZENDDATUM = "verzenddatum";
     public static final String TAAK_DATA_TOELICHTING = "toelichting";
-    public static final String TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER = ";";
-
     private static final String TAAK_DATA_ONDERTEKENEN = "ondertekenen";
     private static final String TAAK_DATA_ZAAK_OPSCHORTEN = "zaakOpschorten";
     private static final String TAAK_DATA_ZAAK_HERVATTEN = "zaakHervatten";
@@ -36,6 +36,9 @@ public class TaakVariabelenService {
     private final static String TAAK_DATA_MAIL_TO = "emailadres";
     private final static String TAAK_DATA_MAIL_BODY = "body";
     private static final String TAAK_DATA_MAIL_BIJLAGEN = "bijlagen";
+    private static final String TAAK_DATA_STUUR_GEGEVENS_SENDMAIL = "taakStuurGegevens.sendMail";
+    private static final String TAAK_DATA_STUUR_GEGEVENS_MAIL = "taakStuurGegevens.mail";
+
     private static final String VAR_TASK_TAAKDATA = "taakdata";
     private static final String VAR_TASK_TAAKDOCUMENTEN = "taakdocumenten";
     private static final String VAR_TASK_TAAKINFORMATIE = "taakinformatie";
@@ -83,6 +86,10 @@ public class TaakVariabelenService {
         return findObjectTaskDataElement(taakData, TAAK_DATA_ONDERTEKENEN);
     }
 
+    public static Optional<String> readSendDataMail(Map<String, Object> taakData) {
+        return findObjectTaskDataElement(taakData, TAAK_DATA_STUUR_GEGEVENS_MAIL);
+    }
+
     public static boolean isZaakOpschorten(Map<String, String> taakData) {
         Optional<String> zaakOpgeschort = findStringTaskDataElement(taakData, TAAK_DATA_ZAAK_OPSCHORTEN);
         return zaakOpgeschort.filter(BooleanUtils.TRUE::equals).isPresent();
@@ -91,6 +98,11 @@ public class TaakVariabelenService {
     public static boolean isZaakHervatten(Map<String, Object> taakData) {
         final Optional<String> zaakHervatten = findObjectTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN);
         return zaakHervatten.filter(BooleanUtils.TRUE::equals).isPresent();
+    }
+
+    public static boolean isSendDataSendMail(Map<String, Object> taakData) {
+        final Optional<String> sendMail = findObjectTaskDataElement(taakData, TAAK_DATA_STUUR_GEGEVENS_SENDMAIL);
+        return sendMail.filter(BooleanUtils.TRUE::equals).isPresent();
     }
 
     public static UUID readZaakUUID(final TaskInfo taskInfo) {
