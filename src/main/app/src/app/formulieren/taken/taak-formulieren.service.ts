@@ -5,6 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../shared/form/form";
@@ -14,13 +15,12 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
 import { Advies } from "./model/advies";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
+import { AanvullendeInformatieDeprecated } from "./model/deprecated/aanvullende-informatie";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
 import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
 import { GoedkeurenFormulier } from "./model/goedkeuren";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
-import { AanvullendeInformatieDeprecated } from "./model/deprecated/aanvullende-informatie";
-import { KlantenService } from "src/app/klanten/klanten.service";
 
 @Injectable({
   providedIn: "root",
