@@ -29,10 +29,16 @@ export class ParameterEditSelectProcessDefinitionComponent {
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    } | null>(null, [Validators.required]),
+    } | null>(null, []),
   });
 
-  constructor(private readonly formBuilder: FormBuilder) {}
+  constructor(private readonly formBuilder: FormBuilder) {
+    this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
+      this.switchProcessDefinition.emit({
+        type: value?.value || "SELECT-PROCESS-DEFINITION",
+      });
+    });
+  }
 
   protected onNext() {
     const selectedOption = this.cmmnBpmnFormGroup.value.options?.value;

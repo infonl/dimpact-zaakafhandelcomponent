@@ -15,6 +15,11 @@ import {
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import { MatDialog } from "@angular/material/dialog";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -50,7 +55,7 @@ export class ParametersEditBpmnComponent {
   };
 
   protected readonly zaakProcessDefinitionOptions: Array<{
-    label: string;
+    label: ZaakProcessSelect;
     value: ZaakProcessSelect;
   }> = [
     { label: "CMMN", value: "CMMN" },
@@ -60,7 +65,7 @@ export class ParametersEditBpmnComponent {
   cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
-      label: string;
+      label: ZaakProcessSelect;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
 
@@ -83,6 +88,7 @@ export class ParametersEditBpmnComponent {
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
+    public readonly dialog: MatDialog,
   ) {
     this.route.data.subscribe(async (data) => {
       if (!data?.parameters?.zaakafhandelParameters) {
@@ -97,11 +103,21 @@ export class ParametersEditBpmnComponent {
 
       await this.createForm();
     });
+
+    this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
+      if (value?.value === "CMMN" && this.algemeenFormGroup.dirty) {
+        this.confirmProcessDefinitionSwitch();
+        return;
+      }
+      this.switchProcessDefinition.emit({
+        type: value?.value || "SELECT-PROCESS-DEFINITION",
+      });
+    });
   }
 
   async createForm() {
     if (this.isSavedZaakafhandelParameters) {
-      this.cmmnBpmnFormGroup.disable();
+      this.cmmnBpmnFormGroup.disable({ emitEvent: false });
     }
 
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters);
@@ -149,7 +165,7 @@ export class ParametersEditBpmnComponent {
         next: (data) => {
           this.isLoading = false;
           this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
-          this.cmmnBpmnFormGroup.disable(); // disable form to prevent modifications until explicitly enabled again
+          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
 
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
@@ -158,6 +174,31 @@ export class ParametersEditBpmnComponent {
         error: () => {
           this.isLoading = false;
         },
+      });
+  }
+
+  confirmProcessDefinitionSwitch() {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData({
+          key: "zaps.step.proces-definitie.bevestig-switch.msg",
+          args: { process: "BPMN" },
+        }),
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.switchProcessDefinition.emit({
+            type: "CMMN",
+          });
+        } else {
+          this.cmmnBpmnFormGroup.controls.options.patchValue(
+            { value: "BPMN", label: "BPMN" },
+            {
+              emitEvent: false,
+            },
+          );
+        }
       });
   }
 

@@ -766,7 +766,7 @@
   </mat-step>
   <mat-step
     [stepControl]="smartDocumentsEnabledForm"
-    [hasError]="!isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid"
+    [hasError]="!brpProtocoleringFormGroup.valid"
   >
     <ng-template matStepLabel>{{
       "gegevens.koppelingen" | translate
