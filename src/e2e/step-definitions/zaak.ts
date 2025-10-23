@@ -108,7 +108,7 @@ When(
       .click();
 
     await this.page
-      .getByRole("combobox", { name: "Taak toekennen aan medewerker" })
+      .getByRole("combobox", { name: "- Geen behandelaar -" }) // label channges back when moving forward again to Angular form setup
       .first()
       .click();
     await this.page
