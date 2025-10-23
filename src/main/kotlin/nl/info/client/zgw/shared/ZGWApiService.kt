@@ -202,8 +202,12 @@ class ZGWApiService @Inject constructor(
     fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, toelichting: String?) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSubRequest(resultaatType.url, toelichting)
-        val satusType = getStatusTypeEind(zaak.zaaktype)
-        val status = StatusSubRequest(satusType.url, null, toelichting, satusType.url)
+        val statusType = getStatusTypeEind(zaak.zaaktype)
+        val status = StatusSubRequest(
+            statustype = statusType.url,
+            statustoelichting = toelichting,
+            // TODO: set gezetdoor to the right person URL
+        )
 
         val zaakAfsluiten = ZaakAfsluiten(zaak, resultaat, status)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
