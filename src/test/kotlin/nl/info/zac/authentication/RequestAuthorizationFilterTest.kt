@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpSession
 import nl.info.zac.identity.model.ZacApplicationRole
 
 class RequestAuthorizationFilterTest : BehaviorSpec({
-
     val httpServletRequest = mockk<HttpServletRequest>()
     val httpServletResponse = mockk<HttpServletResponse>()
     val filterChain = mockk<FilterChain>()
@@ -115,6 +114,38 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/websocket"
+
+            When("the method is GET") {
+                every { httpServletRequest.method } returns "GET"
+                every { filterChain.doFilter(any(), any()) } just runs
+
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                Then("the request is allowed") {
+                    verify(exactly = 1) {
+                        filterChain.doFilter(httpServletRequest, httpServletResponse)
+                    }
+                }
+            }
+
+            When("the method is POST") {
+                every { httpServletRequest.method } returns "POST"
+                every { httpServletResponse.sendError(any()) } just runs
+
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                Then("a 403 is returned") {
+                    verify {
+                        httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                    }
+                }
+            }
+        }
+
+        Given("An unauthenticated GET request on '/logout'") {
+            val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.requestURI } returns "/logout"
 
             When("the method is GET") {
                 every { httpServletRequest.method } returns "GET"

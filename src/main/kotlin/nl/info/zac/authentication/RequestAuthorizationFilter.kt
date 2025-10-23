@@ -71,15 +71,16 @@ class RequestAuthorizationFilter @Inject constructor(
         val requestPath = request.requestURI.removePrefix(request.contextPath)
         val httpRequestMethod = request.method
         return when {
+            // allow unauthenticated access on the following paths
+            requestPath.startsWith("/webdav/") -> true
+            // allow unauthenticated access, but only for specific HTTP methods on the following paths
             requestPath == "/rest/notificaties" -> httpRequestMethod == POST
             requestPath.startsWith("/rest/internal/") -> httpRequestMethod == GET || httpRequestMethod == DELETE
             requestPath == "/websocket" -> httpRequestMethod == GET
-            // allow unchecked access on '/webdav/*'
-            requestPath.startsWith("/webdav/") -> true
             requestPath.startsWith("/rest/document-creation/smartdocuments/cmmn-callback/") -> httpRequestMethod == POST
             requestPath.startsWith("/rest/document-creation/smartdocuments/bpmn-callback/") -> httpRequestMethod == POST
             requestPath == "/static/smart-documents-result.html" -> httpRequestMethod == GET
-            requestPath.startsWith("/assets/") -> httpRequestMethod == GET
+            requestPath.startsWith("/assets/") || requestPath == "/logout" || requestPath == "/favicon.ico" -> httpRequestMethod == GET
             // for all other paths, authorization is required
             else -> isAuthorizationAllowed(request)
         }
