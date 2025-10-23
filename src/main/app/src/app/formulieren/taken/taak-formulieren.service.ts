@@ -65,7 +65,7 @@ export class TaakFormulierenService {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.handleForm(taak);
-      case "AANVULLENDE_INFORMATIE":
+      // case "AANVULLENDE_INFORMATIE":
       //   return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
       default:
         throw new Error(
