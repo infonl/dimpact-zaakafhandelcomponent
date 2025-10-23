@@ -138,6 +138,7 @@ services:
       # retries have passed. This healthcheck in turn allows other containers
       # to wait for the database migrations.
       start_period: 30s
+    stop_grace_period: 10s
     depends_on:
       openzaak-database:
         condition: service_healthy
