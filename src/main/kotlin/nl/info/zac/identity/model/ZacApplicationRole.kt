@@ -4,7 +4,7 @@
  */
 package nl.info.zac.identity.model
 
-enum class ZACRole(val value: String) {
+enum class ZacApplicationRole(val value: String) {
     @Deprecated(
         message = "Not used in new PABC based IAM architecture"
     )

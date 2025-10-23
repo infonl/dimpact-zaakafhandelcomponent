@@ -18,7 +18,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -175,7 +175,7 @@ constructor(
             "since a user is always authorized for a zaaktype _for specific application roles_."
     )
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
+        if (roles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
             val zaaktypeCmmnConfigurationDescriptions = zaaktypeCmmnConfigurationService

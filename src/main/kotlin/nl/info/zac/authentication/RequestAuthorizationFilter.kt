@@ -16,11 +16,27 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.ws.rs.HttpMethod.DELETE
 import jakarta.ws.rs.HttpMethod.GET
 import jakarta.ws.rs.HttpMethod.POST
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
+/**
+ * A post-authorization gate for ZAC HTTP requests.
+ * Allows an explicit set of public endpoints without a logged-in user.
+ * For every other request, it expects authentication already completed
+ *   (LoggedInUser is in the session) and enforces PABC/legacy rules.
+ *   - PABC ON (`FEATURE_FLAG_PABC_INTEGRATION=true`)
+ *      General access: user must have at least one application role on at least one zaaktype.
+ *      For admin URIs (/admin/, /rest/admin/): User must have beheerder on some zaaktype
+ *   - PABC OFF
+ *      General access: user must have one of the legacy app roles
+ *      (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) in token claims.
+ *      For Admin URIs: user must have `beheerder` role in token claims.
+ *
+ * This filter must run after UserPrincipalFilter, so UserPrincipalFilter can
+ * authenticate via Elytron OIDC and build the LoggedInUser in the session first.
+ */
 @ApplicationScoped
 @WebFilter(filterName = "RequestAuthorizationFilter")
 @AllOpen
@@ -72,8 +88,8 @@ class RequestAuthorizationFilter @Inject constructor(
 
     @Suppress("ReturnCount")
     private fun isAuthorizationAllowed(request: HttpServletRequest): Boolean {
-        val session = request.getSession(false) ?: return true
-        val user = getLoggedInUser(session) ?: return true
+        val session = request.getSession(false) ?: return false
+        val user = getLoggedInUser(session) ?: return false
         val path = request.requestURI.removePrefix(request.contextPath)
         val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
         return if (pabcIntegrationEnabled) {
@@ -87,9 +103,9 @@ class RequestAuthorizationFilter @Inject constructor(
         } else {
             // PABC disabled: legacy web.xml rules on token roles
             if (isAdmin) {
-                user.roles.contains(ZACRole.BEHEERDER.value)
+                user.roles.contains(ZacApplicationRole.BEHEERDER.value)
             } else {
-                user.roles.any { it in ZACRole.entries.map { e -> e.value }.toSet() }
+                user.roles.any { it in ZacApplicationRole.entries.map { e -> e.value }.toSet() }
             }
         }
     }
@@ -99,6 +115,6 @@ class RequestAuthorizationFilter @Inject constructor(
 
     private fun hasAnyBeheerderApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { roles ->
-            roles.any { it == ZACRole.BEHEERDER.value }
+            roles.any { it == ZacApplicationRole.BEHEERDER.value }
         }
 }
