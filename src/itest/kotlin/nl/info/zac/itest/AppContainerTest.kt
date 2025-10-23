@@ -88,15 +88,8 @@ class AppContainerTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/logout"
             )
-            Then(
-                """
-                the response should be a redirect and the 'Location' header 
-                 should point to the Keycloak logout endpoint
-                    """
-            ) {
+            Then("the response should be a redirect") {
                 response.code shouldBe HTTP_MOVED_TEMP
-                val locationHeader = response.headers["Location"] ?: ""
-                locationHeader.contains("/realms/") && locationHeader.contains("/protocol/openid-connect/logout")
             }
         }
     }

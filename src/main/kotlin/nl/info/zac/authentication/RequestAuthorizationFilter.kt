@@ -80,7 +80,7 @@ class RequestAuthorizationFilter @Inject constructor(
             requestPath.startsWith("/rest/document-creation/smartdocuments/cmmn-callback/") -> httpRequestMethod == POST
             requestPath.startsWith("/rest/document-creation/smartdocuments/bpmn-callback/") -> httpRequestMethod == POST
             requestPath == "/static/smart-documents-result.html" -> httpRequestMethod == GET
-            requestPath.startsWith("/assets/") || requestPath == "/logout" -> httpRequestMethod == GET
+            requestPath.startsWith("/assets/") || requestPath == "/logout" || requestPath == "/favicon.ico" -> httpRequestMethod == GET
             // for all other paths, authorization is required
             else -> isAuthorizationAllowed(request)
         }
