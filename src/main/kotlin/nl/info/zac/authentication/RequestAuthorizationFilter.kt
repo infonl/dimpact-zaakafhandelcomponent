@@ -22,19 +22,18 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
 /**
- * A post-authorization gate for ZAC HTTP requests.
- * Allows an explicit set of public endpoints without a logged-in user.
- * For every other request, it expects authentication already completed
- *   (LoggedInUser is in the session) and enforces PABC/legacy rules.
+ * Generic ZAC authorisation filter.
+ * Checks an explicit set of unauthenticated endpoints for allowed HTTP methods.
+ * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization..
  *   - PABC ON (`FEATURE_FLAG_PABC_INTEGRATION=true`)
  *      General access: user must have at least one application role on at least one zaaktype.
- *      For admin URIs (/admin/, /rest/admin/): User must have beheerder on some zaaktype
+ *      For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *   - PABC OFF
  *      General access: user must have one of the legacy app roles
  *      (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) in token claims.
- *      For Admin URIs: user must have `beheerder` role in token claims.
+ *      For Admin URIs: user must have `beheerder` role.
  *
- * This filter must run after UserPrincipalFilter, so UserPrincipalFilter can
+ * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
  * authenticate via Elytron OIDC and build the LoggedInUser in the session first.
  */
 @ApplicationScoped
