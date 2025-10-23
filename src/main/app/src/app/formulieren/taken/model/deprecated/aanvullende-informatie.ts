@@ -29,7 +29,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../../shared/validators/customValidators";
 import { TakenService } from "../../../../taken/taken.service";
 import { ZakenService } from "../../../../zaken/zaken.service";
-import { AbstractTaakFormulier } from "../../abstract-taak-formulier"; //
+import { AbstractTaakFormulier } from "../../abstract-taak-formulier";
 
 export class AanvullendeInformatieDeprecated extends AbstractTaakFormulier {
   fields = {
