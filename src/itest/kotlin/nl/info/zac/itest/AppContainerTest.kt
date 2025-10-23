@@ -18,10 +18,16 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_US
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
 
 class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+
+    afterSpec {
+        // re-authenticate using testuser1 since currently all subsequent integration tests rely on this user being logged in
+        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+    }
 
     Given("ZAC Docker container and all related Docker containers are running") {
         When("the health endpoint is called") {
@@ -64,16 +70,34 @@ class AppContainerTest : BehaviorSpec({
                 response.code shouldBe HTTP_FORBIDDEN
             }
         }
-        When("The ZAC base URI is requested for a user who does not have any of the ZAC application roles") {
-            authenticate(username = TEST_USER_WITHOUT_ANY_ROLE_USERNAME, password = TEST_USER_WITHOUT_ANY_ROLE_PASSWORD)
+    }
+
+    Given("A logged-in user who does not have any of the ZAC application roles") {
+        authenticate(username = TEST_USER_WITHOUT_ANY_ROLE_USERNAME, password = TEST_USER_WITHOUT_ANY_ROLE_PASSWORD)
+
+        When("The ZAC base URI is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = ZAC_BASE_URI
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
             }
-            // re-authenticate using testuser1 since currently all subsequent integration tests rely on this user being logged in
-            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        }
+
+        When("The ZAC logout URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/logout"
+            )
+            Then(
+                """
+                the response should be a redirect and the 'Location' header 
+                 should point to the Keycloak logout endpoint
+                    """
+            ) {
+                response.code shouldBe HTTP_MOVED_TEMP
+                val locationHeader = response.headers["Location"] ?: ""
+                locationHeader.contains("/realms/") && locationHeader.contains("/protocol/openid-connect/logout")
+            }
         }
     }
 })
