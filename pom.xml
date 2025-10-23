@@ -13,13 +13,30 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
+    <!-- Add the Public JBoss Maven repository to the default Maven Central repository. -->
+    <!-- This is a best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central. -->
+    <repositories>
+        <repository>
+            <id>public-jboss</id>
+            <name>Public JBoss</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public-jboss</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>public-jboss</id>
+            <name>Public JBoss</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public-jboss</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <properties>
         <revision>latest-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
         <wildfly.version>38.0.0.Final</wildfly.version>
-        <wildfly-maven-plugin.version>5.1.4.Final</wildfly-maven-plugin.version>
+        <wildfly-maven-plugin.version>5.1.5.Final</wildfly-maven-plugin.version>
         <wildfly-datasources-galleon-pack.version>9.1.0.Final</wildfly-datasources-galleon-pack.version>
         <wildfly-cloud-galleon-pack.version>8.0.0.Final</wildfly-cloud-galleon-pack.version>
     </properties>
