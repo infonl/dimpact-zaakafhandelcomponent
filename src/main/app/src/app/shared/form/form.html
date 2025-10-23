@@ -94,17 +94,6 @@
   <fieldset *ngIf="!readonly()">
     <mat-action-row>
       <button
-        type="submit"
-        mat-raised-button
-        color="primary"
-        [disabled]="form().invalid || loading()"
-      >
-        <mat-icon *ngIf="loading()">
-          <mat-spinner diameter="18"></mat-spinner>
-        </mat-icon>
-        {{ config().submitLabel ?? "actie.verstuur" | translate }}
-      </button>
-      <button
         *ngIf="config().hideCancelButton"
         type="button"
         mat-raised-button
@@ -116,6 +105,17 @@
           <mat-spinner diameter="18"></mat-spinner>
         </mat-icon>
         {{ config().partialSubmitLabel ?? "actie.opslaan" | translate }}
+      </button>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+       [disabled]="form().invalid || loading()"
+      >
+        <mat-icon *ngIf="loading()">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        {{ config().submitLabel ?? "actie.verstuur" | translate }}
       </button>
       <button
         *ngIf="!config().hideCancelButton"
