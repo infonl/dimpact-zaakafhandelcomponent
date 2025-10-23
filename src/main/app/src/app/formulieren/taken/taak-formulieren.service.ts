@@ -27,6 +27,8 @@ import { KlantenService } from "src/app/klanten/klanten.service";
 })
 export class TaakFormulierenService {
   private readonly goedkeurenFormulier = inject(GoedkeurenFormulier);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private readonly aanvullendeInformatieFormulier = inject(
     AanvullendeInformatieFormulier,
   );
@@ -57,12 +59,13 @@ export class TaakFormulierenService {
 
   public async getAngularHandleFormBuilder(
     taak: GeneratedType<"RestTask">,
-    // zaak: GeneratedType<"RestZaak">,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.handleForm(taak);
-      // case "AANVULLENDE_INFORMATIE":
+      case "AANVULLENDE_INFORMATIE":
       //   return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
       default:
         throw new Error(
