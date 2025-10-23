@@ -64,7 +64,7 @@ class AppContainerTest : BehaviorSpec({
                 response.code shouldBe HTTP_FORBIDDEN
             }
         }
-        When("The ZAC base URL is requested for a user who does not have any of the ZAC application roles") {
+        When("The ZAC base URI is requested for a user who does not have any of the ZAC application roles") {
             authenticate(username = TEST_USER_WITHOUT_ANY_ROLE_USERNAME, password = TEST_USER_WITHOUT_ANY_ROLE_PASSWORD)
             val response = itestHttpClient.performGetRequest(
                 url = ZAC_BASE_URI

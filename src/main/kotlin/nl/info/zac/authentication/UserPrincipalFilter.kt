@@ -12,12 +12,13 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -55,14 +56,18 @@ constructor(
         servletResponse: ServletResponse,
         filterChain: FilterChain
     ) {
-        (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
+        servletRequest as HttpServletRequest
+        servletResponse as HttpServletResponse
+
+        servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
 
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
                         "Invalidating HTTP session of user '${loggedInUser.id}' " +
-                            "on context path '${servletRequest.servletContext.contextPath}'"
+                            "on context path '${servletRequest.servletContext.contextPath}'. " +
+                            "Creating new session for user with user principal name '${userPrincipal.name}'."
                     )
                     httpSession.invalidate()
                     setLoggedInUserOnHttpSession(
@@ -76,6 +81,7 @@ constructor(
                     setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
                 }
         }
+
         filterChain.doFilter(servletRequest, servletResponse)
     }
 
@@ -169,7 +175,7 @@ constructor(
             "since a user is always authorized for a zaaktype _for specific application roles_."
     )
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value)) {
+        if (roles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value)) {
             null
         } else {
             val zaaktypeCmmnConfigurationDescriptions = zaaktypeCmmnConfigurationService
