@@ -108,7 +108,7 @@ When(
       .click();
 
     await this.page
-      .getByLabel("Taak toekennen aan medewerker") // label changes back when moving forward again to Angular form setup
+      .getByLabel("Taak toekennen aan medewerker")
       .first()
       .click();
     await this.page
