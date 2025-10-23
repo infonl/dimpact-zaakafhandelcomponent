@@ -57,7 +57,7 @@ export class TaakFormulierenService {
 
   public async getAngularHandleFormBuilder(
     taak: GeneratedType<"RestTask">,
-    zaak: GeneratedType<"RestZaak">,
+    // zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
