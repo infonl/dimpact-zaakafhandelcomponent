@@ -450,6 +450,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
             zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.zoekWaarde
             raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde
         }
     }
 
