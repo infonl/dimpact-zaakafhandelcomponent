@@ -113,8 +113,8 @@ val e2ePath = srcE2e.toProjectRelativePath()
 
 // create custom source set for our integration tests
 val itest by sourceSets.creating {
-    compileClasspath += sourceSets["main"].output
-    runtimeClasspath += sourceSets["main"].output
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
 }
 
 dependencies {
