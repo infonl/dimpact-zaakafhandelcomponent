@@ -99,13 +99,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
 
         zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
-            zaaktypeBpmnConfigurationService
-                .findConfigurationByZaaktypeUuid(uuid)
-                ?.let {
-                    throw ZaaktypeInUseException(
-                        "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
-                    )
-                }
+            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(uuid)?.let {
+                throw ZaaktypeInUseException(
+                    "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
+                )
+            }
         }
 
         zaaktypeCmmnConfigurationService.clearListCache()
@@ -183,8 +181,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
         if (zaaktypeCmmnConfiguration.zaakTypeUUID != null) {
             LOG.warning {
-                "ZaaktypeCmmnConfiguration for zaak type with UUID $zaaktypeUuid is already published. " +
-                    "Updating parameters data"
+                "ZaaktypeCmmnConfiguration for zaak type with UUID $zaaktypeUuid is already published. Updating parameters data"
             }
             updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
@@ -453,6 +450,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
             zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.zoekWaarde
             raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde
         }
     }
 
