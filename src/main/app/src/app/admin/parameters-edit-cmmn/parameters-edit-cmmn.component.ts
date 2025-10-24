@@ -21,10 +21,15 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
+import { MatDialog } from "@angular/material/dialog";
 import { MatSelectChange } from "@angular/material/select";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -38,11 +43,6 @@ import {
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
-import { MatDialog } from "@angular/material/dialog";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "zac-parameters-edit-cmmn",

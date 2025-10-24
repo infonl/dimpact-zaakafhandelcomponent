@@ -5,21 +5,21 @@
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute } from "@angular/router";
 import { Subject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { MatDialog } from "@angular/material/dialog";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "src/app/shared/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
