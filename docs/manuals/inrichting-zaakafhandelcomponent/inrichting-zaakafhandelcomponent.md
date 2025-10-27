@@ -31,6 +31,7 @@ Versiegeschiedenis:
 [*Zaakafhandel-parameters*](#zaakafhandel-parameters)
 - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
 - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+ [*CMMN*](#cmmn)
  [*Gegevens*](#gegevens)
  [*Taakgegevens*](#taakgegevens)
  [*Actiegegevens*](#actiegegevens)
@@ -91,6 +92,17 @@ Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-
 
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+
+#### CMMN
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
+![image](images/zaps_cmmn.png)
+Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
+###### CMMN
+![image](images/zaps_cmmn_cmmn.png)
+###### BPMN
+![image](images/zaps_cmmn_bpmn.png)
+
+
 #### Gegevens
 ![image](images/zaps_gegevens.png)
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
