@@ -35,26 +35,9 @@
     </div>
 
     <div class="button-group flex-row flex-wrap">
-      @if (
-        !isSavedZaakafhandelParameters &&
-        cmmnBpmnFormGroup.value.options?.value === "CMMN"
-      ) {
-        <button
-          mat-raised-button
-          (click)="
-            switchProcessDefinition.emit({
-              type: 'CMMN',
-              selectedIndexStart: 1,
-            })
-          "
-        >
-          {{ "actie.volgende" | translate }}
-        </button>
-      } @else {
-        <button mat-raised-button matStepperNext>
-          {{ "actie.volgende" | translate }}
-        </button>
-      }
+      <button mat-raised-button matStepperNext>
+        {{ "actie.volgende" | translate }}
+      </button>
       <button
         mat-raised-button
         color="primary"

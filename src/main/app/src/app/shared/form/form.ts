@@ -136,6 +136,7 @@ export class ZacForm<Form extends _Form> {
   protected readonly fields = input.required<FormField[]>();
   protected readonly config = input<FormConfig>({ hideCancelButton: false });
   protected readonly readonly = input(false, { transform: booleanAttribute });
+  protected readonly loading = input(false, { transform: booleanAttribute });
 
   protected readonly formSubmitted = output<FormGroup<Form>>();
   protected readonly formPartiallySubmitted = output<FormGroup<Form>>();
@@ -143,8 +144,14 @@ export class ZacForm<Form extends _Form> {
 
   constructor() {
     effect(() => {
-      if (!this.readonly()) return;
-      this.form().disable({ onlySelf: true });
+      const _isReadOnly = this.readonly();
+      const _formGroup = this.form();
+
+      if (_isReadOnly && _formGroup.enabled) {
+        _formGroup.disable({ onlySelf: true });
+      } else if (!_isReadOnly && _formGroup.disabled) {
+        _formGroup.enable({ onlySelf: true });
+      }
     });
   }
 

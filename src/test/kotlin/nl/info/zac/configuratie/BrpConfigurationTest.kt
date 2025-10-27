@@ -14,44 +14,85 @@ import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
 
-    Given("BRP protocollering disabled") {
-        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+    Context("configuration validation") {
 
-        When("reading BRP audit log provider") {
-            val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
+        Given("No default query persson doelbinding configured") {
+            val brpConfiguration = createBrpConfiguration(doelbindingZoekMetDefault = Optional.empty())
 
-            Then("empty string is returned") {
-                protocolleringProvider shouldContain ""
+            When("configuration is validated by Weld") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+                Then("Exception is thrown") {
+                    exception.message shouldContain "BRP_DOELBINDING_ZOEKMET"
+                }
             }
         }
-    }
 
-    Given("BRP protocollering enabled, but no audit log provider specified") {
-        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
+        Given("No default retrieve persoon doelbinding configured") {
+            val brpConfiguration = createBrpConfiguration(doelbindingRaadpleegMetDefault = Optional.empty())
 
-        When("reading BRP audit log provider") {
-            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                brpConfiguration.readBrpProtocolleringProvider()
+            When("configuration is validated by Weld") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+                Then("Exception is thrown") {
+                    exception.message shouldContain "BRP_DOELBINDING_RAADPLEEGMET"
+                }
             }
+        }
 
-            Then("Exception is thrown") {
-                BrpConfiguration.SUPPORTED_PROTOCOLLERING_PROVIDERS.forEach {
-                    exception.message shouldContain it
+        Given("No default verwerkingsregister configured") {
+            val brpConfiguration = createBrpConfiguration(verwerkingregisterDefault = Optional.empty())
+
+            When("configuration is validated by Weld") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+                Then("Exception is thrown") {
+                    exception.message shouldContain "BRP_VERWERKINGSREGISTER"
+                }
+            }
+        }
+
+        Given("No default audit log provider configured") {
+            val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
+
+            When("configuration is validated by Weld") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+                Then("Exception is thrown") {
+                    exception.message shouldContain "BRP_PROTOCOLLERING"
+                }
+            }
+        }
+
+        Given("Invalid BRP audit log provider specified") {
+            val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
+
+            When("configuration is validated by Weld") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+
+                Then("Exception is thrown") {
+                    exception.message shouldContain "FakeProvider"
                 }
             }
         }
     }
 
-    Given("Invalid BRP audit log provider specified") {
-        val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
+    Context("BRP protocollering proxy") {
+        Given("BRP protocollering disabled") {
+            val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
 
-        When("reading BRP audit log provider") {
-            val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                brpConfiguration.readBrpProtocolleringProvider()
-            }
+            When("reading BRP audit log provider") {
+                val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
 
-            Then("Exception is thrown") {
-                exception.message shouldContain "FakeProvider"
+                Then("empty string is returned") {
+                    protocolleringProvider shouldContain ""
+                }
             }
         }
     }

@@ -427,6 +427,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 slotPersistZaaktypeCmmnConfiguration.captured.getBrpParameters().let {
                     it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().zoekWaarde
                     it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().raadpleegWaarde
+                    it.verwerkingregisterWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().verwerkingregisterWaarde
                 }
             }
 

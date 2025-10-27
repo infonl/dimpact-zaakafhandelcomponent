@@ -395,7 +395,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.7.1@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
+    image: docker.io/prom/prometheus:v3.7.2@sha256:23031bfe0e74a13004252caaa74eccd0d62b6c6e7a04711d5b8bf5b7e113adc7
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -408,7 +408,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.2.0@sha256:74144189b38447facf737dfd0f3906e42e0776212bf575dc3334c3609183adf7
+    image: docker.io/grafana/grafana:12.2.1@sha256:35c41e0fd0295f5d0ee5db7e780cf33506abfaf47686196f825364889dee878b
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -749,11 +749,11 @@ services:
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
-      - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
-      - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
-      - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
-      - BRP_VERWERKINGSREGISTER=Algemeen
+      - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
       - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
+      - BRP_DOELBINDING_ZOEKMET=${BRP_DOELBINDING_ZOEKMET:-BRPACT-Totaal}
+      - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
+      - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database

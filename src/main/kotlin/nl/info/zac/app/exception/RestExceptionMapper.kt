@@ -46,6 +46,7 @@ import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
+import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -124,7 +125,29 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
             )
+            else -> inspectCause(exception = exception)
+        }
+
+    private fun inspectCause(exception: Exception): Response =
+        when (exception.cause) {
+            is InvocationTargetException -> {
+                handleInvocationTargetException(exception.cause as InvocationTargetException)
+            }
             // fall back to generic server error
+            else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
+        }
+
+    private fun handleInvocationTargetException(exception: InvocationTargetException): Response =
+        when (exception.cause) {
+            is ServerErrorException -> {
+                with(exception.cause as ServerErrorException) {
+                    generateServerErrorResponse(
+                        exception = this,
+                        errorCode = this.errorCode,
+                        exceptionMessage = this.message
+                    )
+                }
+            }
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
@@ -166,7 +189,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
      * contains the name of the ZAC REST client service class.
      * If so we generate a response with a specific error code, and we
      * log the exception.
-     * Note that unfortunately we cannot map on the actual ZAC REST client class itself
+     * Note that unfortunately, we cannot map on the actual ZAC REST client class itself
      * since that class is proxied by the Eclipse Microprofile framework and is therefore not
      * shown in the stacktrace.
      */

@@ -36,6 +36,9 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    // Add the Public JBoss Maven repository.
+    // This is a best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
+    maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
 group = "nl.info.common-ground"
@@ -108,12 +111,10 @@ val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
 val e2ePath = srcE2e.toProjectRelativePath()
 
-sourceSets {
-    // create custom integration test source set
-    create("itest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-    }
+// create custom source set for our integration tests
+val itest by sourceSets.creating {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
 }
 
 dependencies {
@@ -807,8 +808,8 @@ tasks {
         group = "verification"
         dependsOn("buildDockerImage")
 
-        testClassesDirs = sourceSets["itest"].output.classesDirs
-        classpath = sourceSets["itest"].runtimeClasspath
+        testClassesDirs = itest.output.classesDirs
+        classpath = itest.runtimeClasspath
         systemProperty("zacDockerImage", zacDockerImage)
         systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
         // do not use the Gradle build cache for this task
