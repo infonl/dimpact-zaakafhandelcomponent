@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 12-08-2025 <br>
-> Versie :   1.4 <br>
-> Verandering : ZAC v3.12 Inrichting Zaakafhandelcomponent <br>
+> Datum : 27-10-2025 <br>
+> Versie :   1.5 <br>
+> Verandering : ZAC v3.17.67 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -20,6 +20,7 @@ Versiegeschiedenis:
 | 1.2 | ZAC versie 3.9 |
 | 1.3 | ZAC versie 3.11 |
 | 1.4 | ZAC versie 3.12 |
+| 1.5 | ZAC versie 3.17.67 |
 
 # Inhoud
 
@@ -344,3 +345,5 @@ Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 - maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
+
+> Let op! De domeinnamen mogen niet langer zijn dan 24 lettertekens. Langer dan 24 lettertekens kan wel maar zullen niet werken zonder verdere foutmelding.
