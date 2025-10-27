@@ -171,7 +171,7 @@ constructor(
 
             val rolesForAllZaaktypen = applicationRolesResponse.results
                 .filter { it.entityType == null }
-                .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name } }
+                .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
                 .filter { it.isNotEmpty() }
                 .toSet()
 
