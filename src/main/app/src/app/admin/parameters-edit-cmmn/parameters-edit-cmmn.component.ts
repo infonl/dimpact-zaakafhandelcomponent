@@ -536,7 +536,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       (replyTo: GeneratedType<"RESTReplyTo">) =>
         !(replyTo.speciaal && replyTo.mail === "MEDEWERKER"),
     );
-    this.ontvangstBevestigingsMailtemplates = this.getBeschikbareMailtemplates(
+    this.ontvangstBevestigingsMailtemplates = this.getAvailableMailtemplates(
       "TAAK_ONTVANGSTBEVESTIGING",
     );
   }
@@ -613,7 +613,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       });
 
     this.automatischeOntvangstbevestigingFormGroup.patchValue({
-      templateName: this.getBeschikbareMailtemplates(
+      templateName: this.getAvailableMailtemplates(
         "TAAK_ONTVANGSTBEVESTIGING",
       ).find(
         ({ mailTemplateNaam }) =>
@@ -1024,7 +1024,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  private getBeschikbareMailtemplates(mailtemplate: GeneratedType<"Mail">) {
+  private getAvailableMailtemplates(mailtemplate: GeneratedType<"Mail">) {
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
