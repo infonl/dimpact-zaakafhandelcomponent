@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRES_NEW
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
@@ -16,6 +17,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @Transactional
@@ -76,6 +78,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
      * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
      * if no BPMN process definition could be found for the given zaaktype UUID.
      */
+    @Transactional(REQUIRES_NEW)
     fun findConfigurationByZaaktypeUuid(zaaktypeUUID: UUID): ZaaktypeBpmnConfiguration? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
@@ -87,7 +90,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                         )
                     )
                 }
-                entityManager.createQuery(query).resultStream.findFirst().orElse(null)
+                entityManager.createQuery(query).resultStream.findFirst().getOrNull()
             }
         }
 
@@ -113,7 +116,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                         )
                     )
                 }
-                entityManager.createQuery(query).resultStream.findFirst().orElse(null)
+                entityManager.createQuery(query).resultStream.findFirst().getOrNull()
             }
         }
 }
