@@ -318,6 +318,7 @@
   "zaps.step.proces-definitie.bpmn-feature-flag-off.hint": "De BPMN-functionaliteit is uitgeschakeld in deze omgeving",
   "zaps.step.proces-definitie.intro": "Geef aan welk CMMN model of BPMN procesdefinitie aan dit zaaktype gekoppeld is. Je kunt maar één van de twee koppelen.",
   "zaps.step.proces-definitie.label": "Welke koppeling wil je maken?",
+  "zaps.step.proces-definitie.bevestig-switch.msg": "Het wijzigen van procesdefinitie verwijdert alle niet-opgeslagen {{ process }}-wijzigingen. Weet je zeker dat je wilt doorgaan?",
   "zaps.step.algemeen.zaaktype.hint": "De groep en eventueel medewerker plus vertrouwelijkheidaanduiding worden gezet na het kiezen van het zaaktype",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- Geen -",
