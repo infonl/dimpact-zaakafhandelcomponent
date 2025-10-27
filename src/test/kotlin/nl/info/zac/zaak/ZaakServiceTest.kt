@@ -55,7 +55,7 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -294,7 +294,7 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             }
-            val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZACRole.DOMEIN_ELK_ZAAKTYPE.value))
+            val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
             every { identityService.isUserInGroup(user.id, groupWithAllDomains.id) } returns true
 
             When("the assign zaken function is called") {
