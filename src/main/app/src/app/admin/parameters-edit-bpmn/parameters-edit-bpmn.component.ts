@@ -105,7 +105,7 @@ export class ParametersEditBpmnComponent {
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
-      if (value?.value === "CMMN" && this.algemeenFormGroup.dirty) {
+      if (value?.value === "CMMN" && this.isDirty()) {
         this.confirmProcessDefinitionSwitch();
         return;
       }
@@ -207,5 +207,9 @@ export class ParametersEditBpmnComponent {
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid
     );
+  }
+
+  private isDirty(): boolean {
+    return this.algemeenFormGroup.dirty;
   }
 }
