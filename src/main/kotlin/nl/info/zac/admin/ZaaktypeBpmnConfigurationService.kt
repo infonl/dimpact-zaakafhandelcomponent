@@ -9,6 +9,8 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -20,15 +22,33 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationService @Inject constructor(
-    private val entityManager: EntityManager,
+    private val entityManager: EntityManager
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
     }
 
-    fun storeConfiguration(
-        zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
-    ): ZaaktypeBpmnConfiguration {
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype: String) {
+        findConfigurationByProductAanvraagType(productaanvraagtype)?.let {
+            LOG.info("Productaanvraagtype '$it' is already in use by BPMN zaaktype ${it.zaaktypeOmschrijving}")
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
+    }
+
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
+        zaaktypeBpmnConfiguration.productaanvraagtype?.let {
+            findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
+                if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
+                    LOG.info(
+                        "Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
+                    )
+                    throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+                }
+            }
+        }
+    }
+
+    fun storeConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration): ZaaktypeBpmnConfiguration {
         zaaktypeBpmnConfiguration.id?.let {
             if (findConfigurationByZaaktypeUuid(zaaktypeBpmnConfiguration.zaaktypeUuid) == null) {
                 LOG.warning("BPMN configuration with zaaktype UUID '$it' not found, creating new configuration")

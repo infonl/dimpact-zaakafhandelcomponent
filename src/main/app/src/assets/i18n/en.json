@@ -317,6 +317,7 @@
   "besluit.publicatie.indicatie.onderschrift.meervoud": "Publication term: {{publicationTermDays}} days",
   "zaps.step.proces-definitie.bpmn-feature-flag-off.hint": "The BPMN functionality is disabled in this environment",
   "zaps.step.proces-definitie.intro": "Indicate which CMMN model or BPMN process definition is linked to this case type. You can only link one of the two.",
+  "zaps.step.proces-definitie.label": "Which connection would you like to make?",
   "zaps.step.algemeen.zaaktype.hint": "The group and optionally employee plus confidentiality notice are set after selecting the case type",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- None -",

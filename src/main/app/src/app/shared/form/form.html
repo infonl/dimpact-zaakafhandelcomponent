@@ -93,12 +93,12 @@
   <fieldset *ngIf="!readonly()">
     <mat-action-row>
       <button
-        *ngIf="!config().hideCancelButton"
         mat-raised-button
-        type="reset"
-        (click)="cancelForm()"
+        type="submit"
+        color="primary"
+        [disabled]="form().invalid"
       >
-        {{ config().cancelLabel ?? "actie.annuleren" | translate }}
+        {{ config().submitLabel ?? "actie.verstuur" | translate }}
       </button>
       <button
         *ngIf="config().hideCancelButton"
@@ -111,12 +111,12 @@
         {{ config().partialSubmitLabel ?? "actie.opslaan" | translate }}
       </button>
       <button
+        *ngIf="!config().hideCancelButton"
         mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="form().invalid"
+        type="reset"
+        (click)="cancelForm()"
       >
-        {{ config().submitLabel ?? "actie.verstuur" | translate }}
+        {{ config().cancelLabel ?? "actie.annuleren" | translate }}
       </button>
     </mat-action-row>
   </fieldset>

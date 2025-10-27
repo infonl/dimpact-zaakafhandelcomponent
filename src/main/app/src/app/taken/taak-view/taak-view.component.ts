@@ -184,6 +184,7 @@ export class TaakViewComponent
 
   private init(taak: GeneratedType<"RestTask">, readZaak = true) {
     this.initialized = false;
+
     this.initTaakGegevens(taak);
 
     // For legacy forms, we need to re-create the form to fix the loading state
@@ -196,6 +197,7 @@ export class TaakViewComponent
       this.zaak = zaak;
       this.createTaakForm(taak, zaak);
       this.initialized = true;
+      this.setupMenu();
     });
   }
 
