@@ -191,10 +191,8 @@ constructor(
             .listZaaktypeCmmnConfiguration()
             .groupBy { it.zaaktypeOmschrijving }
             .values
-            .map {
-                    list ->
-                list.maxBy {
-                        cmmnConfiguration ->
+            .map { list ->
+                list.maxBy { cmmnConfiguration ->
                     cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
                 }
             }
