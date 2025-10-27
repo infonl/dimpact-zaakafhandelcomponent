@@ -55,7 +55,7 @@ export class ParametersEditBpmnComponent {
   };
 
   protected readonly zaakProcessDefinitionOptions: Array<{
-    label: ZaakProcessSelect;
+    label: string;
     value: ZaakProcessSelect;
   }> = [
     { label: "CMMN", value: "CMMN" },
@@ -65,7 +65,7 @@ export class ParametersEditBpmnComponent {
   cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
-      label: ZaakProcessSelect;
+      label: string;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
 
