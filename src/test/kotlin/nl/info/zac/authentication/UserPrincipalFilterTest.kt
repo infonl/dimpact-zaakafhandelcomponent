@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -21,10 +22,8 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
-import nl.info.client.pabc.model.generated.ApplicationRoleModel
-import nl.info.client.pabc.model.generated.EntityTypeModel
+import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
@@ -48,22 +47,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val oidcSecurityContext = mockk<OidcSecurityContext>(relaxed = true)
     val accessToken = mockk<AccessToken>(relaxed = true)
 
-    fun pabcRolesResponse(zaaktypeName: String, vararg names: String): GetApplicationRolesResponse {
-        val applicationRolesResponse = mockk<GetApplicationRolesResponse>()
-        val responseModel = mockk<GetApplicationRolesResponseModel>()
-        val entityType = mockk<EntityTypeModel>()
-        every { entityType.type } returns "zaaktype"
-        every { entityType.id } returns zaaktypeName
-        every { responseModel.entityType } returns entityType
-
-        val roleModels = names.map { roleName ->
-            mockk<ApplicationRoleModel>().also { every { it.name } returns roleName }
-        }
-        every { responseModel.applicationRoles } returns roleModels
-        every { applicationRolesResponse.results } returns listOf(responseModel)
-        return applicationRolesResponse
-    }
-
     every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
     every { oidcSecurityContext.token } returns accessToken
     every { accessToken.rolesClaim } returns listOf("role1")
@@ -77,7 +60,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
     beforeEach {
         checkUnnecessaryStub()
         every { filterChain.doFilter(any(), any()) } just runs
-        every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
     }
 
     Context("PABC integration is enabled") {
@@ -126,7 +108,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 applicationRolesPerZaaktype = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
             val roles = listOf("fakeRole1", "fakeRole2")
-            val zaaktypeName = "fakeZaaktypeOmschrijving1"
+            val entityTypeId = "fakeZaaktypeOmschrijving1"
             val newHttpSession = mockk<HttpSession>()
             val capturedLoggedInUser = slot<LoggedInUser>()
 
@@ -148,7 +130,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
             every {
                 pabcClientService.getApplicationRoles(roles)
-            } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
+            } returns createApplicationRolesResponse(entityTypeId, pabcRoleNames)
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
 
             every {
@@ -168,7 +150,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     }
                     with(capturedLoggedInUser.captured) {
                         this.roles shouldContainAll roles
-                        this.applicationRolesPerZaaktype[zaaktypeName]?.shouldContainAll(pabcRoleNames)
+                        this.applicationRolesPerZaaktype[entityTypeId]?.shouldContainAll(pabcRoleNames)
                     }
                 }
             }
@@ -204,7 +186,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { filterChain.doFilter(any(), any()) } just runs
             every {
                 pabcClientService.getApplicationRoles(any())
-            } returns pabcRolesResponse(zaaktypeId, *pabcRoleNames.toTypedArray())
+            } returns createApplicationRolesResponse(zaaktypeId, pabcRoleNames)
 
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
             every { zaaktypeBpmnConfigurationService.listConfigurations() } returns listOf(
@@ -234,6 +216,80 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         this.roles shouldContainAll roles
                         this.groupIds shouldContainAll groups
                         this.applicationRolesPerZaaktype[zaaktypeId]?.shouldContainAll(pabcRoleNames)
+                    }
+                }
+            }
+        }
+
+        Given(
+            """Roles without entityType are applied to all entity types"""
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            every { httpSession.getAttribute("logged-in-user") } returns null
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+
+            every { accessToken.preferredUsername } returns "fakeUserName"
+            every { accessToken.givenName } returns "fakeGivenName"
+            every { accessToken.familyName } returns "fakeFamilyName"
+            every { accessToken.name } returns "fakeFullName"
+            every { accessToken.email } returns "fakeemail@example.com"
+            every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
+            every { oidcSecurityContext.token } returns accessToken
+            every { accessToken.rolesClaim } returns listOf("someFunctionalRole")
+            every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
+
+            When("doFilter is called for without roles per-zaaktype") {
+                every {
+                    pabcClientService.getApplicationRoles(any())
+                } returns createApplicationRolesResponse(null, listOf("beheerder"))
+
+                every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
+                )
+                every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("stores loggedInUser in session and assigns 'beheerder' to all entity types") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    with(loggedInUserSlot.captured) {
+                        this.applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(setOf("beheerder"))
+                        this.applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(setOf("beheerder"))
+                    }
+                }
+            }
+            clearMocks(httpSession, answers = false, recordedCalls = true)
+            val loggedInUserSlot2 = slot<LoggedInUser>()
+            When("doFilter is called for a mix of roles per-zaaktype and without zaaktype") {
+                val applicationRolesResponse = GetApplicationRolesResponse().apply {
+                    listOf(
+                        createApplicationRolesResponse("fakeZaaktype1", listOf("raadpleger", "behandelaar")),
+                        createApplicationRolesResponse(null, listOf("recordmanager"))
+                    )
+                }
+                every { pabcClientService.getApplicationRoles(any()) } returns applicationRolesResponse
+
+                every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2"),
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype3")
+                )
+                every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("stores loggedInUser and merges roles per-zaaktype and for all zaaktypes into the session") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot2)) }
+                    with(loggedInUserSlot2.captured) {
+                        this.applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
+                            setOf("raadpleger", "behandelaar", "recordmanager")
+                        )
+                        this.applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(setOf("recordmanager"))
+                        this.applicationRolesPerZaaktype["fakeZaaktype3"]?.shouldContainAll(setOf("recordmanager"))
                     }
                 }
             }

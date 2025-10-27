@@ -153,18 +153,61 @@ constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> =
         try {
-            pabcClientService.getApplicationRoles(functionalRoles.toList()).results
-                .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
-                .mapNotNull { res ->
-                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                    val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
-                    key to roleNames
+            val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
+            val zaaktypeRolesMapping = mutableMapOf<String, MutableSet<String>>()
+
+            applicationRolesResponse.results.forEach { response ->
+                val roles = response.applicationRoles
+                    .mapNotNull { it.name?.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+
+                if (response.entityType?.type.equals("zaaktype", ignoreCase = true) &&
+                    !response.entityType?.id.isNullOrBlank()
+                ) {
+                    zaaktypeRolesMapping.computeIfAbsent(response.entityType.id) { mutableSetOf() }.addAll(roles)
                 }
-                .toMap()
+            }
+
+            val rolesForAllZaaktypen = applicationRolesResponse.results
+                .filter { it.entityType == null }
+                .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name } }
+                .filter { it.isNotEmpty() }
+                .toSet()
+
+            if (rolesForAllZaaktypen.isNotEmpty()) {
+                getAllEntityTypes().forEach { zaaktypeName ->
+                    zaaktypeRolesMapping.computeIfAbsent(zaaktypeName) { mutableSetOf() }.addAll(rolesForAllZaaktypen)
+                }
+            }
+            zaaktypeRolesMapping.mapValues { it.value.toSet() }
         } catch (ex: Exception) {
             LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
             throw PabcRuntimeException("Failed to get application roles from PABC", ex)
         }
+
+    private fun getAllEntityTypes(): Set<String> {
+        val cmmn = zaaktypeCmmnConfigurationService
+            .listZaaktypeCmmnConfiguration()
+            .groupBy { it.zaaktypeOmschrijving }
+            .values
+            .map {
+                    list ->
+                list.maxBy {
+                        cmmnConfiguration ->
+                    cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
+                }
+            }
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        val bpmn = zaaktypeBpmnConfigurationService
+            .listConfigurations()
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        return cmmn + bpmn
+    }
 
     /**
      * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
