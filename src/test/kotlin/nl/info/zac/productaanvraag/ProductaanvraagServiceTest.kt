@@ -40,6 +40,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -52,6 +53,7 @@ import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
+import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
@@ -233,6 +235,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val informatieobjecttype = createInformatieObjectType()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
@@ -295,14 +298,24 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { ztcClientService.readZaaktype(createdZaak.zaaktype).informatieobjecttypen } returns listOf(informatieobjecttype.url)
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
                     "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
-            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
+            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
+            every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
+            every {
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    createdZaak,
+                    any<Betrokkene>(),
+                    zaaktypeCmmnConfiguration,
+                    false
+                )
+            } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configuratieService.readBronOrganisatie() } returns "123443210"
 
@@ -1106,7 +1119,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                             any(),
                             any(),
-                            any()
+                            any(),
+                            true
                         )
                     }
                 }
@@ -1358,7 +1372,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 And("no email notification should be sent") {
                     verify(exactly = 0) {
-                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any())
+                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any(), true)
                     }
                 }
             }

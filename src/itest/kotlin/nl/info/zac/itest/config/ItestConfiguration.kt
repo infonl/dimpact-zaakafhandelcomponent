@@ -68,6 +68,7 @@ object ItestConfiguration {
     const val KVK_MOCK_BASE_URI = "http://kvk-wiremock:8080"
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
+    const val OBJECT_PRODUCTAANVRAAG_3_INVALID_UUID = "808f2bd9-6fbf-4cda-a5b9-9d421252d5ca"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
@@ -361,6 +362,14 @@ object ItestConfiguration {
      */
     const val ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION = "ZAAK-1996-0000000001"
 
+    /**
+     * Zaak created from productaanvraag-type-3
+     */
+    const val ZAAK_PRODUCTAANVRAAG_3_INVALID_IDENTIFICATION = "ZAAK-1970-0000000002"
+    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving3"
+    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting3"
+    const val ZAAK_PRODUCTAANVRAAG_3_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
+
     const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
     const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
     const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
@@ -455,6 +464,11 @@ object ItestConfiguration {
     const val ZAAKTYPE_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
     const val ZAAKTYPE_TEST_3_DESCRIPTION = "Test zaaktype 3"
     const val ZAAKTYPE_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
+
+    val ZAAKTYPE_TEST_4_UUID: UUID = UUID.fromString("bba94114-4a7f-42f3-8242-de47cd1d7412")
+    const val ZAAKTYPE_TEST_4_IDENTIFICATIE = "test-zaaktype-4"
+    const val ZAAKTYPE_TEST_4_DESCRIPTION = "Test zaaktype 4"
+    const val ZAAKTYPE_TEST_4_REFERENTIEPROCES = "Test zaaktype 4"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
