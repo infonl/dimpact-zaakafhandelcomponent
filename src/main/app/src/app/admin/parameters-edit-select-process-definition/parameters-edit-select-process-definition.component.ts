@@ -4,7 +4,7 @@
  */
 
 import { Component, EventEmitter, Output } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
@@ -29,18 +29,14 @@ export class ParameterEditSelectProcessDefinitionComponent {
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    } | null>(null, [Validators.required]),
+    } | null>(null, []),
   });
 
-  constructor(private readonly formBuilder: FormBuilder) {}
-
-  protected onNext() {
-    const selectedOption = this.cmmnBpmnFormGroup.value.options?.value;
-    if (selectedOption) {
+  constructor(private readonly formBuilder: FormBuilder) {
+    this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       this.switchProcessDefinition.emit({
-        type: selectedOption,
-        selectedIndexStart: 1,
+        type: value?.value || "SELECT-PROCESS-DEFINITION",
       });
-    }
+    });
   }
 }
