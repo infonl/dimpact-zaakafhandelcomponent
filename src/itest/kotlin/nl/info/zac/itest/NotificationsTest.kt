@@ -249,8 +249,8 @@ class NotificationsTest : BehaviorSpec({
     Given(
         """"
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with a productaanvraag type, 
-            zaaktypeCmmnConfiguration with turned off BRP and KVK, 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled 
-            and the related productaanvraag PDF exists in Open Zaak
+            zaaktypeCmmnConfiguration with turned off BRP and KVK, missing BEHANDELAAR rol, missing PDF and EMAIL informatieobjecttypen
+            and 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled
         """.trimIndent()
     ) {
         val zacClient = ZacClient()

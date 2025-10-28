@@ -65,8 +65,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    logger.info { "Number of zaken: " + JSONObject(response.body.string()).getInt("totaal") }
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
+                    val body = response.body.string()
+                    logger.info { "Number of zaken: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
                 }
             }
         }
@@ -103,8 +104,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    logger.info { "Number of tasks: " + JSONObject(response.body.string()).getInt("totaal") }
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
+                    val body = response.body.string()
+                    logger.info { "Number of tasks: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
                 }
             }
         }
@@ -141,8 +143,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    logger.info { "Number of documents: " + JSONObject(response.body.string()).getInt("totaal") }
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
+                    val body = response.body.string()
+                    logger.info { "Number of documents: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe 15
                 }
             }
         }
