@@ -49,6 +49,7 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        private const val PABC_ENTITY_TYPE = "zaaktype"
     }
 
     override fun doFilter(
@@ -151,60 +152,67 @@ constructor(
      * - Key uses entityType.name
      */
     @Suppress("TooGenericExceptionCaught")
-    private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> =
+    private fun buildApplicationRoleMappingsFromPabc(
+        functionalRoles: Set<String>
+    ): Map<String, Set<String>> =
         try {
             val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
-            val zaaktypeRolesMapping = mutableMapOf<String, MutableSet<String>>()
 
-            applicationRolesResponse.results.forEach { response ->
-                val roles = response.applicationRoles
-                    .mapNotNull { it.name?.trim() }
+            val rolesPerZaaktype: Map<String, Set<String>> =
+                applicationRolesResponse.results
+                    .filter {
+                        it.entityType?.type.equals(PABC_ENTITY_TYPE, ignoreCase = true) &&
+                            !it.entityType?.id.isNullOrBlank()
+                    }
+                    .map { result ->
+                        val roles = result.applicationRoles
+                            .mapNotNull { it.name?.trim() }
+                            .filter { it.isNotEmpty() }
+                            .toSet()
+                        result.entityType.id to roles
+                    }
+                    .groupBy({ it.first }, { it.second })
+                    .mapValues { roleSets -> roleSets.value.flatten().toSet() }
+
+            val rolesForAllZaaktypen: Set<String> =
+                applicationRolesResponse.results
+                    .filter { it.entityType == null }
+                    .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
                     .filter { it.isNotEmpty() }
                     .toSet()
 
-                if (response.entityType?.type.equals("zaaktype", ignoreCase = true) &&
-                    !response.entityType?.id.isNullOrBlank()
-                ) {
-                    zaaktypeRolesMapping.computeIfAbsent(response.entityType.id) { mutableSetOf() }.addAll(roles)
-                }
+            if (rolesForAllZaaktypen.isEmpty()) {
+                rolesPerZaaktype
+            } else {
+                val allZaaktypes = getAllConfiguredZaaktypes()
+                allZaaktypes.associateWith { zaaktype -> (rolesPerZaaktype[zaaktype] ?: emptySet()) + rolesForAllZaaktypen }
             }
-
-            val rolesForAllZaaktypen = applicationRolesResponse.results
-                .filter { it.entityType == null }
-                .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
-                .filter { it.isNotEmpty() }
-                .toSet()
-
-            if (rolesForAllZaaktypen.isNotEmpty()) {
-                getAllEntityTypes().forEach { zaaktypeName ->
-                    zaaktypeRolesMapping.computeIfAbsent(zaaktypeName) { mutableSetOf() }.addAll(rolesForAllZaaktypen)
-                }
-            }
-            zaaktypeRolesMapping.mapValues { it.value.toSet() }
         } catch (ex: Exception) {
             LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
             throw PabcRuntimeException("Failed to get application roles from PABC", ex)
         }
 
-    private fun getAllEntityTypes(): Set<String> {
-        val cmmn = zaaktypeCmmnConfigurationService
+    private fun getAllConfiguredZaaktypes(): Set<String> {
+        val configuredCmmnZaaktypes = zaaktypeCmmnConfigurationService
             .listZaaktypeCmmnConfiguration()
             .groupBy { it.zaaktypeOmschrijving }
             .values
-            .map { list ->
-                list.maxBy { cmmnConfiguration ->
+            .map {
+                    list ->
+                list.maxBy {
+                        cmmnConfiguration ->
                     cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
                 }
             }
             .map { it.zaaktypeOmschrijving }
             .toSet()
 
-        val bpmn = zaaktypeBpmnConfigurationService
+        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationService
             .listConfigurations()
             .map { it.zaaktypeOmschrijving }
             .toSet()
 
-        return cmmn + bpmn
+        return configuredCmmnZaaktypes + configuredBpmnZaaktypes
     }
 
     /**

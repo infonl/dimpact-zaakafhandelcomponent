@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
-import nl.info.client.pabc.model.createApplicationRolesResponse
+import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -130,7 +130,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
             every {
                 pabcClientService.getApplicationRoles(roles)
-            } returns createApplicationRolesResponse(entityTypeId, pabcRoleNames)
+            } returns GetApplicationRolesResponse().apply {
+                results = listOf(createApplicationRolesResponseModel(entityTypeId, pabcRoleNames))
+            }
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
 
             every {
@@ -186,7 +188,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { filterChain.doFilter(any(), any()) } just runs
             every {
                 pabcClientService.getApplicationRoles(any())
-            } returns createApplicationRolesResponse(zaaktypeId, pabcRoleNames)
+            } returns GetApplicationRolesResponse().apply {
+                results = listOf(createApplicationRolesResponseModel(zaaktypeId, pabcRoleNames))
+            }
 
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
             every { zaaktypeBpmnConfigurationService.listConfigurations() } returns listOf(
@@ -244,8 +248,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
             When("doFilter is called for without roles per-zaaktype") {
                 every {
                     pabcClientService.getApplicationRoles(any())
-                } returns createApplicationRolesResponse(null, listOf("beheerder"))
-
+                } returns GetApplicationRolesResponse().apply {
+                    results = listOf(createApplicationRolesResponseModel(null, listOf("beheerder")))
+                }
                 every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
@@ -266,9 +271,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val loggedInUserSlot2 = slot<LoggedInUser>()
             When("doFilter is called for a mix of roles per-zaaktype and without zaaktype") {
                 val applicationRolesResponse = GetApplicationRolesResponse().apply {
-                    listOf(
-                        createApplicationRolesResponse("fakeZaaktype1", listOf("raadpleger", "behandelaar")),
-                        createApplicationRolesResponse(null, listOf("recordmanager"))
+                    results = listOf(
+                        createApplicationRolesResponseModel("fakeZaaktype1", listOf("raadpleger", "behandelaar")),
+                        createApplicationRolesResponseModel(null, listOf("recordmanager"))
                     )
                 }
                 every { pabcClientService.getApplicationRoles(any()) } returns applicationRolesResponse

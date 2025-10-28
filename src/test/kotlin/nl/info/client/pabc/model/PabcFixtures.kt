@@ -49,10 +49,10 @@ fun createApplicationRolesResponse(): GetApplicationRolesResponse {
     }
 }
 
-fun createApplicationRolesResponse(
+fun createApplicationRolesResponseModel(
     entityTypeId: String?,
     roleNames: List<String>
-): GetApplicationRolesResponse {
+): GetApplicationRolesResponseModel {
     val entityType = entityTypeId?.let {
         EntityTypeModel().apply {
             id = it
@@ -68,12 +68,8 @@ fun createApplicationRolesResponse(
         }
     }
 
-    val responseModel = GetApplicationRolesResponseModel().apply {
+    return GetApplicationRolesResponseModel().apply {
         this.entityType = entityType
         this.applicationRoles = applicationRoles
-    }
-
-    return GetApplicationRolesResponse().apply {
-        results = listOf(responseModel)
     }
 }
