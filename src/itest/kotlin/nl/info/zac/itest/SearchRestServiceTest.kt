@@ -159,7 +159,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 17,
+                                    "aantal": 18,
                                     "naam": "false"
                                 },
                                 {
@@ -173,7 +173,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "Intake"
                                 },
                                 {
@@ -186,9 +186,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                 }
                             ],
                            "ZAAK_RESULTAAT" : [
-
-                                { "aantal": 2, "naam": "Buiten behandeling" }
-
+                                { 
+                                    "aantal": 2, 
+                                    "naam": "Buiten behandeling" 
+                                }
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -206,13 +207,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 6,
                                     "naam": "E-formulier"
                                 }                               
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 14,
+                                    "aantal": 15,
                                     "naam": "OPENBAAR"
                                 }
                             ],
