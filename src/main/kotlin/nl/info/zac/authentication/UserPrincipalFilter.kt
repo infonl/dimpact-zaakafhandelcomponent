@@ -149,7 +149,6 @@ constructor(
      * - Only include results where entityType.type == "zaaktype"
      * - Key uses entityType.name
      */
-    @Suppress("TooGenericExceptionCaught")
     private fun buildApplicationRoleMappingsFromPabc(
         functionalRoles: Set<String>
     ): Map<String, Set<String>> {
