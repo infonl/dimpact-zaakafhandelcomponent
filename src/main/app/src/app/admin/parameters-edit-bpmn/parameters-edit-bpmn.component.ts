@@ -62,7 +62,7 @@ export class ParametersEditBpmnComponent {
     { label: "BPMN", value: "BPMN" },
   ];
 
-  cmmnBpmnFormGroup = this.formBuilder.group({
+  protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;

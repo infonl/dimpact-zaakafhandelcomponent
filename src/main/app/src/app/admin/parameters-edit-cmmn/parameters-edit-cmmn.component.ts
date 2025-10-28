@@ -113,7 +113,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "BPMN", value: "BPMN" },
   ];
 
-  cmmnBpmnFormGroup = this.formBuilder.group({
+  protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       label: ZaakProcessSelect;
       value: ZaakProcessSelect;
