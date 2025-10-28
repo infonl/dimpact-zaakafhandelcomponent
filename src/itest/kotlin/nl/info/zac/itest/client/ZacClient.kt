@@ -5,7 +5,6 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -105,7 +104,8 @@ class ZacClient {
             "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
-        return changeZaaktypeCmmnConfiguration("""{
+        return changeZaaktypeCmmnConfiguration(
+            """{
               "humanTaskParameters": [
                 {
                   "planItemDefinition": {
@@ -329,8 +329,8 @@ class ZacClient {
 
     fun changeZaaktypeCmmnConfiguration(body: String): Response {
         return itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters",
-                requestBodyAsString = body
+            url = "$ZAC_API_URI/zaakafhandelparameters",
+            requestBodyAsString = body
         )
     }
 

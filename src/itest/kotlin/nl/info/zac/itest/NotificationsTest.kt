@@ -321,7 +321,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                                "met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_3_TOELICHTING"
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_3_TOELICHTING"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_3_UITERLIJKE_EINDDATUM_AFDOENING
                         with(getJSONObject("zaakgeometrie").getJSONObject("point")) {
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
@@ -346,7 +346,7 @@ class NotificationsTest : BehaviorSpec({
                     length() shouldBe 2
                     with(getJSONObject(1)) {
                         getString("subject") shouldContain
-                                "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_3_INVALID_IDENTIFICATION"
+                            "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_3_INVALID_IDENTIFICATION"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
                             // No BRP connection
@@ -704,7 +704,6 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
-
 
     Given(
         """"ZAC and all related Docker containers are running"""

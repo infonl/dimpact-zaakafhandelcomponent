@@ -415,7 +415,7 @@ class ProductaanvraagService @Inject constructor(
             zrcClientService.createRol(it)
         } ?: LOG.warning(
             "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
-                    "Cannot assign zaak with UUID '${zaak.uuid}' to group: '$groupName'."
+                "Cannot assign zaak with UUID '${zaak.uuid}' to group: '$groupName'."
         )
     }
 
@@ -560,7 +560,9 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        if (ztcClientService.readZaaktype(zaak.zaaktype).informatieobjecttypen.any { it == productaanvraagDimpact.pdf }) {
+        if (ztcClientService.readZaaktype(
+                zaak.zaaktype
+            ).informatieobjecttypen.any { it == productaanvraagDimpact.pdf }) {
             pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
         } else {
             LOG.warning {

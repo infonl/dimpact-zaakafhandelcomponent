@@ -70,7 +70,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, false)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                false
+            )
 
             Then("email is sent") {
                 verify(exactly = 1) {
@@ -129,7 +134,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, true)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                true
+            )
 
             Then("email is sent") {
                 verify(exactly = 1) {
@@ -177,7 +187,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, false)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                false
+            )
 
             Then("email is sent") {
                 verify(exactly = 1) {
@@ -210,7 +225,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         )
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, true)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                true
+            )
 
             Then("no action is taken") {}
         }
@@ -234,7 +254,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns null
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, true)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                true
+            )
 
             Then("no mail is sent") {
                 verify(exactly = 1) {
@@ -263,7 +288,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, true)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                true
+            )
 
             Then("no mail is sent") {}
         }
@@ -280,7 +310,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         } returns listOf(digitalAddress)
 
         When("sendEmailForZaakFromProductaanvraag is called") {
-            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, betrokkene, zaaktypeCmmnConfiguration, true)
+            productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration,
+                true
+            )
 
             Then("no mail is sent") {}
         }
