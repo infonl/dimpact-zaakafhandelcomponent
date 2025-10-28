@@ -135,6 +135,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 6,
                                     "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$ZAAKTYPE_TEST_4_DESCRIPTION"
                                  }
                             ],
                             "BEHANDELAAR": [

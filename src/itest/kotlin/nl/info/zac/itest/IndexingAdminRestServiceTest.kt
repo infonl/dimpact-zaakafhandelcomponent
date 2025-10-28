@@ -6,7 +6,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -145,7 +144,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     )
                     val body = response.body.string()
                     logger.info { "Number of documents: " + JSONObject(body).getInt("totaal") }
-                    JSONObject(body).getInt("totaal") shouldBe 15
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 }
             }
         }

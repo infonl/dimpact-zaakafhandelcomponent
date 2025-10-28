@@ -300,7 +300,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
@@ -567,7 +566,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolType)
             every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
             every {
@@ -675,7 +673,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns emptyList()
             every { configuratieService.readBronOrganisatie() } returns "123443210"
@@ -760,7 +757,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
 
@@ -940,7 +936,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             When("the productaanvraag is handled") {
                 every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-                every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
                 // here we simulate the case that no role types have been defined for the adviseur role
                 every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
                 every {
@@ -1102,7 +1097,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
@@ -1345,7 +1339,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns bpmnConfiguration
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-            every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
             every {
@@ -1436,7 +1429,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns bpmnDefinition
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-            every { ztcClientService.readZaaktype(createdZaak.zaaktype) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
             every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
