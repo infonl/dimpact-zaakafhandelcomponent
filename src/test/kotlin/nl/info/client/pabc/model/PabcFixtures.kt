@@ -48,3 +48,28 @@ fun createApplicationRolesResponse(): GetApplicationRolesResponse {
         results = listOf(responseModel)
     }
 }
+
+fun createApplicationRolesResponseModel(
+    entityTypeId: String?,
+    roleNames: List<String>
+): GetApplicationRolesResponseModel {
+    val entityType = entityTypeId?.let {
+        EntityTypeModel().apply {
+            id = it
+            name = it
+            type = "zaaktype"
+        }
+    }
+
+    val applicationRoles = roleNames.map { role ->
+        ApplicationRoleModel().apply {
+            name = role
+            application = "zaakafhandelcomponent"
+        }
+    }
+
+    return GetApplicationRolesResponseModel().apply {
+        this.entityType = entityType
+        this.applicationRoles = applicationRoles
+    }
+}
