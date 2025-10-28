@@ -48,6 +48,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
@@ -151,16 +152,15 @@ class ProductaanvraagService @Inject constructor(
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url).let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
-        val zaakInformatieobject = ZaakInformatieobject().apply {
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) =
+        ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
+        }.run {
+            createZaakInformatieobject(this)
         }
-        LOG.fine("Creating zaakinformatieobject: '$zaakInformatieobject'")
-        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
-    }
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
@@ -170,9 +170,22 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
-                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+                createZaakInformatieobject(this)
             }
         }
+
+    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject) {
+        try {
+            LOG.fine("Creating zaakinformatieobject: '$zaakInformatieobject'")
+            zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
+        } catch (inputValidationFailedException: InputValidationFailedException) {
+            LOG.log(
+                Level.WARNING,
+                "Failed to create zaakinformatieobject: '$zaakInformatieobject'",
+                inputValidationFailedException
+            )
+        }
+    }
 
     /**
      * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
@@ -560,17 +573,7 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        if (ztcClientService.readZaaktype(
-                zaak.zaaktype
-            ).informatieobjecttypen.any { it == productaanvraagDimpact.pdf }) {
-            pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
-        } else {
-            LOG.warning {
-                "Productaanvraag PDF information type ${productaanvraagDimpact.pdf} not present in " +
-                    "zaaktype UUID ${zaak.zaaktype.extractUuid()}"
-            }
-        }
-
+        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
         productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url) }
     }
 
