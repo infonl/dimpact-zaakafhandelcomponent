@@ -14,6 +14,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -220,7 +221,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     public readonly dialog: MatDialog,
     private readonly cdr: ChangeDetectorRef,
   ) {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       if (!data || !data.parameters) {
         return;
       }

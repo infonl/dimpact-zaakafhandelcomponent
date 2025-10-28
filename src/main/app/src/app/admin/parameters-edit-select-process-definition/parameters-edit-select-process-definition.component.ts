@@ -4,6 +4,7 @@
  */
 
 import { Component, EventEmitter, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -54,7 +55,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
     private readonly formBuilder: FormBuilder,
     private readonly route: ActivatedRoute,
   ) {
-    this.route.data.subscribe(async (data) => {
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       this.zaakafhandelParameters = data.parameters.zaakafhandelParameters;
     });
 
