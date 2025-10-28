@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
-import nl.info.client.pabc.exception.PabcRuntimeException
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
@@ -27,7 +26,6 @@ import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.time.Instant
 import java.time.ZoneOffset
-import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.java
 
@@ -49,6 +47,7 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+        private const val PABC_ENTITY_TYPE = "zaaktype"
     }
 
     override fun doFilter(
@@ -150,21 +149,61 @@ constructor(
      * - Only include results where entityType.type == "zaaktype"
      * - Key uses entityType.name
      */
-    @Suppress("TooGenericExceptionCaught")
-    private fun buildApplicationRoleMappingsFromPabc(functionalRoles: Set<String>): Map<String, Set<String>> =
-        try {
-            pabcClientService.getApplicationRoles(functionalRoles.toList()).results
-                .filter { it.entityType?.type.equals("zaaktype", ignoreCase = true) }
-                .mapNotNull { res ->
-                    val key = res.entityType?.id?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                    val roleNames = res.applicationRoles.mapNotNull { it.name }.toSet()
-                    key to roleNames
+    private fun buildApplicationRoleMappingsFromPabc(
+        functionalRoles: Set<String>
+    ): Map<String, Set<String>> {
+        val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
+
+        val rolesPerZaaktype: Map<String, Set<String>> =
+            applicationRolesResponse.results
+                .filter {
+                    it.entityType?.type.equals(PABC_ENTITY_TYPE, ignoreCase = true) &&
+                        !it.entityType?.id.isNullOrBlank()
+                }.associate { result ->
+                    val roles = result.applicationRoles
+                        .mapNotNull { it.name?.trim() }
+                        .filter { it.isNotEmpty() }
+                        .toSet()
+                    result.entityType.id to roles
                 }
-                .toMap()
-        } catch (ex: Exception) {
-            LOG.log(Level.SEVERE, "PABC application role lookup failed", ex)
-            throw PabcRuntimeException("Failed to get application roles from PABC", ex)
+
+        val rolesForAllZaaktypen: Set<String> =
+            applicationRolesResponse.results
+                .filter { it.entityType == null }
+                .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
+                .filter { it.isNotEmpty() }
+                .toSet()
+
+        return if (rolesForAllZaaktypen.isEmpty()) {
+            rolesPerZaaktype
+        } else {
+            val allZaaktypes = getAllConfiguredZaaktypes()
+            allZaaktypes.associateWith { zaaktype -> (rolesPerZaaktype[zaaktype] ?: emptySet()) + rolesForAllZaaktypen }
         }
+    }
+
+    private fun getAllConfiguredZaaktypes(): Set<String> {
+        val configuredCmmnZaaktypes = zaaktypeCmmnConfigurationService
+            .listZaaktypeCmmnConfiguration()
+            .groupBy { it.zaaktypeOmschrijving }
+            .values
+            .map {
+                    list ->
+                list.maxBy {
+                        cmmnConfiguration ->
+                    cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
+                }
+            }
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationService
+            .listConfigurations()
+            .map { it.zaaktypeOmschrijving }
+            .toSet()
+
+        return configuredCmmnZaaktypes + configuredBpmnZaaktypes
+    }
 
     /**
      * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
