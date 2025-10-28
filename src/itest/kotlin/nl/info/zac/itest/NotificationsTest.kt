@@ -36,7 +36,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BR
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_4
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
@@ -258,7 +258,7 @@ class NotificationsTest : BehaviorSpec({
             zaakTypeIdentificatie = ZAAKTYPE_TEST_4_IDENTIFICATIE,
             zaakTypeUuid = ZAAKTYPE_TEST_4_UUID,
             zaakTypeDescription = ZAAKTYPE_TEST_4_DESCRIPTION,
-            productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
+            productaanvraagType = PRODUCTAANVRAAG_TYPE_4,
             brpKoppelen = false,
             kvkKoppelen = false,
         )
