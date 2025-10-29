@@ -309,6 +309,7 @@ class ZaakService @Inject constructor(
         }
     }
 
+    // TODO: should this be the responsibility of the ZRC client service?
     fun checkZaakAfsluitbaar(zaak: Zaak) {
         if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")

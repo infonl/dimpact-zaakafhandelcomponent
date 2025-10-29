@@ -20,6 +20,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
+import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
@@ -121,6 +122,8 @@ class ZrcClientService @Inject constructor(
         return zrcClient.resultaatRead(resultaatURI.extractUuid())
     }
 
+    fun readResultaat(resultaatUUID: UUID): Resultaat = zrcClient.resultaatRead(resultaatUUID)
+
     fun readStatus(statusURI: URI): Status {
         validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl())
         return zrcClient.statusRead(statusURI.extractUuid())
@@ -217,6 +220,10 @@ class ZrcClientService @Inject constructor(
 
     fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
         zrcClient.listAuditTrail(zaakUUID)
+
+    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten {
+        return zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
+    }
 
     fun createResultaat(resultaat: Resultaat): Resultaat? {
         resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
