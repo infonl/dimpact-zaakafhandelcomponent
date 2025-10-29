@@ -60,6 +60,7 @@ export class ZacQueryClient {
           (error as HttpErrorResponse).status >= 500
         );
       },
+      refetchOnWindowFocus: false,
       staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
     };
