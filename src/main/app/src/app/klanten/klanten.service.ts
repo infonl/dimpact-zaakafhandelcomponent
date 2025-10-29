@@ -8,7 +8,6 @@ import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
-import {injectQuery} from "@tanstack/angular-query-experimental";
 
 @Injectable({
   providedIn: "root",
