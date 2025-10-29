@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpResponse } from "@angular/common/http";
+import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import {
   mutationOptions,
@@ -56,8 +56,8 @@ export class ZacQueryClient {
           return false;
         }
         return (
-          (error as unknown as HttpResponse<unknown>).status === 0 ||
-          (error as unknown as HttpResponse<unknown>).status >= 500
+          (error as HttpErrorResponse).status === 0 ||
+          (error as HttpErrorResponse).status >= 500
         );
       },
       staleTime: StaleTimes.Long,
