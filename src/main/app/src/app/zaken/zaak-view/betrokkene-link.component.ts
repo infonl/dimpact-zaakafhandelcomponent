@@ -28,14 +28,7 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    const persoonQuery = this.klantenService.readPersoon(
-      betrokkene.identificatie,
-    );
-
-    return {
-      queryKey: persoonQuery.queryKey,
-      queryFn: persoonQuery.queryFn,
-    };
+    return this.klantenService.readPersoon(betrokkene.identificatie);
   });
 
   protected readonly bedrijfQuery = injectQuery(() => {
@@ -48,14 +41,9 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    const bedrijfQuery = this.klantenService.readBedrijf(
+    return this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie(betrokkene),
     );
-
-    return {
-      queryKey: bedrijfQuery.queryKey,
-      queryFn: bedrijfQuery.queryFn,
-    };
   });
 
   protected readonly betrokkene =
