@@ -151,17 +151,17 @@ class ProductaanvraagService @Inject constructor(
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url).let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) =
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI, throwException: Boolean = true) =
         ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
         }.run {
-            createZaakInformatieobject(this)
+            createZaakInformatieobject(this, throwException)
         }
 
-    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
+    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI, throwException: Boolean = true) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
             ZaakInformatieobject().apply {
                 informatieobject = bijlage.url
@@ -169,15 +169,15 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
-                createZaakInformatieobject(this)
+                createZaakInformatieobject(this, throwException)
             }
         }
 
-    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject) {
+    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject, throwException: Boolean) {
         zaakInformatieobject
             .runCatching {
-                LOG.fine("Creating zaakinformatieobject: '$zaakInformatieobject'")
-                zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
+                LOG.fine("Creating zaakinformatieobject: '$this'")
+                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
             }
             .onFailure {
                 LOG.log(
@@ -185,6 +185,7 @@ class ProductaanvraagService @Inject constructor(
                     "Failed to create zaakinformatieobject: '$zaakInformatieobject'",
                     it
                 )
+                if (throwException) throw it
             }
             .onSuccess {
                 LOG.fine("Created zaakinformatieobject: '$zaakInformatieobject'")
@@ -437,22 +438,28 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun assignZaakToEmployee(zaak: Zaak, employeeName: String) {
-        LOG.info("Assigning zaak with UUID '${zaak.uuid}' to employee: '$employeeName'")
-        zrcClientService.createRol(creeerRolMedewerker(employeeName, zaak))
+        createRolMedewerker(employeeName, zaak)?.let {
+            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to employee: '$employeeName'")
+            zrcClientService.createRol(it)
+        } ?: LOG.warning(
+            "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
+                "Cannot assign zaak with UUID '${zaak.uuid}' to employee: '$employeeName'."
+        )
     }
 
-    private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid? {
-        val group = identityService.readGroup(groepID)
-        val organisatieEenheid = OrganisatorischeEenheidIdentificatie().apply {
-            identificatie = group.id
-            naam = group.name
+    private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid? =
+        identityService.readGroup(groepID).let {
+            OrganisatorischeEenheidIdentificatie().apply {
+                identificatie = it.id
+                naam = it.name
+            }
+        }.let { organisatieEenheid ->
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
+                RolOrganisatorischeEenheid(zaak.url, it, "Behandelend groep van de zaak", organisatieEenheid)
+            }
         }
-        return ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
-            RolOrganisatorischeEenheid(zaak.url, it, "Behandelend groep van de zaak", organisatieEenheid)
-        }
-    }
 
-    private fun creeerRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker =
+    private fun createRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker? =
         identityService.readUser(employeeName).let {
             MedewerkerIdentificatie().apply {
                 identificatie = it.id
@@ -460,12 +467,9 @@ class ProductaanvraagService @Inject constructor(
                 achternaam = it.lastName
             }
         }.let { medewerker ->
-            RolMedewerker(
-                zaak.url,
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
-                "Behandelaar van de zaak",
-                medewerker
-            )
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
+                RolMedewerker(zaak.url, it, "Behandelaar van de zaak", medewerker)
+            }
         }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
@@ -577,8 +581,8 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
-        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url) }
+        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url, false)
+        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url, false) }
     }
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
