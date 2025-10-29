@@ -28,9 +28,7 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    return  this.klantenService.readPersoon(
-      betrokkene.identificatie,
-    );
+    return this.klantenService.readPersoon(betrokkene.identificatie);
   });
 
   protected readonly bedrijfQuery = injectQuery(() => {
@@ -43,7 +41,7 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    return  this.klantenService.readBedrijf(
+    return this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie(betrokkene),
     );
   });
