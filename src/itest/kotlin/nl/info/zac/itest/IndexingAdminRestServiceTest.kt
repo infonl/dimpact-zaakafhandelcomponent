@@ -4,6 +4,7 @@
  */
 package nl.info.zac.itest
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -27,6 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 @Order(TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED)
 class IndexingAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+    val logger = KotlinLogging.logger {}
 
     Given("""Two zaken, a task and a document have been created""") {
         When("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
@@ -62,7 +64,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
+                    val body = response.body.string()
+                    logger.info { "Number of zaken: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
                 }
             }
         }
@@ -99,7 +103,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
+                    val body = response.body.string()
+                    logger.info { "Number of tasks: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
                 }
             }
         }
@@ -136,7 +142,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
+                    val body = response.body.string()
+                    logger.info { "Number of documents: " + JSONObject(body).getInt("totaal") }
+                    JSONObject(body).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 }
             }
         }

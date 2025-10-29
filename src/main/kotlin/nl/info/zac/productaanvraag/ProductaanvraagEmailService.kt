@@ -44,7 +44,8 @@ class ProductaanvraagEmailService @Inject constructor(
     fun sendEmailForZaakFromProductaanvraag(
         zaak: Zaak,
         betrokkene: Betrokkene?,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        isCreateDocumentFromMail: Boolean
     ) {
         LOG.fine {
             "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
@@ -53,7 +54,7 @@ class ProductaanvraagEmailService @Inject constructor(
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
             betrokkene?.let { betrokkene ->
                 extractBetrokkeneEmail(betrokkene)?.let { to ->
-                    sendMail(zaaktypeCmmnEmailParameters, to, zaak)
+                    sendMail(zaaktypeCmmnEmailParameters, to, isCreateDocumentFromMail, zaak)
                 } ?: LOG.fine(
                     "No email address found for initiator '$betrokkene'. " +
                         "Skipping automatic email confirmation."
@@ -92,11 +93,12 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun sendMail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
+        isCreateDocumentFromMail: Boolean,
         zaakFromProductaanvraag: Zaak
     ) {
         zaaktypeCmmnEmailParameters.templateName?.let { templateName ->
             mailTemplateService.findMailtemplateByName(templateName)?.let { mailTemplate ->
-                configureEmail(zaaktypeCmmnEmailParameters, to, mailTemplate)?.let { mailGegevens ->
+                configureEmail(zaaktypeCmmnEmailParameters, to, mailTemplate, isCreateDocumentFromMail)?.let { mailGegevens ->
                     mailService.sendMail(mailGegevens, zaakFromProductaanvraag.getBronnenFromZaak())?.also {
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
@@ -117,7 +119,8 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun configureEmail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
-        mailTemplate: MailTemplate
+        mailTemplate: MailTemplate,
+        isCreateDocumentFromMail: Boolean
     ) = zaaktypeCmmnEmailParameters.emailSender?.let { emailSender ->
         MailGegevens(
             from = emailSender.generateMailAddress(configuratieService),
@@ -126,7 +129,7 @@ class ProductaanvraagEmailService @Inject constructor(
             subject = mailTemplate.onderwerp,
             body = mailTemplate.body,
             attachments = null,
-            isCreateDocumentFromMail = true
+            isCreateDocumentFromMail = isCreateDocumentFromMail
         )
     }
 

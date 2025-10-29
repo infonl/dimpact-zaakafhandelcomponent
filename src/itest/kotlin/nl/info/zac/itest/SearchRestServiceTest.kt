@@ -43,6 +43,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
@@ -134,6 +135,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 6,
                                     "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$ZAAKTYPE_TEST_4_DESCRIPTION"
                                  }
                             ],
                             "BEHANDELAAR": [
@@ -154,7 +159,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 17,
+                                    "aantal": 18,
                                     "naam": "false"
                                 },
                                 {
@@ -168,7 +173,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "Intake"
                                 },
                                 {
@@ -181,9 +186,10 @@ class SearchRestServiceTest : BehaviorSpec({
                                 }
                             ],
                            "ZAAK_RESULTAAT" : [
-
-                                { "aantal": 2, "naam": "Buiten behandeling" }
-
+                                { 
+                                    "aantal": 2, 
+                                    "naam": "Buiten behandeling" 
+                                }
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -201,13 +207,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 6,
                                     "naam": "E-formulier"
                                 }                               
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 14,
+                                    "aantal": 15,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -337,6 +343,9 @@ class SearchRestServiceTest : BehaviorSpec({
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
+                        }, {
+                          "aantal": 1,
+                          "naam": "$ZAAKTYPE_TEST_4_DESCRIPTION"
                         }],          
                         "BEHANDELAAR": [
                           {

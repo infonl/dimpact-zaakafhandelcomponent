@@ -80,6 +80,11 @@ class ZacClient {
         )
     }
 
+    fun getZaaktypeCmmnConfiguration(zaakTypeUuid: UUID,): Response {
+        logger.info { "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with UUID: $zaakTypeUuid" }
+        return itestHttpClient.performGetRequest(url = "$ZAC_API_URI/zaakafhandelparameters/$zaakTypeUuid")
+    }
+
     @Suppress("LongMethod", "LongParameterList")
     fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
@@ -87,6 +92,8 @@ class ZacClient {
         zaakTypeDescription: String,
         productaanvraagType: String,
         domein: String? = null,
+        brpKoppelen: Boolean? = true,
+        kvkKoppelen: Boolean? = true,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
         brpVerwerkingWaarde: String = "Algemeen",
@@ -97,9 +104,8 @@ class ZacClient {
             "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
-        return itestHttpClient.performPutRequest(
-            url = "$ZAC_API_URI/zaakafhandelparameters",
-            requestBodyAsString = """{
+        return changeZaaktypeCmmnConfiguration(
+            """{
               "humanTaskParameters": [
                 {
                   "planItemDefinition": {
@@ -302,8 +308,8 @@ class ZacClient {
                 "enabledForZaaktype": true
               },
               "betrokkeneKoppelingen": {
-                "brpKoppelen": true,
-                "kvkKoppelen": true
+                "brpKoppelen": $brpKoppelen,
+                "kvkKoppelen": $kvkKoppelen
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
@@ -318,6 +324,13 @@ class ZacClient {
               }
             }
             """.trimIndent()
+        )
+    }
+
+    fun changeZaaktypeCmmnConfiguration(body: String): Response {
+        return itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/zaakafhandelparameters",
+            requestBodyAsString = body
         )
     }
 

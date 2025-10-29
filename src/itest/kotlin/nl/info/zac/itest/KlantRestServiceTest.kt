@@ -82,6 +82,10 @@ class KlantRestServiceTest : BehaviorSpec({
                     shouldBeJsonArray()
                     JSONArray(responseBody).length() shouldBe ROLTYPE_COUNT
                     with(JSONArray(responseBody)[0].toString()) {
+                        shouldContainJsonKeyValue("naam", "Adviseur")
+                        shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "adviseur")
+                    }
+                    with(JSONArray(responseBody)[1].toString()) {
                         shouldContainJsonKeyValue("naam", "Behandelaar")
                         shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "behandelaar")
                     }

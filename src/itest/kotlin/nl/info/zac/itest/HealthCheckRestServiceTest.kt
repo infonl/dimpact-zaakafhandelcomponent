@@ -25,6 +25,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class HealthCheckRestServiceTest : BehaviorSpec({
@@ -59,6 +62,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             }
             responseBody shouldEqualJson """
                     [
+                      {
+                        "aantalBehandelaarroltypen": 0,
+                        "aantalInitiatorroltypen": 0,
+                        "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
+                        "informatieobjecttypeEmailAanwezig": false,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolOverigeAanwezig": true,
+                        "statustypeAanvullendeInformatieVereist": true,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
+                        "statustypeHeropendAanwezig": true,
+                        "statustypeInBehandelingAanwezig": true,
+                        "statustypeIntakeAanwezig": true,
+                        "valide": false,
+                        "zaakafhandelParametersValide": true,
+                        "zaaktype": {
+                          "beginGeldigheid": "$DATE_2023_09_21",
+                          "doel": "$ZAAKTYPE_TEST_4_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_TEST_4_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_TEST_4_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_TEST_4_UUID",
+                          "versiedatum": "$DATE_2023_09_21",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,

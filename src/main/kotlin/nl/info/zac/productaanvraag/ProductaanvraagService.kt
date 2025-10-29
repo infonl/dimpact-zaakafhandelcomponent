@@ -51,7 +51,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.productaanvraag.exception.ProductaanvraagNotSupportedException
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
@@ -149,22 +148,20 @@ class ProductaanvraagService @Inject constructor(
         )
 
     fun pairProductaanvraagWithZaak(productaanvraag: ModelObject, zaakUrl: URI) {
-        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
-            .let(zrcClientService::createZaakobject)
+        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url).let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
-        val zaakInformatieobject = ZaakInformatieobject().apply {
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI, throwException: Boolean = true) =
+        ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
+        }.run {
+            createZaakInformatieobject(this, throwException)
         }
-        LOG.fine("Creating zaakinformatieobject: '$zaakInformatieobject'")
-        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
-    }
 
-    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
+    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI, throwException: Boolean = true) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
             ZaakInformatieobject().apply {
                 informatieobject = bijlage.url
@@ -172,9 +169,28 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
-                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+                createZaakInformatieobject(this, throwException)
             }
         }
+
+    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject, throwException: Boolean) {
+        zaakInformatieobject
+            .runCatching {
+                LOG.fine("Creating zaakinformatieobject: '$this'")
+                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+            }
+            .onFailure {
+                LOG.log(
+                    Level.WARNING,
+                    "Failed to create zaakinformatieobject: '$zaakInformatieobject'",
+                    it
+                )
+                if (throwException) throw it
+            }
+            .onSuccess {
+                LOG.fine("Created zaakinformatieobject: '$zaakInformatieobject'")
+            }
+    }
 
     /**
      * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
@@ -237,7 +253,7 @@ class ProductaanvraagService @Inject constructor(
             ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
                 LOG.warning(
                     "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
-                        "No betrokkene role created for zaak '$zaak'."
+                        "No betrokkene role created for zaak ${zaak.identificatie}."
                 )
             }
 
@@ -294,7 +310,7 @@ class ProductaanvraagService @Inject constructor(
             else -> {
                 LOG.warning(
                     "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
-                        "mapping from a productaanvraag. No role created for zaak '$zaak'."
+                        "mapping from a productaanvraag. No role created for zaak ${zaak.identificatie}."
                 )
             }
         }
@@ -321,7 +337,7 @@ class ProductaanvraagService @Inject constructor(
             .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
             ?: LOG.warning(
                 "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                    "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                    "productaanvraag. No betrokkene role created for zaak ${zaak.identificatie}."
             )
     }
 
@@ -340,8 +356,8 @@ class ProductaanvraagService @Inject constructor(
 
             types.size > 1 -> LOG.warning(
                 "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
-                    "'$roltypeOmschrijving' and zaak '$zaak'. " +
-                    "Using the first one (description: '${types.first().omschrijving}')."
+                    "'$roltypeOmschrijving' and zaak ${zaak.identificatie}. " +
+                    "Using the first roltype (description: '${types.first().omschrijving}')."
             )
         }
     }
@@ -368,7 +384,7 @@ class ProductaanvraagService @Inject constructor(
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                        "or KVK-number. No betrokkene role created for zaak '$zaak'."
+                        "or KVK-number. No betrokkene role added to zaak ${zaak.identificatie}"
                 )
             }
         )
@@ -411,31 +427,41 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun assignZaakToGroup(zaak: Zaak, groupName: String) {
-        LOG.info("Assigning zaak with UUID '${zaak.uuid}' to group: '$groupName'")
-        zrcClientService.createRol(creeerRolGroep(groupName, zaak))
-    }
-
-    private fun assignZaakToEmployee(zaak: Zaak, employeeName: String) {
-        LOG.info("Assigning zaak '${zaak.uuid}' to assignee: '$employeeName'")
-        zrcClientService.createRol(creeerRolMedewerker(employeeName, zaak))
-    }
-
-    private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid {
-        val group = identityService.readGroup(groepID)
-        val organisatieEenheid = OrganisatorischeEenheidIdentificatie().apply {
-            identificatie = group.id
-            naam = group.name
-        }
-        return RolOrganisatorischeEenheid(
-            zaak.url,
-            ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
-            "Behandelend groep van de zaak",
-            organisatieEenheid
+    private fun assignZaakToGroup(zaak: Zaak, groupName: String, productaanvraagDimpact: ProductaanvraagDimpact) {
+        createRolGroep(groupName, zaak)?.let {
+            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to group: '$groupName'")
+            zrcClientService.createRol(it)
+        } ?: LOG.warning(
+            "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
+                "Cannot assign zaak with UUID '${zaak.uuid}' to group: '$groupName'." +
+                "Zaak was created for ${generateProductaanvraagDescription(productaanvraagDimpact)}"
         )
     }
 
-    private fun creeerRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker =
+    private fun assignZaakToEmployee(zaak: Zaak, employeeName: String, productaanvraagDimpact: ProductaanvraagDimpact) {
+        createRolMedewerker(employeeName, zaak)?.let {
+            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to employee: '$employeeName'")
+            zrcClientService.createRol(it)
+        } ?: LOG.warning(
+            "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
+                "Cannot assign zaak ${zaak.identificatie} with UUID '${zaak.uuid}' to employee: '$employeeName'. " +
+                "Zaak was created for ${generateProductaanvraagDescription(productaanvraagDimpact)}"
+        )
+    }
+
+    private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid? =
+        identityService.readGroup(groepID).let {
+            OrganisatorischeEenheidIdentificatie().apply {
+                identificatie = it.id
+                naam = it.name
+            }
+        }.let { organisatieEenheid ->
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
+                RolOrganisatorischeEenheid(zaak.url, it, "Behandelend groep van de zaak", organisatieEenheid)
+            }
+        }
+
+    private fun createRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker? =
         identityService.readUser(employeeName).let {
             MedewerkerIdentificatie().apply {
                 identificatie = it.id
@@ -443,12 +469,9 @@ class ProductaanvraagService @Inject constructor(
                 achternaam = it.lastName
             }
         }.let { medewerker ->
-            RolMedewerker(
-                zaak.url,
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
-                "Behandelaar van de zaak",
-                medewerker
-            )
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
+                RolMedewerker(zaak.url, it, "Behandelaar van de zaak", medewerker)
+            }
         }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
@@ -525,7 +548,7 @@ class ProductaanvraagService @Inject constructor(
             productaanvraagDimpact.betrokkenen?.run {
                 validateBetrokkenenForZaaktypeCmmnConfiguration(
                     betrokkenen = this,
-                    productaanvraagObject = productaanvraagObject,
+                    productaanvraagDimpact = productaanvraagDimpact,
                     zaaktypeCmmnConfiguration = firstZaaktypeCmmnConfiguration
                 )
             }
@@ -560,8 +583,8 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url)
-        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url) }
+        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url, false)
+        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url, false) }
     }
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
@@ -613,6 +636,7 @@ class ProductaanvraagService @Inject constructor(
         assignZaakToGroup(
             zaak = zaak,
             groupName = zaaktypeBpmnConfiguration.groupId,
+            productaanvraagDimpact
         )
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
@@ -628,7 +652,7 @@ class ProductaanvraagService @Inject constructor(
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
-        // First start the CMMN process for the zaak and only then perform other actions related to the zaak,
+        // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
         // Note that the error handling here still has room for improvement.
         cmmnService.startCase(
@@ -644,20 +668,36 @@ class ProductaanvraagService @Inject constructor(
             assignZaakToGroup(
                 zaak = zaak,
                 groupName = this,
+                productaanvraagDimpact = productaanvraagDimpact
             )
         } ?: LOG.warning(
-            "No group ID found in zaaktypeCmmnConfiguration for zaak with UUID '${zaak.uuid}'. " +
-                "No group role was created."
+            "No group ID found in zaaktypeCmmnConfiguration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
+                "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
         )
         zaaktypeCmmnConfiguration.gebruikersnaamMedewerker?.run {
             assignZaakToEmployee(
                 zaak = zaak,
                 employeeName = this,
+                productaanvraagDimpact = productaanvraagDimpact
             )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
+        val emailInformationObjectFound = zaaktype.informatieobjecttypen
+            .map { ztcClientService.readInformatieobjecttype(it) }
+            .any { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
+        if (!emailInformationObjectFound) {
+            LOG.warning {
+                "No email information object type found for zaaktype UUID ${zaak.zaaktype.extractUuid()}. Zaak ${zaak.identificatie} " +
+                    "created for ${generateProductaanvraagDescription(productaanvraagDimpact)} will not contain an attached email document."
+            }
+        }
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+            zaak,
+            initiator,
+            zaaktypeCmmnConfiguration,
+            emailInformationObjectFound
+        )
     }
 
     private fun createZaak(
@@ -687,7 +727,7 @@ class ProductaanvraagService @Inject constructor(
             "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
                 (productaanvraag.zaakgegevens?.toelichting?.let { " $it" } ?: "")
             )
-            // truncate to maximum length allowed by the ZGW APIs
+            // truncate to the maximum length allowed by the ZGW APIs
             .take(TOELICHTING_MAX_LENGTH)
 
     private fun logZaakCouldNotBeCreatedWarning(
@@ -704,7 +744,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun validateBetrokkenenForZaaktypeCmmnConfiguration(
         betrokkenen: List<Betrokkene>,
-        productaanvraagObject: ModelObject,
+        productaanvraagDimpact: ProductaanvraagDimpact,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         val zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters
@@ -714,24 +754,26 @@ class ProductaanvraagService @Inject constructor(
         betrokkenen.forEach {
             if (!brpEnabled) {
                 it.inpBsn?.run {
-                    throw ProductaanvraagNotSupportedException(
+                    LOG.warning(
                         "The BRP koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
-                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. " +
-                            "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
-                            "it contains one or more betrokkenen with a BSN identifier."
+                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. ${generateProductaanvraagDescription(productaanvraagDimpact)} " +
+                            "cannot be fully processed because it contains one or more betrokkenen with a BSN identifier."
                     )
                 }
             }
             if (!kvkEnabled) {
                 it.vestigingsNummer?.run {
-                    throw ProductaanvraagNotSupportedException(
+                    LOG.warning(
                         "The KVK koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
-                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. " +
-                            "Productaanvraag with URL '${productaanvraagObject.url}' cannot be processed because " +
-                            "it contains one or more betrokkenen with a KVK vestigingsnummer identifier."
+                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. ${generateProductaanvraagDescription(productaanvraagDimpact)} " +
+                            "cannot be fully processed because it contains one or more betrokkenen with a KVK vestigingsnummer identifier."
                     )
                 }
             }
         }
     }
+
+    private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
+        "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +
+            "type '${productaanvraag.type}'"
 }
