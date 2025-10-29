@@ -446,7 +446,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.4-alpine@sha256:1eb39c312d394eaba5b11fb65808851801dff96877ee293afbb53c9b3a17fa57
+    image: rabbitmq:4.2.0-alpine@sha256:0bc79acafd534d33dc70515a2608dcc118c1fbe626735aa2797eadbff16e2d44
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -664,7 +664,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.29.2@sha256:3b7732505933ca591ce4a6d860cb713ad96a3176b82f7979a8dfa9973486a0d6
+    image: nginx:1.29.3@sha256:f36d51007aa734028a6ea852adc76f074c9e5f966a2044f094325a22f566a9e1
     ports:
       - "8005:80"
     volumes:
