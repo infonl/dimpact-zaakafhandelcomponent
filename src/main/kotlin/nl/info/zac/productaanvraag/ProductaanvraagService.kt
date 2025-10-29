@@ -672,7 +672,7 @@ class ProductaanvraagService @Inject constructor(
             )
         } ?: LOG.warning(
             "No group ID found in zaaktypeCmmnConfiguration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
-                    "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
+                "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
         )
         zaaktypeCmmnConfiguration.gebruikersnaamMedewerker?.run {
             assignZaakToEmployee(
