@@ -5,7 +5,7 @@
 
 import { Component, EventEmitter, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -48,7 +48,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    } | null>(null, []),
+    } | null>(null, [Validators.required]),
   });
 
   constructor(
