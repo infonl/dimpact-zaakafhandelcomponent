@@ -15,6 +15,7 @@ spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
 jacoco = "0.8.14"
+owasp-dependencycheck = "12.1.3"
 glassfish-expressly = "6.0.0"
 keycloak = "26.0.7"
 
@@ -170,3 +171,4 @@ gradle-node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" 
 taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owasp-dependencycheck" }
