@@ -10,6 +10,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { buildBedrijfRouteLink } from "../klanten-routing.module";
 import { KlantenService } from "../klanten.service";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
@@ -34,8 +35,14 @@ export class BedrijfsgegevensComponent {
   protected vestigingsprofielOphalenMogelijk = computed(
     () => !!this.bedrijfQuery.data()?.vestigingsnummer,
   );
+
   protected vestigingsprofiel =
     signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
+
+  get bedrijfNotFound(): HttpErrorResponse | null {
+    const err = this.bedrijfQuery.error();
+    return err instanceof HttpErrorResponse && err.status === 404 ? err : null;
+  }
 
   protected warningIcon = new TextIcon(
     () => true,
