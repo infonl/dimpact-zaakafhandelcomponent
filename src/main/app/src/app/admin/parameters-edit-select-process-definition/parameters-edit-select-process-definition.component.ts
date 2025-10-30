@@ -4,7 +4,10 @@
  */
 
 import { Component, EventEmitter, Output } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
@@ -25,14 +28,37 @@ export class ParameterEditSelectProcessDefinitionComponent {
     { label: "BPMN", value: "BPMN" },
   ];
 
-  cmmnBpmnFormGroup = this.formBuilder.group({
+  protected zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
+    zaaktype: GeneratedType<"RestZaaktype">;
+  } = {
+    zaaktypeUuid: "",
+    zaaktypeOmschrijving: "",
+    bpmnProcessDefinitionKey: "",
+    productaanvraagtype: null,
+    groepNaam: "",
+    zaaktype: {
+      uuid: "",
+      identificatie: "",
+      doel: "",
+      omschrijving: "",
+    },
+  };
+
+  protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
-    } | null>(null, []),
+    } | null>(null, [Validators.required]),
   });
 
-  constructor(private readonly formBuilder: FormBuilder) {
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly route: ActivatedRoute,
+  ) {
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
+      this.zaakafhandelParameters = data.parameters.zaakafhandelParameters;
+    });
+
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       this.switchProcessDefinition.emit({
         type: value?.value || "SELECT-PROCESS-DEFINITION",

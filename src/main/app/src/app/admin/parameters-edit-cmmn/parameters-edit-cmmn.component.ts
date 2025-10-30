@@ -14,6 +14,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -113,7 +114,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "BPMN", value: "BPMN" },
   ];
 
-  cmmnBpmnFormGroup = this.formBuilder.group({
+  protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       label: ZaakProcessSelect;
       value: ZaakProcessSelect;
@@ -220,7 +221,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     public readonly dialog: MatDialog,
     private readonly cdr: ChangeDetectorRef,
   ) {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       if (!data || !data.parameters) {
         return;
       }
