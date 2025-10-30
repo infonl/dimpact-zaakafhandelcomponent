@@ -35,7 +35,7 @@ Versiegeschiedenis:
 | 1.6.6 | ZAC v3.8 Handleiding |
 | 1.6.7 | ZAC v3.9 Handleiding |
 | 1.6.8 | ZAC v3.11 Handleiding |
-| 1.6.8 | ZAC v3.12 Handleiding |
+| 1.6.9 | ZAC v3.12 Handleiding |
 
 <div style="page-break-after: always"></div>
 
