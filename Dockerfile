@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM docker.io/eclipse-temurin:21.0.8_9-jre-ubi9-minimal@sha256:e0934bc033d962fb9e15bd82893397c143f9f82e9ff44b5c6fefaa30e2d4af67 AS runtime
+FROM docker.io/eclipse-temurin:21.0.8_9-jre-ubi10-minimal@sha256:3de98aaeb2b7729bdf4239e024d1860355c8fedb65a288476f4964c762f044ea AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
