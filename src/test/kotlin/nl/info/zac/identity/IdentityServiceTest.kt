@@ -296,7 +296,7 @@ class IdentityServiceTest : BehaviorSpec({
         val domeinRole = "fakeDomeinRole"
         val groupRepresentation1 = createGroupRepresentation(
             name = "fakeGroupName1",
-            attributes = mapOf("description" to listOf("fakeGroupDescription1")),
+            description = "fakeGroupDescription1",
             clientRoles = mapOf(zacKeycloakClientId to listOf(domeinRole))
         )
         val groupRepresentation2 = createGroupRepresentation(
