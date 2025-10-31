@@ -23,6 +23,7 @@ import type {
   PutBody,
 } from "./http-client";
 import { HttpClient, Response } from "./http-client";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 export const DEFAULT_RETRY_COUNT = 3;
@@ -40,6 +41,7 @@ export enum StaleTimes {
 })
 export class ZacQueryClient {
   private readonly httpClient = inject(HttpClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
@@ -48,8 +50,23 @@ export class ZacQueryClient {
     return {
       ...queryOptions<Response<Path, Method>>({
         queryKey: [url, ...args],
-        queryFn: () =>
-          lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
+        queryFn: () => {
+          try {
+            return lastValueFrom(
+              this.httpClient.GET<Path, Method>(url, ...args),
+            );
+          } catch (err) {
+            const error = err as HttpErrorResponse;
+
+            // Rethrow error that need caller to handle themself
+            if (error.status !== 0 && error.status > 500) {
+              throw error;
+            }
+
+            this.foutAfhandelingService.foutAfhandelen(error);
+            return Promise.reject(error);
+          }
+        },
       }),
       retry: (failureCount: number, error: unknown) => {
         if (failureCount >= DEFAULT_RETRY_COUNT) {
