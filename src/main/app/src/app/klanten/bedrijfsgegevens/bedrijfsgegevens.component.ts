@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, computed, input, output, signal } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -10,7 +11,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { buildBedrijfRouteLink } from "../klanten-routing.module";
 import { KlantenService } from "../klanten.service";
-import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "zac-bedrijfsgegevens",
