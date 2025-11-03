@@ -39,7 +39,7 @@ export class BedrijfsgegevensComponent {
   protected vestigingsprofiel =
     signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
 
-  get bedrijfNotFound(): HttpErrorResponse | null {
+  get bedrijfNotFound() {
     const err = this.bedrijfQuery.error();
     return err instanceof HttpErrorResponse && err.status === 404 ? err : null;
   }
