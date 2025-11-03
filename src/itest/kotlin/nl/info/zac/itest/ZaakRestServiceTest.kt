@@ -37,7 +37,6 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_UUID
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
@@ -321,8 +320,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                         "informatieobjecttypes": [
                           "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
-                          "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
-                          "$INFORMATIE_OBJECT_TYPE_EMAIL_UUID"
+                          "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                         ],
                         "nuGeldig": true,
                         "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",

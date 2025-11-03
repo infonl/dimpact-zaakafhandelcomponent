@@ -52,14 +52,12 @@ INSERT INTO "entity_type" ("id", "entity_type_id", "type", "name", "uri") VALUES
     ('5b5d4f41-4c9c-4ff3-b59e-2f6a0f7f1d6c','Test zaaktype 1', 'zaaktype', 'Test zaaktype 1', 'https://example.com/zaaktype/8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a'),
     ('a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1','BPMN test zaaktype', 'zaaktype', 'BPMN test zaaktype', 'https://example.com/zaaktype/26076928-ce07-4d5d-8638-c2d276f6caca'),
     ('0db3c76a-2911-48c7-a24c-f6e4f3b18c48','Test zaaktype 2', 'zaaktype', 'Test zaaktype 2', 'https://example.com/zaaktype/fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
-    ('e9dbe8f7-7b30-41d2-bb0d-187d4a4d6822','Test zaaktype 3', 'zaaktype', 'Test zaaktype 3', 'https://example.com/zaaktype/448356ff-dcfb-4504-9501-7fe929077c4f'),
-    ('27b8456a-d825-4fff-8182-f0eaf1f1cc6e','Test zaaktype 4', 'zaaktype', 'Test zaaktype 4', 'https://example.com/zaaktype/cc219383-74fb-42fd-98ec-8fb0758504d0');
+    ('e9dbe8f7-7b30-41d2-bb0d-187d4a4d6822','Test zaaktype 3', 'zaaktype', 'Test zaaktype 3', 'https://example.com/zaaktype/448356ff-dcfb-4504-9501-7fe929077c4f');
 
 -- create mappings between entity types and domains
 INSERT INTO "domain_entity_type" ("domain_id", "entity_types_id") VALUES
     ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_2'), (SELECT "id" FROM "entity_type" WHERE "entity_type_id" = 'Test zaaktype 1')),
     ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_1'), (SELECT "id" FROM "entity_type" WHERE "name" = 'BPMN test zaaktype')),
     ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_1'), (SELECT "id" FROM "entity_type" WHERE "name" = 'Test zaaktype 2')),
-    ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_1'), (SELECT "id" FROM "entity_type" WHERE "name" = 'Test zaaktype 3')),
-    ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_1'), (SELECT "id" FROM "entity_type" WHERE "name" = 'Test zaaktype 4'));;
+    ((SELECT "id" FROM "domain" WHERE "name" = 'domein_test_1'), (SELECT "id" FROM "entity_type" WHERE "name" = 'Test zaaktype 3'));
 

@@ -683,21 +683,7 @@ class ProductaanvraagService @Inject constructor(
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
-        val emailInformationObjectFound = zaaktype.informatieobjecttypen
-            .map { ztcClientService.readInformatieobjecttype(it) }
-            .any { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
-        if (!emailInformationObjectFound) {
-            LOG.warning {
-                "No email information object type found for zaaktype UUID ${zaak.zaaktype.extractUuid()}. Zaak ${zaak.identificatie} " +
-                    "created for ${generateProductaanvraagDescription(productaanvraagDimpact)} will not contain an attached email document."
-            }
-        }
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
-            zaak,
-            initiator,
-            zaaktypeCmmnConfiguration,
-            emailInformationObjectFound
-        )
+        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
     }
 
     private fun createZaak(

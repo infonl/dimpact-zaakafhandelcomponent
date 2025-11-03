@@ -41,7 +41,6 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -236,7 +235,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
-            val informatieobjecttype = createInformatieObjectType()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
@@ -308,13 +306,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-            every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
-                    zaaktypeCmmnConfiguration,
-                    false
+                    zaaktypeCmmnConfiguration
                 )
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
@@ -372,10 +368,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
-        containing a betrokkene with role initiator and type vestiging and zaaktypeCmmnConfiguration
-        that have the KVK koppeling disabled
-        """
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            containing a betrokkene with role initiator and type vestiging and zaaktypeCmmnConfiguration
+            that have the KVK koppeling disabled
+            """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
@@ -438,10 +434,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
-        containing a betrokkene with role initiator and type vestiging with an invalid kvk nummer
-        and zaaktypeCmmnConfiguration that have the KVK koppeling enabled 
-        """
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            containing a betrokkene with role initiator and type vestiging with an invalid kvk nummer
+            and zaaktypeCmmnConfiguration that have the KVK koppeling enabled 
+            """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
@@ -502,10 +498,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
-        containing a betrokkene with role initiator and type vestiging and zaaktypeCmmnConfiguration
-        that have the BRP koppeling enabled
-        """
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            containing a betrokkene with role initiator and type vestiging and zaaktypeCmmnConfiguration
+            that have the BRP koppeling enabled
+            """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
@@ -518,7 +514,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
-            val informatieobjecttype = createInformatieObjectType()
             val formulierBron = createBron()
             val vestigingsNummer = createRandomVestigingsNumber()
             val kvkNummer = createRandomKvkNumber()
@@ -567,13 +562,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolType)
-            every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
-                    zaaktypeCmmnConfiguration,
-                    false
+                    zaaktypeCmmnConfiguration
                 )
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
@@ -708,9 +701,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
-        not containing any betrokkenen
-        """
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
+            not containing any betrokkenen
+            """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
@@ -723,7 +716,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID
             )
-            val informatieobjecttype = createInformatieObjectType()
             val formulierBron = createBron()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
@@ -756,7 +748,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
-            every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieobjecttype
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
 
@@ -1051,9 +1042,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-        A productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
-        with a default group, but an exception occurs when adding a zaakinformatieobject
-        """
+            A productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            with a default group, but an exception occurs when adding a zaakinformatieobject
+            """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
@@ -1132,13 +1123,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
                     }
                 }
-                And("no automatic reply email should be sent (this behaviour may change in the future)") {
-                    verify(exactly = 0) {
+                And("automatic reply email should be sent") {
+                    verify(exactly = 1) {
                         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                             any(),
                             any(),
-                            any(),
-                            true
+                            any()
                         )
                     }
                 }
@@ -1386,7 +1376,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 And("no email notification should be sent") {
                     verify(exactly = 0) {
-                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any(), true)
+                        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(any(), any(), any())
                     }
                 }
             }
