@@ -91,7 +91,7 @@ class BpmnService @Inject constructor(
             .businessKey(zaak.uuid.toString())
             .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
             .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktypeUUID)
+            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUID, zaaktypeUUID)
             .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
         zaakData?.let(processInstanceBuilder::variables)
         processInstanceBuilder.start()

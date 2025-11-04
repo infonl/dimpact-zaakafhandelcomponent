@@ -161,7 +161,7 @@ export class InformatieObjectViewComponent
           "actie.downloaden",
           this.informatieObjectenService.getDownloadURL(
             this.infoObject.uuid!,
-            this.infoObject.versie,
+            this.infoObject.versie!,
           ),
           "save_alt",
         ),
@@ -439,11 +439,12 @@ export class InformatieObjectViewComponent
   private loadZaak() {
     const zaakobject = this.zaakInformatieObjecten.at(0);
     if (!this.zaak && zaakobject?.zaakIdentificatie) {
-      this.zakenService
-        .readZaakByID(zaakobject.zaakIdentificatie)
-        .subscribe((zaak) => {
-          this.zaak = zaak;
-        });
+      // TODO: fetch zaak using queryclient
+      // this.zakenService
+      //   .readZaakByID(zaakobject.zaakIdentificatie)
+      //   .subscribe((zaak) => {
+      //     this.zaak = zaak;
+      //   });
     }
   }
 }

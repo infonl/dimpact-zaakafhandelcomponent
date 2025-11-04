@@ -3,24 +3,26 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { ZakenService } from "./zaken.service";
+import {QueryClient} from "@tanstack/angular-query-experimental";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZaakIdentificatieResolver {
-  constructor(private zakenService: ZakenService) {}
+  private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient)
 
   resolve(route: ActivatedRouteSnapshot) {
     const zaakID = route.paramMap.get("zaakIdentificatie");
     if (!zaakID) {
       throw new Error(
-        `${ZaakIdentificatieResolver.name}: No 'zaakID' found in route`,
+        `${ZaakIdentificatieResolver.name}: No 'zaakID' found in route`
       );
     }
 
-    return this.zakenService.readZaakByID(zaakID);
+    return this.queryClient.ensureQueryData(this.zakenService.readZaakByID(zaakID));
   }
 }

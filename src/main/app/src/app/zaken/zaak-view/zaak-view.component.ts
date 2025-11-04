@@ -6,7 +6,7 @@
 import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
-  Component,
+  Component, effect,
   inject,
   OnDestroy,
   OnInit,
@@ -19,7 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {injectQuery, QueryClient} from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -76,6 +76,11 @@ export class ZaakViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   private readonly queryClient = inject(QueryClient);
+
+  private readonly readZaakQuery = injectQuery(() => ({
+    ...this.zakenService.readZaak(this.zaak.uuid),
+    refetchOnWindowFocus: true,
+  }))
 
   readonly indicatiesLayout = IndicatiesLayout;
   zaak!: GeneratedType<"RestZaak">;
@@ -179,6 +184,11 @@ export class ZaakViewComponent
     private policyService: PolicyService,
   ) {
     super();
+    effect(() => {
+      const data = this.readZaakQuery.data()
+      if(!data) return
+      this.init(data)
+    });
   }
 
   ngOnInit() {
@@ -933,10 +943,10 @@ export class ZaakViewComponent
     }
   }
 
-  public updateZaak() {
-    this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-      this.init(zaak);
-    });
+  public async updateZaak() {
+    const {data} =await this.readZaakQuery.refetch();
+    if(!data) return
+    this.init(data)
   }
 
   private loadHistorie() {
@@ -1139,10 +1149,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-          this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zaak = zaak;
-            this.loadHistorie();
-          });
+          void this.readZaakQuery.refetch();
         }
       });
   }
@@ -1203,11 +1210,7 @@ export class ZaakViewComponent
             "msg.betrokkene.ontkoppelen.uitgevoerd",
             { betrokkene: betrokkeneIdentificatie },
           );
-          this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zaak = zaak;
-            this.loadHistorie();
-            this.loadBetrokkenen();
-          });
+          void this.readZaakQuery.refetch();
         }
       });
   }

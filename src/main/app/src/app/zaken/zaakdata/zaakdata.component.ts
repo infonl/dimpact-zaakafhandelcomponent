@@ -3,136 +3,62 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import {Component, effect, inject, input} from "@angular/core";
 import {
-  AbstractControl,
-  FormArray,
   FormBuilder,
-  FormControl,
-  FormGroup,
+  Validators,
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
+import {injectMutation, injectQuery, QueryClient} from "@tanstack/angular-query-experimental";
 
 @Component({
   selector: "zac-zaakdata",
   templateUrl: "./zaakdata.component.html",
 })
-export class ZaakdataComponent implements OnInit {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input() readonly = false;
-  bezigMetOpslaan = false;
-  form?: FormGroup;
-  procesVariabelen: string[] = [];
+export class ZaakdataComponent {
+  private readonly formBuilder = inject(FormBuilder)
+  private readonly zakenService = inject(ZakenService)
+  private readonly queryClient = inject(QueryClient)
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private zakenService: ZakenService,
-  ) {}
+  protected readonly zaak = input.required<GeneratedType<"RestZaak">>()
+  protected readonly sideNav = input.required<MatDrawer>()
+  protected readonly readonly = input<boolean>(false)
 
-  ngOnInit(): void {
-    this.zakenService.listProcesVariabelen().subscribe((data) => {
-      this.procesVariabelen = data;
-      this.form = this.buildForm(
-        this.zaak.zaakdata,
-        this.formBuilder.group({}),
-      );
-      if (this.readonly) {
-        this.form.disable();
-      }
+  protected readonly form = this.formBuilder.group({})
+
+  protected readonly procesVariabeleQuery = injectQuery(() => this.zakenService.listProcesVariabelen())
+
+  protected readonly updateZaakDataMutation = injectMutation(() => ({
+    ...this.zakenService.updateZaakdata(),
+    onSuccess: async () => {
+      await this.queryClient.invalidateQueries({
+        queryKey: this.zakenService.readZaak(this.zaak().uuid).queryKey
+      })
+      void this.sideNav().close()
+    }
+  }))
+
+  constructor() {
+    effect(() => {
+      const zaakData = this.zaak().zaakdata
+      const procesVariabele = this.procesVariabeleQuery.data()
+      if(!zaakData || !procesVariabele) return
+
+      Array.from(Object.entries(zaakData)).forEach(([key, value]) => {
+        const hasOriginalValue = value !== null && value !== undefined
+        const control =  this.formBuilder.control(value, hasOriginalValue ? Validators.required : undefined)
+        if(this.readonly() || procesVariabele.includes(key)) control.disable()
+        this.form.addControl(key,control)
+      })
     });
   }
 
-  buildForm(data: Record<string, unknown>, formData: FormGroup): FormGroup {
-    for (const [k, v] of Object.entries(data)) {
-      formData.addControl(k, this.getControl(v, this.isProcesVariabele(k)));
-    }
-    return formData;
-  }
-
-  buildArray(values: unknown[], proces: boolean): FormArray {
-    if (!values?.length) {
-      return this.formBuilder.array([[]]);
-    }
-    return this.formBuilder.array(
-      values.map((value) => this.getControl(value, proces)),
-    );
-  }
-
-  getControl(value: unknown, proces: boolean): AbstractControl {
-    if (this.isValue(value)) {
-      return new FormControl({ value: value, disabled: proces });
-    } else if (this.isFile(value)) {
-      return new FormControl({
-        value: (value as File)["originalName"],
-        disabled: true,
-      });
-    } else if (Array.isArray(value)) {
-      return this.buildArray(value, proces);
-    } else if (this.isObject(value)) {
-      return this.buildForm(
-        value as Record<string, unknown>,
-        this.formBuilder.group({}),
-      );
-    }
-
-    return new FormControl({ value: value, disabled: proces });
-  }
-
-  isProcesVariabele(key: string): boolean {
-    return this.procesVariabelen.includes(key);
-  }
-
-  isFile(data?: unknown) {
-    if (!data) {
-      return false;
-    }
-
-    if (typeof data !== "object") {
-      return false;
-    }
-
-    return "originalName" in data;
-  }
-
-  isObject(data: unknown) {
-    return typeof data === "object" && !Array.isArray(data) && data !== null;
-  }
-
-  isValue(data: unknown) {
-    return !this.isObject(data) && !Array.isArray(data);
-  }
-
-  opslaan(): void {
-    this.mergeDeep(this.zaak.zaakdata ?? {}, this.form?.value);
-    this.bezigMetOpslaan = true;
-    this.zakenService.updateZaakdata(this.zaak).subscribe(() => {
-      this.bezigMetOpslaan = false;
-      this.sideNav.close();
-    });
-  }
-
-  mergeDeep(dest: Record<string, unknown>, src: Record<string, unknown>): void {
-    Object.keys(src).forEach((key) => {
-      if (key === "__proto__" || key === "constructor") return;
-      const destVal = dest[key];
-      const srcVal = src[key];
-      if (Array.isArray(destVal) && Array.isArray(srcVal)) {
-        dest[key] = destVal.concat(...srcVal);
-      } else if (
-        key in dest &&
-        this.isObject(destVal) &&
-        this.isObject(srcVal)
-      ) {
-        this.mergeDeep(
-          destVal as Record<string, unknown>,
-          srcVal as Record<string, unknown>,
-        );
-      } else {
-        dest[key] = srcVal;
-      }
-    });
+  formSubmit() {
+    this.updateZaakDataMutation.mutate({
+      uuid: this.zaak().uuid,
+      zaakdata: this.form.value
+    })
   }
 }

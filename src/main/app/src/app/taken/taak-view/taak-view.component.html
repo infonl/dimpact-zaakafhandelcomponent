@@ -32,7 +32,7 @@
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
-      [zaak]="zaak"
+      [zaak]="readZaakQuery.data()"
       [taak]="taak"
       [smartDocumentsGroupPath]="smartDocumentsGroupPath"
       [smartDocumentsTemplateName]="smartDocumentsTemplateName"
@@ -52,9 +52,14 @@
       actionLabel="actie.document.verplaatsen"
       [infoObject]="documentToMove"
       [sideNav]="actionsSidenav"
-      [source]="zaak?.identificatie"
+      [source]="readZaakQuery.data()?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
     />
+      <zac-zaakdata
+              *ngSwitchCase="'actie.zaakdata.bekijken'"
+              [sideNav]="actionsSidenav"
+              [zaak]="readZaakQuery.data()"
+      ></zac-zaakdata>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
@@ -83,7 +88,7 @@
               (formSubmit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
               [waarden]="taak?.taakdata"
-              [zaak]="zaak"
+              [zaak]="readZaakQuery.data()"
               [readonly]="isReadonly()"
             ></zac-formulier>
             <zac-formio-wrapper
@@ -134,7 +139,7 @@
                       [formField]="editFormFields.get('medewerker-groep')"
                       [readonly]="
                         this.taak?.status === this.TaakStatusAfgerond ||
-                        !this.taak?.rechten.toekennen
+                        !this.taak?.rechten?.toekennen
                       "
                       (saveField)="editToewijzing($event)"
                       [reasonField]="editFormFields.get('reden')"
@@ -250,19 +255,19 @@
         </mat-card>
 
         <zac-zaak-verkort
-          *ngIf="zaak"
+          *ngIf="readZaakQuery.data()"
           class="zaak-card"
-          [zaak]="zaak"
+          [zaak]="readZaakQuery.data()"
         ></zac-zaak-verkort>
       </div>
     </div>
     <zac-zaak-documenten
       #zaakDocumentenComponent
-      *ngIf="initialized"
-      [zaak]="zaak"
+      *ngIf="readZaakQuery.data()"
+      [zaak]="readZaakQuery.data()"
       (documentMoveToCase)="documentMoveToCase($event)"
     ></zac-zaak-documenten>
-    <mat-card *ngIf="!initialized">
+    <mat-card *ngIf="!readZaakQuery.data()">
       <mat-card-header>
         <mat-card-title>{{
           "enkelvoudigInformatieObjecten" | translate

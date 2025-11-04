@@ -17,13 +17,13 @@ export class ZakenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   readZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
+    return this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}", {
       path: { uuid },
     });
   }
 
   readZaakByID(identificatie: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/id/{identificatie}", {
+    return this.zacQueryClient.GET("/rest/zaken/zaak/id/{identificatie}", {
       path: { identificatie },
     });
   }
@@ -92,8 +92,8 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
-  updateZaakdata(zaak: PutBody<"/rest/zaken/zaakdata">) {
-    return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak);
+  updateZaakdata() {
+    return this.zacQueryClient.PUT("/rest/zaken/zaakdata");
   }
 
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
@@ -268,6 +268,6 @@ export class ZakenService {
   }
 
   listProcesVariabelen() {
-    return this.zacHttpClient.GET("/rest/zaken/procesvariabelen");
+    return this.zacQueryClient.GET("/rest/zaken/procesvariabelen");
   }
 }

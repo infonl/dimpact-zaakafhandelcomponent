@@ -12,7 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUUID
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.client.zgw.model.createZaak
@@ -105,7 +105,7 @@ class BpmnServiceTest : BehaviorSpec({
                 .businessKey(zaakUUID.toString())
                 .variable(VAR_ZAAK_UUID, zaakUUID)
                 .variable(VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-                .variable(VAR_ZAAKTYPE_UUUID, zaakTypeUUID)
+                .variable(VAR_ZAAKTYPE_UUID, zaakTypeUUID)
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaakType.omschrijving)
         } returns processInstanceBuilder
         every { processInstanceBuilder.variables(zaakData) } returns processInstanceBuilder

@@ -488,7 +488,6 @@ class ProductaanvraagService @Inject constructor(
                     productaanvraagDimpact = productaanvraag,
                     productaanvraagObject = productaanvraagObject
                 )
-
             hasBpmnDefinition ->
                 processProductaanvraagWithBpmnZaaktype(
                     zaaktypeBpmnConfiguration = zaaktypeBpmnProcessDefinition,
@@ -603,7 +602,7 @@ class ProductaanvraagService @Inject constructor(
             zaak = zaak,
             zaaktype = zaaktype,
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
-            zaakData = buildMap {
+            zaakData = getAanvraaggegevens(productaanvraagObject) + buildMap {
                 put(VAR_ZAAK_GROUP, zaaktypeBpmnConfiguration.groupId)
             }
         )

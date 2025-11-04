@@ -7,32 +7,38 @@
   <mat-icon>folder_copy</mat-icon>
   <h3 class="flex-grow-1">
     {{
-      (readonly ? "actie.zaakdata.bekijken" : "actie.zaakdata.wijzigen")
+      (readonly() ? "actie.zaakdata.bekijken" : "actie.zaakdata.wijzigen")
         | translate
     }}
   </h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<zac-zaakdata-form class="zaak-data-form" [formItem]="form"></zac-zaakdata-form>
+<form [formGroup]="form" (ngSubmit)="formSubmit()" class="mt-2">
+    <fieldset>
+        <section class="row">
+    @for(control of form.controls | keyvalue; track control) {
+        <zac-input [form]="form" class="col-12" [key]="control.key"></zac-input>
+    }
+        </section>
+    </fieldset>
+    <fieldset *ngIf="!readonly()">
+        <mat-action-row>
+            <button
+                    mat-raised-button
+                    type="submit"
+                    color="primary"
+                    [disabled]="!form.valid || updateZaakDataMutation.isPending()"
+            >
+                {{ "actie.opslaan" | translate }}
+            </button>
+            <button type="button" mat-raised-button (click)="sideNav().close()">
+                {{ "actie.annuleren" | translate }}
+            </button>
+        </mat-action-row>
+    </fieldset>
+</form>
 
-<div class="pl-3" *ngIf="!readonly">
-  <button
-    mat-raised-button
-    [disabled]="bezigMetOpslaan"
-    color="primary"
-    (click)="opslaan()"
-  >
-    {{ "actie.opslaan" | translate }}
-  </button>
-  <button
-    mat-raised-button
-    [disabled]="bezigMetOpslaan"
-    (click)="sideNav.close()"
-  >
-    {{ "actie.annuleren" | translate }}
-  </button>
-</div>
