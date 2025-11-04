@@ -45,25 +45,20 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "get",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return {
-      ...queryOptions<Response<Path, Method>>({
+    return queryOptions<Response<Path, Method>, HttpErrorResponse>({
         queryKey: [url, ...args],
         queryFn: () =>
           lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
-      }),
-      retry: (failureCount: number, error: unknown) => {
-        if (failureCount >= DEFAULT_RETRY_COUNT) {
-          return false;
-        }
-        return (
-          (error as HttpErrorResponse).status === 0 ||
-          (error as HttpErrorResponse).status >= 500
-        );
-      },
-      refetchOnWindowFocus: false,
-      staleTime: StaleTimes.Long,
-      gcTime: StaleTimes.Long * 2,
-    };
+        retry: (failureCount: number, error) => {
+            if (failureCount >= DEFAULT_RETRY_COUNT) {
+                return false;
+            }
+            return ( error.status === 0 || error.status >= 500 );
+        },
+        refetchOnWindowFocus: true,
+        staleTime: StaleTimes.Instant,
+        gcTime: StaleTimes.Long * 2,
+    })
   }
 
   public POST<

@@ -16,6 +16,13 @@
           [matTooltip]="'msg.hint.kvk.outdated' | translate"
           >warning</mat-icon
         >
+      } @else if (bedrijfQuery.error()) {
+        <mat-icon
+          class="mr-2"
+          color="warn"
+          [matTooltip]="'msg.hint.kvk.other-error' | translate"
+          >error</mat-icon
+        >
       }
     </mat-panel-title>
     <mat-panel-description>
