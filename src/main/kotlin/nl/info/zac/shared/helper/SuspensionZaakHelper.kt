@@ -29,10 +29,8 @@ class SuspensionZaakHelper @Inject constructor(
     }
 
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
-        policyService.readZaakRechten(zaak).let {
-            assertPolicy(it.opschorten)
-            assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
-        }
+        assertPolicy(policyService.readZaakRechten(zaak).opschorten)
+        assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
 
         val zaakUUID = zaak.uuid
         val toelichting = "$SUSPENSION: $suspensionReason"
@@ -51,10 +49,8 @@ class SuspensionZaakHelper @Inject constructor(
     }
 
     fun resumeZaak(zaak: Zaak, resumeReason: String?): Zaak {
-        policyService.readZaakRechten(zaak).let {
-            assertPolicy(it.hervatten)
-            assertPolicy(zaak.isOpgeschort())
-        }
+        assertPolicy(policyService.readZaakRechten(zaak).hervatten)
+        assertPolicy(zaak.isOpgeschort())
 
         val zaakUUID = zaak.uuid
         val datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) ?: ZonedDateTime.now()

@@ -476,7 +476,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
         When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
             every {
-                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(), any()
                 )
             } just Runs
@@ -492,7 +492,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
         When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
             every {
-                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(),
                     any()
                 )

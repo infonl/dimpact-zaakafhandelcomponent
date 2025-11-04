@@ -473,10 +473,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @QueryParam("zaak") zaakUUID: UUID
     ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
-        assertPolicy(
-            policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
-        )
-        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        assertPolicy(policyService.readDocumentRechten(document, zaak).wijzigen)
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
             document,
             enkelvoudigInformatieobjectUUID
         )
