@@ -18,11 +18,7 @@
             "maxLength": 256
           }
         },
-        "required": [
-          "id",
-          "name",
-          "application"
-        ]
+        "required": ["id", "name", "application"]
       }
     },
     "functionalRoles": {
@@ -38,10 +34,7 @@
             "maxLength": 256
           }
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        "required": ["id", "name"]
       }
     },
     "entityTypes": {
@@ -65,19 +58,11 @@
             "maxLength": 256
           },
           "uri": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "uri"
           }
         },
-        "required": [
-          "id",
-          "entityTypeId",
-          "type",
-          "name"
-        ]
+        "required": ["id", "entityTypeId", "type", "name"]
       }
     },
     "domains": {
@@ -103,12 +88,7 @@
             }
           }
         },
-        "required": [
-          "id",
-          "name",
-          "description",
-          "entityTypeIds"
-        ]
+        "required": ["id", "name", "description", "entityTypeIds"]
       }
     },
     "mappings": {
@@ -123,10 +103,7 @@
             "$ref": "#/$defs/guid"
           },
           "domainId": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "applicationRoleId": {
@@ -136,20 +113,14 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "id",
-          "functionalRoleId",
-          "applicationRoleId"
-        ],
+        "required": ["id", "functionalRoleId", "applicationRoleId"],
         "if": {
           "properties": {
             "isAllEntityTypes": {
               "const": true
             }
           },
-          "required": [
-            "isAllEntityTypes"
-          ]
+          "required": ["isAllEntityTypes"]
         },
         "then": {
           "properties": {
