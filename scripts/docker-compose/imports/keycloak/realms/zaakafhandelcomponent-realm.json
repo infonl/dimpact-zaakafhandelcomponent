@@ -679,8 +679,8 @@
     },
     {
       "id": "0f9d399d-8eb2-4bde-aaf7-8760419a75e9",
-      "name": "raadplegers_test_1",
-      "path": "/raadplegers_test_1",
+      "name": "raadplegers-test-1",
+      "path": "/raadplegers-test-1",
       "attributes": {
         "description": ["Test group Raadplegers domein test 1 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
@@ -693,8 +693,8 @@
     },
     {
       "id": "d9c72935-8825-4d59-8d51-04976edd6880",
-      "name": "raadplegers_test_2",
-      "path": "/raadplegers_test_2",
+      "name": "raadplegers-test-2",
+      "path": "/raadplegers-test-2",
       "attributes": {
         "description": ["Test group Raadplegers domein test 2 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
@@ -2770,6 +2770,58 @@
       "realmRoles": ["default-roles-zac"],
       "notBefore": 0,
       "groups": ["/test-group-rp"]
+    },
+    {
+      "id": "17fa0786-159a-4939-ad74-03bad203fb4e",
+      "username": "raadpleger1newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger 1 - new IAM",
+      "email": "${ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "a593288f-b25f-4d9b-acd7-37de31705596",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"A/LHXHN0lEIaeG4h5HvuqDVCGAhRfTCUx1L6bWH0Pek=\",\"salt\":\"n9XqApsU9kQUt0aQ/Ox1iA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-1"]
+    },
+    {
+      "id": "584cc6b7-275e-4e44-86fc-d9703f3733bc",
+      "username": "raadpleger2newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger 2 - new IAM",
+      "email": "${ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "3a7b1841-4e28-443c-a61f-19b2139a0a6a",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"6/+cneOZEc5/FPzF2AdijvHYEVHUmJmCEgqDN9CAOSg=\",\"salt\":\"Js7ah2+SYp4977ESe8Hz+A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-2"]
     },
     {
       "id": "acfd57fa-a72a-44a4-9dcf-d904e819a044",
