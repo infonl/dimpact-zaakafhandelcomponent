@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpErrorResponse } from "@angular/common/http";
 import { Component, computed, input, output, signal } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -38,11 +37,6 @@ export class BedrijfsgegevensComponent {
 
   protected vestigingsprofiel =
     signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
-
-  get bedrijfNotFound() {
-    const err = this.bedrijfQuery.error();
-    return err instanceof HttpErrorResponse && err.status === 404 ? err : null;
-  }
 
   protected warningIcon = new TextIcon(
     () => true,

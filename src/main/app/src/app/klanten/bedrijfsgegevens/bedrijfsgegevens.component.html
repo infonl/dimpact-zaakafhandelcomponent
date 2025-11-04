@@ -9,7 +9,7 @@
       <span class="mr-2">{{ "initiator.titel" | translate }}</span>
       @if (bedrijfQuery.isLoading()) {
         <mat-spinner diameter="14" />
-      } @else if (bedrijfNotFound) {
+      } @else if (bedrijfQuery.error()?.status === 404) {
         <mat-icon
           class="mr-2"
           color="warn"
