@@ -321,25 +321,17 @@ class ProductaanvraagService @Inject constructor(
         betrokkene: Betrokkene,
         roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
         zaak: Zaak
-    ) {
-        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
-            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
-            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
-    }
+    ) = ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
+        .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+        .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
 
     private fun addBetrokkene(
         betrokkene: Betrokkene,
         roltypeOmschrijving: String,
         zaak: Zaak
-    ) {
-        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
-            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
-            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
-            ?: LOG.warning(
-                "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                    "productaanvraag. No betrokkene role created for zaak ${zaak.identificatie}."
-            )
-    }
+    ) = ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
+        .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
+        .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
 
     private fun logRoltypenWarnings(
         types: List<RolType>,
