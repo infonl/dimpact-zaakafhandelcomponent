@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import {
   mutationOptions,
@@ -26,6 +27,14 @@ import { HttpClient, Response } from "./http-client";
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 export const DEFAULT_RETRY_COUNT = 3;
 
+export enum StaleTimes {
+  Infinite = Infinity,
+  Long = 5 * 60 * 1000,
+  Medium = 60 * 1000,
+  Short = 15 * 1000,
+  Instant = 0,
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -36,10 +45,19 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "get",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return queryOptions<Response<Path, Method>>({
+    return queryOptions<Response<Path, Method>, HttpErrorResponse>({
       queryKey: [url, ...args],
       queryFn: () =>
         lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
+      retry: (failureCount: number, error) => {
+        if (failureCount >= DEFAULT_RETRY_COUNT) {
+          return false;
+        }
+        return error.status === 0 || error.status >= 500;
+      },
+      refetchOnWindowFocus: false,
+      staleTime: StaleTimes.Long,
+      gcTime: StaleTimes.Long * 2,
     });
   }
 

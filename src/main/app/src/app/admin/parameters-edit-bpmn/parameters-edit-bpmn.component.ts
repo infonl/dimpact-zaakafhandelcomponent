@@ -4,6 +4,7 @@
  */
 
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute } from "@angular/router";
@@ -62,7 +63,7 @@ export class ParametersEditBpmnComponent {
     { label: "BPMN", value: "BPMN" },
   ];
 
-  cmmnBpmnFormGroup = this.formBuilder.group({
+  protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
       value: ZaakProcessSelect;
       label: string;
@@ -90,7 +91,7 @@ export class ParametersEditBpmnComponent {
     protected readonly utilService: UtilService,
     public readonly dialog: MatDialog,
   ) {
-    this.route.data.subscribe(async (data) => {
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       if (!data?.parameters?.zaakafhandelParameters) {
         return;
       }
@@ -101,7 +102,7 @@ export class ParametersEditBpmnComponent {
         data.parameters.isSavedZaakafhandelParameters;
       this.bpmnDefinitions = data.parameters.bpmnProcessDefinitionsList || [];
 
-      await this.createForm();
+      this.createForm();
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
