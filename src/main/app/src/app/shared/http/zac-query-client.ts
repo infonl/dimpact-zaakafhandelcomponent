@@ -55,8 +55,8 @@ export class ZacQueryClient {
         }
         return error.status === 0 || error.status >= 500;
       },
-      refetchOnWindowFocus: true,
-      staleTime: StaleTimes.Instant,
+      refetchOnWindowFocus: false,
+      staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
     });
   }
