@@ -446,7 +446,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { identityService.readUser(gebruikersnaamMedewerker) } returns createUser()
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-            every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns listOf(rolTypeBehandelaar)
+            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                     createdZaak,
@@ -1215,7 +1215,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupId) } returns group
-            every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns listOf(behandelaarRolType)
+            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns behandelaarRolType
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
 
             When("the productaanvraag is handled") {
@@ -1459,8 +1459,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { configuratieService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.findRoltypen(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
-            } returns listOf(behandelaarRolType)
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns behandelaarRolType
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
 
             When("the productaanvraag is handled") {

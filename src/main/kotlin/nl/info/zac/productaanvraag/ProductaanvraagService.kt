@@ -419,41 +419,32 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun assignZaakToGroup(zaak: Zaak, groupName: String, productaanvraagDimpact: ProductaanvraagDimpact) {
-        createRolGroep(groupName, zaak)?.let {
-            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to group: '$groupName'")
-            zrcClientService.createRol(it)
-        } ?: LOG.warning(
-            "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
-                "Cannot assign zaak with UUID '${zaak.uuid}' to group: '$groupName'." +
-                "Zaak was created for ${generateProductaanvraagDescription(productaanvraagDimpact)}"
-        )
+    private fun assignZaakToGroup(zaak: Zaak, groupName: String) {
+        LOG.info("Assigning zaak with UUID '${zaak.uuid}' to group: '$groupName'")
+        zrcClientService.createRol(createRolGroep(groupName, zaak))
     }
 
-    private fun assignZaakToEmployee(zaak: Zaak, employeeName: String, productaanvraagDimpact: ProductaanvraagDimpact) {
-        createRolMedewerker(employeeName, zaak)?.let {
-            LOG.info("Assigning zaak with UUID '${zaak.uuid}' to employee: '$employeeName'")
-            zrcClientService.createRol(it)
-        } ?: LOG.warning(
-            "Missing behandelaar roltype for zaaktype UUID '${zaak.zaaktype.extractUuid()}'. " +
-                "Cannot assign zaak ${zaak.identificatie} with UUID '${zaak.uuid}' to employee: '$employeeName'. " +
-                "Zaak was created for ${generateProductaanvraagDescription(productaanvraagDimpact)}"
-        )
+    private fun assignZaakToEmployee(zaak: Zaak, employeeName: String) {
+        LOG.info("Assigning zaak '${zaak.uuid}' to employee: '$employeeName'")
+        zrcClientService.createRol(createRolMedewerker(employeeName, zaak))
     }
 
-    private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid? =
+    private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid =
         identityService.readGroup(groepID).let {
             OrganisatorischeEenheidIdentificatie().apply {
                 identificatie = it.id
                 naam = it.name
             }
         }.let { organisatieEenheid ->
-            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
-                RolOrganisatorischeEenheid(zaak.url, it, "Behandelend groep van de zaak", organisatieEenheid)
-            }
+            RolOrganisatorischeEenheid(
+                zaak.url,
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
+                "Behandelend groep van de zaak",
+                organisatieEenheid
+            )
         }
 
-    private fun createRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker? =
+    private fun createRolMedewerker(employeeName: String, zaak: Zaak): RolMedewerker =
         identityService.readUser(employeeName).let {
             MedewerkerIdentificatie().apply {
                 identificatie = it.id
@@ -461,9 +452,12 @@ class ProductaanvraagService @Inject constructor(
                 achternaam = it.lastName
             }
         }.let { medewerker ->
-            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).firstOrNull()?.let {
-                RolMedewerker(zaak.url, it, "Behandelaar van de zaak", medewerker)
-            }
+            RolMedewerker(
+                zaak.url,
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
+                "Behandelaar van de zaak",
+                medewerker
+            )
         }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
@@ -625,11 +619,7 @@ class ProductaanvraagService @Inject constructor(
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
-        assignZaakToGroup(
-            zaak = zaak,
-            groupName = zaaktypeBpmnConfiguration.groupId,
-            productaanvraagDimpact
-        )
+        assignZaakToGroup(zaak, zaaktypeBpmnConfiguration.groupId)
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN
@@ -657,21 +647,13 @@ class ProductaanvraagService @Inject constructor(
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
         zaaktypeCmmnConfiguration.groepID?.run {
-            assignZaakToGroup(
-                zaak = zaak,
-                groupName = this,
-                productaanvraagDimpact = productaanvraagDimpact
-            )
+            assignZaakToGroup(zaak, this)
         } ?: LOG.warning(
             "No group ID found in zaaktypeCmmnConfiguration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
                 "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
         )
         zaaktypeCmmnConfiguration.gebruikersnaamMedewerker?.run {
-            assignZaakToEmployee(
-                zaak = zaak,
-                employeeName = this,
-                productaanvraagDimpact = productaanvraagDimpact
-            )
+            assignZaakToEmployee(zaak, this)
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
