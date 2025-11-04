@@ -34,6 +34,7 @@ export class BedrijfsgegevensComponent {
   protected vestigingsprofielOphalenMogelijk = computed(
     () => !!this.bedrijfQuery.data()?.vestigingsnummer,
   );
+
   protected vestigingsprofiel =
     signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
 
