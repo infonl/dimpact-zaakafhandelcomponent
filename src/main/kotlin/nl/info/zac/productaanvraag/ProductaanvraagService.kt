@@ -148,7 +148,8 @@ class ProductaanvraagService @Inject constructor(
         )
 
     fun pairProductaanvraagWithZaak(productaanvraag: ModelObject, zaakUrl: URI) {
-        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url).let(zrcClientService::createZaakobject)
+        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
+            .let(zrcClientService::createZaakobject)
     }
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI, throwException: Boolean = true) =
@@ -321,17 +322,25 @@ class ProductaanvraagService @Inject constructor(
         betrokkene: Betrokkene,
         roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
         zaak: Zaak
-    ) = ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
-        .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
-        .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+    ) {
+        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
+            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+    }
 
     private fun addBetrokkene(
         betrokkene: Betrokkene,
         roltypeOmschrijving: String,
         zaak: Zaak
-    ) = ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
-        .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
-        .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
+    ) {
+        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
+            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
+            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
+            ?: LOG.warning(
+                "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
+                    "productaanvraag. No betrokkene role created for zaak '$zaak'."
+            )
+    }
 
     private fun logRoltypenWarnings(
         types: List<RolType>,
@@ -349,7 +358,7 @@ class ProductaanvraagService @Inject constructor(
             types.size > 1 -> LOG.warning(
                 "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
                     "'$roltypeOmschrijving' and zaak ${zaak.identificatie}. " +
-                    "Using the first roltype (description: '${types.first().omschrijving}')."
+                    "Using the first one (description: '${types.first().omschrijving}')."
             )
         }
     }
@@ -376,7 +385,7 @@ class ProductaanvraagService @Inject constructor(
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                        "or KVK-number. No betrokkene role added to zaak ${zaak.identificatie}"
+                        "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
                 )
             }
         )
@@ -619,7 +628,10 @@ class ProductaanvraagService @Inject constructor(
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
-        assignZaakToGroup(zaak, zaaktypeBpmnConfiguration.groupId)
+        assignZaakToGroup(
+            zaak = zaak,
+            groupName = zaaktypeBpmnConfiguration.groupId,
+        )
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN
@@ -647,13 +659,19 @@ class ProductaanvraagService @Inject constructor(
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
         zaaktypeCmmnConfiguration.groepID?.run {
-            assignZaakToGroup(zaak, this)
+            assignZaakToGroup(
+                zaak = zaak,
+                groupName = this,
+            )
         } ?: LOG.warning(
             "No group ID found in zaaktypeCmmnConfiguration for zaak ${zaak.identificatie} with UUID '${zaak.uuid}'. " +
                 "No group role was assigned for this zaak created for ${generateProductaanvraagDescription(productaanvraagDimpact)}."
         )
         zaaktypeCmmnConfiguration.gebruikersnaamMedewerker?.run {
-            assignZaakToEmployee(zaak, this)
+            assignZaakToEmployee(
+                zaak = zaak,
+                employeeName = this,
+            )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
