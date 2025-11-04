@@ -676,6 +676,34 @@
           "raadpleger_domein_test_1"
         ]
       }
+    },
+    {
+      "id": "0f9d399d-8eb2-4bde-aaf7-8760419a75e9",
+      "name": "raadplegers_test_1",
+      "path": "/raadplegers_test_1",
+      "attributes": {
+        "description": ["Test group Raadplegers domein test 1 - new IAM"],
+        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "raadpleger_domein_test_1"
+        ]
+      }
+    },
+    {
+      "id": "d9c72935-8825-4d59-8d51-04976edd6880",
+      "name": "raadplegers_test_2",
+      "path": "/raadplegers_test_2",
+      "attributes": {
+        "description": ["Test group Raadplegers domein test 2 - new IAM"],
+        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "raadpleger_domein_test_2"
+        ]
+      }
     }
   ],
   "defaultRole": {
