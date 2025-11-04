@@ -696,7 +696,7 @@ services:
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
-      migrations.dataSetPath: "/app/json/pabc-mapping-data.json"
+      JSON_DATASET_PATH: "/app/json/pabc-mapping-data.json"
     depends_on:
       pabc-database:
         condition: "service_healthy"
@@ -712,9 +712,6 @@ services:
       HTTP_PORTS: "8000"
       API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
-      JSON_DATASET_PATH: "/app/json/pabc-mapping-data.json"
-    volumes:
-      - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
     ports:
       - "8006:8000"
     depends_on:
