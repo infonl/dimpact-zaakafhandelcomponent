@@ -686,9 +686,7 @@
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "raadpleger_domein_test_1"
-        ]
+        "zaakafhandelcomponent": ["raadpleger_domein_test_1"]
       }
     },
     {
@@ -700,9 +698,7 @@
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "raadpleger_domein_test_2"
-        ]
+        "zaakafhandelcomponent": ["raadpleger_domein_test_2"]
       }
     }
   ],
