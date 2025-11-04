@@ -19,8 +19,9 @@ import jakarta.ws.rs.core.MediaType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -78,6 +79,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnProcessDefinition.id
+            zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(
+                restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            ) ?: ZaaktypeCmmnConfiguration().apply {
+                zaakTypeUUID = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+                zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+            }
             zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
@@ -91,6 +98,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
+            zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(it.zaaktypeCmmnConfiguration)
             zaaktypeBpmnConfigurationService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }

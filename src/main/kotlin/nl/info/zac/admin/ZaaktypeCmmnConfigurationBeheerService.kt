@@ -15,8 +15,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.ZaakbeeindigReden
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
@@ -52,7 +52,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationBeheerService::class.java.name)
@@ -97,14 +96,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
-
-        zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(uuid)?.let {
-                throw ZaaktypeInUseException(
-                    "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
-                )
-            }
-        }
 
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
@@ -272,6 +263,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        mapBpmnConfiguration(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 
     private fun currentZaaktypeCmmnConfiguration(zaaktypeUuid: UUID): ZaaktypeCmmnConfiguration {
@@ -381,8 +373,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
 
         zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            zaakbeeindigParameter.resultaattype
-                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
+            mapVorigResultaattypeOpNieuwResultaattype(zaakbeeindigParameter.resultaattype, newResultaattypen)
                 ?.let {
                     ZaaktypeCmmnCompletionParameters().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
@@ -464,6 +455,23 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
             emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
             emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
+        }
+    }
+
+    private fun mapBpmnConfiguration(
+        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    ) = newZaaktypeCmmnConfiguration.apply {
+        previousZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.let { previousZaaktypeBpmnConfiguration ->
+            zaaktypeBpmnConfiguration = ZaaktypeBpmnConfiguration().apply {
+                zaaktypeUuid = newZaaktypeCmmnConfiguration.zaakTypeUUID!!
+                zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
+
+                zaaktypeOmschrijving = previousZaaktypeBpmnConfiguration.zaaktypeOmschrijving
+                bpmnProcessDefinitionKey = previousZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+                productaanvraagtype = previousZaaktypeBpmnConfiguration.productaanvraagtype
+                groupId = previousZaaktypeBpmnConfiguration.groupId
+            }
         }
     }
 }

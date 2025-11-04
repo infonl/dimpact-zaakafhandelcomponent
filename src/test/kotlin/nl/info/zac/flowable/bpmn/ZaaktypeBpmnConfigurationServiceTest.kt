@@ -21,8 +21,8 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.Optional
 import java.util.UUID

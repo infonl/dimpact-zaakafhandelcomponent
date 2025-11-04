@@ -2,13 +2,15 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.bpmn.model
+package nl.info.zac.admin.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
@@ -35,6 +37,11 @@ class ZaaktypeBpmnConfiguration {
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_configuration", strategy = GenerationType.SEQUENCE)
     var id: Long? = null
+
+    @OneToOne
+    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
+    @NotNull
+    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @NotNull
     @Column(name = "zaaktype_uuid")
