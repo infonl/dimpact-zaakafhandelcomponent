@@ -35,7 +35,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
         private const val TOELICHTING_PDF = "Geconverteerd naar PDF"
     }
 
-    fun convertEnkelvoudigInformatieObject(document: EnkelvoudigInformatieObject, enkelvoudigInformatieobjectUUID: UUID) {
+    fun convertEnkelvoudigInformatieObjectToPDF(document: EnkelvoudigInformatieObject, enkelvoudigInformatieobjectUUID: UUID) {
         if (document.status != StatusEnum.DEFINITIEF) {
             throw EnkelvoudigInformatieObjectConversionException()
         }
