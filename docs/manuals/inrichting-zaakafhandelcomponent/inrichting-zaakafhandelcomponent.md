@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 12-08-2025 <br>
-> Versie :   1.4 <br>
-> Verandering : ZAC v3.12 Inrichting Zaakafhandelcomponent <br>
+> Datum : 27-10-2025 <br>
+> Versie :   1.5 <br>
+> Verandering : ZAC v3.17.67 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -20,6 +20,7 @@ Versiegeschiedenis:
 | 1.2 | ZAC versie 3.9 |
 | 1.3 | ZAC versie 3.11 |
 | 1.4 | ZAC versie 3.12 |
+| 1.5 | ZAC versie 3.17.67 |
 
 # Inhoud
 
@@ -30,6 +31,7 @@ Versiegeschiedenis:
 [*Zaakafhandel-parameters*](#zaakafhandel-parameters)
 - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
 - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+ [*CMMN*](#cmmn)
  [*Gegevens*](#gegevens)
  [*Taakgegevens*](#taakgegevens)
  [*Actiegegevens*](#actiegegevens)
@@ -90,8 +92,27 @@ Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-
 
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+
+#### CMMN
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
+![image](images/zaps_cmmn.png)
+Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
+###### CMMN
+![image](images/zaps_cmmn_cmmn.png)
+###### BPMN
+![image](images/zaps_cmmn_bpmn.png)
+
+
 #### Gegevens
-![image](images/zaps_gegevens.png)
+Na de keuze van een BPMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
+- BPMN procesdeifinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
+- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+
+![image](images/zaps_gegevens_bpmn.png)
+Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
 - Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen keuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
@@ -105,10 +126,11 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
   - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![image](images/zaps_gegevens.png)
+
 #### Taakgegevens
 1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
 ![image](images/zaps_taakgegevens.png)
-
  
 2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
 - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
@@ -175,6 +197,15 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 
 2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+
+## BPMN Definities
+
+Voor het inrichten van BPMN zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+![image](images/zaps_BPMN_definities.png)
+
+- BPMN proces definities - hier kunnen de met bijvoorbeeld Fowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulier definities - zal worden verwijderd en is al niet meer in gebruik.
+- Form.io formulieren - hier kunnen de met bijvoorbeeld Fowable aangemaakte formulieren worden toegevoegd. Deze worden dan gebruikt in de BPMN proces definities.
 
 ## Referentietabellen
 
@@ -344,3 +375,5 @@ Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 - maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
+
+> Let op! De domeinnamen mogen niet langer zijn dan 24 lettertekens. Langer dan 24 lettertekens kan wel maar zullen niet werken zonder verdere foutmelding.
