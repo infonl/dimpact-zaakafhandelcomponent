@@ -1330,14 +1330,15 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(" A zaak should be created and a BPMN process should be started") {
+                Then("A zaak should be created and a BPMN process should be started") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                     with(zaakDataSlot.captured) {
-                        size shouldBe 1
-                        values.first() shouldBe groupName
+                        size shouldBe 2
+                        values.first() shouldBe "fakeValue" // Value from `aanvraaggegevens`
+                        values.last() shouldBe groupName
                     }
                 }
                 And("and the productaanvraag and documents should be paired") {

@@ -44,7 +44,7 @@ export class ZakenService {
         "zaakgeometrie" | "behandelaar"
       >;
       reden?: string;
-    }
+    },
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}",
@@ -52,7 +52,7 @@ export class ZakenService {
         zaak: update.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
         reden: update.reden ?? "",
       },
-      { path: { uuid } }
+      { path: { uuid } },
     );
   }
 
@@ -64,27 +64,27 @@ export class ZakenService {
 
   opschortenZaak(
     uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/opschorting">
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/opschorting">,
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}/opschorting",
       body,
       {
         path: { uuid },
-      }
+      },
     );
   }
 
   verlengenZaak(
     uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/verlenging">
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/verlenging">,
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}/verlenging",
       body,
       {
         path: { uuid },
-      }
+      },
     );
   }
 
@@ -124,7 +124,7 @@ export class ZakenService {
     return this.zacHttpClient.DELETE(
       "/rest/zaken/{uuid}/initiator",
       { path: { uuid: zaakUuid } },
-      { reden }
+      { reden },
     );
   }
 
@@ -136,35 +136,35 @@ export class ZakenService {
     return this.zacHttpClient.DELETE(
       "/rest/zaken/betrokkene/{uuid}",
       { path: { uuid: rolUUID } },
-      { reden }
+      { reden },
     );
   }
 
   updateZaakLocatie(
     uuid: string,
     reden: PatchBody<"/rest/zaken/{uuid}/zaaklocatie">["reden"] = "",
-    geometrie?: PatchBody<"/rest/zaken/{uuid}/zaaklocatie">["geometrie"]
+    geometrie?: PatchBody<"/rest/zaken/{uuid}/zaaklocatie">["geometrie"],
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/{uuid}/zaaklocatie",
       { geometrie, reden },
-      { path: { uuid } }
+      { path: { uuid } },
     );
   }
 
   ontkoppelInformatieObject(
-    body: PutBody<"/rest/zaken/zaakinformatieobjecten/ontkoppel">
+    body: PutBody<"/rest/zaken/zaakinformatieobjecten/ontkoppel">,
   ) {
     return this.zacHttpClient.PUT(
       "/rest/zaken/zaakinformatieobjecten/ontkoppel",
-      body
+      body,
     );
   }
 
   toekennenAanIngelogdeMedewerkerVanuitLijst(
     zaakUUID: string,
     groepId: string,
-    reden?: string
+    reden?: string,
   ) {
     return this.zacHttpClient.PUT("/rest/zaken/lijst/toekennen/mij", {
       zaakUUID,
@@ -205,7 +205,7 @@ export class ZakenService {
 
   heropenen(
     uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/heropenen">
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/heropenen">,
   ) {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", body, {
       path: { uuid },
@@ -214,7 +214,7 @@ export class ZakenService {
 
   afsluiten(
     uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/afsluiten">
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/afsluiten">,
   ) {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", body, {
       path: { uuid },

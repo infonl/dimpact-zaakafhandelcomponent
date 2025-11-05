@@ -22,8 +22,8 @@ export class ZaakUuidResolver {
     }
 
     await this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.readZaak(zaakUuid).queryKey
-    })
+      queryKey: this.zakenService.readZaak(zaakUuid).queryKey,
+    });
 
     return this.queryClient.ensureQueryData(
       this.zakenService.readZaak(zaakUuid),

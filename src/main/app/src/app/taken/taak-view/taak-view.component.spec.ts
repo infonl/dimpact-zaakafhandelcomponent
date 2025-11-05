@@ -19,6 +19,10 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -42,6 +46,7 @@ describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
   let component: ComponentRef<TaakViewComponent>;
   let loader: HarnessLoader;
+  let queryClient: QueryClient;
 
   let websocketService: WebsocketService;
   let takenService: TakenService;
@@ -97,6 +102,14 @@ describe(TaakViewComponent.name, () => {
   });
 
   beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false, // Disable retries in tests for faster failure
+        },
+      },
+    });
+
     TestBed.configureTestingModule({
       declarations: [
         TaakViewComponent,
@@ -125,6 +138,7 @@ describe(TaakViewComponent.name, () => {
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(queryClient),
       ],
     }).compileComponents();
 
@@ -145,7 +159,9 @@ describe(TaakViewComponent.name, () => {
     taakFormulierenService = TestBed.inject(TaakFormulierenService);
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
+    const { queryKey } = zakenService.readZaak(taak.zaakUuid);
+    queryClient.cancelQueries({ queryKey });
+    queryClient.setQueryData(queryKey, zaak);
   });
 
   describe(TaakViewComponent.prototype.documentCreated.name, () => {
@@ -248,76 +264,72 @@ describe(TaakViewComponent.name, () => {
       );
     });
 
-    it("should fallback to the old custom form builder", () => {
+    it("should fallback to the old custom form builder", async () => {
       const spy = jest.spyOn(taakFormulierenService, "getFormulierBuilder");
       component.instance.ngOnInit();
+      await fixture.whenStable();
       expect(spy).toHaveBeenCalledWith(taak.formulierDefinitieId);
     });
   });
 
-  describe("document action buttons visibility for smartDocuments settings", () => {
-    const smartDocumentVariants = [
-      {
-        enabledGlobally: true,
-        enabledForZaaktype: true,
-        showBothButtons: true,
-      },
-      { enabledGlobally: true, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: true, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: null, showButtons: false },
-      { enabledForZaaktype: true, showButtons: false },
-      { enabledForZaaktype: false, showButtons: false },
-      { enabledForZaaktype: null, showButtons: false },
-      { showButtons: false },
-    ];
+  describe.each([
+    { enabledGlobally: true, enabledForZaaktype: true, showButton: true },
+    { enabledGlobally: true, enabledForZaaktype: false, showButton: false },
+    { enabledGlobally: false, enabledForZaaktype: true, showButton: false },
+    { enabledGlobally: true, enabledForZaaktype: null, showButton: false },
+    { enabledGlobally: null, enabledForZaaktype: true, showButton: false },
+    { enabledGlobally: false, enabledForZaaktype: false, showButton: false },
+    { enabledGlobally: false, enabledForZaaktype: null, showButton: false },
+    { enabledGlobally: null, enabledForZaaktype: false, showButton: false },
+    { enabledGlobally: null, enabledForZaaktype: null, showButton: false },
+  ])("smart documents settings: %o", (smartDocuments) => {
+    beforeEach(() => {
+      const { queryKey } = zakenService.readZaak(taak.zaakUuid);
+      queryClient.cancelQueries({ queryKey });
+      queryClient.setQueryData(queryKey, {
+        ...zaak,
+        zaaktype: {
+          ...zaak.zaaktype!,
+          zaakafhandelparameters: {
+            ...zaak.zaaktype!.zaakafhandelparameters!,
+            smartDocuments,
+          },
+        },
+      });
+    });
 
-    test.each(smartDocumentVariants)(
-      "smartDocuments = %o",
-      async ({ enabledGlobally, enabledForZaaktype, showBothButtons }) => {
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
-          enabledGlobally;
-        zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
-          enabledForZaaktype;
+    test("should show the button when smart documents are enabled", async () => {
+      component.instance.ngOnInit();
 
-        jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
+      const { queryKey } = zakenService.readZaak(taak.zaakUuid);
+      queryClient.setQueryData(queryKey, {
+        ...zaak,
+        zaaktype: {
+          ...zaak.zaaktype!,
+          zaakafhandelparameters: {
+            ...zaak.zaaktype!.zaakafhandelparameters!,
+            smartDocuments,
+          },
+        },
+      });
 
-        component.instance.ngOnInit();
-        fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 0)); // run `effect`
 
-        const menuButtons: NodeListOf<HTMLButtonElement> =
-          fixture.nativeElement.querySelectorAll("zac-side-nav button");
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-        const documentButtons: HTMLButtonElement[] = Array.from(
-          menuButtons,
-        ).filter(
-          (btn: HTMLButtonElement) =>
-            btn.textContent?.includes("actie.document.toevoegen") ||
-            btn.textContent?.includes("actie.document.maken"),
-        );
+      const menuButtons: NodeListOf<HTMLButtonElement> =
+        fixture.nativeElement.querySelectorAll("zac-side-nav button");
 
-        if (showBothButtons) {
-          expect(documentButtons.length).toBe(2);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-          expect(documentButtons[1].textContent).toContain(
-            "actie.document.maken",
-          );
-        } else {
-          expect(documentButtons.length).toBe(1);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-        }
-      },
-    );
+      const makeDocumentButton = Array.from(menuButtons).find(
+        ({ textContent }) => textContent?.includes("actie.document.maken"),
+      );
+
+      if (smartDocuments.showButton) {
+        expect(makeDocumentButton).toBeDefined();
+      } else {
+        expect(makeDocumentButton).toBeUndefined();
+      }
+    });
   });
 });

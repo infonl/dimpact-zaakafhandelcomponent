@@ -19,14 +19,14 @@ export class ZaakIdentificatieResolver {
     const zaakIdentificatie = route.paramMap.get("zaakIdentificatie");
     if (!zaakIdentificatie) {
       throw new Error(
-        `${ZaakIdentificatieResolver.name}: No 'zaakIdentificatie' found in route`
+        `${ZaakIdentificatieResolver.name}: No 'zaakIdentificatie' found in route`,
       );
     }
 
     // We only use `ZakenService.readZaakByID` to map the `zaakIdentificatie` to a `uuid`.
     // We use the `ZakenService.readZaak` for all other queries
     const { uuid } = await this.queryClient.ensureQueryData(
-      this.zakenService.readZaakByID(zaakIdentificatie)
+      this.zakenService.readZaakByID(zaakIdentificatie),
     );
 
     const readZaakQueryOptions = this.zakenService.readZaak(uuid);

@@ -137,7 +137,6 @@ export class TaakViewComponent
     effect(() => {
       const fetchStatus = this.readZaakQuery.fetchStatus();
       if (fetchStatus !== "idle") return;
-
       const data = this.readZaakQuery.data();
       if (!data) return;
 
@@ -149,7 +148,7 @@ export class TaakViewComponent
   ngOnInit() {
     this.getIngelogdeMedewerker();
     this.route.data.subscribe((data) => {
-      this.init(data.taak);
+      this.init(data.taak, false);
 
       this.taakListener = this.websocketService.addListenerWithSnackbar(
         Opcode.ANY,
@@ -511,10 +510,7 @@ export class TaakViewComponent
   onDocumentCreate(event: FormioCustomEvent) {
     this.smartDocumentsTemplateName =
       this.formioSetupService.extractSmartDocumentsTemplateName(event);
-    if (!this.smartDocumentsTemplateName) {
-      console.debug("No SmartDocuments template name selected!");
-      return;
-    }
+    if (!this.smartDocumentsTemplateName) return;
 
     this.activeSideAction = "actie.document.maken";
     this.smartDocumentsGroupPath =
