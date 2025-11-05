@@ -1,5 +1,4 @@
 {
-  "$schema": "./pabc-mapping-data-schema.json",
   "applicationRoles": [
     {
       "id": "003591ad-c6c8-4107-8877-9579c5e27982",
