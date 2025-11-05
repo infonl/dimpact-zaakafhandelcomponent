@@ -726,6 +726,30 @@
       }
     },
     {
+      "id": "b964fabf-9895-460c-9061-2b5839890d91",
+      "name": "coordinators-test-1",
+      "path": "/coordinators-test-1",
+      "attributes": {
+        "description": ["Test group coordinators domein test 1 - new IAM"],
+        "email": ["${ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": ["coordinator_domein_test_1"]
+      }
+    },
+    {
+      "id": "279d3d57-e71f-41c7-adce-149a78817bbd",
+      "name": "coordinators-test-2",
+      "path": "/coordinators-test-2",
+      "attributes": {
+        "description": ["Test group coordinators domein test 2 - new IAM"],
+        "email": ["${ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": ["coordinator_domein_test_2"]
+      }
+    },
+    {
       "id": "0d860be6-e27d-47df-bf03-2e574939c4a6",
       "name": "beheerders-elk-domein",
       "path": "/beheerders-elk-domein",

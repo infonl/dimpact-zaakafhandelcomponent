@@ -77,6 +77,8 @@ services:
       - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
       - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
       - ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS:-test-group-behandelaars-test-2@example.com}
+      - ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS:-test-group-coordinators-test-1@example.com}
+      - ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS:-test-group-coordinators-test-2@example.com}
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import

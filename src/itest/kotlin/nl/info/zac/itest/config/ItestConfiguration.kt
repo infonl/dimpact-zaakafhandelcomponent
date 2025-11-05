@@ -240,6 +240,10 @@ object ItestConfiguration {
     const val TEST_GROUP_BEHANDELAARS_TEST_1_DESCRIPTION = "behandelaars-test-1"
     const val TEST_GROUP_BEHANDELAARS_TEST_2_ID = "behandelaars-test-2"
     const val TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION = "behandelaars-test-2"
+    const val TEST_GROUP_COORDINATORS_TEST_1_ID = "coordinators-test-1"
+    const val TEST_GROUP_COORDINATORS_TEST_1_DESCRIPTION = "coordinators-test-1"
+    const val TEST_GROUP_COORDINATORS_TEST_2_ID = "coordinators-test-2"
+    const val TEST_GROUP_COORDINATORS_TEST_2_DESCRIPTION = "coordinators-test-2"
     const val TEST_GROUP_BEHEERDERS_ELK_DOMEIN_ID = "beheerders-elk-domein"
     const val TEST_GROUP_BEHEERDERS_ELK_DOMEIN_DESCRIPTION = "beheerders-elk-domein"
     const val TEST_GROUPS_ALL =
@@ -292,6 +296,14 @@ object ItestConfiguration {
                 {
                     "id": "$TEST_GROUP_BEHANDELAARS_TEST_2_ID",
                     "naam": "$TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_COORDINATORS_TEST_1_ID",
+                    "naam": "$TEST_GROUP_COORDINATORS_TEST_1_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_COORDINATORS_TEST_2_ID",
+                    "naam": "$TEST_GROUP_COORDINATORS_TEST_2_DESCRIPTION"
                 },
                 {
                     "id": "$TEST_GROUP_BEHEERDERS_ELK_DOMEIN_ID",
