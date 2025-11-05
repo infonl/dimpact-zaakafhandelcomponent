@@ -9,14 +9,13 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
@@ -32,16 +31,13 @@ class ZaaktypeBpmnConfiguration {
     companion object {
         const val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = "productaanvraagtype"
         const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
+        const val ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
+        const val CREATIEDATUM_VARIABLE_NAME = "creatiedatum"
     }
 
     @Id
     @GeneratedValue(generator = "sq_zaaktype_bpmn_configuration", strategy = GenerationType.SEQUENCE)
     var id: Long? = null
-
-    @OneToOne
-    @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
-    @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @NotNull
     @Column(name = "zaaktype_uuid")
@@ -63,4 +59,7 @@ class ZaaktypeBpmnConfiguration {
      */
     @Column(name = "group_id", nullable = false)
     lateinit var groupId: String
+
+    @Column(name = "creatiedatum", nullable = false)
+    lateinit var creatiedatum: ZonedDateTime
 }

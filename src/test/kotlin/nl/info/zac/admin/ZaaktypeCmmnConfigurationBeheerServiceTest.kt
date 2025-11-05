@@ -437,17 +437,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                 }
             }
-
-            And("The BPMN configuration is copied") {
-                slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeBpmnConfiguration.let {
-                    it?.zaaktypeUuid shouldBe originalZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.zaaktypeUuid
-                    it?.zaaktypeOmschrijving shouldBe originalZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.zaaktypeOmschrijving
-                    it?.bpmnProcessDefinitionKey shouldBe
-                        originalZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.bpmnProcessDefinitionKey
-                    it?.productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.productaanvraagtype
-                    it?.groupId shouldBe originalZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.groupId
-                }
-            }
         }
     }
 })

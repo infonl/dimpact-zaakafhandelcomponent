@@ -183,14 +183,6 @@ class ZaaktypeCmmnConfiguration {
     )
     private var zaaktypeCmmnZaakafzenderParameters: MutableSet<ZaaktypeCmmnZaakafzenderParameters>? = null
 
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration? = null
-
     fun getHumanTaskParametersCollection(): Set<ZaaktypeCmmnHumantaskParameters> =
         zaaktypeCmmnHumantaskParametersCollection ?: emptySet()
 

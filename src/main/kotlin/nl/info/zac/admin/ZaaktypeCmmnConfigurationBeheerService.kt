@@ -16,7 +16,6 @@ import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
@@ -151,7 +150,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     }
 
     @SuppressWarnings("ReturnCount")
-    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI) {
+    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI): Boolean {
         zaaktypeCmmnConfigurationService.clearListCache()
         ztcClientService.clearZaaktypeCache()
 
@@ -159,7 +158,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val zaaktypeUuid = zaaktype.url.extractUuid()
         if (zaaktype.concept) {
             LOG.warning { "Zaak type with UUID $zaaktypeUuid is still a concept. Ignoring" }
-            return
+            return false
         }
 
         val zaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktypeUuid)
@@ -176,7 +175,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             }
             updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-            return
+            return true
         } else {
             zaaktypeCmmnConfiguration.zaakTypeUUID = zaaktypeUuid
         }
@@ -193,6 +192,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                 storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
             }
         }
+        return true
     }
 
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -263,7 +263,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapBpmnConfiguration(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 
     private fun currentZaaktypeCmmnConfiguration(zaaktypeUuid: UUID): ZaaktypeCmmnConfiguration {
@@ -455,23 +454,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             templateName = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName
             emailSender = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
             emailReply = previousZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
-        }
-    }
-
-    private fun mapBpmnConfiguration(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        previousZaaktypeCmmnConfiguration.zaaktypeBpmnConfiguration?.let { previousZaaktypeBpmnConfiguration ->
-            zaaktypeBpmnConfiguration = ZaaktypeBpmnConfiguration().apply {
-                zaaktypeUuid = newZaaktypeCmmnConfiguration.zaakTypeUUID!!
-                zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-
-                zaaktypeOmschrijving = previousZaaktypeBpmnConfiguration.zaaktypeOmschrijving
-                bpmnProcessDefinitionKey = previousZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
-                productaanvraagtype = previousZaaktypeBpmnConfiguration.productaanvraagtype
-                groupId = previousZaaktypeBpmnConfiguration.groupId
-            }
         }
     }
 }

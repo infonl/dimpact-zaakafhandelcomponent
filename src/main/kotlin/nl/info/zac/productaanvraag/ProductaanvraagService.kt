@@ -43,7 +43,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
@@ -84,7 +84,7 @@ class ProductaanvraagService @Inject constructor(
     private val productaanvraagEmailService: ProductaanvraagEmailService,
     private val cmmnService: CMMNService,
     private val bpmnService: BpmnService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {
@@ -470,7 +470,7 @@ class ProductaanvraagService @Inject constructor(
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
             .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraag.type)
-        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationService.findConfigurationByProductAanvraagType(
+        val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
             productaanvraag.type
         )
         val hasCmmnDefinition = zaaktypeCmmnConfiguration.isNotEmpty()

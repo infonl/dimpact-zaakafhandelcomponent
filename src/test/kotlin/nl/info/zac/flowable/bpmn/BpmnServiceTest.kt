@@ -19,7 +19,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.engine.ProcessEngine
@@ -34,12 +34,12 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         processEngine,
-        zaaktypeBpmnConfigurationService
+        zaaktypeBpmnConfigurationBeheerService
     )
 
     beforeEach {
@@ -125,7 +125,7 @@ class BpmnServiceTest : BehaviorSpec({
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
@@ -139,7 +139,7 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)

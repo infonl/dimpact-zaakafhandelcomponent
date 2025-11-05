@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -39,7 +39,7 @@ class UserPrincipalFilter
 @Inject
 constructor(
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val pabcClientService: PabcClientService,
     @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
     private val pabcIntegrationEnabled: Boolean
@@ -197,7 +197,7 @@ constructor(
             .map { it.zaaktypeOmschrijving }
             .toSet()
 
-        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationService
+        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationBeheerService
             .listConfigurations()
             .map { it.zaaktypeOmschrijving }
             .toSet()
@@ -238,7 +238,7 @@ constructor(
             // entity. This means that ALL BPMN zaaktypes will be visible to the user.
             // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
             // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
-            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationService
+            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationBeheerService
                 .listConfigurations()
                 .map { it.zaaktypeOmschrijving }
 

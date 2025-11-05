@@ -7,6 +7,7 @@ package nl.info.zac.app.admin.model
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @NoArgConstructor
@@ -25,5 +26,7 @@ data class RestZaaktypeBpmnConfiguration(
     var productaanvraagtype: String?,
 
     @field:NotNull
-    var groepNaam: String
+    var groepNaam: String,
+
+    var creatiedatum: ZonedDateTime?
 )
