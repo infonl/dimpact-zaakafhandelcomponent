@@ -203,6 +203,10 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 Voor het inrichten van BPMN zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
 ![image](images/zaps_BPMN_definities.png)
 
+- BPMN proces definities - hier kunnen de met bijvoorbeeld Fowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulier definities - zal worden verwijderd en is al niet meer in gebruik.
+- Form.io formulieren - hier kunnen de met bijvoorbeeld Fowable aangemaakte formulieren worden toegevoegd. Deze worden dan gebruikt in de BPMN proces definities.
+
 ## Referentietabellen
 
 Referentietabellen worden in de ZAC ondermeer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
