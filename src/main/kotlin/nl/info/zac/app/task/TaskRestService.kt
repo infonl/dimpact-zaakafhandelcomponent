@@ -125,7 +125,7 @@ class TaskRestService @Inject constructor(
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID))
+        return taskService.listTasksForZaak(zaakUUID).let(restTaskConverter::convert)
     }
 
     @GET
@@ -226,9 +226,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("toekennen/mij")
     fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
-        assignLoggedInUserToTask(restTaskAssignData).let {
-            restTaskConverter.convert(it)
-        }
+        assignLoggedInUserToTask(restTaskAssignData).let(restTaskConverter::convert)
 
     @PATCH
     @Path("complete")
@@ -308,9 +306,7 @@ class TaskRestService @Inject constructor(
     @Path("{taskId}/historie")
     fun listHistory(@PathParam("taskId") taskId: String): List<RestTaskHistoryLine> {
         assertPolicy(policyService.readTaakRechten(flowableTaskService.readTask(taskId)).lezen)
-        flowableTaskService.listHistorieForTask(taskId).let {
-            return taakHistorieConverter.convert(it)
-        }
+        return flowableTaskService.listHistorieForTask(taskId).let(taakHistorieConverter::convert)
     }
 
     private fun assignLoggedInUserToTask(restTaskAssignData: RestTaskAssignData): Task {
@@ -377,8 +373,8 @@ class TaskRestService @Inject constructor(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
                 .filter { it.isNotEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach { enkelvoudigInformatieobject ->
                     // note: the DRC API can return an empty ondertekening soort when no signature is present,
                     // even when this is not permitted according to the OpenAPI spec
