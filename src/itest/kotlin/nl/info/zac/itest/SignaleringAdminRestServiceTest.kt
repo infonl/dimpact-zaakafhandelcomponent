@@ -60,7 +60,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 "Content-Type",
                 "application/json"
             ),
-            requestBodyAsString = """{"mail":true,"subjecttype":"TAAK","type":"TAAK_VERLOPEN"}""",
+            requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
             addAuthorizationHeader = true
         )
         response.code shouldBe HTTP_OK
@@ -92,13 +92,23 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
-            requestBodyAsString = """{
-                        "planItemInstanceId":"$humanTaskItemId",
-                        "fataledatum":"$fataleDatum",
-                        "taakStuurGegevens":{"sendMail":false},
-                        "medewerker":{"id":"$TEST_USER_1_USERNAME","naam":"$TEST_USER_1_NAME"},"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                        "taakdata":{}
-                    }
+            // TODO: do not hardcode user and group here. use something similar to authenticateAsBeheerderElkZaaktype
+            // depends on currently logged in user?
+            requestBodyAsString = """
+                {
+                    "planItemInstanceId": "$humanTaskItemId",
+                    "fataledatum": "$fataleDatum",
+                    "taakStuurGegevens": { "sendMail": false },
+                    "medewerker": {
+                        "id": "$TEST_USER_1_USERNAME",
+                        "naam": "$TEST_USER_1_NAME"
+                    },
+                    "groep": {
+                        "id": "$TEST_GROUP_A_ID",
+                        "naam": "$TEST_GROUP_A_DESCRIPTION"
+                    },
+                    "taakdata":{}
+                }
             """.trimIndent()
         )
 
