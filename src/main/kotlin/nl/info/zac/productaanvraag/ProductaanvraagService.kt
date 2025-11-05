@@ -160,7 +160,7 @@ class ProductaanvraagService @Inject constructor(
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
         }.run {
-            createZaakInformatieobject(this)
+            zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
         }
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
@@ -171,7 +171,7 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
-                createZaakInformatieobject(this)
+                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
             }
         }
 
@@ -183,17 +183,12 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.runCatching {
-                createZaakInformatieobject(this)
+                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
             }.onFailure {
                 LOG.log(Level.WARNING, "Failed to pair bijlagen '${bijlage.url}' with zaak url '$zaakUrl'", it)
             }
         }
 
-    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject) {
-        LOG.fine("Creating zaakinformatieobject '$zaakInformatieobject' ...")
-        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
-        LOG.fine("Created zaakinformatieobject '$zaakInformatieobject'")
-    }
 
     /**
      * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
