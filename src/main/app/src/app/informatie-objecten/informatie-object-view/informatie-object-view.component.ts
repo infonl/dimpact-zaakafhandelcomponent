@@ -5,9 +5,11 @@
 
 import {
   AfterViewInit,
-  Component, inject,
+  Component,
+  inject,
   OnDestroy,
-  OnInit, signal,
+  OnInit,
+  signal,
   ViewChild,
 } from "@angular/core";
 import { Validators } from "@angular/forms";
@@ -17,6 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
@@ -43,7 +46,6 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import {injectQuery, QueryClient} from "@tanstack/angular-query-experimental";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",
@@ -53,13 +55,13 @@ export class InformatieObjectViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  private readonly queryClient = inject(QueryClient)
+  private readonly queryClient = inject(QueryClient);
   private readonly readZaakQuery = injectQuery(() => ({
     ...this.zakenService.readZaak(this.zaakUuid()!),
-    enabled: !!this.zaakUuid()
-  }))
+    enabled: !!this.zaakUuid(),
+  }));
 
-  private readonly zaakUuid = signal<string | undefined>("")
+  private readonly zaakUuid = signal<string | undefined>("");
 
   readonly indicatiesLayout = IndicatiesLayout;
   infoObject!: GeneratedType<"RestEnkelvoudigInformatieobject">;
@@ -107,12 +109,9 @@ export class InformatieObjectViewComponent
         this.infoObject =
           data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">;
         const zaak = data.zaak as GeneratedType<"RestZaak"> | undefined;
-        this.zaakUuid.set(zaak?.uuid)
+        this.zaakUuid.set(zaak?.uuid);
         this.informatieObjectenService
-          .readEnkelvoudigInformatieobject(
-            this.infoObject.uuid!,
-            zaak?.uuid,
-          )
+          .readEnkelvoudigInformatieobject(this.infoObject.uuid!, zaak?.uuid)
           .subscribe((infoObject) => {
             this.laatsteVersieInfoObject = infoObject;
             this.toevoegenActies();
@@ -231,7 +230,10 @@ export class InformatieObjectViewComponent
         () => {
           button.disabled = true;
           this.informatieObjectenService
-            .lockInformatieObject(this.infoObject.uuid!, this.readZaakQuery.data()!.uuid!)
+            .lockInformatieObject(
+              this.infoObject.uuid!,
+              this.readZaakQuery.data()!.uuid!,
+            )
             .pipe(
               catchError((e) => {
                 // we only need to do this on error, because on success we get a new button
@@ -255,7 +257,10 @@ export class InformatieObjectViewComponent
         () => {
           button.disabled = true;
           this.informatieObjectenService
-            .unlockInformatieObject(this.infoObject.uuid!, this.readZaakQuery.data()!.uuid!)
+            .unlockInformatieObject(
+              this.infoObject.uuid!,
+              this.readZaakQuery.data()!.uuid!,
+            )
             .pipe(
               catchError((e) => {
                 // we only need to do this on error, because on success we get a new button
@@ -323,7 +328,7 @@ export class InformatieObjectViewComponent
       .subscribe(async (zaakInformatieObjecten) => {
         this.zaakInformatieObjecten = zaakInformatieObjecten;
         const zaakObject = zaakInformatieObjecten.at(0);
-        if(!zaakObject?.zaakIdentificatie) return;
+        if (!zaakObject?.zaakIdentificatie) return;
 
         /**
          * Voor het geval dat er bij navigatie naar het enkelvoudiginformatieobject geen zaak meegegeven is,
@@ -331,8 +336,10 @@ export class InformatieObjectViewComponent
          *
          * Als er ook geen verkorte zaak gegevens beschikbaar, dan is dit een document zonder zaak.
          */
-        if(this.readZaakQuery.data()) return;
-        const { uuid } = await this.queryClient.ensureQueryData(this.zakenService.readZaakByID(zaakObject.zaakIdentificatie));
+        if (this.readZaakQuery.data()) return;
+        const { uuid } = await this.queryClient.ensureQueryData(
+          this.zakenService.readZaakByID(zaakObject.zaakIdentificatie),
+        );
         this.zaakUuid.set(uuid);
       });
   }
@@ -347,7 +354,10 @@ export class InformatieObjectViewComponent
 
   private loadInformatieObject() {
     this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject.uuid!, this.readZaakQuery.data()?.uuid)
+      .readEnkelvoudigInformatieobject(
+        this.infoObject.uuid!,
+        this.readZaakQuery.data()?.uuid,
+      )
       .subscribe((infoObject) => {
         this.infoObject = infoObject;
         this.laatsteVersieInfoObject = infoObject;
