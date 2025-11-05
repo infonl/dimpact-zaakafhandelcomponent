@@ -195,6 +195,8 @@ object ItestConfiguration {
     const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
     const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
+
+    // new IAM test users
     const val TEST_RAADPLEGER_TEST_1_USERNAME = "raadpleger1newiam"
     const val TEST_RAADPLEGER_TEST_1_PASSWORD = "raadpleger1newiam"
     const val TEST_RAADPLEGER_TEST_1_NAME = "Test Raadpleger 1 - new IAM"
@@ -207,6 +209,10 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_TEST_2_USERNAME = "behandelaar2newiam"
     const val TEST_BEHANDELAAR_TEST_2_PASSWORD = "behandelaar2newiam"
     const val TEST_BEHANDELAAR_TEST_2_NAME = "Test Behandelaar 2 - new IAM"
+    const val TEST_BEHEERDER_TEST_1_USERNAME = "beheerder1newiam"
+    const val TEST_BEHEERDER_TEST_1_PASSWORD = "beheerder1newiam"
+    const val TEST_BEHEERDER_TEST_1_NAME = "Test Beheerder 1 - new IAM"
+
     const val TEST_USER_WITHOUT_ANY_ROLE_USERNAME = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_PASSWORD = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_NAME = "Test User Without Any Role"

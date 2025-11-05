@@ -2908,6 +2908,32 @@
       "groups": ["/behandelaars-test-2"]
     },
     {
+      "id": "bb6ad48e-972e-4a7e-b1b2-75958a6d8070",
+      "username": "beheerder1newiam",
+      "firstName": "Test",
+      "lastName": "Beheerder 1 - new IAM",
+      "email": "${ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "e5ae0068-a2ed-4c46-9293-07f9774abb37",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"h9ebp+3t1vvspXsecW8oWLHHv+E3uGaERLRKfhtCSL8=\",\"salt\":\"MVxNNDgVwte7W0W7kuLjRg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/beheerders-elk-domein"]
+    },
+    {
       "id": "acfd57fa-a72a-44a4-9dcf-d904e819a044",
       "username": "userwithoutanyrole",
       "firstName": "Test",
