@@ -719,7 +719,7 @@
       "path": "/behandelaars-test-2",
       "attributes": {
         "description": ["Test group behandelaars domein test 2 - new IAM"],
-        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
+        "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": ["behandelaar_domein_test_2"]
