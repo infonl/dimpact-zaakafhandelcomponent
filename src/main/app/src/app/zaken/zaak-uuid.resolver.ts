@@ -3,23 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {inject, Injectable} from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { ZakenService } from "./zaken.service";
-import {QueryClient} from "@tanstack/angular-query-experimental";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZaakUuidResolver {
-  private readonly zakenService = inject(ZakenService)
-  private readonly queryClient = inject(QueryClient)
+  private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient);
 
   resolve(route: ActivatedRouteSnapshot) {
     const zaakUuid = route.paramMap.get("zaakUuid");
     if (!zaakUuid) {
       throw new Error("'zaakUuid' is missing in the route parameters");
     }
-    return this.queryClient.ensureQueryData(this.zakenService.readZaak(zaakUuid));
+    return this.queryClient.ensureQueryData(
+      this.zakenService.readZaak(zaakUuid),
+    );
   }
 }

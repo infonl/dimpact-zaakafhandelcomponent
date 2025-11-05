@@ -55,11 +55,11 @@
       [source]="readZaakQuery.data()?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
     />
-      <zac-zaakdata
-              *ngSwitchCase="'actie.zaakdata.bekijken'"
-              [sideNav]="actionsSidenav"
-              [zaak]="readZaakQuery.data()"
-      ></zac-zaakdata>
+    <zac-zaakdata
+      *ngSwitchCase="'actie.zaakdata.bekijken'"
+      [sideNav]="actionsSidenav"
+      [zaak]="readZaakQuery.data()"
+    ></zac-zaakdata>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">

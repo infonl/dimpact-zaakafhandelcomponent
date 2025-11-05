@@ -6,7 +6,7 @@
 import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
-  Component, effect,
+  Component,
   inject,
   OnDestroy,
   OnInit,
@@ -19,7 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import {injectQuery, QueryClient} from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -77,10 +77,9 @@ export class ZaakViewComponent
 {
   private readonly queryClient = inject(QueryClient);
 
-  private readonly readZaakQuery = injectQuery(() => ({
-    ...this.zakenService.readZaak(this.zaak.uuid),
-    refetchOnWindowFocus: true,
-  }))
+  private readonly readZaakQuery = injectQuery(() =>
+    this.zakenService.readZaak(this.zaak.uuid),
+  );
 
   readonly indicatiesLayout = IndicatiesLayout;
   zaak!: GeneratedType<"RestZaak">;
@@ -184,16 +183,11 @@ export class ZaakViewComponent
     private policyService: PolicyService,
   ) {
     super();
-    effect(() => {
-      const data = this.readZaakQuery.data()
-      if(!data) return
-      this.init(data)
-    });
   }
 
   ngOnInit() {
     this.subscriptions$.push(
-      this.route.data.subscribe((data) => {
+      this.route.data.subscribe(async (data) => {
         this.init(data["zaak"]);
 
         this.zaakListener = this.websocketService.addListenerWithSnackbar(
@@ -944,9 +938,9 @@ export class ZaakViewComponent
   }
 
   public async updateZaak() {
-    const {data} =await this.readZaakQuery.refetch();
-    if(!data) return
-    this.init(data)
+    const { data } = await this.readZaakQuery.refetch();
+    if (!data) return;
+    this.init(data);
   }
 
   private loadHistorie() {

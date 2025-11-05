@@ -18,27 +18,26 @@
 <mat-divider></mat-divider>
 
 <form [formGroup]="form" (ngSubmit)="formSubmit()" class="mt-2">
-    <fieldset>
-        <section class="row">
-    @for(control of form.controls | keyvalue; track control) {
+  <fieldset>
+    <section class="row">
+      @for (control of form.controls | keyvalue; track control) {
         <zac-input [form]="form" class="col-12" [key]="control.key"></zac-input>
-    }
-        </section>
-    </fieldset>
-    <fieldset *ngIf="!readonly()">
-        <mat-action-row>
-            <button
-                    mat-raised-button
-                    type="submit"
-                    color="primary"
-                    [disabled]="!form.valid || updateZaakDataMutation.isPending()"
-            >
-                {{ "actie.opslaan" | translate }}
-            </button>
-            <button type="button" mat-raised-button (click)="sideNav().close()">
-                {{ "actie.annuleren" | translate }}
-            </button>
-        </mat-action-row>
-    </fieldset>
+      }
+    </section>
+  </fieldset>
+  <fieldset *ngIf="!readonly()">
+    <mat-action-row>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid || updateZaakDataMutation.isPending()"
+      >
+        {{ "actie.opslaan" | translate }}
+      </button>
+      <button type="button" mat-raised-button (click)="sideNav().close()">
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
 </form>
-

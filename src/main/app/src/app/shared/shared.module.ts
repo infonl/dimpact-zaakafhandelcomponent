@@ -11,6 +11,7 @@ import { Title } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
 import { DialogComponent } from "./dialog/dialog.component";
 import { OutsideClickDirective } from "./directives/outside-click.directive";
@@ -40,7 +41,6 @@ import { FacetFilterComponent } from "./table-zoek-filters/facet-filter/facet-fi
 import { TekstFilterComponent } from "./table-zoek-filters/tekst-filter/tekst-filter.component";
 import { ToggleFilterComponent } from "./table-zoek-filters/toggle-filter/toggle-filter.component";
 import { VersionComponent } from "./version/version.component";
-import {ZaakdataComponent} from "../zaken/zaakdata/zaakdata.component";
 
 @NgModule({
   declarations: [
@@ -67,7 +67,7 @@ import {ZaakdataComponent} from "../zaken/zaakdata/zaakdata.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
-      ZaakdataComponent
+    ZaakdataComponent,
   ],
   imports: [
     FormsModule,
@@ -105,7 +105,7 @@ import {ZaakdataComponent} from "../zaken/zaakdata/zaakdata.component";
     BesluitIndicatiesComponent,
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
-      ZaakdataComponent,
+    ZaakdataComponent,
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,

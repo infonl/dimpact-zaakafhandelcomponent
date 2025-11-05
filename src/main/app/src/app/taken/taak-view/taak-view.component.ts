@@ -5,7 +5,9 @@
 
 import {
   ChangeDetectorRef,
-  Component, effect, inject,
+  Component,
+  effect,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -17,6 +19,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -53,7 +56,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
-import {injectQuery, QueryClient} from "@tanstack/angular-query-experimental";
 
 @Component({
   templateUrl: "./taak-view.component.html",
@@ -73,7 +75,7 @@ export class TaakViewComponent
   protected readonly readZaakQuery = injectQuery(() => ({
     ...this.zakenService.readZaak(this.taak!.zaakUuid),
     enabled: !!this.taak!.zaakUuid,
-  }))
+  }));
 
   protected taak?: GeneratedType<"RestTask">;
   protected formulier?: AbstractTaakFormulier | null = null;
@@ -118,7 +120,7 @@ export class TaakViewComponent
     hideCancelButton: true,
   };
 
-  private readonly queryClient = inject(QueryClient)
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -136,8 +138,8 @@ export class TaakViewComponent
   ) {
     super();
     effect(() => {
-      const data = this.readZaakQuery.data()
-      if(!data) return
+      const data = this.readZaakQuery.data();
+      if (!data) return;
 
       this.createTaakForm(this.taak!, data);
       this.setupMenu();
@@ -371,12 +373,11 @@ export class TaakViewComponent
         ),
       );
 
-      const zaakafhandelparameters = this.readZaakQuery.data()?.zaaktype.zaakafhandelparameters
+      const zaakafhandelparameters =
+        this.readZaakQuery.data()?.zaaktype.zaakafhandelparameters;
       if (
-          zaakafhandelparameters?.smartDocuments
-          .enabledGlobally &&
-          zaakafhandelparameters?.smartDocuments
-          .enabledForZaaktype
+        zaakafhandelparameters?.smartDocuments.enabledGlobally &&
+        zaakafhandelparameters?.smartDocuments.enabledForZaaktype
       ) {
         this.menu.push(
           new ButtonMenuItem(
@@ -388,12 +389,12 @@ export class TaakViewComponent
       }
 
       this.menu.push(
-          new ButtonMenuItem(
-              'actie.zaakdata.bekijken',
-              () => this.actionsSidenav.open(),
-              "folder_copy",
-          )
-      )
+        new ButtonMenuItem(
+          "actie.zaakdata.bekijken",
+          () => this.actionsSidenav.open(),
+          "folder_copy",
+        ),
+      );
     }
   }
 
@@ -643,21 +644,4 @@ export class TaakViewComponent
   updateZaakDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
   }
-
-  // /**
-  //  *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
-  //  */
-  // private createZaakFromTaak(taak: GeneratedType<"RestTask">) {
-  //   const zaaktype = {
-  //     omschrijving: taak.zaaktypeOmschrijving,
-  //   } satisfies Partial<
-  //     GeneratedType<"RestZaaktype">
-  //   > as GeneratedType<"RestZaaktype">;
-  //
-  //   this.zaak = {
-  //     identificatie: taak.zaakIdentificatie,
-  //     uuid: taak.zaakUuid,
-  //     zaaktype,
-  //   } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
-  // }
 }

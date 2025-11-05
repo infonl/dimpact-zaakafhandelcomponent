@@ -26,7 +26,7 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     TakenWerkvoorraadComponent,
     TakenMijnComponent,
     TakenVerdelenDialogComponent,
-    TakenVrijgevenDialogComponent
+    TakenVrijgevenDialogComponent,
   ],
   imports: [
     SharedModule,
