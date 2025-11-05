@@ -169,6 +169,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 },                      
                                 {
                                     "id": "$TEST_COORDINATOR_TEST_2_USERNAME",
+                                    "naam": "$TEST_COORDINATOR_TEST_2_NAME"
+                                },
+                                 {
+                                    "id": "$TEST_BEHEERDER_TEST_1_USERNAME",
                                     "naam": "$TEST_BEHEERDER_TEST_1_NAME"
                                 },
                                 {
