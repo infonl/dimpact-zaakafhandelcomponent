@@ -703,7 +703,6 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
-
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.4@sha256:3ec75e173c7c2662f9c720d79dd7bfdbda9bd08223ad9ae021dde2f05312bb8d
     platform: linux/amd64
