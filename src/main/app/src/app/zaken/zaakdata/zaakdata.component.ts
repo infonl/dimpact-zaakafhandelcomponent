@@ -39,10 +39,6 @@ export class ZaakdataComponent {
       await this.queryClient.invalidateQueries({
         queryKey: this.zakenService.readZaak(this.zaak().uuid).queryKey,
       });
-      await this.queryClient.invalidateQueries({
-        queryKey: this.zakenService.readZaakByID(this.zaak().identificatie)
-          .queryKey,
-      });
       void this.sideNav().close();
     },
   }));

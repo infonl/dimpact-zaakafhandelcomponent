@@ -7,7 +7,6 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
-  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -19,7 +18,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -120,8 +119,6 @@ export class TaakViewComponent
     hideCancelButton: true,
   };
 
-  private readonly queryClient = inject(QueryClient);
-
   constructor(
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
@@ -138,6 +135,9 @@ export class TaakViewComponent
   ) {
     super();
     effect(() => {
+      const fetchStatus = this.readZaakQuery.fetchStatus();
+      if (fetchStatus !== "idle") return;
+
       const data = this.readZaakQuery.data();
       if (!data) return;
 

@@ -15,16 +15,26 @@ export class ZaakIdentificatieResolver {
   private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient);
 
-  resolve(route: ActivatedRouteSnapshot) {
-    const zaakID = route.paramMap.get("zaakIdentificatie");
-    if (!zaakID) {
+  async resolve(route: ActivatedRouteSnapshot) {
+    const zaakIdentificatie = route.paramMap.get("zaakIdentificatie");
+    if (!zaakIdentificatie) {
       throw new Error(
-        `${ZaakIdentificatieResolver.name}: No 'zaakID' found in route`,
+        `${ZaakIdentificatieResolver.name}: No 'zaakIdentificatie' found in route`
       );
     }
 
-    return this.queryClient.ensureQueryData(
-      this.zakenService.readZaakByID(zaakID),
+    // We only use `ZakenService.readZaakByID` to map the `zaakIdentificatie` to a `uuid`.
+    // We use the `ZakenService.readZaak` for all other queries
+    const { uuid } = await this.queryClient.ensureQueryData(
+      this.zakenService.readZaakByID(zaakIdentificatie)
     );
+
+    const readZaakQueryOptions = this.zakenService.readZaak(uuid);
+
+    await this.queryClient.refetchQueries({
+      queryKey: readZaakQueryOptions.queryKey,
+    });
+
+    return this.queryClient.ensureQueryData(readZaakQueryOptions);
   }
 }

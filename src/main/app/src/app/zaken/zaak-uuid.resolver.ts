@@ -15,11 +15,16 @@ export class ZaakUuidResolver {
   private readonly zakenService = inject(ZakenService);
   private readonly queryClient = inject(QueryClient);
 
-  resolve(route: ActivatedRouteSnapshot) {
+  async resolve(route: ActivatedRouteSnapshot) {
     const zaakUuid = route.paramMap.get("zaakUuid");
     if (!zaakUuid) {
       throw new Error("'zaakUuid' is missing in the route parameters");
     }
+
+    await this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.readZaak(zaakUuid).queryKey
+    })
+
     return this.queryClient.ensureQueryData(
       this.zakenService.readZaak(zaakUuid),
     );
