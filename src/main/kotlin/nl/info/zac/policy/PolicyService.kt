@@ -87,7 +87,8 @@ class PolicyService @Inject constructor(
 
     fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType): ZaakRechten {
         val statusType = zaak.status?.let {
-            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
+            zrcClientService.readStatus(it).statustype
+                .let(ztcClientService::readStatustype)
         }
         val zaakData = ZaakData(
             open = zaak.isOpen(),

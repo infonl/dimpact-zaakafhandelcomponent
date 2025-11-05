@@ -61,6 +61,10 @@ services:
       - ZAC_BEHANDELAAR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_1_EMAIL_ADDRESS:-behandelaar1@example.com}
       - ZAC_BEHANDELAAR_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_2_EMAIL_ADDRESS:-behandelaar2@example.com}
       - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
+      - ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_1_EMAIL_ADDRESS:-raadpleger-test-1@example.com}
+      - ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_2_EMAIL_ADDRESS:-raadpleger-test-2@example.com}
+      - ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-behandelaar-test-1@example.com}
+      - ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_2_EMAIL_ADDRESS:-behandelaar-test-2@example.com}
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
       - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
@@ -68,6 +72,10 @@ services:
       - ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_EMAIL_ADDRESS:-test-group-behandelaars@example.com}
       - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
+      - ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS:-test-group-raadplegers-test-1@example.com}
+      - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS:-test-group-behandelaars-test-2@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
@@ -261,7 +269,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202509221256@sha256:551ea5a7cab3dd96b2d682a7acebb5d162049d8b3d27b5195e59559e0d6132d5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202511050738@sha256:91cb8678ac8fb9bb1b872d8a95a17104c67b99bd54e44c39310a94af4410ce54
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
