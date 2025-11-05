@@ -231,7 +231,7 @@ object ItestConfiguration {
     const val TEST_GROUP_RAADPLEGERS_TEST_2_ID = "raadplegers-test-2"
     const val TEST_GROUP_RAADPLEGERS_TEST_2_DESCRIPTION = "raadplegers-test-2" // "Test group raadplegers domein test 2 - new IAM"
     const val TEST_GROUP_BEHANDELAARS_TEST_1_ID = "behandelaars-test-1"
-    const val TEST_GROUP_BEHANDELAARS_TEST_1_DESCRIPTION =  "behandelaars-test-1" // "Test group behandelaars domein test 1 - new IAM"
+    const val TEST_GROUP_BEHANDELAARS_TEST_1_DESCRIPTION = "behandelaars-test-1" // "Test group behandelaars domein test 1 - new IAM"
     const val TEST_GROUP_BEHANDELAARS_TEST_2_ID = "behandelaars-test-2"
     const val TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION = "behandelaars-test-2" // "Test group behandelaars domein test 2 - new IAM"
     const val TEST_GROUPS_ALL =
