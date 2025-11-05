@@ -34,7 +34,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
@@ -959,10 +958,6 @@ export class ZaakViewComponent
       });
   }
 
-  protected bedrijfRouteLink(bedrijf: GeneratedType<"RestZaakBetrokkene">) {
-    return buildBedrijfRouteLink(bedrijf);
-  }
-
   private loadBagObjecten() {
     this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
       this.gekoppeldeBagObjecten = bagObjecten
@@ -1143,7 +1138,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-          void this.readZaakQuery.refetch();
+          void this.updateZaak()
         }
       });
   }
@@ -1204,7 +1199,7 @@ export class ZaakViewComponent
             "msg.betrokkene.ontkoppelen.uitgevoerd",
             { betrokkene: betrokkeneIdentificatie },
           );
-          void this.readZaakQuery.refetch();
+          void this.updateZaak();
         }
       });
   }
