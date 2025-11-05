@@ -195,6 +195,8 @@ object ItestConfiguration {
     const val TEST_RAADPLEGER_1_USERNAME = "raadpleger1"
     const val TEST_RAADPLEGER_1_PASSWORD = "raadpleger1"
     const val TEST_RAADPLEGER_1_NAME = "Test Raadpleger1"
+
+    // new IAM test users
     const val TEST_RAADPLEGER_TEST_1_USERNAME = "raadpleger1newiam"
     const val TEST_RAADPLEGER_TEST_1_PASSWORD = "raadpleger1newiam"
     const val TEST_RAADPLEGER_TEST_1_NAME = "Test Raadpleger 1 - new IAM"
@@ -207,33 +209,49 @@ object ItestConfiguration {
     const val TEST_BEHANDELAAR_TEST_2_USERNAME = "behandelaar2newiam"
     const val TEST_BEHANDELAAR_TEST_2_PASSWORD = "behandelaar2newiam"
     const val TEST_BEHANDELAAR_TEST_2_NAME = "Test Behandelaar 2 - new IAM"
+    const val TEST_COORDINATOR_TEST_1_USERNAME = "coordinator1newiam"
+    const val TEST_COORDINATOR_TEST_1_PASSWORD = "coordinator1newiam"
+    const val TEST_COORDINATOR_TEST_1_NAME = "Test Coordinator 1 - new IAM"
+    const val TEST_COORDINATOR_TEST_2_USERNAME = "coordinator2newiam"
+    const val TEST_COORDINATOR_TEST_2_PASSWORD = "coordinator2newiam"
+    const val TEST_COORDINATOR_TEST_2_NAME = "Test Coordinator 2 - new IAM"
+    const val TEST_BEHEERDER_TEST_1_USERNAME = "beheerder1newiam"
+    const val TEST_BEHEERDER_TEST_1_PASSWORD = "beheerder1newiam"
+    const val TEST_BEHEERDER_TEST_1_NAME = "Test Beheerder 1 - new IAM"
+
     const val TEST_USER_WITHOUT_ANY_ROLE_USERNAME = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_PASSWORD = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_NAME = "Test User Without Any Role"
     const val TEST_GROUP_A_ID = "test-group-a"
-    const val TEST_GROUP_A_DESCRIPTION = "test-group-a" // "Test group A"
+    const val TEST_GROUP_A_DESCRIPTION = "test-group-a"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
-    const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "test-group-fb" // "Test group Functional Admins"
+    const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "test-group-fb"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
-    const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "test-group-rm" // "Test group Record Managers"
+    const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "test-group-rm"
     const val TEST_GROUP_COORDINATORS_ID = "test-group-co"
-    const val TEST_GROUP_COORDINATORS_DESCRIPTION = "test-group-co" // "Test group Coordinators"
+    const val TEST_GROUP_COORDINATORS_DESCRIPTION = "test-group-co"
     const val TEST_GROUP_BEHANDELAARS_ID = "test-group-bh"
-    const val TEST_GROUP_BEHANDELAARS_DESCRIPTION = "test-group-bh" // "Test group Behandelaars"
+    const val TEST_GROUP_BEHANDELAARS_DESCRIPTION = "test-group-bh"
     const val TEST_GROUP_RAADPLEGERS_ID = "test-group-rp"
-    const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "test-group-rp" // "Test group Raadplegers"
+    const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "test-group-rp"
     const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
-    const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "test-group-domein-test-1" // "Test group which has access to domein_test_1 only"
+    const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "test-group-domein-test-1"
     const val TEST_GROUP_DOMEIN_TEST_2_ID = "test-group-domein-test-2"
-    const val TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION = "test-group-domein-test-2" // "Test group which has access to domein_test_2 only"
+    const val TEST_GROUP_DOMEIN_TEST_2_DESCRIPTION = "test-group-domein-test-2"
     const val TEST_GROUP_RAADPLEGERS_TEST_1_ID = "raadplegers-test-1"
-    const val TEST_GROUP_RAADPLEGERS_TEST_1_DESCRIPTION = "raadplegers-test-1" // "Test group raadplegers domein test 1 - new IAM"
+    const val TEST_GROUP_RAADPLEGERS_TEST_1_DESCRIPTION = "raadplegers-test-1"
     const val TEST_GROUP_RAADPLEGERS_TEST_2_ID = "raadplegers-test-2"
-    const val TEST_GROUP_RAADPLEGERS_TEST_2_DESCRIPTION = "raadplegers-test-2" // "Test group raadplegers domein test 2 - new IAM"
+    const val TEST_GROUP_RAADPLEGERS_TEST_2_DESCRIPTION = "raadplegers-test-2"
     const val TEST_GROUP_BEHANDELAARS_TEST_1_ID = "behandelaars-test-1"
-    const val TEST_GROUP_BEHANDELAARS_TEST_1_DESCRIPTION = "behandelaars-test-1" // "Test group behandelaars domein test 1 - new IAM"
+    const val TEST_GROUP_BEHANDELAARS_TEST_1_DESCRIPTION = "behandelaars-test-1"
     const val TEST_GROUP_BEHANDELAARS_TEST_2_ID = "behandelaars-test-2"
-    const val TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION = "behandelaars-test-2" // "Test group behandelaars domein test 2 - new IAM"
+    const val TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION = "behandelaars-test-2"
+    const val TEST_GROUP_COORDINATORS_TEST_1_ID = "coordinators-test-1"
+    const val TEST_GROUP_COORDINATORS_TEST_1_DESCRIPTION = "coordinators-test-1"
+    const val TEST_GROUP_COORDINATORS_TEST_2_ID = "coordinators-test-2"
+    const val TEST_GROUP_COORDINATORS_TEST_2_DESCRIPTION = "coordinators-test-2"
+    const val TEST_GROUP_BEHEERDERS_ELK_DOMEIN_ID = "beheerders-elk-domein"
+    const val TEST_GROUP_BEHEERDERS_ELK_DOMEIN_DESCRIPTION = "beheerders-elk-domein"
     const val TEST_GROUPS_ALL =
         """
             [
@@ -284,6 +302,18 @@ object ItestConfiguration {
                 {
                     "id": "$TEST_GROUP_BEHANDELAARS_TEST_2_ID",
                     "naam": "$TEST_GROUP_BEHANDELAARS_TEST_2_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_COORDINATORS_TEST_1_ID",
+                    "naam": "$TEST_GROUP_COORDINATORS_TEST_1_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_COORDINATORS_TEST_2_ID",
+                    "naam": "$TEST_GROUP_COORDINATORS_TEST_2_DESCRIPTION"
+                },
+                {
+                    "id": "$TEST_GROUP_BEHEERDERS_ELK_DOMEIN_ID",
+                    "naam": "$TEST_GROUP_BEHEERDERS_ELK_DOMEIN_DESCRIPTION"
                 }
             ]
         """
