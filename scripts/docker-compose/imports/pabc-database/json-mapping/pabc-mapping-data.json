@@ -251,14 +251,12 @@
     {
       "id": "e468514b-f4cf-4b1e-bc5d-653bdbcc4587",
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
-      "domainId": null,
       "applicationRoleId": "003591ad-c6c8-4107-8877-9579c5e27982",
       "isAllEntityTypes": true
     },
     {
       "id": "b15ab065-126d-4311-8170-18b047173903",
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
-      "domainId": null,
       "applicationRoleId": "a43e878d-a08f-4102-9d6c-9aa58299581b",
       "isAllEntityTypes": true
 
@@ -266,21 +264,18 @@
     {
       "id": "ac0f0745-8e74-4966-a706-b8ef0e806bdc",
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
-      "domainId": null,
       "applicationRoleId": "03dc5977-e99d-4b39-a7c1-6a5ceb16a574",
       "isAllEntityTypes": true
     },
     {
       "id": "33c36417-b0df-45db-8c11-36d18cf63425",
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
-      "domainId": null,
       "applicationRoleId": "2a7cfd79-bf3c-4f86-8a45-2aedd2b2ba0e",
       "isAllEntityTypes": true
     },
     {
       "id": "e6990d64-55af-40b8-af54-b1f4b1083bce",
       "functionalRoleId": "45678901-bcde-f123-4567-890abcdef123",
-      "domainId": null,
       "applicationRoleId": "c54a72b5-053b-4c3e-ac9f-c6034a6e23ea",
       "isAllEntityTypes": true
     }
