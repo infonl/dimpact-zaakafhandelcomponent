@@ -14,8 +14,18 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
@@ -25,6 +35,10 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
@@ -132,6 +146,34 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_RAADPLEGER_1_USERNAME",
                                     "naam": "$TEST_RAADPLEGER_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_TEST_1_USERNAME",
+                                    "naam": "$TEST_RAADPLEGER_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_RAADPLEGER_TEST_2_USERNAME",
+                                    "naam": "$TEST_RAADPLEGER_TEST_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHANDELAAR_TEST_1_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHANDELAAR_TEST_2_USERNAME",
+                                    "naam": "$TEST_BEHANDELAAR_TEST_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_COORDINATOR_TEST_1_USERNAME",
+                                    "naam": "$TEST_COORDINATOR_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$TEST_COORDINATOR_TEST_2_USERNAME",
+                                    "naam": "$TEST_COORDINATOR_TEST_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_BEHEERDER_TEST_1_USERNAME",
+                                    "naam": "$TEST_BEHEERDER_TEST_1_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_1_USERNAME",
