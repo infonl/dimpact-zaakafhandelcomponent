@@ -724,6 +724,18 @@
       "clientRoles": {
         "zaakafhandelcomponent": ["behandelaar_domein_test_2"]
       }
+    },
+    {
+      "id": "0d860be6-e27d-47df-bf03-2e574939c4a6",
+      "name": "beheerders-elk-domein",
+      "path": "/beheerders-elk-domein",
+      "attributes": {
+        "description": ["Test group beheerders elk domein - new IAM"],
+        "email": ["${ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": ["beheerder_elk_domein"]
+      }
     }
   ],
   "defaultRole": {
