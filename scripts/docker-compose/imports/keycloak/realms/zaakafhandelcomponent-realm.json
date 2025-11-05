@@ -682,7 +682,7 @@
       "name": "raadplegers-test-1",
       "path": "/raadplegers-test-1",
       "attributes": {
-        "description": ["Test group Raadplegers domein test 1 - new IAM"],
+        "description": ["Test group raadplegers domein test 1 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -694,11 +694,35 @@
       "name": "raadplegers-test-2",
       "path": "/raadplegers-test-2",
       "attributes": {
-        "description": ["Test group Raadplegers domein test 2 - new IAM"],
+        "description": ["Test group raadplegers domein test 2 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": ["raadpleger_domein_test_2"]
+      }
+    },
+    {
+      "id": "e02264af-db24-4265-999e-03ff1cea32cf",
+      "name": "behandelaars-test-1",
+      "path": "/behandelaars-test-1",
+      "attributes": {
+        "description": ["Test group behandelaars domein test 1 - new IAM"],
+        "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": ["behandelaar_domein_test_1"]
+      }
+    },
+    {
+      "id": "eb7a1785-8c61-4a1d-9318-0688a2c7e02c",
+      "name": "behandelaars-test-2",
+      "path": "/behandelaars-test-2",
+      "attributes": {
+        "description": ["Test group behandelaars domein test 2 - new IAM"],
+        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": ["behandelaar_domein_test_2"]
       }
     }
   ],

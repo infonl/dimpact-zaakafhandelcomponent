@@ -72,6 +72,8 @@ services:
       - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS:-test-group-raadplegers-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS:-test-group-behandelaars-test-2@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
