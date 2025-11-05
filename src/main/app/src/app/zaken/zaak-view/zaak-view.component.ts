@@ -1138,7 +1138,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-          void this.updateZaak()
+          void this.updateZaak();
         }
       });
   }
