@@ -62,6 +62,7 @@ import java.net.URI
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.onFailure
 
 const val TOELICHTING_MAX_LENGTH = 1000
 
@@ -152,17 +153,17 @@ class ProductaanvraagService @Inject constructor(
             .let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI, throwException: Boolean = true) =
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) =
         ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
         }.run {
-            createZaakInformatieobject(this, throwException)
+            createZaakInformatieobject(this)
         }
 
-    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI, throwException: Boolean = true) =
+    fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
             ZaakInformatieobject().apply {
                 informatieobject = bijlage.url
@@ -170,27 +171,28 @@ class ProductaanvraagService @Inject constructor(
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
-                createZaakInformatieobject(this, throwException)
+                createZaakInformatieobject(this)
             }
         }
 
-    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject, throwException: Boolean) {
-        zaakInformatieobject
-            .runCatching {
-                LOG.fine("Creating zaakinformatieobject: '$this'")
-                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+    private fun pairBijlagenWithZaakIgnoringExceptions(bijlageURIs: List<URI>, zaakUrl: URI) =
+        bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
+            ZaakInformatieobject().apply {
+                informatieobject = bijlage.url
+                zaak = zaakUrl
+                titel = bijlage.titel
+                beschrijving = bijlage.beschrijving
+            }.runCatching {
+                createZaakInformatieobject(this)
+            }.onFailure {
+                LOG.log(Level.WARNING, "Failed to pair bijlagen '${bijlage.url}' with zaak url '$zaakUrl'", it)
             }
-            .onFailure {
-                LOG.log(
-                    Level.WARNING,
-                    "Failed to create zaakinformatieobject: '$zaakInformatieobject'",
-                    it
-                )
-                if (throwException) throw it
-            }
-            .onSuccess {
-                LOG.fine("Created zaakinformatieobject: '$zaakInformatieobject'")
-            }
+        }
+
+    private fun createZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject) {
+        LOG.fine("Creating zaakinformatieobject '$zaakInformatieobject' ...")
+        zrcClientService.createZaakInformatieobject(zaakInformatieobject, ZAAK_INFORMATIEOBJECT_REDEN)
+        LOG.fine("Created zaakinformatieobject '$zaakInformatieobject'")
     }
 
     /**
@@ -578,8 +580,18 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url, false)
-        productaanvraagDimpact.bijlagen?.let { pairBijlagenWithZaak(bijlageURIs = it, zaakUrl = zaak.url, false) }
+        productaanvraagDimpact.runCatching {
+            pairAanvraagPDFWithZaak(this, zaak.url)
+        }.onFailure {
+            LOG.log(
+                Level.WARNING,
+                "Failed to pair aanvraag PDF `${productaanvraagDimpact.pdf}` with zaak '${zaak.identificatie}'",
+                it
+            )
+        }
+        productaanvraagDimpact.bijlagen?.runCatching {
+            pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = this, zaakUrl = zaak.url)
+        }
     }
 
     private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
