@@ -14,16 +14,16 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -42,12 +42,12 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val zacClient = ZacClient()
 
     beforeSpec {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
     }
 
     afterSpec {
         // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
     Given("A behandelaar is logged in and a zaak exists that has been assigned to the currently logged-in user") {
@@ -94,37 +94,37 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                        {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "nieuweWaarde" : "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "ONTKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "oudeWaarde" : "$TEST_GROUP_A_DESCRIPTION",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
-                          "nieuweWaarde" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
+                          "nieuweWaarde" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "status",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "nieuweWaarde" : "Intake",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "nieuweWaarde" : "$TEST_GROUP_A_DESCRIPTION",
                           "toelichting" : "Aanmaken zaak"
                         }, {
                           "actie" : "AANGEMAAKT",
                           "attribuutLabel" : "zaak",
-                          "door" : "$TEST_BEHANDELAAR_1_NAME",
+                          "door" : "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                           "nieuweWaarde" : "$zaakIdentificatie",
                           "toelichting" : "null"
                         }              

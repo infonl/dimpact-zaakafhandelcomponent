@@ -18,12 +18,12 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -136,7 +136,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """{
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                          "groepId":"$TEST_GROUP_A_ID",
-                        "behandelaarGebruikersnaam":"$TEST_USER_2_ID",
+                        "behandelaarGebruikersnaam":"$OLD_IAM_TEST_USER_2_ID",
                         "reden":"fakeTasksAssignReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }

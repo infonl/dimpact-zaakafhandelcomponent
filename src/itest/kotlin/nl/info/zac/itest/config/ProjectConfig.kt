@@ -12,7 +12,6 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.authenticateAsBeheerderElkZaaktype
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
@@ -25,8 +24,6 @@ import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL

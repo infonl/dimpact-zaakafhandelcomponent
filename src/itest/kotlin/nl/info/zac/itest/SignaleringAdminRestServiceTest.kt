@@ -14,6 +14,9 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.client.authenticateAsBeheerderElkZaaktype
+import nl.info.zac.itest.client.getBehandelaarDomainTest1User
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -21,9 +24,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -47,6 +47,16 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
+    val behandelaar = getBehandelaarDomainTest1User()
+
+    beforeSpec {
+        authenticate(username = behandelaar.username, password = behandelaar.password)
+    }
+
+    afterSpec {
+        // re-authenticate using beheerder user since some subsequent integration tests rely on this user being logged in
+        authenticateAsBeheerderElkZaaktype()
+    }
 
     Given(
         """
@@ -90,18 +100,17 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         // wait for OpenZaak to accept this request
         sleepForOpenZaakUniqueConstraint(1)
         val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        // start a task and assign it to the currently logged-in user (i.e. 'myself')
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
-            // TODO: do not hardcode user and group here. use something similar to authenticateAsBeheerderElkZaaktype
-            // depends on currently logged in user?
             requestBodyAsString = """
                 {
                     "planItemInstanceId": "$humanTaskItemId",
                     "fataledatum": "$fataleDatum",
                     "taakStuurGegevens": { "sendMail": false },
                     "medewerker": {
-                        "id": "$TEST_USER_1_USERNAME",
-                        "naam": "$TEST_USER_1_NAME"
+                        "id": "${behandelaar.username}",
+                        "naam": "${behandelaar.displayName}"
                     },
                     "groep": {
                         "id": "$TEST_GROUP_A_ID",
@@ -110,11 +119,12 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     "taakdata":{}
                 }
             """.trimIndent()
+
         )
 
-        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
         val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
+        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
 
         When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
@@ -136,7 +146,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 lateinit var receivedMails: JSONArray
                 eventually(5.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/${behandelaar.email}/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
                     receivedMails = JSONArray(receivedMailsResponse.body.string())

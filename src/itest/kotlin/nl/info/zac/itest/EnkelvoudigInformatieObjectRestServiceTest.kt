@@ -25,13 +25,13 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAG
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
@@ -86,7 +86,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                          "auteur" : "$TEST_USER_1_NAME",
+                          "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
                           "beschrijving" : "",
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
@@ -162,7 +162,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("auteur", OLD_IAM_TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                     shouldContainJsonKeyValue("taal", "Nederlands")
                     shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
@@ -213,7 +213,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("auteur", OLD_IAM_TEST_USER_1_NAME)
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
                     shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     shouldContainJsonKeyValue(
@@ -260,7 +260,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", OLD_IAM_TEST_USER_1_NAME)
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -282,7 +282,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "bestandsnaam" : "$TEST_TXT_FILE_NAME",
-                      "auteur" : "$TEST_USER_1_NAME",
+                      "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
                       "beschrijving" : "",
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
@@ -339,7 +339,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",
@@ -401,7 +401,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", OLD_IAM_TEST_USER_1_NAME)
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -423,7 +423,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",

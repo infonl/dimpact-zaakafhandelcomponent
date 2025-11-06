@@ -12,10 +12,10 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -109,7 +109,7 @@ class MailRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "subject.pdf",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
                   "beschrijving" : "",
                   "bestandsomvang" : 1851,
                   "creatiedatum" : "${LocalDate.now()}",

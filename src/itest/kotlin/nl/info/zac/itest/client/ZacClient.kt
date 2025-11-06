@@ -12,7 +12,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -65,7 +65,7 @@ class ZacClient {
                         "yyyy-MM-dd'T'HH:mm+01:00"
                     ).format(ZonedDateTime.now())
                 )
-                .addFormDataPart("auteur", TEST_USER_1_NAME)
+                .addFormDataPart("auteur", OLD_IAM_TEST_USER_1_NAME)
                 .addFormDataPart("taal", "dut")
                 .build()
         return itestHttpClient.performPostRequest(

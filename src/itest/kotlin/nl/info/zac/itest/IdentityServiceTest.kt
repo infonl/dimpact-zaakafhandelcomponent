@@ -10,45 +10,43 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RECORD_MANAGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RECORD_MANAGER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_2_NAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -88,8 +86,8 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJson """
                             [                               
                                 {
-                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                    "id": "$GROUP_DOMEIN_TEST_1_ID",
+                                    "naam": "$GROUP_DOMEIN_TEST_1_DESCRIPTION"
                                 }
                             ]
                 """.trimIndent()
@@ -124,72 +122,68 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_USERNAME",
-                                    "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
+                                    "id": "$OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_RECORD_MANAGER_1_USERNAME",
-                                    "naam": "$TEST_RECORD_MANAGER_1_NAME"
+                                    "id": "$OLD_IAM_TEST_RECORD_MANAGER_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_COORDINATOR_1_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_1_NAME"
+                                    "id": "$OLD_IAM_TEST_COORDINATOR_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_COORDINATOR_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_2_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_1_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_TEST_1_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_TEST_2_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_TEST_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_TEST_2_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_COORDINATOR_TEST_1_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_COORDINATOR_TEST_2_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHEERDER_TEST_1_USERNAME",
-                                    "naam": "$TEST_BEHEERDER_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_USER_1_USERNAME",
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "id": "$OLD_IAM_TEST_BEHANDELAAR_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_BEHANDELAAR_1_NAME"
                                 },                          
                                 {
-                                    "id": "$TEST_USER_2_ID",
-                                    "naam": "$TEST_USER_2_NAME"
+                                    "id": "$OLD_IAM_TEST_RAADPLEGER_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_RAADPLEGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                    "id": "$RAADPLEGER_1_USERNAME",
+                                    "naam": "$RAADPLEGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_2_USERNAME",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_2_NAME"
+                                    "id": "$RAADPLEGER_2_USERNAME",
+                                    "naam": "$RAADPLEGER_2_NAME"
+                                },
+                                {
+                                    "id": "$BEHANDELAAR_1_USERNAME",
+                                    "naam": "$BEHANDELAAR_1_NAME"
+                                },
+                                {
+                                    "id": "$BEHANDELAAR_2_USERNAME",
+                                    "naam": "$BEHANDELAAR_2_NAME"
+                                },
+                                {
+                                    "id": "$COORDINATOR_1_USERNAME",
+                                    "naam": "$COORDINATOR_1_NAME"
+                                },
+                                {
+                                    "id": "$COORDINATOR_2_USERNAME",
+                                    "naam": "$COORDINATOR_2_NAME"
+                                },
+                                {
+                                    "id": "$BEHEERDER_1_USERNAME",
+                                    "naam": "$BEHEERDER_1_NAME"
+                                },
+                                {
+                                    "id": "$OLD_IAM_TEST_USER_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_USER_1_NAME"
+                                },                          
+                                {
+                                    "id": "$OLD_IAM_TEST_USER_2_ID",
+                                    "naam": "$OLD_IAM_TEST_USER_2_NAME"
+                                },
+                                {
+                                    "id": "$OLD_IAM_TEST_USER_DOMEIN_TEST_1_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_USER_DOMEIN_TEST_1_NAME"
+                                },
+                                {
+                                    "id": "$OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME",
+                                    "naam": "$OLD_IAM_TEST_USER_DOMEIN_TEST_2_NAME"
                                 },
                                 {
                                     "id": "$TEST_USER_WITHOUT_ANY_ROLE_USERNAME",
@@ -210,12 +204,12 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualJson """
                         [
                             {
-                                "id": "$TEST_USER_1_USERNAME",
-                                "naam": "$TEST_USER_1_NAME"
+                                "id": "$OLD_IAM_TEST_USER_1_USERNAME",
+                                "naam": "$OLD_IAM_TEST_USER_1_NAME"
                             },
                             {
-                                "id": "$TEST_USER_2_ID",
-                                "naam": "$TEST_USER_2_NAME"
+                                "id": "$OLD_IAM_TEST_USER_2_ID",
+                                "naam": "$OLD_IAM_TEST_USER_2_NAME"
                             }
                         ]
                 """.trimIndent()
@@ -231,8 +225,8 @@ class IdentityServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
-                                "id": "$TEST_USER_1_USERNAME",
-                                "naam": "$TEST_USER_1_NAME",
+                                "id": "$OLD_IAM_TEST_USER_1_USERNAME",
+                                "naam": "$OLD_IAM_TEST_USER_1_NAME",
                                 "groupIds": [
                                     "$TEST_GROUP_A_ID",
                                     "$TEST_GROUP_FUNCTIONAL_ADMINS_ID"

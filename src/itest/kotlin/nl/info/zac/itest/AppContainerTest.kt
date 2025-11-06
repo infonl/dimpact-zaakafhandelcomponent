@@ -9,10 +9,10 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
@@ -26,7 +26,7 @@ class AppContainerTest : BehaviorSpec({
 
     afterSpec {
         // re-authenticate using testuser1 since currently all subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
     Given("ZAC Docker container and all related Docker containers are running") {
@@ -53,7 +53,7 @@ class AppContainerTest : BehaviorSpec({
             }
         }
         When("/admin is requested for a user who has the 'beheerder' role") {
-            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_USERNAME)
+            authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_USERNAME)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin"
             )
@@ -62,7 +62,7 @@ class AppContainerTest : BehaviorSpec({
             }
         }
         When("/admin is requested for a user who does not have the 'beheerder' role") {
-            authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+            authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin"
             )

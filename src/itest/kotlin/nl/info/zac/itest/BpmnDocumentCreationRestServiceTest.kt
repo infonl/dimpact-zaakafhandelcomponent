@@ -16,6 +16,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -24,7 +25,6 @@ import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -86,7 +86,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to TEST_USER_1_NAME
+                        "author" to OLD_IAM_TEST_USER_1_NAME
                     )
                 ).toString()
             )
@@ -118,7 +118,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to TEST_USER_1_NAME,
+                        "author" to OLD_IAM_TEST_USER_1_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
@@ -142,7 +142,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                 "zaak/$bpmnZaakUuid/task/$taskId" +
-                "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
                 "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                 "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                 "&templateGroupName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
@@ -187,7 +187,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "&userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
                     "&templateName=" + SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.urlEncode() +
                     "&informatieobjecttypeUuid=$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
@@ -228,7 +228,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                     "zaak/$bpmnZaakUuid/task/$taskId" +
-                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +

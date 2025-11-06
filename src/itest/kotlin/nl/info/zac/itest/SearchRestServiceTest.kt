@@ -25,16 +25,15 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUU
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
@@ -62,6 +61,8 @@ import org.json.JSONObject
 
 /**
  * Run this test after reindexing so that all the required data is available in the Solr index.
+ * Note that this test is currently heavily dependent on data created by previously run integration tests.
+ * It would be good to make this test much more isolated because it is hard to maintain in its current form.
  */
 @Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("LargeClass")
@@ -70,12 +71,12 @@ class SearchRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     beforeSpec {
-        authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_RAADPLEGER_1_USERNAME, password = OLD_IAM_TEST_RAADPLEGER_1_PASSWORD)
     }
 
     afterSpec {
         // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
     Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
@@ -138,8 +139,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "aantal": 1                        
                                 }
                             ],
                             "GROEP": [
@@ -564,9 +564,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                             },
                             {
-                                "type": "TAAK",
-                                "behandelaarGebruikersnaam": "$TEST_USER_1_USERNAME",
-                                "behandelaarNaam": "$TEST_USER_1_NAME",
+                                "type": "TAAK",                       
                                 "fataledatum": "$DATE_2024_01_01",
                                 "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
@@ -631,8 +629,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "aantal": 1                       
                                 },
                                 {
                                     "aantal": 3,

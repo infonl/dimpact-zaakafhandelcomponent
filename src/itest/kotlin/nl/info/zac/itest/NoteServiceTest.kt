@@ -11,9 +11,9 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.authenticateAsBeheerderElkZaaktype
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -25,7 +25,7 @@ class NoteServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     beforeSpec {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
     }
 
     afterSpec {
@@ -45,7 +45,7 @@ class NoteServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",
                         "tekst": "fakeNoteText",
-                        "gebruikersnaamMedewerker": "$TEST_BEHANDELAAR_1_USERNAME"
+                        "gebruikersnaamMedewerker": "$OLD_IAM_TEST_BEHANDELAAR_1_USERNAME"
                     }
                 """.trimIndent()
             )
@@ -58,8 +58,8 @@ class NoteServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",
                         "tekst": "fakeNoteText",
-                        "gebruikersnaamMedewerker": "$TEST_BEHANDELAAR_1_USERNAME",
-                        "voornaamAchternaamMedewerker": "$TEST_BEHANDELAAR_1_NAME",
+                        "gebruikersnaamMedewerker": "$OLD_IAM_TEST_BEHANDELAAR_1_USERNAME",
+                        "voornaamAchternaamMedewerker": "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                         "bewerkenToegestaan": true
                     }
                 """.trimIndent()
@@ -84,8 +84,8 @@ class NoteServiceTest : BehaviorSpec({
                         {
                             "zaakUUID": "$zaakProductaanvraag1Uuid",
                             "tekst": "fakeNoteText",
-                            "gebruikersnaamMedewerker": "$TEST_BEHANDELAAR_1_USERNAME",
-                            "voornaamAchternaamMedewerker": "$TEST_BEHANDELAAR_1_NAME",
+                            "gebruikersnaamMedewerker": "$OLD_IAM_TEST_BEHANDELAAR_1_USERNAME",
+                            "voornaamAchternaamMedewerker": "$OLD_IAM_TEST_BEHANDELAAR_1_NAME",
                             "bewerkenToegestaan": true
                         }
                     ]
