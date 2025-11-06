@@ -279,7 +279,7 @@
         "- \\*\\*open-archiefbeheer\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "maykinmedia/open-archiefbeheer",
+      "depNameTemplate": "docker.io/maykinmedia/open-archiefbeheer",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
