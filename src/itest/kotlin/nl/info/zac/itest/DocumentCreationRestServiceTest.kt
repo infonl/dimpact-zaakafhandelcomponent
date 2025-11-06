@@ -41,7 +41,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC and all related Docker containers are running and zaak exists") {
+    Given("A zaak exists") {
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }

@@ -9,6 +9,7 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
+import nl.info.zac.itest.util.TestUser
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -43,6 +44,11 @@ fun authenticate(
     logger.info { "--- authenticate status code: $code ---" }
     refreshToken = JSONObject(this.body.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
 }
+
+fun authenticateAsTestUser(testUser: TestUser) = authenticate(
+    username = testUser.username,
+    password = testUser.password
+)
 
 /**
  * Always request a new access token using the current refresh token to make sure we remain

@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.client.authenticateAsTestUser
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
@@ -42,13 +43,9 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PA
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
@@ -88,6 +85,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
+import nl.info.zac.itest.util.getBehandelaarDomainTest1User
+import nl.info.zac.itest.util.getBehandelaarDomainTest2User
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -113,19 +113,21 @@ class ZaakRestServiceTest : BehaviorSpec({
     val fatalDateNew = startDateNew.plusDays(1)
     lateinit var zaak2UUID: UUID
 
+    beforeSpec {
+        authenticateAsBeheerderElkZaaktype()
+    }
+
     afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
+        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
+        // TODO: this fails currently because of some subsequent tests using SmartDocument proxy data
+        // which relies on testuser1 currently
+        // authenticateAsBeheerderElkZaaktype()
         authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
-    Context("listing zaaktypes for creating zaken") {
-        Given("ZAC Docker container is running and a functioneelbeheerder1 is logged-in") {
-            authenticate(
-                username = OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_USERNAME,
-                password = OLD_IAM_TEST_FUNCTIONAL_ADMIN_1_PASSWORD
-            )
-
-            When("zaaktype_test_1 is created") {
+    Context("Listing zaaktypes for creating zaken") {
+        Given("A beheerder with access to all zaaktypes in all domains is logged in") {
+            When("zaaktype CMMN configuration is created") {
                 val response = zacClient.createZaaktypeCmmnConfiguration(
                     zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
                     zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
@@ -143,11 +145,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given(
             """
-            ZAC Docker container is running, zaakafhandleparameters is created and a testuser1 is logged-in
+            zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
             """.trimIndent()
         ) {
-            authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
-
             When("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
                 lateinit var responseBody: String
@@ -190,13 +190,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given(
             """
             ZAC Docker container is running and zaaktypeCmmnConfiguration have been created
-            and a testuserdomaintest2 is logged-in
+            and a behandelaar user that is authorised for zaaktypes in domain test 2 only is logged-in
             """.trimIndent()
         ) {
-            authenticate(
-                username = OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME,
-                password = OLD_IAM_TEST_USER_DOMEIN_TEST_2_PASSWORD
-            )
+            getBehandelaarDomainTest2User().let(::authenticateAsTestUser)
             lateinit var responseBody: String
 
             When("zaak types are listed") {
@@ -207,7 +204,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
                 And("the response body should contain only the zaaktypes for which the user is authorized") {
-                    // In non-PABC case we always return BPMN zaken
+                    // In the old IAM architecture we always return BPMN zaaktypes
                     val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
                         ""
                     } else {
@@ -236,10 +233,11 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            ZAC Docker container is running and zaaktypeCmmnConfiguration have been created and a behandelaar is logged-in
+            zaaktype CMMN configuration has been created for zaaktype test 3 
+            and a behandelaar authorised for this zaaktype is logged in
         """.trimIndent()
     ) {
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
         lateinit var responseBody: String
 
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
@@ -544,8 +542,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has been created and a logged-in behandelaar") {
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+    Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
+
         When("the get zaak endpoint is called") {
             val response = zacClient.retrieveZaak(zaak2UUID)
             Then("the response should be a 200 HTTP response and contain the created zaak") {
@@ -810,8 +809,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Betrokkenen have been added to a zaak and a logged-in behandelaar") {
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+    Given("Betrokkenen have been added to a zaak and a behandelaar authorised for this zaaktype is logged in") {
+        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
+
         When("the get betrokkene endpoint is called for a zaak") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
@@ -992,8 +992,16 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has not been assigned to the currently logged in user and a logged-in behandelaar") {
+    Given(
+        """
+        A zaak has not been assigned to the currently logged in user, 
+        and a behandelaar authorised for this zaaktype is logged in
+        """
+    ) {
+        // TODO: will cause DocumentCreationRestServiceTest to fail currently
+        // getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
         authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
@@ -1070,7 +1078,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     should be received by the websocket listener and the zaak should be released from the user
                     but should still be assigned to the group """
             ) {
-                val responseBody = response.body.string()
                 response.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(20.seconds) {
