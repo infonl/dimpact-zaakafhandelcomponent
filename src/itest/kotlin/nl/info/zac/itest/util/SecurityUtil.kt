@@ -15,6 +15,10 @@ import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHANDELAARS_TEST_1_ID
@@ -22,6 +26,10 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_EM
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_EMAIL
@@ -59,18 +67,6 @@ fun getBehandelaarDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATIO
     )
 }
 
-fun getBehandelaarsDomainTest1Group(): TestGroup = if (FEATURE_FLAG_PABC_INTEGRATION) {
-    TestGroup(
-        name = GROUP_BEHANDELAARS_TEST_1_ID,
-        description = GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
-    )
-} else {
-    TestGroup(
-        name = TEST_GROUP_BEHANDELAARS_ID,
-        description = TEST_GROUP_BEHANDELAARS_DESCRIPTION
-    )
-}
-
 fun getBehandelaarDomainTest2User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
     TestUser(
         username = BEHANDELAAR_2_USERNAME,
@@ -86,3 +82,32 @@ fun getBehandelaarDomainTest2User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATIO
         email = OLD_IAM_TEST_USER_DOMEIN_TEST_2_EMAIL
     )
 }
+
+fun getCoordinatorDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
+    TestUser(
+        username = COORDINATOR_1_USERNAME,
+        password = COORDINATOR_1_PASSWORD,
+        displayName = COORDINATOR_1_NAME,
+        email = COORDINATOR_1_EMAIL
+    )
+} else {
+    TestUser(
+        username = OLD_IAM_TEST_COORDINATOR_1_USERNAME,
+        password = OLD_IAM_TEST_COORDINATOR_1_PASSWORD,
+        displayName = OLD_IAM_TEST_COORDINATOR_1_NAME,
+        email = OLD_IAM_TEST_COORDINATOR_1_EMAIL
+    )
+}
+
+fun getBehandelaarsDomainTest1Group(): TestGroup = if (FEATURE_FLAG_PABC_INTEGRATION) {
+    TestGroup(
+        name = GROUP_BEHANDELAARS_TEST_1_ID,
+        description = GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
+    )
+} else {
+    TestGroup(
+        name = TEST_GROUP_BEHANDELAARS_ID,
+        description = TEST_GROUP_BEHANDELAARS_DESCRIPTION
+    )
+}
+

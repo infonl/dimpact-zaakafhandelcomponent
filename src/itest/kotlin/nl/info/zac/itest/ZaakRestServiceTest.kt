@@ -86,6 +86,7 @@ import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
 import nl.info.zac.itest.util.getBehandelaarDomainTest1User
 import nl.info.zac.itest.util.getBehandelaarDomainTest2User
 import nl.info.zac.itest.util.getBehandelaarsDomainTest1Group
+import nl.info.zac.itest.util.getCoordinatorDomainTest1User
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -120,7 +121,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
         // TODO: this fails currently because of some subsequent tests using SmartDocument proxy data
         // which relies on testuser1 currently
-        // authenticateAsBeheerderElkZaaktype()
+        //authenticateAsBeheerderElkZaaktype()
         authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
@@ -848,10 +849,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
             Two zaken have been created and two websocket subscriptions have been created to listen for both a 'zaken verdelen' 
             screen event as well as for 'zaak rollen' screen events which will be sent by the asynchronous 'assign zaken from list' 
-            job and a logged-in coordinator
+            job and a coordinator authorized for the zaaktypes of these zaken is logged in
         """
     ) {
-        authenticate(username = OLD_IAM_TEST_COORDINATOR_1_USERNAME, password = OLD_IAM_TEST_COORDINATOR_1_PASSWORD)
+        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
         val uniqueResourceId = UUID.randomUUID()
         val zakenVerdelenWebsocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -924,7 +925,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with domain exists and a websocket subscription has been created and a logged-in coordinator") {
-        authenticate(username = OLD_IAM_TEST_COORDINATOR_1_USERNAME, password = OLD_IAM_TEST_COORDINATOR_1_PASSWORD)
+        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
         val response = zacClient.retrieveZaak(ZAAK_MANUAL_2024_01_IDENTIFICATION)
         response.code shouldBe HTTP_OK
         val responseBody = response.body.string()
@@ -997,9 +998,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         and a behandelaar authorised for this zaaktype is logged in
         """
     ) {
-        // TODO: will cause DocumentCreationRestServiceTest to fail currently?
         val behandelaar = getBehandelaarDomainTest1User().also(::authenticateAsTestUser)
-        //authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
 
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
