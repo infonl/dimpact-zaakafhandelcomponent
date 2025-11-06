@@ -703,7 +703,6 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./scripts/docker-compose/imports/pabc-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
@@ -711,9 +710,12 @@ services:
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+      JSON_DATASET_PATH: "/app/json/pabc-mapping-data.json"
     depends_on:
       pabc-database:
         condition: "service_healthy"
+    volumes:
+      - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.4@sha256:3ec75e173c7c2662f9c720d79dd7bfdbda9bd08223ad9ae021dde2f05312bb8d
