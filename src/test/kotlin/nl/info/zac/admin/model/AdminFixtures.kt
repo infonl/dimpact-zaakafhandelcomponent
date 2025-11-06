@@ -96,6 +96,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
+    gebruikersnaamMedewerker: String? = null,
     zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = ZaaktypeCmmnBrpParameters().apply {
         zoekWaarde = ""
@@ -115,6 +116,7 @@ fun createZaaktypeCmmnConfiguration(
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
+        this.gebruikersnaamMedewerker = gebruikersnaamMedewerker
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
