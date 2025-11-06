@@ -283,6 +283,7 @@ describe(InformatieObjectEditComponent.name, () => {
         auteur: "Test Author",
         toelichting: "Test Explanation",
       });
+      component["form"].markAsDirty();
 
       fixture.detectChanges();
 
@@ -315,6 +316,7 @@ describe(InformatieObjectEditComponent.name, () => {
         vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
         auteur: "Test Author",
       });
+      component["form"].markAsDirty();
 
       fixture.detectChanges();
 
@@ -338,6 +340,7 @@ describe(InformatieObjectEditComponent.name, () => {
         vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
         auteur: "Test Author",
       });
+      component["form"].markAsDirty();
 
       fixture.detectChanges();
 
