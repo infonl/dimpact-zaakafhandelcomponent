@@ -149,7 +149,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    @SuppressWarnings("ReturnCount")
     fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI): Boolean {
         zaaktypeCmmnConfigurationService.clearListCache()
         ztcClientService.clearZaaktypeCache()
@@ -175,23 +174,27 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             }
             updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-            return true
         } else {
             zaaktypeCmmnConfiguration.zaakTypeUUID = zaaktypeUuid
-        }
 
-        val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
-        mapPreviousZaaktypeCmmnConfigurationData(zaaktypeCmmnConfiguration, zaaktype, previousZaaktypeCmmnConfiguration)
-        storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
+            mapPreviousZaaktypeCmmnConfigurationData(
+                zaaktypeCmmnConfiguration,
+                zaaktype,
+                previousZaaktypeCmmnConfiguration
+            )
+            storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
 
-        // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
-        // already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
-        previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
-            zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
-                mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
-                storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
+            // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
+            previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
+                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+                }
             }
         }
+
         return true
     }
 

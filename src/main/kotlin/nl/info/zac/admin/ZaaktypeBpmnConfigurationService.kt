@@ -64,9 +64,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                 productaanvraagtype = it.productaanvraagtype
                 groupId = it.groupId
                 creatiedatum = ZonedDateTime.now()
-            }.run {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(this)
-            }
+            }.run(zaaktypeBpmnConfigurationBeheerService::storeConfiguration)
         }
     }
 }
