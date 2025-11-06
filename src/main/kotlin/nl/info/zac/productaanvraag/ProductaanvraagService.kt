@@ -153,7 +153,7 @@ class ProductaanvraagService @Inject constructor(
             .let(zrcClientService::createZaakobject)
     }
 
-    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) =
+    fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
         ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
@@ -162,6 +162,7 @@ class ProductaanvraagService @Inject constructor(
         }.run {
             zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
         }
+    }
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
