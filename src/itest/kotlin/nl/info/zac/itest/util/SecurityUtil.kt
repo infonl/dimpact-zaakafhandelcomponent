@@ -5,6 +5,7 @@
 package nl.info.zac.itest.util
 
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.client.authenticateAsTestUser
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_PASSWORD
@@ -43,17 +44,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 
-fun authenticateAsBeheerderElkZaaktype() = if (FEATURE_FLAG_PABC_INTEGRATION) {
-    authenticate(
-        username = BEHEERDER_1_USERNAME,
-        password = BEHEERDER_1_PASSWORD
-    )
-} else {
-    authenticate(
-        username = OLD_IAM_TEST_USER_1_USERNAME,
-        password = OLD_IAM_TEST_USER_1_PASSWORD
-    )
-}
+fun authenticateAsBeheerderElkZaaktype() = getBeheerderElkZaaktypeUser().also(::authenticateAsTestUser)
 
 fun getBehandelaarDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
     TestUser(
