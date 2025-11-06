@@ -189,7 +189,6 @@ class ProductaanvraagService @Inject constructor(
             }
         }
 
-
     /**
      * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
      * of provided role types, [Betrokkene.rolOmschrijvingGeneriek] or [Betrokkene.roltypeOmschrijving], but only for those
