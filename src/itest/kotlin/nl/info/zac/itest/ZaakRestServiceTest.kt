@@ -38,8 +38,6 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
@@ -121,7 +119,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
         // TODO: this fails currently because of some subsequent tests using SmartDocument proxy data
         // which relies on testuser1 currently
-        //authenticateAsBeheerderElkZaaktype()
+        // authenticateAsBeheerderElkZaaktype()
         authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
     }
 
@@ -882,13 +880,15 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
-                requestBodyAsString = "{\n" +
-                    "\"uuids\":[\"$zaakProductaanvraag1Uuid\", \"$zaak2UUID\"],\n" +
-                    "\"groepId\":\"$TEST_GROUP_A_ID\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$OLD_IAM_TEST_USER_2_ID\",\n" +
-                    "\"reden\":\"fakeLijstVerdelenReason\",\n" +
-                    "\"screenEventResourceId\":\"$uniqueResourceId\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "uuids": [ "$zaakProductaanvraag1Uuid", "$zaak2UUID" ],
+                        "groepId": "$TEST_GROUP_A_ID",
+                        "behandelaarGebruikersnaam": "$OLD_IAM_TEST_USER_2_ID",
+                        "reden": "fakeLijstVerdelenReason",
+                        "screenEventResourceId": "$uniqueResourceId"
+                    }
+                """.trimIndent()
             )
             Then(
                 """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
@@ -999,7 +999,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
     ) {
         val behandelaar = getBehandelaarDomainTest1User().also(::authenticateAsTestUser)
-
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
@@ -1041,9 +1040,9 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given(
         """Zaken have been assigned and a websocket subscription has been created to listen
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job
-            and a logged-in coordinator"""
+            and a coordinator authorized for the zaaktypes of these zaken is logged in"""
     ) {
-        authenticate(username = OLD_IAM_TEST_COORDINATOR_1_USERNAME, password = OLD_IAM_TEST_COORDINATOR_1_PASSWORD)
+        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
