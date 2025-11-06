@@ -15,8 +15,6 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.client.authenticateAsBeheerderElkZaaktype
-import nl.info.zac.itest.client.getBehandelaarDomainTest1User
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -29,6 +27,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
+import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
+import nl.info.zac.itest.util.getBehandelaarDomainTest1User
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders

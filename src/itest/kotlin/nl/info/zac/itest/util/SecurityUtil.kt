@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.itest.client
+package nl.info.zac.itest.util
 
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_PASSWORD
@@ -17,7 +18,6 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PA
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
-import nl.info.zac.itest.util.TestUser
 
 fun authenticateAsBeheerderElkZaaktype() = if (FEATURE_FLAG_PABC_INTEGRATION) {
     authenticate(
