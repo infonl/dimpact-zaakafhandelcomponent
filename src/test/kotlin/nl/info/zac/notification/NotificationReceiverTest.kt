@@ -27,6 +27,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
@@ -50,12 +51,14 @@ class NotificationReceiverTest : BehaviorSpec({
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
+    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val notificationReceiver = NotificationReceiver(
         eventingService = eventingService,
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
         inboxDocumentenService = inboxDocumentenService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
+        zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
         signaleringService = signaleringService,
@@ -110,7 +113,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } returns true
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -138,7 +141,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } just runs
+        every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri) } returns true
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)

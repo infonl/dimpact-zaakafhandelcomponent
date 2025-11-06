@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.bpmn.model
+package nl.info.zac.admin.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
@@ -30,6 +31,8 @@ class ZaaktypeBpmnConfiguration {
     companion object {
         const val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = "productaanvraagtype"
         const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktypeUuid"
+        const val ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
+        const val CREATIEDATUM_VARIABLE_NAME = "creatiedatum"
     }
 
     @Id
@@ -56,4 +59,7 @@ class ZaaktypeBpmnConfiguration {
      */
     @Column(name = "group_id", nullable = false)
     lateinit var groupId: String
+
+    @Column(name = "creatiedatum", nullable = false)
+    lateinit var creatiedatum: ZonedDateTime
 }

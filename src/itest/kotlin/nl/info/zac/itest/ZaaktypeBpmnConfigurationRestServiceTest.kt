@@ -5,7 +5,6 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -17,6 +16,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
@@ -57,7 +57,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the response contains the created zaaktype configuration") {
-                responseBody shouldEqualJson bpmnZaakType
+                responseBody shouldEqualJsonIgnoringExtraneousFields bpmnZaakType
             }
         }
     }
@@ -77,7 +77,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data is returned") {
-                responseBody shouldEqualJson bpmnZaakType
+                responseBody shouldEqualJsonIgnoringExtraneousFields bpmnZaakType
             }
         }
 
@@ -93,7 +93,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJson "[$bpmnZaakType]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType]"
             }
         }
     }

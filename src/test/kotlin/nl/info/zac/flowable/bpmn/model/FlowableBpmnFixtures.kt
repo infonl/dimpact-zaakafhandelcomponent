@@ -4,6 +4,8 @@
  */
 package nl.info.zac.flowable.bpmn.model
 
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LongParameterList")
@@ -23,4 +25,5 @@ fun createZaaktypeBpmnConfiguration(
     this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.productaanvraagtype = productaanvraagtype
     this.groupId = groupName
+    this.creatiedatum = ZonedDateTime.now()
 }

@@ -15,7 +15,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
@@ -52,7 +51,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationBeheerService::class.java.name)
@@ -97,14 +95,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
-
-        zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(uuid)?.let {
-                throw ZaaktypeInUseException(
-                    "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
-                )
-            }
-        }
 
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
@@ -159,8 +149,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    @SuppressWarnings("ReturnCount")
-    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI) {
+    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI): Boolean {
         zaaktypeCmmnConfigurationService.clearListCache()
         ztcClientService.clearZaaktypeCache()
 
@@ -168,7 +157,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val zaaktypeUuid = zaaktype.url.extractUuid()
         if (zaaktype.concept) {
             LOG.warning { "Zaak type with UUID $zaaktypeUuid is still a concept. Ignoring" }
-            return
+            return false
         }
 
         val zaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktypeUuid)
@@ -185,23 +174,28 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             }
             updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-            return
         } else {
             zaaktypeCmmnConfiguration.zaakTypeUUID = zaaktypeUuid
-        }
 
-        val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
-        mapPreviousZaaktypeCmmnConfigurationData(zaaktypeCmmnConfiguration, zaaktype, previousZaaktypeCmmnConfiguration)
-        storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
+            mapPreviousZaaktypeCmmnConfigurationData(
+                zaaktypeCmmnConfiguration,
+                zaaktype,
+                previousZaaktypeCmmnConfiguration
+            )
+            storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
 
-        // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
-        // already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
-        previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
-            zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
-                mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
-                storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
+            // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
+            previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
+                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
+                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+                }
             }
         }
+
+        return true
     }
 
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -381,8 +375,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
 
         zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            zaakbeeindigParameter.resultaattype
-                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
+            mapVorigResultaattypeOpNieuwResultaattype(zaakbeeindigParameter.resultaattype, newResultaattypen)
                 ?.let {
                     ZaaktypeCmmnCompletionParameters().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden

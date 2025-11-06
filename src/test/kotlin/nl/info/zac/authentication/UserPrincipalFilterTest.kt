@@ -24,7 +24,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
@@ -35,7 +35,7 @@ import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val pabcClientService = mockk<PabcClientService>()
 
     val httpServletRequest = mockk<HttpServletRequest>()
@@ -65,7 +65,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     Context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
             zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = true
         )
@@ -138,7 +138,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
             } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -193,7 +193,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
 
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns listOf(
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1")
             )
 
@@ -255,7 +255,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
                 )
-                every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+                every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
@@ -283,7 +283,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2"),
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype3")
                 )
-                every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+                every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
@@ -304,7 +304,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     Context("PABC integration is disabled") {
         val userPrincipalFilter = UserPrincipalFilter(
             zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = false
         )
@@ -323,7 +323,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
 
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)

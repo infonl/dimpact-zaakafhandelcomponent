@@ -4,13 +4,11 @@
  */
 package nl.info.zac.admin
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -31,11 +29,9 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.admin.exception.ZaaktypeInUseException
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import java.net.URI
@@ -58,14 +54,12 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     val expressionString = mockk<Expression<String>>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
 
     val zaaktypeCmmnConfigurationBeheerService = ZaaktypeCmmnConfigurationBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService
     )
 
     beforeEach {
@@ -204,10 +198,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
 
-        every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
-        } returns null
-
         // Relaxed entity manager mocking; criteria queries and persisting
         val criteriaQuery = mockk<CriteriaQuery<ZaaktypeCmmnConfiguration>>(relaxed = true)
         every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
@@ -241,10 +231,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
 
         every { zaaktypeCmmnConfigurationService.clearListCache() } returns "Cache cleared"
-
-        every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
-        } returns null
 
         // ZtcClientService mocking
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
@@ -450,23 +436,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     it?.emailSender shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
                     it?.emailReply shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                 }
-            }
-        }
-    }
-
-    Given("A zaaktype with existing BPMN process mapping") {
-        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeCmmnConfiguration.zaakTypeUUID!!)
-        } returns createZaaktypeBpmnConfiguration()
-
-        When("create a zaaktypeCmmnConfiguration is attempted") {
-            val exception = shouldThrow<ZaaktypeInUseException> {
-                zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-            }
-
-            Then("an exception should be thrown") {
-                exception.message shouldContain zaaktypeCmmnConfiguration.zaaktypeOmschrijving
             }
         }
     }

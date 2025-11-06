@@ -22,7 +22,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.MEDE_INIT
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
@@ -62,7 +62,7 @@ class HealthCheckService @Inject constructor(
 
     private val referenceTableService: ReferenceTableService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val ztcClientService: ZtcClientService
 ) {
     companion object {
@@ -90,7 +90,7 @@ class HealthCheckService @Inject constructor(
         zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { zaakafhandelParams ->
             return ZaaktypeInrichtingscheck(zaaktype).apply {
                 isZaakafhandelParametersValide = zaakafhandelParams?.isValide()
-                    ?: (zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid) != null)
+                    ?: (zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) != null)
             }.also {
                 controleerZaaktypeStatustypeInrichting(it)
                 controleerZaaktypeResultaattypeInrichting(it)

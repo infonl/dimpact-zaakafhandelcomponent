@@ -31,6 +31,7 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
@@ -68,6 +69,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val zaaktypeCmmnConfigurationConverter: RestZaakafhandelParametersConverter,
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService,
@@ -113,7 +115,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, false) }
             .onEach { restZaakafhandelParameters ->
                 restZaakafhandelParameters.zaaktype.uuid?.let { zaaktypeUuid ->
-                    zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid)?.let {
+                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid)?.let {
                         restZaakafhandelParameters.valide = true
                     }
                 }

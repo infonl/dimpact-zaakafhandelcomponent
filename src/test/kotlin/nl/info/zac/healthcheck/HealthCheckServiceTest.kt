@@ -18,7 +18,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
@@ -43,7 +43,7 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -52,7 +52,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService,
             ztcClientService
         )
 
@@ -147,7 +147,7 @@ class HealthCheckServiceTest : BehaviorSpec({
 
         val referenceTableService = mockk<ReferenceTableService>()
         val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-        val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+        val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
         val ztcClientService = mockk<ZtcClientService>()
 
         val healthCheckService = HealthCheckService(
@@ -156,7 +156,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             versionNumber,
             referenceTableService,
             zaaktypeCmmnConfigurationBeheerService,
-            zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService,
             ztcClientService
         )
 
@@ -166,7 +166,7 @@ class HealthCheckServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationBeheerService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
         } returns null
         every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUuid)
+            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid)
         } returns createZaaktypeBpmnConfiguration()
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
