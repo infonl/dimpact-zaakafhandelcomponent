@@ -13,6 +13,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1_EMAIL
@@ -30,6 +32,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_EM
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_EMAIL
@@ -80,6 +84,22 @@ fun getBehandelaarDomainTest2User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATIO
         password = OLD_IAM_TEST_USER_DOMEIN_TEST_2_PASSWORD,
         displayName = OLD_IAM_TEST_USER_DOMEIN_TEST_2_NAME,
         email = OLD_IAM_TEST_USER_DOMEIN_TEST_2_EMAIL
+    )
+}
+
+fun getBeheerderElkZaaktypeUser(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
+    TestUser(
+        username = BEHEERDER_1_USERNAME,
+        password = BEHEERDER_1_PASSWORD,
+        displayName = BEHEERDER_1_NAME,
+        email = BEHEERDER_1_EMAIL
+    )
+} else {
+    TestUser(
+        username = OLD_IAM_TEST_USER_1_USERNAME,
+        password = OLD_IAM_TEST_USER_1_PASSWORD,
+        displayName = OLD_IAM_TEST_USER_1_NAME,
+        email = OLD_IAM_TEST_USER_1_EMAIL
     )
 }
 

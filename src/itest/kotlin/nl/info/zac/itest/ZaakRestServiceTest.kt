@@ -117,10 +117,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     afterSpec {
         // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
-        // TODO: this fails currently because of some subsequent tests using SmartDocument proxy data
-        // which relies on testuser1 currently
-        // authenticateAsBeheerderElkZaaktype()
-        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
+        authenticateAsBeheerderElkZaaktype()
     }
 
     Context("Listing zaaktypes for creating zaken") {

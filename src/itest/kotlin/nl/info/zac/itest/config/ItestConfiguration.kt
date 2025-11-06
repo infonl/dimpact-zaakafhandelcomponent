@@ -222,6 +222,7 @@ object ItestConfiguration {
     const val BEHEERDER_1_USERNAME = "beheerder1newiam"
     const val BEHEERDER_1_PASSWORD = "beheerder1newiam"
     const val BEHEERDER_1_NAME = "Test Beheerder 1 - new IAM"
+    const val BEHEERDER_1_EMAIL = "beheerder-test-1@example.com"
 
     const val TEST_USER_WITHOUT_ANY_ROLE_USERNAME = "userwithoutanyrole"
     const val TEST_USER_WITHOUT_ANY_ROLE_PASSWORD = "userwithoutanyrole"

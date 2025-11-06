@@ -11,14 +11,15 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticateAsTestUser
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.util.getBeheerderElkZaaktypeUser
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -34,8 +35,12 @@ import java.time.LocalDate
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-
     val urlEncodedFileName = URLEncoder.encode(TEST_TXT_FILE_NAME, Charsets.UTF_8)
+    val beheerderUser = getBeheerderElkZaaktypeUser()
+
+    beforeSpec {
+        authenticateAsTestUser(beheerderUser)
+    }
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent with the 'create document from mail' option enabled") {
@@ -109,7 +114,7 @@ class MailRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "subject.pdf",
-                  "auteur" : "$OLD_IAM_TEST_USER_1_NAME",
+                  "auteur" : "${beheerderUser.displayName}",
                   "beschrijving" : "",
                   "bestandsomvang" : 1851,
                   "creatiedatum" : "${LocalDate.now()}",
