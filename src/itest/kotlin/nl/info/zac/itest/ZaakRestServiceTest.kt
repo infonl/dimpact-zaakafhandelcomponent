@@ -38,9 +38,6 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
@@ -88,6 +85,7 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
 import nl.info.zac.itest.util.getBehandelaarDomainTest1User
 import nl.info.zac.itest.util.getBehandelaarDomainTest2User
+import nl.info.zac.itest.util.getBehandelaarsDomainTest1Group
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -111,6 +109,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val latitude = Random.nextFloat()
     val startDateNew = LocalDate.now()
     val fatalDateNew = startDateNew.plusDays(1)
+    val behandelaarGroup = getBehandelaarsDomainTest1Group()
     lateinit var zaak2UUID: UUID
 
     beforeSpec {
@@ -998,22 +997,22 @@ class ZaakRestServiceTest : BehaviorSpec({
         and a behandelaar authorised for this zaaktype is logged in
         """
     ) {
-        // TODO: will cause DocumentCreationRestServiceTest to fail currently
-        // getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+        // TODO: will cause DocumentCreationRestServiceTest to fail currently?
+        val behandelaar = getBehandelaarDomainTest1User().also(::authenticateAsTestUser)
+        //authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
 
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                 requestBodyAsString = """{
                     "zaakUUID":"$zaakProductaanvraag1Uuid",
-                    "groepId":"$TEST_GROUP_BEHANDELAARS_ID",
+                    "groepId":"${behandelaarGroup.name}",
                     "reden":"fakeAssignToMeFromListReason"
                 }
                 """.trimIndent()
             )
             Then(
-                "the response should be a 200 HTTP response with zaak data and the zaak should be assigned to the user"
+                "the response should be a 200 HTTP response with the expected zaak data"
             ) {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -1021,16 +1020,18 @@ class ZaakRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaakProductaanvraag1Uuid.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
-                        getString("id") shouldBe OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
-                        getString("naam") shouldBe OLD_IAM_TEST_BEHANDELAAR_1_NAME
+                        getString("id") shouldBe behandelaar.username
+                        getString("naam") shouldBe behandelaar.displayName
                     }
                 }
+            }
+            And("the zaak should be assigned to the user") {
                 with(zacClient.retrieveZaak(zaakProductaanvraag1Uuid)) {
                     code shouldBe HTTP_OK
                     JSONObject(body.string()).apply {
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
-                            getString("naam") shouldBe OLD_IAM_TEST_BEHANDELAAR_1_NAME
+                            getString("id") shouldBe behandelaar.username
+                            getString("naam") shouldBe behandelaar.displayName
                         }
                     }
                 }
@@ -1068,15 +1069,15 @@ class ZaakRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
                 requestBodyAsString = """{
-                    "uuids":["$zaakProductaanvraag1Uuid", "$zaak2UUID"],
-                    "reden":"fakeLijstVrijgevenReason",
-                    "screenEventResourceId":"$uniqueResourceId"
+                    "uuids": [ "$zaakProductaanvraag1Uuid", "$zaak2UUID"],
+                    "reden": "fakeLijstVrijgevenReason",
+                    "screenEventResourceId": "$uniqueResourceId"
                 }"""
             )
             Then(
                 """the response should be a 204 HTTP response, eventually a screen event of type 'zaken vrijgeven'
-                    should be received by the websocket listener and the zaak should be released from the user
-                    but should still be assigned to the group """
+                    should be received by the websocket listener and the zaken should be released from the user
+                    but should still be assigned to the previously assigned groups"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
@@ -1086,8 +1087,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         code shouldBe HTTP_OK
                         JSONObject(body.string()).apply {
                             getJSONObject("groep").apply {
-                                getString("id") shouldBe TEST_GROUP_BEHANDELAARS_ID
-                                getString("naam") shouldBe TEST_GROUP_BEHANDELAARS_DESCRIPTION
+                                getString("id") shouldBe behandelaarGroup.name
+                                getString("naam") shouldBe behandelaarGroup.description
                             }
                             has("behandelaar") shouldBe false
                         }

@@ -16,6 +16,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHANDELAARS_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
@@ -26,6 +28,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 
 fun authenticateAsBeheerderElkZaaktype() = if (FEATURE_FLAG_PABC_INTEGRATION) {
     authenticate(
@@ -52,6 +56,18 @@ fun getBehandelaarDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATIO
         password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD,
         displayName = OLD_IAM_TEST_BEHANDELAAR_1_NAME,
         email = OLD_IAM_TEST_BEHANDELAAR_1_EMAIL
+    )
+}
+
+fun getBehandelaarsDomainTest1Group(): TestGroup = if (FEATURE_FLAG_PABC_INTEGRATION) {
+    TestGroup(
+        name = GROUP_BEHANDELAARS_TEST_1_ID,
+        description = GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
+    )
+} else {
+    TestGroup(
+        name = TEST_GROUP_BEHANDELAARS_ID,
+        description = TEST_GROUP_BEHANDELAARS_DESCRIPTION
     )
 }
 
