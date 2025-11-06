@@ -32,6 +32,11 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
     }
 
+    /**
+     * Upsert the given [ZaaktypeBpmnConfiguration] to the database.
+     *
+     * @return the upserted [ZaaktypeBpmnConfiguration] with the updated ID
+     */
     fun storeConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration): ZaaktypeBpmnConfiguration {
         zaaktypeBpmnConfiguration.id?.let {
             if (findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid) == null) {
@@ -57,8 +62,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     }
 
     /**
-     * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
-     * if no BPMN process definition could be found for the given zaaktype UUID.
+     * Returns the most recent [ZaaktypeBpmnConfiguration] for the given zaaktype UUID
+     *
+     * @return the most recent [ZaaktypeBpmnConfiguration] or a null if none found
      */
     @Transactional(REQUIRES_NEW)
     fun findConfiguration(zaaktypeUUID: UUID): ZaaktypeBpmnConfiguration? =
@@ -74,8 +80,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         }
 
     /**
-     * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
-     * if no BPMN process definition could be found for the given zaaktype UUID.
+     * Returns the most recent [ZaaktypeBpmnConfiguration] for the given zaaktype description.
+     *
+     * @return the most recent [ZaaktypeBpmnConfiguration] or a null if none found
      */
     fun findConfiguration(zaaktypeDescription: String): ZaaktypeBpmnConfiguration? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
@@ -101,11 +108,11 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         }
 
     /**
-     * Finds the active [ZaaktypeBpmnConfiguration] for the specified productaanvraag type.
+     * Finds the most recent [ZaaktypeBpmnConfiguration] for the specified productaanvraag type.
      * If multiple active ZaaktypeBpmnConfigurations are found, this indicates an error in the configuration.
      * There should be at most only one active ZaaktypeBpmnConfiguration for each productaanvraagtype.
      *
-     * @return the first found [ZaaktypeBpmnConfiguration] or a null if none are found
+     * @return the most recent [ZaaktypeBpmnConfiguration] or a null if none found
      */
     fun findConfigurationByProductAanvraagType(productAanvraagType: String): ZaaktypeBpmnConfiguration? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
