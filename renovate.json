@@ -290,7 +290,7 @@
         "- \\*\\*nginx\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "nginx",
+      "depNameTemplate": "docker.io/nginx",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
