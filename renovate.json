@@ -322,6 +322,16 @@
   ],
   "packageRules": [
     {
+      "description": "Disable digest pinning for DEPENDENCIES.md - we only want version tags there",
+      "matchFileNames": [
+        "DEPENDENCIES.md"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    },
+    {
       "matchDatasources": [
         "docker"
       ],
