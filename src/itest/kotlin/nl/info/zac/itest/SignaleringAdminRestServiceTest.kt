@@ -15,6 +15,8 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -27,8 +29,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
-import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
-import nl.info.zac.itest.util.getBehandelaarDomainTest1User
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
@@ -47,15 +47,14 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-    val behandelaar = getBehandelaarDomainTest1User()
 
     beforeSpec {
-        authenticate(username = behandelaar.username, password = behandelaar.password)
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
     }
 
     afterSpec {
         // re-authenticate using beheerder user since some subsequent integration tests rely on this user being logged in
-        authenticateAsBeheerderElkZaaktype()
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
     Given(
@@ -109,8 +108,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     "fataledatum": "$fataleDatum",
                     "taakStuurGegevens": { "sendMail": false },
                     "medewerker": {
-                        "id": "${behandelaar.username}",
-                        "naam": "${behandelaar.displayName}"
+                        "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                        "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                     },
                     "groep": {
                         "id": "$TEST_GROUP_A_ID",
@@ -146,7 +145,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 lateinit var receivedMails: JSONArray
                 eventually(5.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/${behandelaar.email}/messages/"
+                        url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_DOMAIN_TEST_1.email}/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
                     receivedMails = JSONArray(receivedMailsResponse.body.string())

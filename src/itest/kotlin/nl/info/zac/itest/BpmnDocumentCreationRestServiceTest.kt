@@ -13,10 +13,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -26,8 +29,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UP
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
-import nl.info.zac.itest.util.getBehandelaarsDomainTest1Group
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
@@ -46,17 +47,16 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-    val behandelaarsGroup = getBehandelaarsDomainTest1Group()
     lateinit var bpmnZaakUuid: UUID
     lateinit var taskId: String
 
     beforeSpec {
-        authenticateAsBeheerderElkZaaktype()
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
 
         bpmnZaakUuid = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
-            groupId = behandelaarsGroup.name,
-            groupName = behandelaarsGroup.description,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             val responseBody = body.string()
@@ -93,7 +93,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to OLD_IAM_TEST_USER_1_NAME
+                        "author" to "dummyAuthor"
                     )
                 ).toString()
             )
@@ -125,7 +125,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to OLD_IAM_TEST_USER_1_NAME,
+                        "author" to "dummyAuthor",
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
@@ -149,7 +149,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                 "zaak/$bpmnZaakUuid/task/$taskId" +
-                "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                 "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                 "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                 "&templateGroupName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
@@ -194,7 +194,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "&userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
                     "&templateName=" + SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.urlEncode() +
                     "&informatieobjecttypeUuid=$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
@@ -235,7 +235,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                     "zaak/$bpmnZaakUuid/task/$taskId" +
-                    "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +

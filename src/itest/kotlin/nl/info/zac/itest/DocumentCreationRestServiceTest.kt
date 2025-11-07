@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.urlEncode
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -54,7 +54,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to OLD_IAM_TEST_USER_1_NAME
+                        "author" to "dummyAuthor"
                     )
                 ).toString()
             )
@@ -85,7 +85,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to OLD_IAM_TEST_USER_1_NAME,
+                        "author" to "dummyAuthor",
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
@@ -130,7 +130,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
-                    "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -174,7 +174,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "&userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -213,7 +213,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is called") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
-                    "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -252,7 +252,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
                     "zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
-                    "?userName=" + OLD_IAM_TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +

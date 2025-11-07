@@ -19,10 +19,8 @@ import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
@@ -69,11 +67,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     afterSpec {
         // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
+        authenticate(OLD_IAM_TEST_USER_1)
     }
 
     Given("A logged-in behandelaar") {
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
+        authenticate(OLD_IAM_BEHANDELAAR_1)
 
         When("dashboard signaleringen are turned on for all signalering types") {
             val notificationBodies = arrayOf(
@@ -101,12 +99,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
     }
 
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
-        authenticate(username = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME, password = OLD_IAM_TEST_BEHANDELAAR_1_PASSWORD)
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_BEHANDELAARS_ID,
             groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
-            behandelaarId = OLD_IAM_TEST_BEHANDELAAR_1_USERNAME,
+            behandelaarId = OLD_IAM_BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
             val responseBody = body.string()

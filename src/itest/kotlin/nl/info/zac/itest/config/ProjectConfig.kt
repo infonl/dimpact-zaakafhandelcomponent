@@ -12,8 +12,10 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
@@ -27,7 +29,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
-import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -115,7 +116,7 @@ class ProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
-            authenticateAsBeheerderElkZaaktype()
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker containers" }
             dockerComposeContainer.stop()

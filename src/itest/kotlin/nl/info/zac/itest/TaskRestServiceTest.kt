@@ -18,7 +18,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -136,7 +136,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """{
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
                          "groepId":"$TEST_GROUP_A_ID",
-                        "behandelaarGebruikersnaam":"$OLD_IAM_TEST_USER_2_ID",
+                        "behandelaarGebruikersnaam":"${OLD_IAM_TEST_USER_2.username}",
                         "reden":"fakeTasksAssignReason",
                         "screenEventResourceId":"$uniqueResourceId"
                         }

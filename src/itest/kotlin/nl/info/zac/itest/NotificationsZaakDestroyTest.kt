@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -60,7 +60,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
-            behandelaarId = OLD_IAM_TEST_USER_2_ID,
+            behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
             val responseBody = body.string()

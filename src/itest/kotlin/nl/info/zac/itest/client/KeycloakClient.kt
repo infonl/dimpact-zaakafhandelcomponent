@@ -9,7 +9,7 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
-import nl.info.zac.itest.util.TestUser
+import nl.info.zac.itest.config.TestUser
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
