@@ -918,7 +918,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with domain exists and a websocket subscription has been created and a logged-in coordinator") {
-        getCoordinatorDomainTest1User().also(::authenticate)
         val response = zacClient.retrieveZaak(ZAAK_MANUAL_2024_01_IDENTIFICATION)
         response.code shouldBe HTTP_OK
         val responseBody = response.body.string()
