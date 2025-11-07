@@ -113,7 +113,7 @@
         "- \\*\\*redis\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "redis",
+      "depNameTemplate": "docker.io/redis",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
