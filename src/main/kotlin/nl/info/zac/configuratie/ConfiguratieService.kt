@@ -110,7 +110,7 @@ class ConfiguratieService @Inject constructor(
         bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
         verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
 
-        LOG.info { "BPMN feature flag:: $bpmnSupport" }
+        LOG.info { "BPMN feature flag: $bpmnSupport" }
         LOG.info { "PABC feature flag: $pabcIntegration" }
     }
 
