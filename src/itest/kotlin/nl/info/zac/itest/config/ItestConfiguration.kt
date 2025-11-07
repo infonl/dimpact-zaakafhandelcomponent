@@ -202,7 +202,7 @@ object ItestConfiguration {
     const val RAADPLEGER_1_USERNAME = "raadpleger1newiam"
     const val RAADPLEGER_1_PASSWORD = "raadpleger1newiam"
     const val RAADPLEGER_1_NAME = "Test Raadpleger 1 - new IAM"
-    const val RAADPLEGER_1_EMAIL = "raadpleger-test-1@example.com\""
+    const val RAADPLEGER_1_EMAIL = "raadpleger-test-1@example.com"
     const val RAADPLEGER_2_USERNAME = "raadpleger2newiam"
     const val RAADPLEGER_2_PASSWORD = "raadpleger2newiam"
     const val RAADPLEGER_2_NAME = "Test Raadpleger 2 - new IAM"
