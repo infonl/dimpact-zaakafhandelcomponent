@@ -144,4 +144,3 @@ fun getBehandelaarsDomainTest1Group(): TestGroup = if (FEATURE_FLAG_PABC_INTEGRA
         description = TEST_GROUP_BEHANDELAARS_DESCRIPTION
     )
 }
-
