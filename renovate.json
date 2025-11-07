@@ -257,7 +257,7 @@
         "- \\*\\*rabbitmq\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "rabbitmq",
+      "depNameTemplate": "docker.io/rabbitmq",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
