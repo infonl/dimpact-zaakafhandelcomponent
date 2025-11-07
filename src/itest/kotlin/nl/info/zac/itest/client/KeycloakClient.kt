@@ -45,7 +45,7 @@ fun authenticate(
     refreshToken = JSONObject(this.body.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
 }
 
-fun authenticateAsTestUser(testUser: TestUser) = authenticate(
+fun authenticate(testUser: TestUser) = authenticate(
     username = testUser.username,
     password = testUser.password
 )

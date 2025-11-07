@@ -19,6 +19,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -101,11 +102,16 @@ class ConfiguratieService @Inject constructor(
          * We use the Base2 system to calculate the max file size in bytes.
          */
         const val MAX_FILE_SIZE_MB: Int = 80
+
+        private val LOG = Logger.getLogger(ConfiguratieService::class.java.name)
     }
 
     init {
         bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
         verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
+
+        LOG.info { "BPMN feature flag:: $bpmnSupport" }
+        LOG.info { "PABC feature flag: $pabcIntegration" }
     }
 
     private var catalogusURI: URI =

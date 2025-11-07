@@ -25,14 +25,9 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUU
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
@@ -56,6 +51,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
+import nl.info.zac.itest.util.getBehandelaarsDomainTest1Group
+import nl.info.zac.itest.util.getRaadplegerDomainTest1User
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
@@ -69,14 +67,15 @@ import org.json.JSONObject
 class SearchRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
+    val behandelaarsGroup = getBehandelaarsDomainTest1Group()
 
     beforeSpec {
-        authenticate(username = OLD_IAM_TEST_RAADPLEGER_1_USERNAME, password = OLD_IAM_TEST_RAADPLEGER_1_PASSWORD)
+        getRaadplegerDomainTest1User().also(::authenticate)
     }
 
     afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = OLD_IAM_TEST_USER_1_USERNAME, password = OLD_IAM_TEST_USER_1_PASSWORD)
+        // re-authenticate as beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticateAsBeheerderElkZaaktype()
     }
 
     Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
@@ -90,11 +89,11 @@ class SearchRestServiceTest : BehaviorSpec({
                     "alleenOpenstaandeZaken": false,
                     "alleenAfgeslotenZaken": false,
                     "alleenMijnTaken": false,
-                    "zoeken":{"ALLE":""},
+                    "zoeken": { "ALLE": "" },
                     "filters": {},
                     "datums": {},
                     "rows": 10,
-                    "page":0                  
+                    "page": 0                  
                     }
                 """.trimIndent()
             )
@@ -142,7 +141,17 @@ class SearchRestServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 1                        
                                 }
-                            ],                     
+                            ],            
+                            "GROEP": [
+                                {
+                                    "aantal": 15,
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 3,
+                                    "naam": "${behandelaarsGroup.description}"
+                                }
+                            ],         
                             "TOEGEKEND": [
                                 {
                                     "aantal": 17,
@@ -172,9 +181,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 }
                             ],
                            "ZAAK_RESULTAAT" : [
-
                                 { "aantal": 2, "naam": "Buiten behandeling" }
-
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -270,21 +277,6 @@ class SearchRestServiceTest : BehaviorSpec({
                         }
                     }
                 """.trimIndent()
-                // TODO: for now don't test groups filter since the behandelaar groups differ between IAM vs non-IAM setups
-//               "GROEP": [
-//      {
-//        "aantal": 15,
-//        "naam": "test-group-a"
-//      },
-//      {
-//        "aantal": 2,
-//        "naam": "test-group-bh"
-//      },
-//      {
-//        "aantal": 1,
-//        "naam": "behandelaars-test-1"
-//      }
-//    ]
             }
         }
 
@@ -554,7 +546,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
-                              "groepNaam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
+                              "groepNaam": "${behandelaarsGroup.description}",
                               "naam": "$BPMN_TEST_TASK_NAME",
                               "rechten": {
                                 "lezen": true,
@@ -649,7 +641,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                                    "naam": "${behandelaarsGroup.description}"
                                 }
                             ],
                             "TAAK_NAAM": [

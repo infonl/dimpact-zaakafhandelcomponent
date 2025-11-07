@@ -16,7 +16,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticateAsTestUser
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
@@ -42,7 +42,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
     val beheerderUser = getBeheerderElkZaaktypeUser()
 
     beforeSpec {
-        authenticateAsTestUser(beheerderUser)
+        authenticate(beheerderUser)
     }
 
     Given("A zaak exists for which there is an uploaded document") {

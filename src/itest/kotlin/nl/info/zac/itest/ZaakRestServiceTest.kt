@@ -16,7 +16,6 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.client.authenticateAsTestUser
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
@@ -38,8 +37,6 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
@@ -52,8 +49,6 @@ import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDE
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
@@ -188,7 +183,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             and a behandelaar user that is authorised for zaaktypes in domain test 2 only is logged-in
             """.trimIndent()
         ) {
-            getBehandelaarDomainTest2User().let(::authenticateAsTestUser)
+            getBehandelaarDomainTest2User().let(::authenticate)
             lateinit var responseBody: String
 
             When("zaak types are listed") {
@@ -232,7 +227,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             and a behandelaar authorised for this zaaktype is logged in
         """.trimIndent()
     ) {
-        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
+        getBehandelaarDomainTest1User().let(::authenticate)
         lateinit var responseBody: String
 
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
@@ -538,7 +533,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
-        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
+        getBehandelaarDomainTest1User().let(::authenticate)
         val behandelaarGroup = getBehandelaarsDomainTest1Group()
 
         When("the get zaak endpoint is called") {
@@ -806,7 +801,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("Betrokkenen have been added to a zaak and a behandelaar authorised for this zaaktype is logged in") {
-        getBehandelaarDomainTest1User().let(::authenticateAsTestUser)
+        getBehandelaarDomainTest1User().let(::authenticate)
 
         When("the get betrokkene endpoint is called for a zaak") {
             val response = itestHttpClient.performGetRequest(
@@ -848,7 +843,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             job and a coordinator authorized for the zaaktypes of these zaken is logged in
         """
     ) {
-        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
+        getCoordinatorDomainTest1User().also(::authenticate)
         val uniqueResourceId = UUID.randomUUID()
         val zakenVerdelenWebsocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -923,7 +918,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with domain exists and a websocket subscription has been created and a logged-in coordinator") {
-        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
+        getCoordinatorDomainTest1User().also(::authenticate)
         val response = zacClient.retrieveZaak(ZAAK_MANUAL_2024_01_IDENTIFICATION)
         response.code shouldBe HTTP_OK
         val responseBody = response.body.string()
@@ -997,7 +992,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         and a behandelaar authorised for this zaaktype is logged in
         """
     ) {
-        val behandelaar = getBehandelaarDomainTest1User().also(::authenticateAsTestUser)
+        val behandelaar = getBehandelaarDomainTest1User().also(::authenticate)
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
@@ -1041,7 +1036,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job
             and a coordinator authorized for the zaaktypes of these zaken is logged in"""
     ) {
-        getCoordinatorDomainTest1User().also(::authenticateAsTestUser)
+        getCoordinatorDomainTest1User().also(::authenticate)
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """

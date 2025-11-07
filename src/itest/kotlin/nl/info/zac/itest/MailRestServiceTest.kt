@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticateAsTestUser
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
@@ -39,7 +39,7 @@ class MailRestServiceTest : BehaviorSpec({
     val beheerderUser = getBeheerderElkZaaktypeUser()
 
     beforeSpec {
-        authenticateAsTestUser(beheerderUser)
+        authenticate(beheerderUser)
     }
 
     Given("A zaak exists and SMTP server is configured") {

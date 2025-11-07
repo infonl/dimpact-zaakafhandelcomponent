@@ -22,12 +22,12 @@ import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.authenticateAsBeheerderElkZaaktype
+import nl.info.zac.itest.util.getBehandelaarsDomainTest1Group
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
@@ -39,39 +39,46 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * This test assumes that a zaak has been created, a task has been started, and a template mapping is created
- * in previously run tests.
+ * This test assumes that a SmartDocuments template mapping has been created in previously run tests.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-    var bpmnZaakUuid = zacClient.createZaak(
-        zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
-        groupId = TEST_GROUP_BEHANDELAARS_ID,
-        groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
-        startDate = DATE_TIME_2000_01_01
-    ).run {
-        val responseBody = body.string()
-        logger.info { "Response: $responseBody" }
-        code shouldBe HTTP_OK
-        JSONObject(responseBody).run {
-            getJSONObject("zaakdata").run {
-                getString("zaakUUID").run(UUID::fromString)
+    val behandelaarsGroup = getBehandelaarsDomainTest1Group()
+    lateinit var bpmnZaakUuid: UUID
+    lateinit var taskId: String
+
+    beforeSpec {
+        authenticateAsBeheerderElkZaaktype()
+
+        bpmnZaakUuid = zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
+            groupId = behandelaarsGroup.name,
+            groupName = behandelaarsGroup.description,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            val responseBody = body.string()
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            JSONObject(responseBody).run {
+                getJSONObject("zaakdata").run {
+                    getString("zaakUUID").run(UUID::fromString)
+                }
             }
         }
-    }
-    var taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
-        val responseBody = it.body.string()
-        logger.info { "Response: $responseBody" }
-        it.isSuccessful shouldBe true
-        responseBody.shouldBeJsonArray()
-        JSONArray(responseBody).length() shouldBe 1
-        JSONArray(responseBody).getJSONObject(0).getString("id")
+        taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
+            val responseBody = it.body.string()
+            logger.info { "Response: $responseBody" }
+            it.isSuccessful shouldBe true
+            responseBody.shouldBeJsonArray()
+            JSONArray(responseBody).length() shouldBe 1
+            JSONArray(responseBody).getJSONObject(0).getString("id")
+        }
     }
 
-    Given("BPMN zaak $bpmnZaakUuid with task $taskId exists") {
+    Given("BPMN zaak and task exists") {
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }

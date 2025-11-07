@@ -5,7 +5,6 @@
 package nl.info.zac.itest.util
 
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.client.authenticateAsTestUser
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1_PASSWORD
@@ -33,6 +32,10 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_EM
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1_PASSWORD
@@ -41,10 +44,14 @@ import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_PASSWORD
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_NAME
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_PASSWORD
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 
-fun authenticateAsBeheerderElkZaaktype() = getBeheerderElkZaaktypeUser().also(::authenticateAsTestUser)
+fun authenticateAsBeheerderElkZaaktype() = getBeheerderElkZaaktypeUser().also(::authenticate)
 
 fun getBehandelaarDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
     TestUser(
@@ -107,6 +114,22 @@ fun getCoordinatorDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATIO
         password = OLD_IAM_TEST_COORDINATOR_1_PASSWORD,
         displayName = OLD_IAM_TEST_COORDINATOR_1_NAME,
         email = OLD_IAM_TEST_COORDINATOR_1_EMAIL
+    )
+}
+
+fun getRaadplegerDomainTest1User(): TestUser = if (FEATURE_FLAG_PABC_INTEGRATION) {
+    TestUser(
+        username = RAADPLEGER_1_USERNAME,
+        password = RAADPLEGER_1_PASSWORD,
+        displayName = RAADPLEGER_1_NAME,
+        email = RAADPLEGER_1_EMAIL
+    )
+} else {
+    TestUser(
+        username = OLD_IAM_TEST_RAADPLEGER_1_USERNAME,
+        password = OLD_IAM_TEST_RAADPLEGER_1_PASSWORD,
+        displayName = OLD_IAM_TEST_RAADPLEGER_1_NAME,
+        email = OLD_IAM_TEST_RAADPLEGER_1_EMAIL
     )
 }
 
