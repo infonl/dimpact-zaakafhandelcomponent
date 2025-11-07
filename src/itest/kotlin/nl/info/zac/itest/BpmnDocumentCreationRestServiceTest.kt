@@ -62,9 +62,9 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             val responseBody = body.string()
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
-            JSONObject(responseBody).let {
-                getJSONObject("zaakdata").let {
-                    getString("zaakUUID").let(UUID::fromString)
+            JSONObject(responseBody).run {
+                getJSONObject("zaakdata").run {
+                    getString("zaakUUID").run(UUID::fromString)
                 }
             }
         }
