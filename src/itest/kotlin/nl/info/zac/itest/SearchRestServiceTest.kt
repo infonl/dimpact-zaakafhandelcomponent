@@ -10,6 +10,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
@@ -26,15 +28,10 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUU
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
@@ -62,6 +59,8 @@ import org.json.JSONObject
 
 /**
  * Run this test after reindexing so that all the required data is available in the Solr index.
+ * Note that this test is currently heavily dependent on data created by previously run integration tests.
+ * It would be good to make this test much more isolated because it is hard to maintain in its current form.
  */
 @Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("LargeClass")
@@ -70,12 +69,12 @@ class SearchRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     beforeSpec {
-        authenticate(username = TEST_RAADPLEGER_1_USERNAME, password = TEST_RAADPLEGER_1_PASSWORD)
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
     }
 
     afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        // re-authenticate as beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
     Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
@@ -89,11 +88,11 @@ class SearchRestServiceTest : BehaviorSpec({
                     "alleenOpenstaandeZaken": false,
                     "alleenAfgeslotenZaken": false,
                     "alleenMijnTaken": false,
-                    "zoeken":{"ALLE":""},
+                    "zoeken": { "ALLE": "" },
                     "filters": {},
                     "datums": {},
                     "rows": 10,
-                    "page":0                  
+                    "page": 0                  
                     }
                 """.trimIndent()
             )
@@ -102,7 +101,8 @@ class SearchRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
-                // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
+                // we only test on the total number of results and the filters, not on the actual results,
+                // to keep the test more or less maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                         "foutmelding": "",
@@ -138,10 +138,9 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "aantal": 1                        
                                 }
-                            ],
+                            ],            
                             "GROEP": [
                                 {
                                     "aantal": 15,
@@ -149,9 +148,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 3,
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                                    "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
-                            ],
+                            ],         
                             "TOEGEKEND": [
                                 {
                                     "aantal": 17,
@@ -181,9 +180,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 }
                             ],
                            "ZAAK_RESULTAAT" : [
-
                                 { "aantal": 2, "naam": "Buiten behandeling" }
-
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -548,7 +545,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "foutmelding": "",
                         "resultaten": [
                             {
-                              "groepNaam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
+                              "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
                               "naam": "$BPMN_TEST_TASK_NAME",
                               "rechten": {
                                 "lezen": true,
@@ -564,9 +561,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                             },
                             {
-                                "type": "TAAK",
-                                "behandelaarGebruikersnaam": "$TEST_USER_1_USERNAME",
-                                "behandelaarNaam": "$TEST_USER_1_NAME",
+                                "type": "TAAK",                       
                                 "fataledatum": "$DATE_2024_01_01",
                                 "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
@@ -631,8 +626,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "aantal": 1                       
                                 },
                                 {
                                     "aantal": 3,
@@ -646,7 +640,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                                    "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],
                             "TAAK_NAAM": [

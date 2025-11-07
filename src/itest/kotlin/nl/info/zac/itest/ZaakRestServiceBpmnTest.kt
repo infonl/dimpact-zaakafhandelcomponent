@@ -18,7 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_COORDINATORS_ID
@@ -130,7 +130,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                      "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                      "firstName":"Name",
                      "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
-                     "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
+                     "AM_TeamBehandelaar_Medewerker": "${OLD_IAM_COORDINATOR_1.username}",
                      "SD_SmartDocuments_Template": "OpenZaakTest",
                      "SD_SmartDocuments_Create": false,
                      "RT_ReferenceTable_Values": "Post",
@@ -183,7 +183,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                     "firstName":"Name",
                     "AM_TeamBehandelaar_Groep": "$TEST_GROUP_COORDINATORS_ID",
-                    "AM_TeamBehandelaar_Medewerker": "$TEST_COORDINATOR_1_USERNAME",
+                    "AM_TeamBehandelaar_Medewerker": "${OLD_IAM_COORDINATOR_1.username}",
                     "SD_SmartDocuments_Template": "OpenZaakTest",
                     "SD_SmartDocuments_Create": false,
                     "RT_ReferenceTable_Values": "Post",

@@ -12,6 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_5_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_6_IDENTIFICATION
@@ -31,7 +33,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
@@ -61,6 +62,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     lateinit var enkelvoudigInformatieObject2UUID: String
 
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
     Given(
         "ZAC and all related Docker containers are running and zaak exists"
     ) {
@@ -86,7 +91,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                          "auteur" : "$TEST_USER_1_NAME",
+                          "auteur" : "dummyAuthor",
                           "beschrijving" : "",
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
@@ -162,7 +167,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("auteur", "dummyAuthor")
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
                     shouldContainJsonKeyValue("taal", "Nederlands")
                     shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
@@ -213,7 +218,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("auteur", "dummyAuthor")
                     shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
                     shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
                     shouldContainJsonKeyValue(
@@ -260,7 +265,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", "dummyAuthor")
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -282,7 +287,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "bestandsnaam" : "$TEST_TXT_FILE_NAME",
-                      "auteur" : "$TEST_USER_1_NAME",
+                      "auteur" : "dummyAuthor",
                       "beschrijving" : "",
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
@@ -339,7 +344,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "dummyAuthor",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",
@@ -401,7 +406,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", "dummyAuthor")
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -423,7 +428,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "dummyAuthor",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",

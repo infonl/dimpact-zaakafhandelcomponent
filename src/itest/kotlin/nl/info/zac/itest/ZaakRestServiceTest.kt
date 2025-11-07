@@ -19,6 +19,10 @@ import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_2
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
@@ -26,6 +30,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PE
 import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_15
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
@@ -37,6 +42,7 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
@@ -46,27 +52,13 @@ import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
@@ -113,16 +105,18 @@ class ZaakRestServiceTest : BehaviorSpec({
     val fatalDateNew = startDateNew.plusDays(1)
     lateinit var zaak2UUID: UUID
 
-    afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
-    Context("listing zaaktypes for creating zaken") {
-        Given("ZAC Docker container is running and a functioneelbeheerder1 is logged-in") {
-            authenticate(username = TEST_FUNCTIONAL_ADMIN_1_USERNAME, password = TEST_FUNCTIONAL_ADMIN_1_PASSWORD)
+    afterSpec {
+        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
 
-            When("zaaktype_test_1 is created") {
+    Context("Listing zaaktypes for creating zaken") {
+        Given("A beheerder with access to all zaaktypes in all domains is logged in") {
+            When("zaaktype CMMN configuration is created") {
                 val response = zacClient.createZaaktypeCmmnConfiguration(
                     zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
                     zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
@@ -140,11 +134,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given(
             """
-            ZAC Docker container is running, zaakafhandleparameters is created and a testuser1 is logged-in
+            zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
             """.trimIndent()
         ) {
-            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
-
             When("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
                 lateinit var responseBody: String
@@ -187,10 +179,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given(
             """
             ZAC Docker container is running and zaaktypeCmmnConfiguration have been created
-            and a testuserdomaintest2 is logged-in
+            and a behandelaar user that is authorised for zaaktypes in domain test 2 only is logged-in
             """.trimIndent()
         ) {
-            authenticate(username = TEST_USER_DOMEIN_TEST_2_USERNAME, password = TEST_USER_DOMEIN_TEST_2_PASSWORD)
+            authenticate(BEHANDELAAR_DOMAIN_TEST_2)
             lateinit var responseBody: String
 
             When("zaak types are listed") {
@@ -201,7 +193,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
                 And("the response body should contain only the zaaktypes for which the user is authorized") {
-                    // In non-PABC case we always return BPMN zaken
+                    // In the old IAM architecture we always return BPMN zaaktypes
                     val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
                         ""
                     } else {
@@ -230,10 +222,11 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            ZAC Docker container is running and zaaktypeCmmnConfiguration have been created and a behandelaar is logged-in
+            zaaktype CMMN configuration has been created for zaaktype test 3 
+            and a behandelaar authorised for this zaaktype is logged in
         """.trimIndent()
     ) {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var responseBody: String
 
         When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
@@ -538,8 +531,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has been created and a logged-in behandelaar") {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+    Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When("the get zaak endpoint is called") {
             val response = zacClient.retrieveZaak(zaak2UUID)
             Then("the response should be a 200 HTTP response and contain the created zaak") {
@@ -613,7 +607,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "zaakUUID": "$zaak2UUID",
-                        "groepId": "$TEST_GROUP_BEHANDELAARS_ID",
+                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "reden": "fakeReason"
                     }
                 """.trimIndent()
@@ -627,8 +621,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                     shouldContainJsonKey("groep")
                     JSONObject(this).getJSONObject("groep").apply {
-                        getString("id") shouldBe TEST_GROUP_BEHANDELAARS_ID
-                        getString("naam") shouldBe TEST_GROUP_BEHANDELAARS_DESCRIPTION
+                        getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                        getString("naam") shouldBe BEHANDELAARS_DOMAIN_TEST_1.description
                     }
                 }
             }
@@ -723,8 +717,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
                       "gerelateerdeZaken": [],
                       "groep": {
-                        "id": "$TEST_GROUP_BEHANDELAARS_ID",
-                        "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                       },
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
@@ -804,8 +798,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Betrokkenen have been added to a zaak and a logged-in behandelaar") {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+    Given("Betrokkenen have been added to a zaak and a behandelaar authorised for this zaaktype is logged in") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When("the get betrokkene endpoint is called for a zaak") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
@@ -843,10 +838,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
             Two zaken have been created and two websocket subscriptions have been created to listen for both a 'zaken verdelen' 
             screen event as well as for 'zaak rollen' screen events which will be sent by the asynchronous 'assign zaken from list' 
-            job and a logged-in coordinator
+            job and a coordinator authorized for the zaaktypes of these zaken is logged in
         """
     ) {
-        authenticate(username = TEST_COORDINATOR_1_USERNAME, password = TEST_COORDINATOR_1_PASSWORD)
+        authenticate(COORDINATOR_DOMAIN_TEST_1)
         val uniqueResourceId = UUID.randomUUID()
         val zakenVerdelenWebsocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -876,13 +871,15 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
-                requestBodyAsString = "{\n" +
-                    "\"uuids\":[\"$zaakProductaanvraag1Uuid\", \"$zaak2UUID\"],\n" +
-                    "\"groepId\":\"$TEST_GROUP_A_ID\",\n" +
-                    "\"behandelaarGebruikersnaam\":\"$TEST_USER_2_ID\",\n" +
-                    "\"reden\":\"fakeLijstVerdelenReason\",\n" +
-                    "\"screenEventResourceId\":\"$uniqueResourceId\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "uuids": [ "$zaakProductaanvraag1Uuid", "$zaak2UUID" ],
+                        "groepId": "$TEST_GROUP_A_ID",
+                        "behandelaarGebruikersnaam": "${OLD_IAM_TEST_USER_2.username}",
+                        "reden": "fakeLijstVerdelenReason",
+                        "screenEventResourceId": "$uniqueResourceId"
+                    }
+                """.trimIndent()
             )
             Then(
                 """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
@@ -903,14 +900,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         response.code shouldBe HTTP_OK
                         with(JSONObject(response.body.string())) {
                             getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
-                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe OLD_IAM_TEST_USER_2.username
                         }
                     }
                     zacClient.retrieveZaak(zaak2UUID).use { response ->
                         response.code shouldBe HTTP_OK
                         with(JSONObject(response.body.string())) {
                             getJSONObject("groep").getString("id") shouldBe TEST_GROUP_A_ID
-                            getJSONObject("behandelaar").getString("id") shouldBe TEST_USER_2_ID
+                            getJSONObject("behandelaar").getString("id") shouldBe OLD_IAM_TEST_USER_2.username
                         }
                     }
                 }
@@ -919,7 +916,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with domain exists and a websocket subscription has been created and a logged-in coordinator") {
-        authenticate(username = TEST_COORDINATOR_1_USERNAME, password = TEST_COORDINATOR_1_PASSWORD)
         val response = zacClient.retrieveZaak(ZAAK_MANUAL_2024_01_IDENTIFICATION)
         response.code shouldBe HTTP_OK
         val responseBody = response.body.string()
@@ -954,11 +950,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             val lijstVerdelenResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/verdelen",
                 requestBodyAsString = """{
-                    "uuids":["$zaakWithDomainUuid"],
-                    "groepId":"$TEST_GROUP_A_ID",
-                    "reden":"fakeLijstVerdelenReason",
-                    "screenEventResourceId":"$uniqueResourceId"
-                }"""
+                    "uuids": [ "$zaakWithDomainUuid" ],
+                    "groepId": "$TEST_GROUP_A_ID",
+                    "reden": "fakeLijstVerdelenReason",
+                    "screenEventResourceId": "$uniqueResourceId"
+                }
+                """.trimIndent()
             )
             Then(
                 """a 204 HTTP response and a screen event of type 'zaken verdelen'
@@ -986,20 +983,25 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has not been assigned to the currently logged in user and a logged-in behandelaar") {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+    Given(
+        """
+        A zaak has not been assigned to the currently logged in user, 
+        and a behandelaar authorised for this zaaktype is logged in
+        """
+    ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                 requestBodyAsString = """{
-                    "zaakUUID":"$zaakProductaanvraag1Uuid",
-                    "groepId":"$TEST_GROUP_BEHANDELAARS_ID",
-                    "reden":"fakeAssignToMeFromListReason"
+                    "zaakUUID": "$zaakProductaanvraag1Uuid",
+                    "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                    "reden": "fakeAssignToMeFromListReason"
                 }
                 """.trimIndent()
             )
             Then(
-                "the response should be a 200 HTTP response with zaak data and the zaak should be assigned to the user"
+                "the response should be a 200 HTTP response with the expected zaak data"
             ) {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
@@ -1007,16 +1009,18 @@ class ZaakRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaakProductaanvraag1Uuid.toString())
                     JSONObject(this).getJSONObject("behandelaar").apply {
-                        getString("id") shouldBe TEST_BEHANDELAAR_1_USERNAME
-                        getString("naam") shouldBe TEST_BEHANDELAAR_1_NAME
+                        getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
+                        getString("naam") shouldBe BEHANDELAAR_DOMAIN_TEST_1.displayName
                     }
                 }
+            }
+            And("the zaak should be assigned to the user") {
                 with(zacClient.retrieveZaak(zaakProductaanvraag1Uuid)) {
                     code shouldBe HTTP_OK
                     JSONObject(body.string()).apply {
                         getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe TEST_BEHANDELAAR_1_USERNAME
-                            getString("naam") shouldBe TEST_BEHANDELAAR_1_NAME
+                            getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
+                            getString("naam") shouldBe BEHANDELAAR_DOMAIN_TEST_1.displayName
                         }
                     }
                 }
@@ -1027,9 +1031,9 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given(
         """Zaken have been assigned and a websocket subscription has been created to listen
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job
-            and a logged-in coordinator"""
+            and a coordinator authorized for the zaaktypes of these zaken is logged in"""
     ) {
-        authenticate(username = TEST_COORDINATOR_1_USERNAME, password = TEST_COORDINATOR_1_PASSWORD)
+        authenticate(COORDINATOR_DOMAIN_TEST_1)
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -1054,17 +1058,16 @@ class ZaakRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
                 requestBodyAsString = """{
-                    "uuids":["$zaakProductaanvraag1Uuid", "$zaak2UUID"],
-                    "reden":"fakeLijstVrijgevenReason",
-                    "screenEventResourceId":"$uniqueResourceId"
+                    "uuids": [ "$zaakProductaanvraag1Uuid", "$zaak2UUID"],
+                    "reden": "fakeLijstVrijgevenReason",
+                    "screenEventResourceId": "$uniqueResourceId"
                 }"""
             )
             Then(
                 """the response should be a 204 HTTP response, eventually a screen event of type 'zaken vrijgeven'
-                    should be received by the websocket listener and the zaak should be released from the user
-                    but should still be assigned to the group """
+                    should be received by the websocket listener and the zaken should be released from the user
+                    but should still be assigned to the previously assigned groups"""
             ) {
-                val responseBody = response.body.string()
                 response.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(20.seconds) {
@@ -1073,8 +1076,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         code shouldBe HTTP_OK
                         JSONObject(body.string()).apply {
                             getJSONObject("groep").apply {
-                                getString("id") shouldBe TEST_GROUP_BEHANDELAARS_ID
-                                getString("naam") shouldBe TEST_GROUP_BEHANDELAARS_DESCRIPTION
+                                getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                                getString("naam") shouldBe BEHANDELAARS_DOMAIN_TEST_1.description
                             }
                             has("behandelaar") shouldBe false
                         }

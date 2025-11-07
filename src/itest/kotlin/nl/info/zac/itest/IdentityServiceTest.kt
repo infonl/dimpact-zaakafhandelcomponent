@@ -10,53 +10,42 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHEERDER_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_COORDINATOR_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_USERNAME
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1
+import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2
+import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHEERDERS_ELK_DOMEIN_ID
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_FUNCTIONAL_ADMIN_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RAADPLEGER_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RECORD_MANAGER_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RAADPLEGER_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_RECORD_MANAGER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_2_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_WITHOUT_ANY_ROLE_USERNAME
+import nl.info.zac.itest.config.ItestConfiguration.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
 
     Given("The ZAC Keycloak realm contains several groups") {
         When("the 'list groups' endpoint is called") {
@@ -71,6 +60,7 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
             Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
@@ -88,8 +78,8 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJson """
                             [                               
                                 {
-                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
-                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                    "id": "$GROUP_DOMEIN_TEST_1_ID",
+                                    "naam": "$GROUP_DOMEIN_TEST_1_DESCRIPTION"
                                 }
                             ]
                 """.trimIndent()
@@ -97,6 +87,7 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
     Given(
+
         """
             Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
             zaaktypeCmmnConfiguration for a given domein role
@@ -114,6 +105,7 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Keycloak contains all provisioned test users") {
         When("the 'list users' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
@@ -124,82 +116,79 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
-                                    "id": "$TEST_FUNCTIONAL_ADMIN_1_USERNAME",
-                                    "naam": "$TEST_FUNCTIONAL_ADMIN_1_NAME"
+                                    "id": "${OLD_IAM_FUNCTIONAL_ADMIN_1.username}",
+                                    "naam": "${OLD_IAM_FUNCTIONAL_ADMIN_1.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_RECORD_MANAGER_1_USERNAME",
-                                    "naam": "$TEST_RECORD_MANAGER_1_NAME"
+                                    "id": "${OLD_IAM_RECORD_MANAGER_1.username}",
+                                    "naam": "${OLD_IAM_RECORD_MANAGER_1.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_COORDINATOR_1_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_1_NAME"
+                                    "id": "${OLD_IAM_COORDINATOR_1.username}",
+                                    "naam": "${OLD_IAM_COORDINATOR_1.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_BEHANDELAAR_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_2_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_1_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_TEST_1_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_RAADPLEGER_TEST_2_USERNAME",
-                                    "naam": "$TEST_RAADPLEGER_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_TEST_1_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHANDELAAR_TEST_2_USERNAME",
-                                    "naam": "$TEST_BEHANDELAAR_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_COORDINATOR_TEST_1_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_COORDINATOR_TEST_2_USERNAME",
-                                    "naam": "$TEST_COORDINATOR_TEST_2_NAME"
-                                },
-                                {
-                                    "id": "$TEST_BEHEERDER_TEST_1_USERNAME",
-                                    "naam": "$TEST_BEHEERDER_TEST_1_NAME"
-                                },
-                                {
-                                    "id": "$TEST_USER_1_USERNAME",
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "id": "${OLD_IAM_BEHANDELAAR_1.username}",
+                                    "naam": "${OLD_IAM_BEHANDELAAR_1.displayName}"
                                 },                          
                                 {
-                                    "id": "$TEST_USER_2_ID",
-                                    "naam": "$TEST_USER_2_NAME"
+                                    "id": "${OLD_IAM_RAADPLEGER_1.username}",
+                                    "naam": "${OLD_IAM_RAADPLEGER_1.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_1_USERNAME",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
+                                    "id": "${RAADPLEGER_1.username}",
+                                    "naam": "${RAADPLEGER_1.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_USER_DOMEIN_TEST_2_USERNAME",
-                                    "naam": "$TEST_USER_DOMEIN_TEST_2_NAME"
+                                    "id": "${RAADPLEGER_2.username}",
+                                    "naam": "${RAADPLEGER_2.displayName}"
                                 },
                                 {
-                                    "id": "$TEST_USER_WITHOUT_ANY_ROLE_USERNAME",
-                                    "naam": "$TEST_USER_WITHOUT_ANY_ROLE_NAME"
+                                    "id": "${BEHANDELAAR_1.username}",
+                                    "naam": "${BEHANDELAAR_1.displayName}"
+                                },
+                                {
+                                    "id": "${BEHANDELAAR_2.username}",
+                                    "naam": "${BEHANDELAAR_2.displayName}"
+                                },
+                                {
+                                    "id": "${COORDINATOR_1.username}",
+                                    "naam": "${COORDINATOR_1.displayName}"
+                                },
+                                {
+                                    "id": "${COORDINATOR_2.username}",
+                                    "naam": "${COORDINATOR_2.displayName}"
+                                },
+                                {
+                                    "id": "${BEHEERDER_1.username}",
+                                    "naam": "${BEHEERDER_1.displayName}"
+                                },
+                                {
+                                    "id": "${OLD_IAM_TEST_USER_1.username}",
+                                    "naam": "${OLD_IAM_TEST_USER_1.displayName}"
+                                },                          
+                                {
+                                    "id": "${OLD_IAM_TEST_USER_2.username}",
+                                    "naam": "${OLD_IAM_TEST_USER_2.displayName}"
+                                },
+                                {
+                                    "id": "${OLD_IAM_TEST_USER_DOMEIN_TEST_1.username}",
+                                    "naam": "${OLD_IAM_TEST_USER_DOMEIN_TEST_1.displayName}"
+                                },
+                                {
+                                    "id": "${OLD_IAM_TEST_USER_DOMEIN_TEST_2.username}",
+                                    "naam": "${OLD_IAM_TEST_USER_DOMEIN_TEST_2.displayName}"
+                                },
+                                {
+                                    "id": "${USER_WITHOUT_ANY_ROLE.username}",
+                                    "naam": "${USER_WITHOUT_ANY_ROLE.displayName}"
                                 }
                             ]
                 """.trimIndent()
             }
         }
     }
+
     Given("Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members") {
         When("the 'list users in group' endpoint is called for 'test group a'") {
             val response = itestHttpClient.performGetRequest(
@@ -210,32 +199,37 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualJson """
                         [
                             {
-                                "id": "$TEST_USER_1_USERNAME",
-                                "naam": "$TEST_USER_1_NAME"
+                                "id": "${OLD_IAM_TEST_USER_1.username}",
+                                "naam": "${OLD_IAM_TEST_USER_1.displayName}"
                             },
                             {
-                                "id": "$TEST_USER_2_ID",
-                                "naam": "$TEST_USER_2_NAME"
+                                "id": "${OLD_IAM_TEST_USER_2.username}",
+                                "naam": "${OLD_IAM_TEST_USER_2.displayName}"
                             }
                         ]
                 """.trimIndent()
             }
         }
     }
-    Given("'test user 1' is logged in to ZAC and is part of two groups") {
+
+    Given("the beheerder elk zaaktype is logged in to ZAC and is part one or more groups") {
         When("the 'get logged in user' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/loggedInUser"
             )
+            val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
+                "\"$GROUP_BEHEERDERS_ELK_DOMEIN_ID\""
+            } else {
+                "\"$TEST_GROUP_A_ID\", \"$TEST_GROUP_FUNCTIONAL_ADMINS_ID\""
+            }
             Then("both groups are returned") {
                 response.isSuccessful shouldBe true
                 response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
                             {
-                                "id": "$TEST_USER_1_USERNAME",
-                                "naam": "$TEST_USER_1_NAME",
+                                "id": "${BEHEERDER_ELK_ZAAKTYPE.username}",
+                                "naam": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
                                 "groupIds": [
-                                    "$TEST_GROUP_A_ID",
-                                    "$TEST_GROUP_FUNCTIONAL_ADMINS_ID"
+                                    $expectedGroupsString
                                 ]
                             }
                 """.trimIndent()
