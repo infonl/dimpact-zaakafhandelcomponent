@@ -554,6 +554,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Read dependencies
+        id: dependencies
+        run: |
+          echo "dependencies<<EOF" >> $GITHUB_OUTPUT
+          cat DEPENDENCIES.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Create or update GitHub release
         uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
@@ -564,6 +570,10 @@ jobs:
           body: |
             This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available
             at ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ env.NEXT_VERSION }}
+            
+            ## Tested Against
+            
+            ${{ steps.dependencies.outputs.dependencies }}
           draft: false
           prerelease: false
           allowUpdates: true
