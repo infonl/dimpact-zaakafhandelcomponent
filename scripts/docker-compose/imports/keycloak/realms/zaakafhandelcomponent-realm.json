@@ -2992,6 +2992,32 @@
       "groups": ["/beheerders-elk-domein"]
     },
     {
+      "id": "a4ea43b6-459f-48c9-a167-33f2656eaa3f",
+      "username": "raadplegerenbehandelaar1newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger domein 1 - behandelaar domein 2 - new IAM",
+      "email": "${ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "b3903efb-a912-4e64-9e8e-09ff1e42178f",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"v0M/NxEmXXbRXkZP9274dOWRQ9jN0FZ49f3LgLwAhAI=\",\"salt\":\"HLTZdR5TUL2hTSXzrx19tA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-1", "/behandelaars-test-2"]
+    },
+    {
       "id": "acfd57fa-a72a-44a4-9dcf-d904e819a044",
       "username": "userwithoutanyrole",
       "firstName": "Test",
