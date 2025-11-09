@@ -562,12 +562,7 @@
           "behandelaar",
           "coordinator",
           "recordmanager",
-          "beheerder",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1",
-          "recordmanager_domein_test_1_en_domein_test_2",
-          "beheerder_elk_domein"
+          "beheerder"
         ]
       }
     },
@@ -585,11 +580,7 @@
           "raadpleger",
           "behandelaar",
           "coordinator",
-          "recordmanager",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1",
-          "recordmanager_domein_test_1_en_domein_test_2"
+          "recordmanager"
         ]
       }
     },
@@ -644,10 +635,7 @@
           "domein_elk_zaaktype",
           "raadpleger",
           "behandelaar",
-          "coordinator",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1"
+          "coordinator"
         ]
       }
     },
@@ -663,9 +651,7 @@
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1"
+          "behandelaar"
         ]
       }
     },
@@ -680,8 +666,7 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
-          "raadpleger",
-          "raadpleger_domein_test_1"
+          "raadpleger"
         ]
       }
     },

@@ -283,25 +283,25 @@ object ItestConfiguration {
         name = "test-group-a",
         description = "test-group-a"
     )
-    val OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS = TestGroup(
-        name = "test-group-fb",
-        description = "test-group-fb"
-    )
-    val OLD_IAM_TEST_GROUP_RECORD_MANAGERS = TestGroup(
-        name = "test-group-rm",
-        description = "test-group-rm"
-    )
-    val OLD_IAM_TEST_GROUP_COORDINATORS = TestGroup(
-        name = "test-group-co",
-        description = "test-group-co"
+    val OLD_IAM_TEST_GROUP_RAADPLEGERS = TestGroup(
+        name = "test-group-rp",
+        description = "test-group-rp"
     )
     val OLD_IAM_TEST_GROUP_BEHANDELAARS = TestGroup(
         name = "test-group-bh",
         description = "test-group-bh"
     )
-    val OLD_IAM_TEST_GROUP_RAADPLEGERS = TestGroup(
-        name = "test-group-rp",
-        description = "test-group-rp"
+    val OLD_IAM_TEST_GROUP_COORDINATORS = TestGroup(
+        name = "test-group-co",
+        description = "test-group-co"
+    )
+    val OLD_IAM_TEST_GROUP_RECORD_MANAGERS = TestGroup(
+        name = "test-group-rm",
+        description = "test-group-rm"
+    )
+    val OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS = TestGroup(
+        name = "test-group-fb",
+        description = "test-group-fb"
     )
 
     // new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
@@ -343,6 +343,17 @@ object ItestConfiguration {
     )
 
     // group constants that switch between old and new IAM test groups based on the PABC feature flag value
+    val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) {
+        TestGroup(
+            name = GROUP_RAADPLEGERS_TEST_1.name,
+            description = GROUP_RAADPLEGERS_TEST_1.description
+        )
+    } else {
+        TestGroup(
+            name = OLD_IAM_TEST_GROUP_RAADPLEGERS.name,
+            description = OLD_IAM_TEST_GROUP_RAADPLEGERS.description
+        )
+    }
     val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) {
         TestGroup(
             name = GROUP_BEHANDELAARS_TEST_1.name,
