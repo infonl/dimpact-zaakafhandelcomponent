@@ -19,10 +19,10 @@ import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHEERDERS_ELK_DOMEIN
-import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_FUNCTIONAL_ADMIN_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_GROUP_DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RAADPLEGER_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RECORD_MANAGER_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
@@ -78,8 +78,8 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJson """
                             [                               
                                 {
-                                    "id": "${GROUP_DOMEIN_TEST_1.name}",
-                                    "naam": "${GROUP_DOMEIN_TEST_1.description}"
+                                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
+                                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                                 }
                             ]
                 """.trimIndent()

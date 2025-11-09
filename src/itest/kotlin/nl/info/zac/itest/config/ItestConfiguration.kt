@@ -303,16 +303,16 @@ object ItestConfiguration {
         name = "test-group-fb",
         description = "test-group-fb"
     )
-
-    // new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
-    val GROUP_DOMEIN_TEST_1 = TestGroup(
+    val OLD_IAM_GROUP_DOMEIN_TEST_1 = TestGroup(
         name = "test-group-domein-test-1",
         description = "test-group-domein-test-1"
     )
-    val GROUP_DOMEIN_TEST_2 = TestGroup(
+    val OLD_IAM_GROUP_DOMEIN_TEST_2 = TestGroup(
         name = "test-group-domein-test-2",
         description = "test-group-domein-test-2"
     )
+
+    // new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
     val GROUP_RAADPLEGERS_TEST_1 = TestGroup(
         name = "raadplegers-test-1",
         description = "raadplegers-test-1"
@@ -394,12 +394,12 @@ object ItestConfiguration {
                     "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                 },
                 {
-                    "id": "${GROUP_DOMEIN_TEST_1.name}",
-                    "naam": "${GROUP_DOMEIN_TEST_1.description}"
+                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                 },
                 {
-                    "id": "${GROUP_DOMEIN_TEST_2.name}",
-                    "naam": "${GROUP_DOMEIN_TEST_2.description}"
+                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
                 },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",

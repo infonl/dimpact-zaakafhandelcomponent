@@ -526,7 +526,7 @@
       "id": "6e4c5646-e8b1-4fa9-93f9-ff7444b3284b",
       "name": "test-group-a",
       "path": "/test-group-a",
-      "description": "Test group A",
+      "description": "Test group A - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_A_EMAIL_ADDRESS}"]
       },
@@ -551,7 +551,7 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
       "name": "test-group-fb",
       "path": "/test-group-fb",
-      "description": "Test group Functional Admins",
+      "description": "Test group Functional Admins - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"]
       },
@@ -570,7 +570,7 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309d",
       "name": "test-group-rm",
       "path": "/test-group-rm",
-      "description": "Test group Record Managers",
+      "description": "Test group Record Managers - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"]
       },
@@ -588,18 +588,12 @@
       "id": "34613d00-56b6-4012-b287-b45674c269af",
       "name": "test-group-domein-test-1",
       "path": "/test-group-domein-test-1",
-      "description": "Test group which has access to domein_test_1 only",
+      "description": "Test group which has access to domein_test_1 only - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_1",
-          "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1"
-        ]
+        "zaakafhandelcomponent": ["domein_test_1", "raadpleger", "behandelaar"]
       }
     },
     {
@@ -607,26 +601,20 @@
       "name": "test-group-domein-test-2",
       "path": "/test-group-domein-test-2",
       "subGroups": [],
-      "description": "Test group which has access to domein_test_2 only",
+      "description": "Test group which has access to domein_test_2 only - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_DOMEIN_TEST_2_EMAIL_ADDRESS}"]
       },
       "realmRoles": [],
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_2",
-          "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_2",
-          "behandelaar_domein_test_2"
-        ]
+        "zaakafhandelcomponent": ["domein_test_2", "raadpleger", "behandelaar"]
       }
     },
     {
       "id": "20657c93-6396-4b0c-862c-7da3a8e1418f",
       "name": "test-group-co",
       "path": "/test-group-co",
-      "description": "Test group Coordinators",
+      "description": "Test group Coordinators - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS}"]
       },
@@ -643,7 +631,7 @@
       "id": "77e39e27-c95a-42d4-80fc-23344884b6c9",
       "name": "test-group-bh",
       "path": "/test-group-bh",
-      "description": "Test group Behandelaars",
+      "description": "Test group Behandelaars - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS}"]
       },
@@ -659,23 +647,20 @@
       "id": "84802893-f2a9-4d67-b3e6-b1696f476201",
       "name": "test-group-rp",
       "path": "/test-group-rp",
-      "description": "Test group Raadplegers",
+      "description": "Test group Raadplegers - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_elk_zaaktype",
-          "raadpleger"
-        ]
+        "zaakafhandelcomponent": ["domein_elk_zaaktype", "raadpleger"]
       }
     },
     {
       "id": "0f9d399d-8eb2-4bde-aaf7-8760419a75e9",
       "name": "raadplegers-test-1",
       "path": "/raadplegers-test-1",
+      "description": "Test group raadplegers domein test 1 - new IAM",
       "attributes": {
-        "description": ["Test group raadplegers domein test 1 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -686,8 +671,8 @@
       "id": "d9c72935-8825-4d59-8d51-04976edd6880",
       "name": "raadplegers-test-2",
       "path": "/raadplegers-test-2",
+      "description": "Test group raadplegers domein test 2 - new IAM",
       "attributes": {
-        "description": ["Test group raadplegers domein test 2 - new IAM"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -698,8 +683,8 @@
       "id": "e02264af-db24-4265-999e-03ff1cea32cf",
       "name": "behandelaars-test-1",
       "path": "/behandelaars-test-1",
+      "description": "Test group behandelaars domein test 1 - new IAM",
       "attributes": {
-        "description": ["Test group behandelaars domein test 1 - new IAM"],
         "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -710,8 +695,8 @@
       "id": "eb7a1785-8c61-4a1d-9318-0688a2c7e02c",
       "name": "behandelaars-test-2",
       "path": "/behandelaars-test-2",
+      "description": "Test group behandelaars domein test 2 - new IAM",
       "attributes": {
-        "description": ["Test group behandelaars domein test 2 - new IAM"],
         "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -722,8 +707,8 @@
       "id": "b964fabf-9895-460c-9061-2b5839890d91",
       "name": "coordinators-test-1",
       "path": "/coordinators-test-1",
+      "description": "Test group coordinators domein test 1 - new IAM",
       "attributes": {
-        "description": ["Test group coordinators domein test 1 - new IAM"],
         "email": ["${ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -734,8 +719,8 @@
       "id": "279d3d57-e71f-41c7-adce-149a78817bbd",
       "name": "coordinators-test-2",
       "path": "/coordinators-test-2",
+      "description": "Test group coordinators domein test 2 - new IAM",
       "attributes": {
-        "description": ["Test group coordinators domein test 2 - new IAM"],
         "email": ["${ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -746,8 +731,8 @@
       "id": "0d860be6-e27d-47df-bf03-2e574939c4a6",
       "name": "beheerders-elk-domein",
       "path": "/beheerders-elk-domein",
+      "description": "Test group beheerders elk domein - new IAM",
       "attributes": {
-        "description": ["Test group beheerders elk domein - new IAM"],
         "email": ["${ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
