@@ -184,7 +184,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             authenticate(BEHANDELAAR_DOMAIN_TEST_2)
             lateinit var responseBody: String
 
-            When("zaak types are listed") {
+            When("zaak types for creation are listed") {
                 val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
                 Then("the response should be a 200 HTTP response") {
                     responseBody = response.body.string()

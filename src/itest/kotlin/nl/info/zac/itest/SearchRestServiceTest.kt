@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
@@ -138,16 +139,17 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1                        
+                                    "aantal": 1,
+                                    "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 }
                             ],            
                             "GROEP": [
                                 {
-                                    "aantal": 15,
+                                    "aantal": 14,
                                     "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],         
@@ -341,10 +343,16 @@ class SearchRestServiceTest : BehaviorSpec({
                             "naam": "-NULL-"
                           }
                         ],
-                        "GROEP" : [ {
-                          "aantal" : 4,
-                          "naam" : "${OLD_IAM_TEST_GROUP_A.description}"
-                        } ],
+                        "GROEP" : [ 
+                            {
+                              "aantal" : 3,
+                              "naam" : "${OLD_IAM_TEST_GROUP_A.description}"
+                            },
+                            {
+                                "aantal": 1,
+                                "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                            }
+                        ],
                         "ZAAK_STATUS" : [
                            {
                                 "aantal": 2,
