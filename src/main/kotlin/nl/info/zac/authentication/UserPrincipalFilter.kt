@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.identity.model.ZacApplicationRole
@@ -47,7 +48,6 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
-        private const val PABC_ENTITY_TYPE = "zaaktype"
     }
 
     override fun doFilter(
@@ -157,7 +157,7 @@ constructor(
         val rolesPerZaaktype: Map<String, Set<String>> =
             applicationRolesResponse.results
                 .filter {
-                    it.entityType?.type.equals(PABC_ENTITY_TYPE, ignoreCase = true) &&
+                    it.entityType?.type.equals(ENTITY_TYPE_ZAAKTYPE, ignoreCase = true) &&
                         !it.entityType?.id.isNullOrBlank()
                 }.associate { result ->
                     val roles = result.applicationRoles

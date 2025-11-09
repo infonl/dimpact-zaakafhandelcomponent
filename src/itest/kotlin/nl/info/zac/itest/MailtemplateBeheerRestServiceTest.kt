@@ -37,9 +37,9 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
@@ -182,7 +182,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "$TEST_GROUP_A_ID",
+                        "defaultGroepId": "${OLD_IAM_TEST_GROUP_A.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -234,7 +234,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "$TEST_GROUP_A_ID",
+                        "defaultGroepId": "${OLD_IAM_TEST_GROUP_A.name}",
                         "domein": "domein_test_1",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",

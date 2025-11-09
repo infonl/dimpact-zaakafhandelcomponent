@@ -15,11 +15,9 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_BEHANDELAARS
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -52,8 +50,8 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
@@ -69,7 +67,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
             requestBodyAsString = """{
                     "zaakUUID" : "$zaakUuid",
-                    "groepId" : "$TEST_GROUP_BEHANDELAARS_ID",
+                    "groepId" : "${OLD_IAM_TEST_GROUP_BEHANDELAARS.name}",
                     "reden" : "$zaakAssignToMeFromListReason"
                 }
             """.trimIndent()
@@ -92,13 +90,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
                           "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "nieuweWaarde" : "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
+                          "nieuweWaarde" : "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "ONTKOPPELD",
                           "attribuutLabel" : "Behandelaar",
                           "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "oudeWaarde" : "$TEST_GROUP_A_DESCRIPTION",
+                          "oudeWaarde" : "${OLD_IAM_TEST_GROUP_A.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEKOPPELD",
@@ -116,7 +114,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
                           "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "nieuweWaarde" : "$TEST_GROUP_A_DESCRIPTION",
+                          "nieuweWaarde" : "${OLD_IAM_TEST_GROUP_A.description}",
                           "toelichting" : "Aanmaken zaak"
                         }, {
                           "actie" : "AANGEMAAKT",

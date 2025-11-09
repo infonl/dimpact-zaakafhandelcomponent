@@ -20,12 +20,11 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
@@ -101,8 +100,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_BEHANDELAARS_ID,
-            groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             behandelaarId = OLD_IAM_BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {

@@ -14,8 +14,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BAG_TEST_ADRES_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -166,8 +165,8 @@ class BagRestServiceTest : BehaviorSpec({
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             val responseBody = body.string()

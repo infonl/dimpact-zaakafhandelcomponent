@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
@@ -31,7 +31,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
             "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_ID",
             "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
-            "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
+            "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}"
         }
     """.trimIndent()
 
@@ -45,7 +45,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                   "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
                   "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                   "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
-                  "groepNaam": "$TEST_GROUP_A_DESCRIPTION"
+                  "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}"
                 }
                 """.trimIndent()
             )

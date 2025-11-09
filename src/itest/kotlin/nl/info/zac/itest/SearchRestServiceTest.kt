@@ -27,10 +27,10 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUU
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
@@ -144,7 +144,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "GROEP": [
                                 {
                                     "aantal": 15,
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
                                     "aantal": 3,
@@ -343,7 +343,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         ],
                         "GROEP" : [ {
                           "aantal" : 4,
-                          "naam" : "$TEST_GROUP_A_DESCRIPTION"
+                          "naam" : "${OLD_IAM_TEST_GROUP_A.description}"
                         } ],
                         "ZAAK_STATUS" : [
                            {
@@ -563,7 +563,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             {
                                 "type": "TAAK",                       
                                 "fataledatum": "$DATE_2024_01_01",
-                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
+                                "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                                 "rechten": {
                                     "lezen": true,
@@ -579,7 +579,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             {
                                 "type": "TAAK",
                                 "fataledatum": "$TAAK_1_FATAL_DATE",
-                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
+                                "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
                                 "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                                 "rechten": {
                                     "lezen": true,
@@ -595,7 +595,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             },
                             {
                               "type": "TAAK",
-                              "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
+                              "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
                               "rechten": {
                                 "lezen": true,
                                 "toekennen": false,
@@ -636,7 +636,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "GROEP": [
                                 {
                                     "aantal": 3,
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
                                     "aantal": 1,

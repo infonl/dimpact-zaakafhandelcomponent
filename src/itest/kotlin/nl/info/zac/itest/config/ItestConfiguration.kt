@@ -259,6 +259,12 @@ object ItestConfiguration {
         displayName = "Test Beheerder 1 - new IAM",
         email = "beheerder-test-1@example.com"
     )
+    val RAADPLEGER_EN_BEHANDELAAR_1 = TestUser(
+        username = "raadplegerenbehandelaar1newiam",
+        password = "raadplegerenbehandelaar1newiam",
+        displayName = "Test Raadpleger domein 1 - behandelaar domein 2 - new IAM",
+        email = "raadpleger-en-behandelaar-test-1@example.com"
+    )
     val USER_WITHOUT_ANY_ROLE = TestUser(
         username = "userwithoutanyrole",
         password = "userwithoutanyrole",
@@ -273,114 +279,144 @@ object ItestConfiguration {
     val RAADPLEGER_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) RAADPLEGER_1 else OLD_IAM_RAADPLEGER_1
 
     // old IAM test groups; will be removed in the future; do not use these to test new IAM functionality
-    const val TEST_GROUP_A_ID = "test-group-a"
-    const val TEST_GROUP_A_DESCRIPTION = "test-group-a"
-    const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
-    const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "test-group-fb"
-    const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
-    const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "test-group-rm"
-    const val TEST_GROUP_COORDINATORS_ID = "test-group-co"
-    const val TEST_GROUP_COORDINATORS_DESCRIPTION = "test-group-co"
-    const val TEST_GROUP_BEHANDELAARS_ID = "test-group-bh"
-    const val TEST_GROUP_BEHANDELAARS_DESCRIPTION = "test-group-bh"
-    const val TEST_GROUP_RAADPLEGERS_ID = "test-group-rp"
-    const val TEST_GROUP_RAADPLEGERS_DESCRIPTION = "test-group-rp"
+    val OLD_IAM_TEST_GROUP_A = TestGroup(
+        name = "test-group-a",
+        description = "test-group-a"
+    )
+    val OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS = TestGroup(
+        name = "test-group-fb",
+        description = "test-group-fb"
+    )
+    val OLD_IAM_TEST_GROUP_RECORD_MANAGERS = TestGroup(
+        name = "test-group-rm",
+        description = "test-group-rm"
+    )
+    val OLD_IAM_TEST_GROUP_COORDINATORS = TestGroup(
+        name = "test-group-co",
+        description = "test-group-co"
+    )
+    val OLD_IAM_TEST_GROUP_BEHANDELAARS = TestGroup(
+        name = "test-group-bh",
+        description = "test-group-bh"
+    )
+    val OLD_IAM_TEST_GROUP_RAADPLEGERS = TestGroup(
+        name = "test-group-rp",
+        description = "test-group-rp"
+    )
 
     // new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
-    const val GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
-    const val GROUP_DOMEIN_TEST_1_DESCRIPTION = "test-group-domein-test-1"
-    const val GROUP_DOMEIN_TEST_2_ID = "test-group-domein-test-2"
-    const val GROUP_DOMEIN_TEST_2_DESCRIPTION = "test-group-domein-test-2"
-    const val GROUP_RAADPLEGERS_TEST_1_ID = "raadplegers-test-1"
-    const val GROUP_RAADPLEGERS_TEST_1_DESCRIPTION = "raadplegers-test-1"
-    const val GROUP_RAADPLEGERS_TEST_2_ID = "raadplegers-test-2"
-    const val GROUP_RAADPLEGERS_TEST_2_DESCRIPTION = "raadplegers-test-2"
-    const val GROUP_BEHANDELAARS_TEST_1_ID = "behandelaars-test-1"
-    const val GROUP_BEHANDELAARS_TEST_1_DESCRIPTION = "behandelaars-test-1"
-    const val GROUP_BEHANDELAARS_TEST_2_ID = "behandelaars-test-2"
-    const val GROUP_BEHANDELAARS_TEST_2_DESCRIPTION = "behandelaars-test-2"
-    const val GROUP_COORDINATORS_TEST_1_ID = "coordinators-test-1"
-    const val GROUP_COORDINATORS_TEST_1_DESCRIPTION = "coordinators-test-1"
-    const val GROUP_COORDINATORS_TEST_2_ID = "coordinators-test-2"
-    const val GROUP_COORDINATORS_TEST_2_DESCRIPTION = "coordinators-test-2"
-    const val GROUP_BEHEERDERS_ELK_DOMEIN_ID = "beheerders-elk-domein"
-    const val GROUP_BEHEERDERS_ELK_DOMEIN_DESCRIPTION = "beheerders-elk-domein"
+    val GROUP_DOMEIN_TEST_1 = TestGroup(
+        name = "test-group-domein-test-1",
+        description = "test-group-domein-test-1"
+    )
+    val GROUP_DOMEIN_TEST_2 = TestGroup(
+        name = "test-group-domein-test-2",
+        description = "test-group-domein-test-2"
+    )
+    val GROUP_RAADPLEGERS_TEST_1 = TestGroup(
+        name = "raadplegers-test-1",
+        description = "raadplegers-test-1"
+    )
+    val GROUP_RAADPLEGERS_TEST_2 = TestGroup(
+        name = "raadplegers-test-2",
+        description = "raadplegers-test-2"
+    )
+    val GROUP_BEHANDELAARS_TEST_1 = TestGroup(
+        name = "behandelaars-test-1",
+        description = "behandelaars-test-1"
+    )
+    val GROUP_BEHANDELAARS_TEST_2 = TestGroup(
+        name = "behandelaars-test-2",
+        description = "behandelaars-test-2"
+    )
+    val GROUP_COORDINATORS_TEST_1 = TestGroup(
+        name = "coordinators-test-1",
+        description = "coordinators-test-1"
+    )
+    val GROUP_COORDINATORS_TEST_2 = TestGroup(
+        name = "coordinators-test-2",
+        description = "coordinators-test-2"
+    )
+    val GROUP_BEHEERDERS_ELK_DOMEIN = TestGroup(
+        name = "beheerders-elk-domein",
+        description = "beheerders-elk-domein"
+    )
 
     // group constants that switch between old and new IAM test groups based on the PABC feature flag value
     val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) {
         TestGroup(
-            name = GROUP_BEHANDELAARS_TEST_1_ID,
-            description = GROUP_BEHANDELAARS_TEST_1_DESCRIPTION
+            name = GROUP_BEHANDELAARS_TEST_1.name,
+            description = GROUP_BEHANDELAARS_TEST_1.description
         )
     } else {
         TestGroup(
-            name = TEST_GROUP_BEHANDELAARS_ID,
-            description = TEST_GROUP_BEHANDELAARS_DESCRIPTION
+            name = OLD_IAM_TEST_GROUP_BEHANDELAARS.name,
+            description = OLD_IAM_TEST_GROUP_BEHANDELAARS.description
         )
     }
 
-    const val TEST_GROUPS_ALL =
+    val TEST_GROUPS_ALL =
         """
             [
                 {
-                    "id": "$TEST_GROUP_FUNCTIONAL_ADMINS_ID",
-                    "naam": "$TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.description}"
                 },
                 {
-                    "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
-                    "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.description}"
                 },
                 {
-                    "id": "$TEST_GROUP_COORDINATORS_ID",
-                    "naam": "$TEST_GROUP_COORDINATORS_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_COORDINATORS.description}"
                 },
                 {
-                    "id": "$TEST_GROUP_BEHANDELAARS_ID",
-                    "naam": "$TEST_GROUP_BEHANDELAARS_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}"
                 },
                 {
-                    "id": "$TEST_GROUP_RAADPLEGERS_ID",
-                    "naam": "$TEST_GROUP_RAADPLEGERS_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.description}"
                 },
                 {
-                    "id": "$TEST_GROUP_A_ID",
-                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                    "id": "${OLD_IAM_TEST_GROUP_A.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                 },
                 {
-                    "id": "$GROUP_DOMEIN_TEST_1_ID",
-                    "naam": "$GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                    "id": "${GROUP_DOMEIN_TEST_1.name}",
+                    "naam": "${GROUP_DOMEIN_TEST_1.description}"
                 },
                 {
-                    "id": "$GROUP_DOMEIN_TEST_2_ID",
-                    "naam": "$GROUP_DOMEIN_TEST_2_DESCRIPTION"
+                    "id": "${GROUP_DOMEIN_TEST_2.name}",
+                    "naam": "${GROUP_DOMEIN_TEST_2.description}"
                 },
                 {
-                    "id": "$GROUP_RAADPLEGERS_TEST_1_ID",
-                    "naam": "$GROUP_RAADPLEGERS_TEST_1_DESCRIPTION"
+                    "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
+                    "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"
                 },
                 {
-                    "id": "$GROUP_RAADPLEGERS_TEST_2_ID",
-                    "naam": "$GROUP_RAADPLEGERS_TEST_2_DESCRIPTION"
+                    "id": "${GROUP_RAADPLEGERS_TEST_2.name}",
+                    "naam": "${GROUP_RAADPLEGERS_TEST_2.description}"
                 },
                 {
-                    "id": "$GROUP_BEHANDELAARS_TEST_1_ID",
-                    "naam": "$GROUP_BEHANDELAARS_TEST_1_DESCRIPTION"
+                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                 },
                 {
-                    "id": "$GROUP_BEHANDELAARS_TEST_2_ID",
-                    "naam": "$GROUP_BEHANDELAARS_TEST_2_DESCRIPTION"
+                    "id": "${GROUP_BEHANDELAARS_TEST_2.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_2.description}"
                 },
                 {
-                    "id": "$GROUP_COORDINATORS_TEST_1_ID",
-                    "naam": "$GROUP_COORDINATORS_TEST_1_DESCRIPTION"
+                    "id": "${GROUP_COORDINATORS_TEST_1.name}",
+                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
                 },
                 {
-                    "id": "$GROUP_COORDINATORS_TEST_2_ID",
-                    "naam": "$GROUP_COORDINATORS_TEST_2_DESCRIPTION"
+                    "id": "${GROUP_COORDINATORS_TEST_2.name}",
+                    "naam": "${GROUP_COORDINATORS_TEST_2.description}"
                 },
                 {
-                    "id": "$GROUP_BEHEERDERS_ELK_DOMEIN_ID",
-                    "naam": "$GROUP_BEHEERDERS_ELK_DOMEIN_DESCRIPTION"
+                    "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
+                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
                 }
             ]
         """
