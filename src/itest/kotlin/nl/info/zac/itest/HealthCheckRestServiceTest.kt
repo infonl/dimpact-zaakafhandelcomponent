@@ -9,6 +9,8 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
@@ -31,7 +33,16 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("Default communicatiekanalen referentietabel data is provisioned on startup") {
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given(
+        """
+            Default communicatiekanalen referentietabel data is provisioned on startup,
+            and a logged-in beheerder
+            """
+    ) {
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
@@ -57,7 +68,8 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             Then("the response should be a 200 OK") {
                 response.isSuccessful shouldBe true
             }
-            responseBody shouldEqualJson """
+            And("the response body should contain all the performed checks") {
+                responseBody shouldEqualJson """
                     [
                       {
                         "aantalBehandelaarroltypen": 1,
@@ -176,9 +188,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       }
                     ]    
-            """.trimIndent()
-
-            And("the body contains all the performed checks") {
+                """.trimIndent()
             }
         }
     }

@@ -27,9 +27,10 @@ class ItestHttpClient {
     private val logger = KotlinLogging.logger {}
 
     init {
-        // use a non-persistent cookie manager to we can reuse HTTP sessions across requests
-        val cookieManager = CookieManager()
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+        // use a non-persistent cookie manager, so that we can reuse HTTP sessions across requests
+        val cookieManager = CookieManager().apply {
+            setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+        }
         okHttpClient = OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(cookieManager))
             .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
