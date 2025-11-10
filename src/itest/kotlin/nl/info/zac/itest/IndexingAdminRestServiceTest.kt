@@ -17,6 +17,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_ACCEPTED
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -41,7 +44,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             Then(
                 """the response is successful and all zaken are indexed"""
             ) {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -78,7 +81,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             Then(
                 """the response is successful and all tasks are indexed"""
             ) {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -115,7 +118,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             Then(
                 """the response is successful and all documents are indexed"""
             ) {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(

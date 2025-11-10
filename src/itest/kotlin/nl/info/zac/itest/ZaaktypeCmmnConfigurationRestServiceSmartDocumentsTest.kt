@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
 class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
@@ -47,9 +48,9 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                 [
                   {
@@ -194,10 +195,10 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 val fetchResponse = itestHttpClient.performGetRequest(url = smartDocumentsZaakafhandelParametersUrl)
 
                 Then("the data is fetched correctly") {
-                    val fetchResponseBody = fetchResponse.body.string()
+                    val fetchResponseBody = fetchResponse.bodyAsString
                     logger.info { "Response: $fetchResponseBody" }
 
-                    fetchResponse.isSuccessful shouldBe true
+                    fetchResponse.code shouldBe HTTP_OK
                     fetchResponseBody shouldEqualJsonIgnoringOrder restTemplateGroups
                 }
             }

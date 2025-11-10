@@ -17,6 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.io.File
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_INITIAL)
 class FormioFormulierenRestServiceTest : BehaviorSpec({
@@ -73,9 +74,9 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/formio-formulieren"
             )
             Then("the response contains the form.io forms that were just created") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 [
                     {

@@ -172,7 +172,7 @@ class BagRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION"
             )
             Then("the BAG object is successfully returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -1204,7 +1204,7 @@ class BagRestServiceTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/bag/zaak/$zaakUUID"
                 ).run {
-                    val responseBody = body.string()
+                    val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                         [

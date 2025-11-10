@@ -90,9 +90,9 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
         )
-        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body.string()
+        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.bodyAsString
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
-        getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
+        getHumanTaskPlanItemsResponse.code shouldBe HTTP_OK
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
         // wait for OpenZaak to accept this request
@@ -136,7 +136,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
                 sendSignaleringenResponse.code shouldBe HTTP_OK
-                val sendSignaleringenResponseBody = sendSignaleringenResponse.body.string()
+                val sendSignaleringenResponseBody = sendSignaleringenResponse.bodyAsString
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
 
@@ -147,7 +147,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_DOMAIN_TEST_1.email}/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
-                    receivedMails = JSONArray(receivedMailsResponse.body.string())
+                    receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {

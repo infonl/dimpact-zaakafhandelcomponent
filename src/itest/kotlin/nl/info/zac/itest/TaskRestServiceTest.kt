@@ -33,6 +33,7 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,9 +55,9 @@ class TaskRestServiceTest : BehaviorSpec({
             Then(
                 """the list of taken for this zaak is returned and contains the expected task"""
             ) {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, and in a previous test two 'aanvullende informatie' tasks have been started
                 // for this zaak, so there should be two (identical) tasks in the list

@@ -61,7 +61,7 @@ class ItestHttpClient {
         url: String,
         headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -74,7 +74,10 @@ class ItestHttpClient {
             .url(url)
             .get()
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.code)
+        }
     }
 
     fun performHeadRequest(

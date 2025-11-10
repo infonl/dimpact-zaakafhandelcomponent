@@ -132,7 +132,7 @@ class WebDavServletTest : BehaviorSpec({
                 token for the uploaded Word document
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldStartWith "\"ms-word:http://localhost:8080/webdav/folder/"
@@ -149,9 +149,9 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
 

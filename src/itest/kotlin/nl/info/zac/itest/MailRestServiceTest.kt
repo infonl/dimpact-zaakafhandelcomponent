@@ -77,7 +77,7 @@ class MailRestServiceTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {

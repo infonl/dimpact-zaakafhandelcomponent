@@ -69,9 +69,9 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             }
         }
         taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
-            val responseBody = it.body.string()
+            val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
-            it.isSuccessful shouldBe true
+            it.code shouldBe HTTP_OK
             responseBody.shouldBeJsonArray()
             JSONArray(responseBody).length() shouldBe 1
             JSONArray(responseBody).getJSONObject(0).getString("id")

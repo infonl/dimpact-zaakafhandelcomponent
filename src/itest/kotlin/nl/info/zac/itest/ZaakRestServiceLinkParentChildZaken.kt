@@ -87,7 +87,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
                     code shouldBe HTTP_OK
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
                         length() shouldBe 1
@@ -125,7 +125,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
                     code shouldBe HTTP_OK
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
                         length() shouldBe 0

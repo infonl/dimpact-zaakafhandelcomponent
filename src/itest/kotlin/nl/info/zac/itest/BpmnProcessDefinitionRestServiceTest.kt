@@ -14,6 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.io.File
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_INITIAL)
 class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
@@ -47,9 +48,9 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/bpmn-process-definitions"
             )
             Then("the response contains the BPMN process definition that was just created") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [  
                   {

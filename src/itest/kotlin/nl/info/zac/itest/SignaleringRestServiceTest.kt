@@ -118,7 +118,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val zaakRollenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
-        val responseBody = zaakRollenResponse.body.string()
+        val responseBody = zaakRollenResponse.bodyAsString
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
@@ -193,9 +193,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
+                    response.code shouldBe HTTP_OK
 
                     // application/json should be changed to text/plain in the endpoint to get rid of the quotes
                     val dateString = responseBody.replace("\"", "")
@@ -278,7 +278,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
-            var responseBody = zaakInformatieObjectenResponse.body.string()
+            var responseBody = zaakInformatieObjectenResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             zaakInformatieObjectenResponse.code shouldBe HTTP_OK

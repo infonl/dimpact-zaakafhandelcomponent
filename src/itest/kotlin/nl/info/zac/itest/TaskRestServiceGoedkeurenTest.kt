@@ -64,7 +64,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            JSONArray(body.string()).getJSONObject(0).run {
+            JSONArray(bodyAsString).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
             }
         }
@@ -111,9 +111,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
             )
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the behandelen phase, so there should be four human task plan items
                 // of which the first one is 'Goedkeuren'
@@ -153,9 +153,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the list with tasks for this zaak is returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 // only the 'Goedkeuren' task should be active
                 goedkeurenTaskId = JSONArray(responseBody).getJSONObject(0).getString("id").toInt()
             }
@@ -205,9 +205,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 val response = itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID"
                 )
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONObject(responseBody).getJSONArray("indicaties")[0] shouldBe "ONDERTEKEND"
             }
         }

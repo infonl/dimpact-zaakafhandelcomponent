@@ -110,9 +110,9 @@ class ProjectConfig : AbstractProjectConfig() {
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = ZAC_HEALTH_READY_URL,
                     addAuthorizationHeader = false
-                ).use { response ->
+                ).let { response ->
                     response.code shouldBe HTTP_OK
-                    JSONObject(response.body.string()).getString("status") shouldBe "UP"
+                    JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }

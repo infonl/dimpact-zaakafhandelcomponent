@@ -367,7 +367,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(zaakUUID: UUID): Response {
+    fun retrieveZaak(zaakUUID: UUID): ResponseContent {
         logger.info {
             "Retrieving zaak with UUID: $zaakUUID"
         }
@@ -376,7 +376,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(id: String): Response {
+    fun retrieveZaak(id: String): ResponseContent {
         logger.info {
             "Retrieving zaak with id: $id"
         }

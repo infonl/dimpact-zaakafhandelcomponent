@@ -16,6 +16,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UP
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
@@ -35,9 +36,9 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             )
 
             Then("the list with tasks for this zaak is returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 taskArray = JSONArray(responseBody)
             }
@@ -64,9 +65,9 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
 
             And("the zaak status remains in `aanvullende informatie`") {
                 val response = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 responseBody.shouldContainJsonKeyValue("$.status.naam", "Wacht op aanvullende informatie")
             }
