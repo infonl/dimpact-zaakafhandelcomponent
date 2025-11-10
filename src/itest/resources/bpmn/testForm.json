@@ -18,37 +18,35 @@
       "tableView": false,
       "components": [
         {
-          "legend": "Approval by:",
-          "type": "groepMedewerkerFieldset",
-          "key": "AM_TeamBehandelaar",
-          "input": false,
-          "components": [
-            {
-              "label": "Group",
-              "type": "select",
-              "key": "AM_TeamBehandelaar_Groep",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "clearOnRefresh": true
-            },
-            {
-              "label": "User",
-              "type": "select",
-              "key": "AM_TeamBehandelaar_Medewerker",
-              "widget": "html5",
-              "input": true,
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "refreshOn": "AM_TeamBehandelaar_Groep",
-              "clearOnRefresh": true
-            }
-          ]
+          "label": "Group",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Groep",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_groep"
+          },
+          "dataSrc": "custom",
+          "clearOnRefresh": true
+        },
+        {
+          "label": "User",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Medewerker",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_medewerker"
+          },
+          "dataSrc": "custom",
+          "refreshOn": "AM_TeamBehandelaar_Groep",
+          "clearOnRefresh": true
         },
         {
           "legend": "SmartDocuments",
@@ -115,68 +113,65 @@
           ]
         },
         {
-          "legend": "Reference table",
-          "type": "referenceTableFieldset",
-          "key": "RT_ReferenceTable",
-          "input": false,
-          "components": [
-            {
-              "label": "Communication channel",
-              "type": "select",
-              "key": "RT_ReferenceTable_Values",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "properties": {
-                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-              }
-            }
-          ]
+          "label": "Communication channel",
+          "type": "select",
+          "key": "RT_ReferenceTable_Values",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
         },
         {
-          "legend": "Zaak Result",
-          "type": "zaakResultTypesFieldset",
-          "key": "FS_ZaakResult",
-          "input": false,
-          "components": [
-            {
-              "label": "Select result",
-              "optionsLabelPosition": "right",
-              "key": "ZK_Result",
-              "widget": "html5",
-              "validate": {
-                "required": true,
-                "onlyAvailableItems": true
-              },
-              "type": "select",
-              "input": true,
-              "dataSrc": "custom"
-            }
-          ]
+          "label": "Select result",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Result",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_resultaat"
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
         },
         {
-          "legend": "Zaak Status",
-          "type": "zaakStatusTypesFieldset",
-          "key": "FS_ZaakStatus",
-          "input": false,
-          "components": [
-            {
-              "label": "Select status",
-              "optionsLabelPosition": "right",
-              "key": "ZK_Status",
-              "widget": "html5",
-              "validate": {
-                "required": true,
-                "onlyAvailableItems": true
-              },
-              "type": "select",
-              "input": true,
-              "dataSrc": "custom"
-            }
-          ]
+          "label": "Select status",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Status",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_status"
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        },
+        {
+          "label": "Initiator",
+          "key": "initiator",
+          "validate": {
+            "required": true
+          },
+          "type": "input",
+          "input": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_process_data"
+          }
         }
       ]
     }

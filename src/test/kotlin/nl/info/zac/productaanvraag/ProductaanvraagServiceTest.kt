@@ -1472,8 +1472,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                     with(zaakDataSlot.captured) {
-                        size shouldBe 1
-                        values.first() shouldBe groupName
+                        size shouldBe 2
+                        values.first() shouldBe "fakeValue" // aanvraaggegevens
+                        values.last() shouldBe groupName
                     }
                 }
                 And("and the productaanvraag and documents should be paired") {

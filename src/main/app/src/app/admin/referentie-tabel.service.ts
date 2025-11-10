@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class ReferentieTabelService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   listReferentieTabellen() {
     return this.zacHttpClient.GET("/rest/referentietabellen");
@@ -28,7 +30,7 @@ export class ReferentieTabelService {
   }
 
   readReferentieTabelByCode(code: string) {
-    return this.zacHttpClient.GET("/rest/referentietabellen/code/{code}", {
+    return this.zacQueryClient.GET("/rest/referentietabellen/code/{code}", {
       path: { code },
     });
   }

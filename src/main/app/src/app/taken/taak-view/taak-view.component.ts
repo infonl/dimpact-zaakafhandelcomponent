@@ -358,6 +358,14 @@ export class TaakViewComponent
     this.menu = [];
     this.menu.push(new HeaderMenuItem("taak"));
 
+    this.menu.push(
+      new ButtonMenuItem(
+        "actie.zaakdata.bekijken",
+        () => this.actionsSidenav.open(),
+        "folder_copy",
+      ),
+    );
+
     if (this.taak?.rechten.toevoegenDocument) {
       this.menu.push(
         new ButtonMenuItem(
@@ -629,6 +637,14 @@ export class TaakViewComponent
 
   updateZaakDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
+  }
+
+  protected updateZaak() {
+    const zaakUuid = this.zaak?.uuid ?? this.taak?.zaakIdentificatie;
+    if (!zaakUuid) return;
+    this.zakenService.readZaak(zaakUuid).subscribe((zaak) => {
+      this.zaak = zaak;
+    });
   }
 
   /**

@@ -103,6 +103,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RestZaakCreateData
+import nl.info.zac.app.zaak.model.RestZaakDataUpdate
 import nl.info.zac.app.zaak.model.RestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakLocatieGegevens
@@ -538,13 +539,10 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("zaakdata")
-    fun updateZaakdata(restZaak: RestZaak): RestZaak {
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaak.uuid)
+    fun updateZaakdata(restZaakDataUpdate: RestZaakDataUpdate) {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakDataUpdate.uuid)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).wijzigen)
-        restZaak.zaakdata?.let {
-            zaakVariabelenService.setZaakdata(restZaak.uuid, it)
-        }
-        return restZaak
+        zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, restZaakDataUpdate.zaakdata)
     }
 
     @PATCH

@@ -87,6 +87,7 @@ class ProductaanvraagService @Inject constructor(
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val configuratieService: ConfiguratieService
 ) {
+
     companion object {
         private val LOG = Logger.getLogger(ProductaanvraagService::class.java.name)
 
@@ -628,7 +629,7 @@ class ProductaanvraagService @Inject constructor(
             zaak = zaak,
             zaaktype = zaaktype,
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
-            zaakData = buildMap {
+            zaakData = getAanvraaggegevens(productaanvraagObject) + buildMap {
                 put(VAR_ZAAK_GROUP, zaaktypeBpmnConfiguration.groupId)
             }
         )

@@ -55,6 +55,13 @@
       [source]="zaak?.identificatie"
       (informationObjectLinked)="updateZaakDocumentList()"
     />
+    <zac-zaakdata
+      *ngSwitchCase="'actie.zaakdata.bekijken'"
+      [sideNav]="actionsSidenav"
+      [zaak]="zaak"
+      (dataChanged)="updateZaak()"
+      [readonly]="true"
+    ></zac-zaakdata>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
