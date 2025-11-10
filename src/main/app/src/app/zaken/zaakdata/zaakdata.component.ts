@@ -67,7 +67,6 @@ export class ZaakdataComponent {
 
   private buildForm(data: Record<string, unknown>, formGroup: FormGroup) {
     for (const [key, value] of Object.entries(data)) {
-      console.log("-----", key);
       const control = this.getControl(value);
 
       if (this.isProcesVariabele(key)) control.disable();
