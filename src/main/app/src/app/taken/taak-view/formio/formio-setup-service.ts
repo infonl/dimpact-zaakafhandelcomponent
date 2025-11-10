@@ -222,7 +222,7 @@ export class FormioSetupService {
   }
 
   getSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
-    return component?.properties["SmartDocuments_Group"].split("/") ?? [];
+    return component?.properties["SmartDocuments_Group"]?.split("/") ?? [];
   }
 
   /**

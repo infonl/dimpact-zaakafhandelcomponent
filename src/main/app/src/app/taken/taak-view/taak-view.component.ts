@@ -640,7 +640,7 @@ export class TaakViewComponent
   }
 
   protected updateZaak() {
-    const zaakUuid = this.zaak?.uuid ?? this.taak?.zaakIdentificatie;
+    const zaakUuid = this.zaak?.uuid ?? this.taak?.zaakUuid;
     if (!zaakUuid) return;
     this.zakenService.readZaak(zaakUuid).subscribe((zaak) => {
       this.zaak = zaak;
