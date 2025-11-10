@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, of, Subject, takeUntil, tap } from "rxjs";
+import { Observable, of, Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
