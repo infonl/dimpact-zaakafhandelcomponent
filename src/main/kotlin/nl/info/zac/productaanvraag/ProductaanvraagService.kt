@@ -10,7 +10,6 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
@@ -241,7 +240,7 @@ class ProductaanvraagService @Inject constructor(
         return initiatorBetrokkene
     }
 
-private fun Betrokkene.shouldBeSkipped(
+    private fun Betrokkene.shouldBeSkipped(
         zaak: Zaak,
         genericRole: Boolean,
         brpEnabled: Boolean,
@@ -415,12 +414,19 @@ private fun Betrokkene.shouldBeSkipped(
     ) {
         betrokkene.performAction(
             onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
-            onKvkIdentity = { kvkNummer, vestigingsNummer -> addRechtspersoonOrVestiging(type, kvkNummer, vestigingsNummer, zaak.url) },
+            onKvkIdentity = { kvkNummer, vestigingsNummer ->
+                addRechtspersoonOrVestiging(
+                    type,
+                    kvkNummer,
+                    vestigingsNummer,
+                    zaak.url
+                )
+            },
             onNoIdentity = {
                 val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
-                            "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
+                        "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
                 )
             }
         )
