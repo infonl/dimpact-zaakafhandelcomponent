@@ -46,7 +46,7 @@ class BagRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -1172,7 +1172,7 @@ class BagRestServiceTest : BehaviorSpec({
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)

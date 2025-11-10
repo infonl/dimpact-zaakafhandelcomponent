@@ -13,7 +13,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.net.CookieManager
@@ -41,7 +40,7 @@ class ItestHttpClient {
         url: String,
         headers: Headers = buildHeaders(),
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing DELETE request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -54,7 +53,10 @@ class ItestHttpClient {
             .url(url)
             .delete()
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
     }
 
     fun performGetRequest(
@@ -76,7 +78,7 @@ class ItestHttpClient {
             .build()
         return okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.code)
+            ResponseContent(it.body.string(), it.headers, it.code)
         }
     }
 
@@ -84,7 +86,7 @@ class ItestHttpClient {
         url: String,
         headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing HEAD request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -97,7 +99,10 @@ class ItestHttpClient {
             .url(url)
             .head()
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
     }
 
     fun performPostRequest(
@@ -105,7 +110,7 @@ class ItestHttpClient {
         headers: Headers = buildHeaders(),
         requestBody: RequestBody,
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -118,7 +123,10 @@ class ItestHttpClient {
             .url(url)
             .post(requestBody)
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
     }
 
     fun performJSONPostRequest(
@@ -138,7 +146,7 @@ class ItestHttpClient {
         headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing PATCH request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -151,7 +159,10 @@ class ItestHttpClient {
             .url(url)
             .patch(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
     }
 
     fun performPutRequest(
@@ -159,7 +170,7 @@ class ItestHttpClient {
         headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
-    ): Response {
+    ): ResponseContent {
         logger.info { "Performing PUT request on: '$url'" }
         val request = Request.Builder()
             .headers(
@@ -171,7 +182,10 @@ class ItestHttpClient {
             ).url(url)
             .put(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
-        return okHttpClient.newCall(request).execute()
+        return okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
     }
 
     fun connectNewWebSocket(

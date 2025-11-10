@@ -50,7 +50,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
@@ -201,7 +201,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {

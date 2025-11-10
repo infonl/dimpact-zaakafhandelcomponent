@@ -56,7 +56,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 logger.info { "Response: $this" }
                 zaakUuid = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -73,7 +73,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body.string()}" }
+            logger.info { "Response: $bodyAsString" }
         }
 
         When("zaak history is requested") {

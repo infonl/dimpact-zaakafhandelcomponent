@@ -17,9 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
-import java.net.HttpURLConnection.HTTP_OK
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -65,7 +63,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
                 }
             }
         }
@@ -102,7 +100,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
                 }
             }
         }
@@ -139,7 +137,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body.string()).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 }
             }
         }

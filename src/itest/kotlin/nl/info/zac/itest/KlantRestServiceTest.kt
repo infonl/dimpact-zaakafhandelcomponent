@@ -246,7 +246,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -274,7 +274,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -305,7 +305,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the customer contactmomenten") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """

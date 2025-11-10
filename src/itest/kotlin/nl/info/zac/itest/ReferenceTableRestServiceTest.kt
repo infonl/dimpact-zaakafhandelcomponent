@@ -259,7 +259,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
@@ -309,7 +309,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
@@ -344,7 +344,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {

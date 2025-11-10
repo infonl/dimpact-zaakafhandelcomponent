@@ -61,9 +61,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 automaticEmailConfirmationSender = "GEMEENTE"
             )
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
         When(
@@ -80,9 +80,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 domein = DOMEIN_TEST_1
             )
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {

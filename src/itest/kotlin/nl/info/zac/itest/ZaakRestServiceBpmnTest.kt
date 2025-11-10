@@ -61,7 +61,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             url = "$ZAC_API_URI/taken/complete",
             requestBodyAsString = patchedTakenData
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             responseBody
@@ -96,7 +96,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
               "type": "TAAK"
             }
         """.trimIndent()
-    ).body.string()
+    ).bodyAsString
 
     Given("A BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
@@ -108,7 +108,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             JSONObject(responseBody).run {

@@ -51,8 +51,8 @@ class NoteServiceTest : BehaviorSpec({
             Then(
                 "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
             ) {
-                response.isSuccessful shouldBe true
-                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",

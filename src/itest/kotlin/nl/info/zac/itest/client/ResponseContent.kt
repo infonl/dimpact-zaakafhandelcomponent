@@ -4,7 +4,10 @@
  */
 package nl.info.zac.itest.client
 
+import okhttp3.Headers
+
 data class ResponseContent(
     val bodyAsString: String,
+    val headers: Headers,
     val code: Int
 )

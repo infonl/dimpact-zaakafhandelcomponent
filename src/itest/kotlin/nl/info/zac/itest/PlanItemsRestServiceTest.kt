@@ -22,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -97,10 +98,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("a task is started for this zaak") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
 
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -129,10 +130,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
 
             Then("a new task is started for this zaak") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
 
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
 
             And("zaak fatal date is moved forward to correspond to the task fatal date") {

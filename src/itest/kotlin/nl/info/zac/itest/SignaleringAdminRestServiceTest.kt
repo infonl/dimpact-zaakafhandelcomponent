@@ -33,6 +33,7 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -81,7 +82,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 zaakManual2Identification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
@@ -120,9 +121,9 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
         )
 
-        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
+        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.bodyAsString
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
-        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
+        doHumanTaskPlanItemResponse.code shouldBe HTTP_NO_CONTENT
 
         When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(

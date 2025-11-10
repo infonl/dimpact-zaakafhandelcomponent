@@ -124,9 +124,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     domein = DOMEIN_TEST_2
                 )
                 Then("the response should be ok") {
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
+                    response.code shouldBe HTTP_OK
                 }
             }
         }
@@ -240,7 +240,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 toelichting = ZAAK_EXPLANATION_1
             )
             Then("the response should be a 200 HTTP response") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
@@ -563,7 +563,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 OK HTTP response") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
@@ -590,7 +590,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -612,9 +612,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the zaak should be assigned to the group") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
@@ -648,7 +648,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 OK HTTP response") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
@@ -672,7 +672,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -706,7 +706,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be a 200 HTTP response with only the changed zaak description and no other changes"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -762,7 +762,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the changed zaak data without zaakgeometrie") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -786,7 +786,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response and the initiator should be added") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
@@ -884,7 +884,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
                     should be received by the websocket listener and the two zaken should be assigned correctly"""
             ) {
-                val lijstVerdelenResponseBody = lijstVerdelenResponse.body.string()
+                val lijstVerdelenResponseBody = lijstVerdelenResponse.bodyAsString
                 logger.info { "Response: $lijstVerdelenResponseBody" }
                 lijstVerdelenResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
@@ -960,7 +960,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """a 204 HTTP response and a screen event of type 'zaken verdelen'
                     should be received by the websocket listener and the zaak should not be reassigned"""
             ) {
-                val lijstVerdelenResponseBody = lijstVerdelenResponse.body.string()
+                val lijstVerdelenResponseBody = lijstVerdelenResponse.bodyAsString
                 logger.info { "Response: $lijstVerdelenResponseBody" }
                 lijstVerdelenResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
@@ -1002,7 +1002,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be a 200 HTTP response with the expected zaak data"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {

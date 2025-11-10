@@ -47,9 +47,9 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = completeTaskResponse.body.string()
+                val responseBody = completeTaskResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
-                completeTaskResponse.isSuccessful shouldBe true
+                completeTaskResponse.code shouldBe HTTP_OK
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }

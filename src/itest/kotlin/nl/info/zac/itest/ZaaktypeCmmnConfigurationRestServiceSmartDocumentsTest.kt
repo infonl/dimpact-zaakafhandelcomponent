@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
@@ -115,9 +116,9 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                 [ "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME", "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME" ]                    
                 """.trimIndent()
@@ -187,9 +188,9 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 url = smartDocumentsZaakafhandelParametersUrl,
                 requestBodyAsString = restTemplateGroups
             )
-            val storeBody = storeResponse.body.string()
+            val storeBody = storeResponse.bodyAsString
             logger.info { "Response: $storeBody" }
-            storeResponse.isSuccessful shouldBe true
+            storeResponse.code shouldBe HTTP_NO_CONTENT
 
             And("then the mapping is fetched back") {
                 val fetchResponse = itestHttpClient.performGetRequest(url = smartDocumentsZaakafhandelParametersUrl)
@@ -242,7 +243,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             )
 
             Then("the request errors") {
-                val storeResponseBody = storeResponse.body.string()
+                val storeResponseBody = storeResponse.bodyAsString
                 logger.info { "Response: $storeResponseBody" }
 
                 storeResponse.code shouldBe HTTP_BAD_REQUEST

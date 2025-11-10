@@ -62,9 +62,9 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -92,9 +92,9 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 }
             """.trimIndent()
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_NO_CONTENT
         }
         // get the list of taken for the zaak to set the task ID for the 'aanvullende informatie' task
         itestHttpClient.performGetRequest(
@@ -136,7 +136,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                 """.trimIndent()
-            ).body.string()
+            ).bodyAsString
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
@@ -167,7 +167,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     the task should be deleted and the zaak should be removed from the Solr index
                 """.trimIndent()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
                 // Retrieve the zaak and check that the zaakdata is no longer available.
@@ -220,7 +220,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                         """.trimIndent()
-                    ).body.string()
+                    ).bodyAsString
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }

@@ -55,9 +55,9 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")

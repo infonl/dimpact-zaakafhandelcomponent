@@ -54,7 +54,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
                 }
@@ -82,7 +82,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body.string()}" }
+            logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_NO_CONTENT
         }
 
@@ -99,7 +99,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = UUID.fromString(JSONObject(responseBody).getString("uuid"))
@@ -141,9 +141,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("a task is started for this zaak") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -195,9 +194,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the taak status should be set to 'AFGEROND'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 

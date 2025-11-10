@@ -57,6 +57,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * Run this test after reindexing so that all the required data is available in the Solr index.
@@ -98,9 +99,9 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful and the search results include the indexed zaken, tasks and documents") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 // we only test on the total number of results and the filters, not on the actual results,
                 // to keep the test more or less maintainable
@@ -319,9 +320,9 @@ class SearchRestServiceTest : BehaviorSpec({
                    the response is successful and the search results include the indexed zaken for this zaaktype only
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",                     
@@ -420,9 +421,9 @@ class SearchRestServiceTest : BehaviorSpec({
                    about the information object type UUID
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -478,9 +479,9 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -545,9 +546,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
                     {
                         "foutmelding": "",
@@ -704,9 +705,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the expected search filters
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
@@ -780,9 +781,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",

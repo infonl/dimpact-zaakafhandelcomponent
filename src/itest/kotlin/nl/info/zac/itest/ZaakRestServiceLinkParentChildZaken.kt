@@ -48,7 +48,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 zaak1UUID = getString("uuid").run(UUID::fromString)
@@ -60,9 +60,8 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
-            logger.info { "Response: $responseBody" }
-            JSONObject(responseBody).run {
+            logger.info { "Response: $bodyAsString" }
+            JSONObject(bodyAsString).run {
                 zaak2Identificatie = getString("identificatie")
                 zaak2UUID = getString("uuid").run(UUID::fromString)
             }
@@ -79,7 +78,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the parent-child relationship between the two zaken should be established") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
 
@@ -117,7 +116,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the parent-child relationship between the two zaken should be removed") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
 

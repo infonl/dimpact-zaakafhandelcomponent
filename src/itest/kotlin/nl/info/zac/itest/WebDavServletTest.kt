@@ -57,9 +57,9 @@ class WebDavServletTest : BehaviorSpec({
             behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
             }
@@ -115,7 +115,7 @@ class WebDavServletTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
@@ -163,9 +163,8 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_OK
             }
         }
     }

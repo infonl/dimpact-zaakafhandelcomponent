@@ -52,9 +52,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then("the response is successful") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
 
             And("the response contains the created zaaktype configuration") {

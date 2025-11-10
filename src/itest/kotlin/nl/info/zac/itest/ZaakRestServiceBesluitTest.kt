@@ -51,7 +51,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
                 }
@@ -77,7 +77,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body.string()}" }
+            logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
@@ -121,7 +121,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 }
                 """.trimIndent()
             ).run {
-                logger.info { "Response: ${body.string()}" }
+                logger.info { "Response: $bodyAsString" }
                 code shouldBe HTTP_OK
             }
 
@@ -173,8 +173,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     "lastResponseDate": "$newResponseDate"         
                 }
                 """.trimIndent()
-            ).use { response ->
-                val responseBody = response.body.string()
+            ).let { response ->
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -221,8 +221,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 "vervalreden":"ingetrokken_belanghebbende"
             }
                 """.trimIndent()
-            ).use { response ->
-                val responseBody = response.body.string()
+            ).let { response ->
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
