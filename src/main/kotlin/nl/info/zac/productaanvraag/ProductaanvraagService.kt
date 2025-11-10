@@ -214,14 +214,16 @@ class ProductaanvraagService @Inject constructor(
      */
     private fun addInitiatorAndBetrokkenenToZaak(
         productaanvraag: ProductaanvraagDimpact,
-        zaak: Zaak
+        zaak: Zaak,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean
     ): Betrokkene? {
         var initiatorBetrokkene: Betrokkene? = null
         productaanvraag.betrokkenen?.forEach {
             val betrokkeneAddedAsInitiator = if (it.roltypeOmschrijving != null) {
-                addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak)
+                addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak, brpEnabled, kvkEnabled)
             } else {
-                addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak)
+                addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak, brpEnabled, kvkEnabled)
             }
             if (initiatorBetrokkene == null && betrokkeneAddedAsInitiator) {
                 initiatorBetrokkene = it
@@ -233,17 +235,19 @@ class ProductaanvraagService @Inject constructor(
     private fun addBetrokkenenWithRole(
         betrokkene: Betrokkene,
         initiatorAdded: Boolean,
-        zaak: Zaak
+        zaak: Zaak,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean
     ): Boolean {
         when (betrokkene.roltypeOmschrijving) {
             ROLTYPE_OMSCHRIJVING_INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
-                        "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
+                        "Multiple initiator betrokkenen found in productaanvraag for zaak ${zaak.identificatie}. " +
                             "Only the first one will be used."
                     )
                 } else {
-                    addBetrokkene(betrokkene, ROLTYPE_OMSCHRIJVING_INITIATOR, zaak)
+                    addBetrokkene(betrokkene, ROLTYPE_OMSCHRIJVING_INITIATOR, zaak, brpEnabled, kvkEnabled)
                 }
                 return true
             }
@@ -256,7 +260,7 @@ class ProductaanvraagService @Inject constructor(
             }
 
             else -> {
-                addBetrokkene(betrokkene, betrokkene.roltypeOmschrijving, zaak)
+                addBetrokkene(betrokkene, betrokkene.roltypeOmschrijving, zaak, brpEnabled, kvkEnabled)
             }
         }
 
@@ -266,19 +270,21 @@ class ProductaanvraagService @Inject constructor(
     private fun addBetrokkenenWithGenericRole(
         betrokkene: Betrokkene,
         initiatorAdded: Boolean,
-        zaak: Zaak
+        zaak: Zaak,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean
     ): Boolean {
         when (betrokkene.rolOmschrijvingGeneriek) {
             Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ADVISEUR, zaak, brpEnabled, kvkEnabled)
             }
 
             Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak, brpEnabled, kvkEnabled)
             }
 
             Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BESLISSER, zaak)
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BESLISSER, zaak, brpEnabled, kvkEnabled)
             }
 
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
@@ -288,21 +294,27 @@ class ProductaanvraagService @Inject constructor(
                             "Only the first one will be used."
                     )
                 } else {
-                    addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
+                    addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak, brpEnabled, kvkEnabled)
                 }
                 return true
             }
 
             Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak, brpEnabled, kvkEnabled)
             }
 
             Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak, brpEnabled, kvkEnabled)
             }
 
             Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
-                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
+                addBetrokkeneGeneriek(
+                    betrokkene,
+                    OmschrijvingGeneriekEnum.ZAAKCOORDINATOR,
+                    zaak,
+                    brpEnabled,
+                    kvkEnabled
+                )
             }
 
             else -> {
@@ -318,24 +330,30 @@ class ProductaanvraagService @Inject constructor(
     private fun addBetrokkeneGeneriek(
         betrokkene: Betrokkene,
         roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
-        zaak: Zaak
+        zaak: Zaak,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
             .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
-            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+            .firstOrNull()?.let {
+                addRole(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), brpEnabled, kvkEnabled, true)
+            }
     }
 
     private fun addBetrokkene(
         betrokkene: Betrokkene,
         roltypeOmschrijving: String,
-        zaak: Zaak
+        zaak: Zaak,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean,
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
             .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
-            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
+            .firstOrNull()?.let { addRole(betrokkene, it, zaak, roltypeOmschrijving, brpEnabled, kvkEnabled) }
             ?: LOG.warning(
                 "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                    "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                    "productaanvraag. No betrokkene role created for zaak '${zaak.identificatie}."
             )
     }
 
@@ -360,26 +378,43 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    private fun addRoles(
+    private fun addRole(
         betrokkene: Betrokkene,
         type: RolType,
         zaak: Zaak,
         roltypeOmschrijving: String,
+        brpEnabled: Boolean,
+        kvkEnabled: Boolean,
         genericRolType: Boolean = false
     ) {
-        LOG.fine { "Add betrokkene $betrokkene with role type $roltypeOmschrijving to zaak $zaak" }
-        betrokkene.performAction(
-            onNatuurlijkPersoonIdentity = { addNatuurlijkPersoonRole(type, it, zaak.url) },
+        val prefix = if (genericRolType) "generic " else ""
+        return betrokkene.performAction(
+            onNatuurlijkPersoonIdentity = {
+                if (brpEnabled) {
+                    addNatuurlijkPersoonRole(type, it, zaak.url)
+                } else {
+                    LOG.warning {
+                        "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` has BRP-based identity, but BRP " +
+                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    }
+                }
+            },
             onKvkIdentity = { kvkNummer, vestigingsNummer ->
-                addRechtspersoonOrVestiging(
-                    type,
-                    kvkNummer,
-                    vestigingsNummer,
-                    zaak.url
-                )
+                if (kvkEnabled) {
+                    addRechtspersoonOrVestiging(
+                        type,
+                        kvkNummer,
+                        vestigingsNummer,
+                        zaak.url
+                    )
+                } else {
+                    LOG.warning {
+                        "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` has KvK-based identity, but KvK " +
+                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    }
+                }
             },
             onNoIdentity = {
-                val prefix = if (genericRolType) "generic " else ""
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
                         "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
@@ -537,13 +572,6 @@ class ProductaanvraagService @Inject constructor(
 
         val firstZaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration.first()
         try {
-            productaanvraagDimpact.betrokkenen?.run {
-                validateBetrokkenenForZaaktypeCmmnConfiguration(
-                    betrokkenen = this,
-                    productaanvraagDimpact = productaanvraagDimpact,
-                    zaaktypeCmmnConfiguration = firstZaaktypeCmmnConfiguration
-                )
-            }
             LOG.fine {
                 "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaaktypeCmmnConfiguration.zaakTypeUUID}'"
             }
@@ -681,7 +709,12 @@ class ProductaanvraagService @Inject constructor(
             )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        val initiator = addInitiatorAndBetrokkenenToZaak(productaanvraag = productaanvraagDimpact, zaak = zaak)
+        val initiator = addInitiatorAndBetrokkenenToZaak(
+            productaanvraag = productaanvraagDimpact,
+            zaak = zaak,
+            brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
+            kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
+        )
         productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
     }
 
@@ -727,36 +760,11 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun validateBetrokkenenForZaaktypeCmmnConfiguration(
-        betrokkenen: List<Betrokkene>,
-        productaanvraagDimpact: ProductaanvraagDimpact,
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) {
-        val zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters
-        val brpEnabled = zaaktypeCmmnBetrokkeneParameters?.brpKoppelen ?: false
-        val kvkEnabled = zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen ?: false
+    private fun isBrpEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
+        zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.brpKoppelen ?: false
 
-        betrokkenen.forEach {
-            if (!brpEnabled) {
-                it.inpBsn?.run {
-                    LOG.warning(
-                        "The BRP koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
-                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. ${generateProductaanvraagDescription(productaanvraagDimpact)} " +
-                            "cannot be fully processed because it contains one or more betrokkenen with a BSN identifier."
-                    )
-                }
-            }
-            if (!kvkEnabled) {
-                it.vestigingsNummer?.run {
-                    LOG.warning(
-                        "The KVK koppeling is not enabled for zaaktypeCmmnConfiguration with zaaktype UUID " +
-                            "'${zaaktypeCmmnConfiguration.zaakTypeUUID}'. ${generateProductaanvraagDescription(productaanvraagDimpact)} " +
-                            "cannot be fully processed because it contains one or more betrokkenen with a KVK vestigingsnummer identifier."
-                    )
-                }
-            }
-        }
-    }
+    private fun isKvkEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
+        zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen ?: false
 
     private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
         "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +

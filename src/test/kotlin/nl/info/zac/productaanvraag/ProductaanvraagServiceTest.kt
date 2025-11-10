@@ -480,20 +480,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         communicatiekanaalNaam shouldBe "E-formulier"
                         bronorganisatie shouldBe "123443210"
                     }
-                    with(roleToBeCreated) {
-                        roleToBeCreated.size shouldBe 2
-                        with(roleToBeCreated[0]) {
-                            betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                            identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
-                            roltype shouldBe rolTypeBehandelaar.url
-                            zaak shouldBe createdZaak.url
-                        }
-                        with(roleToBeCreated[1]) {
-                            betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
-                            identificatienummer shouldBe bsnNumber
-                            roltype shouldBe rolTypeInitiator.url
-                            zaak shouldBe createdZaak.url
-                        }
+                    roleToBeCreated.size shouldBe 2
+                    with(roleToBeCreated[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
+                        roltype shouldBe rolTypeBehandelaar.url
+                        zaak shouldBe createdZaak.url
+                    }
+                    with(roleToBeCreated[1]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+                        identificatienummer shouldBe bsnNumber
+                        roltype shouldBe rolTypeInitiator.url
+                        zaak shouldBe createdZaak.url
                     }
                 }
             }
@@ -501,25 +499,37 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         Given(
             """
-            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
-            containing a betrokkene with role initiator and type vestiging and zaaktypeCmmnConfiguration
-            that have the KVK koppeling disabled
+            a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
+            containing gebruikersnaamMedewerker as well as a bsn and kvk betrokkene with roles initiator and behandelaar, but zaaktype
+            has the BRP and KVK koppelingen disabled
             """
         ) {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
+            val gebruikersnaamMedewerker = "fakeGebruikersnaamMedewerker"
+            val fakeGebruikersnaamMedewerker = createUser()
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
+                gebruikersnaamMedewerker = gebruikersnaamMedewerker
+            )
+            zaaktypeCmmnConfiguration.apply {
                 zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
+                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     brpKoppelen = false,
                     kvkKoppelen = false
                 )
-            )
+            }
             val formulierBron = createBron()
+            val bsnNumber = "fakeBsnNumber"
             val vestigingsNummer = createRandomVestigingsNumber()
             val kvkNummer = createRandomKvkNumber()
+            val today = LocalDate.now()
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -529,14 +539,34 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
                         "betrokkenen" to listOf(
                             mapOf(
+                                "inpBsn" to bsnNumber,
+                                "roltypeOmschrijving" to "Initiator"
+                            ),
+                            mapOf(
                                 "vestigingsNummer" to vestigingsNummer,
                                 "kvkNummer" to kvkNummer,
-                                "rolOmschrijvingGeneriek" to "initiator"
+                                "roltypeOmschrijving" to "Belanghebbende"
                             )
-                        )
-                    )
+                        ),
+                        "pdf" to zaakType.informatieobjecttypen[0]
+                    ),
+                    startAt = today
                 )
             )
+            val rolTypeInitiator = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
+            )
+            val rolTypeBelanghebbende = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE
+            )
+            val rolTypeBehandelaar = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val zaakToBeCreated = slot<Zaak>()
+            val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
@@ -546,20 +576,61 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every {
+                zrcClientService.createZaakInformatieobject(
+                    any(),
+                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                )
+            } returns createdZaakInformatieobject
+            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
+            every { identityService.readUser(gebruikersnaamMedewerker) } returns createUser()
+            every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
+            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.findRoltypen(any(), "Belanghebbende") } returns listOf(rolTypeBelanghebbende)
+            every {
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    createdZaak,
+                    any<Betrokkene>(),
+                    zaaktypeCmmnConfiguration
+                )
+            } just runs
+            every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
+            every { configuratieService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
                 Then(
                     """
-                    no zaak should be created, and a CMMN case process should not be started and a warning should be logged
+                    a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
+                    and a CMMN case process should be started
                     """
                 ) {
-                    verify(exactly = 0) {
+                    verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
-                        cmmnService.startCase(any(), any(), any(), any())
+                        cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
+                    }
+                    verify(exactly = 0) {
                         bpmnService.startProcess(any(), any(), any())
+                    }
+                    with(zaakToBeCreated.captured) {
+                        zaaktype shouldBe zaakType.url
+                        startdatum shouldBe today
+                        communicatiekanaalNaam shouldBe "E-formulier"
+                        bronorganisatie shouldBe "123443210"
+                    }
+                    // Instead of 3 roles we have only 1 as BRP and KVK are disabled
+                    roleToBeCreated.size shouldBe 1
+                    with(roleToBeCreated[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        identificatienummer shouldBe fakeGebruikersnaamMedewerker.id
+                        roltype shouldBe rolTypeBehandelaar.url
+                        zaak shouldBe createdZaak.url
                     }
                 }
             }
@@ -868,6 +939,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every {
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    createdZaak,
+                    any<Betrokkene>(),
+                    zaaktypeCmmnConfiguration
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1543,6 +1621,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every {
+                productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
+                    createdZaak,
+                    any<Betrokkene>(),
+                    zaaktypeCmmnConfiguration
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
