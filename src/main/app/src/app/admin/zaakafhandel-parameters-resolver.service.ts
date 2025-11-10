@@ -34,9 +34,9 @@ export class ZaakafhandelParametersResolver {
     return forkJoin({
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
-      bpmnListCaseTypeConfigurations:
-        this.bpmnConfigurationService.listBpmnCaseTypeConfigurations(),
-      bpmnProcessDefinitionsList:
+      bpmnProcessDefintionConfigurations:
+        this.bpmnConfigurationService.listBpmnProcessDefintionConfigurations(),
+      bpmnProcessDefinitions:
         this.processDefinitionsService.listProcessDefinitions(),
       featureFlagBpmnSupport:
         this.configuratieService.readFeatureFlagBpmnSupport(),
@@ -44,12 +44,12 @@ export class ZaakafhandelParametersResolver {
       map(
         ({
           zaakafhandelParameters,
-          bpmnListCaseTypeConfigurations,
-          bpmnProcessDefinitionsList,
+          bpmnProcessDefintionConfigurations,
+          bpmnProcessDefinitions,
           featureFlagBpmnSupport,
         }) => {
           const bpmnZaakafhandelParameters =
-            bpmnListCaseTypeConfigurations?.find(
+            bpmnProcessDefintionConfigurations?.find(
               (item) =>
                 item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
             );
@@ -59,7 +59,7 @@ export class ZaakafhandelParametersResolver {
 
           return {
             zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
-            bpmnProcessDefinitionsList, // BPMN process definitions
+            bpmnProcessDefinitions, // BPMN process definitions
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,

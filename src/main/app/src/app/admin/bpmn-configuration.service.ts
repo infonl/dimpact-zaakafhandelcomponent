@@ -12,7 +12,7 @@ import { ZacHttpClient } from "../shared/http/zac-http-client";
 export class BpmnConfigurationService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  listBpmnCaseTypeConfigurations() {
+  listBpmnProcessDefintionConfigurations() {
     return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
   }
 }

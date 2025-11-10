@@ -113,7 +113,7 @@ export class ZaakCreateComponent implements OnDestroy {
     this.form.controls.initiatorIdentificatie.disable();
 
     this.bpmnConfigurationService
-      .listBpmnCaseTypeConfigurations()
+      .listBpmnProcessDefintionConfigurations()
       .subscribe((configs) => {
         this.bpmnCaseTypesConfigurations = configs;
       });

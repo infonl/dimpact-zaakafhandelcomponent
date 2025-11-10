@@ -36,7 +36,8 @@ export class ParametersEditBpmnComponent {
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
 
-  protected bpmnDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [];
+  protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
+    [];
   protected groepen = this.identityService.listGroups();
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
@@ -100,7 +101,8 @@ export class ParametersEditBpmnComponent {
         data.parameters.bpmnZaakafhandelParameters;
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
-      this.bpmnDefinitions = data.parameters.bpmnProcessDefinitionsList || [];
+      this.bpmnProcessDefinitions =
+        data.parameters.bpmnProcessDefinitions || [];
 
       this.createForm();
     });
@@ -124,7 +126,7 @@ export class ParametersEditBpmnComponent {
     this.algemeenFormGroup.patchValue(this.bpmnZaakafhandelParameters);
 
     this.algemeenFormGroup.controls.bpmnDefinition.setValue(
-      this.bpmnDefinitions?.find(
+      this.bpmnProcessDefinitions?.find(
         (bpmnDef) =>
           bpmnDef.key ===
           this.bpmnZaakafhandelParameters.bpmnProcessDefinitionKey,
