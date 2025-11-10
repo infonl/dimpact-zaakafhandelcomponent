@@ -18,23 +18,23 @@ import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
-import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHEERDERS_ELK_DOMEIN_ID
-import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.GROUP_DOMEIN_TEST_1_ID
+import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHEERDERS_ELK_DOMEIN
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_FUNCTIONAL_ADMIN_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_GROUP_DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RAADPLEGER_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RECORD_MANAGER_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1
 import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_2
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
 import nl.info.zac.itest.config.ItestConfiguration.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -78,8 +78,8 @@ class IdentityServiceTest : BehaviorSpec({
                 response.body.string() shouldEqualSpecifiedJson """
                             [                               
                                 {
-                                    "id": "$GROUP_DOMEIN_TEST_1_ID",
-                                    "naam": "$GROUP_DOMEIN_TEST_1_DESCRIPTION"
+                                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
+                                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                                 }
                             ]
                 """.trimIndent()
@@ -164,6 +164,10 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${BEHEERDER_1.displayName}"
                                 },
                                 {
+                                    "id": "${RAADPLEGER_EN_BEHANDELAAR_1.username}",
+                                    "naam": "${RAADPLEGER_EN_BEHANDELAAR_1.displayName}"
+                                },
+                                {
                                     "id": "${OLD_IAM_TEST_USER_1.username}",
                                     "naam": "${OLD_IAM_TEST_USER_1.displayName}"
                                 },                          
@@ -192,7 +196,7 @@ class IdentityServiceTest : BehaviorSpec({
     Given("Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members") {
         When("the 'list users in group' endpoint is called for 'test group a'") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/$TEST_GROUP_A_ID/users"
+                url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
             )
             Then("'testuser 1' and 'testuser 2' are returned") {
                 response.isSuccessful shouldBe true
@@ -218,9 +222,9 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/loggedInUser"
             )
             val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
-                "\"$GROUP_BEHEERDERS_ELK_DOMEIN_ID\""
+                "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
             } else {
-                "\"$TEST_GROUP_A_ID\", \"$TEST_GROUP_FUNCTIONAL_ADMINS_ID\""
+                "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
             }
             Then("both groups are returned") {
                 response.isSuccessful shouldBe true

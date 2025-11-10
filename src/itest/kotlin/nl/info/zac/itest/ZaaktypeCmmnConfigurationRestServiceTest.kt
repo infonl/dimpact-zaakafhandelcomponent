@@ -13,10 +13,10 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
@@ -154,7 +154,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                           "type" : "USER_EVENT_LISTENER"
                         } ]
                       },
-                      "defaultGroepId" : "$TEST_GROUP_A_ID",
+                      "defaultGroepId" : "${OLD_IAM_TEST_GROUP_A.name}",
                       "domein" : "$DOMEIN_TEST_1",
                       "humanTaskParameters" : [ {
                         "actief" : true,

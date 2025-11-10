@@ -18,11 +18,10 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -78,8 +77,8 @@ class TaskRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
                         shouldContainJsonKeyValue("zaaktypeUUID", ZAAKTYPE_TEST_3_UUID.toString())
                         JSONObject(this,).getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                            getString("id") shouldBe OLD_IAM_TEST_GROUP_A.name
+                            getString("naam") shouldBe OLD_IAM_TEST_GROUP_A.description
                         }
                         shouldContainJsonKey("id")
                         shouldNotContainJsonKey("toelichting")
@@ -135,7 +134,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
                         "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
-                         "groepId":"$TEST_GROUP_A_ID",
+                         "groepId":"${OLD_IAM_TEST_GROUP_A.name}",
                         "behandelaarGebruikersnaam":"${OLD_IAM_TEST_USER_2.username}",
                         "reden":"fakeTasksAssignReason",
                         "screenEventResourceId":"$uniqueResourceId"

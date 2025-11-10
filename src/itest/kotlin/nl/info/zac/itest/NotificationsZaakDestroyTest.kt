@@ -14,11 +14,10 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -58,8 +57,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         lateinit var aanvullendeInformatieTaskID: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
@@ -88,7 +87,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 {
                     "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
                     "taakStuurGegevens": {"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "medewerker":null,"groep":{"id":"${OLD_IAM_TEST_GROUP_A.name}","naam":"${OLD_IAM_TEST_GROUP_A.description}"},
                     "taakdata": { "fakeTestKey": "fakeTestValue" }
                 }
             """.trimIndent()

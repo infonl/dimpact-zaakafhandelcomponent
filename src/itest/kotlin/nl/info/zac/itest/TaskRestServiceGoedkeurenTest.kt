@@ -15,8 +15,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_KOPPELEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
@@ -51,8 +50,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             JSONObject(body.string()).run {
@@ -132,7 +131,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 requestBodyAsString = """
                 {
                     "planItemInstanceId": "$humanTaskItemGoedkeurenId",
-                    "groep": { "id": "$TEST_GROUP_A_ID", "naam": "$TEST_GROUP_A_DESCRIPTION" },
+                    "groep": { "id": "${OLD_IAM_TEST_GROUP_A.name}", "naam": "${OLD_IAM_TEST_GROUP_A.description}" },
                     "taakStuurGegevens": {},
                     "taakdata": {
                         "vraag": "fakeQuestion",
@@ -169,7 +168,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 {
                     "creatiedatumTijd": "${ZonedDateTime.now()}",
                     "formulierDefinitieId": "GOEDKEUREN",
-                    "groep": { "id": "$TEST_GROUP_A_ID", "naam": "$TEST_GROUP_A_DESCRIPTION" },
+                    "groep": { "id": "${OLD_IAM_TEST_GROUP_A.name}", "naam": "${OLD_IAM_TEST_GROUP_A.description}" },
                     "id": "$goedkeurenTaskId",
                     "naam": "Goedkeuren",
                     "rechten":{ "lezen": true, "toekennen": true, "toevoegenDocument": true, "wijzigen": true },

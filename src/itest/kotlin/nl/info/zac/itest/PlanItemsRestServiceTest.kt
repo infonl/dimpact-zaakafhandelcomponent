@@ -16,8 +16,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -92,7 +91,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
                     "fataledatum":"$fataleDatum",
                     "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "medewerker":null,"groep":{"id":"${OLD_IAM_TEST_GROUP_A.name}","naam":"${OLD_IAM_TEST_GROUP_A.description}"},
                     "taakdata":{}
                 }
                 """.trimIndent()
@@ -123,7 +122,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     "planItemInstanceId":"$newAdditionalInfoTaskId",
                     "fataledatum":"$fataleDatum",
                     "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "medewerker":null,"groep":{"id":"${OLD_IAM_TEST_GROUP_A.name}","naam":"${OLD_IAM_TEST_GROUP_A.description}"},
                     "taakdata":{}
                 }
                 """.trimIndent()

@@ -20,9 +20,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -77,8 +76,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = OLD_IAM_TEST_GROUP_A.name,
+            groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
@@ -112,8 +111,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                     },
                     "groep": {
-                        "id": "$TEST_GROUP_A_ID",
-                        "naam": "$TEST_GROUP_A_DESCRIPTION"
+                        "id": "${OLD_IAM_TEST_GROUP_A.name}",
+                        "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                     },
                     "taakdata":{}
                 }

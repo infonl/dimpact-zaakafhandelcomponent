@@ -13,13 +13,11 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
+import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGERS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -39,12 +37,12 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val zacClient = ZacClient()
 
     beforeSpec {
-        authenticate(OLD_IAM_BEHANDELAAR_1)
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
     }
 
     afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(OLD_IAM_TEST_USER_1)
+        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
     Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
@@ -52,8 +50,8 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = RAADPLEGERS_DOMAIN_TEST_1.name,
+            groupName = RAADPLEGERS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
@@ -63,13 +61,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 zaakIdentificatie = getString("identificatie")
             }
         }
-        // assign the zaak to the current user and a different group
+        // assign the zaak to the current user but to a different group
         val zaakAssignToMeFromListReason = "fakeAssignToMeFromListReason"
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
             requestBodyAsString = """{
                     "zaakUUID" : "$zaakUuid",
-                    "groepId" : "$TEST_GROUP_BEHANDELAARS_ID",
+                    "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                     "reden" : "$zaakAssignToMeFromListReason"
                 }
             """.trimIndent()
@@ -82,7 +80,18 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie"
             )
 
-            Then("the response should be ok") {
+            Then(
+                """
+                the response should be successful and contain the expected history items of the zaak 
+                in reverse chronological order (most recent change first): 
+                1. zaak created
+                2. zaak assigned to raadplegers group
+                3. zaak status changed to 'Intake'
+                4. zaak assigned to behandelaar (= currently logged-in user)
+                5. zaak unassigned from raadplegers group
+                6. zaak assigned to behandelaars group
+                """
+            ) {
                 val responseBody = response.body.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
@@ -91,37 +100,37 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                        {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "nieuweWaarde" : "$TEST_GROUP_BEHANDELAARS_DESCRIPTION",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "ONTKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "oudeWaarde" : "$TEST_GROUP_A_DESCRIPTION",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "oudeWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "nieuweWaarde" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "status",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "nieuweWaarde" : "Intake",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
-                          "nieuweWaarde" : "$TEST_GROUP_A_DESCRIPTION",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
                           "toelichting" : "Aanmaken zaak"
                         }, {
                           "actie" : "AANGEMAAKT",
                           "attribuutLabel" : "zaak",
-                          "door" : "${OLD_IAM_BEHANDELAAR_1.displayName}",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "nieuweWaarde" : "$zaakIdentificatie",
                           "toelichting" : "null"
                         }              
