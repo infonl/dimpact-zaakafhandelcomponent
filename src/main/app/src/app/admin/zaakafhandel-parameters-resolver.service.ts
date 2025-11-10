@@ -7,9 +7,9 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { forkJoin, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
+import { BpmnConfigurationService } from "./bpmn-configuration.service";
 import { ProcessDefinitionsService } from "./process-definitions.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
-import { BpmnConfigurationService } from "./bpmn-configuration.service";
 
 @Injectable({
   providedIn: "root",
