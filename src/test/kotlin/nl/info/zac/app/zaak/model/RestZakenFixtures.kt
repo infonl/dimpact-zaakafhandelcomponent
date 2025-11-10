@@ -199,6 +199,14 @@ fun createRestZaak(
     initiatorIdentificatie = initiatorBetrokkeneIdentificatie
 )
 
+fun createRestZaakDataUpdate(
+    uuid: UUID = UUID.randomUUID(),
+    zaakData: Map<String, Any> = createZaakData()
+) = RestZaakDataUpdate(
+    uuid = uuid,
+    zaakdata = zaakData
+)
+
 @Suppress("LongParameterList")
 fun createRestZaakCreateData(
     behandelaar: RestUser = createRestUser(),

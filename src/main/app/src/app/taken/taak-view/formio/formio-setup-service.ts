@@ -17,8 +17,8 @@ import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 
-const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
-enum KNOWN_ZAC_FIELDS {
+export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
+export enum KNOWN_ZAC_FIELDS {
   GROEP = "ZAC_groep",
   MEDEWERKER = "ZAC_medewerker",
   SMART_DOCUMENTS_TEMPLATE = "ZAC_smart_documents_template",
