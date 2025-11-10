@@ -47,7 +47,7 @@ class IdentityServiceTest : BehaviorSpec({
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
-    Given("The ZAC Keycloak realm contains several groups") {
+    Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
         When("the 'list groups' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/groups"
