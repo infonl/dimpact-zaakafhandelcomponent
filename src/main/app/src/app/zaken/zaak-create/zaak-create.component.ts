@@ -28,6 +28,7 @@ import {
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
 import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 @Component({
   selector: "zac-zaak-create",
@@ -60,7 +61,7 @@ export class ZaakCreateComponent implements OnDestroy {
     ...this.zakenService.createZaak(),
     onSuccess: ({ identificatie }) =>
       this.router.navigate(["/zaken/", identificatie]),
-    onError: () => this.form.reset(),
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
   }));
 
   protected readonly form = this.formBuilder.group({
@@ -102,6 +103,7 @@ export class ZaakCreateComponent implements OnDestroy {
     private readonly formBuilder: FormBuilder,
     private readonly identityService: IdentityService,
     private readonly navigationService: NavigationService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
