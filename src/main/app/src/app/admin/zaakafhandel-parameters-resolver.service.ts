@@ -9,6 +9,7 @@ import { forkJoin, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
 import { ProcessDefinitionsService } from "./process-definitions.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
+import { BpmnConfigurationService } from "./bpmn-configuration.service";
 
 @Injectable({
   providedIn: "root",
@@ -16,6 +17,7 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 export class ZaakafhandelParametersResolver {
   constructor(
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
+    private readonly bpmnConfigurationService: BpmnConfigurationService,
     private readonly processDefinitionsService: ProcessDefinitionsService,
     private readonly configuratieService: ConfiguratieService,
   ) {}
@@ -32,8 +34,8 @@ export class ZaakafhandelParametersResolver {
     return forkJoin({
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
-      bpmnZaakafhandelParametersList:
-        this.zaakafhandelParametersService.listBpmnZaakafhandelParameters(),
+      bpmnListCaseTypeConfigurations:
+        this.bpmnConfigurationService.listBpmnCaseTypeConfigurations(),
       bpmnProcessDefinitionsList:
         this.processDefinitionsService.listProcessDefinitions(),
       featureFlagBpmnSupport:
@@ -42,12 +44,12 @@ export class ZaakafhandelParametersResolver {
       map(
         ({
           zaakafhandelParameters,
-          bpmnZaakafhandelParametersList,
+          bpmnListCaseTypeConfigurations,
           bpmnProcessDefinitionsList,
           featureFlagBpmnSupport,
         }) => {
           const bpmnZaakafhandelParameters =
-            bpmnZaakafhandelParametersList?.find(
+            bpmnListCaseTypeConfigurations?.find(
               (item) =>
                 item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
             );
@@ -58,7 +60,6 @@ export class ZaakafhandelParametersResolver {
           return {
             zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
             bpmnProcessDefinitionsList, // BPMN process definitions
-            bpmnZaakafhandelParametersList, // BPMN zaak afhandelparameters of this zaaktype
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,

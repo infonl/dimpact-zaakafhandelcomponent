@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, of, Subject, takeUntil } from "rxjs";
+import { Observable, of, Subject, takeUntil, tap } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -27,6 +27,7 @@ import {
 } from "../../shared/utils/constants";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
+import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
 
 @Component({
   selector: "zac-zaak-create",
@@ -46,6 +47,9 @@ export class ZaakCreateComponent implements OnDestroy {
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
+  protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
+    [];
+
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
@@ -88,9 +92,11 @@ export class ZaakCreateComponent implements OnDestroy {
 
   constructor(
     private readonly zakenService: ZakenService,
+    private readonly bpmnConfigurationService: BpmnConfigurationService,
+
     private readonly router: Router,
     private readonly klantenService: KlantenService,
-    referentieTabelService: ReferentieTabelService,
+    private readonly referentieTabelService: ReferentieTabelService,
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
@@ -103,6 +109,12 @@ export class ZaakCreateComponent implements OnDestroy {
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
+
+    this.bpmnConfigurationService
+      .listBpmnCaseTypeConfigurations()
+      .subscribe((configs) => {
+        this.bpmnCaseTypesConfigurations = configs;
+      });
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -132,11 +144,17 @@ export class ZaakCreateComponent implements OnDestroy {
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        if (!value) {
+        if (
+          !value ||
+          this.bpmnCaseTypesConfigurations.find(
+            (bc) => bc.zaaktypeUuid === this.form.controls.zaaktype.value?.uuid,
+          ) // BPMN case sets medewerker in the process
+        ) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
         }
+
         identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
@@ -183,14 +201,24 @@ export class ZaakCreateComponent implements OnDestroy {
 
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
+
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
     this.groups = this.identityService.listGroups(caseType.uuid);
 
     this.groups.subscribe((groups) => {
-      this.form.controls.groep.setValue(
-        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
-      );
+      const selectedGroup =
+        groups?.find(
+          ({ id }) => id === zaakafhandelparameters?.defaultGroepId,
+        ) ||
+        groups?.find(
+          ({ id }) =>
+            id ===
+            this.bpmnCaseTypesConfigurations.find(
+              (config) => config.zaaktypeUuid === caseType.uuid,
+            )?.groepNaam,
+        );
+      this.form.controls.groep.setValue(selectedGroup);
     });
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(

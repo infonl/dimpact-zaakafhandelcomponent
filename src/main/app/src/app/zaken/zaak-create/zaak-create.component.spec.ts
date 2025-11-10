@@ -89,6 +89,7 @@ describe(ZaakCreateComponent.name, () => {
         }),
       ]),
     );
+
     fixture = TestBed.createComponent(ZaakCreateComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
