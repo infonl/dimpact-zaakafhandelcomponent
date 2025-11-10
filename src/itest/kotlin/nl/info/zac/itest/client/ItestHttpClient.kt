@@ -195,9 +195,9 @@ class ItestHttpClient {
     }
 
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
-        headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
+        headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 
-    private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+    private fun generateBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
         generateOpenZaakJwtToken()
     } else {
         refreshAccessToken()

@@ -22,7 +22,7 @@ class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     afterSpec {
-        // re-authenticate using beheerder user since currently all subsequent integration tests rely on this user being logged in
+        // re-authenticate using beheerder user since currently subsequent integration tests rely on this user being logged in
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 

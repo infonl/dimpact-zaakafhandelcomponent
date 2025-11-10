@@ -11,6 +11,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -25,7 +28,11 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given("A zaak with one Aanvullende informatie task") {
+    beforeSpec {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+    }
+
+    Given("A zaak with one Aanvullende informatie task and a logged-in behandelaar") {
         val tasksResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
         )

@@ -8,6 +8,7 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.date.before
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -34,8 +35,11 @@ class BagRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A raadpleger is logged in, and address data is present in the BAG API mock") {
+    beforeSpec {
         authenticate(RAADPLEGER_DOMAIN_TEST_1)
+    }
+
+    Given("A logged-in raadpleger, and address data is present in the BAG API mock") {
         When("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
