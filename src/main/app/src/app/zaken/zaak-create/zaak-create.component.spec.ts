@@ -9,10 +9,13 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatInputHarness } from "@angular/material/input/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule } from "@angular/router";
@@ -23,6 +26,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -33,10 +37,6 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
-import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
-import { MatInputHarness } from "@angular/material/input/testing";
-import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
-import { MatSelectHarness } from "@angular/material/select/testing";
 
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
