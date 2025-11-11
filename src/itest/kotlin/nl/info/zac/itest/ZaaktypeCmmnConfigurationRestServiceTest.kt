@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
@@ -31,6 +30,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK

@@ -18,8 +18,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
@@ -29,6 +27,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject

@@ -10,11 +10,13 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -22,7 +24,11 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    Given("Configuration items are available in ZAC") {
+    beforeSpec {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
+    }
+
+    Given("Configuration items are available in ZAC and a user with at least one ZAC role is logged in") {
         When("the talen are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen"

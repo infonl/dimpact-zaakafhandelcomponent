@@ -15,13 +15,13 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_KOPPELEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject

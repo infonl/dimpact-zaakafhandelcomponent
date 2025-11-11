@@ -16,11 +16,11 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import org.json.JSONArray
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK

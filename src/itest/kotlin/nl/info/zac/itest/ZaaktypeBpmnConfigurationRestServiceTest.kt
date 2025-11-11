@@ -10,12 +10,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_ID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
 

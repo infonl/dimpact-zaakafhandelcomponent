@@ -18,12 +18,12 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_COORDINATORS
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK

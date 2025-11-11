@@ -12,6 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND
@@ -36,7 +38,6 @@ const val CSV_FIELD_ARCHIEF_NOMINATIE = "archiefNominatie"
 class CsvRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
-
     val headerRowFields = listOf(
         "aantalOpenstaandeTaken",
         CSV_FIELD_AFGEHANDELD,
@@ -81,8 +82,11 @@ class CsvRestServiceTest : BehaviorSpec({
         "bagObjectIDs"
     )
 
-    Given("Multiple open zaken") {
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
 
+    Given("Multiple open zaken and a logged-in beheerder") {
         When("all the open zaken are exported") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/csv/export",

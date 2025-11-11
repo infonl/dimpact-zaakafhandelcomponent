@@ -17,7 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF

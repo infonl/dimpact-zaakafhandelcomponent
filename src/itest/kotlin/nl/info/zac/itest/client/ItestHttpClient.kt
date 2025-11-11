@@ -26,9 +26,10 @@ class ItestHttpClient {
     private val logger = KotlinLogging.logger {}
 
     init {
-        // use a non-persistent cookie manager to we can reuse HTTP sessions across requests
-        val cookieManager = CookieManager()
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+        // use a non-persistent cookie manager, so that we can reuse HTTP sessions across requests
+        val cookieManager = CookieManager().apply {
+            setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+        }
         okHttpClient = OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(cookieManager))
             .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -212,9 +213,9 @@ class ItestHttpClient {
     }
 
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
-        headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
+        headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 
-    private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+    private fun generateBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
         generateOpenZaakJwtToken()
     } else {
         refreshAccessToken()

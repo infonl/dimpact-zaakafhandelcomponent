@@ -14,14 +14,14 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
