@@ -304,7 +304,7 @@ Example:
   "customOptions": {
     "choicesOptions": {
       "removeItemButton": true,
-      "placeholder": true,
+      "placeholder": false,
       "searchEnabled": true,
       "shouldSort": false
     }
