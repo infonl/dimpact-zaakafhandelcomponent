@@ -349,7 +349,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 Then("PABC service is not called") {
                     verify(exactly = 0) { pabcClientService.getApplicationRoles(any()) }
                 }
-                And("and the session is invalidated and the filter chain is passed on") {
+                And("the session is invalidated and the filter chain is passed on") {
                     verify(exactly = 1) {
                         httpSession.invalidate()
                         newHttpSession.setAttribute("logged-in-user", any())
