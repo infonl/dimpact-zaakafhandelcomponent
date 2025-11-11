@@ -283,44 +283,39 @@ The above variables can be used in `assignee` and `candidateGroups` attributes f
 
 #### Listing available documents
 To display linked documents of a zaak you can use:
-* a fieldset with type `documentsFieldset`
 * `select` type component with:
   * custom data source
+  * attributes containing `ZAC_TYPE` of `ZAC_documenten`
   * multi select attribute (`type=select` with `multiple=true`)
 
 Example:
 ```json
-    {
-      "legend": "Available Documents",
-      "type": "documentsFieldset",
-      "key": "ZAAK_Documents",
-      "input": false,
-      "components": [
-        {
-          "label": "Documents",
-          "type": "select",
-          "key": "ZAAK_Documents_Select",
-          "input": true,
-          "widget": "choicesjs",
-          "multiple": true,
-          "defaultValue": [],
-          "clearOnRefresh": true,
-          "dataSrc": "custom",
-          "placeholder": "Select one or more documents",
-          "customOptions": {
-            "choicesOptions": {
-              "removeItemButton": true,
-              "placeholder": false,
-              "searchEnabled": true,
-              "shouldSort": false
-            }
-          },
-          "validate": {
-            "required": true
-          }
-        }
-      ]
+ {
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": false,
+      "searchEnabled": true,
+      "shouldSort": false
     }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
 ```
 
 #### Creating documents
@@ -390,6 +385,7 @@ To display and use values from a reference table you can use:
 * a fieldset with type `referenceTableFieldset`
 * `select` type component with:
   * custom data source
+  * attribute `ZAC_TYPE` of `ZAC_referentie_tabel`
   * properties containing `ReferenceTable_Code`
 
 Example:
