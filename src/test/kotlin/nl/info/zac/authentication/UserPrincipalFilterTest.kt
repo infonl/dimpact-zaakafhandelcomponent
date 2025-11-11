@@ -98,7 +98,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     "given_name": "fakeGivenName",
                     "family_name": "fakeFamilyName",
                     "preferred_username": "fakeUserName",
-                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ],
+                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ]
                     }                    
                     """.trimMargin(),
                     null
