@@ -58,14 +58,14 @@ export class ZaakafhandelParametersResolver {
 
           return {
             zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
-            bpmnProcessDefinitions, // BPMN process definitions
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
             },
-            featureFlagBpmnSupport,
+            bpmnProcessDefinitions, // BPMN process definitions
             isBpmn,
             isSavedZaakafhandelParameters,
+            featureFlagBpmnSupport,
           };
         },
       ),
