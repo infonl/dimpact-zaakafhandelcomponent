@@ -48,36 +48,22 @@ const medewerkerComponent: ExtendedComponentSchema = {
 };
 
 const smartDocumentsFieldset: ExtendedComponentSchema = {
-  type: "smartDocumentsFieldset",
-  key: "SD_SmartDocuments",
-  components: [
-    {
-      type: "select",
-      key: "SD_SmartDocuments_Template",
-      input: true,
-    },
-    {
-      type: "button",
-      key: "SD_SmartDocuments_Create",
-      input: true,
-      properties: {
-        SmartDocuments_Group: "Dimpact/OpenZaak",
-      },
-    },
-  ],
+  type: "select",
+  key: "SD_SmartDocuments_Template",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
+  },
 };
 
 const documentsFieldset: ExtendedComponentSchema = {
-  type: "documentsFieldset",
-  key: "ZAAK_Documents",
-  components: [
-    {
-      type: "select",
-      key: "ZAAK_Documents_Select",
-      input: true,
-      multiple: true,
-    },
-  ],
+  type: "select",
+  key: "ZAAK_Documents_Select",
+  input: true,
+  multiple: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN,
+  },
 };
 
 const referenceTableFieldset: ExtendedComponentSchema = {
@@ -262,9 +248,9 @@ describe(FormioSetupService.name, () => {
         initializeGroepField: jest.Mock;
         initializeMedewerkerField: jest.Mock;
         initializeProcessDataField: jest.Mock;
-        initializeSmartDocumentsFieldsetComponent: jest.Mock;
+        initializeSmartDocumentsField: jest.Mock;
         initializeReferenceTableField: jest.Mock;
-        initializeAvailableDocumentsFieldsetComponent: jest.Mock;
+        initializeDocumentsField: jest.Mock;
       };
 
       const groepSpy = jest.spyOn(
@@ -279,7 +265,7 @@ describe(FormioSetupService.name, () => {
 
       const smartDocumentsSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeSmartDocumentsFieldsetComponent",
+        "initializeSmartDocumentsField",
       );
       const referenceTableSpy = jest.spyOn(
         mockedComponentsService,
@@ -287,7 +273,7 @@ describe(FormioSetupService.name, () => {
       );
       const availableDocumentsSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeAvailableDocumentsFieldsetComponent",
+        "initializeDocumentsField",
       );
 
       const mockFormComponents: ExtendedComponentSchema[] = [
@@ -394,6 +380,9 @@ describe(FormioSetupService.name, () => {
         type: "smartDocumentsFieldset",
         key: "component_key",
         components: [],
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
+        },
       };
       const errorMessage = "failed to initialize";
       const spy = jest.spyOn(utilService, "handleFormIOInitError");
@@ -401,9 +390,9 @@ describe(FormioSetupService.name, () => {
       jest
         .spyOn(
           formioSetupService as unknown as {
-            initializeSmartDocumentsFieldsetComponent: jest.Mock;
+            initializeSmartDocumentsField: jest.Mock;
           },
-          "initializeSmartDocumentsFieldsetComponent",
+          "initializeSmartDocumentsField",
         )
         .mockImplementation(() => {
           throw new Error(errorMessage);
@@ -416,7 +405,10 @@ describe(FormioSetupService.name, () => {
         );
       }).not.toThrow();
 
-      expect(spy).toHaveBeenCalledWith("component_key", errorMessage);
+      expect(spy).toHaveBeenCalledWith(
+        "ZAC_smart_documents_template",
+        errorMessage,
+      );
     });
   });
 
@@ -453,7 +445,6 @@ describe(FormioSetupService.name, () => {
         .spyOn(queryClient, "ensureQueryData")
         .mockResolvedValue([]);
 
-      console.debug("medewerkerComponent", medewerkerComponent);
       await medewerkerComponent.data.custom();
       expect(quertClientSpy).toHaveBeenCalledWith(
         expect.objectContaining({
