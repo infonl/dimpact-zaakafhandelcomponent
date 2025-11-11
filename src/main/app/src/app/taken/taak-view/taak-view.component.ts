@@ -358,14 +358,6 @@ export class TaakViewComponent
     this.menu = [];
     this.menu.push(new HeaderMenuItem("taak"));
 
-    this.menu.push(
-      new ButtonMenuItem(
-        "actie.zaakdata.bekijken",
-        () => this.actionsSidenav.open(),
-        "folder_copy",
-      ),
-    );
-
     if (this.taak?.rechten.toevoegenDocument) {
       this.menu.push(
         new ButtonMenuItem(
