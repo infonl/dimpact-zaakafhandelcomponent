@@ -85,14 +85,14 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.PROCESS_DATA:
               this.initializeProcessDataField(component);
               break;
-            case "smartDocumentsFieldset":
-              this.initializeSmartDocumentsFieldsetComponent(component);
+            case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE:
+              this.initializeSmartDocumentsField(component);
               break;
             case KNOWN_ZAC_FIELDS.REFERENTIE_TABEL:
               this.initializeReferenceTableField(component);
               break;
-            case "documentsFieldset":
-              this.initializeAvailableDocumentsFieldsetComponent(component);
+            case KNOWN_ZAC_FIELDS.DOCUMENTEN:
+              this.initializeDocumentsField(component);
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
               this.initializeZaakResultField(component);
@@ -163,62 +163,30 @@ export class FormioSetupService {
     };
   }
 
-  private initializeSmartDocumentsFieldsetComponent(
-    fieldsetComponent: ExtendedComponentSchema,
-  ) {
-    fieldsetComponent.type = "fieldset";
-    const smartDocumentsPath = this.findSmartDocumentsPath(fieldsetComponent);
-    const smartDocumentsPathKey = smartDocumentsPath.path.join("/");
-    const smartDocumentsTemplateComponent = fieldsetComponent.components?.find(
-      (component: ExtendedComponentSchema) =>
-        component.key === fieldsetComponent.key + "_Template",
-    );
+  private initializeSmartDocumentsField(component: ExtendedComponentSchema) {
+    const smartDocumentsPath: string[] =
+      component.properties["SmartDocuments_Group"]?.split("/") ?? [];
 
-    smartDocumentsTemplateComponent.valueProperty = "id";
-    smartDocumentsTemplateComponent.template = "{{ item.naam }}";
+    component.valueProperty = "id";
+    component.template = "{{ item.naam }}";
 
-    smartDocumentsTemplateComponent.data = {
+    component.data = {
       custom: async () => {
         const data = await this.queryClient.ensureQueryData({
           queryKey: [
             "smartDocumentsGroupTemplateNamesQuery",
-            smartDocumentsPathKey,
+            ...smartDocumentsPath,
           ],
           queryFn: () =>
             lastValueFrom(
               this.zaakafhandelParametersService.listSmartDocumentsGroupTemplateNames(
-                smartDocumentsPath,
+                { path: smartDocumentsPath },
               ),
             ),
         });
         return data.sort();
       },
     };
-  }
-
-  private findSmartDocumentsPath(fieldsetComponent: ExtendedComponentSchema) {
-    const componentWithProperties =
-      this.getComponentWithProperties(fieldsetComponent);
-    const smartDocumentsPath: GeneratedType<"RestSmartDocumentsPath"> = {
-      path: this.getSmartDocumentsGroups(componentWithProperties),
-    };
-    return smartDocumentsPath;
-  }
-
-  /**
-   * Find the first subcomponent that has properties
-   *
-   * @param component Parent component
-   * @return sub-component with at least one property
-   * @private
-   */
-  private getComponentWithProperties(
-    component: ExtendedComponentSchema,
-  ): ExtendedComponentSchema {
-    return component.components?.find(
-      (component: ExtendedComponentSchema) =>
-        Object.keys(component.properties || []).length > 0,
-    );
   }
 
   getSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
@@ -281,20 +249,10 @@ export class FormioSetupService {
     };
   }
 
-  private initializeAvailableDocumentsFieldsetComponent(
-    fieldsetComponent: ExtendedComponentSchema,
-  ): void {
-    const documentViewComponent = fieldsetComponent.components?.find(
-      (component: { type: string }) => component.type === "select",
-    );
-
-    if (!documentViewComponent) return;
-
-    fieldsetComponent.type = "fieldset";
-
-    documentViewComponent.valueProperty = "uuid";
-    documentViewComponent.template = "{{ item.titel }}";
-    documentViewComponent.data = {
+  private initializeDocumentsField(component: ExtendedComponentSchema): void {
+    component.valueProperty = "uuid";
+    component.template = "{{ item.titel }}";
+    component.data = {
       custom: async () =>
         this.queryClient.ensureQueryData({
           queryKey: ["availableDocumentsQuery", this.taak!.zaakUuid],

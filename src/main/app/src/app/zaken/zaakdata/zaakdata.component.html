@@ -90,50 +90,52 @@
       <mat-label class="font-weight-bold">{{
         controlName | translate | capitalizeFirstLetter
       }}</mat-label>
-      <div class="row mt-2">
-        @for (item of getFormArrayControls(control); track $index) {
-          <div class="col-12">
-            <fieldset>
-              <legend>
-                {{ controlName | translate | capitalizeFirstLetter }} ({{
-                  $index + 1
-                }})
-              </legend>
-              @if (isFormGroup(item)) {
-                <div [formGroup]="item" class="row">
-                  @for (
-                    nestedItem of item.controls | keyvalue;
-                    track nestedItem.key
-                  ) {
-                    <ng-container
-                      *ngTemplateOutlet="
-                        renderControl;
-                        context: {
-                          control: nestedItem.value,
-                          controlName: nestedItem.key,
-                          parentForm: item,
-                        }
-                      "
-                    >
-                    </ng-container>
-                  }
-                </div>
-              } @else {
-                <ng-container
-                  *ngTemplateOutlet="
-                    renderControl;
-                    context: {
-                      control: item,
-                      controlName: $index.toString(),
-                      parentForm: parentForm,
+      <div [formGroup]="parentForm">
+        <div [formArrayName]="controlName" class="row mt-2">
+          @for (item of getFormArrayControls(control); track $index) {
+            <div class="col-12">
+              <fieldset>
+                <legend>
+                  {{ controlName | translate | capitalizeFirstLetter }} ({{
+                    $index + 1
+                  }})
+                </legend>
+                @if (isFormGroup(item)) {
+                  <div [formGroupName]="$index" class="row">
+                    @for (
+                      nestedItem of item.controls | keyvalue;
+                      track nestedItem.key
+                    ) {
+                      <ng-container
+                        *ngTemplateOutlet="
+                          renderControl;
+                          context: {
+                            control: nestedItem.value,
+                            controlName: nestedItem.key,
+                            parentForm: item,
+                          }
+                        "
+                      >
+                      </ng-container>
                     }
-                  "
-                >
-                </ng-container>
-              }
-            </fieldset>
-          </div>
-        }
+                  </div>
+                } @else {
+                  <mat-form-field class="col-12 full-width" appearance="fill">
+                    <mat-label>
+                      {{ controlName | translate | capitalizeFirstLetter }}
+                    </mat-label>
+                    <input
+                      matInput
+                      autocomplete="off"
+                      [formControlName]="$index"
+                      [readonly]="readonly()"
+                    />
+                  </mat-form-field>
+                }
+              </fieldset>
+            </div>
+          }
+        </div>
       </div>
     </div>
   }
