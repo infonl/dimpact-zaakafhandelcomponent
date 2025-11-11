@@ -449,10 +449,10 @@ class ProductaanvraagService @Inject constructor(
         try {
             kvkNummer.validateKvkNummer()
             vestigingsNummer?.validateKvKVestigingsnummer()
-        } catch (_: IllegalArgumentException) {
+        } catch (illegalArgumentException: IllegalArgumentException) {
             LOG.warning {
-                "Betrokkene with roletype '${rolType.omschrijving}' does not contain a valid KVK-identification. " +
-                    "No betrokkene role created for zaak with URI '$zaakUri'."
+                "Betrokkene with roletype '${rolType.omschrijving}' contains invalid KVK number '$kvkNummer' or vestigings number " +
+                    "'$vestigingsNummer'. ${illegalArgumentException.message}. No betrokkene role created for zaak with URI '$zaakUri'."
             }
             return
         }
