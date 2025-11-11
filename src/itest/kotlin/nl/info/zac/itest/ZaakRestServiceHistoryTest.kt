@@ -24,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
@@ -55,7 +56,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 logger.info { "Response: $this" }
                 zaakUuid = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -72,7 +73,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body.string()}" }
+            logger.info { "Response: $bodyAsString" }
         }
 
         When("zaak history is requested") {
@@ -92,9 +93,9 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 6. zaak assigned to behandelaars group
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [                    
                        {

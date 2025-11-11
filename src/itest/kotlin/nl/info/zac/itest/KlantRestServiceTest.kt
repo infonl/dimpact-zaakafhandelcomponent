@@ -76,7 +76,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldBeJsonArray()
@@ -118,7 +118,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
                     """
                 ) {
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
@@ -133,7 +133,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
                     """
                 ) {
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
@@ -152,7 +152,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             Then("the vestiging is returned with the expected data including contact details") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 // since there is customer contact data linked to this vestiging in our Open Klant container
                 // the response should contain an email address and telephone number
@@ -182,7 +182,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             Then("the vestiging is returned with the expected data including contact details") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 // even though there is customer contact data linked to this vestiging in our Open Klant container
                 // we do not support retrieving contact details when only the vestigingsnummer is provided,
@@ -206,7 +206,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             Then("the vestigingsprofiel is returned with the expected data") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKey("adressen")
@@ -246,7 +246,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -274,7 +274,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -305,7 +305,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the customer contactmomenten") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -340,7 +340,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -364,7 +364,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -389,7 +389,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/klanten/personen/parameters",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -462,7 +462,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson

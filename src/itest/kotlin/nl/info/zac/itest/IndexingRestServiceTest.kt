@@ -11,6 +11,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 
 /**
  * This test assumes two zaken, one task and one document have been created in previously run tests.
@@ -30,7 +31,7 @@ class IndexingRestServiceTest : BehaviorSpec({
             Then(
                 """the response is successful"""
             ) {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
     }

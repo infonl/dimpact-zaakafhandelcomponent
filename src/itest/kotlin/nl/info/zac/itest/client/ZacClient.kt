@@ -18,7 +18,6 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.Response
 import java.io.File
 import java.net.URLDecoder
 import java.time.ZonedDateTime
@@ -34,7 +33,7 @@ class ZacClient {
         fileName: String,
         fileMediaType: String,
         vertrouwelijkheidaanduiding: String
-    ): Response {
+    ): ResponseContent {
         val createEnkelvoudigInformatieobjectEndpointURI =
             "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
         val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
@@ -91,7 +90,7 @@ class ZacClient {
         brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@info.nl",
         automaticEmailConfirmationReply: String = "reply@info.nl"
-    ): Response {
+    ): ResponseContent {
         logger.info {
             "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
@@ -331,7 +330,7 @@ class ZacClient {
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
         vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-    ): Response {
+    ): ResponseContent {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
@@ -367,7 +366,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(zaakUUID: UUID): Response {
+    fun retrieveZaak(zaakUUID: UUID): ResponseContent {
         logger.info {
             "Retrieving zaak with UUID: $zaakUUID"
         }
@@ -376,7 +375,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(id: String): Response {
+    fun retrieveZaak(id: String): ResponseContent {
         logger.info {
             "Retrieving zaak with id: $id"
         }

@@ -33,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUP
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
 class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
@@ -60,9 +61,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 automaticEmailConfirmationSender = "GEMEENTE"
             )
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
         When(
@@ -79,9 +80,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 domein = DOMEIN_TEST_1
             )
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
@@ -89,9 +90,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "zaaktype.identificatie",
@@ -107,9 +108,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "afrondenMail" : "BESCHIKBAAR_UIT",
@@ -297,9 +298,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions"
             )
             Then("the response should be ok and it should return all available case definitions") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ {
                       "humanTaskDefinitions" : [ {
@@ -350,9 +351,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen"
             )
             Then("the response should be ok and it should return all available zaakbeeindigredenen") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ 
                         {
@@ -376,9 +377,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities"
             )
             Then("the response should be ok and it should return all available formulierdefinities") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
                     [ {
                       "id" : "DEFAULT_TAAKFORMULIER",

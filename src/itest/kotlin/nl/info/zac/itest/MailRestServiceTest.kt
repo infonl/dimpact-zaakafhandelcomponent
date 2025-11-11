@@ -66,7 +66,7 @@ class MailRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no-content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -77,7 +77,7 @@ class MailRestServiceTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
@@ -106,7 +106,7 @@ class MailRestServiceTest : BehaviorSpec({
                         }
                     """.trimIndent()
                 )
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 // the email PDF should always be the first

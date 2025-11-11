@@ -17,6 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class NoteServiceTest : BehaviorSpec({
@@ -50,8 +51,8 @@ class NoteServiceTest : BehaviorSpec({
             Then(
                 "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
             ) {
-                response.isSuccessful shouldBe true
-                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                         "zaakUUID": "$zaakProductaanvraag1Uuid",
@@ -75,8 +76,8 @@ class NoteServiceTest : BehaviorSpec({
             Then(
                 "the just created note should be returned"
             ) {
-                response.isSuccessful shouldBe true
-                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [
                         {
