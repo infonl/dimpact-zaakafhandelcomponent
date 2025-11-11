@@ -114,7 +114,7 @@ public class TaakVariabelenService {
     }
 
     public static UUID readZaaktypeUUID(final TaskInfo taskInfo) {
-        return (UUID) readVariable(taskInfo, VAR_ZAAKTYPE_UUUID);
+        return (UUID) readVariable(taskInfo, VAR_ZAAKTYPE_UUID);
     }
 
     public static String readZaaktypeOmschrijving(final TaskInfo taskInfo) {

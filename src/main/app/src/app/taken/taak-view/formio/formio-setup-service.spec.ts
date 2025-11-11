@@ -14,82 +14,74 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { FormioSetupService } from "./formio-setup-service";
+import {
+  FormioSetupService,
+  KNOWN_ZAC_FIELDS,
+  ZAC_FIELD_ATTRIBUTE,
+} from "./formio-setup-service";
 
-const groepMedewerkerFieldset: ExtendedComponentSchema = {
-  type: "groepMedewerkerFieldset",
-  key: "AM_TeamBehandelaar",
-  components: [
-    {
-      type: "select",
-      key: "AM_TeamBehandelaar_Groep",
-      input: true,
-    },
-    {
-      type: "select",
-      key: "AM_TeamBehandelaar_Medewerker",
-      input: true,
-    },
-  ],
+const groepComponent: ExtendedComponentSchema = {
+  type: "select",
+  key: "AM_TeamBehandelaar_Groep",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.GROEP,
+  },
+};
+
+const medewerkerComponent: ExtendedComponentSchema = {
+  type: "select",
+  key: "AM_TeamBehandelaar_Medewerker",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.MEDEWERKER,
+  },
 };
 
 const smartDocumentsFieldset: ExtendedComponentSchema = {
-  type: "smartDocumentsFieldset",
-  key: "SD_SmartDocuments",
-  components: [
-    {
-      type: "select",
-      key: "SD_SmartDocuments_Template",
-      input: true,
-    },
-    {
-      type: "button",
-      key: "SD_SmartDocuments_Create",
-      input: true,
-      properties: {
-        SmartDocuments_Group: "Dimpact/OpenZaak",
-      },
-    },
-  ],
+  type: "select",
+  key: "SD_SmartDocuments_Template",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
+  },
 };
 
 const documentsFieldset: ExtendedComponentSchema = {
-  type: "documentsFieldset",
-  key: "ZAAK_Documents",
-  components: [
-    {
-      type: "select",
-      key: "ZAAK_Documents_Select",
-      input: true,
-      multiple: true,
-    },
-  ],
+  type: "select",
+  key: "ZAAK_Documents_Select",
+  input: true,
+  multiple: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN,
+  },
 };
 
 const referenceTableFieldset: ExtendedComponentSchema = {
-  type: "referenceTableFieldset",
-  key: "RT_ReferenceTable",
-  components: [
-    {
-      type: "select",
-      key: "RT_ReferenceTable_Values",
-      input: true,
-      properties: {
-        ReferenceTable_Code: "COMMUNICATIEKANAAL",
-      },
-    },
-  ],
+  type: "select",
+  key: "RT_ReferenceTable_Values",
+  input: true,
+  properties: {
+    ReferenceTable_Code: "COMMUNICATIEKANAAL",
+  },
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.REFERENTIE_TABEL,
+  },
 };
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
   let utilService: UtilService;
+  let queryClient: QueryClient;
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -121,6 +113,7 @@ describe(FormioSetupService.name, () => {
   };
 
   beforeEach(() => {
+    queryClient = new QueryClient();
     TestBed.configureTestingModule({
       imports: [
         MatSidenav,
@@ -140,6 +133,7 @@ describe(FormioSetupService.name, () => {
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(queryClient),
       ],
     }).compileComponents();
 
@@ -251,31 +245,40 @@ describe(FormioSetupService.name, () => {
   describe(FormioSetupService.prototype.createFormioForm.name, () => {
     it("should initialize components for all defined component types", async () => {
       const mockedComponentsService = formioSetupService as unknown as {
-        initializeGroepMedewerkerFieldsetComponent: jest.Mock;
-        initializeSmartDocumentsFieldsetComponent: jest.Mock;
-        initializeReferenceTableFieldsetComponent: jest.Mock;
-        initializeAvailableDocumentsFieldsetComponent: jest.Mock;
+        initializeGroepField: jest.Mock;
+        initializeMedewerkerField: jest.Mock;
+        initializeProcessDataField: jest.Mock;
+        initializeSmartDocumentsField: jest.Mock;
+        initializeReferenceTableField: jest.Mock;
+        initializeDocumentsField: jest.Mock;
       };
 
-      const groepMedewerkerSpy = jest.spyOn(
+      const groepSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeGroepMedewerkerFieldsetComponent",
+        "initializeGroepField",
       );
+
+      const medewerkerSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeMedewerkerField",
+      );
+
       const smartDocumentsSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeSmartDocumentsFieldsetComponent",
+        "initializeSmartDocumentsField",
       );
       const referenceTableSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeReferenceTableFieldsetComponent",
+        "initializeReferenceTableField",
       );
       const availableDocumentsSpy = jest.spyOn(
         mockedComponentsService,
-        "initializeAvailableDocumentsFieldsetComponent",
+        "initializeDocumentsField",
       );
 
       const mockFormComponents: ExtendedComponentSchema[] = [
-        groepMedewerkerFieldset,
+        groepComponent,
+        medewerkerComponent,
         smartDocumentsFieldset,
         referenceTableFieldset,
         documentsFieldset,
@@ -286,26 +289,24 @@ describe(FormioSetupService.name, () => {
         taak,
       );
 
-      expect(groepMedewerkerSpy).toHaveBeenCalledWith(mockFormComponents[0]);
-      expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[1]);
-      expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[2]);
-      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
+      expect(groepSpy).toHaveBeenCalledWith(mockFormComponents[0]);
+      expect(medewerkerSpy).toHaveBeenCalledWith(mockFormComponents[1]);
+      expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[2]);
+      expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[3]);
+      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
     });
 
     it("handle cases for components with no children or properties", () => {
       const components: ExtendedComponentSchema[] = [
         {
-          type: "referenceTableFieldset",
-          key: "RT_Fail",
-          components: [
-            {
-              key: "RT_Fail_Values",
-              type: "select",
-              properties: {
-                ReferenceTable_Code: "dummy",
-              },
-            },
-          ],
+          key: "RT_Fail_Values",
+          type: "select",
+          properties: {
+            ReferenceTable_Code: "dummy",
+          },
+          attributes: {
+            [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.REFERENTIE_TABEL,
+          },
         },
         {
           type: "smartDocumentsFieldset",
@@ -333,38 +334,45 @@ describe(FormioSetupService.name, () => {
     });
 
     it("should invoke userGroupsQuery with zaakTypeUUID", async () => {
-      const identityServiceSpy = jest
-        .spyOn(formioSetupService["identityService"], "listGroups")
-        .mockReturnValue(of([]));
+      const clientQuerySpy = jest
+        .spyOn(queryClient, "ensureQueryData")
+        .mockResolvedValue([]);
 
       const groepComponent: ExtendedComponentSchema = {
         key: "groep",
         type: "select",
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.GROEP,
+        },
         input: true,
       };
 
       const medewerkerComponent: ExtendedComponentSchema = {
         key: "medewerker",
         type: "select",
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.MEDEWERKER,
+        },
         input: true,
       };
 
       formioSetupService.createFormioForm(
         {
-          components: [
-            {
-              type: "groepMedewerkerFieldset",
-              key: "fieldset",
-              components: [groepComponent, medewerkerComponent],
-            },
-          ],
+          components: [groepComponent, medewerkerComponent],
         } as FormioForm,
         taak,
       );
 
       await groepComponent.data.custom();
 
-      expect(identityServiceSpy).toHaveBeenCalledWith("test-zaaktype-uuid");
+      expect(clientQuerySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
+            { path: { zaaktypeUuid: "test-zaaktype-uuid" } },
+          ],
+        }),
+      );
     });
 
     it("should catch errors from component initializers and call handleFormIOInitError", () => {
@@ -372,6 +380,9 @@ describe(FormioSetupService.name, () => {
         type: "smartDocumentsFieldset",
         key: "component_key",
         components: [],
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
+        },
       };
       const errorMessage = "failed to initialize";
       const spy = jest.spyOn(utilService, "handleFormIOInitError");
@@ -379,9 +390,9 @@ describe(FormioSetupService.name, () => {
       jest
         .spyOn(
           formioSetupService as unknown as {
-            initializeSmartDocumentsFieldsetComponent: jest.Mock;
+            initializeSmartDocumentsField: jest.Mock;
           },
-          "initializeSmartDocumentsFieldsetComponent",
+          "initializeSmartDocumentsField",
         )
         .mockImplementation(() => {
           throw new Error(errorMessage);
@@ -394,7 +405,10 @@ describe(FormioSetupService.name, () => {
         );
       }).not.toThrow();
 
-      expect(spy).toHaveBeenCalledWith("component_key", errorMessage);
+      expect(spy).toHaveBeenCalledWith(
+        "ZAC_smart_documents_template",
+        errorMessage,
+      );
     });
   });
 
@@ -404,34 +418,42 @@ describe(FormioSetupService.name, () => {
         key: "GroepKey",
         type: "select",
         input: true,
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.GROEP,
+        },
       };
 
       const medewerkerComponent: ExtendedComponentSchema = {
         key: "MedewerkerKey",
         type: "select",
         input: true,
+        refreshOn: "GroepKey",
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.MEDEWERKER,
+        },
       };
-
-      formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
-      const identityServiceSpy = jest
-        .spyOn(formioSetupService["identityService"], "listUsersInGroup")
-        .mockReturnValue(of([]));
 
       formioSetupService.createFormioForm(
         {
-          components: [
-            {
-              type: "groepMedewerkerFieldset",
-              key: "fieldset",
-              components: [groepComponent, medewerkerComponent],
-            },
-          ],
+          components: [groepComponent, medewerkerComponent],
         } as FormioForm,
         taak,
       );
 
+      formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
+      const quertClientSpy = jest
+        .spyOn(queryClient, "ensureQueryData")
+        .mockResolvedValue([]);
+
       await medewerkerComponent.data.custom();
-      expect(identityServiceSpy).toHaveBeenCalledWith("group-uuid");
+      expect(quertClientSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/identity/groups/{groupId}/users",
+            { path: { groupId: "group-uuid" } },
+          ],
+        }),
+      );
     });
   });
 });

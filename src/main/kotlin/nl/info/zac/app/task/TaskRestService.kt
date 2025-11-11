@@ -264,7 +264,7 @@ class TaskRestService @Inject constructor(
             .filterNot {
                 it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
                     it.key.equals(
-                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                        ZaakVariabelenService.VAR_ZAAKTYPE_UUID
                     )
             }
 
