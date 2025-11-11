@@ -27,6 +27,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
+import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
@@ -41,7 +42,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
     val newHttpSession = mockk<HttpSession>()
-    val accessToken = mockk<AccessToken>(relaxed = true)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -54,7 +54,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = true
         )
-        val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
 
         Given(
             """
@@ -87,12 +86,24 @@ class UserPrincipalFilterTest : BehaviorSpec({
             """A logged-in user is present in the HTTP session and a servlet request containing 
             a user principal with a different id as the logged-in user"""
         ) {
-            val userId = "fakeId"
             val roles = listOf("fakeRole1", "fakeRole2")
-            val loggedInUser = createLoggedInUser(
-                id = userId
-            )
+            val loggedInUser = createLoggedInUser()
             val entityTypeId = "fakeZaaktypeOmschrijving1"
+            val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                    "name": "fakeFullName",
+                    "given_name": "fakeGivenName",
+                    "family_name": "fakeFamilyName",
+                    "preferred_username": "fakeUserName",
+                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ],
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
             val capturedLoggedInUser = slot<LoggedInUser>()
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
             val oidcPrincipal = OidcPrincipal("aDifferentUserId", oidcSecurityContext)
@@ -102,7 +113,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
-            every { accessToken.rolesClaim } returns roles
             every {
                 pabcClientService.getApplicationRoles(roles)
             } returns GetApplicationRolesResponse().apply {
@@ -142,20 +152,39 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val familyName = "fakeFamilyName"
             val fullName = "fakeFullName"
             val email = "fake@example.com"
-            val groups = arrayListOf("fakeGroup1")
-            val roles = arrayListOf("coordinator")
+            val groups = listOf("fakeGroup1")
+            val roles = listOf("coordinator")
             val zaaktypeId = "fakeZaaktypeId1"
             val pabcRoleNames = listOf("testApplicationRole1")
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                    "name": "$fullName",
+                    "given_name": "$givenName",
+                    "family_name": "$familyName",
+                    "preferred_username": "$userName",
+                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ],
+                    "email": "$email",
+                    "group_membership": [ "${groups.joinToString(separator = "\", \"")}" ]
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val refreshableOidcSecurityContext = RefreshableOidcSecurityContext(
+                null,
+                null,
+                "fakeTokenString",
+                accessToken,
+                "fakeIdTokenString",
+                null,
+                "test-refresh-token"
+            )
+            val oidcPrincipal = OidcPrincipal("fakeUserId", refreshableOidcSecurityContext)
             val loggedInUserSlot = slot<LoggedInUser>()
             every { httpServletRequest.getSession(true) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns null
-            every { accessToken.rolesClaim } returns roles
-            every { accessToken.preferredUsername } returns userName
-            every { accessToken.givenName } returns givenName
-            every { accessToken.familyName } returns familyName
-            every { accessToken.name } returns fullName
-            every { accessToken.email } returns email
-            every { accessToken.getStringListClaimValue("group_membership") } returns groups
             every { httpSession.setAttribute(any(), any()) } just runs
             every { filterChain.doFilter(any(), any()) } just runs
             every {
@@ -167,10 +196,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
                 createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1")
             )
-            val refreshableCtx = mockk<RefreshableOidcSecurityContext>(relaxed = true)
-            every { refreshableCtx.token } returns accessToken
-            every { refreshableCtx.refreshToken } returns "test-refresh-token"
-            val oidcPrincipal = OidcPrincipal("fakeUserId", refreshableCtx)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
 
             When("doFilter is called") {
@@ -203,6 +228,17 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 """
         ) {
             val loggedInUserSlot = slot<LoggedInUser>()
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                    "preferred_username": "fakeUserName",
+                    "roles": [ "fakeFunctionalRole" ]
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
             val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
             every { httpSession.getAttribute("logged-in-user") } returns null
@@ -285,6 +321,16 @@ class UserPrincipalFilterTest : BehaviorSpec({
         Given(" switching user does not call PABC - session is swapped") {
             val userId = "testUserId"
             val loggedInUser = createLoggedInUser(id = userId)
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                    "preferred_username": "testUserName"
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
             val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
             val oidcPrincipal = OidcPrincipal("differentUserId", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
@@ -300,8 +346,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("PABC service is not called - session recreated and chain continues") {
+                Then("PABC service is not called") {
                     verify(exactly = 0) { pabcClientService.getApplicationRoles(any()) }
+                }
+                And("and the session is invalidated and the filter chain is passed on") {
                     verify(exactly = 1) {
                         httpSession.invalidate()
                         newHttpSession.setAttribute("logged-in-user", any())
