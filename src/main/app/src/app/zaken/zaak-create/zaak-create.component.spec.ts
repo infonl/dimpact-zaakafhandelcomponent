@@ -216,7 +216,7 @@ describe(ZaakCreateComponent.name, () => {
 
       await options[0].click();
       let value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
+      expect(value).toBe("test-cmmn-description-1");
 
       // select group
       expect(identityService.listGroups).toHaveBeenCalled();
@@ -232,8 +232,8 @@ describe(ZaakCreateComponent.name, () => {
       expect(options.length).toEqual(1);
 
       await options[0].click();
-      value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
+      value = await inputs[4].getValue();
+      expect(value).toBe("test group CMMN");
 
       // select employee
       expect(identityService.listUsersInGroup).toHaveBeenCalled();
@@ -249,8 +249,8 @@ describe(ZaakCreateComponent.name, () => {
       expect(options.length).toEqual(1);
 
       await options[0].click();
-      value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
+      value = await inputs[5].getValue();
+      expect(value).toBe("test user");
     });
 
     it("should handle BPMN case type selection", async () => {
