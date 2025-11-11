@@ -46,6 +46,14 @@ describe(ZaakCreateComponent.name, () => {
   let loader: HarnessLoader;
   let component: ZaakCreateComponent;
 
+  const utilServiceMock = {
+    getEnumAsSelectList: jest.fn(() => [
+      { label: "Opembaar", value: "OPENBAAR" },
+      { label: "INTERN", value: "INTERN" },
+    ]),
+    setTitle: jest.fn(),
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [ZaakCreateComponent, ZacInput],
@@ -59,6 +67,7 @@ describe(ZaakCreateComponent.name, () => {
         IdentityService,
         provideHttpClient(),
         provideQueryClient(new QueryClient()),
+        { provide: UtilService, useValue: utilServiceMock },
       ],
       imports: [
         RouterModule.forRoot([]),
@@ -306,7 +315,7 @@ describe(ZaakCreateComponent.name, () => {
       // Vertrouwelijkheidaanduiding field
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       expect(selectFields.length).toEqual(2);
-      // expect(await selectFields[1].getValueText()).toBe("OPENBAAR");
+      expect(await selectFields[1].getValueText()).toBe("Opembaar");
     });
   });
 
