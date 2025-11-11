@@ -49,6 +49,7 @@ import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RAADPLEGER_2
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import java.net.HttpURLConnection.HTTP_OK
 
 val TEST_GROUPS_ALL =
     """
