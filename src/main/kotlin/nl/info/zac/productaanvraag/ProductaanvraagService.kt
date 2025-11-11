@@ -220,15 +220,8 @@ class ProductaanvraagService @Inject constructor(
         kvkEnabled: Boolean
     ): Betrokkene? {
         var initiatorBetrokkene: Betrokkene? = null
-        productaanvraag.betrokkenen?.forEach {
-            val genericRole = it.roltypeOmschrijving == null
-
-            it.shouldBeSkipped(zaak, genericRole, brpEnabled, kvkEnabled)?.let { skipReason ->
-                LOG.warning { skipReason }
-                return@forEach
-            }
-
-            val betrokkeneAddedAsInitiator = if (genericRole) {
+        productaanvraag.betrokkenen?.filter { it.canBeProcessed(zaak, brpEnabled, kvkEnabled) }?.forEach {
+            val betrokkeneAddedAsInitiator = if (it.roltypeOmschrijving == null) {
                 addBetrokkenenWithGenericRole(it, initiatorBetrokkene != null, zaak)
             } else {
                 addBetrokkenenWithRole(it, initiatorBetrokkene != null, zaak)
@@ -240,35 +233,44 @@ class ProductaanvraagService @Inject constructor(
         return initiatorBetrokkene
     }
 
-    private fun Betrokkene.shouldBeSkipped(
+    private fun Betrokkene.canBeProcessed(
         zaak: Zaak,
-        genericRole: Boolean,
         brpEnabled: Boolean,
         kvkEnabled: Boolean
-    ): String? {
+    ): Boolean {
+        val genericRole = this.roltypeOmschrijving == null
         val rolTypeDescription = this.roltypeOmschrijving ?: this.rolOmschrijvingGeneriek.toString()
         val prefix = if (genericRole) "generic " else ""
 
         return this.performAction(
             onNatuurlijkPersoonIdentity = {
                 if (!brpEnabled) {
-                    "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has BRP-based identity, but BRP " +
-                        "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    LOG.warning {
+                        "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has BSN-based identity, but BRP " +
+                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    }
+                    false
                 } else {
-                    null
+                    true
                 }
             },
             onKvkIdentity = { _, _ ->
                 if (!kvkEnabled) {
-                    "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has KvK-based identity, but KvK " +
-                        "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    LOG.warning {
+                        "Betrokkene with ${prefix}roletype description `$rolTypeDescription` has KVK-based identity, but KVK " +
+                            "is not enabled for zaak type ${zaak.zaaktype}. No betrokkene role created for zaak ${zaak.identificatie}"
+                    }
+                    false
                 } else {
-                    null
+                    true
                 }
             },
             onNoIdentity = {
-                "Betrokkene with ${prefix}roletype description `$rolTypeDescription` does not contain a BSN " +
-                    "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
+                LOG.warning {
+                    "Betrokkene with ${prefix}roletype description `$rolTypeDescription` does not contain a BSN " +
+                        "or KVK-number. No betrokkene role created for zaak ${zaak.identificatie}"
+                }
+                false
             }
         )
     }
@@ -380,7 +382,7 @@ class ProductaanvraagService @Inject constructor(
             .firstOrNull()?.let { addRole(betrokkene, it, zaak, roltypeOmschrijving) }
             ?: LOG.warning(
                 "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
-                    "productaanvraag. No betrokkene role created for zaak '${zaak.identificatie}."
+                    "productaanvraag. No betrokkene role created for zaak ${zaak.identificatie}."
             )
     }
 
@@ -443,14 +445,14 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun addRechtspersoonOrVestiging(rolType: RolType, kvkNummer: String, vestigingsNummer: String?, zaak: URI) {
+    private fun addRechtspersoonOrVestiging(rolType: RolType, kvkNummer: String, vestigingsNummer: String?, zaakUri: URI) {
         try {
             kvkNummer.validateKvkNummer()
             vestigingsNummer?.validateKvKVestigingsnummer()
         } catch (_: IllegalArgumentException) {
             LOG.warning {
                 "Betrokkene with roletype '${rolType.omschrijving}' does not contain a valid KVK-identification. " +
-                    "No betrokkene role created for zaak with URI '$zaak'."
+                    "No betrokkene role created for zaak with URI '$zaakUri'."
             }
             return
         }
@@ -459,7 +461,7 @@ class ProductaanvraagService @Inject constructor(
             // note that niet-natuurlijk persoon roles can be used both for KVK niet-natuurlijk personen (with an RSIN)
             // as well as for KVK vestigingen
             RolNietNatuurlijkPersoon(
-                zaak,
+                zaakUri,
                 rolType,
                 ROL_TOELICHTING,
                 NietNatuurlijkPersoonIdentificatie().apply {
