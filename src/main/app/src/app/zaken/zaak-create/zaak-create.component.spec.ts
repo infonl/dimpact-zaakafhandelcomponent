@@ -45,6 +45,7 @@ describe(ZaakCreateComponent.name, () => {
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
   let component: ZaakCreateComponent;
+  let router: Router;
 
   const utilServiceMock = {
     getEnumAsSelectList: jest.fn(() => [
@@ -133,6 +134,9 @@ describe(ZaakCreateComponent.name, () => {
         ]),
       );
 
+    router = TestBed.inject(Router);
+    jest.spyOn(router, "navigate").mockImplementation(async () => true);
+
     fixture = TestBed.createComponent(ZaakCreateComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -181,119 +185,103 @@ describe(ZaakCreateComponent.name, () => {
       };
     });
 
-    // Define a type for the mocked animation
-    interface AnimationMock {
-      play: () => void;
-      pause: () => void;
-      cancel: () => void;
-      finish: () => void;
-      addEventListener: (name: string, cb: () => void) => void;
-      removeEventListener: (name: string, cb: () => void) => void;
-      finished: Promise<void>;
-    }
+    describe("case type selection", () => {
+      const selectAutocomplete = async (
+        loader: HarnessLoader,
+        inputs: MatInputHarness[],
+        inputIndex: number,
+        name: string,
+        query: string,
+        expectedCount: number,
+        expectedValue: string,
+        preCheck?: () => void,
+      ) => {
+        preCheck?.();
 
-    beforeEach(() => {
-      const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockImplementation(async () => true);
-    });
+        await inputs[inputIndex].focus();
+        await inputs[inputIndex].setValue(query);
 
-    it("should handle CMMN case type selection", async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      expect(inputs.length).toEqual(8);
-      expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
+        const autocomplete = await loader.getHarness(
+          MatAutocompleteHarness.with({
+            selector: `[ng-reflect-name="${name}"]`,
+          }),
+        );
 
-      // Select case type
-      await inputs[0].focus();
-      await inputs[0].setValue("cmmn");
+        const options = await autocomplete.getOptions();
+        expect(options.length).toEqual(expectedCount);
 
-      let autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="zaaktype"]',
-        }),
-      );
-      let options = await autocomplete.getOptions();
-      expect(options.length).toEqual(2);
+        await options[0].click();
+        const value = await inputs[inputIndex].getValue();
+        expect(value).toBe(expectedValue);
+      };
 
-      await options[0].click();
-      let value = await inputs[0].getValue();
-      expect(value).toBe("test-cmmn-description-1");
+      it("should handle CMMN case type selection", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        expect(inputs.length).toEqual(8);
+        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-      // select group
-      expect(identityService.listGroups).toHaveBeenCalled();
-      await inputs[4].focus();
-      await inputs[4].setValue("cmmn");
+        await selectAutocomplete(
+          loader,
+          inputs,
+          0,
+          "zaaktype",
+          "cmmn",
+          2,
+          "test-cmmn-description-1",
+        );
 
-      autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="groep"]',
-        }),
-      );
-      options = await autocomplete.getOptions();
-      expect(options.length).toEqual(1);
+        await selectAutocomplete(
+          loader,
+          inputs,
+          4,
+          "groep",
+          "cmmn",
+          1,
+          "test group CMMN",
+          () => expect(identityService.listGroups).toHaveBeenCalled(),
+        );
 
-      await options[0].click();
-      value = await inputs[4].getValue();
-      expect(value).toBe("test group CMMN");
+        await selectAutocomplete(
+          loader,
+          inputs,
+          5,
+          "behandelaar",
+          "test",
+          1,
+          "test user",
+          () => expect(identityService.listUsersInGroup).toHaveBeenCalled(),
+        );
+      });
 
-      // select employee
-      expect(identityService.listUsersInGroup).toHaveBeenCalled();
-      await inputs[5].focus();
-      await inputs[5].setValue("test");
+      it("should handle BPMN case type selection", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        expect(inputs.length).toEqual(8);
+        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-      autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="behandelaar"]',
-        }),
-      );
-      options = await autocomplete.getOptions();
-      expect(options.length).toEqual(1);
+        await selectAutocomplete(
+          loader,
+          inputs,
+          0,
+          "zaaktype",
+          "BPMN",
+          1,
+          "test-bpmn-description-1",
+        );
 
-      await options[0].click();
-      value = await inputs[5].getValue();
-      expect(value).toBe("test user");
-    });
+        await selectAutocomplete(
+          loader,
+          inputs,
+          4,
+          "groep",
+          "bpmn",
+          1,
+          "test group BPMN",
+          () => expect(identityService.listGroups).toHaveBeenCalled(),
+        );
 
-    it("should handle BPMN case type selection", async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      expect(inputs.length).toEqual(8);
-      expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
-
-      // Select case type
-      await inputs[0].focus();
-      await inputs[0].setValue("bpmn");
-
-      let autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="zaaktype"]',
-        }),
-      );
-      let options = await autocomplete.getOptions();
-      expect(options.length).toEqual(1);
-
-      await options[0].click();
-      let value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
-
-      // select group
-      expect(identityService.listGroups).toHaveBeenCalled();
-      await inputs[4].focus();
-      await inputs[4].setValue("bpmn");
-
-      autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="groep"]',
-        }),
-      );
-      options = await autocomplete.getOptions();
-      expect(options.length).toEqual(1);
-
-      await options[0].click();
-      value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
-
-      // select employee
-      expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
-      expect(await inputs[5].isDisabled()).toBe(true);
+        expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
+        expect(await inputs[5].isDisabled()).toBe(true);
+      });
     });
 
     it(`should set the confidentiality notice`, async () => {
