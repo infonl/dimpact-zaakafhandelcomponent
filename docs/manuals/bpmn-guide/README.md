@@ -68,66 +68,66 @@ For example, the emails can be validated by specifying `validate` and `type` key
 
 ## ZAC extensions
 
+ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
+
+Available ZAC types are:
+* `ZAC_groep`
+* `ZAC_medewerker`
+* `ZAC_smart_documents_template`
+* `ZAC_referentie_tabel`
+* `ZAC_documenten`
+* `ZAC_resultaat`
+* `ZAC_status`
+* `ZAC_process_data`
+
 ### Zaak
 
 #### Listing statustypes
 The available status types for a zaak can be displayed with:
-* a fieldset with type `zaakStatusTypesFieldset`
-* `select` component, part of the fieldset
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_status`
 
 Example:
 ```json
-    {
-      "legend": "Zaak Status",
-      "type": "zaakStatusTypesFieldset",
-      "key": "FS_ZaakStatus",
-      "input": false,
-      "components": [
-        {
-          "label": "Select status",
-          "optionsLabelPosition": "right",
-          "key": "ZK_Status",
-          "widget": "html5",
-          "validate": {
-            "required": true,
-            "onlyAvailableItems": true
-          },
-          "type": "select",
-          "input": true,
-          "dataSrc": "custom"
-        }
-      ]
-    }
+{
+  "label": "Select status",
+  "optionsLabelPosition": "right",
+  "key": "ZK_Status",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_status"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
 ```
 
 #### Listing resultaattypes
 The available result types for a zaak can be displayed with:
-* a fieldset with type `zaakResultTypesFieldset`
-* `select` component, part of the fieldset
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_resultaat`
 
 Example:
 ```json
-    {
-      "legend": "Zaak Result",
-      "type": "zaakResultTypesFieldset",
-      "key": "FS_ZaakResult",
-      "input": false,
-      "components": [
-        {
-          "label": "Select result",
-          "optionsLabelPosition": "right",
-          "key": "ZK_Result",
-          "widget": "html5",
-          "validate": {
-            "required": true,
-            "onlyAvailableItems": true
-          },
-          "type": "select",
-          "input": true,
-          "dataSrc": "custom"
-        }
-      ]
-    }
+{
+  "label": "Select result",
+  "optionsLabelPosition": "right",
+  "key": "ZK_Result",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_resultaat"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
 ```
 
 #### Changing status and result
@@ -233,50 +233,40 @@ For example:
 
 ### User/group
 
-#### Listing groups and users
-To list the ZAC groups and users (groep / medewerker) you should use a `fieldset` layout component with:
-* `"type": "groepMedewerkerFieldset"`
-* two `select` components with:
-   * custom data source: `"dataSrc": "custom"`
-   * `"clearOnRefresh": true`, so that changes in the group can clear the users
+#### Group
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
 
-The first select component will be used for groups, while the second select component will be populated with users.
-
-For example:
 ```json
-    {
-      "legend": "Approval by:",
-      "type": "groepMedewerkerFieldset",
-      "key": "AM_TeamBehandelaar",
-      "input": false,
-      "components": [
-        {
-          "label": "Group",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Groep",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
-        },
-        {
-          "label": "User",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Medewerker",
-          "widget": "html5",
-          "input": true,
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "refreshOn": "AM_TeamBehandelaar_Groep",
-          "clearOnRefresh": true
-        }
-      ]
-    }
+{
+  "label": "Group",
+  "type": "select",
+  "key": "AM_TeamBehandelaar_Groep",
+  "input": true,
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "attributes": {
+    "ZAC_TYPE": "ZAC_groep"
+  }
+}
+```
+
+#### User
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
+* An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
+
+```json
+{
+  "label": "User",
+  "type": "select",
+  "key": "AM_TeamBehandelaar_Groep",
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "input": true,
+  "refreshOn": "AM_TeamBehandelaar_Groep",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_medewerker"
+  }
+}
 ```
 
 #### Setting task group and user
@@ -402,27 +392,70 @@ To display and use values from a reference table you can use:
 
 Example:
 ```json
-    {
-      "legend": "Reference table",
-      "type": "referenceTableFieldset",
-      "key": "RT_ReferenceTable",
-      "input": false,
-      "components": [
-        {
-          "label": "Communication channel",
-          "type": "select",
-          "key": "RT_ReferenceTable_Values",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
-        }
-      ]
-    }
+{
+  "label": "Communication channel",
+  "type": "select",
+  "key": "RT_ReferenceTable_Values",
+  "input": true,
+  "widget": "html5",
+  "validate": {
+    "required": true
+  },
+  "dataSrc": "custom",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_referentie_tabel"
+  },
+  "properties": {
+    "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+  }
+}
 ```
 :warning: prefixing the reference table code with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
+
+### Process data
+* A `input` component, with the attribute `ZAC_TYPE` of `ZAC_process_data`, where the `key` is the name of the process data variable
+
+```json
+{
+  "label": "Process data",
+  "type": "input",
+  "key": "<PROCESS_DATA_VARIABLE_NAME>",
+  "input": true,
+  "dataSrc": "custom",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_process_data"
+  }
+}
+```
+
+### Documenten
+* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
+
+```json
+{
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": true,
+      "searchEnabled": true,
+      "shouldSort": false
+    }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
+```
