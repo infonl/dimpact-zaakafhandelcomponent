@@ -34,8 +34,8 @@ export class ZaakafhandelParametersResolver {
     return forkJoin({
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
-      bpmnProcessDefintionConfigurations:
-        this.bpmnConfigurationService.listBpmnProcessDefintionConfigurations(),
+      bpmnProcessConfigurations:
+        this.bpmnConfigurationService.listbpmnProcessConfigurations(),
       bpmnProcessDefinitions:
         this.processDefinitionsService.listProcessDefinitions(),
       featureFlagBpmnSupport:
@@ -44,15 +44,14 @@ export class ZaakafhandelParametersResolver {
       map(
         ({
           zaakafhandelParameters,
-          bpmnProcessDefintionConfigurations,
+          bpmnProcessConfigurations,
           bpmnProcessDefinitions,
           featureFlagBpmnSupport,
         }) => {
-          const bpmnZaakafhandelParameters =
-            bpmnProcessDefintionConfigurations?.find(
-              (item) =>
-                item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
-            );
+          const bpmnZaakafhandelParameters = bpmnProcessConfigurations?.find(
+            (item) =>
+              item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
+          );
           const isBpmn = !!bpmnZaakafhandelParameters; // true if there is a matching BPMN process definition
           const isSavedZaakafhandelParameters =
             isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
