@@ -42,6 +42,7 @@ describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
   let bpmnConfigurationService: BpmnConfigurationService;
+  let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
   let component: ZaakCreateComponent;
@@ -134,6 +135,21 @@ describe(ZaakCreateComponent.name, () => {
         ]),
       );
 
+    referentieTabelService = TestBed.inject(ReferentieTabelService);
+    jest
+      .spyOn(referentieTabelService, "listCommunicatiekanalen")
+      .mockReturnValue(
+        of([
+          "Boeman",
+          "Koebel",
+          "Telegram",
+          "Tamtam",
+          "PostDuif",
+          "Rooksignalen",
+          "Telefoon",
+        ]),
+      );
+
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockImplementation(async () => true);
 
@@ -185,36 +201,36 @@ describe(ZaakCreateComponent.name, () => {
       };
     });
 
+    const selectAutocomplete = async (
+      loader: HarnessLoader,
+      inputs: MatInputHarness[],
+      inputIndex: number,
+      name: string,
+      query: string,
+      expectedCount: number,
+      expectedValue: string,
+      preCheck?: () => void,
+    ) => {
+      preCheck?.();
+
+      await inputs[inputIndex].focus();
+      await inputs[inputIndex].setValue(query);
+
+      const autocomplete = await loader.getHarness(
+        MatAutocompleteHarness.with({
+          selector: `[ng-reflect-name="${name}"]`,
+        }),
+      );
+
+      const options = await autocomplete.getOptions();
+      expect(options.length).toEqual(expectedCount);
+
+      await options[0].click();
+      const value = await inputs[inputIndex].getValue();
+      expect(value).toBe(expectedValue);
+    };
+
     describe("case type selection", () => {
-      const selectAutocomplete = async (
-        loader: HarnessLoader,
-        inputs: MatInputHarness[],
-        inputIndex: number,
-        name: string,
-        query: string,
-        expectedCount: number,
-        expectedValue: string,
-        preCheck?: () => void,
-      ) => {
-        preCheck?.();
-
-        await inputs[inputIndex].focus();
-        await inputs[inputIndex].setValue(query);
-
-        const autocomplete = await loader.getHarness(
-          MatAutocompleteHarness.with({
-            selector: `[ng-reflect-name="${name}"]`,
-          }),
-        );
-
-        const options = await autocomplete.getOptions();
-        expect(options.length).toEqual(expectedCount);
-
-        await options[0].click();
-        const value = await inputs[inputIndex].getValue();
-        expect(value).toBe(expectedValue);
-      };
-
       it("should handle CMMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         expect(inputs.length).toEqual(8);
@@ -300,10 +316,75 @@ describe(ZaakCreateComponent.name, () => {
       const value = await inputs[0].getValue();
       expect(value).toBeTruthy();
 
-      // Vertrouwelijkheidaanduiding field
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       expect(selectFields.length).toEqual(2);
       expect(await selectFields[1].getValueText()).toBe("Opembaar");
+    });
+
+    it("should fill all fields and submit", async () => {
+      const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
+        identificatie: "test-zaak-uuid-123",
+      });
+      jest.spyOn(zakenService, "createZaak").mockReturnValue({
+        mutationKey: [],
+        mutationFn: () => Promise.resolve(mockZaakResponse),
+      });
+
+      const navigateSpy = jest
+        .spyOn(router, "navigate")
+        .mockImplementation(async () => true);
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.aanmaken" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
+
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+      expect(inputs.length).toBeGreaterThanOrEqual(8);
+
+      const selects = await loader.getAllHarnesses(MatSelectHarness);
+      expect(selects.length).toBeGreaterThanOrEqual(2);
+
+      await selectAutocomplete(
+        loader,
+        inputs,
+        0,
+        "zaaktype",
+        "cmmn",
+        2,
+        "test-cmmn-description-1",
+      );
+
+      await selectAutocomplete(
+        loader,
+        inputs,
+        4,
+        "groep",
+        "cmmn",
+        1,
+        "test group CMMN",
+        () => expect(identityService.listGroups).toHaveBeenCalled(),
+      );
+
+      await inputs[6].focus();
+      await inputs[6].setValue("Automated test description");
+      expect(await inputs[6].getValue()).toBe("Automated test description");
+
+      await selects[0].focus();
+      await selects[0].open();
+      const options = await selects[0].getOptions();
+      expect(options.length).toBe(7);
+      await options[5].click();
+      expect(await selects[0].getValueText()).toBe("Rooksignalen");
+
+      expect(await submitButton.isDisabled()).toBe(false);
+      await submitButton.click();
+
+      expect(zakenService.createZaak).toHaveBeenCalled();
+      expect(navigateSpy).toHaveBeenCalledWith([
+        "/zaken/",
+        "test-zaak-uuid-123",
+      ]);
     });
   });
 
@@ -419,4 +500,40 @@ describe(ZaakCreateComponent.name, () => {
       expect(component.hasInitiator()).toBe(false);
     });
   });
+
+  // describe("form submission", () => {
+  //   it("should submit the form and navigate to the created case", async () => {
+  //     const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
+  //       uuid: "test-zaak-uuid-123",
+  //     });
+  //     jest
+  //       .spyOn(zakenService, "createZaak")
+  //       .mockReturnValue(of(mockZaakResponse));
+
+  //     component["form"].get("zaaktype")?.setValue(
+  //       fromPartial({
+  //         uuid: "test-cmmn-zaaktype-1",
+  //         omschrijving: "test-cmmn-description-1",
+  //         vertrouwelijkheidaanduiding: "OPENBAAR",
+  //         zaakafhandelparameters: {
+  //           defaultGroepId: "test-cmmn-group-id",
+  //           defaultBehandelaarId: "test-user-id",
+  //         },
+  //       }),
+  //     );
+
+  //     fixture.detectChanges();
+
+  //     const submitButton = await loader.getHarness(
+  //       MatButtonHarness.with({ text: "actie.zaak.aanmaken" }),
+  //     );
+  //     await submitButton.click();
+
+  //     expect(zakenService.createZaak).toHaveBeenCalled();
+  //     expect(router.navigate).toHaveBeenCalledWith([
+  //       "/zaken",
+  //       mockZaakResponse.uuid,
+  //     ]);
+  //   });
+  // });
 });
