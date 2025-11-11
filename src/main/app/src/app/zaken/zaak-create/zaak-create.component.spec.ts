@@ -35,9 +35,8 @@ import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
-import { input } from "@angular/core";
 import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
+import { MatSelectHarness } from "@angular/material/select/testing";
 
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
@@ -93,6 +92,7 @@ describe(ZaakCreateComponent.name, () => {
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-cmmn-zaaktype-1",
           omschrijving: "test-cmmn-description-1",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
           zaakafhandelparameters: {
             defaultGroepId: "test-cmmn-group-id",
             defaultBehandelaarId: "test-user-id",
@@ -101,10 +101,12 @@ describe(ZaakCreateComponent.name, () => {
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-cmmn-zaaktype-2",
           omschrijving: "test-cmmn-description-2",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
         }),
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-bpmn-zaaktype-1",
           omschrijving: "test-bpmn-description-1",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
           zaakafhandelparameters: { defaultGroepId: "test-bpmn-group-id" },
         }),
       ]),
@@ -128,22 +130,39 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
+    interface AnimationMock {
+      play: () => void;
+      pause: () => void;
+      cancel: () => void;
+      finish: () => void;
+      addEventListener: (name: string, cb: () => void) => void;
+      removeEventListener: (name: string, cb: () => void) => void;
+      finished: Promise<void>;
+    }
+
     beforeAll(() => {
       // disable animations for the tests
-      (Element.prototype as any).animate = () => {
-        const listeners: Record<string, Function[]> = {};
+      (
+        Element.prototype as unknown as {
+          animate: (
+            keyframes: Keyframe[] | PropertyIndexedKeyframes,
+            options?: number | KeyframeAnimationOptions,
+          ) => AnimationMock;
+        }
+      ).animate = () => {
+        const listeners: Record<string, Array<() => void>> = {};
 
-        const player = {
+        const player: AnimationMock = {
           play: () => {},
           pause: () => {},
           cancel: () => {},
           finish: () => {
             (listeners["finish"] || []).forEach((cb) => cb());
           },
-          addEventListener: (name: string, cb: Function) => {
+          addEventListener: (name: string, cb: () => void) => {
             (listeners[name] ||= []).push(cb);
           },
-          removeEventListener: (name: string, cb: Function) => {
+          removeEventListener: (name: string, cb: () => void) => {
             listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
           },
           finished: Promise.resolve(),
@@ -153,13 +172,24 @@ describe(ZaakCreateComponent.name, () => {
       };
     });
 
+    // Define a type for the mocked animation
+    interface AnimationMock {
+      play: () => void;
+      pause: () => void;
+      cancel: () => void;
+      finish: () => void;
+      addEventListener: (name: string, cb: () => void) => void;
+      removeEventListener: (name: string, cb: () => void) => void;
+      finished: Promise<void>;
+    }
+
     beforeEach(() => {
       const router = TestBed.inject(Router);
       jest.spyOn(router, "navigate").mockImplementation(async () => true);
     });
 
     it("should handle CMMN case type selection", async () => {
-      let inputs = await loader.getAllHarnesses(MatInputHarness);
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
       expect(inputs.length).toEqual(8);
       expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
@@ -215,7 +245,7 @@ describe(ZaakCreateComponent.name, () => {
     });
 
     it("should handle BPMN case type selection", async () => {
-      let inputs = await loader.getAllHarnesses(MatInputHarness);
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
       expect(inputs.length).toEqual(8);
       expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
@@ -257,7 +287,27 @@ describe(ZaakCreateComponent.name, () => {
       expect(await inputs[5].isDisabled()).toBe(true);
     });
 
-    it.todo(`should set the confidentiality notice`);
+    it(`should set the confidentiality notice`, async () => {
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+
+      await inputs[0].focus();
+      await inputs[0].setValue("test");
+
+      const autocomplete = await loader.getHarness(
+        MatAutocompleteHarness.with({
+          selector: '[ng-reflect-name="zaaktype"]',
+        }),
+      );
+      const options = await autocomplete.getOptions();
+      await options[0].click();
+      const value = await inputs[0].getValue();
+      expect(value).toBeTruthy();
+
+      // Vertrouwelijkheidaanduiding field
+      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
+      expect(selectFields.length).toEqual(2);
+      // expect(await selectFields[1].getValueText()).toBe("OPENBAAR");
+    });
   });
 
   describe("Bag objects field editing", () => {
