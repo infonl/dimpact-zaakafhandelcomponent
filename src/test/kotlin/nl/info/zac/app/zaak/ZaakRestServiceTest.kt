@@ -1796,13 +1796,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, capture(zaakdataMap)) } just runs
 
             When("the zaakdata is requested to be updated") {
-                val updatedRestZaak = zaakRestService.updateZaakdata(restZaakDataUpdate)
+                zaakRestService.updateZaakdata(restZaakDataUpdate)
 
                 Then("the zaakdata is correctly updated") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, any())
                     }
-                    updatedRestZaak shouldBe restZaakDataUpdate
                     zaakdataMap.captured shouldBe restZaakDataUpdate.zaakdata
                 }
             }
