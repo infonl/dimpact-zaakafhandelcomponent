@@ -145,7 +145,7 @@ constructor(
         }
 
     /**
-     * Build a map of zaaktype -> set(application role names) from PABC (when enabled).
+     * Builds a map of zaaktype -> set(application role names) from the PABC.
      * - Only include results where entityType.type == "zaaktype"
      * - Key uses entityType.name
      */
@@ -169,6 +169,8 @@ constructor(
 
         val rolesForAllZaaktypen: Set<String> =
             applicationRolesResponse.results
+                // an 'application roles response model' without an entity type means that these application roles
+                // apply to all entity types (and hence all zaaktypen)
                 .filter { it.entityType == null }
                 .flatMap { it.applicationRoles.mapNotNull { applicationRoleModel -> applicationRoleModel.name?.trim() } }
                 .filter { it.isNotEmpty() }
