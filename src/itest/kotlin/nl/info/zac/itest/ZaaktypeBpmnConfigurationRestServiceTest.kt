@@ -17,6 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTIO
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import java.net.HttpURLConnection.HTTP_OK
 
 @Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
@@ -51,9 +52,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then("the response is successful") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
 
             And("the response contains the created zaaktype configuration") {
@@ -71,9 +72,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then("the response is successful") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
 
             And("the expected zaak type data is returned") {
@@ -87,9 +88,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(testUrl)
 
             Then("the response is successful") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
 
             And("the expected zaak type data list is returned") {

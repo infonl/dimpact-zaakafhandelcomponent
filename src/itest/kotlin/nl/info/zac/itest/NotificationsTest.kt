@@ -152,8 +152,8 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -185,10 +185,10 @@ class NotificationsTest : BehaviorSpec({
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
                 )
-                logger.info { "Response: ${receivedMailsResponse.body}" }
+                logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
@@ -210,7 +210,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
@@ -278,8 +278,8 @@ class NotificationsTest : BehaviorSpec({
 
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
@@ -308,7 +308,7 @@ class NotificationsTest : BehaviorSpec({
                 """.trimIndent()
             ) {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     []
@@ -361,8 +361,8 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
@@ -389,7 +389,7 @@ class NotificationsTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
@@ -449,8 +449,8 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
@@ -478,7 +478,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
@@ -541,7 +541,7 @@ class NotificationsTest : BehaviorSpec({
             }
 
             And("No initiator should be set") {
-                val responseBody = getZaakResponse.body.string()
+                val responseBody = getZaakResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(JSONObject(responseBody)) {
                     getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION

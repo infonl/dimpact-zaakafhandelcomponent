@@ -66,7 +66,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
             Then("the response should be a 200 HTTP response") {
                 response.code shouldBe HTTP_OK
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
             }
 
@@ -149,7 +149,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
             Then("the response should be a 200 HTTP response") {
                 response.code shouldBe HTTP_OK
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
             }
 

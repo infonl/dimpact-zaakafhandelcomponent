@@ -110,7 +110,7 @@ class CsvRestServiceTest : BehaviorSpec({
                 """
             ) {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
 
                 val csvReader = csvReader {
