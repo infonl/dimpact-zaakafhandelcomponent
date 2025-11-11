@@ -258,7 +258,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then(" the logged-in user is added to the HTTP session") {
+                Then("the logged-in user is added to the HTTP session") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 }
 
