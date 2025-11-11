@@ -156,15 +156,14 @@ class WebDavServletTest : BehaviorSpec({
         }
 
         When("a HEAD request is performed using the WebDAV token for the uploaded file") {
-            val response = itestHttpClient.performHeadRequest(
+            val responseCode = itestHttpClient.performHeadRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
                 // the WebDAV servlet does not require any authorization
                 addAuthorizationHeader = false
             )
 
             Then("the response should be ok") {
-                logger.info { "Response: ${response.bodyAsString}" }
-                response.code shouldBe HTTP_OK
+                responseCode shouldBe HTTP_OK
             }
         }
     }
