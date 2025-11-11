@@ -75,26 +75,5 @@ val OLD_IAM_GROUP_DOMEIN_TEST_2 = TestGroup(
 )
 
 // group constants that switch between old and new IAM test groups based on the PABC feature flag value
-val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) {
-    TestGroup(
-        name = GROUP_RAADPLEGERS_TEST_1.name,
-        description = GROUP_RAADPLEGERS_TEST_1.description
-    )
-} else {
-    TestGroup(
-        name = OLD_IAM_TEST_GROUP_RAADPLEGERS.name,
-        description = OLD_IAM_TEST_GROUP_RAADPLEGERS.description
-    )
-}
-
-val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) {
-    TestGroup(
-        name = GROUP_BEHANDELAARS_TEST_1.name,
-        description = GROUP_BEHANDELAARS_TEST_1.description
-    )
-} else {
-    TestGroup(
-        name = OLD_IAM_TEST_GROUP_BEHANDELAARS.name,
-        description = OLD_IAM_TEST_GROUP_BEHANDELAARS.description
-    )
-}
+val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RAADPLEGERS_TEST_1 else OLD_IAM_TEST_GROUP_RAADPLEGERS
+val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_BEHANDELAARS_TEST_1 else OLD_IAM_TEST_GROUP_BEHANDELAARS
