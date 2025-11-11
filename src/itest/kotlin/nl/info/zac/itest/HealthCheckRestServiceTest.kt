@@ -28,6 +28,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import java.net.HttpURLConnection.HTTP_OK
 
 class HealthCheckRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -47,11 +48,11 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK with a response body 'true'") {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldBe "true"
             }
         }
@@ -62,11 +63,11 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/zaaktypes"
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK") {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
             And("the response body should contain all the performed checks") {
                 responseBody shouldEqualJson """

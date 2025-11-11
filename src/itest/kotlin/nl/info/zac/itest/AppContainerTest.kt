@@ -32,8 +32,8 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/health"
             )
             Then("the response should be ok and the status should be UP") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     shouldContainJsonKeyValue("status", "UP")
                 }
             }
@@ -43,8 +43,8 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/metrics"
             )
             Then("the response should be ok and the the uptime var should be present") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     contains("base_jvm_uptime_seconds").shouldBe(true)
                 }
             }

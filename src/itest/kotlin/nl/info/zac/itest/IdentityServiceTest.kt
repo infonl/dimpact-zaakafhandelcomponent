@@ -131,8 +131,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "all groups are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -150,8 +150,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "only those groups which have the domain role are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJson """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
@@ -176,8 +176,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "all groups are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -188,8 +188,8 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/users"
             )
             Then("All specific users are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "${OLD_IAM_FUNCTIONAL_ADMIN_1.username}",
@@ -275,8 +275,8 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
             )
             Then("'testuser 1' and 'testuser 2' are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualJson """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualJson """
                         [
                             {
                                 "id": "${OLD_IAM_TEST_USER_1.username}",
@@ -303,8 +303,8 @@ class IdentityServiceTest : BehaviorSpec({
                 "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
             }
             Then("both groups are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {
                                 "id": "${BEHEERDER_ELK_ZAAKTYPE.username}",
                                 "naam": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",

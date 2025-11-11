@@ -33,6 +33,7 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -81,7 +82,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 zaakManual2Identification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
@@ -90,9 +91,9 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
         )
-        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body.string()
+        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.bodyAsString
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
-        getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
+        getHumanTaskPlanItemsResponse.code shouldBe HTTP_OK
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
         // wait for OpenZaak to accept this request
@@ -120,9 +121,9 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
         )
 
-        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
+        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.bodyAsString
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
-        doHumanTaskPlanItemResponse.isSuccessful shouldBe true
+        doHumanTaskPlanItemResponse.code shouldBe HTTP_NO_CONTENT
 
         When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
@@ -136,7 +137,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
                 sendSignaleringenResponse.code shouldBe HTTP_OK
-                val sendSignaleringenResponseBody = sendSignaleringenResponse.body.string()
+                val sendSignaleringenResponseBody = sendSignaleringenResponse.bodyAsString
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
 
@@ -147,7 +148,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_DOMAIN_TEST_1.email}/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
-                    receivedMails = JSONArray(receivedMailsResponse.body.string())
+                    receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {

@@ -22,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -43,9 +44,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
             Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, so there should be only be one human task
                 // plan item: 'aanvullende informatie'
@@ -67,9 +68,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
             )
             Then("the human task plan item data for this task is returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("actief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
@@ -97,10 +98,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("a task is started for this zaak") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
 
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -108,9 +109,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val newAdditionalTaskInfoResponse = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
-            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.body.string()
+            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.bodyAsString
             logger.info { "Response: $newAdditionalTaskInfoResponseBody" }
-            newAdditionalTaskInfoResponse.isSuccessful shouldBe true
+            newAdditionalTaskInfoResponse.code shouldBe HTTP_OK
             val newAdditionalInfoTaskId = JSONArray(newAdditionalTaskInfoResponseBody).getJSONObject(0).getString("id")
 
             val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
@@ -129,15 +130,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
 
             Then("a new task is started for this zaak") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
 
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
 
             And("zaak fatal date is moved forward to correspond to the task fatal date") {
                 val zacResponse = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = zacResponse.body.string()
+                val responseBody = zacResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
 
                 with(zacResponse) {

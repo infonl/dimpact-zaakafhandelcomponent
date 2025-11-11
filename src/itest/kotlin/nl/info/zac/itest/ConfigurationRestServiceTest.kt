@@ -36,7 +36,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("the available talen are returned") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrder """
                 [ 
@@ -86,7 +86,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("the default taal is returned") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson """
                 {
@@ -106,7 +106,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("the max file size is returned") {
                 response.code shouldBe HTTP_OK
-                response.body.string().toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
+                response.bodyAsString.toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
             }
         }
         When("the additional file types are retrieved") {
@@ -116,7 +116,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("no additional file types are returned because ZAC does not provide any by default") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson """
                     [ "fakeFileExtension1", "fakeFileExtension2"]
@@ -130,7 +130,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("the gemeente name is returned") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_NAAM\""
             }
@@ -142,7 +142,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("the gemeente code is returned") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_CODE\""
             }
@@ -154,7 +154,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
             Then("'true' is returned because BPMN support is enabled for the integration tests") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "true"
             }
@@ -165,8 +165,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then("the configured audit log provider is returned") {
-                response.isSuccessful shouldBe true
-                val responseBody = response.body.string()
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldBe BRP_PROTOCOLLERING_ICONNECT
             }

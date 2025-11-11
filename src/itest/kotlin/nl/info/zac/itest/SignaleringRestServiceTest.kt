@@ -105,9 +105,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
             behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -118,7 +118,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val zaakRollenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
-        val responseBody = zaakRollenResponse.body.string()
+        val responseBody = zaakRollenResponse.bodyAsString
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
@@ -151,7 +151,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -180,7 +180,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -193,9 +193,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
+                    response.code shouldBe HTTP_OK
 
                     // application/json should be changed to text/plain in the endpoint to get rid of the quotes
                     val dateString = responseBody.replace("\"", "")
@@ -216,9 +216,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
-            response.isSuccessful shouldBe true
+            response.code shouldBe HTTP_OK
 
             Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
@@ -245,7 +245,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("400 should be returned") {
@@ -267,7 +267,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
@@ -278,7 +278,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
-            var responseBody = zaakInformatieObjectenResponse.body.string()
+            var responseBody = zaakInformatieObjectenResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             zaakInformatieObjectenResponse.code shouldBe HTTP_OK
@@ -307,7 +307,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -321,9 +321,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         }
                     """.trimIndent()
                 )
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {
@@ -357,11 +357,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 ).toHeaders(),
                 addAuthorizationHeader = false
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("the existing two signaleringen should be deleted") {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 with(JSONObject(responseBody)) {
                     getInt("deletedSignaleringenCount") shouldBe 2
