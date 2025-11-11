@@ -76,7 +76,7 @@ class TaakVariabelenServiceTest : BehaviorSpec({
         val expectedUUID = UUID.fromString("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
-        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
         When("reading the zaak type UUID") {
             val uuid = readZaaktypeUUID(taskInfo)
@@ -91,7 +91,7 @@ class TaakVariabelenServiceTest : BehaviorSpec({
         val expectedUUID = "e58ed763-928c-4155-bee9-fdbaaadc15f3"
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
-        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
         When("reading the zaak type UUID") {
             val exception = shouldThrow<ClassCastException> {
@@ -108,7 +108,7 @@ class TaakVariabelenServiceTest : BehaviorSpec({
         val expectedUUID = File("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
-        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID to expectedUUID)
+        every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
         When("reading the zaak type UUID") {
             val exception = shouldThrow<ClassCastException> {

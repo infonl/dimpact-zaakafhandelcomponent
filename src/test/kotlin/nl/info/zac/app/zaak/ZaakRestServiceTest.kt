@@ -101,6 +101,7 @@ import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.createRestZaakCreateData
+import nl.info.zac.app.zaak.model.createRestZaakDataUpdate
 import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
@@ -1784,25 +1785,24 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Context("Updating zaak data") {
         Given("Rest zaak data") {
-            val restZaakUpdate = createRestZaak()
+            val restZaakDataUpdate = createRestZaakDataUpdate()
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakdataMap = slot<Map<String, Any>>()
             every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakUpdate.uuid)
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakDataUpdate.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
-            every { zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, capture(zaakdataMap)) } just runs
+            every { zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, capture(zaakdataMap)) } just runs
 
             When("the zaakdata is requested to be updated") {
-                val updatedRestZaak = zaakRestService.updateZaakdata(restZaakUpdate)
+                zaakRestService.updateZaakdata(restZaakDataUpdate)
 
                 Then("the zaakdata is correctly updated") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, any())
+                        zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, any())
                     }
-                    updatedRestZaak shouldBe restZaakUpdate
-                    zaakdataMap.captured shouldBe restZaakUpdate.zaakdata
+                    zaakdataMap.captured shouldBe restZaakDataUpdate.zaakdata
                 }
             }
         }

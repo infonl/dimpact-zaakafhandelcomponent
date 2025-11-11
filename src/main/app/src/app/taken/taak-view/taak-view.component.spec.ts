@@ -19,6 +19,10 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -42,6 +46,7 @@ describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
   let component: ComponentRef<TaakViewComponent>;
   let loader: HarnessLoader;
+  let queryClient: QueryClient;
 
   let websocketService: WebsocketService;
   let takenService: TakenService;
@@ -97,6 +102,8 @@ describe(TaakViewComponent.name, () => {
   });
 
   beforeEach(() => {
+    queryClient = new QueryClient();
+
     TestBed.configureTestingModule({
       declarations: [
         TaakViewComponent,
@@ -125,6 +132,7 @@ describe(TaakViewComponent.name, () => {
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(queryClient),
       ],
     }).compileComponents();
 

@@ -36,8 +36,6 @@ import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
-import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
-import { ZaakdataComponent } from "./zaakdata/zaakdata.component";
 import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
 import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
@@ -71,8 +69,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     NotitiesComponent,
     LocatieTonenComponent,
     ZaakDocumentenComponent,
-    ZaakdataComponent,
-    ZaakdataFormComponent,
   ],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
