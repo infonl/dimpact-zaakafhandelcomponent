@@ -191,7 +191,7 @@ class PolicyService @Inject constructor(
 
     fun readTaakRechten(
         taskInfo: TaskInfo,
-        zaaktypeOmschrijving: String?
+        zaaktypeOmschrijving: String
     ): TaakRechten {
         val taakData = TaakData(
             open = TaskUtil.isOpen(taskInfo),

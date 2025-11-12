@@ -30,16 +30,19 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.input.DocumentInput
+import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakInput
 import nl.info.zac.policy.output.createDocumentRechten
 import nl.info.zac.policy.output.createOverigeRechten
+import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
@@ -285,6 +288,56 @@ class PolicyServiceTest : BehaviorSpec({
                         // We don't set these two
                         besloten shouldBe null
                         intake shouldBe null
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Reading taakrechten") {
+        Given(
+            """
+            An open CMMN task as part of a zaak and a logged in user with application roles for the zaaktype of the zaak
+            and PABC feature flag enabled
+            """
+        ) {
+            val zaakType = createZaakType()
+            val testTask = createTestTask(
+                caseVariables = mapOf("zaaktypeOmschrijving" to zaakType.omschrijving)
+            )
+            val userApplicationRolesForZaakType = setOf("fakeApplicationRole1", "fakeApplicationRole2")
+            val loggedInUser = createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(
+                    zaakType.omschrijving to userApplicationRolesForZaakType
+                )
+            )
+            val expectedTaakRechten = createTaakRechten()
+            val ruleQuerySlot = slot<RuleQuery<TaakInput>>()
+
+            every { opaEvaluationClient.readTaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedTaakRechten
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { configuratieService.featureFlagPabcIntegration() } returns true
+
+            When("task policy rights are requested for the task") {
+                val taskPermissions = policyService.readTaakRechten(testTask)
+
+                Then("the response contains the expected taakrechten") {
+                    taskPermissions shouldBe expectedTaakRechten
+                }
+                And("the correct data is sent to the OPA evaluation client") {
+                    verify(exactly = 1) {
+                        opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.taakData) {
+                        open shouldBe true
+                        zaaktype shouldBe zaakType.omschrijving
+                    }
+                    with(ruleQuerySlot.captured.input.user) {
+                        id shouldBe loggedInUser.id
+                        rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
+                        zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
                 }
             }
