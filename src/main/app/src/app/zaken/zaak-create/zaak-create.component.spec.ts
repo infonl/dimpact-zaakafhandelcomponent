@@ -26,7 +26,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
-import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -37,11 +36,12 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
+import { BpmnService } from "src/app/admin/bpmn.service";
 
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
-  let bpmnConfigurationService: BpmnConfigurationService;
+  let bpmnService: BpmnService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
@@ -61,7 +61,7 @@ describe(ZaakCreateComponent.name, () => {
       declarations: [ZaakCreateComponent, ZacInput],
       providers: [
         ZakenService,
-        BpmnConfigurationService,
+        BpmnService,
         NavigationService,
         KlantenService,
         ReferentieTabelService,
@@ -123,17 +123,15 @@ describe(ZaakCreateComponent.name, () => {
       ]),
     );
 
-    bpmnConfigurationService = TestBed.inject(BpmnConfigurationService);
-    jest
-      .spyOn(bpmnConfigurationService, "listbpmnProcessConfigurations")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
-            bpmnProcessDefinitionKey: "bpmn-process-1",
-            zaaktypeUuid: "test-bpmn-zaaktype-1",
-          }),
-        ]),
-      );
+    bpmnService = TestBed.inject(BpmnService);
+    jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
+      of([
+        fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
+          bpmnProcessDefinitionKey: "bpmn-process-1",
+          zaaktypeUuid: "test-bpmn-zaaktype-1",
+        }),
+      ]),
+    );
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest

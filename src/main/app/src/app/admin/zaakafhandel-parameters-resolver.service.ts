@@ -7,8 +7,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { forkJoin, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
-import { BpmnConfigurationService } from "./bpmn-configuration.service";
-import { ProcessDefinitionsService } from "./process-definitions.service";
+import { BpmnService } from "./bpmn.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
@@ -17,8 +16,7 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 export class ZaakafhandelParametersResolver {
   constructor(
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
-    private readonly bpmnConfigurationService: BpmnConfigurationService,
-    private readonly processDefinitionsService: ProcessDefinitionsService,
+    private readonly bpmnService: BpmnService,
     private readonly configuratieService: ConfiguratieService,
   ) {}
 
@@ -35,9 +33,8 @@ export class ZaakafhandelParametersResolver {
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
       bpmnProcessConfigurations:
-        this.bpmnConfigurationService.listbpmnProcessConfigurations(),
-      bpmnProcessDefinitions:
-        this.processDefinitionsService.listProcessDefinitions(),
+        this.bpmnService.listbpmnProcessConfigurations(),
+      bpmnProcessDefinitions: this.bpmnService.listProcessDefinitions(),
       featureFlagBpmnSupport:
         this.configuratieService.readFeatureFlagBpmnSupport(),
     }).pipe(

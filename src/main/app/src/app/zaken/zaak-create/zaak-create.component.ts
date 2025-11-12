@@ -14,7 +14,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of, Subject, takeUntil } from "rxjs";
-import { BpmnConfigurationService } from "src/app/admin/bpmn-configuration.service";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -29,6 +28,7 @@ import {
 } from "../../shared/utils/constants";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
+import { BpmnService } from "src/app/admin/bpmn.service";
 
 @Component({
   selector: "zac-zaak-create",
@@ -93,7 +93,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
   constructor(
     private readonly zakenService: ZakenService,
-    private readonly bpmnConfigurationService: BpmnConfigurationService,
+    private readonly bpmnService: BpmnService,
 
     private readonly router: Router,
     private readonly klantenService: KlantenService,
@@ -112,11 +112,9 @@ export class ZaakCreateComponent implements OnDestroy {
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
 
-    this.bpmnConfigurationService
-      .listbpmnProcessConfigurations()
-      .subscribe((configs) => {
-        this.bpmnCaseTypesConfigurations = configs;
-      });
+    this.bpmnService.listbpmnProcessConfigurations().subscribe((configs) => {
+      this.bpmnCaseTypesConfigurations = configs;
+    });
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
