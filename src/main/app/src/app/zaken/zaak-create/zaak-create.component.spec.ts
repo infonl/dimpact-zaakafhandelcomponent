@@ -50,7 +50,7 @@ describe(ZaakCreateComponent.name, () => {
 
   const utilServiceMock = {
     getEnumAsSelectList: jest.fn(() => [
-      { label: "Opembaar", value: "OPENBAAR" },
+      { label: "Openbaar", value: "OPENBAAR" },
       { label: "INTERN", value: "INTERN" },
     ]),
     setTitle: jest.fn(),
@@ -316,7 +316,7 @@ describe(ZaakCreateComponent.name, () => {
 
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       expect(selectFields.length).toEqual(2);
-      expect(await selectFields[1].getValueText()).toBe("Opembaar");
+      expect(await selectFields[1].getValueText()).toBe("Openbaar");
     });
 
     it("should fill all fields and submit", async () => {
