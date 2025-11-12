@@ -43,7 +43,7 @@ fun createZaakZoekObject(
 @Suppress("LongParameterList")
 fun createTaakZoekObject(
     uuidAsString: String = UUID.randomUUID().toString(),
-    type: ZoekObjectType = ZoekObjectType.ZAAK,
+    type: ZoekObjectType = ZoekObjectType.TAAK,
     zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     zaaktypeUuid: String = UUID.randomUUID().toString(),
