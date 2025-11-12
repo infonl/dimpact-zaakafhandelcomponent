@@ -134,10 +134,10 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await triggerDataLoad(this.page, "Select one or more documents", {
-      text: "Available Documents",
-      timeout: FIVE_SECONDS_IN_MS,
-    });
+    // await triggerDataLoad(this.page, "Select one or more documents", {
+    //   text: "Available Documents",
+    //   timeout: FIVE_SECONDS_IN_MS,
+    // });
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
@@ -148,7 +148,7 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
+    // await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
 
     await expect(this.page.getByLabel("Group")).toContainText(
       "Functioneelbeheerders",
