@@ -1230,7 +1230,6 @@ export class ZaakViewComponent
     $event.stopPropagation();
 
     this.websocketService.suspendListener(this.zaakTakenListener);
-      console.log('Assigning taak to logged in user:', taak.groep?.id);
     this.takenService
       .toekennenAanIngelogdeMedewerker({
         taakId: taak.id!,
