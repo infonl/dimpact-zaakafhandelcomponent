@@ -52,6 +52,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
+@Suppress("LargeClass")
 class PolicyServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
