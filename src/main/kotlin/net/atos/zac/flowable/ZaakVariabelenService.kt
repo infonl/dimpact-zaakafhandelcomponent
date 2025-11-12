@@ -32,7 +32,7 @@ open class ZaakVariabelenService @Inject constructor(
     companion object {
         const val VAR_ZAAK_UUID = "zaakUUID"
         const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
-        const val VAR_ZAAKTYPE_UUUID = "zaaktypeUUID"
+        const val VAR_ZAAKTYPE_UUID = "zaaktypeUUID"
         const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
         const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
         const val VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort"
@@ -46,7 +46,7 @@ open class ZaakVariabelenService @Inject constructor(
             VAR_ZAAK_IDENTIFICATIE,
             VAR_ZAAK_USER,
             VAR_ZAAK_GROUP,
-            VAR_ZAAKTYPE_UUUID,
+            VAR_ZAAKTYPE_UUID,
             VAR_ZAAKTYPE_OMSCHRIJVING,
             VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
             VAR_DATUMTIJD_OPGESCHORT,
@@ -74,7 +74,7 @@ open class ZaakVariabelenService @Inject constructor(
         readCaseVariable(planItemInstance, VAR_ZAAK_UUID) as UUID
 
     fun readZaaktypeUUID(planItemInstance: PlanItemInstance) =
-        readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUUID) as UUID
+        readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUID) as UUID
 
     fun findOntvangstbevestigingVerstuurd(zaakUUID: UUID): Boolean? =
         findCaseVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD)?.let {

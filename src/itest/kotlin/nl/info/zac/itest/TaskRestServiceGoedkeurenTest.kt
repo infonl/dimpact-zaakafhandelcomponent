@@ -15,13 +15,13 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_KOPPELEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
@@ -54,7 +54,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
                 }
@@ -64,7 +64,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            JSONArray(body.string()).getJSONObject(0).run {
+            JSONArray(bodyAsString).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
             }
         }
@@ -82,7 +82,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body.string()}" }
+            logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_NO_CONTENT
         }
 
@@ -99,7 +99,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = UUID.fromString(JSONObject(responseBody).getString("uuid"))
@@ -111,9 +111,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
             )
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the behandelen phase, so there should be four human task plan items
                 // of which the first one is 'Goedkeuren'
@@ -141,9 +141,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("a task is started for this zaak") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
@@ -153,9 +152,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the list with tasks for this zaak is returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 // only the 'Goedkeuren' task should be active
                 goedkeurenTaskId = JSONArray(responseBody).getJSONObject(0).getString("id").toInt()
             }
@@ -195,9 +194,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             )
 
             Then("the taak status should be set to 'AFGEROND'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
@@ -205,9 +204,9 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 val response = itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID"
                 )
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONObject(responseBody).getJSONArray("indicaties")[0] shouldBe "ONDERTEKEND"
             }
         }

@@ -18,12 +18,12 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_COORDINATORS
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
@@ -48,7 +48,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         val takenCreateResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
         ).let {
-            val responseBody = it.body.string()
+            val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
             it.code shouldBe HTTP_OK
             responseBody
@@ -61,7 +61,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             url = "$ZAC_API_URI/taken/complete",
             requestBodyAsString = patchedTakenData
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             responseBody
@@ -96,7 +96,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
               "type": "TAAK"
             }
         """.trimIndent()
-    ).body.string()
+    ).bodyAsString
 
     Given("A BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
@@ -108,7 +108,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             groupName = OLD_IAM_TEST_GROUP_A.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
             JSONObject(responseBody).run {
@@ -146,8 +146,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             }
 
             And("the zaak is still open and without result") {
-                zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
-                    val responseBody = response.body.string()
+                zacClient.retrieveZaak(bpmnZaakUuid).let { response ->
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -200,8 +200,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             }
 
             And("the zaak is closed and with result") {
-                zacClient.retrieveZaak(bpmnZaakUuid).use { response ->
-                    val responseBody = response.body.string()
+                zacClient.retrieveZaak(bpmnZaakUuid).let { response ->
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -217,7 +217,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {

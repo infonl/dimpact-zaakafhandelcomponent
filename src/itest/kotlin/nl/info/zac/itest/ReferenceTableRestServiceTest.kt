@@ -33,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 @Suppress("MagicNumber")
 @Order(TEST_SPEC_ORDER_INITIAL)
@@ -51,9 +52,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default reference tables are returned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -124,9 +125,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default afzenders"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
@@ -137,9 +138,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -172,9 +173,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 8
                     shouldContainInOrder(
@@ -199,9 +200,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """no domeinen should be returned because none are provisioned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -225,9 +226,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default domeinen are returned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 0
                 }
@@ -241,9 +242,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default server error texts"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
@@ -258,9 +259,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -284,9 +285,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default server error texts are returned including the added 'test'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 1
                     shouldContainInOrder(listOf("fakeServerErrorErrorPageText"))
@@ -308,9 +309,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -343,9 +344,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """

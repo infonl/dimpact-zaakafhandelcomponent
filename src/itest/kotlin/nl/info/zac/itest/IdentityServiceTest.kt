@@ -11,34 +11,111 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_1
-import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_2
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_1
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_1
-import nl.info.zac.itest.config.ItestConfiguration.COORDINATOR_2
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.COORDINATOR_2
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
+import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
+import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
+import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_2
+import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
+import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
-import nl.info.zac.itest.config.ItestConfiguration.GROUP_BEHEERDERS_ELK_DOMEIN
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_BEHANDELAAR_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_COORDINATOR_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_FUNCTIONAL_ADMIN_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_GROUP_DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RAADPLEGER_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_RECORD_MANAGER_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_DOMEIN_TEST_2
-import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_1
-import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_2
-import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_EN_BEHANDELAAR_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUPS_ALL
-import nl.info.zac.itest.config.ItestConfiguration.USER_WITHOUT_ANY_ROLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_BEHANDELAAR_1
+import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
+import nl.info.zac.itest.config.OLD_IAM_FUNCTIONAL_ADMIN_1
+import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
+import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
+import nl.info.zac.itest.config.OLD_IAM_RAADPLEGER_1
+import nl.info.zac.itest.config.OLD_IAM_RECORD_MANAGER_1
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_BEHANDELAARS
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_RAADPLEGERS
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_RECORD_MANAGERS
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_1
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_2
+import nl.info.zac.itest.config.RAADPLEGER_1
+import nl.info.zac.itest.config.RAADPLEGER_2
+import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
+import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import java.net.HttpURLConnection.HTTP_OK
+
+val TEST_GROUPS_ALL =
+    """
+            [
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.description}"
+                },
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.description}"
+                },
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_COORDINATORS.description}"
+                },
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}"
+                },
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.description}"
+                },
+                {
+                    "id": "${OLD_IAM_TEST_GROUP_A.name}",
+                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
+                },
+                {
+                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
+                },
+                {
+                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
+                },
+                {
+                    "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
+                    "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"
+                },
+                {
+                    "id": "${GROUP_RAADPLEGERS_TEST_2.name}",
+                    "naam": "${GROUP_RAADPLEGERS_TEST_2.description}"
+                },
+                {
+                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                },
+                {
+                    "id": "${GROUP_BEHANDELAARS_TEST_2.name}",
+                    "naam": "${GROUP_BEHANDELAARS_TEST_2.description}"
+                },
+                {
+                    "id": "${GROUP_COORDINATORS_TEST_1.name}",
+                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                },
+                {
+                    "id": "${GROUP_COORDINATORS_TEST_2.name}",
+                    "naam": "${GROUP_COORDINATORS_TEST_2.description}"
+                },
+                {
+                    "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
+                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                }
+            ]
+        """
 
 class IdentityServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
@@ -47,7 +124,7 @@ class IdentityServiceTest : BehaviorSpec({
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
-    Given("The ZAC Keycloak realm contains several groups") {
+    Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
         When("the 'list groups' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/groups"
@@ -55,8 +132,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "all groups are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -74,8 +151,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "only those groups which have the domain role are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJson """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
@@ -100,8 +177,8 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 "all groups are returned"
             ) {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
             }
         }
     }
@@ -112,8 +189,8 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/users"
             )
             Then("All specific users are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "${OLD_IAM_FUNCTIONAL_ADMIN_1.username}",
@@ -199,8 +276,8 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
             )
             Then("'testuser 1' and 'testuser 2' are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualJson """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualJson """
                         [
                             {
                                 "id": "${OLD_IAM_TEST_USER_1.username}",
@@ -227,8 +304,8 @@ class IdentityServiceTest : BehaviorSpec({
                 "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
             }
             Then("both groups are returned") {
-                response.isSuccessful shouldBe true
-                response.body.string() shouldEqualSpecifiedJsonIgnoringOrder """
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {
                                 "id": "${BEHEERDER_ELK_ZAAKTYPE.username}",
                                 "naam": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",

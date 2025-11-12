@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_5_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_6_IDENTIFICATION
@@ -85,7 +85,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document and uploaded file") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -163,7 +163,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and should contain information about the updates"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -214,7 +214,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     should have the status 'definitief' since it was signed
                     """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(responseBody) {
@@ -281,7 +281,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -328,7 +328,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     the response should be OK and the informatieobject should be converted from TXT to PDF
                     """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
@@ -338,7 +338,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
             )
             Then("the response should be OK and should contain information about the document converted to PDF") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -422,7 +422,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """

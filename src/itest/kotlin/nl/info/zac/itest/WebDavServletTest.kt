@@ -17,14 +17,14 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import okhttp3.Headers
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -57,9 +57,9 @@ class WebDavServletTest : BehaviorSpec({
             behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
             }
@@ -115,7 +115,7 @@ class WebDavServletTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
@@ -132,7 +132,7 @@ class WebDavServletTest : BehaviorSpec({
                 token for the uploaded Word document
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldStartWith "\"ms-word:http://localhost:8080/webdav/folder/"
@@ -149,23 +149,21 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
 
         When("a HEAD request is performed using the WebDAV token for the uploaded file") {
-            val response = itestHttpClient.performHeadRequest(
+            val responseCode = itestHttpClient.performHeadRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
                 // the WebDAV servlet does not require any authorization
                 addAuthorizationHeader = false
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                responseCode shouldBe HTTP_OK
             }
         }
     }

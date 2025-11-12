@@ -18,8 +18,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
@@ -29,10 +27,13 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.util.WebSocketTestListener
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,9 +55,9 @@ class TaskRestServiceTest : BehaviorSpec({
             Then(
                 """the list of taken for this zaak is returned and contains the expected task"""
             ) {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, and in a previous test two 'aanvullende informatie' tasks have been started
                 // for this zaak, so there should be two (identical) tasks in the list
@@ -98,9 +99,9 @@ class TaskRestServiceTest : BehaviorSpec({
             )
 
             Then("the taak has been updated successfully") {
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "update")
             }
@@ -142,7 +143,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the task is assigned correctly") {
-                val assignTasksResponseBody = assignTasksResponse.body.string()
+                val assignTasksResponseBody = assignTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 assignTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are assigned
@@ -191,7 +192,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the task is released correctly") {
-                val assignTasksResponseBody = releaseTasksResponse.body.string()
+                val assignTasksResponseBody = releaseTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 releaseTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are released

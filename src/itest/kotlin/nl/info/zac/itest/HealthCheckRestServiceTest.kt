@@ -9,6 +9,8 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
@@ -26,21 +28,31 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import java.net.HttpURLConnection.HTTP_OK
 
 class HealthCheckRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("Default communicatiekanalen referentietabel data is provisioned on startup") {
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given(
+        """
+            Default communicatiekanalen referentietabel data is provisioned on startup,
+            and a logged-in beheerder
+            """
+    ) {
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK with a response body 'true'") {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldBe "true"
             }
         }
@@ -51,13 +63,14 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/zaaktypes"
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("the response should be a 200 OK") {
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
-            responseBody shouldEqualJson """
+            And("the response body should contain all the performed checks") {
+                responseBody shouldEqualJson """
                     [
                       {
                         "aantalBehandelaarroltypen": 1,
@@ -176,9 +189,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         }
                       }
                     ]    
-            """.trimIndent()
-
-            And("the body contains all the performed checks") {
+                """.trimIndent()
             }
         }
     }

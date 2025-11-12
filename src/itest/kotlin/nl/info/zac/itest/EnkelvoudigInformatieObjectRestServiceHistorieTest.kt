@@ -17,7 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
@@ -33,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import java.net.HttpURLConnection.HTTP_OK
 
 @OptIn(ExperimentalKotest::class)
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
@@ -51,9 +52,9 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 val expectedResponse = """[
                   {

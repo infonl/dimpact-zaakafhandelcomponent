@@ -183,6 +183,16 @@ There are several useful flags that can be used to develop and debug [tests with
 
 ## Manual tests
 
+### Local test users
+
+Several local test users are provisioned in Keycloak when you run ZAC locally using our Docker Compose set-up.
+You can use these users to log in to ZAC when running it locally. 
+
+For all of these local test users the password is equal to the username.
+
+You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/docker-compose/imports/keycloak/realms/zaakafhandelcomponent-realm.json) 
+or in the set of [integration test user constants](../../src/itest/kotlin/nl/info/zac/itest/config/TestUsers.kt). 
+
 ### Using Postman
 
 Using [Postman](https://www.postman.com/) you can test ZAC by sending HTTP requests to the ZAC backend API.

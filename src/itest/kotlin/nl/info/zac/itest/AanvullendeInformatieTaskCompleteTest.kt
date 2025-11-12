@@ -11,10 +11,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
@@ -25,13 +28,17 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given("A zaak with one Aanvullende informatie task") {
+    beforeSpec {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+    }
+
+    Given("A zaak with one Aanvullende informatie task and a logged-in behandelaar") {
         val tasksResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
         )
-        val responseBody = tasksResponse.body.string()
+        val responseBody = tasksResponse.bodyAsString
         logger.info { "Response: $responseBody" }
-        tasksResponse.isSuccessful shouldBe true
+        tasksResponse.code shouldBe HTTP_OK
 
         val taskArray = JSONArray(responseBody)
 
@@ -46,18 +53,18 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
             )
 
             Then("the taken toelichting and status are updated") {
-                val responseBody = completeTaskResponse.body.string()
+                val responseBody = completeTaskResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
-                completeTaskResponse.isSuccessful shouldBe true
+                completeTaskResponse.code shouldBe HTTP_OK
                 responseBody.shouldContainJsonKeyValue("toelichting", "completed")
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
             And("the zaak status is set back to `Intake`") {
                 val response = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 responseBody.shouldContainJsonKeyValue("$.status.naam", "Intake")
             }

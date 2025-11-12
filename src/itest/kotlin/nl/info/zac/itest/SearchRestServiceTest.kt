@@ -10,9 +10,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
@@ -28,9 +28,7 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUU
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
@@ -55,8 +53,11 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 /**
  * Run this test after reindexing so that all the required data is available in the Solr index.
@@ -98,9 +99,9 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful and the search results include the indexed zaken, tasks and documents") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
 
                 // we only test on the total number of results and the filters, not on the actual results,
                 // to keep the test more or less maintainable
@@ -319,9 +320,9 @@ class SearchRestServiceTest : BehaviorSpec({
                    the response is successful and the search results include the indexed zaken for this zaaktype only
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",                     
@@ -420,9 +421,9 @@ class SearchRestServiceTest : BehaviorSpec({
                    about the information object type UUID
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -478,9 +479,9 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -545,9 +546,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
                     {
                         "foutmelding": "",
@@ -704,9 +705,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the expected search filters
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
@@ -780,9 +781,9 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",

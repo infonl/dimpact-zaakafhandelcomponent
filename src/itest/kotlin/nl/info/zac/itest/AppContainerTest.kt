@@ -9,11 +9,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.ItestConfiguration.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
+import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
@@ -22,7 +22,7 @@ class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     afterSpec {
-        // re-authenticate using beheerder user since currently all subsequent integration tests rely on this user being logged in
+        // re-authenticate using beheerder user since currently subsequent integration tests rely on this user being logged in
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
@@ -32,8 +32,8 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/health"
             )
             Then("the response should be ok and the status should be UP") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     shouldContainJsonKeyValue("status", "UP")
                 }
             }
@@ -43,8 +43,8 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/metrics"
             )
             Then("the response should be ok and the the uptime var should be present") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     contains("base_jvm_uptime_seconds").shouldBe(true)
                 }
             }

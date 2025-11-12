@@ -50,7 +50,7 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_UUID)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE)
-        countMissingVariable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID)
+        countMissingVariable(ZaakVariabelenService.VAR_ZAAKTYPE_UUID)
         countMissingVariable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING)
         return Response.noContent().build()
     }
@@ -60,11 +60,11 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
     fun logExistingZaaktypeUUID(): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         cmmnRuntimeService.createCaseInstanceQuery().variableExists(
-            ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+            ZaakVariabelenService.VAR_ZAAKTYPE_UUID
         ).list().forEach { caseInstance ->
             logVariable(
                 caseInstanceId = caseInstance.id,
-                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUID
             )
         }
         return Response.noContent().build()
@@ -76,11 +76,11 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
         cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(
-            ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+            ZaakVariabelenService.VAR_ZAAKTYPE_UUID
         ).list().forEach { caseInstance ->
             fixVariable(
                 caseInstanceId = caseInstance.id,
-                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUUID,
+                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUID,
                 value = zaaktypeUUID
             )
         }
@@ -93,11 +93,11 @@ class ZacCmmnAdminUtilRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         val zaaktypeUUID = UUID.fromString(zaaktypeUUIDString)
         cmmnRuntimeService.createCaseInstanceQuery().variableExists(
-            ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+            ZaakVariabelenService.VAR_ZAAKTYPE_UUID
         ).list().forEach { caseInstance ->
             fixVariable(
                 caseInstanceId = caseInstance.id,
-                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUUID,
+                variable = ZaakVariabelenService.VAR_ZAAKTYPE_UUID,
                 value = zaaktypeUUID
             )
         }

@@ -37,7 +37,6 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
@@ -48,6 +47,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -66,7 +66,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
             Then("the response should be a 200 HTTP response") {
                 response.code shouldBe HTTP_OK
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
             }
 
@@ -149,7 +149,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
             Then("the response should be a 200 HTTP response") {
                 response.code shouldBe HTTP_OK
-                responseBody = response.body.string()
+                responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
             }
 

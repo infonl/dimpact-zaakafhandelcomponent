@@ -15,7 +15,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
@@ -110,9 +109,9 @@ class ProjectConfig : AbstractProjectConfig() {
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = ZAC_HEALTH_READY_URL,
                     addAuthorizationHeader = false
-                ).use { response ->
+                ).let { response ->
                     response.code shouldBe HTTP_OK
-                    JSONObject(response.body.string()).getString("status") shouldBe "UP"
+                    JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }
