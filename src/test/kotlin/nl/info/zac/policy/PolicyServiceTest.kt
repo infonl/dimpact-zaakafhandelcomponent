@@ -7,6 +7,7 @@ package nl.info.zac.policy
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -361,7 +362,114 @@ class PolicyServiceTest : BehaviorSpec({
     }
 
     Context("Reading documentrechten") {
-        Given("unsigned information object and PABC feature flag disabled") {
+        Given("Unsigned information object and PABC feature flag enabled") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val userApplicationRolesForZaakType = setOf("fakeApplicationRole1", "fakeApplicationRole2")
+            val loggedInUser = createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(
+                    zaakType.omschrijving to userApplicationRolesForZaakType
+                )
+            )
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedDocumentRights
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { configuratieService.featureFlagPabcIntegration() } returns true
+
+            When("document policy rights are requested") {
+                val documentRights = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject,
+                    enkelvoudigInformatieObjectLock,
+                    zaak
+                )
+
+                Then("the correct data is sent to OPA") {
+                    documentRights shouldBe expectedDocumentRights
+
+                    verify(exactly = 1) {
+                        opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.documentData) {
+                        definitief shouldBe false
+                        vergrendeld shouldBe false
+                        ondertekend shouldBe false
+                        vergrendeldDoor shouldBe null
+                        zaaktype shouldBe zaakType.omschrijving
+                        zaakOpen shouldBe true
+                    }
+                    with(ruleQuerySlot.captured.input.user) {
+                        id shouldBe loggedInUser.id
+                        rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
+                        zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
+                    }
+                }
+            }
+        }
+
+        Given("signed and locked information object and PABC feature flag enabled") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val userApplicationRolesForZaakType = setOf("fakeApplicationRole1")
+            val loggedInUser = createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(
+                    zaakType.omschrijving to userApplicationRolesForZaakType
+                )
+            )
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject(locked = true).apply {
+                ondertekening = Ondertekening().apply {
+                    soort = SoortEnum.ANALOOG
+                    datum = LocalDate.now()
+                }
+            }
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every {
+                opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot))
+            } returns RuleResponse(expectedDocumentRights)
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { configuratieService.featureFlagPabcIntegration() } returns true
+
+            When("document policy rights are requested") {
+                val documentRights = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject,
+                    enkelvoudigInformatieObjectLock,
+                    zaak
+                )
+
+                Then("the correct data is sent to OPA") {
+                    documentRights shouldBe expectedDocumentRights
+
+                    verify(exactly = 1) {
+                        opaEvaluationClient.readDocumentRechten(any<RuleQuery<DocumentInput>>())
+                    }
+                    with(ruleQuerySlot.captured.input.documentData) {
+                        definitief shouldBe false
+                        vergrendeld shouldBe true
+                        ondertekend shouldBe true
+                        vergrendeldDoor shouldBe null
+                        zaaktype shouldBe zaakType.omschrijving
+                        zaakOpen shouldBe true
+                    }
+                    with(ruleQuerySlot.captured.input.user) {
+                        id shouldBe loggedInUser.id
+                        rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
+                        zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
+                    }
+                }
+            }
+        }
+
+        Given("Unsigned information object and PABC feature flag disabled") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
@@ -396,6 +504,11 @@ class PolicyServiceTest : BehaviorSpec({
                         vergrendeldDoor shouldBe null
                         zaaktype shouldBe zaakType.omschrijving
                         zaakOpen shouldBe true
+                    }
+                    with(ruleQuerySlot.captured.input.user) {
+                        id shouldBe loggedInUser.id
+                        rollen shouldBe loggedInUser.roles
+                        zaaktypen shouldBe loggedInUser.geautoriseerdeZaaktypen
                     }
                 }
             }
@@ -447,7 +560,7 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("readOverigeRechten") {
+    Context("Reading overige rechten") {
         val functionalRoles = setOf("fakeRole1", "fakeRole2")
 
         Given("A logged-in user with application roles per zaaktype with PABC integration enabled") {

@@ -16,5 +16,6 @@ data class DocumentInput(
     val featureFlagPabcIntegration: Boolean
 ) : UserInput(
     loggedInUser = loggedInUser,
+    zaaktype = documentData.zaaktype,
     featureFlagPabcIntegration = featureFlagPabcIntegration
 )
