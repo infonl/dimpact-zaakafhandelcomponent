@@ -51,7 +51,7 @@ export class ZaakafhandelParametersResolver {
           );
           const isBpmn = !!bpmnZaakafhandelParameters; // true if there is a matching BPMN process definition
           const isSavedZaakafhandelParameters =
-            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
+            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (group id initially null but set on save)
 
           return {
             zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
@@ -59,7 +59,7 @@ export class ZaakafhandelParametersResolver {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
             },
-            bpmnProcessDefinitions, // BPMN process definitions
+            bpmnProcessDefinitions,
             isBpmn,
             isSavedZaakafhandelParameters,
             featureFlagBpmnSupport,

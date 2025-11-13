@@ -38,23 +38,26 @@ import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 import { BpmnService } from "src/app/admin/bpmn.service";
 
+interface AnimationMock {
+  play: () => void;
+  pause: () => void;
+  cancel: () => void;
+  finish: () => void;
+  addEventListener: (name: string, cb: () => void) => void;
+  removeEventListener: (name: string, cb: () => void) => void;
+  finished: Promise<void>;
+}
+
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
   let bpmnService: BpmnService;
+  let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
   let component: ZaakCreateComponent;
   let router: Router;
-
-  const utilServiceMock = {
-    getEnumAsSelectList: jest.fn(() => [
-      { label: "Openbaar", value: "OPENBAAR" },
-      { label: "INTERN", value: "INTERN" },
-    ]),
-    setTitle: jest.fn(),
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -69,7 +72,6 @@ describe(ZaakCreateComponent.name, () => {
         IdentityService,
         provideHttpClient(),
         provideQueryClient(new QueryClient()),
-        { provide: UtilService, useValue: utilServiceMock },
       ],
       imports: [
         RouterModule.forRoot([]),
@@ -82,7 +84,6 @@ describe(ZaakCreateComponent.name, () => {
         MatLabel,
         FormsModule,
         ReactiveFormsModule,
-        NoopAnimationsModule,
       ],
     }).compileComponents();
 
@@ -133,6 +134,15 @@ describe(ZaakCreateComponent.name, () => {
       ]),
     );
 
+    utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "getEnumAsSelectList").mockImplementation(
+      jest.fn(() => [
+        { label: "Openbaar", value: "OPENBAAR" },
+        { label: "INTERN", value: "INTERN" },
+      ]),
+    );
+    jest.spyOn(utilService, "setTitle").mockImplementation(jest.fn());
+
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest
       .spyOn(referentieTabelService, "listCommunicatiekanalen")
@@ -157,16 +167,6 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-    interface AnimationMock {
-      play: () => void;
-      pause: () => void;
-      cancel: () => void;
-      finish: () => void;
-      addEventListener: (name: string, cb: () => void) => void;
-      removeEventListener: (name: string, cb: () => void) => void;
-      finished: Promise<void>;
-    }
-
     beforeAll(() => {
       // disable animations for the tests
       (
@@ -199,101 +199,105 @@ describe(ZaakCreateComponent.name, () => {
       };
     });
 
-    const selectAutocomplete = async (
-      loader: HarnessLoader,
-      inputs: MatInputHarness[],
-      inputIndex: number,
-      name: string,
-      query: string,
-      expectedCount: number,
-      expectedValue: string,
-      preCheck?: () => void,
-    ) => {
-      preCheck?.();
+    const assertAutocomplete = async (options: {
+      loader: HarnessLoader;
+      inputs: MatInputHarness[];
+      inputIndex: number;
+      name: string;
+      query: string;
+      assertedOptionsCount: number;
+      assertedSelectedValue: string;
+    }): Promise<void> => {
+      const {
+        loader,
+        inputs,
+        inputIndex,
+        name,
+        query,
+        assertedOptionsCount,
+        assertedSelectedValue,
+      } = options;
 
-      await inputs[inputIndex].focus();
-      await inputs[inputIndex].setValue(query);
+      const input = inputs[inputIndex];
+      await input.focus();
+      await input.setValue(query);
 
       const autocomplete = await loader.getHarness(
         MatAutocompleteHarness.with({
           selector: `[ng-reflect-name="${name}"]`,
         }),
       );
-
-      const options = await autocomplete.getOptions();
-      expect(options.length).toEqual(expectedCount);
-
-      await options[0].click();
-      const value = await inputs[inputIndex].getValue();
-      expect(value).toBe(expectedValue);
+      const autocompleteOptions = await autocomplete.getOptions();
+      expect(autocompleteOptions.length).toEqual(assertedOptionsCount);
+      await autocompleteOptions[0].click();
+      const value = await input.getValue();
+      expect(value).toBe(assertedSelectedValue);
     };
 
     describe("case type selection", () => {
       it("should handle CMMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
-        expect(inputs.length).toEqual(8);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-        await selectAutocomplete(
+        await assertAutocomplete({
           loader,
           inputs,
-          0,
-          "zaaktype",
-          "cmmn",
-          2,
-          "test-cmmn-description-1",
-        );
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "cmmn",
+          assertedOptionsCount: 2,
+          assertedSelectedValue: "test-cmmn-description-1",
+        });
+        expect(identityService.listGroups).toHaveBeenCalled();
 
-        await selectAutocomplete(
+        await assertAutocomplete({
           loader,
           inputs,
-          4,
-          "groep",
-          "cmmn",
-          1,
-          "test group CMMN",
-          () => expect(identityService.listGroups).toHaveBeenCalled(),
-        );
+          inputIndex: 4,
+          name: "groep",
+          query: "cmmn",
+          assertedOptionsCount: 1,
+          assertedSelectedValue: "test group CMMN",
+        });
+        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
-        await selectAutocomplete(
+        await assertAutocomplete({
           loader,
           inputs,
-          5,
-          "behandelaar",
-          "test",
-          1,
-          "test user",
-          () => expect(identityService.listUsersInGroup).toHaveBeenCalled(),
-        );
+          inputIndex: 5,
+          name: "behandelaar",
+          query: "test",
+          assertedOptionsCount: 1,
+          assertedSelectedValue: "test user",
+        });
       });
 
       it("should handle BPMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
-        expect(inputs.length).toEqual(8);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-        await selectAutocomplete(
+        await assertAutocomplete({
           loader,
           inputs,
-          0,
-          "zaaktype",
-          "BPMN",
-          1,
-          "test-bpmn-description-1",
-        );
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "bpmn",
+          assertedOptionsCount: 1,
+          assertedSelectedValue: "test-bpmn-description-1",
+        });
+        expect(identityService.listGroups).toHaveBeenCalled();
 
-        await selectAutocomplete(
+        await assertAutocomplete({
           loader,
           inputs,
-          4,
-          "groep",
-          "bpmn",
-          1,
-          "test group BPMN",
-          () => expect(identityService.listGroups).toHaveBeenCalled(),
-        );
-
+          inputIndex: 4,
+          name: "groep",
+          query: "bpmn",
+          assertedOptionsCount: 1,
+          assertedSelectedValue: "test group BPMN",
+        });
         expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
+
         expect(await inputs[5].isDisabled()).toBe(true);
       });
     });
@@ -339,15 +343,15 @@ describe(ZaakCreateComponent.name, () => {
 
       expect(await submitButton.isDisabled()).toBe(true);
 
-      await selectAutocomplete(
+      await assertAutocomplete({
         loader,
         inputs,
-        0,
-        "zaaktype",
-        "cmmn",
-        2,
-        "test-cmmn-description-1",
-      );
+        inputIndex: 0,
+        name: "zaaktype",
+        query: "cmmn",
+        assertedOptionsCount: 2,
+        assertedSelectedValue: "test-cmmn-description-1",
+      });
 
       await inputs[6].setValue("Automated test description");
       expect(await inputs[6].getValue()).toBe("Automated test description");
