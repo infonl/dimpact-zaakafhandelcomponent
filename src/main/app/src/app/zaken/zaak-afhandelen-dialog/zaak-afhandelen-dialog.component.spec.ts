@@ -332,6 +332,42 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     });
   });
 
+  describe("mail suffix logic", () => {
+    it("should show suffix in the dropdown options before selection", async () => {
+      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
+      await sendMailCheckbox.check();
+      fixture.detectChanges();
+
+      const selects = await loader.getAllHarnesses(MatSelectHarness);
+      const verzenderSelect = selects[1];
+
+      await verzenderSelect.open();
+      const options = await verzenderSelect.getOptions();
+      const optionText = await options[0].getText();
+
+      expect(optionText).toContain("test@example.com  Test Afzender");
+    });
+
+    it("should not show suffix in the select box when an afzender is selected", async () => {
+      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
+      await sendMailCheckbox.check();
+      fixture.detectChanges();
+
+      const selects = await loader.getAllHarnesses(MatSelectHarness);
+      const verzenderSelect = selects[1];
+
+      await verzenderSelect.open();
+      const options = await verzenderSelect.getOptions();
+      await options[0].click();
+      fixture.detectChanges();
+
+      const valueText = await verzenderSelect.getValueText();
+
+      expect(valueText).toBe("test@example.com");
+      expect(valueText).not.toContain("Test Afzender");
+    });
+  });
+
   describe("zaak afhandelen button visibility", () => {
     test.each([
       [
