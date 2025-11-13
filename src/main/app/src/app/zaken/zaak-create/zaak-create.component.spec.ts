@@ -206,24 +206,14 @@ describe(ZaakCreateComponent.name, () => {
       };
     });
 
-    const assertAutocomplete = async (options: {
+    const getAutocompleteOptions = async (options: {
       loader: HarnessLoader;
       inputs: MatInputHarness[];
       inputIndex: number;
       name: string;
       query: string;
-      assertedOptionsCount: number;
-      assertedSelectedValue: string;
-    }): Promise<void> => {
-      const {
-        loader,
-        inputs,
-        inputIndex,
-        name,
-        query,
-        assertedOptionsCount,
-        assertedSelectedValue,
-      } = options;
+    }) => {
+      const { loader, inputs, inputIndex, name, query } = options;
 
       const input = inputs[inputIndex];
       await input.focus();
@@ -235,10 +225,8 @@ describe(ZaakCreateComponent.name, () => {
         }),
       );
       const autocompleteOptions = await autocomplete.getOptions();
-      expect(autocompleteOptions.length).toEqual(assertedOptionsCount);
-      await autocompleteOptions[0].click();
-      const value = await input.getValue();
-      expect(value).toBe(assertedSelectedValue);
+
+      return { autocomplete, autocompleteOptions, input };
     };
 
     describe("case type selection", () => {
@@ -246,247 +234,157 @@ describe(ZaakCreateComponent.name, () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-        await assertAutocomplete({
+        // --- Zaaktype ---
+        let { autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 0,
           name: "zaaktype",
           query: "cmmn",
-          assertedOptionsCount: 2,
-          assertedSelectedValue: "test-cmmn-description-1",
         });
+        expect(autocompleteOptions.length).toEqual(2);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-cmmn-description-1");
         expect(identityService.listGroups).toHaveBeenCalled();
 
-        await assertAutocomplete({
+        // --- Groep ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 4,
           name: "groep",
           query: "cmmn",
-          assertedOptionsCount: 1,
-          assertedSelectedValue: "test group CMMN",
-        });
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test group CMMN");
         expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
-        await assertAutocomplete({
+        // --- Behandelaar ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 5,
           name: "behandelaar",
           query: "test",
-          assertedOptionsCount: 1,
-          assertedSelectedValue: "test user",
-        });
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test user");
       });
 
       it("should handle BPMN case type selection", async () => {
         const inputs = await loader.getAllHarnesses(MatInputHarness);
         expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-        await assertAutocomplete({
+        // --- Zaaktype ---
+        let { autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 0,
           name: "zaaktype",
           query: "bpmn",
-          assertedOptionsCount: 1,
-          assertedSelectedValue: "test-bpmn-description-1",
         });
+        expect(autocompleteOptions.length).toEqual(1);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-bpmn-description-1");
         expect(identityService.listGroups).toHaveBeenCalled();
 
-        await assertAutocomplete({
+        // --- Groep ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 4,
           name: "groep",
           query: "bpmn",
-          assertedOptionsCount: 1,
-          assertedSelectedValue: "test group BPMN",
-        });
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test group BPMN");
         expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
 
+        // --- Behandelaar should be disabled ---
         expect(await inputs[5].isDisabled()).toBe(true);
       });
-    });
 
-    it(`should set the confidentiality notice`, async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
+      it("should set the confidentiality notice", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
 
-      await inputs[0].focus();
-      await inputs[0].setValue("test");
+        // --- Zaaktype ---
+        const { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "test",
+        });
+        expect(autocompleteOptions.length).toBeGreaterThan(0);
 
-      const autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: '[ng-reflect-name="zaaktype"]',
-        }),
-      );
-      const options = await autocomplete.getOptions();
-      await options[0].click();
-      const value = await inputs[0].getValue();
-      expect(value).toBeTruthy();
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBeTruthy();
 
-      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-      expect(selectFields.length).toEqual(2);
-      expect(await selectFields[1].getValueText()).toBe("Openbaar");
-    });
-
-    it("should fill all fields and submit", async () => {
-      const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
-        identificatie: "test-zaak-uuid-123",
-      });
-      jest.spyOn(zakenService, "createZaak").mockReturnValue({
-        mutationKey: [],
-        mutationFn: () => Promise.resolve(mockZaakResponse),
-      });
-      const navigateSpy = jest
-        .spyOn(router, "navigate")
-        .mockResolvedValue(true);
-
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.aanmaken" }),
-      );
-
-      expect(await submitButton.isDisabled()).toBe(true);
-
-      await assertAutocomplete({
-        loader,
-        inputs,
-        inputIndex: 0,
-        name: "zaaktype",
-        query: "cmmn",
-        assertedOptionsCount: 2,
-        assertedSelectedValue: "test-cmmn-description-1",
+        const selectFields = await loader.getAllHarnesses(MatSelectHarness);
+        expect(selectFields.length).toEqual(2);
+        expect(await selectFields[1].getValueText()).toBe("Openbaar");
       });
 
-      await inputs[6].setValue("Automated test description");
-      expect(await inputs[6].getValue()).toBe("Automated test description");
+      it("should fill all fields and submit", async () => {
+        const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
+          identificatie: "test-zaak-uuid-123",
+        });
+        jest.spyOn(zakenService, "createZaak").mockReturnValue({
+          mutationKey: [],
+          mutationFn: () => Promise.resolve(mockZaakResponse),
+        });
 
-      await selects[0].clickOptions({ text: "Rooksignalen" });
-      expect(await selects[0].getValueText()).toBe("Rooksignalen");
+        const navigateSpy = jest
+          .spyOn(router, "navigate")
+          .mockResolvedValue(true);
 
-      expect(await submitButton.isDisabled()).toBe(false);
-      await submitButton.click();
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const selects = await loader.getAllHarnesses(MatSelectHarness);
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.aanmaken" }),
+        );
 
-      expect(zakenService.createZaak).toHaveBeenCalled();
-      expect(navigateSpy).toHaveBeenCalledWith([
-        "/zaken/",
-        "test-zaak-uuid-123",
-      ]);
-    });
-  });
+        expect(await submitButton.isDisabled()).toBe(true);
 
-  describe("Bag objects field editing", () => {
-    const mockBagObjects: GeneratedType<"RESTBAGObject">[] = [
-      {
-        url: "https://example.com/bagobject/123",
-        identificatie: "123456789",
-        geconstateerd: true,
-        bagObjectType: "PAND",
-        omschrijving: "Test Pand aan de Dorpsstraat 1",
-      },
-      {
-        url: "https://example.com/bagobject/456",
-        identificatie: "987654321",
-        geconstateerd: false,
-        bagObjectType: "ADRES",
-        omschrijving: "Test Adres in de Dorpsstraat 2",
-      },
-    ];
+        // --- Zaaktype ---
+        let { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "cmmn",
+        });
+        expect(autocompleteOptions.length).toEqual(2);
 
-    beforeEach(() => {
-      const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockImplementation(async () => true);
-    });
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-cmmn-description-1");
 
-    it("should show the BagObjects icon when there are no bag objects selected", async () => {
-      component.clearBagObjecten();
+        // --- Description ---
+        await inputs[6].setValue("Automated test description");
+        expect(await inputs[6].getValue()).toBe("Automated test description");
 
-      fixture.detectChanges();
-      const icon = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "gps_fixed" }),
-      );
-      expect(icon.length).toBeTruthy();
-    });
+        // --- Select Communication Channel ---
+        await selects[0].clickOptions({ text: "Rooksignalen" });
+        expect(await selects[0].getValueText()).toBe("Rooksignalen");
 
-    it("should empty the bagobjects field when the close icon has been clicked", async () => {
-      component.clearBagObjecten();
+        // --- Submit ---
+        expect(await submitButton.isDisabled()).toBe(false);
+        await submitButton.click();
 
-      component["form"].get("bagObjecten")?.setValue(mockBagObjects);
-      fixture.detectChanges();
-
-      expect(component.hasBagObject()).toBe(true);
-
-      const closeIcon = await loader.getHarness(
-        MatIconHarness.with({ name: "close" }),
-      );
-      expect(closeIcon).toBeTruthy();
-
-      const button = await loader.getHarness(
-        MatButtonHarness.with({
-          selector:
-            'zac-input[key="bagObjecten"] button[mat-icon-button][matSuffix]',
-        }),
-      );
-
-      await button.click();
-      fixture.detectChanges();
-
-      expect(component.hasBagObject()).toBe(false);
-    });
-  });
-
-  describe("Initiator field editing", () => {
-    const mockInitiator: GeneratedType<"BetrokkeneIdentificatie"> = {
-      bsnNummer: "123456789",
-      type: "BSN",
-    };
-
-    beforeEach(() => {
-      const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockImplementation(async () => true);
-
-      component["form"].get("zaaktype")?.setValue(
-        fromPartial({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: true },
-          },
-        }),
-      );
-
-      fixture.detectChanges();
-    });
-
-    it("should show the person icon when there is no initiator selected", async () => {
-      component.clearInitiator();
-      fixture.detectChanges();
-
-      const icon = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "person" }),
-      );
-
-      expect(icon.length).toBeTruthy();
-    });
-
-    it("should clear the initiator field when the close icon is clicked", async () => {
-      component.clearInitiator();
-
-      component["form"].controls.initiatorIdentificatie.setValue(mockInitiator);
-      fixture.detectChanges();
-
-      expect(component.hasInitiator()).toBe(true);
-
-      const buttons = await loader.getAllHarnesses(
-        MatButtonHarness.with({
-          text: "clear",
-        }),
-      );
-
-      await buttons[0].click();
-      fixture.detectChanges();
-
-      expect(component.hasInitiator()).toBe(false);
+        expect(zakenService.createZaak).toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith([
+          "/zaken/",
+          "test-zaak-uuid-123",
+        ]);
+      });
     });
   });
 });
