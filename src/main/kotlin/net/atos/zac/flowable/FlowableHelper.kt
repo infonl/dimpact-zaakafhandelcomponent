@@ -27,20 +27,19 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class FlowableHelper @Inject constructor(
-    private val zaakVariabelenService: ZaakVariabelenService,
-    private val taakVariabelenService: TaakVariabelenService,
-    private val zgwApiService: ZGWApiService,
-    private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZrcClientService,
-    private val eventingService: EventingService,
-    private val indexeerService: IndexingService,
-    private val identityService: IdentityService,
-    private val mailService: MailService,
-    private val mailTemplateService: MailTemplateService,
-    private val suspensionZaakHelper: SuspensionZaakHelper
+    val zaakVariabelenService: ZaakVariabelenService,
+    val taakVariabelenService: TaakVariabelenService,
+    val zgwApiService: ZGWApiService,
+    val ztcClientService: ZtcClientService,
+    val zrcClientService: ZrcClientService,
+    val eventingService: EventingService,
+    val indexeerService: IndexingService,
+    val identityService: IdentityService,
+    val mailService: MailService,
+    val mailTemplateService: MailTemplateService,
+    val suspensionZaakHelper: SuspensionZaakHelper
 ) {
-    companion object {
-        val instance: FlowableHelper?
-            get() = CDI.current().select<FlowableHelper?>(FlowableHelper::class.java).get()
+    companion object FlowableHelperFactory {
+        fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
     }
 }

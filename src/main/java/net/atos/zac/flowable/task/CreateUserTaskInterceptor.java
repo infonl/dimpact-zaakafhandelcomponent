@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.flowable.task;
 
+import static net.atos.zac.flowable.FlowableHelper.FlowableHelperFactory;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
 import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.SECONDS_TO_DELAY;
 
@@ -13,7 +13,6 @@ import java.util.UUID;
 import org.flowable.engine.interceptor.CreateUserTaskAfterContext;
 import org.flowable.engine.interceptor.CreateUserTaskBeforeContext;
 
-import net.atos.zac.flowable.FlowableHelper;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
 
@@ -35,7 +34,7 @@ public class CreateUserTaskInterceptor implements org.flowable.engine.intercepto
         final ScreenEvent screenEvent = ScreenEventType.ZAAK_TAKEN.updated(zaakUUID);
         // Wait some time before handling the event to make sure that the task has been created.
         screenEvent.setDelay(SECONDS_TO_DELAY);
-        FlowableHelper.getInstance().eventingService.send(screenEvent);
-        FlowableHelper.getInstance().getIndexeerService().addOrUpdateTaak(context.getTaskEntity().getId());
+        FlowableHelperFactory.getInstance().getEventingService().send(screenEvent);
+        FlowableHelperFactory.getInstance().getIndexeerService().addOrUpdateTaak(context.getTaskEntity().getId());
     }
 }
