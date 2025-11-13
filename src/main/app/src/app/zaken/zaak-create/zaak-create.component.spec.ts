@@ -108,18 +108,24 @@ describe(ZaakCreateComponent.name, () => {
           zaakafhandelparameters: {
             defaultGroepId: "test-cmmn-group-id",
             defaultBehandelaarId: "test-user-id",
+            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-1" },
           },
         }),
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-cmmn-zaaktype-2",
           omschrijving: "test-cmmn-description-2",
           vertrouwelijkheidaanduiding: "OPENBAAR",
+          zaakafhandelparameters: {
+            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-2" },
+          },
         }),
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-bpmn-zaaktype-1",
           omschrijving: "test-bpmn-description-1",
           vertrouwelijkheidaanduiding: "OPENBAAR",
-          zaakafhandelparameters: { defaultGroepId: "test-bpmn-group-id" },
+          zaakafhandelparameters: {
+            zaaktype: { uuid: "uuid-test-bpmn-zaaktype-1" },
+          },
         }),
       ]),
     );
@@ -129,7 +135,8 @@ describe(ZaakCreateComponent.name, () => {
       of([
         fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
           bpmnProcessDefinitionKey: "bpmn-process-1",
-          zaaktypeUuid: "test-bpmn-zaaktype-1",
+          groepNaam: "test-bpmn-group-id",
+          zaaktypeUuid: "uuid-test-bpmn-zaaktype-1",
         }),
       ]),
     );

@@ -142,6 +142,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
         this.form.controls.initiatorIdentificatie.enable();
       });
+
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
@@ -232,7 +233,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
     this.isBpmnCaseTypeSelected = !!this.bpmnCaseTypesConfigurations.find(
       ({ zaaktypeUuid }) =>
-        zaaktypeUuid === this.form.controls.zaaktype.value?.uuid,
+        zaaktypeUuid === zaakafhandelparameters?.zaaktype.uuid,
     );
   }
 
