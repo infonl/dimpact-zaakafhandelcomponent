@@ -18,7 +18,7 @@ The model consists of two main zaak states: `Intake` and `In behandeling` ('in p
 ![image](images/zac-generiek-cmmn-proces.png)
 
 Editing of the ZAC CMMN model is not supported for end-users because it is tightly integrated with the ZAC application code.
-When a ZAC developers needs to edit the CMMN model, they can use the online Flowable Designer (or edit the model file manually).
+When a ZAC developer needs to edit the CMMN model, they can use the online Flowable Designer (or edit the model file manually).
 
 ## BPMN process flows
 
