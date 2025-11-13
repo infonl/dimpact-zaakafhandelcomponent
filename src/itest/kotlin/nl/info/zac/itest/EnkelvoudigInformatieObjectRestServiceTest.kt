@@ -204,9 +204,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
                     }
                 """.trimIndent()
-                responseBody shouldContainJsonKey ("registratiedatumTijd")
-                responseBody shouldContainJsonKey ("identificatie")
-                responseBody shouldContainJsonKey ("uuid")
+                responseBody shouldContainJsonKey("registratiedatumTijd")
+                responseBody shouldContainJsonKey("identificatie")
+                responseBody shouldContainJsonKey("uuid")
             }
         }
         When("ondertekenInformatieObject endpoint is called") {
