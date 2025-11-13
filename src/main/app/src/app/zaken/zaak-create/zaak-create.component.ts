@@ -14,6 +14,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of, Subject, takeUntil } from "rxjs";
+import { BpmnService } from "src/app/admin/bpmn.service";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -28,7 +29,6 @@ import {
 } from "../../shared/utils/constants";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
-import { BpmnService } from "src/app/admin/bpmn.service";
 
 @Component({
   selector: "zac-zaak-create",
