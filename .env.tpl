@@ -45,9 +45,9 @@ KVK_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/KVK/API_CLIENT_MP_REST
 KVK_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/KVK/API_KEY
 # We use the Base2 system to calculate the max file size in bytes.
 MAX_FILE_SIZE_MB=80
-OBJECTS_API_CLIENT_MP_REST_URL=http://host.docker.internal:8010
+OBJECTS_API_CLIENT_MP_REST_URL=http://localhost:8010
 OBJECTS_API_TOKEN=fakeZacObjectsToken
-OBJECTTYPES_API_CLIENT_MP_REST_URL=http://host.docker.internal:8011
+OBJECTTYPES_API_CLIENT_MP_REST_URL=http://localhost:8011
 OBJECTTYPES_API_TOKEN=fakeZacObjectTypesToken
 OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:8083
 OPA_API_CLIENT_MP_REST_URL=http://localhost:8181
