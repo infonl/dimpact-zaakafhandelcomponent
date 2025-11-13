@@ -210,7 +210,7 @@ export class ZaakCreateComponent implements OnDestroy {
     )?.groepNaam;
 
     this.groups.subscribe((groups) => {
-      let selectedGroup = groups?.find(
+      const selectedGroup = groups?.find(
         ({ id }) =>
           id === zaakafhandelparameters?.defaultGroepId ||
           id === bpmnDefaultGroepId,
