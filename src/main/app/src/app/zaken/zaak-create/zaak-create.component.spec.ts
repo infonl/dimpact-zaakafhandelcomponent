@@ -13,7 +13,6 @@ import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
-import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
@@ -56,7 +55,6 @@ describe(ZaakCreateComponent.name, () => {
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
-  let component: ZaakCreateComponent;
   let router: Router;
 
   beforeEach(() => {
@@ -355,7 +353,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(await submitButton.isDisabled()).toBe(true);
 
         // --- Zaaktype ---
-        let { autocompleteOptions, input } = await getAutocompleteOptions({
+        const { autocompleteOptions, input } = await getAutocompleteOptions({
           loader,
           inputs,
           inputIndex: 0,
