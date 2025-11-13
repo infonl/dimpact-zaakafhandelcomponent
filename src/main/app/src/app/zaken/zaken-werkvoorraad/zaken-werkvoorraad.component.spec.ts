@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ZakenWerkvoorraadComponent } from './zaken-werkvoorraad.component';
 import { MatDialog } from '@angular/material/dialog';
