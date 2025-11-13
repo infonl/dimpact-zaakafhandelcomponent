@@ -20,7 +20,7 @@ On submitting this form Open Formulieren creates a product request using the fol
    1. The completed form is saved as a PDF document in the ZGW document management system used (typically Open Zaak).
    2. Any uploaded attachments in the form are also saved as separate documents in Open Zaak.
    3. The content of the form is also saved in a structured format (JSON) as _Product Request_ in Objecten.
-      1. The BSN obtained via DigiD from the citizen or KVK data in case of a company is also stored in the productaanvraag.
+      1. The BSN obtained via DigiD from the citizen or KVK data in case of a company is also stored in the product request.
    Creating the Product Request object in Objecten ensures that a notification is sent to Open Notifications.
    Note that Open Formulieren does not make a request to Objecttypes in this scenario.
 2. ZAC has a subscription to these Product Request notifications, which means that Open Notifications forwards the notification to ZAC.
