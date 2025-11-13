@@ -44,6 +44,18 @@
       "name": "coordinator_domein_test_1"
     },
     {
+      "id": "40f74042-a67a-46e6-9fbc-2db766447681",
+      "name": "coordinator_domein_test_2"
+    },
+    {
+      "id": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "name": "recordmanager_domein_test_1"
+    },
+    {
+      "id": "5da252cc-0617-4227-96bb-c67cde2b9f68",
+      "name": "recordmanager_domein_test_2"
+    },
+    {
       "id": "34567890-abcd-ef12-3456-7890abcdef12",
       "name": "recordmanager_domein_test_1_en_domein_test_2"
     },
@@ -210,6 +222,34 @@
       "id": "a87ed914-096f-4d73-82de-ef87c033adb8",
       "functionalRoleId": "34567890-abcd-ef12-3456-7890abcdef12",
       "domainId": "d3e4f5a6-b7c8-9d0e-1f2a-b3c4d5e6f7a8",
+      "applicationRoleId": "2a7cfd79-bf3c-4f86-8a45-2aedd2b2ba0e",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "5e54028f-f0cd-42ff-a04a-e361d7f5a7ad",
+      "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "003591ad-c6c8-4107-8877-9579c5e27982",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "8fa77bb8-105a-4985-8272-9ad6d317ab57",
+      "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "a43e878d-a08f-4102-9d6c-9aa58299581b",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "6600c6ac-e2f3-4a04-98e4-078065d9e887",
+      "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "03dc5977-e99d-4b39-a7c1-6a5ceb16a574",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "01b8caf6-3d33-45f1-9365-b032a9b8d861",
+      "functionalRoleId": "3c2b877f-75f9-4275-86d9-81f9a779ce30",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
       "applicationRoleId": "2a7cfd79-bf3c-4f86-8a45-2aedd2b2ba0e",
       "isAllEntityTypes": false
     },

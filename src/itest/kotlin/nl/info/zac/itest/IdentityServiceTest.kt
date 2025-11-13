@@ -24,6 +24,8 @@ import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_2
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
+import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
+import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -34,7 +36,7 @@ import nl.info.zac.itest.config.OLD_IAM_FUNCTIONAL_ADMIN_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
 import nl.info.zac.itest.config.OLD_IAM_RAADPLEGER_1
-import nl.info.zac.itest.config.OLD_IAM_RECORD_MANAGER_1
+import nl.info.zac.itest.config.OLD_IAM_RECORDMANAGER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_BEHANDELAARS
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
@@ -48,6 +50,8 @@ import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_2
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RAADPLEGER_2
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -109,6 +113,14 @@ val TEST_GROUPS_ALL =
                 {
                     "id": "${GROUP_COORDINATORS_TEST_2.name}",
                     "naam": "${GROUP_COORDINATORS_TEST_2.description}"
+                },
+                {
+                    "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
+                },
+                {
+                    "id": "${GROUP_RECORDMANAGERS_TEST_2.name}",
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}"
                 },
                 {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
@@ -197,8 +209,8 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${OLD_IAM_FUNCTIONAL_ADMIN_1.displayName}"
                                 },
                                 {
-                                    "id": "${OLD_IAM_RECORD_MANAGER_1.username}",
-                                    "naam": "${OLD_IAM_RECORD_MANAGER_1.displayName}"
+                                    "id": "${OLD_IAM_RECORDMANAGER_1.username}",
+                                    "naam": "${OLD_IAM_RECORDMANAGER_1.displayName}"
                                 },
                                 {
                                     "id": "${OLD_IAM_COORDINATOR_1.username}",
@@ -235,6 +247,14 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${COORDINATOR_2.username}",
                                     "naam": "${COORDINATOR_2.displayName}"
+                                },
+                                {
+                                    "id": "${RECORDMANAGER_1.username}",
+                                    "naam": "${RECORDMANAGER_1.displayName}"
+                                },
+                                {
+                                    "id": "${RECORDMANAGER_2.username}",
+                                    "naam": "${RECORDMANAGER_2.displayName}"
                                 },
                                 {
                                     "id": "${BEHEERDER_1.username}",
