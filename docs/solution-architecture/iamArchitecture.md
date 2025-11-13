@@ -122,7 +122,7 @@ data types used within each component is illustrated in the following diagram.
 Note that this is a simplified overview.
 
 - A '*' indicates that the current component is the source of a data type.
-- The arrows indicate dependencies, not flow of data.
+- The arrows indicate API calls/data flows between components.
 
 ```mermaid
 block-beta
