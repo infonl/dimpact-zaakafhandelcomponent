@@ -252,8 +252,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
                     }
                 """.trimIndent()
-                responseBody shouldContainJsonKey ("uuid")
-                responseBody shouldContainJsonKey ("bestandsnaam")
+                responseBody shouldContainJsonKey("uuid")
+                responseBody shouldContainJsonKey("bestandsnaam")
             }
         }
         When(
