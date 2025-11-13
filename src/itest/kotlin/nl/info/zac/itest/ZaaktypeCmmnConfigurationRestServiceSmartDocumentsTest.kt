@@ -10,6 +10,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_NAME
@@ -41,6 +43,10 @@ import java.net.HttpURLConnection.HTTP_OK
 class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
 
     Given("ZAC Docker container is running and zaaktypeCmmnConfiguration have been created") {
         When("the list SmartDocuments templates endpoint is called") {

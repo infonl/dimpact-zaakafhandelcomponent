@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.urlEncode
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -54,7 +55,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to "dummyAuthor"
+                        "author" to FAKE_AUTHOR_NAME
                     )
                 ).toString()
             )
@@ -85,7 +86,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to "dummyAuthor",
+                        "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
