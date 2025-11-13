@@ -35,7 +35,7 @@ After receiving the notification of creating a new Product Request, the followin
    6. The BSN or Chamber of Commerce number from the Product Request is used to link a Role of the type Applicant to the zaak. The BSN or establishment number is stored with the Role.
    7. A CMMN Case or BPMN process is started for the zaak.
       1. If a CMMN mapping for the Product Request type exists (via zaak handling parameters), a CMMN Case is started for the zaak.
-      2. if a BPMN mapping for the Product Request type exists (via a configured BPMN process for the zaak type), a BPMN process is started for the zaak.
+      2. If a BPMN mapping for the Product Request type exists (via a configured BPMN process for the zaak type), a BPMN process is started for the zaak.
       3. If both CMMN and BPMN are defined for the same Product Request type, CMMN takes precedence: the CMMN Case is started, and the BPMN mapping is ignored (a warning is logged).
 
 
