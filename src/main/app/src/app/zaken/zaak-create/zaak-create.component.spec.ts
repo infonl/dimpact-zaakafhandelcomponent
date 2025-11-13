@@ -54,6 +54,7 @@ describe(ZaakCreateComponent.name, () => {
   let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
+  let component: ZaakCreateComponent;
   let loader: HarnessLoader;
   let router: Router;
 
@@ -169,6 +170,9 @@ describe(ZaakCreateComponent.name, () => {
     fixture = TestBed.createComponent(ZaakCreateComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
