@@ -64,8 +64,8 @@ eclipse-yasson = "3.0.4"
 kotest = "5.9.1"
 mockk = "1.14.6"
 
-testcontainers = "2.0.1"
-testcontainers-mockserver = "2.0.1"
+testcontainers = "2.0.2"
+testcontainers-mockserver = "2.0.2"
 testcontainers-postgresql = "1.21.3"
 
 json-json = "20250517"
