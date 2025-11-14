@@ -13,7 +13,7 @@ help()
    echo "Syntax: $0 [-u|o|k|h]"
    echo "options:"
    echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
-   echo "-o     Base Objecten API URL. Defaults to 'http://localhost:8010'"
+   echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
    echo "-h     Print this help."
    echo
@@ -26,7 +26,7 @@ echoerr() {
 }
 
 zacBaseURL="http://localhost:8080"
-objectenAPIURL="http://localhost:8010"
+objectenAPIURL="http://host.docker.internal:8010"
 openNotificatiesApiSecretKey="openNotificatiesApiSecretKey"
 
 while getopts 'u:o:k:h' OPTION; do
@@ -56,8 +56,8 @@ curl --silent --show-error --fail "$objectenAPIURL"/api/v2 > /dev/null
 notification="{
   \"kanaal\": \"objecten\",
   \"resource\": \"object\",
-  \"resourceUrl\": \"$objectenAPIURL/9dbed186-89ca-48d7-8c6c-f9995ceb8e27\",
-  \"hoofdObject\": \"$objectenAPIURL/9dbed186-89ca-48d7-8c6c-f9995ceb8e27\",
+  \"resourceUrl\": \"$objectenAPIURL/7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e\",
+  \"hoofdObject\": \"$objectenAPIURL/7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e\",
   \"actie\": \"create\",
   \"aanmaakdatum\": \"$(date +'%Y-%m-%dT%H:%M:%S.000000Z[Europe/Amsterdam]')\",
   \"kenmerken\": {
