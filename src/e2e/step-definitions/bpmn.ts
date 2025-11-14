@@ -134,15 +134,9 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    // await triggerDataLoad(this.page, "Select one or more documents", {
-    //   text: "Available Documents",
-    //   timeout: FIVE_SECONDS_IN_MS,
-    // });
-    const combobox = this.page.getByRole("combobox", {
+    await this.page.getByRole("searchbox", {
         name: "Select one or more documents",
-    })
-    await combobox.click();
-    await combobox.press("ArrowDown");
+    }).fill(documentName)
     
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
