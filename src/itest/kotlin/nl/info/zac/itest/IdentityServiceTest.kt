@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.OLD_IAM_BEHANDELAAR_1
 import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
 import nl.info.zac.itest.config.OLD_IAM_FUNCTIONAL_ADMIN_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
+import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
 import nl.info.zac.itest.config.OLD_IAM_RAADPLEGER_1
 import nl.info.zac.itest.config.OLD_IAM_RECORDMANAGER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
@@ -84,7 +85,11 @@ val TEST_GROUPS_ALL =
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
-                },           
+                },                   
+                {
+                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
+                },        
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"

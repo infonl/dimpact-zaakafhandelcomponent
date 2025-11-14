@@ -19,7 +19,6 @@ import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM

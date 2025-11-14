@@ -15,7 +15,6 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
@@ -64,7 +63,6 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag3Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraagComboUuid
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
