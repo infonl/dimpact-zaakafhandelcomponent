@@ -218,15 +218,15 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       "functioneelbeheerder2",
     );
-    await expect(this.page.getByRole("combobox")).toContainText("file A", {
+    await expect(this.page.getByRole("option", { name: "file A"})).toBeVisible({
       timeout: FORTY_SECOND_IN_MS,
     });
-    await expect(this.page.getByRole("combobox")).toContainText("file B", {
+  await expect(this.page.getByRole("option", { name: "file B"})).toBeVisible({
       timeout: FORTY_SECOND_IN_MS,
-    });
-    await expect(
-      this.page.getByRole("listbox", { name: "Reference table value" }),
-    ).toHaveValue("E-mail");
+  });
+  await expect(this.page.getByRole("option", { name: "E-mail"})).toBeVisible({
+      timeout: FORTY_SECOND_IN_MS,
+  });
   },
 );
 
