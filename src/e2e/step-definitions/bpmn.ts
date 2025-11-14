@@ -138,6 +138,12 @@ Then(
     //   text: "Available Documents",
     //   timeout: FIVE_SECONDS_IN_MS,
     // });
+    const combobox = this.page.getByRole("combobox", {
+        name: "Select one or more documents",
+    })
+    await combobox.click();
+    await combobox.press("ArrowDown");
+    
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
