@@ -10,7 +10,7 @@ import { ZacHttpClient } from "../shared/http/zac-http-client";
 @Injectable({
   providedIn: "root",
 })
-export class ProcessDefinitionsService {
+export class BpmnService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listProcessDefinitions() {
@@ -25,5 +25,9 @@ export class ProcessDefinitionsService {
     return this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
       path: { key },
     });
+  }
+
+  listbpmnProcessConfigurations() {
+    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
   }
 }

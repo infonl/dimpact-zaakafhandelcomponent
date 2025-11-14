@@ -14,6 +14,8 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of, Subject, takeUntil } from "rxjs";
+import { BpmnService } from "src/app/admin/bpmn.service";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -46,6 +48,10 @@ export class ZaakCreateComponent implements OnDestroy {
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
+  protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
+    [];
+  protected isBpmnCaseTypeSelected = false;
+
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
@@ -56,7 +62,7 @@ export class ZaakCreateComponent implements OnDestroy {
     ...this.zakenService.createZaak(),
     onSuccess: ({ identificatie }) =>
       this.router.navigate(["/zaken/", identificatie]),
-    onError: () => this.form.reset(),
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
   }));
 
   protected readonly form = this.formBuilder.group({
@@ -88,14 +94,17 @@ export class ZaakCreateComponent implements OnDestroy {
 
   constructor(
     private readonly zakenService: ZakenService,
+    private readonly bpmnService: BpmnService,
+
     private readonly router: Router,
     private readonly klantenService: KlantenService,
-    referentieTabelService: ReferentieTabelService,
+    private readonly referentieTabelService: ReferentieTabelService,
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
     private readonly identityService: IdentityService,
     private readonly navigationService: NavigationService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
@@ -103,6 +112,10 @@ export class ZaakCreateComponent implements OnDestroy {
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
+
+    this.bpmnService.listbpmnProcessConfigurations().subscribe((configs) => {
+      this.bpmnCaseTypesConfigurations = configs;
+    });
 
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -129,14 +142,17 @@ export class ZaakCreateComponent implements OnDestroy {
 
         this.form.controls.initiatorIdentificatie.enable();
       });
+
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        if (!value) {
+        if (!value || this.isBpmnCaseTypeSelected) {
+          // for BPMB cases, the process itself sets the behandelaar
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
         }
+
         identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
@@ -183,14 +199,23 @@ export class ZaakCreateComponent implements OnDestroy {
 
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
+
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
+
     this.groups = this.identityService.listGroups(caseType.uuid);
 
+    const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
+      ({ zaaktypeUuid }) => zaaktypeUuid === caseType.uuid,
+    )?.groepNaam;
+
     this.groups.subscribe((groups) => {
-      this.form.controls.groep.setValue(
-        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
+      const selectedGroup = groups?.find(
+        ({ id }) =>
+          id === zaakafhandelparameters?.defaultGroepId ||
+          id === bpmnDefaultGroepId,
       );
+      this.form.controls.groep.setValue(selectedGroup);
     });
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
@@ -205,6 +230,11 @@ export class ZaakCreateComponent implements OnDestroy {
     ) {
       this.form.controls.initiatorIdentificatie.setValue(null);
     }
+
+    this.isBpmnCaseTypeSelected = !!this.bpmnCaseTypesConfigurations.find(
+      ({ zaaktypeUuid }) =>
+        zaaktypeUuid === zaakafhandelparameters?.zaaktype.uuid,
+    );
   }
 
   protected async openSideNav(action: string) {
