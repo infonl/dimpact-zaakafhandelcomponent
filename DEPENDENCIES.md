@@ -27,7 +27,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **open-klant**: 2.9.0
 - **open-notificaties**: 1.10.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 0.0.1-rc.4
+- **pabc-migrations**: 0.0.1-rc.5
 - **pabc-api**: 0.0.1-rc.4
 
 ## Update Process
