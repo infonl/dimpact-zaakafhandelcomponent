@@ -1234,7 +1234,7 @@ export class ZaakViewComponent
       .toekennenAanIngelogdeMedewerker({
         taakId: taak.id!,
         zaakUuid: taak.zaakUuid,
-        groepId: null as unknown as string,
+        groepId: taak.groep!.id!,
       })
       .subscribe((returnTaak) => {
         taak.behandelaar = returnTaak.behandelaar;

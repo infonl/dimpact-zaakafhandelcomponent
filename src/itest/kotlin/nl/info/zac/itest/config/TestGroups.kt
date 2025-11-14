@@ -35,6 +35,14 @@ val GROUP_COORDINATORS_TEST_2 = TestGroup(
     name = "coordinators-test-2",
     description = "coordinators-test-2"
 )
+val GROUP_RECORDMANAGERS_TEST_1 = TestGroup(
+    name = "recordmanagers-test-1",
+    description = "recordmanagers-test-1"
+)
+val GROUP_RECORDMANAGERS_TEST_2 = TestGroup(
+    name = "recordmanagers-test-2",
+    description = "recordmanagers-test-2"
+)
 val GROUP_BEHEERDERS_ELK_DOMEIN = TestGroup(
     name = "beheerders-elk-domein",
     description = "beheerders-elk-domein"

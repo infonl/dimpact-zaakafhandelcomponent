@@ -207,15 +207,6 @@ export class ZaakAfhandelenDialogComponent {
     this.formGroup.controls.ontvanger.setValue(this.initiatorEmail ?? null);
   }
 
-  protected afzenderOptionDisplayValue(
-    afzender: GeneratedType<"RestZaakAfzender">,
-  ) {
-    const suffix = afzender.suffix
-      ? ` ${this.translateService.instant(afzender.suffix)}`
-      : "";
-    return `${afzender.mail}${suffix}`;
-  }
-
   protected openBesluitVastleggen() {
     this.dialogRef.close("openBesluitVastleggen");
   }

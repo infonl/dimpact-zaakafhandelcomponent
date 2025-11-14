@@ -18,6 +18,7 @@ import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
@@ -93,7 +94,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to "dummyAuthor"
+                        "author" to FAKE_AUTHOR_NAME
                     )
                 ).toString()
             )
@@ -125,7 +126,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to "dummyAuthor",
+                        "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()

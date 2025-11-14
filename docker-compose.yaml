@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -67,6 +67,8 @@ services:
       - ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_2_EMAIL_ADDRESS:-behandelaar-test-2@example.com}
       - ZAC_COORDINATOR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_TEST_1_EMAIL_ADDRESS:-coordinator-test-1@example.com}
       - ZAC_COORDINATOR_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_TEST_2_EMAIL_ADDRESS:-coordinator-test-2@example.com}
+      - ZAC_RECORDMANAGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_1_EMAIL_ADDRESS:-recordmanager-test-1@example.com}
+      - ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_2_EMAIL_ADDRESS:-recordmanager-test-2@example.com}
       - ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHEERDER_TEST_1_EMAIL_ADDRESS:-beheerder-test-1@example.com}
       - ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-raadpleger-en-behandelaar-test-1@example.com}
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
@@ -82,6 +84,8 @@ services:
       - ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS:-test-group-behandelaars-test-2@example.com}
       - ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS:-test-group-coordinators-test-1@example.com}
       - ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS:-test-group-coordinators-test-2@example.com}
+      - ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS:-test-group-recordmanagers-test-1@example.com}
+      - ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS:-test-group-recordmanagers-test-2@example.com}
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
@@ -243,7 +247,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.9.0-slim@sha256:0ef1dd94cb9255011b7e58cb56137bd68e52021bc7eb66be45ef458acfb8478a
+    image: docker.io/solr:9.10.0-slim@sha256:8c3e4e80cee82478bac8a9132f640c5036fc80221d94bb1bf29c6309025ba260
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -284,7 +288,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -690,7 +694,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -735,7 +739,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
     platform: linux/amd64
     ports:
       - "54320:5432"

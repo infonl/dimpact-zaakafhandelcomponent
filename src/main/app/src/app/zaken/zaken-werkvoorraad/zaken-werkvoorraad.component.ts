@@ -240,7 +240,7 @@ export class ZakenWerkvoorraadComponent
       this.ingelogdeMedewerker?.id !==
         zaakZoekObject.behandelaarGebruikersnaam &&
       Boolean(
-        this.ingelogdeMedewerker?.groupIds?.indexOf(zaakZoekObject.groepId),
+        this.ingelogdeMedewerker?.groupIds?.includes(zaakZoekObject.groepId),
       )
     );
   }
