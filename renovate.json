@@ -49,7 +49,7 @@
       ],
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+)"
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)"
     },
     {
       "customType": "regex",
