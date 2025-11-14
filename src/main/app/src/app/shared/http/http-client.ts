@@ -6,6 +6,7 @@
 import { HttpClient as AngularHttp, HttpHeaders } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { FetchOptions, FetchResponse } from "openapi-fetch";
+import { v4 as uuidv4 } from "uuid";
 import type {
   FilterKeys,
   HttpMethod,
@@ -221,11 +222,18 @@ export class HttpClient {
   ): Parameters<typeof this.http.get>[1] {
     const result: Parameters<typeof this.http.get>[1] = {};
 
+    // Generate unique request ID for tracing
+    const requestId = uuidv4();
+    const headersConfig: Record<string, string> = {
+      "X-Request-ID": requestId,
+    };
+
+    // Merge with any existing headers from parameters
     if (parameters && "header" in parameters && parameters.header) {
-      result.headers = new HttpHeaders(
-        parameters.header as Record<string, string>,
-      );
+      Object.assign(headersConfig, parameters.header);
     }
+
+    result.headers = new HttpHeaders(headersConfig);
 
     if (parameters && "responseType" in parameters && parameters.responseType) {
       result.responseType = parameters.responseType as "json";

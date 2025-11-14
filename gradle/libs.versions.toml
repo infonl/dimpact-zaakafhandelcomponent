@@ -57,6 +57,7 @@ eclipse-microprofile-fault-tolerance-api = "4.1.2"
 hibernate-validator = "8.0.3.Final"
 jakarta-jakartaee = "10.0.0"
 jboss-resteasy-multipart-provider = "6.2.14.Final"
+jboss-logging = "3.6.1.Final"
 wildfly-security-elytron-http-oidc = "2.7.0.Final"
 # ~Versions of dependencies provided by Wildfly.
 
@@ -138,6 +139,7 @@ eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.f
 hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
 jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
 jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider", version.ref = "jboss-resteasy-multipart-provider" }
+jboss-logging = { group = "org.jboss.logging", name = "jboss-logging", version.ref = "jboss-logging" }
 wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc", version.ref = "wildfly-security-elytron-http-oidc" }
 # ~dependencies provided by Wildfly
 
