@@ -53,15 +53,11 @@ class SuspensionZaakHelper @Inject constructor(
         assertPolicy(zaak.isOpgeschort())
 
         val zaakUUID = zaak.uuid
-        val dateSuspended = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) ?: ZonedDateTime.now()
-        require(
-            // Check if resume happened on the same day as the suspension
-            resumeDate.toLocalDate().isEqual(dateSuspended.toLocalDate()) ||
-                // or resume happened after the suspension
-                resumeDate.isAfter(dateSuspended)
-        ) {
-            "Resume date $resumeDate must be on the same date or after suspension date $dateSuspended"
-        }
+        val dateSuspended = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid)?.also {
+            require(resumeDate.isAfter(it)) {
+                "Resume date $resumeDate cannot be before suspension date $it"
+            }
+        } ?: ZonedDateTime.now()
         val expectedDaysSuspended = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) ?: 0
         val daysSinceSuspended = ChronoUnit.DAYS.between(dateSuspended, resumeDate)
         val offset = daysSinceSuspended - expectedDaysSuspended
