@@ -26,7 +26,8 @@ import nl.info.zac.util.NoArgConstructor
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-data class FlowableHelper @Inject constructor(
+@Suppress("LongParameterList")
+class FlowableHelper @Inject constructor(
     val zaakVariabelenService: ZaakVariabelenService,
     val taakVariabelenService: TaakVariabelenService,
     val zgwApiService: ZGWApiService,
