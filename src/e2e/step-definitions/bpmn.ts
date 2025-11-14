@@ -5,7 +5,6 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import playwright from "playwright";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -107,10 +106,12 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await this.page.getByRole("searchbox", {
+    await this.page
+      .getByRole("searchbox", {
         name: "Select one or more documents",
-    }).fill(documentName)
-    
+      })
+      .fill(documentName);
+
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
@@ -148,7 +149,7 @@ When(
       .getByRole("option", { name: "file A", exact: true })
       .click();
     await this.page
-       .getByRole("option", { name: "file B", exact: true })
+      .getByRole("option", { name: "file B", exact: true })
       .click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
     await this.page.getByLabel("Select result").click();
@@ -218,15 +219,21 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       "functioneelbeheerder2",
     );
-    await expect(this.page.getByRole("option", { name: "file A"})).toBeVisible({
-      timeout: FORTY_SECOND_IN_MS,
-    });
-  await expect(this.page.getByRole("option", { name: "file B"})).toBeVisible({
-      timeout: FORTY_SECOND_IN_MS,
-  });
-  await expect(this.page.getByRole("option", { name: "E-mail"})).toBeVisible({
-      timeout: FORTY_SECOND_IN_MS,
-  });
+    await expect(this.page.getByRole("option", { name: "file A" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "file B" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
   },
 );
 
