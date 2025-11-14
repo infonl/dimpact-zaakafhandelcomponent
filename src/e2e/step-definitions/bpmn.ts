@@ -225,7 +225,7 @@ Then(
       timeout: FORTY_SECOND_IN_MS,
     });
     await expect(
-      this.page.getByRole("textbox", { name: "Reference table value" }),
+      this.page.getByRole("listbox", { name: "Reference table value" }),
     ).toHaveValue("E-mail");
   },
 );

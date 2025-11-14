@@ -44,15 +44,25 @@
               "shouldSort": false
             }
           },
-          "disabled": true
+          "disabled": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_documenten"
+          }
         },
         {
           "label": "Reference table value",
           "labelPosition": "left-left",
-          "type": "textfield",
+          "type": "select",
           "key": "RT_ReferenceTable_Values",
           "input": false,
-          "disabled": true
+          "disabled": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
         },
         {
           "label": "Zaak Result",
