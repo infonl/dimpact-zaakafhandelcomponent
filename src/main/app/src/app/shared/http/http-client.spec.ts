@@ -42,6 +42,24 @@ describe(HttpClient.name, () => {
   });
 
   describe(HttpClient.prototype.GET.name, () => {
+    it("Adds X-Request-ID header to all requests", (done) => {
+      httpclient
+        .GET("/rest/bag/zaak/{zaakUuid}", {
+          path: { zaakUuid: "123" },
+        })
+        .subscribe(() => {
+          done();
+        });
+
+      const req = httpTestingController.expectOne("/rest/bag/zaak/123");
+      expect(req.request.headers.has("X-Request-ID")).toBe(true);
+      expect(req.request.headers.get("X-Request-ID")).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      req.flush([]);
+      httpTestingController.verify();
+    });
+
     it("Replaces the path params", (done) => {
       const testData: paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =
         [
