@@ -42,6 +42,18 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/charts/zac/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "appVersion: '(?<currentValue>[^']+)'"
+      ],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+)"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
@@ -490,12 +502,13 @@
       "matchDatasources": [
         "github-releases"
       ],
+      "groupName": "dimpact-zaakafhandelcomponent release",
       "automerge": true,
       "schedule": [
         "* 0-8 1,15 * *"
       ],
       "description": [
-        "automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"
+        "Group and automerge the updates to publiccode.yaml and Chart.yaml appVersion on the 1st and 15th day of the month before 08:00"
       ]
     },
     {
