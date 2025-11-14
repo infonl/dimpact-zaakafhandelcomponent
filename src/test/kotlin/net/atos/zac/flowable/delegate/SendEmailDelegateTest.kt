@@ -10,7 +10,7 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -42,7 +42,7 @@ class SendEmailDelegateTest : BehaviorSpec({
     }
 
     Given("JUEL expression in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
@@ -100,7 +100,7 @@ class SendEmailDelegateTest : BehaviorSpec({
     }
 
     Given("Fixed value in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService

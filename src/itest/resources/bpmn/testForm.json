@@ -156,7 +156,7 @@
         },
         {
           "label": "Initiator",
-          "key": "initiator",
+          "key": "ZK_initiator",
           "validate": {
             "required": false
           },
@@ -164,6 +164,47 @@
           "input": true,
           "attributes": {
             "ZAC_TYPE": "ZAC_process_data"
+          }
+        },
+        {
+          "label": "Resume date",
+          "key": "ZK_Resume_Date",
+          "useLocaleSettings": true,
+          "format": "yyyy-MM-dd HH:mm",
+          "tableView": false,
+          "datePicker": {
+            "disableWeekends": true,
+            "disableWeekdays": false
+          },
+          "timePicker": {
+            "showMeridian": false
+          },
+          "defaultDate": "moment().add(1, 'hour')",
+          "validate": {
+            "required": true
+          },
+          "enableMinDateInput": false,
+          "enableMaxDateInput": false,
+          "validateWhenHidden": false,
+          "type": "datetime",
+          "input": true,
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "en",
+            "useLocaleSettings": true,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": true,
+            "noCalendar": false,
+            "format": "yyyy-MM-dd HH:mm",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true,
+            "minDate": null,
+            "disableWeekends": true,
+            "disableWeekdays": false,
+            "maxDate": null
           }
         }
       ]

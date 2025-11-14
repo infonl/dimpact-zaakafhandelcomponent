@@ -184,6 +184,7 @@ To resume a zaak:
 * set class `net.atos.zac.flowable.delegate.ResumeZaakDelegate`
 * add fields:
   * `hervattenReden` - reason for resuming
+  * `hervattenDatum` - resume date (optional). If not set, the current date is used.
 
 For example:
 ```xml
@@ -192,11 +193,16 @@ For example:
         <flowable:field name="hervattenReden">
           <flowable:expression><![CDATA[resume test]]></flowable:expression>
         </flowable:field>
+        <flowable:field name="hervattenDatum">
+          <flowable:expression><![CDATA[${ZK_Resume_Date}]]></flowable:expression>
+        </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
 ```
+
+The `hervattenDatum` is a date-time string with a time-zone in the ISO-8601 calendar system: `2025-11-14T17:38:21.929149+01:00[Europe/Amsterdam]`. 
 
 
 ### Send email

@@ -27,6 +27,7 @@ import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -134,7 +135,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                      "SD_SmartDocuments_Create": false,
                      "RT_ReferenceTable_Values": "Post",
                      "ZK_Result": "Verleend",
-                     "ZK_Status": "Afgerond"
+                     "ZK_Status": "Afgerond",
+                     "ZK_Resume_Date": "${ZonedDateTime.now()}" 
                    }
                 """.trimIndent()
             )
