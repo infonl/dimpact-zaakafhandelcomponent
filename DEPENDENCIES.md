@@ -8,7 +8,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **keycloak**: 26.3.5
 - **postgis**: 17-3.4
 - **redis**: 7.4.7
-- **solr**: 9.9.0-slim
+- **solr**: 9.10.0-slim
 - **openpolicyagent/opa**: 1.10.1-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.1
