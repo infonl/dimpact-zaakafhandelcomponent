@@ -58,6 +58,7 @@ smallrye-health = "4.3.0"
 # versioned WildFly component, so it is not part of a WildFly BOM
 jakarta-jakartaee = "11.0.0"
 # ~Versions of dependencies provided by WildFly.
+jboss-logging = "3.6.1.Final"
 
 eclipse-yasson = "3.0.5"
 
@@ -140,6 +141,7 @@ eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.f
 hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator" }
 jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
 jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider" }
+jboss-logging = { group = "org.jboss.logging", name = "jboss-logging", version.ref = "jboss-logging" }
 wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc" }
 # ~dependencies provided by WildFly
 

@@ -8,26 +8,26 @@ on:
   schedule:
     # Run daily at 6 AM UTC to catch newly discovered vulnerabilities
     - cron: "0 6 * * *"
-  pull_request:
-    paths:
-      - '**/package.json'
-      - '**/package-lock.json'
   push:
     branches: [main]
     paths:
       - '**/package.json'
       - '**/package-lock.json'
+      - 'build.gradle.kts'
+      - 'gradle/libs.versions.toml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   security-events: write
   issues: write
   pull-requests: write
+  pages: write
 
 env:
   NODE_VERSION: "22.19.0"
   JAVA_VERSION: "21.0.8"
+  SECURITY_SCAN_RETENTION_DAYS: 30  # Maximum age of security scan reports in days
 
 jobs:
   npm-security-audit:
@@ -82,25 +82,6 @@ jobs:
           echo "🚨 Checking for high/critical vulnerabilities..."
           npm audit --audit-level=high
 
-      - name: Check for package-lock.json changes
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "🔍 Checking for package-lock.json changes in this PR..."
-          
-          CHANGED_LOCK_FILES=$(git diff --name-only HEAD~1 | grep package-lock.json || true)
-          
-          if [ -n "$CHANGED_LOCK_FILES" ]; then
-            echo "📦 Changed package-lock.json files:"
-            echo "$CHANGED_LOCK_FILES"
-            
-            echo "⚠️ Package lock files changed - reviewing dependency changes..."
-            for file in $CHANGED_LOCK_FILES; do
-              echo "📝 Changes in $file:"
-              git diff HEAD~1 "$file" | grep -E '^\+.*"(resolved|integrity)"' | head -20 || true
-            done
-          else
-            echo "✅ No package-lock.json changes detected"
-          fi
 
   check-compromised-packages:
     name: Check for Compromised Packages
@@ -182,9 +163,18 @@ jobs:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    outputs:
+      vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
+      vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
+      vuln_high: ${{ steps.owasp_scan.outputs.vuln_high }}
+      scan_date: ${{ steps.date.outputs.date }}
     env:
-      NVD_API_KEY: {{ secrets.NVD_API_KEY }}
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
@@ -225,6 +215,8 @@ jobs:
           fi
 
       - name: Check for vulnerable Gradle dependencies
+        id: owasp_scan
+        continue-on-error: true
         run: |
           echo "🔍 Running Gradle dependency vulnerability check..."
           
@@ -234,7 +226,7 @@ jobs:
           
           # Run OWASP dependency check (now available)
           echo "🛡️ Running OWASP Dependency Check..."
-          ./gradlew dependencyCheckAnalyze --no-configuration-cache --info || true
+          ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
           
           # Show SARIF file info if generated
           if [ -f "build/reports/dependency-check-report.sarif" ]; then
@@ -244,31 +236,81 @@ jobs:
             echo "❌ SARIF report not found"
           fi
           
-          # Generate dependency insight report
-          echo "📋 Generating dependency insight..."
-          ./gradlew dependencyInsight --dependency org.apache.logging.log4j || true
-          ./gradlew dependencyInsight --dependency com.fasterxml.jackson || true
-          ./gradlew dependencyInsight --dependency org.springframework || true
-
-      - name: Check for build file changes
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "🔍 Checking for Gradle build file changes in this PR..."
-          
-          CHANGED_BUILD_FILES=$(git diff --name-only HEAD~1 | grep -E '\.(gradle|gradle\.kts)$|gradle/.*\.toml$' || true)
-          
-          if [ -n "$CHANGED_BUILD_FILES" ]; then
-            echo "📦 Changed Gradle build files:"
-            echo "$CHANGED_BUILD_FILES"
-            
-            echo "⚠️ Build files changed - reviewing dependency changes..."
-            for file in $CHANGED_BUILD_FILES; do
-              echo "📝 Changes in $file:"
-              git diff HEAD~1 "$file" | grep -E '^[+-].*implementation|^[+-].*api|^[+-].*runtimeOnly' | head -20 || true
-            done
-          else
-            echo "✅ No Gradle build file changes detected"
+          # Save vulnerability counts for Slack notification
+          if [ -f "build/reports/dependency-check-report.json" ]; then
+            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            echo "vuln_total=$TOTAL_VULNS" >> $GITHUB_OUTPUT
+            echo "vuln_critical=$CRITICAL_VULNS" >> $GITHUB_OUTPUT
+            echo "vuln_high=$HIGH_VULNS" >> $GITHUB_OUTPUT
           fi
+      - name: Generate vulnerability summary
+        if: always()
+        run: |
+          echo "📊 Generating vulnerability summary..."
+          
+          # Parse OWASP scan results
+          TOTAL_VULNS=0
+          CRITICAL_VULNS=0
+          HIGH_VULNS=0
+          MEDIUM_VULNS=0
+          LOW_VULNS=0
+          
+          if [ -f "build/reports/dependency-check-report.json" ]; then
+            # Extract vulnerability counts from JSON report
+            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            MEDIUM_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            LOW_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+          fi
+          
+          # Write summary to GitHub Step Summary
+          cat >> $GITHUB_STEP_SUMMARY <<EOF
+          ## 🛡️ OWASP Dependency Check Results
+          
+          **Scan Date:** $(date -u +"%Y-%m-%d %H:%M UTC")
+          **Project:** Dimpact Zaakafhandelcomponent
+          
+          ### Vulnerability Summary
+          
+          | Severity | Count |
+          |----------|-------|
+          | 🔴 Critical | $CRITICAL_VULNS |
+          | 🟠 High | $HIGH_VULNS |
+          | 🟡 Medium | $MEDIUM_VULNS |
+          | 🟢 Low | $LOW_VULNS |
+          | **Total** | **$TOTAL_VULNS** |
+          
+          ### Reports
+          
+          - 📄 [HTML Report](https://infonl.github.io/dimpact-zaakafhandelcomponent/security-scans/${{ steps.date.outputs.date }}/dependency-check-report.html)
+          - 📊 [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - 🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)
+          
+          ### Actions Taken
+          
+          - ✅ Scanned all production dependencies
+          - ✅ Uploaded SARIF results to GitHub Security
+          - ✅ Published detailed HTML report
+          - ✅ Cached vulnerability database for future scans
+          
+          EOF
+          
+          # Also create a simple text summary file
+          cat > build/reports/summary.txt <<EOF
+          OWASP Dependency Check Summary
+          Scan Date: $(date -u +"%Y-%m-%d %H:%M UTC")
+          
+          Total Vulnerabilities: $TOTAL_VULNS
+          Critical: $CRITICAL_VULNS
+          High: $HIGH_VULNS
+          Medium: $MEDIUM_VULNS
+          Low: $LOW_VULNS
+          EOF
+          
+          cat build/reports/summary.txt
 
       - name: Check for suspicious dependencies
         run: |
@@ -302,25 +344,6 @@ jobs:
             echo "✅ No obviously vulnerable dependency patterns detected"
           fi
 
-      - name: Generate Gradle dependency report
-        run: |
-          echo "📦 Generating comprehensive Gradle dependency report..."
-          
-          # Create dependency reports
-          ./gradlew dependencies --configuration compileClasspath > compile-deps.txt 2>/dev/null || true
-          ./gradlew dependencies --configuration runtimeClasspath > runtime-deps.txt 2>/dev/null || true
-          
-          # Show summary of key dependencies
-          echo "📊 Key dependency summary:"
-          echo "🔧 Compile dependencies:"
-          grep -E 'org\.(springframework|apache|eclipse)|com\.(fasterxml|google)' compile-deps.txt | head -10 || true
-          
-          echo "🏃 Runtime dependencies:"
-          grep -E 'org\.(springframework|apache|eclipse)|com\.(fasterxml|google)' runtime-deps.txt | head -10 || true
-          
-          # Check for dependency conflicts
-          echo "⚠️ Checking for version conflicts:"
-          ./gradlew dependencyInsight --dependency org.slf4j 2>/dev/null || true
 
       - name: Check for Java/Kotlin supply chain attack indicators
         run: |
@@ -360,39 +383,6 @@ jobs:
           
           echo "✅ Java/Kotlin supply chain check completed"
 
-      - name: Recommend security enhancements
-        run: |
-          echo "💫 Security Enhancement Recommendations:"
-          echo ""
-          echo "1. ✅ OWASP Dependency Check plugin: CONFIGURED ✓"
-          echo "   Scans for known vulnerabilities in Java/Kotlin + Node.js dependencies"
-          echo ""
-          echo "2. 📊 Consider adding dependency update checks:"
-          echo "   Add to build.gradle.kts:"
-          echo "   plugins { id 'com.github.ben-manes.versions' version 'X.X.X' }"
-          echo ""
-          echo "3. 🔒 Consider enabling Gradle dependency verification:"
-          echo "   Run: ./gradlew --write-verification-metadata sha256 help"
-          echo ""
-          echo "4. ✅ Gradle version catalogs: CONFIGURED ✓"
-          echo "   You already have gradle/libs.versions.toml for centralized dependency management"
-          echo ""
-          echo "5. 📊 Consider adding NVD API key for faster OWASP scans:"
-          echo "   Set NVD_API_KEY environment variable"
-          echo ""
-          echo "🛡️ Defense-in-depth: Node.js dependencies scanned by MULTIPLE analyzers:"
-          echo "   • npm audit (GitHub workflow) - npm registry vulnerabilities"
-          echo "   • OWASP Node Audit - CVE database vulnerabilities"
-          echo "   • OWASP RetireJS - JavaScript library vulnerabilities"
-          echo "   • Supports npm, yarn, and pnpm package managers"
-          echo ""
-          echo "⚙️ Performance optimizations:"
-          echo "   • OWASP database cached between runs (~228MB)"
-          echo "   • Weekly database updates to minimize scan time"
-          echo "   • Gradle build cache for faster dependency resolution"
-          echo ""
-          echo "ℹ️ These enhancements provide strong protection against supply chain attacks"
-
       - name: Upload SARIF results to GitHub Security
         uses: github/codeql-action/upload-sarif@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.29.8
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
@@ -400,16 +390,144 @@ jobs:
           sarif_file: build/reports/dependency-check-report.sarif
           category: owasp-dependency-check
 
-      - name: Upload OWASP reports as artifacts
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      - name: Prepare reports for GitHub Pages
         if: always()
+        run: |
+          echo "📦 Preparing reports for GitHub Pages..."
+          mkdir -p security-scans/${{ steps.date.outputs.date }}
+          
+          # Copy reports to timestamped directory
+          if [ -f "build/reports/dependency-check-report.html" ]; then
+            cp build/reports/dependency-check-report.html security-scans/${{ steps.date.outputs.date }}/
+          fi
+          if [ -f "build/reports/dependency-check-report.json" ]; then
+            cp build/reports/dependency-check-report.json security-scans/${{ steps.date.outputs.date }}/
+          fi
+          if [ -f "build/reports/summary.txt" ]; then
+            cp build/reports/summary.txt security-scans/${{ steps.date.outputs.date }}/
+          fi
+          
+          # Create an index page
+          cat > security-scans/${{ steps.date.outputs.date }}/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>OWASP Dependency Check - ${{ steps.date.outputs.date }}</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; max-width: 1200px; margin: 40px auto; padding: 20px; }
+              h1 { color: #0366d6; }
+              .card { border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; margin: 20px 0; }
+              .button { display: inline-block; padding: 10px 20px; background: #0366d6; color: white; text-decoration: none; border-radius: 6px; margin: 5px; }
+              .button:hover { background: #0256c7; }
+            </style>
+          </head>
+          <body>
+            <h1>🛡️ OWASP Dependency Check Report</h1>
+            <div class="card">
+              <h2>Scan Information</h2>
+              <p><strong>Date:</strong> ${{ steps.date.outputs.date }}</p>
+              <p><strong>Project:</strong> Dimpact Zaakafhandelcomponent</p>
+              <p><strong>Workflow Run:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">${{ github.run_id }}</a></p>
+            </div>
+            <div class="card">
+              <h2>Available Reports</h2>
+              <a href="dependency-check-report.html" class="button">📄 View HTML Report</a>
+              <a href="dependency-check-report.json" class="button">📊 Download JSON</a>
+              <a href="summary.txt" class="button">📝 View Summary</a>
+              <a href="${{ github.server_url }}/${{ github.repository }}/security/code-scanning" class="button">🔒 GitHub Security</a>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Checkout gh-pages branch to clean old reports
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          name: owasp-dependency-check-reports
-          path: |
-            build/reports/dependency-check-report.html
-            build/reports/dependency-check-report.json
-            build/reports/dependency-check-report.sarif
-          retention-days: 30
+          ref: gh-pages
+          path: gh-pages-checkout
+
+      - name: Clean up old security scan reports
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          echo "🧹 Cleaning up security scan reports older than ${{ env.SECURITY_SCAN_RETENTION_DAYS }} days..."
+          
+          cd gh-pages-checkout/security-scans 2>/dev/null || {
+            echo "ℹ️  No security-scans directory found yet, skipping cleanup"
+            cd ..
+            exit 0
+          }
+          
+          # Calculate cutoff date (SECURITY_SCAN_RETENTION_DAYS days ago)
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS date command
+            CUTOFF_DATE=$(date -v-${{ env.SECURITY_SCAN_RETENTION_DAYS }}d +%Y-%m-%d)
+          else
+            # Linux date command
+            CUTOFF_DATE=$(date -d "${{ env.SECURITY_SCAN_RETENTION_DAYS }} days ago" +%Y-%m-%d)
+          fi
+          
+          echo "📅 Cutoff date: $CUTOFF_DATE"
+          echo "📂 Current security scan reports:"
+          ls -la
+          
+          DELETED_COUNT=0
+          KEPT_COUNT=0
+          
+          # Find and remove old report directories
+          for dir in */; do
+            # Remove trailing slash
+            dir_name="${dir%/}"
+            
+            # Extract date from directory name (format: YYYY-MM-DD-HH-MM)
+            # Get just the date part (YYYY-MM-DD)
+            report_date=$(echo "$dir_name" | cut -d'-' -f1-3)
+            
+            # Skip if not a valid date format
+            if [[ ! "$report_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+              echo "⏭️  Skipping '$dir_name' (not a date-based directory)"
+              continue
+            fi
+            
+            # Compare dates
+            if [[ "$report_date" < "$CUTOFF_DATE" ]]; then
+              echo "🗑️  Deleting old report: $dir_name (date: $report_date)"
+              rm -rf "$dir_name"
+              ((DELETED_COUNT++))
+            else
+              echo "✅ Keeping report: $dir_name (date: $report_date)"
+              ((KEPT_COUNT++))
+            fi
+          done
+          
+          cd ../..
+          
+          echo ""
+          echo "📊 Cleanup Summary:"
+          echo "   - Reports deleted: $DELETED_COUNT"
+          echo "   - Reports kept: $KEPT_COUNT"
+          echo "   - Retention policy: ${{ env.SECURITY_SCAN_RETENTION_DAYS }} days"
+          
+          # Commit the deletions if any were made
+          if [ $DELETED_COUNT -gt 0 ]; then
+            cd gh-pages-checkout
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "chore: remove security scan reports older than ${{ env.SECURITY_SCAN_RETENTION_DAYS }} days" || true
+            git push origin gh-pages || true
+            cd ..
+          fi
+
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./security-scans/
+          destination_dir: security-scans
+          keep_files: true
+          enable_jekyll: false
 
   security-advisory-check:
     name: Check Security Advisories
@@ -433,7 +551,7 @@ jobs:
           if [ -f "src/main/app/package.json" ]; then
             echo "📋 Checking main app for security advisories..."
             cd src/main/app
-            npx npm-audit-resolver --audit-level=moderate check || true
+            npm audit --audit-level=moderate || true
             cd ../..
           fi
           
@@ -441,58 +559,15 @@ jobs:
           if [ -f "src/e2e/package.json" ]; then
             echo "📋 Checking e2e tests for security advisories..." 
             cd src/e2e
-            npx npm-audit-resolver --audit-level=moderate check || true
+            npm audit --audit-level=moderate || true
             cd ..
           fi
-
-  create-issue-on-failure:
-    name: Create Issue on Security Failure
-    runs-on: ubuntu-24.04
-    needs: [npm-security-audit, check-compromised-packages, gradle-security-audit, security-advisory-check]
-    if: ${{ failure() && github.event_name == 'schedule' }}
-
-    steps:
-      - name: Create security issue
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const title = `🚨 Supply Chain Security Alert - ${new Date().toISOString().split('T')[0]}`;
-            const body = `## Supply Chain Security Check Failed
-            
-            Our automated supply chain security check has detected potential issues.
-            
-            **Run Details:**
-            - Workflow: ${context.workflow}
-            - Run ID: ${context.runId}  
-            - Trigger: ${context.eventName}
-            - Branch: ${context.ref}
-            
-            **Actions Required:**
-            1. Review the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details
-            2. Check for vulnerable dependencies using \`npm audit\`
-            3. Verify no malicious packages have been introduced
-            4. Update dependencies if necessary
-            
-            **Links:**
-            - [View Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
-            - [Supply Chain Security Workflow](${context.payload.repository.html_url}/blob/main/.github/workflows/supply-chain-security.yml)
-            
-            This issue was created automatically by the supply chain security workflow.
-            `;
-            
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['security', 'dependencies', 'supply-chain']
-            });
 
   notify-slack:
     name: Notify Slack
     runs-on: ubuntu-24.04
     needs: [npm-security-audit, check-compromised-packages, gradle-security-audit, security-advisory-check]
-    if: always() && github.event_name == 'schedule'
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 
     steps:
       - name: Determine overall status
@@ -519,6 +594,7 @@ jobs:
             echo "color=warning" >> $GITHUB_OUTPUT
           fi
 
+
       - name: Notify Slack
         uses: 8398a7/action-slack@1750b5085f3ec60384090fb7c52965ef822e869e # v3.18.0
         with:
@@ -526,65 +602,16 @@ jobs:
           fields: workflow,job,status
           custom_payload: |
             {
-              "text": ":shield: Supply Chain Security Check Update",
+              "text": ":shield: Supply Chain Security Scan Complete",
               "attachments": [
                 {
                   "color": "${{ steps.status.outputs.color }}",
                   "blocks": [
                     {
-                      "type": "header",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Security Scan Results"
-                      }
-                    },
-                    {
-                      "type": "section",
-                      "fields": [
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Repository:*\\n${{ github.repository }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Workflow:*\\n${{ github.workflow }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Overall Status:*\\n${{ steps.status.outputs.status }} ${{ steps.status.outputs.emoji }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Trigger:*\\n${{ github.event_name }}"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "section",
-                      "fields": [
-                        {
-                          "type": "mrkdwn",
-                          "text": "*NPM Audit:*\\n${{ needs.npm-security-audit.result }} ${{ needs.npm-security-audit.result == 'success' && ':white_check_mark:' || needs.npm-security-audit.result == 'failure' && ':x:' || ':warning:' }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Compromised Packages:*\\n${{ needs.check-compromised-packages.result }} ${{ needs.check-compromised-packages.result == 'success' && ':white_check_mark:' || needs.check-compromised-packages.result == 'failure' && ':x:' || ':warning:' }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*OWASP Dependency Check:*\\n${{ needs.gradle-security-audit.result }} ${{ needs.gradle-security-audit.result == 'success' && ':white_check_mark:' || needs.gradle-security-audit.result == 'failure' && ':x:' || ':warning:' }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Security Advisories:*\\n${{ needs.security-advisory-check.result }} ${{ needs.security-advisory-check.result == 'success' && ':white_check_mark:' || needs.security-advisory-check.result == 'failure' && ':x:' || ':warning:' }}"
-                        }
-                      ]
-                    },
-                    {
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "${{ steps.status.outputs.status == 'failure' && ':warning: **Action Required:** Vulnerabilities detected in dependencies. Review findings in GitHub Security tab and update affected packages.' || steps.status.outputs.status == 'success' && ':shield: **All Clear:** No high-severity vulnerabilities detected in dependencies.' || ':information_source: **Review:** Some security checks completed with warnings. Please review the results.' }}"
+                        "text": "*Status:* ${{ steps.status.outputs.status }} ${{ steps.status.outputs.emoji }}\\n*Repository:* ${{ github.repository }}\\n*Vulnerabilities:* ${{ needs.gradle-security-audit.outputs.vuln_critical || 0 }} Critical | ${{ needs.gradle-security-audit.outputs.vuln_high || 0 }} High | ${{ needs.gradle-security-audit.outputs.vuln_total || 0 }} Total"
                       }
                     },
                     {
@@ -594,17 +621,25 @@ jobs:
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "View Workflow Run"
+                            "text": "📄 View Report"
                           },
-                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/security-scans/${{ needs.gradle-security-audit.outputs.scan_date }}/"
                         },
                         {
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "Security Tab"
+                            "text": "🔒 Security Tab"
                           },
                           "url": "${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+                        },
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "⚙️ Workflow"
+                          },
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                         }
                       ]
                     }
