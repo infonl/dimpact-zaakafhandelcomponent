@@ -4,7 +4,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 
 ## Core Dependencies
 
-- **postgres**: 17.6
+- **postgres**: 17.7
 - **keycloak**: 26.3.5
 - **postgis**: 17-3.4
 - **redis**: 7.4.7
