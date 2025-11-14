@@ -12,6 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
@@ -155,7 +157,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                           "type" : "USER_EVENT_LISTENER"
                         } ]
                       },
-                      "defaultGroepId" : "${OLD_IAM_TEST_GROUP_A.name}",
+                      "defaultGroepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                       "domein" : "$DOMEIN_TEST_1",
                       "humanTaskParameters" : [ {
                         "actief" : true,

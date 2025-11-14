@@ -15,8 +15,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
@@ -30,7 +33,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -171,11 +173,11 @@ class TaskRestServiceTest : BehaviorSpec({
             val assignTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
-                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
-                         "groepId":"${OLD_IAM_TEST_GROUP_A.name}",
-                        "behandelaarGebruikersnaam":"${OLD_IAM_TEST_USER_2.username}",
-                        "reden":"fakeTasksAssignReason",
-                        "screenEventResourceId":"$uniqueResourceId"
+                        "taken": [ { "taakId": "$task1ID", "zaakUuid": "$zaakProductaanvraag1Uuid" } ],
+                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "behandelaarGebruikersnaam": "${BEHANDELAAR_1.username}",
+                        "reden": "fakeTasksAssignReason",
+                        "screenEventResourceId": "$uniqueResourceId"
                         }
                 """.trimIndent()
             )

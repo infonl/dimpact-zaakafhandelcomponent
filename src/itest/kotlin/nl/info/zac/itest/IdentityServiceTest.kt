@@ -34,7 +34,6 @@ import nl.info.zac.itest.config.OLD_IAM_BEHANDELAAR_1
 import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
 import nl.info.zac.itest.config.OLD_IAM_FUNCTIONAL_ADMIN_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
-import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
 import nl.info.zac.itest.config.OLD_IAM_RAADPLEGER_1
 import nl.info.zac.itest.config.OLD_IAM_RECORDMANAGER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
@@ -85,11 +84,7 @@ val TEST_GROUPS_ALL =
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
-                },
-                {
-                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
-                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
-                },
+                },           
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"
@@ -150,10 +145,18 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
+    /**
+     * In the new IAM architecture the concept of domains and domain roles will be removed from ZAC and from Keycloak.
+     * However, for now we still need to support the old IAM architecture for backward compatibility.
+     * Once the new IAM architecture is fully adopted, and the concept of domains has been removed from ZAC,
+     * this test needs to be adopted. The endpoint under test will then always return all available groups.
+     * But in the future, once the PABC supports zaaktype authorisation for groups, this will change yet again
+     * and then only those groups which are authorised for the given zaaktype will be returned.
+     */
     Given(
         """
-            Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
-            zaaktypeCmmnConfiguration for a given zaaktype UUID
+            A group in the Keycloak ZAC realm with a Keycloak old IAM architecture domain role 
+            which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
@@ -161,7 +164,7 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
-                "only those groups which have the domain role are returned"
+                "only those groups which have the old IAM architecture domain role are returned"
             ) {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString shouldEqualSpecifiedJson """
@@ -175,6 +178,7 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
 
         """

@@ -77,10 +77,6 @@ val OLD_IAM_GROUP_DOMEIN_TEST_1 = TestGroup(
     name = "test-group-domein-test-1",
     description = "test-group-domein-test-1"
 )
-val OLD_IAM_GROUP_DOMEIN_TEST_2 = TestGroup(
-    name = "test-group-domein-test-2",
-    description = "test-group-domein-test-2"
-)
 
 // group constants that switch between old and new IAM test groups based on the PABC feature flag value
 val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RAADPLEGERS_TEST_1 else OLD_IAM_TEST_GROUP_RAADPLEGERS

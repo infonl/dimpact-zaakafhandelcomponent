@@ -21,6 +21,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_2
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
@@ -375,7 +376,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                               }
                             ]
                           },
-                          "defaultGroepId": "${OLD_IAM_TEST_GROUP_A.name}",
+                          "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                           "humanTaskParameters": [
                             {
                               "actief": true,
