@@ -53,8 +53,6 @@ Given(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
-    // await triggerDataLoad(this.page, "Template", { text: "SmartDocuments" });
-
     // BPMN form: create a document
     await this.page
       .getByLabel("Template")
@@ -84,31 +82,6 @@ Given(
     await smartDocumentsWizardPage.close();
   },
 );
-
-async function triggerDataLoad(
-  page: playwright.Page,
-  componentLabel: string,
-  options?: { text?: string; timeout?: number },
-) {
-  await expect(page.getByLabel(componentLabel)).toBeVisible({
-    timeout: FORTY_SECOND_IN_MS,
-  });
-
-  // First click
-  await page.getByLabel(componentLabel).click();
-  await page.getByLabel(componentLabel).press("ArrowDown");
-
-  if (options?.text) {
-    await page.getByText(options?.text).focus();
-    await page.getByText(options?.text).click();
-  }
-
-  await page.waitForTimeout(options?.timeout || TWO_SECONDS_IN_MS);
-
-  // Press arrow-down on the component again
-  await page.getByLabel(componentLabel).press("Escape");
-  await page.getByLabel(componentLabel).press("ArrowDown");
-}
 
 When(
   "{string} reloads the page",
@@ -148,8 +121,6 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
-
     await expect(this.page.getByLabel("Group")).toContainText(
       "Functioneelbeheerders",
       { timeout: FORTY_SECOND_IN_MS },
@@ -174,12 +145,10 @@ When(
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
     await this.page
-      .getByLabel("Test form")
-      .getByText("file A", { exact: true })
+      .getByRole("option", { name: "file A", exact: true })
       .click();
     await this.page
-      .getByLabel("Test form")
-      .getByText("file B", { exact: true })
+       .getByRole("option", { name: "file B", exact: true })
       .click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
     await this.page.getByLabel("Select result").click();
