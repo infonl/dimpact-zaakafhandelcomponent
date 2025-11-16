@@ -31,7 +31,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -83,8 +82,8 @@ class TaskRestServiceTest : BehaviorSpec({
                             {
                               "formulierDefinitieId" : "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
                               "groep" : {
-                                "id" : "${OLD_IAM_TEST_GROUP_A.name}",
-                                "naam" : "${OLD_IAM_TEST_GROUP_A.description}"
+                                "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                                "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                               },
                               "naam" : "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                               "rechten" : {

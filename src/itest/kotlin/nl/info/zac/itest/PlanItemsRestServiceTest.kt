@@ -13,6 +13,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
@@ -20,7 +21,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import org.json.JSONArray
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -89,10 +89,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """{
-                    "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
-                    "fataledatum":"$fataleDatum",
-                    "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"${OLD_IAM_TEST_GROUP_A.name}","naam":"${OLD_IAM_TEST_GROUP_A.description}"},
+                    "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
+                    "fataledatum": "$fataleDatum",
+                    "taakStuurGegevens": {"sendMail": false},
+                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
                     "taakdata":{}
                 }
                 """.trimIndent()
@@ -120,10 +120,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """{
-                    "planItemInstanceId":"$newAdditionalInfoTaskId",
-                    "fataledatum":"$fataleDatum",
-                    "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"${OLD_IAM_TEST_GROUP_A.name}","naam":"${OLD_IAM_TEST_GROUP_A.description}"},
+                    "planItemInstanceId": "$newAdditionalInfoTaskId",
+                    "fataledatum": "$fataleDatum",
+                    "taakStuurGegevens": { "sendMail": false },
+                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
                     "taakdata":{}
                 }
                 """.trimIndent()

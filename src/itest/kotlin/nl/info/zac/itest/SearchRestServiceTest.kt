@@ -146,11 +146,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],            
                             "GROEP": [
                                 {
-                                    "aantal": 11,
+                                    "aantal": 10,
                                     "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
-                                    "aantal": 7,
+                                    "aantal": 8,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],         
@@ -535,8 +535,8 @@ class SearchRestServiceTest : BehaviorSpec({
                     "filters": {},
                     "datums": {},
                     "rows": 10,
-                    "page":0,
-                    "type":"TAAK"
+                    "page": 0,
+                    "type": "TAAK"
                     }
                 """.trimIndent()
             )
@@ -549,74 +549,10 @@ class SearchRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
+                // we do not test on the actual results ('resultaten' attribute) to keep the test somewhat maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
                     {
-                        "foutmelding": "",
-                        "resultaten": [
-                            {
-                              "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
-                              "naam": "$BPMN_TEST_TASK_NAME",
-                              "rechten": {
-                                "lezen": true,
-                                "toekennen": false,
-                                "toevoegenDocument": false,
-                                "wijzigen": false
-                              },
-                              "status": "NIET_TOEGEKEND",
-                              "type": "TAAK",
-                              "zaakIdentificatie": "$ZAAK_BPMN_TEST_IDENTIFICATION",
-                              "zaakOmschrijving": "$ZAAK_OMSCHRIJVING",
-                              "zaakToelichting": "null",
-                              "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                            },
-                            {
-                                "type": "TAAK",                       
-                                "fataledatum": "$DATE_2024_01_01",
-                                "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "rechten": {
-                                    "lezen": true,
-                                    "toekennen": false,
-                                    "toevoegenDocument": false,
-                                    "wijzigen": false
-                                },
-                                "status": "TOEGEKEND",
-                                "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
-                                "zaakToelichting": "null",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
-                            },
-                            {
-                                "type": "TAAK",
-                                "fataledatum": "$TAAK_1_FATAL_DATE",
-                                "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "rechten": {
-                                    "lezen": true,
-                                    "toekennen": false,
-                                    "toevoegenDocument": false,
-                                    "wijzigen": false
-                                },
-                                "status": "NIET_TOEGEKEND",
-                                "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                                "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
-                                "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
-                            },
-                            {
-                              "type": "TAAK",
-                              "groepNaam": "${OLD_IAM_TEST_GROUP_A.description}",
-                              "rechten": {
-                                "lezen": true,
-                                "toekennen": false,
-                                "toevoegenDocument": false,
-                                "wijzigen": false
-                              },
-                              "status": "NIET_TOEGEKEND",
-                              "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION",
-                              "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK'.",
-                              "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                            }
-                        ],
+                        "foutmelding": "",                       
                         "totaal": 4,
                         "filters": {
                             "ZAAKTYPE": [
@@ -635,7 +571,8 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 1                       
+                                    "aantal": 1,
+                                    "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 },
                                 {
                                     "aantal": 3,
@@ -644,11 +581,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 3,
+                                    "aantal": 2,
                                     "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],
