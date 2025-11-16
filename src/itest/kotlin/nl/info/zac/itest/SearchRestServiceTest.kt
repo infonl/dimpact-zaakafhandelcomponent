@@ -146,11 +146,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],            
                             "GROEP": [
                                 {
-                                    "aantal": 6,
+                                    "aantal": 4,
                                     "naam": "${OLD_IAM_TEST_GROUP_A.description}"
                                 },
                                 {
-                                    "aantal": 12,
+                                    "aantal": 14,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],         
