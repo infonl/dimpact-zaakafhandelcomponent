@@ -833,9 +833,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            Two zaken have been created and two websocket subscriptions have been created to listen for both a 'zaken verdelen' 
-            screen event as well as for 'zaak rollen' screen events which will be sent by the asynchronous 'assign zaken from list' 
-            job and a coordinator authorized for the zaaktypes of these zaken is logged in
+            Two zaken have been created and a websocket subscriptions has been created to listen for 'zaken verdelen' 
+            screen events which will be sent by the asynchronous 'assign zaken from list',
+            and a coordinator authorized for the zaaktypes of these zaken is logged in
         """
     ) {
         authenticate(COORDINATOR_DOMAIN_TEST_1)
@@ -882,8 +882,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
                     should be received by the websocket listener and the two zaken should be assigned correctly"""
             ) {
-                val lijstVerdelenResponseBody = lijstVerdelenResponse.bodyAsString
-                logger.info { "Response: $lijstVerdelenResponseBody" }
                 lijstVerdelenResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(10.seconds) {

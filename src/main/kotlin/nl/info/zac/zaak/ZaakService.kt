@@ -36,6 +36,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -66,7 +67,8 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val configuratieService: ConfiguratieService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -207,7 +209,11 @@ class ZaakService @Inject constructor(
         }
 
     /**
-     * Checks if the group has access to the domain associated with the specified zaak.
+     * Checks if the group is authorised for the domain associated with the specified zaak, through the
+     * zaakafhandelparameters of the zaaktype.
+     * This function currently only works for the old IAM architecture.
+     * In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
+     * This fist needs to be implemented by the PABC.
      *
      * Domain access is granted to a:
      * - zaaktype without domain
@@ -219,21 +225,26 @@ class ZaakService @Inject constructor(
      * @return true if the group has access to the zaak's domain, false otherwise
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = params.domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value ||
-                this.zacClientRoles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
-                params.domein?.let {
-                    this.zacClientRoles.contains(it)
-                } ?: false
-            if (!hasAccess) {
-                LOG.fine(
-                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
-                        "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
-                )
-                eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+        if (configuratieService.featureFlagPabcIntegration())
+            // In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
+            // This fist needs to be implemented by the PABC.
+            true
+        else
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
+                val hasAccess = params.domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value ||
+                    this.zacClientRoles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
+                    params.domein?.let {
+                        this.zacClientRoles.contains(it)
+                    } ?: false
+                if (!hasAccess) {
+                    LOG.fine(
+                        "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
+                            "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
+                    )
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+                }
+                hasAccess
             }
-            hasAccess
-        }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
         RolOrganisatorischeEenheid(

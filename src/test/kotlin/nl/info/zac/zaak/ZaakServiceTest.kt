@@ -73,6 +73,7 @@ class ZaakServiceTest : BehaviorSpec({
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
@@ -80,7 +81,8 @@ class ZaakServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         lockService = lockService,
         identityService = identityService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        configuratieService = configuratieService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
@@ -100,7 +102,7 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     Context("Assigning zaken") {
-        Given("A list of open zaken and a group and a user") {
+        Given("A list of open zaken and a group and a user and PABC off") {
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
@@ -116,6 +118,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { identityService.isUserInGroup(user.id, group.id) } returns true
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
@@ -146,7 +149,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("One open and one closed zaak and a group and a user") {
+        Given("One open and one closed zaak and a group and a user and PABC off") {
             clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
@@ -167,6 +170,7 @@ class ZaakServiceTest : BehaviorSpec({
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
+            every { configuratieService.featureFlagPabcIntegration() } returns false
             every { identityService.isUserInGroup(user.id, group.id) } returns true
 
             When(
@@ -203,7 +207,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         Given(
             """
-         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak 
+         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak         
             """
         ) {
             clearAllMocks()
@@ -234,7 +238,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken") {
+        Given("A list of zaken and PABC off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -251,6 +255,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
+                every { configuratieService.featureFlagPabcIntegration() } returns false
             }
             When(
                 """the assign zaken function is called with a group, WITHOUT a user
@@ -277,7 +282,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE") {
+        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -296,6 +301,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
             every { identityService.isUserInGroup(user.id, groupWithAllDomains.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -329,7 +335,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with domain") {
+        Given("A list of zaken with no domain and a group with domain and PABC off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -341,6 +347,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
             every { identityService.isUserInGroup(user.id, groupWithDomain.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -367,7 +374,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with no domain") {
+        Given("A list of zaken with no domain and a group with no domain and PABC off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -379,6 +386,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
             every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -406,7 +414,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of two zaken and the second one has a group not matching the requested one") {
+        Given("A list of two zaken and the second one has a group not matching the requested one and PABC off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -432,6 +440,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
             every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
