@@ -169,10 +169,14 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
-                "only those groups which have the old IAM architecture domain role are returned"
+                """only those groups which have the old IAM architecture domain role are returned
+                when the PABC feature flag is disabled; otherwise all groups are returned"""
             ) {
                 response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualSpecifiedJson """
+                if (FEATURE_FLAG_PABC_INTEGRATION) {
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                } else {
+                    response.bodyAsString shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
@@ -180,12 +184,12 @@ class IdentityServiceTest : BehaviorSpec({
                                 }
                             ]
                 """.trimIndent()
+                }
             }
         }
     }
 
     Given(
-
         """
             Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
             zaaktypeCmmnConfiguration for a given domein role
