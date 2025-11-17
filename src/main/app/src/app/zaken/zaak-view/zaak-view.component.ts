@@ -247,8 +247,6 @@ export class ZaakViewComponent
     this.loadOpschorting();
     this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
-      console.log("eerdere opschorting:", zaak.eerdereOpschorting);
-
   }
 
   private getIngelogdeMedewerker() {
