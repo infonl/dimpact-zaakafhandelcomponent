@@ -7,7 +7,7 @@ package net.atos.zac.flowable.cmmn
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -19,7 +19,7 @@ import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 
 class UpdateZaakLifecycleListenerTest : BehaviorSpec({
-    mockkStatic(FlowableHelper::class)
+    mockkObject(FlowableHelper)
     val flowableHelper = mockk<FlowableHelper>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val delegatePlanItemInstance = mockk<DelegatePlanItemInstance>()

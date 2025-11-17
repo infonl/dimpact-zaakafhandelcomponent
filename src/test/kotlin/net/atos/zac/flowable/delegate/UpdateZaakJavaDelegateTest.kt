@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -34,7 +34,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     }
 
     Given("JUEL expression in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
@@ -74,7 +74,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     }
 
     Given("Fixed value in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
