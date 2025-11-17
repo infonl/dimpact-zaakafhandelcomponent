@@ -144,8 +144,10 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("""the zaaktype CMMN configuration is not requested, because zaaktype - group authorisation using domains
-                    will be implemented differently using the PABC and is not yet supported with the PABC feature flag on""") {
+                And(
+                    """the zaaktype CMMN configuration is not requested, because zaaktype - group authorisation using domains
+                    will be implemented differently using the PABC and is not yet supported with the PABC feature flag on"""
+                ) {
                     verify(exactly = 0) {
                         zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
                     }
@@ -412,7 +414,9 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off") {
+        Given(
+            "A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off"
+        ) {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
