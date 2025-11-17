@@ -57,6 +57,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.loggedInUserQuery
       .data()
       ?.naam?.split(" ")
+      .filter(Boolean)
       .map(([firstLetter]) => firstLetter)
       .join(""),
   );
