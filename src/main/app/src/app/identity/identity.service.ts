@@ -5,21 +5,32 @@
 
 import { inject, Injectable } from "@angular/core";
 
-import { Observable, of } from "rxjs";
-import { tap } from "rxjs/operators";
+import {from, Observable} from "rxjs";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
+import {QueryClient} from "@tanstack/angular-query-experimental";
+import { persistQueryClient } from '@tanstack/query-persist-client-core'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 
 @Injectable({
   providedIn: "root",
 })
 export class IdentityService {
-  public static LOGGED_IN_USER_KEY = "loggedInUser";
-
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+
+  private readonly queryClient = new QueryClient()
+
+  constructor() {
+    persistQueryClient({
+      queryClient: this.queryClient,
+      persister: createAsyncStoragePersister({
+        storage: window.sessionStorage,
+        key: "zac:tanstack:query",
+      })
+    })
+  }
 
   listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
     if (!zaaktypeUuid) {
@@ -45,17 +56,11 @@ export class IdentityService {
   }
 
   readLoggedInUser() {
-    const loggedInUser = SessionStorageUtil.getItem<
-      GeneratedType<"RestLoggedInUser">
-    >(IdentityService.LOGGED_IN_USER_KEY);
-    if (loggedInUser) {
-      return of(loggedInUser);
-    }
-    return this.zacHttpClient.GET("/rest/identity/loggedInUser").pipe(
-      tap((user) => {
-        SessionStorageUtil.setItem(IdentityService.LOGGED_IN_USER_KEY, user);
-      }),
-    );
+    const promise = this.queryClient.fetchQuery({
+      ...this.zacQueryClient.GET("/rest/identity/loggedInUser"),
+    })
+
+    return from(promise);
   }
 
   readLoggedInUserAuthorization() {
