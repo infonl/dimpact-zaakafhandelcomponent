@@ -37,9 +37,6 @@ data class RestZaak(
     @get:JsonbProperty("isOpgeschort")
     var isOpgeschort: Boolean,
 
-    @get:JsonbProperty("isEerderOpgeschort")
-    var isEerderOpgeschort: Boolean,
-
     @get:JsonbProperty("isOpen")
     var isOpen: Boolean,
 
@@ -76,6 +73,7 @@ data class RestZaak(
     var publicatiedatum: LocalDate?,
     var rechten: RestZaakRechten,
     var redenOpschorting: String?,
+    var eerdereOpschorting: Boolean,
     var redenVerlenging: String?,
     var registratiedatum: LocalDate?,
     var resultaat: RestZaakResultaat?,

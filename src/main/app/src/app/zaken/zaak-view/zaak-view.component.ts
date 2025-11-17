@@ -247,6 +247,8 @@ export class ZaakViewComponent
     this.loadOpschorting();
     this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
+      console.log("eerdere opschorting:", zaak.eerdereOpschorting);
+
   }
 
   private getIngelogdeMedewerker() {
@@ -589,7 +591,7 @@ export class ZaakViewComponent
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd &&
-      !this.zaak.isEerderOpgeschort
+      !this.zaak.eerdereOpschorting
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(

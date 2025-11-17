@@ -205,7 +205,7 @@ describe(ZaakViewComponent.name, () => {
       },
       isHeropend: false,
       isOpgeschort: false,
-      isEerderOpgeschort: false,
+      eerdereOpschorting: false,
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
@@ -220,12 +220,12 @@ describe(ZaakViewComponent.name, () => {
       expect(button).toBeTruthy();
     });
 
-    describe("isEerderOpgeschort", () => {
+    describe("eerdereOpschorting", () => {
       beforeEach(() => {
         mockActivatedRoute.data.next({
           zaak: {
             ...opschortenZaak,
-            isEerderOpgeschort: true,
+            eerdereOpschorting: true,
           },
         });
       });
