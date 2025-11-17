@@ -16,7 +16,6 @@ import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -26,10 +25,6 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAG
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
@@ -39,19 +34,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
@@ -144,13 +132,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 }
                             ],            
-                            "GROEP": [
+                            "GROEP": [                          
                                 {
-                                    "aantal": 2,
-                                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
-                                },
-                                {
-                                    "aantal": 16,
+                                    "aantal": 18,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],         
@@ -575,13 +559,9 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "-NULL-"
                                 }
                             ],
-                            "GROEP": [
+                            "GROEP": [                            
                                 {
-                                    "aantal": 1,
-                                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
-                                },
-                                {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],

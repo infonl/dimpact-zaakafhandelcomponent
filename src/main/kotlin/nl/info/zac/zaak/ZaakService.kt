@@ -225,11 +225,11 @@ class ZaakService @Inject constructor(
      * @return true if the group has access to the zaak's domain, false otherwise
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
-        if (configuratieService.featureFlagPabcIntegration())
+        if (configuratieService.featureFlagPabcIntegration()) {
             // In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
             // This fist needs to be implemented by the PABC.
             true
-        else
+        } else {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
                 val hasAccess = params.domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value ||
                     this.zacClientRoles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
@@ -245,6 +245,7 @@ class ZaakService @Inject constructor(
                 }
                 hasAccess
             }
+        }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
         RolOrganisatorischeEenheid(
