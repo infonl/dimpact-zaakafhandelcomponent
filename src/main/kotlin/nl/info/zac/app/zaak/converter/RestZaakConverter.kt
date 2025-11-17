@@ -128,7 +128,7 @@ class RestZaakConverter @Inject constructor(
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort(),
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
-            eerdereOpschorting = zaak.opschorting.eerdereOpschorting,
+            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             isVerlengd = zaak.isVerlengd(),
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
