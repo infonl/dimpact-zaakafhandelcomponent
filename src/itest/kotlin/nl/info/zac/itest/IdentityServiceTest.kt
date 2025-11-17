@@ -183,7 +183,7 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                                 }
                             ]
-                """.trimIndent()
+                    """.trimIndent()
                 }
             }
         }
