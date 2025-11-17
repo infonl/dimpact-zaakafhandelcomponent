@@ -40,7 +40,7 @@ class FlowableHelper @Inject constructor(
     val mailTemplateService: MailTemplateService,
     val suspensionZaakHelper: SuspensionZaakHelper
 ) {
-    companion object FlowableHelperFactory {
+    companion object FlowableHelperProvider {
         fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
     }
 }
