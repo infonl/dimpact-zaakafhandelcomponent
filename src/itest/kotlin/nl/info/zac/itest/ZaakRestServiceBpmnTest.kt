@@ -14,6 +14,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -21,9 +24,6 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
@@ -104,8 +104,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
-            groupId = OLD_IAM_TEST_GROUP_A.name,
-            groupName = OLD_IAM_TEST_GROUP_A.description,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             val responseBody = bodyAsString
@@ -128,8 +128,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                      "initiator":null,
                      "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                      "firstName":"Name",
-                     "AM_TeamBehandelaar_Groep": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
-                     "AM_TeamBehandelaar_Medewerker": "${OLD_IAM_COORDINATOR_1.username}",
+                     "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
+                     "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
                      "SD_SmartDocuments_Template": "OpenZaakTest",
                      "SD_SmartDocuments_Create": false,
                      "RT_ReferenceTable_Values": "Post",
@@ -181,8 +181,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                     "initiator":null,
                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
                     "firstName":"Name",
-                    "AM_TeamBehandelaar_Groep": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
-                    "AM_TeamBehandelaar_Medewerker": "${OLD_IAM_COORDINATOR_1.username}",
+                    "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
+                    "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
                     "SD_SmartDocuments_Template": "OpenZaakTest",
                     "SD_SmartDocuments_Create": false,
                     "RT_ReferenceTable_Values": "Post",
