@@ -85,11 +85,11 @@ val TEST_GROUPS_ALL =
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
-                },                   
+                },
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
-                },        
+                },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"
