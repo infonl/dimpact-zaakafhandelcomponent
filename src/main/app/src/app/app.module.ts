@@ -14,12 +14,14 @@ import {
   LocationStrategy,
   PathLocationStrategy,
 } from "@angular/common";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { MatIconRegistry } from "@angular/material/icon";
 import {
   provideTanStackQuery,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
+import { fromEvent, map, scan } from "rxjs";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -38,8 +40,6 @@ import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
-import { fromEvent, map, scan } from "rxjs";
-import { toSignal } from "@angular/core/rxjs-interop";
 
 @Injectable({ providedIn: "root" })
 export class DevtoolsOptionsManager {
@@ -47,13 +47,13 @@ export class DevtoolsOptionsManager {
     fromEvent<KeyboardEvent>(document, "keydown").pipe(
       map(
         (event): boolean =>
-          event.metaKey && event.ctrlKey && event.shiftKey && event.key === "D"
+          event.metaKey && event.ctrlKey && event.shiftKey && event.key === "D",
       ),
-      scan((acc, curr) => acc || curr, isDevMode())
+      scan((acc, curr) => acc || curr, isDevMode()),
     ),
     {
       initialValue: isDevMode(),
-    }
+    },
   );
 }
 
@@ -90,8 +90,8 @@ export class DevtoolsOptionsManager {
         }),
         {
           deps: [DevtoolsOptionsManager],
-        }
-      )
+        },
+      ),
     ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
