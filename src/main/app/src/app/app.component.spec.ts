@@ -39,7 +39,6 @@ describe(AppComponent.name, () => {
   });
 
   it("should delete the logged in user session on init", () => {
-
     expect(removeQueriesSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: identityService.readLoggedInUser().queryKey,

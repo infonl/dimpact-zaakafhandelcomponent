@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject} from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { FontLoaderService } from "./core/font-loader.service";
 import { FontPreloadInjectorService } from "./core/font-preload-injector.service";
-import {QueryClient} from "@tanstack/angular-query-experimental";
-import {IdentityService} from "./identity/identity.service";
+import { IdentityService } from "./identity/identity.service";
 
 @Component({
   selector: "zac-root",
@@ -17,12 +17,14 @@ import {IdentityService} from "./identity/identity.service";
   styleUrls: ["./app.component.less"],
 })
 export class AppComponent {
-  private readonly queryClient = inject(QueryClient)
-  private readonly identityService = inject(IdentityService)
+  private readonly queryClient = inject(QueryClient);
+  private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
-  private readonly titleService = inject(Title)
-  private readonly fontLoaderService = inject(FontLoaderService)
-  private readonly fontPreloadInjectorService = inject(FontPreloadInjectorService)
+  private readonly titleService = inject(Title);
+  private readonly fontLoaderService = inject(FontLoaderService);
+  private readonly fontPreloadInjectorService = inject(
+    FontPreloadInjectorService,
+  );
 
   constructor() {
     this.titleService.setTitle("Zaakafhandelcomponent");
@@ -30,11 +32,11 @@ export class AppComponent {
     this.translateService.setFallbackLang("nl");
     const browserLanguage = this.translateService.getBrowserLang();
     this.translateService.use(
-        browserLanguage?.match(/nl|en/) ? browserLanguage : "nl",
+      browserLanguage?.match(/nl|en/) ? browserLanguage : "nl",
     );
 
     void this.queryClient.removeQueries({
-      queryKey: this.identityService.readLoggedInUser().queryKey
+      queryKey: this.identityService.readLoggedInUser().queryKey,
     });
 
     // Inject font preloads and load fonts with cache busting
