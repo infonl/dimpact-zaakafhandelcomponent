@@ -95,7 +95,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   ])(
     "Error handling fetching vestiging",
     ({ status, iconName, statusText }) => {
-      beforeEach(async () => {
+      beforeEach(() => {
         const request = httpController.expectOne(
           `/rest/klanten/vestiging/${betrokkeneIdentificatie.vestigingsnummer}/${betrokkeneIdentificatie.kvkNummer}`,
         );
