@@ -102,13 +102,10 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     Context("Assigning zaken") {
-        Given("A list of open zaken and a group and a user and PABC off") {
+        Given("A list of open zaken and a group and a user and PABC feature flag on") {
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -118,7 +115,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configuratieService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.id) } returns true
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
@@ -131,7 +128,7 @@ class ZaakServiceTest : BehaviorSpec({
                 )
 
                 Then(
-                    """for both zaken the group and user roles 
+                    """for all zaken the group and user roles 
                 and the search index should be updated and
                 a screen event of type 'zaken verdelen' should be sent"""
                 ) {
@@ -146,10 +143,17 @@ class ZaakServiceTest : BehaviorSpec({
                         objectId.resource shouldBe screenEventResourceId
                     }
                 }
+
+                And("""the zaaktype CMMN configuration is not requested, because zaaktype - group authorisation using domains
+                    will be implemented differently using the PABC and is not yet supported with the PABC feature flag on""") {
+                    verify(exactly = 0) {
+                        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+                    }
+                }
             }
         }
 
-        Given("One open and one closed zaak and a group and a user and PABC off") {
+        Given("One open and one closed zaak and a group and a user and PABC feature flag on") {
             clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
@@ -160,9 +164,6 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(openZaak.zaaktype.extractUuid())
-            } returns zaaktypeCmmnConfiguration
-            every {
                 ztcClientService.readRoltype(
                     openZaak.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR
@@ -170,7 +171,7 @@ class ZaakServiceTest : BehaviorSpec({
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configuratieService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.id) } returns true
 
             When(
@@ -207,7 +208,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         Given(
             """
-         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
+                A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
             """
         ) {
             clearAllMocks()
@@ -238,14 +239,11 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken and PABC off") {
+        Given("A list of zaken and PABC feature flag on") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -255,7 +253,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every { configuratieService.featureFlagPabcIntegration() } returns false
+                every { configuratieService.featureFlagPabcIntegration() } returns true
             }
             When(
                 """the assign zaken function is called with a group, WITHOUT a user
@@ -282,7 +280,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC off") {
+        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC feature flag off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -335,7 +333,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with domain and PABC off") {
+        Given("A list of zaken with no domain and a group with domain and PABC feature flag off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -374,7 +372,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with no domain and PABC off") {
+        Given("A list of zaken with no domain and a group with no domain and PABC feature flag off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
@@ -414,7 +412,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of two zaken and the second one has a group not matching the requested one and PABC off") {
+        Given("A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off") {
             clearAllMocks()
             val screenEventSlot = slot<ScreenEvent>()
             zaken.map {
