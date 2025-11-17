@@ -36,9 +36,9 @@ spec:
         image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
         imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
         {{- if .Values.solr.url }}
-        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q '\"zac\"' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
         {{- else }}
-        command: ["sh","-c","curl -sf -k 'http://{{ include \"zaakafhandelcomponent.solrcloud.fullname\" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q '\"zac\"' || curl -sf -k 'http://{{ include \"zaakafhandelcomponent.solrcloud.fullname\" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command: ["sh","-c","curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
         {{- end }}
       {{- end }}
       {{- if and .Values.opa.enabled (not .Values.opa.sidecar) }}
