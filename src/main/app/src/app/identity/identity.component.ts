@@ -8,19 +8,19 @@ import { IdentityService } from "./identity.service";
 export class IdentityComponent {
   private readonly identityService = inject(IdentityService);
 
-  protected readonly userAutorizationQuery = injectQuery(() =>
-    this.identityService.readLoggedInUserAuthorization(),
+  protected readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
   );
 
   protected readonly groups = computed(
-    () => this.userAutorizationQuery.data()?.groupIds || [],
+    () => this.loggedInUserQuery.data()?.groupIds || [],
   );
   protected readonly roles = computed(
-    () => this.userAutorizationQuery.data()?.functionalRoles || [],
+    () => this.loggedInUserQuery.data()?.functionalRoles || [],
   );
   protected readonly rolesPerZaakType = computed(() => {
     return Object.entries(
-      this.userAutorizationQuery.data()?.applicationRoles || {},
+      this.loggedInUserQuery.data()?.applicationRoles || {},
     ).map(([zaakType, roles]) => ({
       zaakType,
       roles: Array.from(Object.values(roles)),

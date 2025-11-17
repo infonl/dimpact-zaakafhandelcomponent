@@ -5,6 +5,7 @@
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
@@ -26,9 +27,12 @@ export class EditGroepBehandelaarComponent
   extends EditComponent
   implements OnInit, OnDestroy
 {
-  @Input() formField: MedewerkerGroepFormField;
-  @Input() reasonField: InputFormField;
-  private loggedInUser: GeneratedType<"RestLoggedInUser">;
+  @Input({ required: true }) formField!: MedewerkerGroepFormField;
+  @Input({ required: true }) reasonField!: InputFormField;
+
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     mfbService: MaterialFormBuilderService,
@@ -36,9 +40,6 @@ export class EditGroepBehandelaarComponent
     private identityService: IdentityService,
   ) {
     super(mfbService, utilService);
-    this.identityService.readLoggedInUser().subscribe((user) => {
-      this.loggedInUser = user;
-    });
   }
 
   ngOnInit(): void {
@@ -58,25 +59,31 @@ export class EditGroepBehandelaarComponent
   }
 
   release(): void {
-    this.formField.medewerkerValue(null);
+    this.formField.medewerkerValue(
+      null as unknown as GeneratedType<"RestUser">,
+    );
   }
 
   assignToMe(): void {
-    this.formField.medewerkerValue(this.loggedInUser);
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser) return;
+    this.formField.medewerkerValue(loggedInUser);
   }
 
   getFormControl(control: string): FormControl {
     return this.formField.formControl.get(control) as FormControl;
   }
 
-  get showAssignToMe(): boolean {
+  get showAssignToMe() {
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === this.formField.medewerker.value?.id) return false;
     return (
-      this.loggedInUser.id !== this.formField.medewerker.value?.id &&
-      this.loggedInUser.groupIds.indexOf(this.formField.groep.value?.id) >= 0
+      loggedInUser.groupIds?.includes(this.formField.groep.value?.id) ?? false
     );
   }
 
-  get showRelease(): boolean {
+  get showRelease() {
     return this.formField.medewerker.value !== null;
   }
 }

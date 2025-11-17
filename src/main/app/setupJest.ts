@@ -4,6 +4,7 @@
  *
  */
 
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import "whatwg-fetch";
 
 const cryptoPolyfill = {
@@ -43,6 +44,11 @@ console.error = jest.fn();
 console.info = jest.fn();
 // console.debug = jest.fn(); // We do want to see debug logs
 
+export const testQueryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
 afterEach(() => {
   jest.clearAllMocks();
+  testQueryClient.clear();
 });

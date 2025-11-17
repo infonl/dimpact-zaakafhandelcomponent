@@ -4,6 +4,7 @@
  */
 
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
@@ -22,7 +23,9 @@ export class NotitiesComponent implements OnInit {
   };
   @ViewChild("scrollTarget") scrollTarget!: ElementRef;
 
-  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   notities: GeneratedType<"RestNote">[] = [];
   showNotes = false;
@@ -36,9 +39,6 @@ export class NotitiesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
     this.haalNotitiesOp();
   }
 
@@ -65,7 +65,8 @@ export class NotitiesComponent implements OnInit {
   }
 
   maakNotitieAan(tekst: string) {
-    if (!this.ingelogdeMedewerker?.id) return;
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser?.id) return;
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
 
@@ -73,7 +74,7 @@ export class NotitiesComponent implements OnInit {
       .createNotitie({
         zaakUUID: this.zaakUuid,
         tekst,
-        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+        gebruikersnaamMedewerker: loggedInUser.id,
       })
       .subscribe((notitie) => {
         this.notities.splice(0, 0, notitie);
@@ -86,7 +87,8 @@ export class NotitiesComponent implements OnInit {
   }
 
   updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
-    if (!this.ingelogdeMedewerker?.id) return;
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser?.id) return;
 
     if (tekst.length === 0) return;
     if (tekst.length > this.maxLengteTextArea) return;
@@ -95,7 +97,7 @@ export class NotitiesComponent implements OnInit {
       .updateNotitie({
         ...notitie,
         tekst,
-        gebruikersnaamMedewerker: this.ingelogdeMedewerker.id,
+        gebruikersnaamMedewerker: loggedInUser.id,
       })
       .subscribe((updatedNotitie) => {
         Object.assign(notitie, updatedNotitie);

@@ -15,7 +15,7 @@ class RestLoggedInUser(
     id: String,
     naam: String,
     var groupIds: Set<String>? = null,
-    var functionalRoles : Set<String>? = null,
+    var functionalRoles: Set<String>? = null,
     var applicationRoles: Map<String, Set<String>>? = null,
 ) : RestUser(id, naam)
 

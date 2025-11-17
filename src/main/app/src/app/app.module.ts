@@ -21,6 +21,8 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { persistQueryClient } from "@tanstack/query-persist-client-core";
 import { fromEvent, map, scan } from "rxjs";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
@@ -36,6 +38,7 @@ import { InformatieObjectenModule } from "./informatie-objecten/informatie-objec
 import { MailModule } from "./mail/mail.module";
 import { PlanItemsModule } from "./plan-items/plan-items.module";
 import { ProductaanvragenModule } from "./productaanvragen/productaanvragen.module";
+import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
 import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
@@ -85,7 +88,29 @@ export class DevtoolsOptionsManager {
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     provideTanStackQuery(
-      new QueryClient(),
+      (() => {
+        const queryClient = new QueryClient();
+
+        persistQueryClient({
+          queryClient,
+          persister: createAsyncStoragePersister({
+            storage: window.sessionStorage,
+            key: "zac:tanstack:query",
+          }),
+          dehydrateOptions: {
+            shouldDehydrateQuery: (query) => {
+              const url = query.queryKey[0] as keyof Paths;
+
+              const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
+                "/rest/identity/loggedInUser",
+              ];
+              return sessionStoragePersistedEndpoints.includes(url);
+            },
+          },
+        });
+
+        return queryClient;
+      })(),
       withDevtools(
         (devToolsOptionsManager: DevtoolsOptionsManager) => ({
           loadDevtools: devToolsOptionsManager.loadDevtools(),
