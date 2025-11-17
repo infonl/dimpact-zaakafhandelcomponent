@@ -131,7 +131,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 }
                             ],            
-                            "GROEP": [                          
+                            "GROEP": [
                                 {
                                     "aantal": 18,
                                     "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
