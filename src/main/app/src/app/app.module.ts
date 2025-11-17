@@ -7,19 +7,21 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { Injector, isDevMode, NgModule } from "@angular/core";
+import { Injectable, Injector, isDevMode, NgModule } from "@angular/core";
 
 import {
   APP_BASE_HREF,
   LocationStrategy,
   PathLocationStrategy,
 } from "@angular/common";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { MatIconRegistry } from "@angular/material/icon";
 import {
   provideTanStackQuery,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
+import { fromEvent, map, scan } from "rxjs";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -38,6 +40,22 @@ import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
+
+@Injectable({ providedIn: "root" })
+export class DevtoolsOptionsManager {
+  loadDevtools = toSignal(
+    fromEvent<KeyboardEvent>(document, "keydown").pipe(
+      map(
+        (event): boolean =>
+          event.metaKey && event.ctrlKey && event.shiftKey && event.key === "D",
+      ),
+      scan((acc, curr) => acc || curr, isDevMode()),
+    ),
+    {
+      initialValue: isDevMode(),
+    },
+  );
+}
 
 @NgModule({
   declarations: [AppComponent, ToolbarComponent],
@@ -66,11 +84,14 @@ import { ZoekenModule } from "./zoeken/zoeken.module";
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     provideTanStackQuery(
       new QueryClient(),
-      withDevtools(() => ({
-        loadDevtools:
-          isDevMode() ||
-          window.localStorage.getItem("tanstack-query-devtools") === "true",
-      })),
+      withDevtools(
+        (devToolsOptionsManager: DevtoolsOptionsManager) => ({
+          loadDevtools: devToolsOptionsManager.loadDevtools(),
+        }),
+        {
+          deps: [DevtoolsOptionsManager],
+        },
+      ),
     ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
