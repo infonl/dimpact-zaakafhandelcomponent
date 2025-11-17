@@ -728,8 +728,13 @@ services:
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       HTTP_PORTS: "8000"
+      RequireHttpsMetadata: false
       API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+      Oidc__Authority: "http://keycloak:8080/realms/zaakafhandelcomponent/"
+      Oidc__ClientId: "pabc"
+      Oidc__ClientSecret: "pabcClientSecret"
+      Oidc__FunctioneelBeheerderRole: "administrator"
     ports:
       - "8006:8000"
     depends_on:
