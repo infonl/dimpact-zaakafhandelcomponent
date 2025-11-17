@@ -521,8 +521,8 @@ class SearchRestServiceTest : BehaviorSpec({
             )
             Then(
                 """
-                    the response is successful and the search results include the indexed taken 
-                    and the returned permissions are those for the raadpleger role
+                    the response is successful and the search results include the filters corresponding to
+                     the indexed tasks, and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
                 val responseBody = response.bodyAsString
