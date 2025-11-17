@@ -9,6 +9,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL
@@ -47,7 +48,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -182,7 +182,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${OLD_IAM_TEST_GROUP_A.name}",
+                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -234,7 +234,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${OLD_IAM_TEST_GROUP_A.name}",
+                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "domein": "domein_test_1",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",

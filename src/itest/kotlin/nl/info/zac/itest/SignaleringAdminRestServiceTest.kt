@@ -15,6 +15,7 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -27,7 +28,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
@@ -77,8 +77,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = OLD_IAM_TEST_GROUP_A.name,
-            groupName = OLD_IAM_TEST_GROUP_A.description,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
@@ -112,8 +112,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                         "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                     },
                     "groep": {
-                        "id": "${OLD_IAM_TEST_GROUP_A.name}",
-                        "naam": "${OLD_IAM_TEST_GROUP_A.description}"
+                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                     },
                     "taakdata":{}
                 }

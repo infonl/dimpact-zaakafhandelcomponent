@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -17,7 +18,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -44,8 +44,8 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
         lateinit var zaak2Identificatie: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = OLD_IAM_TEST_GROUP_A.name,
-            groupName = OLD_IAM_TEST_GROUP_A.description,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             val responseBody = bodyAsString
@@ -56,8 +56,8 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
         }
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-            groupId = OLD_IAM_TEST_GROUP_A.name,
-            groupName = OLD_IAM_TEST_GROUP_A.description,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
             logger.info { "Response: $bodyAsString" }

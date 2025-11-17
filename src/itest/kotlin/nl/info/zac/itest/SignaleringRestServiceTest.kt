@@ -115,6 +115,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
 
         zaakPath = "zaken/api/v1/zaken/$zaakUUID"
+        // retrieve the roles of this zaak from Open Zaak
         val zaakRollenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
