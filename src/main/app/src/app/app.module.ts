@@ -18,7 +18,6 @@ import { MatIconRegistry } from "@angular/material/icon";
 import {
   provideTanStackQuery,
   QueryClient,
-  QueryFeatures,
 } from "@tanstack/angular-query-experimental";
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { AdminModule } from "./admin/admin.module";
@@ -39,10 +38,6 @@ import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
-
-const tanstackQueryFeatures: QueryFeatures[] = [];
-
-if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
 
 @NgModule({
   declarations: [AppComponent, ToolbarComponent],
@@ -69,7 +64,14 @@ if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideTanStackQuery(new QueryClient(), ...tanstackQueryFeatures),
+    provideTanStackQuery(
+      new QueryClient(),
+      withDevtools(() => ({
+        loadDevtools:
+          isDevMode() ||
+          window.localStorage.getItem("tanstack-query-devtools") === "true",
+      })),
+    ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })

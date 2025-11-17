@@ -34,10 +34,10 @@ class SuspensionZaakHelper @Inject constructor(
 
         val zaakUUID = zaak.uuid
         val toelichting = "$SUSPENSION: $suspensionReason"
-        val einddatumGepland = zaak.einddatumGepland?.plusDays(numberOfDays)
-        val uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening.plusDays(numberOfDays)
+        val plannedEndDate = zaak.einddatumGepland?.plusDays(numberOfDays)
+        val latestEndDateSettlement = zaak.uiterlijkeEinddatumAfdoening.plusDays(numberOfDays)
         val patchZaak = addSuspensionToZaakPatch(
-            createZaakPatch(einddatumGepland, uiterlijkeEinddatumAfdoening),
+            createZaakPatch(plannedEndDate, latestEndDateSettlement),
             suspensionReason,
             true
         )
@@ -48,21 +48,25 @@ class SuspensionZaakHelper @Inject constructor(
         return updatedZaak
     }
 
-    fun resumeZaak(zaak: Zaak, resumeReason: String?): Zaak {
+    fun resumeZaak(zaak: Zaak, resumeReason: String?, resumeDate: ZonedDateTime = ZonedDateTime.now()): Zaak {
         assertPolicy(policyService.readZaakRechten(zaak).hervatten)
         assertPolicy(zaak.isOpgeschort())
 
         val zaakUUID = zaak.uuid
-        val datumOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid) ?: ZonedDateTime.now()
-        val verwachteDagenOpgeschort = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) ?: 0
-        val dagenVerschil = ChronoUnit.DAYS.between(datumOpgeschort, ZonedDateTime.now())
-        val offset = dagenVerschil - verwachteDagenOpgeschort
-        val einddatumGepland = zaak.einddatumGepland?.plusDays(offset)
-        val uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening.plusDays(offset)
+        val dateSuspended = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid)?.also {
+            require(resumeDate.isAfter(it)) {
+                "Resume date $resumeDate cannot be before suspension date $it"
+            }
+        } ?: ZonedDateTime.now()
+        val expectedDaysSuspended = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) ?: 0
+        val daysSinceSuspended = ChronoUnit.DAYS.between(dateSuspended, resumeDate)
+        val offset = daysSinceSuspended - expectedDaysSuspended
+        val plannedEndDate = zaak.einddatumGepland?.plusDays(offset)
+        val latestEndDateSettlement = zaak.uiterlijkeEinddatumAfdoening.plusDays(offset)
 
         val toelichting = "$RESUMING: $resumeReason"
         val patchZaak = addSuspensionToZaakPatch(
-            createZaakPatch(einddatumGepland, uiterlijkeEinddatumAfdoening),
+            createZaakPatch(plannedEndDate, latestEndDateSettlement),
             resumeReason,
             false
         )
