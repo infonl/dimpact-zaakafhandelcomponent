@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -17,7 +18,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class IdentityService {
   public static LOGGED_IN_USER_KEY = "loggedInUser";
 
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
     if (!zaaktypeUuid) {
@@ -54,5 +56,9 @@ export class IdentityService {
         SessionStorageUtil.setItem(IdentityService.LOGGED_IN_USER_KEY, user);
       }),
     );
+  }
+
+  readLoggedInUserAuthorization() {
+    return this.zacQueryClient.GET("/rest/identity/loggedInUser");
   }
 }

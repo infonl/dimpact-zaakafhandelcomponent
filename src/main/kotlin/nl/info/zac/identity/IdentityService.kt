@@ -36,7 +36,8 @@ class IdentityService @Inject constructor(
     private val configuratieService: ConfiguratieService,
 
     @ConfigProperty(name = "AUTH_RESOURCE")
-    private val zacKeycloakClientId: String,
+    private val zacKeycloakClientId: String
+
 ) {
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()

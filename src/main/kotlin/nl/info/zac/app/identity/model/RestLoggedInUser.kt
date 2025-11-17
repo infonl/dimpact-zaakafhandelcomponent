@@ -15,11 +15,15 @@ class RestLoggedInUser(
     id: String,
     naam: String,
     var groupIds: Set<String>? = null,
+    var functionalRoles : Set<String>? = null,
+    var applicationRoles: Map<String, Set<String>>? = null,
 ) : RestUser(id, naam)
 
 fun LoggedInUser.toRestLoggedInUser(): RestLoggedInUser =
     RestLoggedInUser(
         id = this.id,
         naam = this.getFullName(),
-        groupIds = this.groupIds
+        groupIds = this.groupIds,
+        functionalRoles = this.roles,
+        applicationRoles = this.applicationRolesPerZaaktype,
     )

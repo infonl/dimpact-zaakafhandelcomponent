@@ -31,6 +31,7 @@ import { DashboardModule } from "./dashboard/dashboard.module";
 import { DocumentenModule } from "./documenten/documenten.module";
 import { FoutAfhandelingModule } from "./fout-afhandeling/fout-afhandeling.module";
 import { GebruikersvoorkeurenModule } from "./gebruikersvoorkeuren/gebruikersvoorkeuren.module";
+import { IdentityModule } from "./identity/identity.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
 import { MailModule } from "./mail/mail.module";
 import { PlanItemsModule } from "./plan-items/plan-items.module";
@@ -75,6 +76,7 @@ export class DevtoolsOptionsManager {
     ProductaanvragenModule,
     SignaleringenModule,
     TakenModule,
+    IdentityModule,
     AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
