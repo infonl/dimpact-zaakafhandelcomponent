@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -49,10 +49,8 @@ export class ZacQueryClient {
       queryKey: [url, ...args],
       queryFn: () =>
         lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
-      retry: (failureCount: number, error) => {
-        if (failureCount >= DEFAULT_RETRY_COUNT) {
-          return false;
-        }
+      retry: (failureCount, error) => {
+        if (failureCount >= DEFAULT_RETRY_COUNT) return false;
         return error.status === 0 || error.status >= 500;
       },
       refetchOnWindowFocus: false,
