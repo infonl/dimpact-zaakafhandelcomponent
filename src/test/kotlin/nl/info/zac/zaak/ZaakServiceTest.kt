@@ -207,7 +207,7 @@ class ZaakServiceTest : BehaviorSpec({
 
         Given(
             """
-         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak         
+         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
             """
         ) {
             clearAllMocks()
