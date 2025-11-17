@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.zaak
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
@@ -95,7 +94,6 @@ class ZaakServiceTest : BehaviorSpec({
     val rolTypeBehandelaar = createRolType(
         omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
     )
-    val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
     beforeEach {
         checkUnnecessaryStub()
