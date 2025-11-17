@@ -11,8 +11,7 @@ import { AppComponent } from "./app.component";
 import { IdentityService } from "./identity/identity.service";
 
 describe(AppComponent.name, () => {
-  let component: AppComponent;
-  let fixture: ComponentFixture<typeof component>;
+  let fixture: ComponentFixture<AppComponent>;
   let identityService: IdentityService;
   const removeQueriesSpy = jest.spyOn(testQueryClient, "removeQueries");
 
@@ -31,7 +30,6 @@ describe(AppComponent.name, () => {
     identityService = TestBed.inject(IdentityService);
 
     fixture = TestBed.createComponent(AppComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 

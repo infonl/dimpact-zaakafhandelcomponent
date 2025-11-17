@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Component, computed, inject } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "./identity.service";

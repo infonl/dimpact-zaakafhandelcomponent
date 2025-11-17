@@ -78,8 +78,9 @@ export class EditGroepBehandelaarComponent
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
     if (loggedInUser.id === this.formField.medewerker.value?.id) return false;
+    if (!this.formField.groep.value?.id) return false;
     return (
-      loggedInUser.groupIds?.includes(this.formField.groep.value?.id) ?? false
+      loggedInUser.groupIds?.includes(this.formField.groep.value.id) ?? false
     );
   }
 
