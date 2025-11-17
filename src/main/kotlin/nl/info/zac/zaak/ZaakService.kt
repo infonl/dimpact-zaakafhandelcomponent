@@ -213,7 +213,7 @@ class ZaakService @Inject constructor(
      * zaakafhandelparameters of the zaaktype.
      * This function currently only works for the old IAM architecture.
      * In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
-     * This fist needs to be implemented by the PABC.
+     * This first needs to be implemented by the PABC.
      *
      * Domain access is granted to a:
      * - zaaktype without domain
