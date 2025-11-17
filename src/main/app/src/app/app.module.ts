@@ -99,7 +99,8 @@ export class DevtoolsOptionsManager {
           }),
           dehydrateOptions: {
             shouldDehydrateQuery: (query) => {
-              const url = query.queryKey[0] as keyof Paths;
+              const url = typeof query.queryKey[0] === 'string' ? query.queryKey[0] as keyof Paths : null;
+              if (!url) return false;
 
               const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
                 "/rest/identity/loggedInUser",
