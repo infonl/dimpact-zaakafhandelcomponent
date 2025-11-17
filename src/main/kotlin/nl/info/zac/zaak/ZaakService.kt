@@ -213,7 +213,7 @@ class ZaakService @Inject constructor(
      * zaakafhandelparameters of the zaaktype.
      * This function currently only works for the old IAM architecture.
      * In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
-     * This fist needs to be implemented by the PABC.
+     * This first needs to be implemented by the PABC.
      *
      * Domain access is granted to a:
      * - zaaktype without domain
@@ -227,7 +227,7 @@ class ZaakService @Inject constructor(
     private fun Group.hasDomainAccess(zaak: Zaak) =
         if (configuratieService.featureFlagPabcIntegration()) {
             // In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
-            // This fist needs to be implemented by the PABC.
+            // This first needs to be implemented by the PABC.
             true
         } else {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
