@@ -136,7 +136,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -190,7 +190,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -244,7 +244,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -385,7 +385,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -445,7 +445,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe true
+                    eerdereOpschorting shouldBe true
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
