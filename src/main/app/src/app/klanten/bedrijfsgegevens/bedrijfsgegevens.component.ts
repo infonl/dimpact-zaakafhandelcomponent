@@ -25,11 +25,11 @@ export class BedrijfsgegevensComponent {
   protected delete = output<GeneratedType<"RestBedrijf"> | null>();
   protected edit = output<GeneratedType<"RestBedrijf"> | null>();
 
-  protected readonly bedrijfQuery = injectQuery(() => {
-    return this.klantenService.readBedrijf(
+  protected readonly bedrijfQuery = injectQuery(() =>
+    this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie(this.initiatorIdentificatie()),
-    );
-  });
+    ),
+  );
 
   protected vestigingsprofielOphalenMogelijk = computed(
     () => !!this.bedrijfQuery.data()?.vestigingsnummer,

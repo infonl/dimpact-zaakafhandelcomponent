@@ -52,3 +52,7 @@ afterEach(() => {
   jest.clearAllMocks();
   testQueryClient.clear();
 });
+
+export function sleep(ms: number = 0) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
