@@ -3,17 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, OnDestroy, ViewChild } from "@angular/core";
+import { Component, inject, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
+import { NavigationSkipped, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import {
   injectMutation,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, of, Subject, takeUntil } from "rxjs";
+import { Observable, of } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -32,9 +33,18 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
 })
-export class ZaakCreateComponent implements OnDestroy {
+export class ZaakCreateComponent {
+  private readonly zakenService = inject(ZakenService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly identityService = inject(IdentityService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly translateService = inject(TranslateService);
+  private readonly router = inject(Router);
+  private readonly klantenService = inject(KlantenService);
+  private readonly referentieTabelService = inject(ReferentieTabelService);
+
   private readonly queryClient = inject(QueryClient);
-  private readonly destroy$ = new Subject<void>();
   static DEFAULT_CHANNEL = "E-formulier";
 
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
@@ -86,25 +96,15 @@ export class ZaakCreateComponent implements OnDestroy {
     toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly router: Router,
-    private readonly klantenService: KlantenService,
-    referentieTabelService: ReferentieTabelService,
-    private readonly translateService: TranslateService,
-    private readonly utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-    private readonly identityService: IdentityService,
-    private readonly navigationService: NavigationService,
-  ) {
-    utilService.setTitle("title.zaak.aanmaken");
+  constructor() {
+    this.utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
-      router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
 
-    referentieTabelService
+    this.referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
       .subscribe((channels) => {
         this.communicationChannels = channels;
@@ -117,7 +117,7 @@ export class ZaakCreateComponent implements OnDestroy {
       });
 
     this.form.controls.zaaktype.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((caseType) => {
         this.caseTypeSelected(caseType);
 
@@ -129,15 +129,16 @@ export class ZaakCreateComponent implements OnDestroy {
 
         this.form.controls.initiatorIdentificatie.enable();
       });
+
     this.form.controls.groep.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (!value) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
         }
-        identityService.listUsersInGroup(value.id).subscribe((users) => {
+        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
           this.form.controls.behandelaar.setValue(
@@ -151,7 +152,13 @@ export class ZaakCreateComponent implements OnDestroy {
         });
       });
 
-    this.handleProductRequest(this.inboxProductaanvraag);
+    void this.handleProductRequest(this.inboxProductaanvraag);
+
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationSkipped) {
+        this.form.reset();
+      }
+    });
   }
 
   formSubmit() {
@@ -301,10 +308,5 @@ export class ZaakCreateComponent implements OnDestroy {
 
   protected back() {
     this.navigationService.back();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
