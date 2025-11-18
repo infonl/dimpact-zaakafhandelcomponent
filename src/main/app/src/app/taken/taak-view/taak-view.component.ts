@@ -17,6 +17,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -102,7 +103,6 @@ export class TaakViewComponent
   protected initialized = false;
 
   private taakListener?: WebsocketListener;
-  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   readonly TaakStatusAfgerond =
     "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
@@ -113,6 +113,10 @@ export class TaakViewComponent
     partialSubmitLabel: "actie.opslaan",
     hideCancelButton: true,
   };
+
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -132,7 +136,6 @@ export class TaakViewComponent
   }
 
   ngOnInit() {
-    this.getIngelogdeMedewerker();
     this.route.data.subscribe((data) => {
       this.createZaakFromTaak(data.taak);
       this.init(data.taak);
@@ -523,7 +526,7 @@ export class TaakViewComponent
     if (
       event["medewerker-groep"].medewerker &&
       event["medewerker-groep"].medewerker.id ===
-        this.ingelogdeMedewerker?.id &&
+        this.loggedInUserQuery.data()?.id &&
       this.taak?.groep === event["medewerker-groep"].groep
     ) {
       this.assignToMe();
@@ -552,12 +555,6 @@ export class TaakViewComponent
           this.utilService.openSnackbar("msg.vrijgegeven.taak");
         }
       });
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
   }
 
   private assignToMe() {

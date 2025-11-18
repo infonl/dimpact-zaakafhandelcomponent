@@ -22,6 +22,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
@@ -55,7 +56,6 @@ export class TakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<TaakZoekObject>;
-  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
@@ -72,6 +72,10 @@ export class TakenWerkvoorraadComponent
     groep?: GeneratedType<"RestGroup">;
     medewerker?: GeneratedType<"RestUser">;
   };
+
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     public route: ActivatedRoute,
@@ -93,7 +97,6 @@ export class TakenWerkvoorraadComponent
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.taken.werkvoorraad");
-    this.getIngelogdeMedewerker();
     this.dataSource.initColumns(this.defaultColumns());
   }
 
@@ -102,21 +105,13 @@ export class TakenWerkvoorraadComponent
     this.table.dataSource = this.dataSource;
   }
 
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
-  }
-
   showAssignToMe(taakZoekObject: TaakZoekObject) {
-    return (
-      taakZoekObject.rechten.toekennen &&
-      this.ingelogdeMedewerker?.id !==
-        taakZoekObject.behandelaarGebruikersnaam &&
-      Boolean(
-        this.ingelogdeMedewerker?.groupIds?.includes(taakZoekObject.groepID),
-      )
-    );
+    if (!taakZoekObject.rechten.toekennen) return false;
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
+      return false;
+    return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
 
   assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {

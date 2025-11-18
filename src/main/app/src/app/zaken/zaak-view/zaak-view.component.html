@@ -58,7 +58,7 @@
     <zac-case-details-edit
       *ngSwitchCase="'actie.zaak.wijzigen'"
       [zaak]="zaak"
-      [loggedInUser]="loggedInUser"
+      [loggedInUser]="loggedInUser.data()!"
       [sideNav]="actionsSidenav"
     ></zac-case-details-edit>
     <zac-case-location-edit
