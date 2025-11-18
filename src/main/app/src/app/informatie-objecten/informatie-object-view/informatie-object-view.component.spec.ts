@@ -13,7 +13,9 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
@@ -80,6 +82,7 @@ describe(InformatieObjectViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -111,9 +114,10 @@ describe(InformatieObjectViewComponent.name, () => {
       );
 
     const identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue(of({ id: "1234", naam: "Test User" }));
+    testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
+      id: "1234",
+      naam: "Test User",
+    });
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));

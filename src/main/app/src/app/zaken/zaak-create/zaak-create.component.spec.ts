@@ -17,13 +17,11 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { ZacInput } from "src/app/shared/form/input/input";
+import { testQueryClient } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -52,7 +50,7 @@ describe(ZaakCreateComponent.name, () => {
         UtilService,
         IdentityService,
         provideHttpClient(),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
       ],
       imports: [
         RouterModule.forRoot([]),

@@ -20,9 +20,11 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -108,6 +110,7 @@ describe(InformatieObjectEditComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         {
           provide: MatDrawer,
           useValue: mockSideNav,
@@ -127,9 +130,10 @@ describe(InformatieObjectEditComponent.name, () => {
     translateService = TestBed.inject(TranslateService);
 
     // Mock services
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue(of({ id: "1234", naam: "Test User" }));
+    testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
+      id: "1234",
+      naam: "Test User",
+    });
 
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypesForZaak")
@@ -174,12 +178,16 @@ describe(InformatieObjectEditComponent.name, () => {
 
   describe("when no `infoObject` is present", () => {
     it("should not call `identityService.readLoggedInUser`", () => {
-      const readLoggedInUser = jest.spyOn(identityService, "readLoggedInUser");
+      const ensureQueryData = jest.spyOn(testQueryClient, "ensureQueryData");
 
       componentRef.setInput("infoObject", undefined);
       fixture.detectChanges();
 
-      expect(readLoggedInUser).not.toHaveBeenCalled();
+      expect(ensureQueryData).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: identityService.readLoggedInUser().queryKey,
+        }),
+      );
     });
 
     it("should display empty form fields", async () => {
@@ -203,15 +211,21 @@ describe(InformatieObjectEditComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should call `identityService.readLoggedInUser`", () => {
-      const readLoggedInUser = jest.spyOn(identityService, "readLoggedInUser");
+    it("should call `ensureQueryData` when no author is set on the infoObject", async () => {
+      const ensureQueryData = jest.spyOn(testQueryClient, "ensureQueryData");
 
-      componentRef.setInput(
-        "infoObject",
-        enkelvoudigInformatieObjectVersieGegevens,
+      componentRef.setInput("infoObject", {
+        ...enkelvoudigInformatieObjectVersieGegevens,
+        auteur: null,
+      });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(ensureQueryData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: identityService.readLoggedInUser().queryKey,
+        }),
       );
-
-      expect(readLoggedInUser).toHaveBeenCalled();
     });
 
     it("should load informatieobject types", () => {

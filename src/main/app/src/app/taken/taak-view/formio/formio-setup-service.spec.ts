@@ -19,6 +19,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
@@ -81,7 +82,6 @@ const referenceTableFieldset: ExtendedComponentSchema = {
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
   let utilService: UtilService;
-  let queryClient: QueryClient;
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -113,7 +113,6 @@ describe(FormioSetupService.name, () => {
   };
 
   beforeEach(() => {
-    queryClient = new QueryClient();
     TestBed.configureTestingModule({
       imports: [
         MatSidenav,
@@ -133,7 +132,7 @@ describe(FormioSetupService.name, () => {
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-        provideQueryClient(queryClient),
+        provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
 
@@ -335,7 +334,7 @@ describe(FormioSetupService.name, () => {
 
     it("should invoke userGroupsQuery with zaakTypeUUID", async () => {
       const clientQuerySpy = jest
-        .spyOn(queryClient, "ensureQueryData")
+        .spyOn(testQueryClient, "ensureQueryData")
         .mockResolvedValue([]);
 
       const groepComponent: ExtendedComponentSchema = {
@@ -442,7 +441,7 @@ describe(FormioSetupService.name, () => {
 
       formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
       const quertClientSpy = jest
-        .spyOn(queryClient, "ensureQueryData")
+        .spyOn(testQueryClient, "ensureQueryData")
         .mockResolvedValue([]);
 
       await medewerkerComponent.data.custom();

@@ -16,20 +16,17 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
+import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
@@ -57,7 +54,6 @@ describe(ZaakViewComponent.name, () => {
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
-  let identityService: IdentityService;
   let websocketService: WebsocketService;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
 
@@ -112,7 +108,7 @@ describe(ZaakViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
@@ -153,11 +149,6 @@ describe(ZaakViewComponent.name, () => {
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue(of(fromPartial<GeneratedType<"RestLoggedInUser">>({})));
 
     TestBed.inject(KlantenService);
 
