@@ -17,7 +17,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **prom/prometheus**: v3.7.3
 - **grafana/grafana**: 12.2.1
 - **greenmail/standalone**: 2.1.7
-- **rabbitmq**: 4.2.0-alpine
+- **rabbitmq**: 4.2.1-alpine
 - **nginx**: 1.29.3
 
 ## PodiumD dependencies
