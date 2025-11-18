@@ -3216,9 +3216,7 @@
       "notBefore": 0,
       "groups": [],
       "clientRoles": {
-        "pabc": [
-          "administrator"
-        ]
+        "pabc": ["administrator"]
       }
     }
   ]
