@@ -3,10 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  Input,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, Subject, Subscription, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
@@ -37,11 +45,22 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   ingelogdeMedewerker?: GeneratedType<"RestUser">;
   overigeRechten?: GeneratedType<"RestOverigeRechten">;
   werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
-  medewerkerNaamToolbar = "";
 
   private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
   private destroy$ = new Subject<void>();
+
+  protected readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+  protected readonly medewerkerNaamToolbar = computed(() =>
+    this.loggedInUserQuery
+      .data()
+      ?.naam?.split(" ")
+      .filter(Boolean)
+      .map(([firstLetter]) => firstLetter)
+      .join(""),
+  );
 
   constructor(
     public utilService: UtilService,
@@ -52,7 +71,19 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private websocketService: WebsocketService,
     private policyService: PolicyService,
     private router: Router,
-  ) {}
+  ) {
+    effect(() => {
+      const loggedInUser = this.loggedInUserQuery.data();
+      if (!loggedInUser) return;
+
+      this.signaleringListener = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.SIGNALERINGEN,
+        loggedInUser.id,
+        () => this.signaleringenService.updateSignaleringen(),
+      );
+    });
+  }
 
   ngOnInit(): void {
     this.zoekenService.trefwoorden$
@@ -77,20 +108,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     });
 
     this.headerTitle$ = this.utilService.headerTitle$;
-    this.identityService.readLoggedInUser().subscribe((medewerker) => {
-      this.ingelogdeMedewerker = medewerker;
-      this.medewerkerNaamToolbar = medewerker.naam
-        .split(" ")
-        .map((n) => n[0])
-        .join("");
 
-      this.signaleringListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.SIGNALERINGEN,
-        medewerker.id,
-        () => this.signaleringenService.updateSignaleringen(),
-      );
-    });
     this.policyService
       .readOverigeRechten()
       .subscribe((rechten) => (this.overigeRechten = rechten));
