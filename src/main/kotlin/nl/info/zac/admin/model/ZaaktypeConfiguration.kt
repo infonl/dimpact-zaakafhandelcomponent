@@ -32,10 +32,10 @@ abstract class ZaaktypeConfiguration {
     companion object {
         enum class ZaakTypeConfigurationType { CMMN, BPMN }
 
-        const val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = "productaanvraagtype"
-        const val ZAAKTYPE_UUID_VARIABLE_NAME = "zaaktype_uuid"
-        const val ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME = "zaaktypeOmschrijving"
-        const val CREATIEDATUM_VARIABLE_NAME = "creatiedatum"
+        val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = ZaaktypeConfiguration::productaanvraagtype.name
+        val ZAAKTYPE_UUID_VARIABLE_NAME = ZaaktypeConfiguration::zaakTypeUUID.name
+        val ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME = ZaaktypeConfiguration::zaaktypeOmschrijving.name
+        val CREATIEDATUM_VARIABLE_NAME = ZaaktypeConfiguration::creatiedatum.name
     }
 
     @Id
@@ -69,6 +69,5 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "domein")
     var domein: String? = null
 
-    @Column(name = "configuration_type")
-    var configurationType: ZaakTypeConfigurationType? = null
+    abstract fun getConfigurationType(): ZaakTypeConfigurationType
 }

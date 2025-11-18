@@ -34,7 +34,6 @@ import java.util.UUID
 @AllOpen
 @Suppress("TooManyFunctions")
 class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
-
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_configuration", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -326,4 +325,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
 
     fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =
         getHumanTaskParametersCollection().find { it.planItemDefinitionID == planitemDefinitionID }
+
+    override fun getConfigurationType() = Companion.ZaakTypeConfigurationType.CMMN
 }

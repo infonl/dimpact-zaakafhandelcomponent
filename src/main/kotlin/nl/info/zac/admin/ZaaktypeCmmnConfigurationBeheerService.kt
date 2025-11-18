@@ -81,7 +81,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
-        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
+        query.select(root).where(builder.equal(root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull()
     }

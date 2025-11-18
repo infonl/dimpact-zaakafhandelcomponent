@@ -36,4 +36,6 @@ class ZaaktypeBpmnConfiguration : ZaaktypeConfiguration() {
     @NotBlank
     @Column(name = "bpmn_process_definition_key")
     lateinit var bpmnProcessDefinitionKey: String
+
+    override fun getConfigurationType() = Companion.ZaakTypeConfigurationType.BPMN
 }
