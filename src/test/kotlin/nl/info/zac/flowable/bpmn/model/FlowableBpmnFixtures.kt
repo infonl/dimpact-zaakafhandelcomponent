@@ -19,11 +19,11 @@ fun createZaaktypeBpmnConfiguration(
 ) = ZaaktypeBpmnConfiguration().apply {
     this.id = id
     zaaktypeUuid?.let {
-        this.zaaktypeUuid = zaaktypeUuid
+        this.zaakTypeUUID = zaaktypeUuid
     }
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
     this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.productaanvraagtype = productaanvraagtype
-    this.groupId = groupName
+    this.groepID = groupName
     this.creatiedatum = ZonedDateTime.now()
 }

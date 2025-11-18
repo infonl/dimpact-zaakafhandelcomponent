@@ -81,11 +81,11 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnProcessDefinition.id
-            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            zaakTypeUUID = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+            groepID = restZaaktypeBpmnProcessDefinition.groepNaam
             creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
@@ -102,10 +102,10 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
         RestZaaktypeBpmnConfiguration(
             id = this.id,
-            zaaktypeUuid = this.zaaktypeUuid,
+            zaaktypeUuid = this.zaakTypeUUID,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-            groepNaam = this.groupId,
+            groepNaam = this.groepID,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum,
         )

@@ -40,7 +40,7 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         zaaktypeBpmnConfiguration.productaanvraagtype?.let {
             zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
-                if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
+                if (zaaktype.zaakTypeUUID != zaaktypeBpmnConfiguration.zaakTypeUUID) {
                     LOG.info(
                         "Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
                     )
@@ -58,11 +58,11 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
         zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktype.omschrijving)?.let {
             ZaaktypeBpmnConfiguration().apply {
                 id = it.id
-                this.zaaktypeUuid = zaaktypeUuid
+                this.zaakTypeUUID = zaaktypeUuid
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
                 productaanvraagtype = it.productaanvraagtype
-                groupId = it.groupId
+                groepID = it.groepID
                 creatiedatum = ZonedDateTime.now()
             }.run(zaaktypeBpmnConfigurationBeheerService::storeConfiguration)
         }

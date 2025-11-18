@@ -80,7 +80,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every {
             zaaktypeCmmnConfigurationCriteriaQuery.select(zaaktypeCmmnConfigurationRoot)
         } returns zaaktypeCmmnConfigurationCriteriaQuery
-        every { zaaktypeCmmnConfigurationRoot.get<Any>("zaakTypeUUID") } returns path
+        every { zaaktypeCmmnConfigurationRoot.get<Any>("zaaktype_uuid") } returns path
         every { criteriaBuilder.equal(path, zaaktypeCmmnConfiguration.zaakTypeUUID) } returns predicate
         every { zaaktypeCmmnConfigurationCriteriaQuery.where(predicate) } returns zaaktypeCmmnConfigurationCriteriaQuery
         every {

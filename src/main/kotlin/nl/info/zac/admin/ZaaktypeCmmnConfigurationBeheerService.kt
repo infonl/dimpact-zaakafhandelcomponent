@@ -20,15 +20,15 @@ import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.CREATIEDATUM
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.PRODUCTAANVRAAGTYYPE
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_UUID
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -81,7 +81,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
-        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUUID))
+        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull()
     }
@@ -128,14 +128,17 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         val subquery = query.subquery(Date::class.java)
         val subqueryRoot = subquery.from(ZaaktypeCmmnConfiguration::class.java)
-        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM)))
+        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM_VARIABLE_NAME)))
             .where(
-                builder.equal(subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING), root.get<String>(ZAAKTYPE_OMSCHRIJVING))
+                builder.equal(
+                    subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME),
+                    root.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME)
+                )
             )
         query.select(root).where(
             builder.and(
-                builder.equal(root.get<String>(PRODUCTAANVRAAGTYYPE), productaanvraagType),
-                builder.equal(root.get<String>(CREATIEDATUM), subquery)
+                builder.equal(root.get<String>(PRODUCTAANVRAAGTYPE_VARIABLE_NAME), productaanvraagType),
+                builder.equal(root.get<String>(CREATIEDATUM_VARIABLE_NAME), subquery)
             )
         )
         return entityManager.createQuery(query).resultList
@@ -273,8 +276,8 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         query.select(root)
-            .where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUuid))
-        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
+            .where(builder.equal(root.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUuid))
+        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull() ?: ZaaktypeCmmnConfiguration()
     }
@@ -284,8 +287,8 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         query.select(root)
-            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
-        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
+            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME), zaaktypeDescription))
+        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull() ?: ZaaktypeCmmnConfiguration()
     }

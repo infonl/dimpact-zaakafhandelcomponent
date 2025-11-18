@@ -15,8 +15,7 @@ import java.util.UUID
 data class RestZaaktypeBpmnConfiguration(
     var id: Long? = null,
 
-    @field:NotNull
-    var zaaktypeUuid: UUID,
+    var zaaktypeUuid: UUID?,
 
     @field:NotNull
     var zaaktypeOmschrijving: String,
@@ -25,8 +24,7 @@ data class RestZaaktypeBpmnConfiguration(
 
     var productaanvraagtype: String?,
 
-    @field:NotNull
-    var groepNaam: String,
+    var groepNaam: String? = null,
 
     var creatiedatum: ZonedDateTime?
 )

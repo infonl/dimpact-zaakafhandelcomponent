@@ -663,23 +663,22 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaakTypeUUID!!)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
         bpmnService.startProcess(
             zaak = zaak,
             zaaktype = zaaktype,
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
-            zaakData = getAanvraaggegevens(productaanvraagObject) + buildMap {
-                put(VAR_ZAAK_GROUP, zaaktypeBpmnConfiguration.groupId)
-            }
+            zaakData = getAanvraaggegevens(productaanvraagObject) + (
+                zaaktypeBpmnConfiguration.groepID?.let { buildMap { put(VAR_ZAAK_GROUP, it) } } ?: emptyMap()
+                )
         )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         pairProductaanvraagWithZaak(productaanvraag = productaanvraagObject, zaakUrl = zaak.url)
-        assignZaakToGroup(
-            zaak = zaak,
-            groupName = zaaktypeBpmnConfiguration.groupId,
-        )
+        zaaktypeBpmnConfiguration.groepID?.let {
+            assignZaakToGroup(zaak = zaak, groupName = it)
+        }
         // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN

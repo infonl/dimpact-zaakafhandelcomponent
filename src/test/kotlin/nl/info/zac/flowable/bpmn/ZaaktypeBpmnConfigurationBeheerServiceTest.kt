@@ -49,7 +49,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { entityManager.flush() } just Runs
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
+                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
                 )
             } returns zaaktypeBpmnProcessDefinition
 
@@ -71,7 +71,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
+                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
                 )
             } returns zaaktypeBpmnProcessDefinition
             every { entityManager.merge(zaaktypeBpmnProcessDefinition) } returns zaaktypeBpmnProcessDefinition
@@ -92,7 +92,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(id = cmmnId)
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
+                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
                 )
             } returns null andThen zaaktypeBpmnProcessDefinition
             val zaaktypeBpmnConfigurationSlot = slot<ZaaktypeBpmnConfiguration>()
@@ -143,7 +143,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { criteriaQuery.select(root) } returns criteriaQuery
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
-            every { root.get<UUID>("zaaktypeUuid") } returns pathUuid
+            every { root.get<UUID>("zaaktype_uuid") } returns pathUuid
             every { root.get<Any>("creatiedatum") } returns pathCreatieDatum
             every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
             every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery
@@ -168,7 +168,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { criteriaQuery.select(root) } returns criteriaQuery
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
-            every { root.get<UUID>("zaaktypeUuid") } returns pathUuid
+            every { root.get<UUID>("zaaktype_uuid") } returns pathUuid
             every { root.get<Any>("creatiedatum") } returns pathCreatieDatum
             every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
             every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery

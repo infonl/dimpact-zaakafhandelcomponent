@@ -54,11 +54,11 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 Then("it should return a list of BPMN zaaktypes") {
                     with(result) {
                         id shouldBe zaaktypeBpmnProcessDefinition.id
-                        zaaktypeUuid shouldBe zaaktypeBpmnProcessDefinition.zaaktypeUuid
+                        zaaktypeUuid shouldBe zaaktypeBpmnProcessDefinition.zaakTypeUUID
                         zaaktypeOmschrijving shouldBe zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                         bpmnProcessDefinitionKey shouldBe zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
-                        groepNaam shouldBe zaaktypeBpmnProcessDefinition.groupId
+                        groepNaam shouldBe zaaktypeBpmnProcessDefinition.groepID
                     }
                 }
             }

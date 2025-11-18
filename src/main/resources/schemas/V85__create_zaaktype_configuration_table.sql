@@ -5,6 +5,7 @@
 CREATE TABLE ${schema}.zaaktype_configuration (
     LIKE ${schema}.zaaktype_cmmn_configuration INCLUDING ALL
 );
+CREATE SEQUENCE ${schema}.sq_zaaktype_configuration START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
 -- copy existing data from CMMN table
 INSERT INTO ${schema}.zaaktype_configuration
@@ -22,13 +23,13 @@ ALTER TABLE ${schema}.zaaktype_configuration
     DROP COLUMN smartdocuments_ingeschakeld;
 
 -- add discriminator column
-CREATE TYPE zaaktype_configuration_type AS ENUM ('cmmn', 'bpmn');
+CREATE TYPE zaaktype_configuration_type AS ENUM ('CMMN', 'BPMN');
 ALTER TABLE ${schema}.zaaktype_configuration
     ADD COLUMN configuration_type zaaktype_configuration_type;
 
 -- mark configured zaaktypes as cmmn
 UPDATE ${schema}.zaaktype_configuration
-    SET configuration_type = 'cmmn'
+    SET configuration_type = 'CMMN'
     WHERE groep_id IS NOT NULL
     AND groep_id <> '';
 
@@ -72,7 +73,7 @@ INSERT INTO ${schema}.zaaktype_configuration (
         creatiedatum,
         productaanvraagtype,
         NULL::VARCHAR AS domein,
-        'bpmn'::zaaktype_configuration_type
+        'BPMN'::zaaktype_configuration_type
     FROM ${schema}.zaaktype_bpmn_configuration
 );
 

@@ -162,7 +162,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
 
                 Then("correct copy is stored") {
                     with(configurationSlot.captured) {
-                        zaaktypeUuid shouldBe newZaaktypeUuid
+                        zaakTypeUUID shouldBe newZaaktypeUuid
                     }
                 }
             }
