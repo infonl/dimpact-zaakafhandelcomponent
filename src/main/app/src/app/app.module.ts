@@ -7,7 +7,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import {Injector, isDevMode, NgModule} from "@angular/core";
+import { Injector, isDevMode, NgModule } from "@angular/core";
 
 import {
   APP_BASE_HREF,
@@ -78,9 +78,8 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     provideTanStackQuery(
       queryClient,
       withDevtools(() => ({
-        loadDevtools: isDevMode()
-      })
-      ),
+        loadDevtools: isDevMode(),
+      })),
     ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
@@ -99,14 +98,16 @@ export class AppModule {
         key: "zac:tanstack:query",
       }),
       dehydrateOptions: {
-        shouldDehydrateQuery: ({queryKey}) => {
-          const [url] = queryKey
+        shouldDehydrateQuery: ({ queryKey }) => {
+          const [url] = queryKey;
           if (!url) return false;
 
           const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
             "/rest/identity/loggedInUser",
           ];
-          return sessionStoragePersistedEndpoints.includes(String(url) as keyof Paths);
+          return sessionStoragePersistedEndpoints.includes(
+            String(url) as keyof Paths,
+          );
         },
       },
     });
