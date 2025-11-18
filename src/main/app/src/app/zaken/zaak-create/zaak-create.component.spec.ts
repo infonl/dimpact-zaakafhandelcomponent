@@ -225,6 +225,16 @@ describe(ZaakCreateComponent.name, () => {
     });
   });
 
+  describe("form submitting", () => {
+    it("should reset the navigate flag", () => {
+      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+      component.formSubmit();
+
+      expect(spy).toHaveBeenCalledWith(true);
+    });
+  });
+
   describe("Navigation", () => {
     it("should reset the form when the navigation is skipped", async () => {
       const reset = jest.spyOn(component["form"], "reset");
@@ -233,6 +243,15 @@ describe(ZaakCreateComponent.name, () => {
       (router.events as Subject<unknown>).next(navigationSkipped);
 
       expect(reset).toHaveBeenCalled();
+    });
+
+    it("should ensure the navigate flag is set after navigation", async () => {
+      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+      (router.events as Subject<unknown>).next(navigationSkipped);
+
+      expect(spy).toHaveBeenCalledWith(false);
     });
   });
 });

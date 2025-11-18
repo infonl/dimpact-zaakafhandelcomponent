@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, ViewChild } from "@angular/core";
+import { Component, inject, signal, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
@@ -62,11 +62,24 @@ export class ZaakCreateComponent {
     Vertrouwelijkheidaanduiding,
   );
 
+  private readonly routeOnSuccess = signal(true);
   protected createZaakMutation = injectMutation(() => ({
     ...this.zakenService.createZaak(),
-    onSuccess: ({ identificatie }) =>
-      this.router.navigate(["/zaken/", identificatie]),
-    onError: () => this.form.reset(),
+    onSuccess: ({ identificatie }) => {
+      if (this.routeOnSuccess()) {
+        void this.router.navigate(["/zaken/", identificatie]);
+        return;
+      }
+
+      this.utilService
+        .openSnackbarAction("msg.zaak.aangemaakt", "actie.zaak.bekijken", {
+          identificatie,
+        })
+        .subscribe(() => {
+          void this.router.navigate(["/zaken/", identificatie]);
+        });
+    },
+    onError: () => this.form.reset({ startdatum: moment() }),
   }));
 
   protected readonly form = this.formBuilder.group({
@@ -156,12 +169,16 @@ export class ZaakCreateComponent {
 
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationSkipped) {
-        this.form.reset();
+        this.routeOnSuccess.set(false);
+        this.form.reset({
+          startdatum: moment(),
+        });
       }
     });
   }
 
   formSubmit() {
+    this.routeOnSuccess.set(true);
     const { value } = this.form;
 
     this.createZaakMutation.mutate({
