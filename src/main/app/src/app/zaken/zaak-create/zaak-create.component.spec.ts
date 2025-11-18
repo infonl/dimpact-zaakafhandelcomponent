@@ -15,14 +15,19 @@ import { MatIcon } from "@angular/material/icon";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { Router, RouterModule } from "@angular/router";
+import {
+  NavigationSkipped,
+  Router,
+  RouterModule,
+  Routes,
+} from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -34,12 +39,15 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
+const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
+
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
   let loader: HarnessLoader;
   let component: ZaakCreateComponent;
+  let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -55,7 +63,7 @@ describe(ZaakCreateComponent.name, () => {
         provideQueryClient(new QueryClient()),
       ],
       imports: [
-        RouterModule.forRoot([]),
+        RouterModule.forRoot(routes),
         TranslateModule.forRoot(),
         NoopAnimationsModule,
         MatSidenavModule,
@@ -89,6 +97,9 @@ describe(ZaakCreateComponent.name, () => {
         }),
       ]),
     );
+
+    router = TestBed.inject(Router);
+
     fixture = TestBed.createComponent(ZaakCreateComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -213,6 +224,17 @@ describe(ZaakCreateComponent.name, () => {
       fixture.detectChanges();
 
       expect(component.hasInitiator()).toBe(false);
+    });
+  });
+
+  describe("Navigation", () => {
+    it("should reset the form when the navigation is skipped", async () => {
+      const reset = jest.spyOn(component["form"], "reset");
+
+      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+      (router.events as Subject<unknown>).next(navigationSkipped);
+
+      expect(reset).toHaveBeenCalled();
     });
   });
 });
