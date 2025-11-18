@@ -589,7 +589,7 @@ export class ZaakViewComponent
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd &&
-      !this.zaak.isEerderOpgeschort
+      !this.zaak.eerdereOpschorting
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
