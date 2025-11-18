@@ -723,7 +723,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.5@sha256:aa03c0358a48c2d0e0c33472879a473384e9d085bc22954fcb5da327f5c1ae37
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-884e643
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
