@@ -113,6 +113,11 @@ val USER_WITHOUT_ANY_ROLE = TestUser(
     password = "userwithoutanyrole",
     displayName = "Test User Without Any Role"
 )
+val PABC_ADMIN = TestUser(
+    username = "pabcadmin",
+    password = "pabcadmin",
+    displayName = "PABC Admin"
+)
 
 // old IAM test users; will be removed in the future; do not use these to test new IAM functionality
 val OLD_IAM_TEST_USER_1 = TestUser(
