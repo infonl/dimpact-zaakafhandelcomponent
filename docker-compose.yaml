@@ -28,6 +28,7 @@ services:
         condition: service_healthy
     ports:
       - "127.0.0.1:8081:8080"
+      - "127.0.0.1:8082:8443"
       - "9001:9000"
     healthcheck:
       test: [
@@ -41,8 +42,9 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
-      - KC_HOSTNAME=http://localhost:8081
+      - KC_HOSTNAME=https://localhost:8082
       - KC_HTTP_ENABLED=true
+      - KC_HTTPS_ENABLED=true
       - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
       - KC_DB=postgres
       - KC_DB_URL_HOST=keycloak-database
@@ -50,6 +52,8 @@ services:
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=keycloak
       - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
+      - KC_HTTPS_CERTIFICATE_FILE=/opt/keycloak/conf/server.crt.pem
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/opt/keycloak/conf/server.key.pem
       - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
       - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
       - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuserdomaintest1@example.com}
@@ -89,6 +93,7 @@ services:
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
+      - ./scripts/docker-compose/imports/keycloak/certificates:/opt/keycloak/conf
     command:
       - "start-dev"
       - "--import-realm"
@@ -730,7 +735,8 @@ services:
       HTTP_PORTS: "8000"
       API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
-      Oidc__Authority: "http://keycloak:8080/realms/zaakafhandelcomponent/"
+      # TODO: Oidc__Authority: "https://keycloak:8080/realms/zaakafhandelcomponent/"
+      Oidc__Authority: "https://keycloak:8443/realms/zaakafhandelcomponent/"
       Oidc__ClientId: "pabc"
       Oidc__ClientSecret: "pabcClientSecret"
       Oidc__FunctioneelBeheerderRole: "administrator"
