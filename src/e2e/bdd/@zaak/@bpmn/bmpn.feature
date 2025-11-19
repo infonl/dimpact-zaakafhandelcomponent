@@ -9,7 +9,7 @@ Feature: BPMN zaken
   So that I can organize my work
 
   Background:
-    Given a valid BPMN case exists
+    Given the case type "BPMN test zaaktype" exists
 
   Scenario: Add a new BPMN case
     Given I am on the "zaken/create" page

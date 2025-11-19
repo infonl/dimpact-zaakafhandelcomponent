@@ -5,8 +5,5 @@
 import { createBdd } from "playwright-bdd";
 import { test } from "../fixture";
 
-const { Given } = createBdd(test);
-
-Given("a valid BPMN case exists", async ({}) => {
-  console.log("TODO: ensure a BPMN case exists, else make it");
-});
+const bdd = createBdd(test);
+if (!bdd) throw new Error("BDD not found"); // This is a dummy for the step file to exist

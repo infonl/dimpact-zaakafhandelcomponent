@@ -9,7 +9,7 @@ Feature: CMMN zaken
   So that I can organize my work
 
   Background:
-    Given a valid CMMN case exists
+    Given the case type "Test zaaktype 1" exists
 
   Scenario: Add a new CMMN case
     Given I am on the "zaken/create" page
