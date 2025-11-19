@@ -9,13 +9,9 @@ import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.PrimaryKeyJoinColumn
-import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
@@ -23,22 +19,11 @@ import java.util.UUID
 
 @Entity
 @Table(schema = SCHEMA, name = "zaaktype_cmmn_configuration")
-@SequenceGenerator(
-    schema = SCHEMA,
-    name = "sq_zaaktype_cmmn_configuration",
-    sequenceName = "sq_zaaktype_cmmn_configuration",
-    allocationSize = 1
-)
 @DiscriminatorValue("CMMN")
-@PrimaryKeyJoinColumn(name = "zaaktype_configuration_id")
+@PrimaryKeyJoinColumn(name = "id")
 @AllOpen
 @Suppress("TooManyFunctions")
 class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
-    @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_configuration", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
-    override var id: Long? = null
-
     /**
      * This field is nullable because when a new zaaktype is published,
      * ZAC creates an initial 'inactive' zaaktypeCmmnConfiguration record without a value.

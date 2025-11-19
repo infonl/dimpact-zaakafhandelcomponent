@@ -21,7 +21,7 @@ import java.util.UUID
 @Table(schema = SCHEMA, name = "zaaktype_configuration")
 @SequenceGenerator(
     schema = SCHEMA,
-    name = "sq_zaaktype_configuration",
+    name = "zaaktype_generator",
     sequenceName = "sq_zaaktype_configuration",
     allocationSize = 1
 )
@@ -39,8 +39,8 @@ abstract class ZaaktypeConfiguration {
     }
 
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_configuration", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
+    @GeneratedValue(generator = "zaaktype_generator", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id", nullable = false)
     var id: Long? = null
 
     // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
