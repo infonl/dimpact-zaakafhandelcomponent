@@ -194,9 +194,9 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    await expect(
-      this.page.getByRole("cell", { name: "Summary" }),
-    ).toBeVisible({ timeout: FORTY_SECOND_IN_MS });
+    await expect(this.page.getByRole("cell", { name: "Summary" })).toBeVisible({
+      timeout: FORTY_SECOND_IN_MS,
+    });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible();
