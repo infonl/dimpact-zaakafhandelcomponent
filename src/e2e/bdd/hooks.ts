@@ -4,11 +4,11 @@
  */
 
 import { createBdd } from "playwright-bdd";
-import { test } from "./@login/fixture";
+import { test as loginTest } from "./@login/fixture";
 import { DEFAULT_USER, ENV } from "./types";
 
 const { AfterStep, Before } = createBdd();
-const { Before: BeforeWithAuth } = createBdd(test);
+const { Before: BeforeWithAuth } = createBdd(loginTest);
 
 Before({}, async ({ page }) => {
   await page.context().clearCookies();
