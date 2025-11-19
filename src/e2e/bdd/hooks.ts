@@ -5,21 +5,21 @@
 
 import { createBdd } from "playwright-bdd";
 import { test } from "./@login/fixture";
+import { DEFAULT_USER, ENV } from "./types";
 
 const { AfterStep, Before } = createBdd();
-const { Before: BeforeWithAth } = createBdd(test);
+const { Before: BeforeWithAuth } = createBdd(test);
 
 Before({}, async ({ page }) => {
   await page.context().clearCookies();
   await page.goto("");
 });
 
-BeforeWithAth({ tags: "@auth" }, async ({ userToLogin, signIn }) => {
-  // Set default user credentials if not already set
-  if (!userToLogin.username || !userToLogin.password) {
-    userToLogin.username = "testuser1";
-    userToLogin.password = "testuser1";
-  }
+BeforeWithAuth({ tags: "@auth" }, async ({ userToLogin, signIn }) => {
+  if (userToLogin.value) return;
+  const defaultUser = ENV.users[DEFAULT_USER];
+  if (!defaultUser) throw new Error("Default user not found");
+  userToLogin.value = defaultUser;
 
   await signIn();
 });

@@ -1,12 +1,9 @@
 import { defineConfig } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
-
-import "dotenv/config";
-
-const BUSINESS_LANGUAGE = "en";
+import { ENV } from "./bdd/types";
 
 const testDir = defineBddConfig({
-  language: BUSINESS_LANGUAGE,
+  language: ENV.businessLanguage,
   features: "bdd/**/*.feature",
   steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts", "bdd/hooks.ts"],
   aiFix: {
@@ -23,8 +20,8 @@ export default defineConfig({
   ],
   retries: 2,
   use: {
-    baseURL: process.env.ZAC_URL,
-    locale: BUSINESS_LANGUAGE,
+    baseURL: ENV.baseUrl,
+    locale: ENV.businessLanguage,
     video: "retry-with-video",
     screenshot: "only-on-failure",
   },

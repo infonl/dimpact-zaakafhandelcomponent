@@ -10,7 +10,7 @@ Feature: User Authentication
 
   Scenario: Successful login
     Given I am on the ZAC login page
-    When I am signing in as "testuser1"
+    When I am signing in as "beheerder1newiam"
     Then I should be redirected to the dashboard
 
   @auth
@@ -21,7 +21,7 @@ Feature: User Authentication
 
   Scenario: Failed login
     Given I am on the ZAC login page
-    When I am signing in as "Hacker"
+    When I am signing in as "thisuserdoesnotexist"
     Then I should see the message "Invalid username or password."
     And I am on the ZAC login page
     And I should not have access to the dashboard

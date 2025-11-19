@@ -4,21 +4,25 @@
  */
 
 import { test as base } from "playwright-bdd";
+import { User } from "../types";
 
 export const test = base.extend<{
   signIn: () => Promise<void>;
-  userToLogin: { username: string; password: string };
+  userToLogin: { value: User | null };
 }>({
   signIn: async ({ page, userToLogin }, use) => {
     await use(async () => {
+      const { value } = userToLogin;
+      if (!value) throw new Error("User to login not set");
+
       await page.goto("");
 
       await page
         .getByRole("textbox", { name: "Username or email" })
-        .fill(userToLogin.username);
+        .fill(value.username);
       await page
         .getByRole("textbox", { name: "Password" })
-        .fill(userToLogin.password);
+        .fill(value.password);
 
       const signInRequest = page.waitForResponse(/login-actions\/authenticate/);
       await page.getByRole("button", { name: "Sign In" }).click();
@@ -28,6 +32,6 @@ export const test = base.extend<{
     });
   },
   userToLogin: async ({}, use) => {
-    await use({ username: "", password: "" });
+    await use({ value: null });
   },
 });

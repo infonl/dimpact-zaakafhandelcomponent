@@ -6,6 +6,7 @@
 import { expect } from "@playwright/test";
 import { createBdd } from "playwright-bdd";
 import { test } from "./fixture";
+import { ENV } from "bdd/types";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -16,8 +17,7 @@ Given("I am on the ZAC login page", async ({ page }) => {
 When(
   "I am signing in as {string}",
   async ({ userToLogin, signIn }, user: string) => {
-    userToLogin.username = user;
-    userToLogin.password = user;
+    userToLogin.value = ENV.users[user];
     await signIn();
   }
 );
