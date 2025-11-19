@@ -322,7 +322,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
+        @Valid restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
