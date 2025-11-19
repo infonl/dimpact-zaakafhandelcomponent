@@ -19,7 +19,3 @@ Before({ tags: "@auth" }, async ({ userToLogin, signIn }) => {
 
   await signIn();
 });
-
-AfterStep({ tags: "@timeout" }, async ({ page }) => {
-  await page.waitForTimeout(10000);
-});
