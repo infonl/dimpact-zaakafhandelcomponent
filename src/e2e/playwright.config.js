@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { defineConfig } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
 import { ENV } from "./bdd/types";

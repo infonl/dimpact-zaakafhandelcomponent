@@ -29,6 +29,29 @@ spec:
       serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+      {{- if .Values.solr.createZacCore }}
+      - name: init-solr-zac-core
+        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
+        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+        {{- if .Values.solr.url }}
+        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        {{- else }}
+        command: ["sh","-c","curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        {{- end }}
+      {{- end }}
+      {{- if and .Values.opa.enabled (not .Values.opa.sidecar) }}
+      - name: check-opa-ready
+        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
+        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+        {{- if .Values.opa.url }}
+        command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
+        {{- else }}
+        command: ['sh','-c','until curl http://{{ include "zaakafhandelcomponent.opa.fullname" . }}:{{ .Values.opa.service.port }};do echo waiting for opa;sleep 5;done;']
+        {{- end }}
+      {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -108,19 +131,6 @@ spec:
               scheme: HTTP
               port: 8181
             initialDelaySeconds: 5
-      {{- end }}
-      {{- if not .Values.opa.sidecar }}
-      {{- if .Values.initContainer.enabled }}
-      initContainers:
-      - name: check-opa-ready
-        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
-        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
-        {{- if .Values.opa.url }}
-        command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
-        {{- else }}
-        command: ['sh','-c','until curl http://{{ include "zaakafhandelcomponent.opa.fullname" . }}:{{ .Values.opa.service.port }};do echo waiting for opa;sleep 5;done;']
-        {{- end }}
-      {{- end }}
       {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
