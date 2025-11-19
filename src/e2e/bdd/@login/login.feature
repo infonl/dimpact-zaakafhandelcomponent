@@ -9,7 +9,7 @@ Feature: User Authentication
 
   Scenario: Successful login
     Given I am on the ZAC login page
-    When I am signing in as "beheerder1newiam"
+    When I am signing in as "beheerder"
     Then I should be redirected to the dashboard
 
   @auth

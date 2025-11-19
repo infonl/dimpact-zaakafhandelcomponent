@@ -24,7 +24,7 @@ When(
   async ({ userToLogin, signIn }, user: string) => {
     userToLogin.value = ENV.users[user];
     await signIn();
-  }
+  },
 );
 
 Then("I should be redirected to the dashboard", async ({ page }) => {

@@ -9,10 +9,10 @@ Feature: CMMN zaken
   So that I can organize my work
 
   Background:
-    Given the case type "Test zaaktype 1" exists
+    Given the case type "CMMN" exists
 
-  Scenario: Add a new CMMN case
+  Scenario: Add a new case
     Given I am on the "zaken/create" page
-    When I add a new "Test zaaktype 1" case
+    When I add a new case
     Then the case gets created
     And I see the case in my overview

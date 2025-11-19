@@ -4,18 +4,23 @@
  */
 
 import { expect } from "@playwright/test";
+import { ENV } from "bdd/types";
 import { createBdd } from "playwright-bdd";
 import { test } from "./fixture";
 
 const { Given, When, Then } = createBdd(test);
 
-Given("the case type {string} exists", async ({}, caseType: string) => {
-  console.log(`TODO: ensure the case type ${caseType} exists, else make it`);
+Given("the case type {string} exists", async ({ caseType }, type: string) => {
+  console.log(`TODO: ensure the case type ${type} exists in ZAC, else make it`);
+
+  const caseTypeName = ENV.caseTypes[type];
+  if (!caseTypeName) throw new Error(`Case type ${type} not found in ZAC`);
+  caseType.value = caseTypeName;
 });
 
-When("I add a new {string} case", async ({ page }, caseType: string) => {
+When("I add a new case", async ({ page, caseType }) => {
   await page.getByRole("combobox", { name: "Casetype" }).click();
-  await page.getByRole("option", { name: caseType }).click();
+  await page.getByRole("option", { name: caseType.value }).click();
 
   await page.getByRole("combobox", { name: "Assign case to group" }).click();
   await page.getByRole("option").first().click();

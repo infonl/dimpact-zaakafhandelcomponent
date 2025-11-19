@@ -9,10 +9,10 @@ Feature: BPMN zaken
   So that I can organize my work
 
   Background:
-    Given the case type "BPMN test zaaktype" exists
+    Given the case type "BPMN" exists
 
-  Scenario: Add a new BPMN case
+  Scenario: Add a new case
     Given I am on the "zaken/create" page
-    When I add a new "BPMN test zaaktype" case
+    When I add a new case
     Then the case gets created
     And I see the case in my overview
