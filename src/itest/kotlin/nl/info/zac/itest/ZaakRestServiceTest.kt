@@ -444,7 +444,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                               "referentieTabellen": []
                             }
                           ],
-                          "id": 1,
+                          "id": 2,
                           "intakeMail": "BESCHIKBAAR_UIT",
                           "mailtemplateKoppelingen": [
                             {

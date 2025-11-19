@@ -86,14 +86,14 @@ DO $$
 BEGIN
     -- Create a new sequence with a placeholder start value
     CREATE SEQUENCE ${schema}.sq_zaaktype_configuration
-        START WITH 1
+        START WITH 0
         INCREMENT BY 1
-        NO MINVALUE
+        MINVALUE 0
         NO MAXVALUE
         CACHE 1;
     -- Set the sequence start to the last value inserted
     PERFORM setval(
         'sq_zaaktype_configuration',
-        (SELECT COALESCE(MAX(id), 1) FROM ${schema}.zaaktype_configuration)
+        (SELECT COALESCE(MAX(id), 0) FROM ${schema}.zaaktype_configuration)
     );
 END $$;
