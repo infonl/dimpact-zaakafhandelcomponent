@@ -135,6 +135,15 @@ describe(ZaakCreateComponent.name, () => {
         }),
       ]),
     );
+    jest.spyOn(zakenService, "createZaak").mockReturnValue({
+      mutationKey: [],
+      mutationFn: () =>
+        Promise.resolve(
+          fromPartial<GeneratedType<"RestZaak">>({
+            identificatie: "test-zaak-uuid-123",
+          }),
+        ),
+    });
 
     bpmnService = TestBed.inject(BpmnService);
     jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
@@ -240,7 +249,7 @@ describe(ZaakCreateComponent.name, () => {
 
     describe("form submitting", () => {
       it("should reset the navigate flag", () => {
-        const spy = jest.spyOn(component["routeOnSuccess"], "set");
+        const spy = jest.spyOn(component["routeOnSuccess"], "set"); //
 
         component.formSubmit();
 
@@ -373,14 +382,6 @@ describe(ZaakCreateComponent.name, () => {
       });
 
       it("should fill all fields and submit", async () => {
-        const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
-          identificatie: "test-zaak-uuid-123",
-        });
-        jest.spyOn(zakenService, "createZaak").mockReturnValue({
-          mutationKey: [],
-          mutationFn: () => Promise.resolve(mockZaakResponse),
-        });
-
         const navigateSpy = jest
           .spyOn(router, "navigate")
           .mockResolvedValue(true);
