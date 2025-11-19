@@ -373,12 +373,14 @@ describe(ZaakCreateComponent.name, () => {
       });
 
       it("should fill all fields and submit", async () => {
-        const mockZaakResponse = fromPartial<GeneratedType<"RestZaak">>({
-          identificatie: "test-zaak-uuid-123",
-        });
         jest.spyOn(zakenService, "createZaak").mockReturnValue({
           mutationKey: [],
-          mutationFn: () => Promise.resolve(mockZaakResponse),
+          mutationFn: () =>
+            Promise.resolve(
+              fromPartial<GeneratedType<"RestZaak">>({
+                identificatie: "test-zaak-uuid-123",
+              }),
+            ),
         });
 
         const navigateSpy = jest
