@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,6 +11,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
 import { lastValueFrom } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
 import type {
   ArgsTuple,
   DeleteBody,
@@ -40,6 +41,7 @@ export enum StaleTimes {
 })
 export class ZacQueryClient {
   private readonly httpClient = inject(HttpClient);
+  private readonly utilService = inject(UtilService);
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
@@ -49,10 +51,8 @@ export class ZacQueryClient {
       queryKey: [url, ...args],
       queryFn: () =>
         lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
-      retry: (failureCount: number, error) => {
-        if (failureCount >= DEFAULT_RETRY_COUNT) {
-          return false;
-        }
+      retry: (failureCount, error) => {
+        if (failureCount >= DEFAULT_RETRY_COUNT) return false;
         return error.status === 0 || error.status >= 500;
       },
       refetchOnWindowFocus: false,
@@ -65,10 +65,17 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "post",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return mutationOptions({
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      PostBody<Path, Method>,
+      void
+    >({
       mutationKey: [url, ...args],
       mutationFn: (body: PostBody<Path, Method>) =>
         lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
+      onMutate: () => this.utilService.setLoading(true),
+      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -76,10 +83,17 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "put",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    return mutationOptions({
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      PutBody<Path, Method>,
+      void
+    >({
       mutationKey: [url, ...args],
       mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+      onMutate: () => this.utilService.setLoading(true),
+      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -98,10 +112,17 @@ export class ZacQueryClient {
           body?: DeleteBody<Path, Method>,
         ]
   ) {
-    return mutationOptions<Response<Path, Method>>({
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      DeleteBody<Path, Method>,
+      void
+    >({
       mutationKey: [url, ...args],
       mutationFn: () =>
         lastValueFrom(this.httpClient.DELETE<Path, Method>(url, ...args)),
+      onMutate: () => this.utilService.setLoading(true),
+      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -114,10 +135,17 @@ export class ZacQueryClient {
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
     // @ts-expect-error Expression produces a union type that is too complex to represent.
-    return mutationOptions<Response<Path, Method>>({
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      PatchBody<Path, Method>,
+      void
+    >({
       mutationKey: [url, ...args],
       mutationFn: () =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
+      onMutate: () => this.utilService.setLoading(true),
+      onSettled: () => this.utilService.setLoading(false),
     });
   }
 }
