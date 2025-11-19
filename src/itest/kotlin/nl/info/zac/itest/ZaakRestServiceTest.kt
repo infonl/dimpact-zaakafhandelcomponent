@@ -7,12 +7,14 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import nl.info.client.zgw.zrc.model.generated.Zaak.OMSCHRIJVING_MAX_LENGTH
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
@@ -80,6 +82,7 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
@@ -217,38 +220,39 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
-        """
+    Context("Creating zaken") {
+        Given(
+            """
             zaaktype CMMN configuration has been created for zaaktype test 3 
             and a behandelaar authorised for this zaaktype is logged in
-        """.trimIndent()
-    ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-        lateinit var responseBody: String
+            """.trimIndent()
+        ) {
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            lateinit var responseBody: String
 
-        When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
-            val response = zacClient.createZaak(
-                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-                startDate = DATE_TIME_2020_01_01,
-                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
-                description = ZAAK_DESCRIPTION_2,
-                toelichting = ZAAK_EXPLANATION_1
-            )
-            Then("the response should be a 200 HTTP response") {
-                responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-            And(
-                """
+            When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                    startDate = DATE_TIME_2020_01_01,
+                    communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
+                    vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                    description = ZAAK_DESCRIPTION_2,
+                    toelichting = ZAAK_EXPLANATION_1
+                )
+                Then("the response should be a 200 HTTP response") {
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+                And(
+                    """
                 the response should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen' permissions
                 set to false since these actions are not allowed for the 'behandelaar' role
                 """
-            ) {
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                ) {
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "besluiten": [],
                       "bronorganisatie": "$BRON_ORGANISATIE",
@@ -522,15 +526,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "zaaktypeRelaties": []
                       }
                     }
-                """.trimIndent()
-                zaak2UUID = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
+                    """.trimIndent()
+                    zaak2UUID = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
+                }
             }
         }
     }
 
     Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         When("the get zaak endpoint is called") {
             val response = zacClient.retrieveZaak(zaak2UUID)
             Then("the response should be a 200 HTTP response and contain the created zaak") {
@@ -598,6 +601,45 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        When(
+            """"
+            the 'update zaak' endpoint is called with a description field that is longer than allowed
+            """
+        ) {
+            val descriptionThatIsTooLong = "x".repeat(OMSCHRIJVING_MAX_LENGTH + 1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
+                            "omschrijving": "$descriptionThatIsTooLong"
+                        },
+                        "reden": "fakeReason"
+                    }
+                """.trimIndent()
+            )
+            Then("the response should be a 400 HTTP response with the validation error message") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.bodyAsString shouldEqualJson """
+                   {
+                      "classViolations" : [ ],
+                      "parameterViolations" : [ {
+                        "constraintType" : "PARAMETER",
+                        "message" : "size must be between 0 and $OMSCHRIJVING_MAX_LENGTH",
+                        "path" : "updateZaak.arg1.zaak.omschrijving",
+                        "value" : "$descriptionThatIsTooLong"
+                      } ],
+                      "propertyViolations" : [ ],
+                      "returnValueViolations" : [ ]
+                    }
+                """.trimIndent()
+            }
+        }
+
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",
