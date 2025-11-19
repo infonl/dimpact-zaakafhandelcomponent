@@ -11,7 +11,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../setupJest";
 import { IdentityService } from "../identity/identity.service";
 import { MaterialModule } from "../shared/material/material.module";
 import { PipesModule } from "../shared/pipes/pipes.module";
@@ -22,12 +24,6 @@ import { NotitieService } from "./notities.service";
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
   id: "currentUser",
   naam: "test",
-};
-
-const mockIdentityService = {
-  readLoggedInUser() {
-    return of(currentUser);
-  },
 };
 
 const mockTranslateService = {
@@ -42,6 +38,7 @@ const mockTranslateService = {
 describe("NotitiesComponent", () => {
   let component: NotitiesComponent;
   let fixture: ComponentFixture<NotitiesComponent>;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [NotitiesComponent],
@@ -52,11 +49,18 @@ describe("NotitiesComponent", () => {
         NoopAnimationsModule,
       ],
       providers: [
-        { provide: IdentityService, useValue: mockIdentityService },
+        IdentityService,
         { provide: TranslateService, useValue: mockTranslateService },
         provideHttpClient(withInterceptorsFromDi()),
+        provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
+
+    const identityService = TestBed.inject(IdentityService);
+    testQueryClient.setQueryData(
+      identityService.readLoggedInUser().queryKey,
+      currentUser,
+    );
 
     const notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));

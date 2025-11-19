@@ -299,10 +299,10 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*nginx\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*nginxinc/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/nginx",
+      "depNameTemplate": "docker.io/nginxinc/nginx-unprivileged",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]

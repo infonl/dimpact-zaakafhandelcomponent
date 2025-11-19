@@ -69,7 +69,7 @@ export class AanvullendeInformatieDeprecated extends AbstractTaakFormulier {
         !this.zaak.redenOpschorting &&
         !this.zaak.isHeropend &&
         this.zaak.rechten.behandelen &&
-        !this.zaak.isEerderOpgeschort,
+        !this.zaak.eerdereOpschorting,
     );
   }
 

@@ -21,7 +21,6 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
-import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isIntake
@@ -128,8 +127,8 @@ class RestZaakConverter @Inject constructor(
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort(),
-            isEerderOpgeschort = zaak.isEerderOpgeschort(),
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
+            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             isVerlengd = zaak.isVerlengd(),
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object

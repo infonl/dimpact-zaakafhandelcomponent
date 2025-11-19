@@ -683,9 +683,9 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.29.3@sha256:f36d51007aa734028a6ea852adc76f074c9e5f966a2044f094325a22f566a9e1
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
     ports:
-      - "8005:80"
+      - "8005:8080"
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:

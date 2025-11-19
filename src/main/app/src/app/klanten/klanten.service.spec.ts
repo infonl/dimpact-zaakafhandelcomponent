@@ -12,10 +12,8 @@ import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -43,7 +41,7 @@ describe(KlantenService.name, () => {
         FoutAfhandelingService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
       ],
     });
 
