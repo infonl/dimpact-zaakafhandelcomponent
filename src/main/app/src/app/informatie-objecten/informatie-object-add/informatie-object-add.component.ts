@@ -5,6 +5,7 @@
 
 import {
   Component,
+  effect,
   EventEmitter,
   Input,
   OnChanges,
@@ -15,6 +16,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -107,6 +109,10 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     addOtherInfoObject: true, // default set to true, since this whole object is only used when adding other info object, and so is checked (and so is true)
   };
 
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly utilService: UtilService,
@@ -114,6 +120,11 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     private readonly identityService: IdentityService,
     private readonly formBuilder: FormBuilder,
   ) {
+    effect(() => {
+      this.defaultFormValues.auteur =
+        this.loggedInUserQuery.data()?.naam ?? null;
+      this.form.controls.auteur.setValue(this.defaultFormValues.auteur);
+    });
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -160,11 +171,6 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.defaultFormValues.auteur = ingelogdeMedewerker.naam;
-      this.form.controls.auteur.setValue(this.defaultFormValues.auteur);
-    });
-
     this.configuratieService.readDefaultTaal().subscribe((defaultTaal) => {
       this.defaultFormValues.taal = defaultTaal;
       this.form.controls.taal.setValue(this.defaultFormValues.taal);

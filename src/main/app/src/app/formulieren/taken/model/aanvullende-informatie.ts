@@ -256,7 +256,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         !zaak.redenOpschorting &&
         !zaak.isHeropend &&
         zaak.rechten.behandelen &&
-        !zaak.isEerderOpgeschort,
+        !zaak.eerdereOpschorting,
     );
   }
 
