@@ -1178,7 +1178,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("due date change when servicenorm is not specifed in OpenZaak") {
+        Given("due date change when servicenorm is not specified in OpenZaak") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
