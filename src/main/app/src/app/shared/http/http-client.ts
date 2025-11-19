@@ -6,12 +6,12 @@
 import { HttpClient as AngularHttp, HttpHeaders } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { FetchOptions, FetchResponse } from "openapi-fetch";
-import { v4 as uuidv4 } from "uuid";
 import type {
   FilterKeys,
   HttpMethod,
   PathsWithMethod,
 } from "openapi-typescript-helpers";
+import { v4 as uuidv4 } from "uuid";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { NullableIfOptional } from "../utils/generated-types";
 
@@ -222,10 +222,10 @@ export class HttpClient {
   ): Parameters<typeof this.http.get>[1] {
     const result: Parameters<typeof this.http.get>[1] = {};
 
-    // Generate unique request ID for tracing
-    const requestId = uuidv4();
+    // Generate unique correlation ID for tracing
+    const correlationId = uuidv4();
     const headersConfig: Record<string, string> = {
-      "X-Request-ID": requestId,
+      "X-Correlation-ID": correlationId,
     };
 
     // Merge with any existing headers from parameters
