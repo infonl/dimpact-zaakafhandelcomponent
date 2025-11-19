@@ -13,14 +13,14 @@ spec:
   template:
     spec:
       containers:
-      - image: {{ (index .Values "solr-operator").solr.jobs.image.repository }}:{{ (index .Values "solr-operator").solr.jobs.image.tag }}
+      - image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
         {{- if .Values.solr.url }}
         command: ["curl","-XPOST","-k","{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
         {{- else }}
         command: ["curl","-XPOST","-k","http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
         {{- end }}
         name: create-zac-core
-        imagePullPolicy: {{ (index .Values "solr-operator").solr.jobs.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
       {{- with (index .Values "solr-operator").solr.jobs.nodeSelector }}
       nodeSelector: 
         {{ toYaml . | nindent 8 }}

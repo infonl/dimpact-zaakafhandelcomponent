@@ -102,6 +102,10 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       this.form.controls.toelichting.disable();
     }
 
+    if (!this.zaak.zaaktype.servicenorm) {
+      this.form.controls.einddatumGepland.disable();
+    }
+
     this.form.controls.behandelaar.disable();
     if (!this.zaak.rechten.toekennen) {
       this.form.controls.groep.disable();
@@ -122,18 +126,15 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       this.form.controls.reden.enable({ emitEvent: false });
     });
 
-    this.form.setValue({
+    this.form.patchValue({
+      ...this.zaak,
       startdatum: moment(this.zaak.startdatum),
       uiterlijkeEinddatumAfdoening: moment(
         this.zaak.uiterlijkeEinddatumAfdoening,
       ),
-      behandelaar: null,
-      communicatiekanaal: this.zaak.communicatiekanaal ?? null,
-      einddatumGepland: moment(this.zaak.einddatumGepland),
-      groep: null,
-      omschrijving: this.zaak.omschrijving,
-      reden: null,
-      toelichting: this.zaak.toelichting ?? null,
+      einddatumGepland: this.zaak.einddatumGepland
+        ? moment(this.zaak.einddatumGepland)
+        : null,
       vertrouwelijkheidaanduiding:
         this.confidentialityDesignations.find(
           ({ value }) =>
@@ -253,18 +254,10 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   }
 
   protected async onSubmit(form: typeof this.form) {
-    const data = form.getRawValue();
-    const {
-      reden,
-      vertrouwelijkheidaanduiding,
-      startdatum,
-      einddatumGepland,
-      uiterlijkeEinddatumAfdoening,
-      omschrijving,
-    } = data;
+    const value = form.getRawValue();
 
     await firstValueFrom(
-      this.patchBehandelaar(data, reden ?? undefined).pipe(
+      this.patchBehandelaar(value, value.reden ?? "").pipe(
         defaultIfEmpty(null),
       ),
     );
@@ -272,15 +265,15 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     this.zakenService
       .updateZaak(this.zaak.uuid, {
         zaak: {
-          ...data,
-          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
-          startdatum: startdatum?.toISOString(),
-          einddatumGepland: einddatumGepland?.toISOString(),
+          ...value,
+          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+          startdatum: value.startdatum?.toISOString(),
+          einddatumGepland: value.einddatumGepland?.toISOString(),
           uiterlijkeEinddatumAfdoening:
-            uiterlijkeEinddatumAfdoening?.toISOString(),
-          omschrijving: omschrijving ?? "",
+            value.uiterlijkeEinddatumAfdoening?.toISOString(),
+          omschrijving: value.omschrijving ?? "",
         },
-        reden: reden ?? "",
+        reden: value.reden ?? "",
       })
       .subscribe({
         next: () => {

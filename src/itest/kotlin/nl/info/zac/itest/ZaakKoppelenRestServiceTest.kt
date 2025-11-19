@@ -11,8 +11,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2000_03_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
@@ -40,11 +40,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     lateinit var zaakUUID: UUID
     lateinit var teKoppelenZaakUuid: UUID
 
-    Given("ZAC Docker container is running and the zaakafhandelparameters have been created") {
+    Given("ZAC Docker container is running and the zaaktypeCmmnConfiguration have been created") {
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2024_01_IDENTIFICATION"
-        ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body.string()
+        ).let { getZaakResponse ->
+            val responseBody = getZaakResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             with(JSONObject(responseBody)) {
                 zaakUUID = getString("uuid").let(UUID::fromString)
@@ -52,8 +52,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2000_03_IDENTIFICATION"
-        ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body.string()
+        ).let { getZaakResponse ->
+            val responseBody = getZaakResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             with(JSONObject(responseBody)) {
                 teKoppelenZaakUuid = getString("uuid").let(UUID::fromString)
@@ -76,7 +76,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
@@ -86,7 +86,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000007",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
@@ -94,7 +94,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
@@ -102,7 +102,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000005",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "In behandeling",
                       "type": "ZAAK"
                     },
@@ -117,7 +117,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },
@@ -125,7 +125,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000002",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },
@@ -133,7 +133,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000001",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     }
@@ -176,7 +176,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             Then("returns list of zaken each with a linkable flag") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
@@ -186,7 +186,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000007",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
@@ -194,7 +194,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000006",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Afgerond",
                       "type": "ZAAK"
                     },
@@ -202,7 +202,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000005",
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "In behandeling",
                       "type": "ZAAK"
                     },
@@ -217,7 +217,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
                       "isKoppelbaar": false,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },
@@ -225,7 +225,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000002",
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     },
@@ -233,7 +233,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                       "identificatie": "ZAAK-2000-0000000001",
                       "isKoppelbaar": true,
                       "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                       "statustypeOmschrijving": "Intake",
                       "type": "ZAAK"
                     }

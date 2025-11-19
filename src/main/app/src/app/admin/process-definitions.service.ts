@@ -4,7 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { PostBody, ZacHttpClient } from "../shared/http/zac-http-client";
+import { PostBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -13,15 +14,15 @@ export class ProcessDefinitionsService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listProcessDefinitions() {
-    return this.zacHttpClient.GET("/rest/process-definitions");
+    return this.zacHttpClient.GET("/rest/bpmn-process-definitions");
   }
 
-  uploadProcessDefinition(body: PostBody<"/rest/process-definitions">) {
-    return this.zacHttpClient.POST("/rest/process-definitions", body);
+  uploadProcessDefinition(body: PostBody<"/rest/bpmn-process-definitions">) {
+    return this.zacHttpClient.POST("/rest/bpmn-process-definitions", body);
   }
 
   deleteProcessDefinition(key: string) {
-    return this.zacHttpClient.DELETE("/rest/process-definitions/{key}", {
+    return this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
       path: { key },
     });
   }

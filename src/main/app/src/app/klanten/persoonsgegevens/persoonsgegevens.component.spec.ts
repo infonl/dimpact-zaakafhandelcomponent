@@ -6,8 +6,10 @@
 import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
+import { testQueryClient } from "../../../../setupJest";
 import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
@@ -46,6 +48,7 @@ describe("PersoonsgegevensComponent", () => {
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
         { provide: TranslateService, useValue: mockTranslateService },
+        provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
 

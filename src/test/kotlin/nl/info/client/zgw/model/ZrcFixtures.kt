@@ -57,10 +57,14 @@ fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPe
 
 fun createNietNatuurlijkPersoonIdentificatie(
     innNnpId: String? = null,
-    vestigingsnummer: String? = "123456789123"
+    vestigingsnummer: String? = "123456789123",
+    kvkNummer: String? = "12345678",
+    annIdentificatie: String? = null
 ) = NietNatuurlijkPersoonIdentificatie().apply {
     this.innNnpId = innNnpId
     this.vestigingsNummer = vestigingsnummer
+    this.kvkNummer = kvkNummer
+    this.annIdentificatie = annIdentificatie
 }
 
 fun createOrganisatorischeEenheidIdentificatie(

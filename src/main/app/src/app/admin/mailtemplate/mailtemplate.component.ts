@@ -72,17 +72,14 @@ export class MailtemplateComponent
       this.mailTemplate = data.template ?? {};
 
       this.setupMenu("title.mailtemplate");
-      this.form.setValue({
-        mailTemplateNaam: this.mailTemplate?.mailTemplateNaam ?? "",
-        defaultMailtemplate: this.mailTemplate?.defaultMailtemplate ?? false,
-        body: this.mailTemplate?.body ?? "",
+      this.form.patchValue({
+        ...this.mailTemplate,
         mail: this.mailTemplate?.mail
           ? {
               label: "mail." + this.mailTemplate?.mail,
               value: this.mailTemplate?.mail as GeneratedType<"Mail">,
             }
           : null,
-        onderwerp: this.mailTemplate?.onderwerp ?? "",
       });
 
       if (!this.mailTemplate?.mail) return;
@@ -98,20 +95,25 @@ export class MailtemplateComponent
 
   saveMailtemplate() {
     const data = this.form.getRawValue();
+    const templateData = {
+      mail: data.mail!.value!,
+      mailTemplateNaam: data.mailTemplateNaam ?? "",
+      onderwerp: data.onderwerp ?? "",
+      body: data.body ?? "",
+      defaultMailtemplate: data.defaultMailtemplate ?? false,
+    };
 
-    this.mailTemplateBeheerService
-      .persistMailtemplate({
-        ...this.mailTemplate,
-        mail: data.mail?.value,
-        mailTemplateNaam: data.mailTemplateNaam ?? undefined,
-        onderwerp: data.onderwerp ?? undefined,
-        body: data.body ?? undefined,
-        defaultMailtemplate: data.defaultMailtemplate ?? false,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-        void this.router.navigate(["/admin/mailtemplates"]);
-      });
+    const operation = this.mailTemplate?.id
+      ? this.mailTemplateBeheerService.updateMailtemplate(
+          this.mailTemplate.id,
+          templateData,
+        )
+      : this.mailTemplateBeheerService.createMailtemplate(templateData);
+
+    operation.subscribe(() => {
+      this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
+      void this.router.navigate(["/admin/mailtemplates"]);
+    });
   }
 
   cancel() {

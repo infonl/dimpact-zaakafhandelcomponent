@@ -13,16 +13,15 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
@@ -57,15 +56,15 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         lateinit var humanTaskItemAanvullendeInformatieId: String
         lateinit var aanvullendeInformatieTaskID: String
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
-            behandelaarId = TEST_USER_2_ID,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            behandelaarId = OLD_IAM_TEST_USER_2.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -75,9 +74,9 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
         sleepForOpenZaakUniqueConstraint(1)
@@ -88,22 +87,22 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 {
                     "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
                     "taakStuurGegevens": {"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "groep": {"id":"${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam":"${BEHANDELAARS_DOMAIN_TEST_1.description}"},
                     "taakdata": { "fakeTestKey": "fakeTestValue" }
                 }
             """.trimIndent()
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_NO_CONTENT
         }
         // get the list of taken for the zaak to set the task ID for the 'aanvullende informatie' task
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONArray(responseBody).length() shouldBe 1
             aanvullendeInformatieTaskID = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
@@ -116,8 +115,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             ).toHeaders(),
             addAuthorizationHeader = false
         ).run {
-            logger.info { "Response: ${body.string()}" }
-            this.isSuccessful shouldBe true
+            logger.info { "Response: $bodyAsString" }
+            this.code shouldBe HTTP_NO_CONTENT
         }
         // wait for the indexing to complete
         eventually(10.seconds) {
@@ -137,7 +136,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                 """.trimIndent()
-            ).body.string()
+            ).bodyAsString
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
@@ -168,7 +167,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     the task should be deleted and the zaak should be removed from the Solr index
                 """.trimIndent()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
                 // Retrieve the zaak and check that the zaakdata is no longer available.
@@ -176,7 +175,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 // and so ZAC should still return the zaak.
                 // However, all Flowable data related to the zaak should be deleted.
                 zacClient.retrieveZaak(zaakUUID).run {
-                    val responseBody = this.body.string()
+                    val responseBody = this.bodyAsString
                     logger.info { "Response: $responseBody" }
                     this.code shouldBe HTTP_OK
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
@@ -187,16 +186,16 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
                 ).run {
-                    val responseBody = body.string()
+                    val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
-                    this.isSuccessful shouldBe true
+                    this.code shouldBe HTTP_OK
                     JSONArray(responseBody).length() shouldBe 0
                 }
                 // to be sure, also explicitly check if the task that was started earlier has been deleted
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID"
                 ).run {
-                    val responseBody = body.string()
+                    val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
                     this.code shouldBe HTTP_NOT_FOUND
                     responseBody shouldEqualJson """
@@ -221,7 +220,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "page": 0                        
                     }
                         """.trimIndent()
-                    ).body.string()
+                    ).bodyAsString
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }

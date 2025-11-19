@@ -4,11 +4,34 @@
  *
  */
 
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  input,
+  OnDestroy,
+  SecurityContext,
+} from "@angular/core";
+import { AbstractControl } from "@angular/forms";
+import { DomSanitizer } from "@angular/platform-browser";
 import { Editor, Toolbar } from "ngx-editor";
+import { Schema } from "prosemirror-model";
+import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
+
+const plainTextSchema = new Schema({
+  nodes: {
+    doc: { content: "text*" },
+    paragraph: {
+      content: "text*",
+      group: "block",
+      parseDOM: [{ tag: "p" }],
+      toDOM: () => ["p", 0],
+    },
+    text: {},
+  },
+  marks: {},
+});
 
 @Component({
   selector: "zac-html-editor",
@@ -16,15 +39,15 @@ import { FormHelper } from "../helpers";
   styleUrls: ["./html-editor.less"],
 })
 export class ZacHtmlEditor<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-> implements OnInit
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"] = string | null,
+  >
+  extends SingleInputFormField<Form, Key, Option>
+  implements OnDestroy
 {
-  @Input({ required: true }) key!: Key & string;
-  @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input({ transform: booleanAttribute }) noToolbar = false;
-  @Input() toolbar: Toolbar = [
+  protected isPlainText = input(false, { transform: booleanAttribute });
+  protected toolbar = input<Toolbar>([
     ["bold", "italic", "underline"],
     ["blockquote"],
     ["ordered_list", "bullet_list"],
@@ -33,27 +56,38 @@ export class ZacHtmlEditor<
     ["text_color", "background_color"],
     ["align_left", "align_center", "align_right", "align_justify"],
     [],
-  ];
-  @Input() variables: string[] = [];
-  @Input() label?: string;
+  ]);
 
-  protected readonly editor = new Editor();
+  protected computedToolbar = computed(() =>
+    this.isPlainText() ? [] : this.toolbar(),
+  );
+  protected variables = input<string[]>([]);
 
-  protected maxlength: number | null = null;
-  protected control?: AbstractControl<string>;
+  protected editor = computed(() => {
+    if (!this.isPlainText()) return new Editor();
 
-  constructor(private readonly translateService: TranslateService) {}
+    const sanitized = this.domSanitizer.sanitize(
+      SecurityContext.HTML,
+      this.control()?.value ?? null,
+    ) as Option | null;
 
-  ngOnInit() {
-    this.control = this.form.get(String(this.key))!;
-    this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
-    if (this.noToolbar) this.toolbar = [];
+    this.control()?.setValue(sanitized);
+
+    return new Editor({
+      keyboardShortcuts: false,
+      schema: plainTextSchema,
+    });
+  });
+
+  protected maxlength = computed(() =>
+    FormHelper.getValidatorValue("maxLength", this.control() ?? null),
+  );
+
+  constructor(private readonly domSanitizer: DomSanitizer) {
+    super();
   }
 
-  protected get required() {
-    return this.control?.hasValidator(Validators.required) ?? false;
+  ngOnDestroy() {
+    this.editor().destroy();
   }
-
-  protected getErrorMessage = () =>
-    FormHelper.getErrorMessage(this.control, this.translateService);
 }

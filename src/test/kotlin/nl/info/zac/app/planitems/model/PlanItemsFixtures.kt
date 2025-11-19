@@ -20,7 +20,7 @@ fun createRESTHumanTaskData(
     fataledatum: LocalDate? = null,
     toelichting: String? = null,
     taakdata: Map<String, String>? = null,
-    taakStuurGegevens: RESTTaakStuurGegevens = createRESTTaakStuurGegevens()
+    taakStuurGegevens: RESTTaakStuurGegevens? = createRESTTaakStuurGegevens()
 ) = RESTHumanTaskData(
     planItemInstanceId = planItemInstanceId,
     groep = groep,
@@ -42,11 +42,13 @@ fun createRESTTaakStuurGegevens(
 fun createRESTUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
-    restMailGegevens: RESTMailGegevens,
-    resultaattypeUuid: UUID = UUID.randomUUID()
+    restMailGegevens: RESTMailGegevens? = null,
+    resultaattypeUuid: UUID = UUID.randomUUID(),
+    brondatumEigenschap: String? = null
 ) = RESTUserEventListenerData(
     zaakUuid = zaakUuid,
     actie = actie,
     restMailGegevens = restMailGegevens,
-    resultaattypeUuid = resultaattypeUuid
+    resultaattypeUuid = resultaattypeUuid,
+    brondatumEigenschap = brondatumEigenschap
 )

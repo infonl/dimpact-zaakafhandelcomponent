@@ -11,7 +11,7 @@ import { ScreenEventId } from "./screen-event-id";
  * @deprecated - use the `GeneratedType`
  */
 export class ScreenEvent {
-  private _timestamp: number;
+  private _timestamp?: number;
   opcode: Opcode;
   objectType: ObjectType;
   objectId: ScreenEventId;
@@ -30,7 +30,7 @@ export class ScreenEvent {
     this._key = this.makeKey(this.opcode, this.objectType, this.objectId);
   }
 
-  get timestamp(): number {
+  get timestamp() {
     return this._timestamp;
   }
 

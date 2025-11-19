@@ -4,6 +4,8 @@
  */
 package nl.info.zac.app.admin
 
+import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.RestBrpDoelbindingen
@@ -14,6 +16,7 @@ import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
+import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -69,7 +72,7 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakAfhandelParameters(
+fun createRestZaakafhandelParameters(
     id: Long? = 1234L,
     domein: String = "fakeDomein",
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
@@ -122,3 +125,38 @@ fun createRestZaaktypeOverzicht(
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
     nuGeldig = nuGeldig
 )
+
+fun createRestZaakbeeindigReden(
+    id: String = "fakeZaakbeeindigRedenId",
+    name: String = "fakeZaakbeeindigRedenName"
+) = RESTZaakbeeindigReden().apply {
+    this.id = id
+    this.naam = name
+}
+
+@Suppress("LongParameterList")
+fun createRestResultaattype(
+    id: UUID = UUID.randomUUID(),
+    name: String = "fakeRestResultaattype",
+    genericName: String = "fakeGenericName",
+    vervaldatumBesluitVerplicht: Boolean = false,
+    datumKenmerkVerplicht: Boolean = false,
+    besluitVerplicht: Boolean = false
+) = RestResultaattype(
+    id = id,
+    naam = name,
+    naamGeneriek = genericName,
+    vervaldatumBesluitVerplicht = vervaldatumBesluitVerplicht,
+    datumKenmerkVerplicht = datumKenmerkVerplicht,
+    besluitVerplicht = besluitVerplicht
+)
+
+fun createRestZaakbeeindigParameter(
+    id: Long = 1L,
+    zaakbeeindigReden: RESTZaakbeeindigReden = createRestZaakbeeindigReden(),
+    resultaattype: RestResultaattype = createRestResultaattype()
+) = RESTZaakbeeindigParameter().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
+}

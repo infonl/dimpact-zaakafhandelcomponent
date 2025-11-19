@@ -3,49 +3,93 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
-import { BSN_LENGTH, VESTIGINGSNUMMER_LENGTH } from "../shared/utils/constants";
+import { inject, Injectable } from "@angular/core";
+import { PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 
 @Injectable({
   providedIn: "root",
 })
 export class KlantenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
-  readPersoon(bsn: string, audit: { context: string; action: string }) {
-    return this.zacHttpClient.GET("/rest/klanten/persoon/{bsn}", {
+  readPersoon(bsn: string, zaakIdentification?: string) {
+    return this.zacQueryClient.GET("/rest/klanten/persoon/{bsn}", {
       path: { bsn },
-      header: {
-        "X-Verwerking": `${audit.context}@${audit.action}`,
-      },
+      ...(zaakIdentification && {
+        header: { "X-ZAAK-ID": zaakIdentification },
+      }),
     });
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string, kvkNummer: string | null) {
-    switch (rsinOfVestigingsnummer.length) {
-      case BSN_LENGTH:
-        return this.readRechtspersoon(rsinOfVestigingsnummer);
-      case VESTIGINGSNUMMER_LENGTH:
+  readBedrijf(betrokkeneIdentificatie: BetrokkeneIdentificatie) {
+    switch (betrokkeneIdentificatie.type) {
+      case "VN":
+        return this.readVestiging(
+          betrokkeneIdentificatie.vestigingsnummer,
+          betrokkeneIdentificatie.kvkNummer,
+        );
+      case "RSIN":
+        return this.readRechtspersoon(
+          betrokkeneIdentificatie.kvkNummer,
+          betrokkeneIdentificatie.rsin,
+        );
+      case "BSN":
       default:
-        return this.readVestiging(rsinOfVestigingsnummer, kvkNummer);
+        throw new Error(
+          `${KlantenService.name}: Unsupported identificatie type ${betrokkeneIdentificatie.type}`,
+        );
     }
   }
 
   /* istanbul ignore next */
-  private readVestiging(vestigingsnummer: string, kvkNummer: string | null) {
-    if (!kvkNummer) {
-      return this.zacHttpClient.GET(
-        "/rest/klanten/vestiging/{vestigingsnummer}",
-        { path: { vestigingsnummer } },
+  private readRechtspersoon(kvkNummer?: string | null, rsin?: string | null) {
+    if (kvkNummer) {
+      return this.zacQueryClient.GET(
+        "/rest/klanten/rechtspersoon/kvknummer/{kvkNummer}",
+        {
+          path: { kvkNummer },
+        },
       );
     }
 
-    return this.zacHttpClient.GET(
-      "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
+    if (!rsin) {
+      throw new Error("Rsin is required for rechtspersoon lookup.");
+    }
+
+    // legacy solution
+    return this.zacQueryClient.GET("/rest/klanten/rechtspersoon/rsin/{rsin}", {
+      path: { rsin },
+    });
+  }
+
+  /* istanbul ignore next */
+  private readVestiging(
+    vestigingsnummer?: string | null,
+    kvkNummer?: string | null,
+  ) {
+    if (kvkNummer && vestigingsnummer) {
+      return this.zacQueryClient.GET(
+        "/rest/klanten/vestiging/{vestigingsnummer}/{kvkNummer}",
+        {
+          path: { vestigingsnummer, kvkNummer },
+        },
+      );
+    }
+
+    if (!vestigingsnummer) {
+      throw new Error("Vestigingsnummer is required for vestiging lookup.");
+    }
+
+    // legacy solution
+    return this.zacQueryClient.GET(
+      "/rest/klanten/vestiging/{vestigingsnummer}",
       {
-        path: { vestigingsnummer, kvkNummer },
+        path: { vestigingsnummer },
       },
     );
   }
@@ -61,27 +105,13 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  private readRechtspersoon(rsin: string) {
-    return this.zacHttpClient.GET("/rest/klanten/rechtspersoon/{rsin}", {
-      path: { rsin },
-    });
-  }
-
-  /* istanbul ignore next */
   getPersonenParameters() {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
   /* istanbul ignore next */
-  listPersonen(
-    body: PutBody<"/rest/klanten/personen">,
-    audit: { context: string; action: string },
-  ) {
-    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
-      header: {
-        "X-Verwerking": `${audit.context}@${audit.action}`,
-      },
-    });
+  listPersonen(body: PutBody<"/rest/klanten/personen">) {
+    return this.zacHttpClient.PUT("/rest/klanten/personen", body);
   }
 
   /* istanbul ignore next */
@@ -105,12 +135,9 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  ophalenContactGegevens(initiatorIdentificatie: string) {
-    return this.zacHttpClient.GET(
-      "/rest/klanten/contactgegevens/{initiatorIdentificatie}",
-      {
-        path: { initiatorIdentificatie },
-      },
-    );
+  getContactDetailsForPerson(bsn: string) {
+    return this.zacHttpClient.GET("/rest/klanten/contactdetails/bsn/{bsn}", {
+      path: { bsn },
+    });
   }
 }

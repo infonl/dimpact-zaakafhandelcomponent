@@ -22,6 +22,7 @@ import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_RAADPLEEG_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
+import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.DOMEIN
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST
@@ -162,6 +163,13 @@ class ReferenceTableRestService @Inject constructor(
     @Path("brp-doelbinding-raadpleeg-waarde")
     fun listBrpDoelbindingRaadpleegWaarden(): List<String> =
         referenceTableService.readReferenceTable(BRP_DOELBINDING_RAADPLEEG_WAARDE.name).values.let {
+            getReferenceTableValueNames(it)
+        }
+
+    @GET
+    @Path("brp-verwerkingregister-waarde")
+    fun listBrpVerwerkingregisterWaarde(): List<String> =
+        referenceTableService.readReferenceTable(BRP_VERWERKINGSREGISTER_WAARDE.name).values.let {
             getReferenceTableValueNames(it)
         }
 

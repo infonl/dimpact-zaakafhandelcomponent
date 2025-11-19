@@ -15,8 +15,8 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.app.admin.model.RestReferenceTable
+import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
 @Entity
@@ -41,6 +41,7 @@ class ReferenceTable {
         SERVER_ERROR_ERROR_PAGINA_TEKST,
         BRP_DOELBINDING_ZOEK_WAARDE,
         BRP_DOELBINDING_RAADPLEEG_WAARDE,
+        BRP_VERWERKINGSREGISTER_WAARDE
     }
 
     @Id
@@ -61,6 +62,26 @@ class ReferenceTable {
 
     @OneToMany(mappedBy = "referenceTable", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var values: MutableList<ReferenceTableValue> = ArrayList()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReferenceTable) return false
+
+        if (isSystemReferenceTable != other.isSystemReferenceTable) return false
+        if (code != other.code) return false
+        if (name != other.name) return false
+        if (!values.toTypedArray().contentDeepEquals(other.values.toTypedArray())) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isSystemReferenceTable.hashCode()
+        result = 31 * result + code.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + values.hashCode()
+        return result
+    }
 }
 
 fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {

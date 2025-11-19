@@ -33,22 +33,19 @@
     </welcome-file-list>
 
     <filter-mapping>
-        <filter-name>indexRewriteFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>UserPrincipalFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <security-role>
-        <role-name>zaakafhandelcomponent_user</role-name>
-    </security-role>
+    <filter-mapping>
+        <filter-name>RequestAuthorizationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-    <security-role>
-        <role-name>beheerder</role-name>
-    </security-role>
+    <filter-mapping>
+        <filter-name>indexRewriteFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <security-constraint>
         <display-name>Deny all HTTP methods on '/rest/notificaties' except POST</display-name>
@@ -138,32 +135,13 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Require the 'beheerder' role on admin-only pages and endpoints</display-name>
-        <web-resource-collection>
-            <web-resource-name>admin</web-resource-name>
-            <url-pattern>/admin/*</url-pattern>
-        </web-resource-collection>
-        <web-resource-collection>
-            <web-resource-name>admin</web-resource-name>
-            <url-pattern>/rest/admin/util/*</url-pattern>
-        </web-resource-collection>
-        <web-resource-collection>
-            <web-resource-name>admin</web-resource-name>
-            <url-pattern>/rest/admin/cmmn/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>beheerder</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <display-name>Require the 'zaakafhandelcomponent_user' role for all other endpoints</display-name>
+        <display-name>Require at least an authenticated user for all other endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>zaakafhandelcomponent</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>zaakafhandelcomponent_user</role-name>
+            <role-name>**</role-name>
         </auth-constraint>
     </security-constraint>
 
@@ -195,6 +173,6 @@
 
     <error-page>
         <error-code>403</error-code>
-        <location>/error-403.html</location>
+        <location>/static/error-403.html</location>
     </error-page>
 </web-app>

@@ -28,7 +28,7 @@ export class DatumPipe implements PipeTransform {
 
     const localeDate = moment(value, moment.ISO_8601).locale(this.locale);
 
-    if (!localeDate.isValid()) return value;
+    if (!localeDate.isValid()) return value.toString();
 
     const format = this.getFormat(dateFormat ?? "shortDate");
 

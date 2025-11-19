@@ -44,18 +44,44 @@
               "shouldSort": false
             }
           },
-          "disabled": true
+          "disabled": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_documenten"
+          }
         },
         {
           "label": "Reference table value",
           "labelPosition": "left-left",
-          "type": "textfield",
+          "type": "select",
           "key": "RT_ReferenceTable_Values",
+          "input": false,
+          "disabled": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
+        },
+        {
+          "label": "Zaak Result",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Result",
           "input": false,
           "disabled": true
         },
         {
-          "label": "Mail reciever",
+          "label": "Zaak Status",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "key": "ZK_Status",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "Mail receiver",
           "labelPosition": "left-left",
           "disabled": true,
           "key": "TF_EMAIL_TO",

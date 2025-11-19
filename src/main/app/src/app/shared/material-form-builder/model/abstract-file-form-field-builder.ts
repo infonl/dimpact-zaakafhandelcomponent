@@ -32,8 +32,7 @@ export abstract class AbstractFileFormFieldBuilder<
       if (fileTypes.length > 0) {
         fileTypes
           .map(
-            (fileType) =>
-              new FileIcon(fileType.trim().toLowerCase(), "fa-file"),
+            (fileType) => new FileIcon(fileType.trim().toLowerCase(), "draft"),
           )
           .forEach((fileIcon) => this.formField.fileIcons.push(fileIcon));
         this.formField.fileIcons.sort((fileIconA, fileIconB) =>

@@ -40,7 +40,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     new Subject<void>(),
   );
   formGroup: FormGroup;
-  afzenders: Observable<GeneratedType<"RESTZaakAfzender">[]>;
+  afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
   private ngDestroy = new Subject<void>();
 
   constructor(
@@ -77,11 +77,13 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
 
     if (
-      this.data.zaak.initiatorIdentificatieType &&
-      this.data.zaak.initiatorIdentificatie
+      this.data.zaak.initiatorIdentificatie?.type &&
+      this.data.zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(this.data.zaak.initiatorIdentificatie)
+        .getContactDetailsForPerson(
+          this.data.zaak.initiatorIdentificatie.bsnNummer,
+        )
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             this.initiatorEmail = gegevens.emailadres;

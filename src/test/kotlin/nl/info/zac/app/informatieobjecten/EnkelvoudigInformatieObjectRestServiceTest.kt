@@ -117,7 +117,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
-            restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
         } returns enkelvoudigInformatieObjectData
         every {
             restInformatieobjectConverter.convertToREST(zaakInformatieobject)
@@ -244,7 +244,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
         every {
-            restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
         } returns enkelvoudigInformatieObjectData
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -476,7 +476,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
         When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
             every {
-                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(), any()
                 )
             } just Runs
@@ -492,7 +492,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
         When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
             every {
-                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(),
                     any()
                 )

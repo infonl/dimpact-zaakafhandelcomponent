@@ -24,8 +24,8 @@ As the group should always be provided when creating a zaak we set the candidate
 For example:
 ```xml
     <userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
-      ... the rest of userTask tags ...
-    </userTask>
+  ... the rest of userTask tags ...
+</userTask>
 ```
 
 ### Upload
@@ -50,7 +50,7 @@ To create a Form.io form:
 5. Select the Form.io form
 
 ### Validation
-Form.io offers validation of the data entered in the form. 
+Form.io offers validation of the data entered in the form.
 
 For example, the emails can be validated by specifying `validate` and `type` keys:
 ```json
@@ -66,19 +66,77 @@ For example, the emails can be validated by specifying `validate` and `type` key
 }
 ```
 
-### ZAC extensions
+## ZAC extensions
 
-#### Variables
-* `zaakGroep` - group assigned to the zaak
-* `zaakBehandelaar` (optional) - user assigned to the zaak
+ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
 
-#### Zaak status
+Available ZAC types are:
+* `ZAC_groep`
+* `ZAC_medewerker`
+* `ZAC_smart_documents_template`
+* `ZAC_referentie_tabel`
+* `ZAC_documenten`
+* `ZAC_resultaat`
+* `ZAC_status`
+* `ZAC_process_data`
+
+### Zaak
+
+#### Listing statustypes
+The available status types for a zaak can be displayed with:
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_status`
+
+Example:
+```json
+{
+  "label": "Select status",
+  "optionsLabelPosition": "right",
+  "key": "ZK_Status",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_status"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
+```
+
+#### Listing resultaattypes
+The available result types for a zaak can be displayed with:
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_resultaat`
+
+Example:
+```json
+{
+  "label": "Select result",
+  "optionsLabelPosition": "right",
+  "key": "ZK_Result",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_resultaat"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
+```
+
+#### Changing status and result
 To change zaak status, you have to:
 * create a service task
 * set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
 * add fields
-   * `statustypeOmschrijving` to `stringvalue` equal to your desired zaak statustype omschrijving
-   * `resultaattypeOmschrijving` to a valid `stringvalue`, required by your zaak statustype
+  * `statustypeOmschrijving` to `stringvalue` or `expression` representing your desired zaak statustype omschrijving
+  * `resultaattypeOmschrijving` to a valid `stringvalue` or `expression`, required by your zaak statustype
 
 For example:
 ```xml
@@ -96,15 +154,66 @@ For example:
     </serviceTask>
 ```
 
-#### Send email
+#### Suspending
+To suspend a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.SuspendZaakDelegate`
+* add fields:
+  * `aantalDagen` - number of days to suspend the zaak for. Added to the current date.
+  * `opschortingReden` - reason for suspension
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_360" name="Suspend" flowable:class="net.atos.zac.flowable.delegate.SuspendZaakDelegate">
+      <extensionElements>
+        <flowable:field name="aantalDagen">
+          <flowable:expression><![CDATA[10]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="opschortingReden">
+          <flowable:expression><![CDATA[suspend test]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+#### Resuming
+To resume a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.ResumeZaakDelegate`
+* add fields:
+  * `hervattenReden` - reason for resuming
+  * `hervattenDatum` - resume date (optional). If not set, the current date is used.
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_361" name="Resume" flowable:class="net.atos.zac.flowable.delegate.ResumeZaakDelegate">
+      <extensionElements>
+        <flowable:field name="hervattenReden">
+          <flowable:expression><![CDATA[resume test]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="hervattenDatum">
+          <flowable:expression><![CDATA[${ZK_Resume_Date}]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+The `hervattenDatum` is a date-time string with a time-zone in the ISO-8601 calendar system: `2025-11-14T17:38:21.929149+01:00[Europe/Amsterdam]`. 
+
+
+### Send email
 To send email:
 * create a service task
 * set class `net.atos.zac.flowable.delegate.SendEmailDelegate`
 * add fields:
-  * `to` as `stringvalue` equal to the receiver's email address
-  * `from` as `stringvalue` - the sender's email address
-  * `replyTo` as `stringvalue` - the replyTo's email address
-  * `template` as `stringvalue` - the name of the email template you want to use
+  * `to` - equal to the receiver's email address
+  * `from` - the sender's email address
+  * `replyTo` - the replyTo's email address
+  * `template` - the name of the email template you want to use
 
 For example:
 ```xml
@@ -128,186 +237,229 @@ For example:
     </serviceTask>
 ```
 
-#### User/group
-To list the ZAC groups and users (groep / medewerker) you should use a `fieldset` layout component with:
-* `"type": "groepMedewerkerFieldset"`
-* two `select` components with:
-   * custom data source: `"dataSrc": "custom"`
-   * `"clearOnRefresh": true`, so that changes in the group can clear the users
+### User/group
 
-The first select component will be used for groups, while the second select component will be populated with users.
+#### Group
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
 
-For example:
 ```json
-    {
-      "legend": "Approval by:",
-      "type": "groepMedewerkerFieldset",
-      "key": "AM_TeamBehandelaar",
-      "input": false,
-      "components": [
-        {
-          "label": "Group",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Groep",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
-        },
-        {
-          "label": "User",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Medewerker",
-          "widget": "html5",
-          "input": true,
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "refreshOn": "AM_TeamBehandelaar_Groep",
-          "clearOnRefresh": true
-        }
-      ]
-    }
+{
+  "label": "Group",
+  "type": "select",
+  "key": "AM_TeamBehandelaar_Groep",
+  "input": true,
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "attributes": {
+    "ZAC_TYPE": "ZAC_groep"
+  }
+}
+```
+
+#### User
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
+* An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
+
+```json
+{
+  "label": "User",
+  "type": "select",
+  "key": "AM_TeamBehandelaar_Groep",
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "input": true,
+  "refreshOn": "AM_TeamBehandelaar_Groep",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_medewerker"
+  }
+}
+```
+
+#### Setting task group and user
+The following BPMN-specific variables can be used in expressions in the BPMN process:
+* `zaakGroep` - group assigned to the zaak
+* `zaakBehandelaar` (optional) - user assigned to the zaak
+
+The above variables can be used in `assignee` and `candidateGroups` attributes for example:
+```xml
+<userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
 ```
 
 ### SmartDocuments
-To create and attach a file generated by SmartDocuments to the current task, you should use a `fieldset` layout component with:
-* `"type": "smartDocumentsFieldset"`
-* a `select` component with:
-   * the same key as the `fieldset` and suffix `_Template`
-   * custom data source: `"dataSrc": "custom"`
-* a `button` with:
-   * SmartDocument properties
-   * custom event: `"event": "createDocument"`
 
-#### Properties
-The following properties can be used to configure the integration: 
-* `SmartDocuments_Group` - path to the SmartDocuments group
-* `SmartDocuments_InformatieobjecttypeUuid` - default informatieobjecttype UUID
-* `SmartDocuments_<template name>_InformatieobjecttypeUuid` - UUID of the Informatieobjecttype for a specific template
-
-The path to the SmartDocuments group specifies which group of templates to list. For example: `root/nested group/group with more nesting`.  
-
-First, a lookup for the template-specific information object type (informatieobjecttype) UUID is attempted. If a template-specific UUID is not found, the default is used.
-The template name should be snake-case (`Data Test` becomes `Data_Test`).
+#### Listing available documents
+To display linked documents of a zaak you can use:
+* `select` type component with:
+  * custom data source
+  * attributes containing `ZAC_TYPE` of `ZAC_documenten`
+  * multi select attribute (`type=select` with `multiple=true`)
 
 Example:
 ```json
-    {
-      "legend": "SmartDocuments",
-      "type": "smartDocumentsFieldset",
-      "key": "SD_SmartDocuments",
-      "input": false,
-      "components": [
-        {
-          "label": "Template",
-          "type": "select",
-          "key": "SD_SmartDocuments_Template",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
-        },
-        {
-          "label": "Create",
-          "action": "event",
-          "showValidations": false,
-          "block": true,
-          "tableView": false,
-          "key": "SD_SmartDocuments_Create",
-          "type": "button",
-          "event": "createDocument",
-          "input": true,
-          "properties": {
-            "SmartDocuments_Group": "Dimpact/OpenZaak",
-            "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
-            "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-          }
-        }
-      ]
+ {
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": false,
+      "searchEnabled": true,
+      "shouldSort": false
     }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
 ```
+
+#### Creating documents
+This requires two components:
+
+##### Smartdocuments template
+* A `select` component with:
+  * the attribute `ZAC_TYPE` of `ZAC_smart_documents_template`
+  * custom data source: `"dataSrc": "custom"`
+  * properties containing `SmartDocuments_Group`
+
+Example:
+```json
+{
+  "label": "Template",
+  "type": "select",
+  "key": "SD_SmartDocuments_Template",
+  "input": true,
+  "widget": "html5",
+  "validate": {
+    "required": true
+  },
+  "dataSrc": "custom",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_smart_documents_template"
+  },
+  "properties": {
+    "SmartDocuments_Group": "Dimpact/OpenZaak"
+  },
+  "clearOnRefresh": true
+}
+```
+
+##### Create document button
+* A `button` with:
+* SmartDocument properties
+  * `SmartDocuments_Group` needs to be set to the same value as in the template select component
+* custom event: `"event": "createDocument"`
+
+Example:
+```json
+{
+  "label": "Create",
+  "action": "event",
+  "showValidations": false,
+  "block": true,
+  "tableView": false,
+  "key": "SD_SmartDocuments_Create",
+  "type": "button",
+  "event": "createDocument",
+  "input": true,
+  "properties": {
+    "SmartDocuments_Group": "Dimpact/OpenZaak",
+    "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
+    "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+  }
+}
+```
+
+The path to the SmartDocuments group specifies which group of templates to list. For example: `root/nested` `group/with/more/nesting`.
+
+First, a lookup for the template-specific information object type (informatieobjecttype) UUID is attempted. If a template-specific UUID is not found, the default is used.
+The template name should be snake-case (`Data Test` becomes `Data_Test`).
 
 ### Reference Table values
 To display and use values from a reference table you can use:
 * a fieldset with type `referenceTableFieldset`
 * `select` type component with:
-   * custom data source
-   * properties containing `ReferenceTable_Code`
+  * custom data source
+  * attribute `ZAC_TYPE` of `ZAC_referentie_tabel`
+  * properties containing `ReferenceTable_Code`
 
 Example:
 ```json
-    {
-      "legend": "Reference table",
-      "type": "referenceTableFieldset",
-      "key": "RT_ReferenceTable",
-      "input": false,
-      "components": [
-        {
-          "label": "Communication channel",
-          "type": "select",
-          "key": "RT_ReferenceTable_Values",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
-        }
-      ]
-    }
-
+{
+  "label": "Communication channel",
+  "type": "select",
+  "key": "RT_ReferenceTable_Values",
+  "input": true,
+  "widget": "html5",
+  "validate": {
+    "required": true
+  },
+  "dataSrc": "custom",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_referentie_tabel"
+  },
+  "properties": {
+    "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+  }
+}
 ```
 :warning: prefixing the reference table code with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
 
-### Available documents section
-To display linked documents of a zaak you can use:
-* a fieldset with type `documentsFieldset`
-* `select` type component with:
-  * custom data source
-  * multi select attribute (`type=select` with `multiple=true`) 
+### Process data
+* A `input` component, with the attribute `ZAC_TYPE` of `ZAC_process_data`, where the `key` is the name of the process data variable
 
-Example:
 ```json
-    {
-      "legend": "Available Documents",
-      "type": "documentsFieldset",
-      "key": "ZAAK_Documents",
-      "input": false,
-      "components": [
-        {
-          "label": "Documents",
-          "type": "select",
-          "key": "ZAAK_Documents_Select",
-          "input": true,
-          "widget": "choicesjs",
-          "multiple": true,
-          "defaultValue": [],
-          "clearOnRefresh": true,
-          "dataSrc": "custom",
-          "placeholder": "Select one or more documents",
-          "customOptions": {
-            "choicesOptions": {
-              "removeItemButton": true,
-              "placeholder": false,
-              "searchEnabled": true,
-              "shouldSort": false
-            }
-          },
-          "validate": {
-            "required": true
-          }
-        }
-      ]
+{
+  "label": "Process data",
+  "type": "input",
+  "key": "<PROCESS_DATA_VARIABLE_NAME>",
+  "input": true,
+  "dataSrc": "custom",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_process_data"
+  }
+}
+```
+
+### Documenten
+* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
+
+```json
+{
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": true,
+      "searchEnabled": true,
+      "shouldSort": false
     }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
 ```

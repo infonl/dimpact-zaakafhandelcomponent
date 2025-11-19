@@ -4,6 +4,7 @@
  */
 
 import {
+  booleanAttribute,
   Component,
   EventEmitter,
   Input,
@@ -26,8 +27,8 @@ import {
 export class FormioWrapperComponent {
   @Input() form: unknown;
   @Input() submission: unknown;
-  @Input() options: FormioOptions;
-  @Input() readOnly: boolean;
+  @Input() options?: FormioOptions;
+  @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Output() formSubmit = new EventEmitter<object>();
   @Output() formChange = new EventEmitter<{ data: unknown }>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();

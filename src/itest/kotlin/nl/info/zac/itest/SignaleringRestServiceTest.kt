@@ -13,17 +13,24 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
+import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
@@ -36,24 +43,36 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This test assumes previous tests completed successfully.
+ * This test creates and assigns a zaak, to test the signaleringen functionality.
+ * Because we do not want this test to impact e.g. [SearchRestServiceTest] we run it afterward.
  */
-@Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
+@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class SignaleringRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-
+    val zacClient = ZacClient()
     val afterThirtySeconds = eventuallyConfig {
         duration = 30.seconds
         interval = 500.milliseconds
     }
+    lateinit var zaakUUID: UUID
+    lateinit var zaakIdentificatie: String
+    lateinit var zaakPath: String
 
-    Given("A test user") {
-        When("a dashboard notification is turned on") {
+    afterSpec {
+        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given("A logged-in behandelaar") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
+        When("dashboard signaleringen are turned on for all signalering types") {
             val notificationBodies = arrayOf(
                 """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_DOCUMENT_TOEGEVOEGD"}""",
                 """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_OP_NAAM"}""",
@@ -78,47 +97,29 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A created zaak") {
-        When("it is assigned to a user") {
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/toekennen",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json"
-                ),
-                requestBodyAsString = """{
-                    "zaakUUID":"${ItestConfiguration.zaakProductaanvraag1Uuid}",
-                    "behandelaarGebruikersnaam":"$TEST_USER_1_USERNAME",
-                    "groepId":"$TEST_GROUP_A_ID",
-                    "reden":null
-                }
-                """.trimIndent()
-            )
-
-            Then("the response should be 'ok'") {
-                response.code shouldBe HTTP_OK
+    Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+            startDate = DATE_TIME_2024_01_31
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            this.code shouldBe HTTP_OK
+            JSONObject(responseBody).run {
+                zaakUUID = getString("uuid").run(UUID::fromString)
+                zaakIdentificatie = getString("identificatie")
             }
         }
-    }
 
-    Given("A zaak with informatie objecten") {
-        val zaakPath = "zaken/api/v1/zaken/${ItestConfiguration.zaakProductaanvraag1Uuid}"
-
-        val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
-            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
-        )
-        var responseBody = zaakInformatieObjectenResponse.body.string()
-        logger.info { "Response: $responseBody" }
-        zaakInformatieObjectenResponse.code shouldBe HTTP_OK
-        val zaakInformatieObjectenUrl = JSONArray(responseBody)
-            .getJSONObject(0)
-            .getString("url")
-        logger.info { "Zaak informatie objecten URL: $zaakInformatieObjectenUrl" }
-
+        zaakPath = "zaken/api/v1/zaken/$zaakUUID"
+        // retrieve the roles of this zaak from Open Zaak
         val zaakRollenResponse = itestHttpClient.performGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
         )
-        responseBody = zaakRollenResponse.body.string()
+        val responseBody = zaakRollenResponse.bodyAsString
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
@@ -126,38 +127,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             .getJSONObject(0)
             .getString("url")
             .replace(OPEN_ZAAK_EXTERNAL_URI, OPEN_ZAAK_BASE_URI)
-        logger.info { "Zaak rollen URL: $zaakInformatieObjectenUrl" }
-
-        val notificationDate = ZonedDateTime.now(ZoneId.of("UTC"))
-
-        When("a notification is sent to ZAC that a zaak is updated") {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/notificaties",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json",
-                    "Authorization",
-                    ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
-                ),
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "actie" to "create",
-                        "kanaal" to "zaken",
-                        "resource" to "zaakinformatieobject",
-                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
-                        "resourceUrl" to zaakInformatieObjectenUrl,
-                        "aanmaakdatum" to notificationDate.toString()
-                    )
-                ).toString(),
-                addAuthorizationHeader = false
-            )
-
-            Then("the response should be 'no content'") {
-                responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_NO_CONTENT
-            }
-        }
+        val now = ZonedDateTime.now(ZoneId.of("UTC"))
 
         When("a notification is sent to ZAC that a rol is updated") {
             val response = itestHttpClient.performJSONPostRequest(
@@ -175,14 +145,14 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resource" to "rol",
                         "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
                         "resourceUrl" to zaakRollenUrl,
-                        "aanmaakdatum" to notificationDate.plusSeconds(1).toString()
+                        "aanmaakdatum" to now.plusSeconds(1).toString()
                     )
                 ).toString(),
                 addAuthorizationHeader = false
             )
 
             Then("the response should be 'no content'") {
-                responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -204,31 +174,29 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resource" to "rol",
                         "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
                         "resourceUrl" to zaakRollenUrl,
-                        "aanmaakdatum" to notificationDate.plusSeconds(2).toString()
+                        "aanmaakdatum" to now.plusSeconds(2).toString()
                     )
                 ).toString(),
                 addAuthorizationHeader = false
             )
 
             Then("the response should be 'no content'") {
-                responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }
-    }
 
-    Given("A zaak has been assigned") {
-        When("the latest signaleringen date is requested") {
+        When("the latest signaleringen are requested") {
             val latestSignaleringenDateUrl = "$ZAC_API_URI/signaleringen/latest"
 
             Then("it returns a date between the start of the tests and current moment") {
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
+                    response.code shouldBe HTTP_OK
 
                     // application/json should be changed to text/plain in the endpoint to get rid of the quotes
                     val dateString = responseBody.replace("\"", "")
@@ -239,9 +207,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Given("An assigned zaak with information object") {
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
             val response = itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
@@ -251,18 +217,21 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
-            response.isSuccessful shouldBe true
+            response.code shouldBe HTTP_OK
 
-            Then("list content is correct") {
+            Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
                     shouldContainJsonKeyValue("totaal", "1.0")
                     with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
-                        shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                        shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
-                        shouldContainJsonKeyValue("omschrijving", ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING)
-                        shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                        shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
+                        shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
+                        shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
+                        shouldContainJsonKeyValue(
+                            "zaaktype",
+                            ZAAKTYPE_TEST_2_DESCRIPTION
+                        )
                     }
                 }
             }
@@ -277,7 +246,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("400 should be returned") {
@@ -286,27 +255,89 @@ class SignaleringRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            val response = itestHttpClient.performPutRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
-                requestBodyAsString = """{
-                    "page": 0,
-                    "rows": 5
-                }
-                """.trimIndent()
+        When(
+            """
+            the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
+            """
+        ) {
+            val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
+                zaakUUID = zaakUUID,
+                fileName = TEST_TXT_FILE_NAME,
+                fileMediaType = TEXT_MIME_TYPE,
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
             )
-            val responseBody = response.body.string()
-            logger.info { "Response: $responseBody" }
-            response.isSuccessful shouldBe true
 
-            Then("list content is correct") {
-                with(responseBody) {
-                    shouldContainJsonKeyValue("totaal", "1.0")
-                    with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
-                        shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                        shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
-                        shouldContainJsonKeyValue("omschrijving", ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING)
-                        shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+            Then("the response should be OK and contain information for the created document") {
+                val responseBody = response.bodyAsString
+                logger.info { "response: $responseBody" }
+                response.code shouldBe HTTP_OK
+            }
+        }
+
+        When("a notification is sent to ZAC that a document was added to the zaak") {
+            // obtain the zaakinformatieobject URL from OpenZaak for the document that was just added to the zaak
+            val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
+                url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
+            )
+            var responseBody = zaakInformatieObjectenResponse.bodyAsString
+            logger.info { "Response: $responseBody" }
+            val now = ZonedDateTime.now(ZoneId.of("UTC"))
+            zaakInformatieObjectenResponse.code shouldBe HTTP_OK
+            val zaakInformatieObjectenUrl = JSONArray(responseBody)
+                .getJSONObject(0)
+                .getString("url")
+            logger.info { "Zaak informatie objecten URL: $zaakInformatieObjectenUrl" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    "Authorization",
+                    ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "actie" to "create",
+                        "kanaal" to "zaken",
+                        "resource" to "zaakinformatieobject",
+                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
+                        "resourceUrl" to zaakInformatieObjectenUrl,
+                        "aanmaakdatum" to now.toString()
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+            Then("the response should be 'no content'") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+            When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
+                val response = itestHttpClient.performPutRequest(
+                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                    requestBodyAsString = """
+                        {
+                            "page": 0,
+                            "rows": 5
+                        }
+                    """.trimIndent()
+                )
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+
+                Then("a response of 1 is returned for the zaak to which a document was added") {
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("totaal", "1.0")
+                        with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
+                            shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
+                            shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
+                            shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
+                            shouldContainJsonKeyValue(
+                                "zaaktype",
+                                ZAAKTYPE_TEST_2_DESCRIPTION
+                            )
+                        }
                     }
                 }
             }
@@ -315,7 +346,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given(
         """
-        Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
+        An existing signalering record and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
         """
     ) {
         When("signaleringen older than 0 days are deleted") {
@@ -327,11 +358,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 ).toHeaders(),
                 addAuthorizationHeader = false
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("all existing signaleringen should have been deleted") {
-                response.isSuccessful shouldBe true
+            Then("the existing two signaleringen should be deleted") {
+                response.code shouldBe HTTP_OK
 
                 with(JSONObject(responseBody)) {
                     getInt("deletedSignaleringenCount") shouldBe 2

@@ -14,8 +14,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.util.FlywayIntegrator
 import nl.info.zac.app.admin.model.RestReferenceTableValue
+import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
 @Entity
@@ -46,6 +46,24 @@ class ReferenceTableValue {
 
     @Column(name = "is_systeem_waarde", nullable = false)
     var isSystemValue: Boolean = false
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReferenceTableValue) return false
+
+        if (sortOrder != other.sortOrder) return false
+        if (isSystemValue != other.isSystemValue) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = sortOrder
+        result = 31 * result + isSystemValue.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
 }
 
 fun ReferenceTableValue.toRestReferenceTableValue() =

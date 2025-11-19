@@ -3,9 +3,10 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<span
-  class="fa-solid {{ getFileIcon(bestandsnaam).icon }} {{
-    getFileIcon(bestandsnaam).color
-  }}"
+<mat-icon
   [title]="getFileTooltip(getFileIcon(bestandsnaam).type)"
-></span>
+  [style]="{
+    color: getFileIcon(bestandsnaam).color,
+  }"
+  >{{ getFileIcon(bestandsnaam).icon }}</mat-icon
+>

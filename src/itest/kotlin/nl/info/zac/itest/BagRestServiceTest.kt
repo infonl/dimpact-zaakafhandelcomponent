@@ -11,14 +11,16 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BAG_TEST_ADRES_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -32,18 +34,22 @@ class BagRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak exists and address data is present in the BAG API mock") {
+    beforeSpec {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
+    }
+
+    Given("A logged-in raadpleger, and address data is present in the BAG API mock") {
         When("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
-                        { "trefwoorden": "fake search text"}
+                        { "trefwoorden": "fake search text" }
                 """.trimIndent()
             )
             Then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -162,92 +168,14 @@ class BagRestServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("An existing zaak") {
-        lateinit var zaakUUID: UUID
-        zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
-            startDate = DATE_TIME_2000_01_01
-        ).run {
-            val responseBody = body.string()
-            logger.info { "Response: $responseBody" }
-            JSONObject(responseBody).run {
-                zaakUUID = getString("uuid").run(UUID::fromString)
-            }
-        }
-        When("a BAG object is added") {
-            // note that the zaakobject fields 'woonplaatsNaam' and 'openbareRuimteNaam'
-            // are mandatory for a zaakobject of type 'ADRES' by OpenZaak
-            // (not, by the way, by the ZGW ZRC API, nor by the ZAC backend API)
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/bag",
-                requestBodyAsString = """
-                    {
-                        "zaakUuid": "$zaakUUID",
-                        "zaakobject": {                        
-                            "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
-                             "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                             "bagObjectType": "ADRES",
-                             "woonplaatsNaam": "Amsterdam",
-                             "openbareRuimteNaam": "Dam"
-                        }                 
-                    }
-                """.trimIndent()
-            )
-            Then("it is successfully added to the zaak") {
-                response.code shouldBe HTTP_NO_CONTENT
 
-                // retrieve the BAG objects for the zaak
-                itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID"
-                ).run {
-                    val responseBody = body.string()
-                    logger.info { "Response: $responseBody" }
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """
-                        [
-                            {                             
-                                "zaakUuid": "$zaakUUID",
-                                "zaakobject": {
-                                    "geconstateerd": false,
-                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "bagObjectType": "ADRES",
-                                    "huisnummer": 0,
-                                    "huisnummerWeergave": "0",
-                                    "omschrijving": "Dam 0,  Amsterdam",
-                                    "openbareRuimteNaam": "Dam",
-                                    "panden": [],
-                                    "postcode": "",
-                                    "woonplaatsNaam": "Amsterdam"
-                                },
-                                "bagObject": {
-                                    "geconstateerd": false,
-                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "bagObjectType": "ADRES",
-                                    "huisnummer": 0,
-                                    "huisnummerWeergave": "0",
-                                    "omschrijving": "Dam 0,  Amsterdam",
-                                    "openbareRuimteNaam": "Dam",
-                                    "panden": [],
-                                    "postcode": "",
-                                    "woonplaatsNaam": "Amsterdam"
-                                }
-                            }
-                        ]
-                    """.trimIndent()
-                }
-            }
-        }
-    }
-    Given("A BAG object that is present in the BAG API mock") {
+    Given("A logged-in raadpleger and a BAG object that is present in the BAG API mock") {
         When("the BAG object is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION"
             )
             Then("the BAG object is successfully returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
@@ -1234,6 +1162,87 @@ class BagRestServiceTest : BehaviorSpec({
                       "woonplaatsNaam" : "Amsterdam"
                     }
                 """.trimIndent()
+            }
+        }
+    }
+
+    Given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+        lateinit var zaakUUID: UUID
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            JSONObject(responseBody).run {
+                zaakUUID = getString("uuid").run(UUID::fromString)
+            }
+        }
+        When("a BAG object is added") {
+            // note that the zaakobject fields 'woonplaatsNaam' and 'openbareRuimteNaam'
+            // are mandatory for a zaakobject of type 'ADRES' by OpenZaak
+            // (not, by the way, by the ZGW ZRC API, nor by the ZAC backend API)
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bag",
+                requestBodyAsString = """
+                    {
+                        "zaakUuid": "$zaakUUID",
+                        "zaakobject": {                        
+                            "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                             "url": "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                             "bagObjectType": "ADRES",
+                             "woonplaatsNaam": "Amsterdam",
+                             "openbareRuimteNaam": "Dam"
+                        }                 
+                    }
+                """.trimIndent()
+            )
+            Then("it is successfully added to the zaak") {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                // retrieve the BAG objects for the zaak
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID"
+                ).run {
+                    val responseBody = bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                        [
+                            {                             
+                                "zaakUuid": "$zaakUUID",
+                                "zaakobject": {
+                                    "geconstateerd": false,
+                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                    "bagObjectType": "ADRES",
+                                    "huisnummer": 0,
+                                    "huisnummerWeergave": "0",
+                                    "omschrijving": "Dam 0,  Amsterdam",
+                                    "openbareRuimteNaam": "Dam",
+                                    "panden": [],
+                                    "postcode": "",
+                                    "woonplaatsNaam": "Amsterdam"
+                                },
+                                "bagObject": {
+                                    "geconstateerd": false,
+                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                    "bagObjectType": "ADRES",
+                                    "huisnummer": 0,
+                                    "huisnummerWeergave": "0",
+                                    "omschrijving": "Dam 0,  Amsterdam",
+                                    "openbareRuimteNaam": "Dam",
+                                    "panden": [],
+                                    "postcode": "",
+                                    "woonplaatsNaam": "Amsterdam"
+                                }
+                            }
+                        ]
+                    """.trimIndent()
+                }
             }
         }
     }

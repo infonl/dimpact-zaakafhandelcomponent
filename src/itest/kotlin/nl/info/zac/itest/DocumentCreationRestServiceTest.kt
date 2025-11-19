@@ -12,17 +12,18 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.urlEncode
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONObject
@@ -41,7 +42,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC and all related Docker containers are running and zaak exists") {
+    Given("A zaak exists") {
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -54,12 +55,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to TEST_USER_1_NAME
+                        "author" to FAKE_AUTHOR_NAME
                     )
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -85,13 +86,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to TEST_USER_1_NAME,
+                        "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -118,7 +119,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the response should be 400 Client Error") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
                 responseBody shouldContain "must not be null"
@@ -130,7 +131,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
-                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -152,9 +153,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
@@ -174,7 +175,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "&userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -194,9 +195,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
@@ -213,7 +214,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is called") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakProductaanvraag1Uuid" +
-                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -233,9 +234,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak id") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
@@ -252,7 +253,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
                     "zaak/$zaakProductaanvraag1Uuid/task/$task1ID" +
-                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -272,9 +273,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER

@@ -13,21 +13,23 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
@@ -39,39 +41,45 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * This test assumes that a zaak has been created, a task has been started, and a template mapping is created
- * in previously run tests.
+ * This test assumes that a SmartDocuments template mapping has been created in previously run tests.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-    var bpmnZaakUuid = zacClient.createZaak(
-        zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
-        groupId = TEST_GROUP_A_ID,
-        groupName = TEST_GROUP_A_DESCRIPTION,
-        startDate = DATE_TIME_2000_01_01
-    ).run {
-        val responseBody = body.string()
-        logger.info { "Response: $responseBody" }
-        code shouldBe HTTP_OK
-        JSONObject(responseBody).run {
-            getJSONObject("zaakdata").run {
-                getString("zaakUUID").run(UUID::fromString)
+    lateinit var bpmnZaakUuid: UUID
+    lateinit var taskId: String
+
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
+        bpmnZaakUuid = zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+            JSONObject(responseBody).run {
+                getJSONObject("zaakdata").run {
+                    getString("zaakUUID").run(UUID::fromString)
+                }
             }
         }
-    }
-    var taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
-        val responseBody = it.body.string()
-        logger.info { "Response: $responseBody" }
-        it.isSuccessful shouldBe true
-        responseBody.shouldBeJsonArray()
-        JSONArray(responseBody).length() shouldBe 1
-        JSONArray(responseBody).getJSONObject(0).getString("id")
+        taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
+            val responseBody = it.bodyAsString
+            logger.info { "Response: $responseBody" }
+            it.code shouldBe HTTP_OK
+            responseBody.shouldBeJsonArray()
+            JSONArray(responseBody).length() shouldBe 1
+            JSONArray(responseBody).getJSONObject(0).getString("id")
+        }
     }
 
-    Given("BPMN zaak $bpmnZaakUuid with task $taskId exists") {
+    Given("BPMN zaak and task exists") {
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -86,12 +94,12 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "creationDate" to ZonedDateTime.now(),
-                        "author" to TEST_USER_1_NAME
+                        "author" to FAKE_AUTHOR_NAME
                     )
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -118,13 +126,13 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "title" to SMART_DOCUMENTS_FILE_TITLE,
                         "description" to "document description",
-                        "author" to TEST_USER_1_NAME,
+                        "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString()
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
 
@@ -142,7 +150,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                 "zaak/$bpmnZaakUuid/task/$taskId" +
-                "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                 "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                 "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                 "&templateGroupName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
@@ -165,9 +173,9 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
@@ -187,7 +195,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "&userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
                     "&templateName=" + SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.urlEncode() +
                     "&informatieobjecttypeUuid=$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
@@ -208,9 +216,9 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
@@ -228,7 +236,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/bpmn-callback/" +
                     "zaak/$bpmnZaakUuid/task/$taskId" +
-                    "?userName=" + TEST_USER_1_NAME.urlEncode() +
+                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGrouName=$SMART_DOCUMENTS_ROOT_GROUP_NAME" +
@@ -249,9 +257,9 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                val locationHeader = response.header("Location")!!
+                val locationHeader = response.headers["Location"]
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER

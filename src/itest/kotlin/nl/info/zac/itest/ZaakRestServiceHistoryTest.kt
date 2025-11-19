@@ -11,184 +11,132 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.FUNCTIONELE_GEBRUIKER_ID
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.RAADPLEGERS_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
+import java.util.UUID
 
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
+/**
+ * This test creates a zaak and uploads a document and because we do not want this test
+ * to impact e.g. [SearchRestServiceTest] we run it afterward.
+ */
+@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class ZaakRestServiceHistoryTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient()
 
-    Given("A zaak exists for which there is an audit trail in OpenZaak") {
+    beforeSpec {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+    }
+
+    afterSpec {
+        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
+        lateinit var zaakUuid: UUID
+        lateinit var zaakIdentificatie: String
+        zacClient.createZaak(
+            description = ZAAK_DESCRIPTION_1,
+            groupId = RAADPLEGERS_DOMAIN_TEST_1.name,
+            groupName = RAADPLEGERS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2024_01_01,
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
+        ).run {
+            JSONObject(bodyAsString).run {
+                logger.info { "Response: $this" }
+                zaakUuid = getString("uuid").run(UUID::fromString)
+                zaakIdentificatie = getString("identificatie")
+            }
+        }
+        // assign the zaak to the current user but to a different group
+        val zaakAssignToMeFromListReason = "fakeAssignToMeFromListReason"
+        itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
+            requestBodyAsString = """{
+                    "zaakUUID" : "$zaakUuid",
+                    "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                    "reden" : "$zaakAssignToMeFromListReason"
+                }
+            """.trimIndent()
+        ).run {
+            logger.info { "Response: $bodyAsString" }
+        }
+
         When("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/historie"
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie"
             )
 
-            Then("the response should be ok") {
-                val responseBody = response.body.string()
+            Then(
+                """
+                the response should be successful and contain the expected history items of the zaak 
+                in reverse chronological order (most recent change first): 
+                1. zaak created
+                2. zaak assigned to raadplegers group
+                3. zaak status changed to 'Intake'
+                4. zaak assigned to behandelaar (= currently logged-in user)
+                5. zaak unassigned from raadplegers group
+                6. zaak assigned to behandelaars group
+                """
+            ) {
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-
-                val expectedResponse = """[   
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_TITLE",
-                    "toelichting": ""
-                  },                
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_TITLE",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "fakeTitel",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "fakeTitel",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "fakeTitel",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "ONTKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "oudeWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "fakeLijstVrijgevenReason"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "fakeAssignToMeFromListReason"
-                  },
-                  {
-                    "actie": "ONTKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
-                    "oudeWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "fakeAssignToMeFromListReason"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "fakeLijstVerdelenReason"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "uiterlijkeEinddatumAfdoening",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "17-01-1970",
-                    "oudeWaarde": "15-01-1970",
-                    "toelichting": "Aanvullende informatie opgevraagd"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "status",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "Wacht op aanvullende informatie",
-                    "toelichting": "Status gewijzigd"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Bewindvoerder",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_PERSON_2_BSN",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Bewindvoerder",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_PERSON_3_BSN",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Medeaanvrager",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_PERSON_2_BSN",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Melder",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                    "toelichting": ""
-                  },                
-                 {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "Aanvraag PDF",
-                    "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "status",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd"
-                  },
-                  {
-                    "actie": "AANGEMAAKT",
-                    "attribuutLabel": "zaak",
-                    "door": "$FUNCTIONELE_GEBRUIKER_ID",
-                    "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
-                  }]
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    [                    
+                       {
+                          "actie" : "GEKOPPELD",
+                          "attribuutLabel" : "Behandelaar",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+                          "toelichting" : "$zaakAssignToMeFromListReason"
+                        }, {
+                          "actie" : "ONTKOPPELD",
+                          "attribuutLabel" : "Behandelaar",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "oudeWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "toelichting" : "$zaakAssignToMeFromListReason"
+                        }, {
+                          "actie" : "GEKOPPELD",
+                          "attribuutLabel" : "Behandelaar",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "toelichting" : "$zaakAssignToMeFromListReason"
+                        }, {
+                          "actie" : "GEWIJZIGD",
+                          "attribuutLabel" : "status",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "Intake",
+                          "toelichting" : "Status gewijzigd"
+                        }, {
+                          "actie" : "GEKOPPELD",
+                          "attribuutLabel" : "Behandelaar",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "toelichting" : "Aanmaken zaak"
+                        }, {
+                          "actie" : "AANGEMAAKT",
+                          "attribuutLabel" : "zaak",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "nieuweWaarde" : "$zaakIdentificatie",
+                          "toelichting" : "null"
+                        }              
+                  ]
                 """.trimIndent()
-
-                responseBody shouldEqualJsonIgnoringExtraneousFields expectedResponse
                 responseBody shouldContainJsonKey("$[0].datumTijd")
             }
         }

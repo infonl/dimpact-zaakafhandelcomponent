@@ -4,17 +4,29 @@
  *
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { RouterModule } from "@angular/router";
+import {
+  NavigationSkipped,
+  Router,
+  RouterModule,
+  Routes,
+} from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { testQueryClient } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -25,13 +37,19 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
+const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
+
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
+  let fixture: ComponentFixture<ZaakCreateComponent>;
+  let loader: HarnessLoader;
+  let component: ZaakCreateComponent;
+  let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ZaakCreateComponent],
+      declarations: [ZaakCreateComponent, ZacInput],
       providers: [
         ZakenService,
         NavigationService,
@@ -40,9 +58,10 @@ describe(ZaakCreateComponent.name, () => {
         UtilService,
         IdentityService,
         provideHttpClient(),
+        provideQueryClient(testQueryClient),
       ],
       imports: [
-        RouterModule.forRoot([]),
+        RouterModule.forRoot(routes),
         TranslateModule.forRoot(),
         NoopAnimationsModule,
         MatSidenavModule,
@@ -64,7 +83,7 @@ describe(ZaakCreateComponent.name, () => {
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listZaaktypes").mockReturnValue(
+    jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
       of([
         fromPartial<GeneratedType<"RestZaaktype">>({
           uuid: "test-zaaktype-1",
@@ -76,6 +95,12 @@ describe(ZaakCreateComponent.name, () => {
         }),
       ]),
     );
+
+    router = TestBed.inject(Router);
+
+    fixture = TestBed.createComponent(ZaakCreateComponent);
+    component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
@@ -85,5 +110,148 @@ describe(ZaakCreateComponent.name, () => {
     it.todo(`should set the default case worker`);
 
     it.todo(`should set the confidentiality notice`);
+  });
+
+  describe("Bag objects field editing", () => {
+    const mockBagObjects: GeneratedType<"RESTBAGObject">[] = [
+      {
+        url: "https://example.com/bagobject/123",
+        identificatie: "123456789",
+        geconstateerd: true,
+        bagObjectType: "PAND",
+        omschrijving: "Test Pand aan de Dorpsstraat 1",
+      },
+      {
+        url: "https://example.com/bagobject/456",
+        identificatie: "987654321",
+        geconstateerd: false,
+        bagObjectType: "ADRES",
+        omschrijving: "Test Adres in de Dorpsstraat 2",
+      },
+    ];
+
+    beforeEach(() => {
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate").mockImplementation(async () => true);
+    });
+
+    it("should show the BagObjects icon when there are no bag objects selected", async () => {
+      component.clearBagObjecten();
+
+      fixture.detectChanges();
+      const icon = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "gps_fixed" }),
+      );
+      expect(icon.length).toBeTruthy();
+    });
+
+    it("should empty the bagobjects field when the close icon has been clicked", async () => {
+      component.clearBagObjecten();
+
+      component["form"].get("bagObjecten")?.setValue(mockBagObjects);
+      fixture.detectChanges();
+
+      expect(component.hasBagObject()).toBe(true);
+
+      const closeIcon = await loader.getHarness(
+        MatIconHarness.with({ name: "close" }),
+      );
+      expect(closeIcon).toBeTruthy();
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({
+          selector:
+            'zac-input[key="bagObjecten"] button[mat-icon-button][matSuffix]',
+        }),
+      );
+
+      await button.click();
+      fixture.detectChanges();
+
+      expect(component.hasBagObject()).toBe(false);
+    });
+  });
+
+  describe("Initiator field editing", () => {
+    const mockInitiator: GeneratedType<"BetrokkeneIdentificatie"> = {
+      bsnNummer: "123456789",
+      type: "BSN",
+    };
+
+    beforeEach(() => {
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate").mockImplementation(async () => true);
+
+      component["form"].get("zaaktype")?.setValue(
+        fromPartial({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: { brpKoppelen: true },
+          },
+        }),
+      );
+
+      fixture.detectChanges();
+    });
+
+    it("should show the person icon when there is no initiator selected", async () => {
+      component.clearInitiator();
+      fixture.detectChanges();
+
+      const icon = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "person" }),
+      );
+
+      expect(icon.length).toBeTruthy();
+    });
+
+    it("should clear the initiator field when the close icon is clicked", async () => {
+      component.clearInitiator();
+
+      component["form"].controls.initiatorIdentificatie.setValue(mockInitiator);
+      fixture.detectChanges();
+
+      expect(component.hasInitiator()).toBe(true);
+
+      const buttons = await loader.getAllHarnesses(
+        MatButtonHarness.with({
+          text: "clear",
+        }),
+      );
+
+      await buttons[0].click();
+      fixture.detectChanges();
+
+      expect(component.hasInitiator()).toBe(false);
+    });
+  });
+
+  describe("form submitting", () => {
+    it("should reset the navigate flag", () => {
+      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+      component.formSubmit();
+
+      expect(spy).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("Navigation", () => {
+    it("should reset the form when the navigation is skipped", async () => {
+      const reset = jest.spyOn(component["form"], "reset");
+
+      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+      (router.events as Subject<unknown>).next(navigationSkipped);
+
+      expect(reset).toHaveBeenCalled();
+    });
+
+    it("should ensure the navigate flag is set after navigation", async () => {
+      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+      (router.events as Subject<unknown>).next(navigationSkipped);
+
+      expect(spy).toHaveBeenCalledWith(false);
+    });
   });
 });

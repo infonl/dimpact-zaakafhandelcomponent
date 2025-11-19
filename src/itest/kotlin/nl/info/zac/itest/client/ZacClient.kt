@@ -5,20 +5,83 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import okhttp3.Response
+import okhttp3.Headers
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.net.URLDecoder
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class ZacClient {
     private val logger = KotlinLogging.logger {}
     private var itestHttpClient = ItestHttpClient()
 
+    fun createEnkelvoudigInformatieobjectForZaak(
+        zaakUUID: UUID,
+        fileName: String,
+        fileMediaType: String,
+        vertrouwelijkheidaanduiding: String
+    ): ResponseContent {
+        val createEnkelvoudigInformatieobjectEndpointURI =
+            "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
+        val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
+            File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
+        }
+        val requestBody =
+            MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bestandsnaam", fileName)
+                .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
+                .addFormDataPart("bestandsomvang", file.length().toString())
+                .addFormDataPart("formaat", fileMediaType)
+                .addFormDataPart(
+                    "file",
+                    fileName,
+                    file.asRequestBody(fileMediaType.toMediaType())
+                )
+                .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                .addFormDataPart(
+                    "vertrouwelijkheidaanduiding",
+                    vertrouwelijkheidaanduiding
+                )
+                .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
+                .addFormDataPart(
+                    "creatiedatum",
+                    DateTimeFormatter.ofPattern(
+                        "yyyy-MM-dd'T'HH:mm+01:00"
+                    ).format(ZonedDateTime.now())
+                )
+                .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
+                .addFormDataPart("taal", "dut")
+                .build()
+        return itestHttpClient.performPostRequest(
+            url = createEnkelvoudigInformatieobjectEndpointURI,
+            headers = Headers.headersOf(
+                "Accept",
+                "application/json",
+                "Content-Type",
+                "multipart/form-data"
+            ),
+            requestBody = requestBody
+        )
+    }
+
     @Suppress("LongMethod", "LongParameterList")
-    fun createZaakAfhandelParameters(
+    fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
@@ -26,11 +89,12 @@ class ZacClient {
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@info.nl",
         automaticEmailConfirmationReply: String = "reply@info.nl"
-    ): Response {
+    ): ResponseContent {
         logger.info {
-            "Creating zaakafhandelparameters in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
@@ -114,7 +178,32 @@ class ZacClient {
                   "doorlooptijd": null
                 }
               ],
-              "mailtemplateKoppelingen": [],
+              "mailtemplateKoppelingen": [
+                {
+                  "mailtemplate": {
+                    "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                    "defaultMailtemplate": true,
+                    "id": 2,
+                    "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
+                    "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
+                    "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                    "variabelen": [
+                      "GEMEENTE",
+                      "ZAAK_NUMMER",
+                      "ZAAK_TYPE",
+                      "ZAAK_STATUS",
+                      "ZAAK_REGISTRATIEDATUM",
+                      "ZAAK_STARTDATUM",
+                      "ZAAK_STREEFDATUM",
+                      "ZAAK_FATALEDATUM",
+                      "ZAAK_OMSCHRIJVING",
+                      "ZAAK_TOELICHTING",
+                      "ZAAK_INITIATOR",
+                      "ZAAK_INITIATOR_ADRES"
+                    ]
+                  }
+                }
+              ],
               "userEventListenerParameters": [
                 {
                   "id": "INTAKE_AFRONDEN",
@@ -194,7 +283,7 @@ class ZacClient {
                 ]
               },             
               "domein": ${domein?.let { "\"$it\"" }},
-              "defaultGroepId": "test-group-a",
+              "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
               "uiterlijkeEinddatumAfdoeningWaarschuwing": null,
@@ -218,7 +307,8 @@ class ZacClient {
               },
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
-                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde"
+                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
+                "verwerkingWaarde": "$brpVerwerkingWaarde"
               },
               "automaticEmailConfirmation": {
                 "enabled": true,
@@ -242,7 +332,7 @@ class ZacClient {
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
         vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-    ): Response {
+    ): ResponseContent {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
@@ -261,7 +351,6 @@ class ZacClient {
                     "zaaktype": {
                         "uuid": "$zaakTypeUUID"
                     },
-                    "initiatorIdentificatie": null,
                     "startdatum": "$startDate",
                     "groep": {
                         "id": "$groupId",
@@ -279,7 +368,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(zaakUUID: UUID): Response {
+    fun retrieveZaak(zaakUUID: UUID): ResponseContent {
         logger.info {
             "Retrieving zaak with UUID: $zaakUUID"
         }
@@ -288,7 +377,7 @@ class ZacClient {
         )
     }
 
-    fun retrieveZaak(id: String): Response {
+    fun retrieveZaak(id: String): ResponseContent {
         logger.info {
             "Retrieving zaak with id: $id"
         }

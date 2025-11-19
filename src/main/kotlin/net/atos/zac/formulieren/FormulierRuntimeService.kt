@@ -110,11 +110,11 @@ class FormulierRuntimeService @Inject constructor(
         val formulierData = FormulierData(restTask.taakdata ?: emptyMap())
 
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
-            if (formulierData.toelichting != null) {
-                task.description = formulierData.toelichting
+            formulierData.toelichting?.let {
+                task.description = it
             }
-            if (formulierData.taakFataleDatum != null) {
-                task.dueDate = DateTimeConverterUtil.convertToDate(formulierData.taakFataleDatum)
+            formulierData.taakFataleDatum?.let {
+                task.dueDate = DateTimeConverterUtil.convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }

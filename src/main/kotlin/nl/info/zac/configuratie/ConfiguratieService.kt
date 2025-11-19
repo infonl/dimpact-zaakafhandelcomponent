@@ -19,6 +19,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -54,6 +55,9 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
     private val bpmnSupport: Boolean,
 
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION")
+    private val pabcIntegration: Boolean,
+
     @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
     private val bronOrganisatie: String,
 
@@ -62,6 +66,8 @@ class ConfiguratieService @Inject constructor(
 
     @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
     private val catalogusDomein: String,
+
+    private val brpConfiguration: BrpConfiguration
 ) {
     companion object {
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
@@ -96,11 +102,16 @@ class ConfiguratieService @Inject constructor(
          * We use the Base2 system to calculate the max file size in bytes.
          */
         const val MAX_FILE_SIZE_MB: Int = 80
+
+        private val LOG = Logger.getLogger(ConfiguratieService::class.java.name)
     }
 
     init {
         bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
         verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
+
+        LOG.info { "BPMN feature flag: $bpmnSupport" }
+        LOG.info { "PABC feature flag: $pabcIntegration" }
     }
 
     private var catalogusURI: URI =
@@ -124,6 +135,8 @@ class ConfiguratieService @Inject constructor(
     }
 
     fun featureFlagBpmnSupport(): Boolean = bpmnSupport
+
+    fun featureFlagPabcIntegration(): Boolean = pabcIntegration
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
 
@@ -163,4 +176,6 @@ class ConfiguratieService @Inject constructor(
     fun readVerantwoordelijkeOrganisatie(): String = verantwoordelijkeOrganisatie
 
     fun readCatalogusDomein(): String = catalogusDomein
+
+    fun readBrpConfiguration(): BrpConfiguration = brpConfiguration
 }

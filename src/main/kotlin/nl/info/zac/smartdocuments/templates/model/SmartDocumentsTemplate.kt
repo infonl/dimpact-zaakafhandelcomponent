@@ -15,25 +15,28 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.util.FlywayIntegrator
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "smartdocuments_document_creatie_sjabloon")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_smartdocuments_document_template_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_sd_document_creatie_sjabloon",
-    sequenceName = "sq_sd_document_creatie_sjabloon",
+    name = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
+    sequenceName = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
     allocationSize = 1
 )
 @AllOpen
 class SmartDocumentsTemplate {
     @Id
-    @GeneratedValue(generator = "sq_sd_document_creatie_sjabloon", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_sjabloon")
+    @GeneratedValue(
+        generator = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
+        strategy = GenerationType.SEQUENCE
+    )
+    @Column(name = "id")
     var id: Long = 0
 
     @Column(name = "smartdocuments_id", nullable = false)
@@ -50,8 +53,8 @@ class SmartDocumentsTemplate {
     lateinit var templateGroup: SmartDocumentsTemplateGroup
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
-    lateinit var zaakafhandelParameters: ZaakafhandelParameters
+    @JoinColumn(name = "zaaktype_configuration_id", nullable = false)
+    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @Column(name = "informatie_object_type_uuid", nullable = false)
     lateinit var informatieObjectTypeUUID: UUID

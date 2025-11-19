@@ -9,10 +9,13 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAAM
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -22,48 +25,49 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAG
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
-// Run this test after reindexing so that all the required data is available in the Solr index
+/**
+ * Run this test after reindexing so that all the required data is available in the Solr index.
+ * Note that this test is currently heavily dependent on data created by previously run integration tests.
+ * It would be good to make this test much more isolated because it is hard to maintain in its current form.
+ */
 @Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("LargeClass")
 class SearchRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    Given("""Multiple zaken, tasks and documents have been created and are indexed""") {
-        When(
-            """the search endpoint is called to search for all objects of all types"""
-        ) {
+    beforeSpec {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
+    }
+
+    afterSpec {
+        // re-authenticate as beheerder since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
+        When("the search endpoint is called to search for all objects of all types") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
@@ -73,75 +77,73 @@ class SearchRestServiceTest : BehaviorSpec({
                     "alleenOpenstaandeZaken": false,
                     "alleenAfgeslotenZaken": false,
                     "alleenMijnTaken": false,
-                    "zoeken":{"ALLE":""},
+                    "zoeken": { "ALLE": "" },
                     "filters": {},
                     "datums": {},
                     "rows": 10,
-                    "page":0                  
+                    "page": 0                  
                     }
                 """.trimIndent()
             )
-            Then(
-                """
-                   the response is successful and the search results include the indexed zaken, tasks and documents
-                """
-            ) {
-                val responseBody = response.body.string()
+            Then("the response is successful and the search results include the indexed zaken, tasks and documents") {
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                // we only test on the total number of results and the filters, not on the actual results, to keep the test maintainable
+                response.code shouldBe HTTP_OK
+
+                // we only test on the total number of results and the filters, not on the actual results,
+                // to keep the test more or less maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
-                        "foutmelding": "",                      
-                        "totaal": ${TOTAL_COUNT_ZAKEN + TOTAL_COUNT_TASKS + TOTAL_COUNT_DOCUMENTS},
+                        "foutmelding": "",
+                        "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN + TOTAL_COUNT_INDEXED_TASKS + TOTAL_COUNT_INDEXED_DOCUMENTS},
                         "filters": {
                             "TYPE": [
                                 {
-                                    "aantal": $TOTAL_COUNT_ZAKEN,
+                                    "aantal": $TOTAL_COUNT_INDEXED_ZAKEN,
                                     "naam": "ZAAK"
                                 },                           
                                 {
-                                    "aantal": $TOTAL_COUNT_TASKS,
+                                    "aantal": $TOTAL_COUNT_INDEXED_TASKS,
                                     "naam": "TAAK"
                                 },
                                 {
-                                    "aantal": $TOTAL_COUNT_DOCUMENTS,
+                                    "aantal": $TOTAL_COUNT_INDEXED_DOCUMENTS,
                                     "naam": "DOCUMENT"
                                 }
                             ],
                             "ZAAKTYPE": [
                                 {
                                     "aantal": 7,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 14,
-                                    "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                    "aantal": 19,
+                                    "naam": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 4,
+                                    "aantal": 6,
                                     "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                                  }
                             ],
                             "BEHANDELAAR": [
                                 {
-                                    "aantal": 2,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "aantal": 1,
+                                    "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 }
-                            ],
+                            ],            
                             "GROEP": [
                                 {
-                                    "aantal": 14,
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                    "aantal": 18,
+                                    "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
-                            ],
+                            ],         
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 12,
+                                    "aantal": 17,
                                     "naam": "false"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 1,
                                     "naam": "true"
                                 }
                             ],
@@ -151,7 +153,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 7,
                                     "naam": "Intake"
                                 },
                                 {
@@ -163,15 +165,8 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "In behandeling"
                                 }
                             ],
-                            "ZAAK_RESULTAAT": [
-                              {
-                                "aantal": 2,
-                                "naam": "Buiten behandeling"
-                              },
-                              {
-                                "aantal": 1,
-                                "naam": "Toegekend"
-                              }
+                           "ZAAK_RESULTAAT" : [
+                                { "aantal": 2, "naam": "Buiten behandeling" }
                             ],
                             "ZAAK_INDICATIES": [                        
                                 {
@@ -189,13 +184,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 5,
                                     "naam": "E-formulier"
                                 }                               
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 11,
+                                    "aantal": 14,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -211,13 +206,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
                                 },
                                 {
-                                    "aantal": 1,
-                                    "naam": "$BPMN_TEST_TASK_NAAM"
+                                    "aantal": 2,
+                                    "naam": "$BPMN_TEST_TASK_NAME"
                                 }
                             ],
                             "TAAK_STATUS": [
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "NIET_TOEGEKEND"
                                 },
                                 {
@@ -227,7 +222,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 10,
                                     "naam": "definitief"
                                 },
                                 {
@@ -237,11 +232,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                                 },
                                 {
@@ -252,15 +247,15 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 11,
+                                    "aantal": 14,
                                     "naam": "ONDERTEKEND"
                                 },
                                 {
-                                    "aantal": 3,
+                                    "aantal": 4,
                                     "naam": "VERZONDEN"
                                 }
                             ]
@@ -269,9 +264,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' filtered on a specific zaaktype
@@ -291,7 +284,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "filters": {
                         "ZAAKTYPE": {
                              "values": [
-                               "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                               "$ZAAKTYPE_TEST_2_DESCRIPTION"
                              ],
                              "inverse": "false"
                         }
@@ -310,22 +303,22 @@ class SearchRestServiceTest : BehaviorSpec({
                    the response is successful and the search results include the indexed zaken for this zaaktype only
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",                     
                       "totaal" : 4,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 4,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 6,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         }, {
                           "aantal" : 4,
-                          "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                          "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
                         }, {
-                          "aantal": 1,
+                          "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         }],          
                         "BEHANDELAAR": [
@@ -334,10 +327,12 @@ class SearchRestServiceTest : BehaviorSpec({
                             "naam": "-NULL-"
                           }
                         ],
-                        "GROEP" : [ {
-                          "aantal" : 4,
-                          "naam" : "$TEST_GROUP_A_DESCRIPTION"
-                        } ],
+                        "GROEP" : [         
+                            {
+                                "aantal": 4,
+                                "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                            }
+                        ],
                         "ZAAK_STATUS" : [
                            {
                                 "aantal": 2,
@@ -353,14 +348,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             } 
                          ],
                         "ZAAK_RESULTAAT" : [
-                         {
-                            "aantal": 1,
-                            "naam": "Toegekend"
-                          },                       
                           {
-                             "aantal" : 3,
-                             "naam" : "-NULL-"
-                           } 
+                            "aantal" : 4,
+                            "naam" : "-NULL-"
+                          }
                         ],
                         "ZAAK_INDICATIES" : [                    
                           {                       
@@ -385,9 +376,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' with a specific information 
@@ -409,11 +398,11 @@ class SearchRestServiceTest : BehaviorSpec({
                 """
                    the response is successful and the search results include the indexed zaken with compatibility info 
                    about the information object type UUID
-                """
+                """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -444,7 +433,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     }
                   ],
-                  "totaal": 11,
+                  "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN},
                   "filters": {}
                 }
                 """.trimIndent()
@@ -469,9 +458,9 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response is successful and search results contain no zaak that can be linked to") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "foutmelding": "",
@@ -502,15 +491,13 @@ class SearchRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     }
                   ],
-                  "totaal": 11,
+                  "totaal": $TOTAL_COUNT_INDEXED_ZAKEN,
                   "filters": {}
                 }
                 """.trimIndent()
             }
         }
-    }
 
-    Given("""Multiple taken have been created and are indexed""") {
         When(
             """the search endpoint is called to search for all objects of type 'TAAK'"""
         ) {
@@ -527,103 +514,54 @@ class SearchRestServiceTest : BehaviorSpec({
                     "filters": {},
                     "datums": {},
                     "rows": 10,
-                    "page":0,
-                    "type":"TAAK"
+                    "page": 0,
+                    "type": "TAAK"
                     }
                 """.trimIndent()
             )
             Then(
-                """the response is successful and the search results include the indexed taken"""
+                """
+                    the response is successful and the search results include the filters corresponding to
+                     the indexed tasks, and the returned permissions are those for the raadpleger role
+                """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
+                // we do not test on the actual results ('resultaten' attribute) to keep the test somewhat maintainable
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
                     {
-                        "foutmelding": "",
-                        "resultaten": [
-                            {
-                              "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
-                              "naam": "$BPMN_TEST_TASK_NAAM",
-                              "rechten": {
-                                "lezen": true,
-                                "toekennen": true,
-                                "toevoegenDocument": false,
-                                "wijzigen": true
-                              },
-                              "status": "NIET_TOEGEKEND",
-                              "type": "TAAK",
-                              "zaakIdentificatie": "$ZAAK_BPMN_TEST_IDENTIFICATION",
-                              "zaakOmschrijving": "$ZAAK_OMSCHRIJVING",
-                              "zaakToelichting": "null",
-                              "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-                            },
-                            {
-                                "type": "TAAK",
-                                "behandelaarGebruikersnaam": "$TEST_USER_1_USERNAME",
-                                "behandelaarNaam": "$TEST_USER_1_NAME",
-                                "fataledatum": "$DATE_2024_01_01",
-                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "rechten": {
-                                    "lezen": true,
-                                    "toekennen": true,
-                                    "toevoegenDocument": false,
-                                    "wijzigen": true
-                                },
-                                "status": "TOEGEKEND",
-                                "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
-                                "zaakToelichting": "null",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                            },
-                            {
-                                "type": "TAAK",
-                                "fataledatum": "$TAAK_1_FATAL_DATE",
-                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "rechten": {
-                                    "lezen": true,
-                                    "toekennen": true,
-                                    "toevoegenDocument": false,
-                                    "wijzigen": true
-                                },
-                                "status": "NIET_TOEGEKEND",
-                                "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                                "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
-                                "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
-                                "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
-                            }
-                        ],
-                        "totaal": 3,
+                        "foutmelding": "",                       
+                        "totaal": 4,
                         "filters": {
                             "ZAAKTYPE": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 2,
                                     "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                    "naam": "$ZAAKTYPE_TEST_3_DESCRIPTION"
                                 }
                             ],
                             "BEHANDELAAR": [
                                 {
                                     "aantal": 1,
-                                    "naam": "$TEST_USER_1_NAME"
+                                    "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "-NULL-"
                                 }
                             ],
-                            "GROEP": [
+                            "GROEP": [                            
                                 {
-                                    "aantal": 3,
-                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                    "aantal": 4,
+                                    "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                                 }
                             ],
                             "TAAK_NAAM": [
@@ -632,13 +570,13 @@ class SearchRestServiceTest : BehaviorSpec({
                                     "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
                                 },
                                 {
-                                    "aantal": 1,
-                                    "naam": "$BPMN_TEST_TASK_NAAM"
+                                    "aantal": 2,
+                                    "naam": "$BPMN_TEST_TASK_NAME"
                                 }
                             ],
                             "TAAK_STATUS": [
                                 {
-                                    "aantal": 2,
+                                    "aantal": 3,
                                     "naam": "NIET_TOEGEKEND"
                                 },
                                 {
@@ -651,8 +589,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-    }
-    Given("""Documents have been created and are indexed""") {
+
         When(
             """the search endpoint is called to search for all objects of type 'DOCUMENT'"""
         ) {
@@ -680,56 +617,55 @@ class SearchRestServiceTest : BehaviorSpec({
                     and the expected search filters
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                response.code shouldBe HTTP_OK
+                JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
                 JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
                       {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 9,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 12,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         }, {
                           "aantal": 2,
                           "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 7,
+                          "aantal" : 10,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         }, {
                           "aantal" : 4,
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 7,
+                          "aantal" : 9,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
-                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "-NULL-"
                         } ],
                         "DOCUMENT_INDICATIES" : [ {
-                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "aantal" : $TOTAL_COUNT_INDEXED_DOCUMENTS,
                           "naam" : "ONDERTEKEND"
                         }, {
-                          "aantal" : 10,
+                          "aantal" : 11,
                           "naam" : "GEBRUIKSRECHT"
                         }, {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "VERZONDEN"
                         } ]
                       }                                                                  
                 """
             }
         }
-    }
-    Given("""Documents have been created and are indexed""") {
+
         When(
             """the search endpoint is called to search for a specific document"""
         ) {
@@ -754,11 +690,12 @@ class SearchRestServiceTest : BehaviorSpec({
             Then(
                 """
                     the response is successful and the search results should include the expected document
+                    and the returned permissions are those for the raadpleger role
                 """.trimMargin()
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",
@@ -778,11 +715,11 @@ class SearchRestServiceTest : BehaviorSpec({
                         "rechten" : {
                           "lezen" : true,
                           "ondertekenen" : false,
-                          "ontgrendelen" : true,
-                          "toevoegenNieuweVersie" : true,
+                          "ontgrendelen" : false,
+                          "toevoegenNieuweVersie" : false,
                           "vergrendelen" : false,
-                          "verwijderen" : true,
-                          "wijzigen" : true
+                          "verwijderen" : false,
+                          "wijzigen" : false
                         },
                         "registratiedatum" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE",
                         "status" : "definitief",
@@ -791,30 +728,34 @@ class SearchRestServiceTest : BehaviorSpec({
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK",
                         "zaakIdentificatie" : "$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
                         "zaakRelatie" : "Hoort bij, omgekeerd: kent",
-                        "zaaktypeIdentificatie" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                        "zaaktypeUuid" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                        "zaaktypeIdentificatie" : "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "zaaktypeUuid" : "$ZAAKTYPE_TEST_3_UUID"
+                      }, {
+                        "type" : "DOCUMENT" 
+                      }, {
+                        "type" : "DOCUMENT"
                       } ],
-                      "totaal" : 1.0,
+                      "totaal" : 3.0,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 1,
-                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                          "aantal" : 3,
+                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
                         } ],
                         "DOCUMENT_STATUS" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "-NULL-"
                         } ],
                         "DOCUMENT_INDICATIES" : [ {
-                          "aantal" : 1,
+                          "aantal" : 3,
                           "naam" : "ONDERTEKEND"
                         } ]
                       }                   

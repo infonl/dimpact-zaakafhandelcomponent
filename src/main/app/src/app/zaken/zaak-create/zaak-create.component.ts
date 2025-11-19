@@ -3,14 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, ViewChild } from "@angular/core";
+import { Component, inject, signal, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
+import { NavigationSkipped, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { EMPTY, Observable, of, Subject, takeUntil } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, of } from "rxjs";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -22,14 +26,25 @@ import {
   BSN_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "../../shared/utils/constants";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
 })
-export class ZaakCreateComponent implements OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+export class ZaakCreateComponent {
+  private readonly zakenService = inject(ZakenService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly identityService = inject(IdentityService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly translateService = inject(TranslateService);
+  private readonly router = inject(Router);
+  private readonly klantenService = inject(KlantenService);
+  private readonly referentieTabelService = inject(ReferentieTabelService);
+
+  private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
 
   @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
@@ -40,20 +55,40 @@ export class ZaakCreateComponent implements OnDestroy {
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
-  protected caseTypes = this.zakenService.listZaaktypes();
+  protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
   );
 
+  private readonly routeOnSuccess = signal(true);
+  protected createZaakMutation = injectMutation(() => ({
+    ...this.zakenService.createZaak(),
+    onSuccess: ({ identificatie }) => {
+      if (this.routeOnSuccess()) {
+        void this.router.navigate(["/zaken/", identificatie]);
+        return;
+      }
+
+      this.utilService
+        .openSnackbarAction("msg.zaak.aangemaakt", "actie.zaak.bekijken", {
+          identificatie,
+        })
+        .subscribe(() => {
+          void this.router.navigate(["/zaken/", identificatie]);
+        });
+    },
+    onError: () => this.form.reset({ startdatum: moment() }),
+  }));
+
   protected readonly form = this.formBuilder.group({
     zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(
       null,
       [Validators.required],
     ),
-    initiator: this.formBuilder.control<
-      GeneratedType<"RestPersoon" | "RestBedrijf"> | null | undefined
+    initiatorIdentificatie: this.formBuilder.control<
+      GeneratedType<"BetrokkeneIdentificatie"> | null | undefined
     >(null),
     startdatum: this.formBuilder.control(moment(), [Validators.required]),
     bagObjecten: this.formBuilder.control<GeneratedType<"RESTBAGObject">[]>([]),
@@ -74,25 +109,15 @@ export class ZaakCreateComponent implements OnDestroy {
     toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly router: Router,
-    private readonly klantenService: KlantenService,
-    referentieTabelService: ReferentieTabelService,
-    private readonly translateService: TranslateService,
-    private readonly utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-    private identityService: IdentityService,
-    protected readonly navigationService: NavigationService,
-  ) {
-    utilService.setTitle("title.zaak.aanmaken");
+  constructor() {
+    this.utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
-      router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
-    this.form.controls.initiator.disable();
+    this.form.controls.initiatorIdentificatie.disable();
 
-    referentieTabelService
+    this.referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
       .subscribe((channels) => {
         this.communicationChannels = channels;
@@ -105,27 +130,28 @@ export class ZaakCreateComponent implements OnDestroy {
       });
 
     this.form.controls.zaaktype.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((caseType) => {
         this.caseTypeSelected(caseType);
 
         if (!this.canAddInitiator()) {
-          this.form.controls.initiator.setValue(null);
-          this.form.controls.initiator.disable();
+          this.form.controls.initiatorIdentificatie.setValue(null);
+          this.form.controls.initiatorIdentificatie.disable();
           return;
         }
 
-        this.form.controls.initiator.enable();
+        this.form.controls.initiatorIdentificatie.enable();
       });
+
     this.form.controls.groep.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (!value) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
         }
-        identityService.listUsersInGroup(value.id).subscribe((users) => {
+        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
           this.form.controls.behandelaar.setValue(
@@ -139,41 +165,47 @@ export class ZaakCreateComponent implements OnDestroy {
         });
       });
 
-    this.handleProductRequest(this.inboxProductaanvraag);
+    void this.handleProductRequest(this.inboxProductaanvraag);
+
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationSkipped) {
+        this.routeOnSuccess.set(false);
+        this.form.reset({
+          startdatum: moment(),
+        });
+      }
+    });
   }
 
-  formSubmit(form: typeof this.form): void {
-    const { bagObjecten, initiator, vertrouwelijkheidaanduiding, ...zaak } =
-      form.value;
+  formSubmit() {
+    this.routeOnSuccess.set(true);
+    const { value } = this.form;
 
-    this.zakenService
-      .createZaak({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: initiator?.identificatie,
-          initiatorIdentificatieType: initiator?.identificatieType,
-          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
-        } as unknown as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
-        bagObjecten: bagObjecten,
-        inboxProductaanvraag: this.inboxProductaanvraag,
-      })
-      .pipe(
-        catchError(() => {
-          this.form.reset();
-          return EMPTY;
-        }),
-      )
-      .subscribe((zaak) =>
-        this.router.navigate(["/zaken/", zaak?.identificatie]),
-      );
+    this.createZaakMutation.mutate({
+      zaak: {
+        ...value,
+        initiatorIdentificatie: value.initiatorIdentificatie
+          ? new BetrokkeneIdentificatie(value.initiatorIdentificatie)
+          : null,
+        vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+        startdatum: value.startdatum?.toISOString(),
+        omschrijving: value.omschrijving!,
+        zaaktype: value.zaaktype!,
+      },
+      bagObjecten: value.bagObjecten,
+      inboxProductaanvraag: this.inboxProductaanvraag,
+    });
   }
 
   async initiatorSelected(user: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    this.form.controls.initiator.setValue(user);
+    this.form.controls.initiatorIdentificatie.setValue({
+      ...user,
+      type: user.identificatieType!,
+    });
     await this.actionsSidenav.close();
   }
 
-  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null): void {
+  caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
@@ -195,7 +227,7 @@ export class ZaakCreateComponent implements OnDestroy {
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.kvkKoppelen &&
       !caseType.zaakafhandelparameters?.betrokkeneKoppelingen?.brpKoppelen
     ) {
-      this.form.controls.initiator.setValue(null);
+      this.form.controls.initiatorIdentificatie.setValue(null);
     }
   }
 
@@ -204,7 +236,7 @@ export class ZaakCreateComponent implements OnDestroy {
     await this.actionsSidenav.open();
   }
 
-  private handleProductRequest(
+  private async handleProductRequest(
     productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     if (!productRequest?.initiatorID) return;
@@ -213,26 +245,34 @@ export class ZaakCreateComponent implements OnDestroy {
       `Vanuit productaanvraag van type ${productRequest.type}`,
     );
 
-    let observable:
-      | Observable<GeneratedType<"RestPersoon"> | GeneratedType<"RestBedrijf">>
-      | undefined = undefined;
-
     const { initiatorID } = productRequest;
     switch (initiatorID.length) {
-      case BSN_LENGTH:
-        observable = this.klantenService.readPersoon(initiatorID, {
-          context: "ZAAK_AANMAKEN",
-          action: "find user",
+      case BSN_LENGTH: {
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readPersoon(initiatorID),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
         });
         break;
-      case VESTIGINGSNUMMER_LENGTH:
-        observable = this.klantenService.readBedrijf(initiatorID, null);
+      }
+      case VESTIGINGSNUMMER_LENGTH: {
+        const result = await this.queryClient.ensureQueryData(
+          this.klantenService.readBedrijf(
+            new BetrokkeneIdentificatie({
+              identificatie: initiatorID,
+              identificatieType: "VN",
+            }),
+          ),
+        );
+        this.form.controls.initiatorIdentificatie.setValue({
+          ...result,
+          type: result.identificatieType!,
+        });
         break;
+      }
     }
-
-    observable?.subscribe((result) => {
-      this.form.controls.initiator.setValue(result);
-    });
   }
 
   protected bagDisplayValue(bagObjects: GeneratedType<"RESTBAGObject">[]) {
@@ -264,8 +304,26 @@ export class ZaakCreateComponent implements OnDestroy {
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  hasInitiator(): boolean {
+    return !!this.form.controls.initiatorIdentificatie.value;
+  }
+
+  clearInitiator() {
+    this.form.controls.initiatorIdentificatie.setValue(null);
+  }
+
+  hasBagObject(): boolean {
+    return (
+      Array.isArray(this.form.controls.bagObjecten.value) &&
+      this.form.controls.bagObjecten.value.length > 0
+    );
+  }
+
+  clearBagObjecten() {
+    this.form.controls.bagObjecten.setValue([]);
+  }
+
+  protected back() {
+    this.navigationService.back();
   }
 }

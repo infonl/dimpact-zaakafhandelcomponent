@@ -4,35 +4,44 @@
   ~
   -->
 
-<mat-form-field [formGroup]="form" class="full-width" appearance="fill">
+<mat-form-field [formGroup]="form()" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-      {{ label ?? key | translate | capitalizeFirstLetter }}
+      {{ label() ?? key() | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <mat-select
     placeholder="{{
       '-kies.generiek-'
-        | translate: { label: (label ?? key | translate | lowercase) }
+        | translate: { label: (label() ?? key() | translate | lowercase) }
     }}"
     [compareWith]="compareWith"
-    [formControlName]="key"
+    [formControlName]="key()"
   >
     <mat-select-trigger>
-      {{ displayWith(control?.value) | translate }}
+      {{ displayWith(control()?.value) | translate }}
     </mat-select-trigger>
-    <mat-option [value]="" *ngIf="!isRequired()">
+    <mat-option *ngIf="isLoading()" disabled="true">
+      {{
+        "-laden.generiek-"
+          | translate: { label: (label() ?? key() | translate | lowercase) }
+      }}
+      <mat-spinner diameter="15" matPrefix></mat-spinner>
+    </mat-option>
+    <mat-option [value]="" *ngIf="!isRequired() && !isLoading()">
       {{
         "-geen.generiek-"
-          | translate: { label: (label ?? key | translate | lowercase) }
+          | translate: { label: (label() ?? key() | translate | lowercase) }
       }}
     </mat-option>
-    <mat-option *ngFor="let option of availableOptions" [value]="option">
+    <mat-option *ngFor="let option of availableOptions()" [value]="option">
       {{ displayWith(option) | translate }}
-      <div class="suffix" *ngIf="suffix">{{ suffix | translate }}</div>
+      <div *ngIf="displaySuffix(option)">
+        {{ displaySuffix(option) | translate }}
+      </div>
     </mat-option>
   </mat-select>
-  <mat-error *ngIf="getErrorMessage()">{{ getErrorMessage() }}</mat-error>
+  <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>
   </mat-hint>

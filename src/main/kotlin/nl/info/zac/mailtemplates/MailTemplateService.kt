@@ -21,6 +21,7 @@ import nl.info.zac.util.NoArgConstructor
 @Transactional
 @AllOpen
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class MailTemplateService @Inject constructor(
     private val entityManager: EntityManager
 ) {
@@ -72,13 +73,35 @@ class MailTemplateService @Inject constructor(
             ?: throw MailTemplateNotFoundException(id)
     }
 
+    fun createMailtemplate(mailTemplate: MailTemplate): MailTemplate {
+        ValidationUtil.valideerObject(mailTemplate)
+        // Ensure ID is not set for new entities - let database auto-generate
+        mailTemplate.id = 0
+        entityManager.persist(mailTemplate)
+        return mailTemplate
+    }
+
+    fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
+        ValidationUtil.valideerObject(mailTemplate)
+        val existingTemplate = readMailtemplate(id)
+
+        existingTemplate.apply {
+            this.mailTemplateNaam = mailTemplate.mailTemplateNaam
+            this.onderwerp = mailTemplate.onderwerp
+            this.body = mailTemplate.body
+            this.mail = mailTemplate.mail
+            this.isDefaultMailtemplate = mailTemplate.isDefaultMailtemplate
+        }
+
+        return entityManager.merge(existingTemplate)
+    }
+
     fun storeMailtemplate(mailTemplate: MailTemplate): MailTemplate {
         ValidationUtil.valideerObject(mailTemplate)
         return if (mailTemplate.id != 0L && findMailtemplate(mailTemplate.id) != null) {
-            entityManager.merge(mailTemplate)
+            updateMailtemplate(mailTemplate.id, mailTemplate)
         } else {
-            entityManager.persist(mailTemplate)
-            mailTemplate
+            createMailtemplate(mailTemplate)
         }
     }
 

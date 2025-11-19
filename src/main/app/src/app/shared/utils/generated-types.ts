@@ -5,12 +5,20 @@
 
 import { components } from "../../../generated/types/zac-openapi-types";
 
+export type NullableIfOptional<T> = T extends object
+  ? {
+      [K in keyof T]: undefined extends T[K]
+        ? NullableIfOptional<T[K]> | null
+        : NullableIfOptional<T[K]>;
+    }
+  : T;
+
 type NestedSchemaProperty<Type, Key> = Key extends `${infer P}.${infer R}`
   ? P extends keyof Type
-    ? NestedSchemaProperty<Type[P], R>
+    ? NullableIfOptional<NestedSchemaProperty<Type[P], R>>
     : never
   : Key extends keyof Type
-    ? Type[Key]
+    ? NullableIfOptional<Type[Key]>
     : never;
 
 export type GeneratedType<Key extends keyof components["schemas"]> =

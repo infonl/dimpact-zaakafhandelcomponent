@@ -6,6 +6,8 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.zac.util.StringUtil
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
 import java.time.LocalDate
 
@@ -134,3 +136,20 @@ data class ZaakData(
 
     val zaaktype: String? = null
 )
+
+fun ResultaatItem.toAanvragerDataBedrijf() =
+    this.adres.binnenlandsAdres.let {
+        AanvragerData(
+            naam = this.naam,
+            straat = it.straatnaam,
+            huisnummer = this.toHuisnummer(),
+            postcode = it.postcode,
+            woonplaats = it.plaats
+        )
+    }
+
+fun ResultaatItem.toHuisnummer(): String? =
+    StringUtil.joinNonBlank(
+        this.adres.binnenlandsAdres.huisnummer?.toString(),
+        this.adres.binnenlandsAdres.huisletter
+    )

@@ -1,0 +1,185 @@
+/*
+ * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package nl.info.zac.itest
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.schema.array
+import io.kotest.assertions.json.schema.jsonSchema
+import io.kotest.assertions.json.schema.obj
+import io.kotest.assertions.json.schema.shouldMatchSchema
+import io.kotest.common.ExperimentalKotest
+import io.kotest.core.spec.Order
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.match
+import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
+import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import java.net.HttpURLConnection.HTTP_OK
+
+@OptIn(ExperimentalKotest::class)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
+class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
+    val logger = KotlinLogging.logger {}
+    val itestHttpClient = ItestHttpClient()
+
+    beforeSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
+    Given("A zaak exists for which there is an uploaded document") {
+        When("informatieobjecten historie is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/historie"
+            )
+
+            Then("the response should be ok") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+
+                val expectedResponse = """[
+                  {
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "registratiedatum",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "toelichting": "Door ondertekenen"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "versie",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "3",
+                    "oudeWaarde": "2",
+                    "toelichting": "Door ondertekenen"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "informatieobject.status",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$DOCUMENT_STATUS_DEFINITIEF",
+                    "oudeWaarde": "$DOCUMENT_STATUS_IN_BEWERKING",
+                    "toelichting": "Door ondertekenen"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "ondertekening",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "toelichting": "Door ondertekenen"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "titel",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$DOCUMENT_UPDATED_FILE_TITLE",
+                    "oudeWaarde": "$DOCUMENT_FILE_TITLE",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "bestandsnaam",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$TEST_TXT_FILE_NAME",
+                    "oudeWaarde": "$TEST_PDF_FILE_NAME",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "documentType",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
+                    "oudeWaarde": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "registratiedatum",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "versie",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "2",
+                    "oudeWaarde": "1",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "formaat",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$TEXT_MIME_TYPE",
+                    "oudeWaarde": "$PDF_MIME_TYPE",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEKOPPELD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "indicatieGebruiksrecht",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "geen",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEKOPPELD",
+                    "applicatie": "ZAC",
+                    "attribuutLabel": "informatieobject",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "nieuweWaarde": "$DOCUMENT_4_IDENTIFICATION",
+                    "toelichting": ""
+                  }
+                ]
+                """.trimIndent()
+
+                responseBody shouldMatchSchema jsonSchema {
+                    array {
+                        obj {
+                            string("actie")
+                            string("applicatie")
+                            string("attribuutLabel")
+                            string("datumTijd") {
+                                // accept formats "2024-07-16T10:46:53.405553Z" or "2024-07-16T10:46:53.405Z"
+                                // (if the nanoseconds are divisible by 1,000, they are truncated to milliseconds)
+                                match("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(\d{3})?Z""".toRegex())
+                            }
+                            string("door")
+                            string("nieuweWaarde")
+                            string("oudeWaarde", optional = true)
+                            string("toelichting")
+                        }
+                    }
+                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields expectedResponse
+            }
+        }
+    }
+})

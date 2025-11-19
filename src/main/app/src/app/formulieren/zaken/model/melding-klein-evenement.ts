@@ -36,8 +36,8 @@ export class MeldingKleinEvenement extends AbstractZaakFormulier {
     this.form.push(
       [
         new HeadingFormFieldBuilder()
-          .id("melding_klein_evenement")
-          .label(this.translate.instant("melding_klein_evenement.evenement"))
+          .id("melding-klein-evenement")
+          .label(this.translate.instant("melding-klein-evenement.evenement"))
           .level(HeadingLevel.H4)
           .build(),
       ],
@@ -71,10 +71,10 @@ export class MeldingKleinEvenement extends AbstractZaakFormulier {
       ],
       [
         new HeadingFormFieldBuilder()
-          .id("melding_klein_evenement")
+          .id("melding-klein-evenement")
           .label(
             this.translate.instant(
-              "melding_klein_evenement.aanvrager.gegevens",
+              "melding-klein-evenement.aanvrager.gegevens",
             ),
           )
           .level(HeadingLevel.H3)

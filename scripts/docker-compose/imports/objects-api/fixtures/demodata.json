@@ -198,6 +198,38 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 34,
+    "fields": {
+      "uuid": "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4",
+      "object_type": 4
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 35,
+    "fields": {
+      "uuid": "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc",
+      "object_type": 4
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 36,
+    "fields": {
+      "uuid": "225da1ce-f528-4a2c-b87d-c8c58fd2aca1",
+      "object_type": 4
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 37,
+    "fields": {
+      "uuid": "7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e",
+      "object_type": 4
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -917,6 +949,45 @@
         "taal": "nld",
         "betrokkenen": [
           {
+            "kvkNummer": "12345678",
+            "rolOmschrijvingGeneriek": "initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+      },
+      "start_at": "1999-01-01",
+      "end_at": null,
+      "registration_at": "1999-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 45,
+    "fields": {
+      "index": 1,
+      "object": 34,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
+        },
+        "type": "bpmn-test-productaanvraagtype",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "fakeBpmnApplicantName",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "fakeDescription"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "kvkNummer": "12345678",
             "vestigingsNummer": "000012345678",
             "rolOmschrijvingGeneriek": "initiator"
           },
@@ -931,18 +1002,171 @@
           },
           {
             "inpBsn": "999992958",
-            "rolOmschrijvingGeneriek": "belanghebbende"
-          },
-          {
-            "inpBsn": "999992958",
             "rolOmschrijvingGeneriek": "adviseur"
           }
         ],
         "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
       },
-      "start_at": "1999-01-01",
+      "start_at": "1998-01-01",
       "end_at": null,
-      "registration_at": "1999-01-01",
+      "registration_at": "1998-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 46,
+    "fields": {
+      "index": 1,
+      "object": 35,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "invalid-vestiging-only-12345678-9abc-def0"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "Invalid Vestiging Only",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "This should be invalid - only vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "vestigingsNummer": "000099999999",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/d20e1896-ab41-411b-9a20-1bce5a609df4"
+      },
+      "start_at": "1997-01-01",
+      "end_at": null,
+      "registration_at": "1997-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 47,
+    "fields": {
+      "index": 1,
+      "object": 36,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "kvk-vestiging-combo-12345678-000012345678"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "KVK Vestiging Combo",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "Valid scenario with both kvkNummer and vestigingsNummer"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "kvkNummer": "12345678",
+            "vestigingsNummer": "000012345678",
+            "rolOmschrijvingGeneriek": "initiator"
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "rolOmschrijvingGeneriek": "mede_initiator"
+          }
+        ],
+        "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/41ccba34-5b31-4dd9-a375-543733a5359b"
+      },
+      "start_at": "1996-01-01",
+      "end_at": null,
+      "registration_at": "1996-01-01",
+      "correct": null,
+      "geometry": null
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 48,
+    "fields": {
+      "index": 1,
+      "object": 37,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "Jan Jansen",
+            "telefoonnummer": "0612345678"
+          },
+          "stap2": {
+            "omschrijving": "Ik heb een vraag over mijn paspoort"
+          }
+        },
+        "taal": "nld",
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag1",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving",
+          "toelichting": "fakeZaakToelichting",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [52.08968250760225, 5.114358701512936]
+          }
+        },
+        "betrokkenen": [
+          {
+            "inpBsn": "999993896",
+            "rolOmschrijvingGeneriek": "initiator",
+            "indicatieMachtiging": "gemachtigde",
+            "indicatieCorrespondentie": true
+          },
+          {
+            "inpBsn": "999992958",
+            "rolOmschrijvingGeneriek": "mede_initiator",
+            "roltypeOmschrijving": "Medeaanvrager",
+            "indicatieMachtiging": "machtiginggever",
+            "indicatieCorrespondentie": false
+          },
+          {
+            "inpBsn": "999991838",
+            "roltypeOmschrijving": "Bewindvoerder"
+          },
+          {
+            "inpBsn": "999992958",
+            "rolOmschrijvingGeneriek": "belanghebbende"
+          },
+          {
+            "medewerkerIdentificatie": "MDW123",
+            "rolOmschrijvingGeneriek": "klantcontacter"
+          }
+        ],
+        "pdf": "http://host.docker.internal:8001/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e",
+        "csv": "http://host.docker.internal:8001/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
+      },
+      "start_at": "1970-01-01",
+      "end_at": null,
+      "registration_at": "1970-01-01",
       "correct": null,
       "geometry": null
     }
@@ -1076,7 +1300,6 @@
       "auth_type": "api_key",
       "header_key": "Authorization",
       "header_value": "Token 123456",
-      "oas": "http://objecttypen-api:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "",
       "user_representation": ""
@@ -1095,7 +1318,6 @@
       "auth_type": "zgw",
       "header_key": "",
       "header_value": "",
-      "oas": "http://open-notificaties:8000/api/v1/schema/openapi.yaml",
       "nlx": "",
       "user_id": "objects-api",
       "user_representation": "Objects API"

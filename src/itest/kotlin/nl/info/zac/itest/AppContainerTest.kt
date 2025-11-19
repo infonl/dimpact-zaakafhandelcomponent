@@ -9,17 +9,22 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
+import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
 
 class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+
+    afterSpec {
+        // re-authenticate using beheerder user since currently subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
 
     Given("ZAC Docker container and all related Docker containers are running") {
         When("the health endpoint is called") {
@@ -27,8 +32,8 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/health"
             )
             Then("the response should be ok and the status should be UP") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     shouldContainJsonKeyValue("status", "UP")
                 }
             }
@@ -38,14 +43,14 @@ class AppContainerTest : BehaviorSpec({
                 url = "$ZAC_MANAGEMENT_URI/metrics"
             )
             Then("the response should be ok and the the uptime var should be present") {
-                response.isSuccessful shouldBe true
-                with(response.body.string()) {
+                response.code shouldBe HTTP_OK
+                with(response.bodyAsString) {
                     contains("base_jvm_uptime_seconds").shouldBe(true)
                 }
             }
         }
         When("/admin is requested for a user who has the 'beheerder' role") {
-            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_USERNAME)
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin"
             )
@@ -54,15 +59,35 @@ class AppContainerTest : BehaviorSpec({
             }
         }
         When("/admin is requested for a user who does not have the 'beheerder' role") {
-            authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin"
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
             }
-            // re-authenticate using testuser1 since currently all subsequent integration tests rely on this user being logged in
-            authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
+        }
+    }
+
+    Given("A logged-in user who does not have any of the ZAC application roles") {
+        authenticate(USER_WITHOUT_ANY_ROLE)
+
+        When("The ZAC base URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = ZAC_BASE_URI
+            )
+            Then("the response should be forbidden") {
+                response.code shouldBe HTTP_FORBIDDEN
+            }
+        }
+
+        When("The ZAC logout URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/logout"
+            )
+            Then("the response should be a redirect") {
+                response.code shouldBe HTTP_MOVED_TEMP
+            }
         }
     }
 })

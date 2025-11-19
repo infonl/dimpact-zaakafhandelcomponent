@@ -3,7 +3,7 @@
 # The number of expected records in the django_migrations table after Open Archiefbeheer has finished with the database
 # migration scripts.
 # Note that this is expected to change in future versions of Open Archiefbeheer, so this value should be updated accordingly.
-DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=156
+DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=161
 
 echo ">>>> Waiting until Open Archiefbeheer has initialized the database <<<<"
 useradd openarchiefbeheer

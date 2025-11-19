@@ -11,10 +11,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
-import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.util.extractedUuidIsEqual
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -32,8 +29,6 @@ class DecisionService @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZrcClientService,
-    private val zgwApiService: ZGWApiService,
     private val restDecisionConverter: RestDecisionConverter,
 ) {
     companion object {
@@ -57,11 +52,6 @@ class DecisionService @Inject constructor(
         )
 
         val besluitToCreate = restDecisionConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-        zaak.resultaat?.let {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        } ?: run {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        }
 
         return brcClientService.createBesluit(besluitToCreate).also {
             createDecisionInformationObjects(besluitToevoegenGegevens, it)
@@ -120,7 +110,6 @@ class DecisionService @Inject constructor(
     }
 
     fun updateDecision(
-        zaak: Zaak,
         besluit: Besluit,
         restDecisionChangeData: RestDecisionChangeData
     ) {
@@ -132,15 +121,6 @@ class DecisionService @Inject constructor(
 
         besluit.updateDecisionWithDecisionChangeData(restDecisionChangeData).also {
             brcClientService.updateBesluit(it, restDecisionChangeData.reden)
-        }
-        zaak.resultaat?.let {
-            zrcClientService.readResultaat(it).let { zaakresultaat ->
-                val resultaattype = ztcClientService.readResultaattype(restDecisionChangeData.resultaattypeUuid)
-                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
-                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                    zgwApiService.createResultaatForZaak(zaak, restDecisionChangeData.resultaattypeUuid, null)
-                }
-            }
         }
         restDecisionChangeData.informatieobjecten?.let {
             updateDecisionInformationObjects(besluit, it)

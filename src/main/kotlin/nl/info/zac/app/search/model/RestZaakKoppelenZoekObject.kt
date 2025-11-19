@@ -18,3 +18,15 @@ data class RestZaakKoppelenZoekObject(
     @get:JsonbProperty("isKoppelbaar")
     val isKoppelbaar: Boolean = false
 ) : AbstractRestZoekObject(id, type, identificatie)
+
+fun RestZaakZoekObject.toRestZaakKoppelenZoekObject(documentLinkable: Boolean) =
+    RestZaakKoppelenZoekObject(
+        id = this.id,
+        type = this.type,
+        identificatie = this.identificatie,
+        omschrijving = this.omschrijving,
+        toelichting = this.toelichting,
+        zaaktypeOmschrijving = this.zaaktypeOmschrijving,
+        statustypeOmschrijving = this.statustypeOmschrijving,
+        isKoppelbaar = documentLinkable
+    )

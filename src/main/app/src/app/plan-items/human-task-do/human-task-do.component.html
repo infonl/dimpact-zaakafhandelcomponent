@@ -6,7 +6,7 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>assignment</mat-icon>
   <span class="flex-grow-1">
-    {{ "title.taak.starten" | translate: { taak: planItem.naam } }}
+    {{ "title.taak.starten" | translate: { taak: planItem?.naam || "" } }}
   </span>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -14,7 +14,26 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
+<section
+  *ngIf="!formFields.length && !formItems.length"
+  class="flex-fill flex-row justify-center items-center"
+>
+  <mat-spinner diameter="30" />
+</section>
+
+<!-- form using Angular form builder -->
+<section *ngIf="formFields.length" class="mt-2">
+  <zac-form
+    [form]="form"
+    [fields]="formFields"
+    [config]="_formConfig"
+    [loading]="loading"
+    (formSubmitted)="onFormSubmit($event)"
+    (formCancelled)="onFormCancel()"
+  />
+</section>
+
+<div class="form" *ngIf="!formFields.length">
   <mfb-form
     *ngIf="formItems"
     (formSubmit)="onFormSubmit($event)"

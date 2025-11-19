@@ -20,6 +20,8 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDI
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
@@ -31,6 +33,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
 
 @Suppress("MagicNumber")
 @Order(TEST_SPEC_ORDER_INITIAL)
@@ -49,67 +52,69 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default reference tables are returned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
                         [
                             {
+                                "aantalWaarden": 5,
                                 "code": "$REFERENCE_TABLE_ADVIES_CODE", 
                                 "naam": "$REFERENCE_TABLE_ADVIES_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 5
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_AFZENDER_CODE", 
                                 "naam": "$REFERENCE_TABLE_AFZENDER_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             },
                             {
                                 "aantalWaarden": 15,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
-                                "id": 7,
                                 "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
+                                "systeem": true
                             },
                             {
                                 "aantalWaarden": 4,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
-                                "id": 6,
                                 "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
-                                "systeem": true,
-                                "waarden": []
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 1,
+                                "code": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE",
+                                "naam": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM",
+                                "systeem": true
+                            },
+                            {
+                                "aantalWaarden": 8,
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
                                 "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 8
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
                                 "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             },
                             {
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 
                                 "naam": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
-                                "systeem": true, 
-                                "aantalWaarden": 0
+                                "systeem": true
                             }
                         ]
                         """.trimIndent()
                     )
                 }
                 with(JSONArray(responseBody)) {
-                    communicationChannelReferenceTableId = getJSONObject(4).getInt("id")
-                    domeinReferenceTableId = getJSONObject(5).getInt("id")
-                    serverErrorTextErrorReferenceTableId = getJSONObject(6).getInt("id")
+                    communicationChannelReferenceTableId = getJSONObject(5).getInt("id")
+                    domeinReferenceTableId = getJSONObject(6).getInt("id")
+                    serverErrorTextErrorReferenceTableId = getJSONObject(7).getInt("id")
                 }
             }
         }
@@ -120,9 +125,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default afzenders"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
@@ -133,9 +138,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -168,9 +173,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 8
                     shouldContainInOrder(
@@ -195,9 +200,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """no domeinen should be returned because none are provisioned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -221,9 +226,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default domeinen are returned"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 0
                 }
@@ -237,9 +242,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """an empty list should be returned since we do not provision any default server error texts"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
@@ -254,9 +259,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -280,9 +285,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then(
                 """the provisioned default server error texts are returned including the added 'test'"""
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
                     length() shouldBe 1
                     shouldContainInOrder(listOf("fakeServerErrorErrorPageText"))
@@ -304,9 +309,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """
@@ -339,9 +344,9 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(JSONObject(responseBody).toString()) {
                     shouldEqualJsonIgnoringExtraneousFields(
                         """

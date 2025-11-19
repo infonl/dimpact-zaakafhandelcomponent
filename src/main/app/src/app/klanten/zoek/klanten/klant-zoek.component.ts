@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, input, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
 @Component({
@@ -15,9 +15,6 @@ export class KlantZoekComponent {
   @Output() klant = new EventEmitter<
     GeneratedType<"RestBedrijf" | "RestPersoon">
   >();
-  context = input.required<string>();
-
-  constructor() {}
 
   klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
     this.klant.emit(klant);

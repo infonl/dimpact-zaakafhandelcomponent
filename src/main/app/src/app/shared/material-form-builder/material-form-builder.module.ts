@@ -11,7 +11,6 @@ import {
 } from "@angular/common/http";
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { GoogleMapsModule } from "@angular/google-maps";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
   MomentDateAdapter,
@@ -27,6 +26,7 @@ import {
 } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
@@ -46,8 +46,12 @@ import { DocumentIconComponent } from "../document-icon/document-icon.component"
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
+import { ZacDocuments } from "../form/documents/documents";
+import { ZacFile } from "../form/file/file";
+import { ZacForm } from "../form/form";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
+import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
@@ -62,7 +66,6 @@ import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
 import { FileComponent } from "./form-components/file/file.component";
-import { GoogleMapsComponent } from "./form-components/google-maps/google-maps.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
 import { HtmlEditorVariabelenKiesMenuComponent } from "./form-components/html-editor/html-editor-variabelen-kies-menu.component";
@@ -79,10 +82,6 @@ import { TextareaComponent } from "./form-components/textarea/textarea.component
 import { FormFieldComponent } from "./form/form-field/form-field.component";
 import { FormFieldDirective } from "./form/form-field/form-field.directive";
 import { FormComponent } from "./form/form/form.component";
-import {
-  BUILDER_CONFIG,
-  MaterialFormBuilderConfig,
-} from "./material-form-builder-config";
 
 @NgModule({
   declarations: [
@@ -98,7 +97,6 @@ import {
     MedewerkerGroepComponent,
     CheckboxComponent,
     TextareaComponent,
-    GoogleMapsComponent,
     FormFieldDirective,
     ReadonlyComponent,
     AutocompleteComponent,
@@ -120,6 +118,10 @@ import {
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+    ZacFile,
+    ZacDocuments,
+    ZacRadio,
+    ZacForm,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -134,7 +136,6 @@ import {
     MedewerkerGroepComponent,
     CheckboxComponent,
     TextareaComponent,
-    GoogleMapsComponent,
     AutocompleteComponent,
     DocumentenLijstComponent,
     DocumentenOndertekenenComponent,
@@ -150,6 +151,10 @@ import {
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+    ZacFile,
+    ZacDocuments,
+    ZacRadio,
+    ZacForm,
     CapitalizeFirstLetterPipe,
   ],
   imports: [
@@ -157,7 +162,6 @@ import {
     CommonModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    GoogleMapsModule,
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
@@ -181,6 +185,7 @@ import {
     MatListModule,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
+    MatExpansionPanelActionRow,
   ],
   providers: [
     {
@@ -221,12 +226,10 @@ import {
   ],
 })
 export class MaterialFormBuilderModule {
-  static forRoot(
-    config?: MaterialFormBuilderConfig,
-  ): ModuleWithProviders<MaterialFormBuilderModule> {
+  static forRoot(): ModuleWithProviders<MaterialFormBuilderModule> {
     return {
       ngModule: MaterialFormBuilderModule,
-      providers: [{ provide: BUILDER_CONFIG, useValue: config }],
+      providers: [],
     };
   }
 }

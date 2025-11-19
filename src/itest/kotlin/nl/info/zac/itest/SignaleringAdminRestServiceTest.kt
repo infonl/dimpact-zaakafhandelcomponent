@@ -14,17 +14,16 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
@@ -34,6 +33,7 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -48,6 +48,15 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
+    beforeSpec {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+    }
+
+    afterSpec {
+        // re-authenticate using beheerder user since some subsequent integration tests rely on this user being logged in
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
     Given(
         """
             A user who has 'taak verlopen email notificaties' turned on 
@@ -60,7 +69,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 "Content-Type",
                 "application/json"
             ),
-            requestBodyAsString = """{"mail":true,"subjecttype":"TAAK","type":"TAAK_VERLOPEN"}""",
+            requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
             addAuthorizationHeader = true
         )
         response.code shouldBe HTTP_OK
@@ -68,12 +77,12 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
-            JSONObject(body.string()).run {
+            JSONObject(bodyAsString).run {
                 zaakManual2Identification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
@@ -82,27 +91,39 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
         )
-        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.body.string()
+        val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.bodyAsString
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
-        getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
+        getHumanTaskPlanItemsResponse.code shouldBe HTTP_OK
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
         // wait for OpenZaak to accept this request
         sleepForOpenZaakUniqueConstraint(1)
         val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        // start a task and assign it to the currently logged-in user (i.e. 'myself')
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
-            requestBodyAsString = """{
-                        "planItemInstanceId":"$humanTaskItemId",
-                        "fataledatum":"$fataleDatum",
-                        "taakStuurGegevens":{"sendMail":false},
-                        "medewerker":{"id":"$TEST_USER_1_USERNAME","naam":"$TEST_USER_1_NAME"},"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                        "taakdata":{}
-                    }
+            requestBodyAsString = """
+                {
+                    "planItemInstanceId": "$humanTaskItemId",
+                    "fataledatum": "$fataleDatum",
+                    "taakStuurGegevens": { "sendMail": false },
+                    "medewerker": {
+                        "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                        "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
+                    },
+                    "groep": {
+                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                    },
+                    "taakdata":{}
+                }
             """.trimIndent()
+
         )
-        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.body.string()
+
+        val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.bodyAsString
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
+        doHumanTaskPlanItemResponse.code shouldBe HTTP_NO_CONTENT
 
         When("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
@@ -116,7 +137,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
             Then("the response should be 'ok' and a task signalering email should be sent") {
                 sendSignaleringenResponse.code shouldBe HTTP_OK
-                val sendSignaleringenResponseBody = sendSignaleringenResponse.body.string()
+                val sendSignaleringenResponseBody = sendSignaleringenResponse.bodyAsString
                 logger.info { "Response: $sendSignaleringenResponseBody" }
                 sendSignaleringenResponseBody shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
 
@@ -124,10 +145,10 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 lateinit var receivedMails: JSONArray
                 eventually(5.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_DOMAIN_TEST_1.email}/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
-                    receivedMails = JSONArray(receivedMailsResponse.body.string())
+                    receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {

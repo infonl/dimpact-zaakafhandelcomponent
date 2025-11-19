@@ -3,230 +3,273 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
-import moment, { Moment } from "moment/moment";
-import { Observable, of, Subject } from "rxjs";
-import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
-import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
+import moment, { Moment } from "moment";
+import { lastValueFrom, takeUntil } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { ActionIcon } from "../../../shared/edit/action-icon";
-import { CheckboxFormFieldBuilder } from "../../../shared/material-form-builder/form-components/checkbox/checkbox-form-field-builder";
-import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { DividerFormFieldBuilder } from "../../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
-import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { HiddenFormFieldBuilder } from "../../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { HtmlEditorFormFieldBuilder } from "../../../shared/material-form-builder/form-components/html-editor/html-editor-form-field-builder";
-import { InputFormField } from "../../../shared/material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
-import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
-import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { CustomValidators } from "../../../shared/validators/customValidators";
-import { TakenService } from "../../../taken/taken.service";
 import { ZakenService } from "../../../zaken/zaken.service";
-import { AbstractTaakFormulier } from "../abstract-taak-formulier";
+import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
-export class AanvullendeInformatie extends AbstractTaakFormulier {
-  fields = {
-    VERZENDER: "verzender",
-    REPLYTO: "replyTo",
-    EMAILADRES: "emailadres",
-    BODY: "body",
-    DATUMGEVRAAGD: "datumGevraagd",
-    DATUMGELEVERD: "datumGeleverd",
-    AANVULLENDE_INFORMATIE: "aanvullendeInformatie",
-    BIJLAGEN: "bijlagen",
-    ZAAK_OPSCHORTEN: "zaakOpschorten",
-    ZAAK_HERVATTEN: "zaakHervatten",
-  };
+@Injectable({
+  providedIn: "root",
+})
+export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
+  private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly klantenService = inject(KlantenService);
 
-  taakinformatieMapping = {
-    uitkomst: this.fields.AANVULLENDE_INFORMATIE,
-    opmerking: AbstractTaakFormulier.TOELICHTING_FIELD,
-  };
+  async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
+    const replyToControl = this.formBuilder.control<string | null>(null);
+    replyToControl.disable();
 
-  mailtemplate$?: Observable<GeneratedType<"RESTMailtemplate">>;
-
-  constructor(
-    translate: TranslateService,
-    public takenService: TakenService,
-    public informatieObjectenService: InformatieObjectenService,
-    private mailtemplateService: MailtemplateService,
-    private klantenService: KlantenService,
-    private zakenService: ZakenService,
-  ) {
-    super(translate, informatieObjectenService);
-  }
-
-  private isZaakSuspendable(): boolean {
-    return Boolean(
-      this.zaak.zaaktype.opschortingMogelijk &&
-        !this.zaak.redenOpschorting &&
-        !this.zaak.isHeropend &&
-        this.zaak.rechten.behandelen &&
-        !this.zaak.isEerderOpgeschort,
+    const afzendersVoorZaak = this.zakenService.listAfzendersVoorZaak(
+      zaak.uuid,
     );
-  }
-
-  _initStartForm() {
-    this.mailtemplate$ = this.mailtemplateService.findMailtemplate(
-      "TAAK_AANVULLENDE_INFORMATIE",
-      this.zaak.uuid,
-    );
-
-    if (this.humanTaskData.taakStuurGegevens) {
-      this.humanTaskData.taakStuurGegevens.sendMail = true;
-      this.humanTaskData.taakStuurGegevens.mail = "TAAK_AANVULLENDE_INFORMATIE";
-    }
-    const documenten =
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-        zaakUUID: this.zaak.uuid,
+    const verzenderOptions = (
+      await lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid))
+    ).map((afzender) => ({
+      key: afzender.mail,
+      value: afzender.mail,
+    }));
+    const verzenderControl =
+      this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
+        Validators.required,
+      ]);
+    verzenderControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        replyToControl.patchValue(value?.replyTo ?? null);
       });
 
-    const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
-    const afzenders$ = this.zakenService.listAfzendersVoorZaak(this.zaak.uuid);
+    afzendersVoorZaak.subscribe((options) => {
+      const defaultAfzender = options.find(({ defaultMail }) => defaultMail);
+      if (!defaultAfzender) return;
 
-    const fields = this.fields;
-    this.form.push(
-      [
-        new SelectFormFieldBuilder()
-          .id(fields.VERZENDER)
-          .label(fields.VERZENDER)
-          .options(afzenders$)
-          .optionLabel("mail")
-          .optionSuffix("suffix")
-          .optionValue("mail")
-          .validators(Validators.required)
-          .build(),
-      ],
-      [new HiddenFormFieldBuilder().id(fields.REPLYTO).build()],
-      [
-        new InputFormFieldBuilder()
-          .id(fields.EMAILADRES)
-          .label(fields.EMAILADRES)
-          .validators(Validators.required, CustomValidators.emails)
-          .build(),
-      ],
-      [
-        new HtmlEditorFormFieldBuilder()
-          .id(fields.BODY)
-          .label(fields.BODY)
-          .validators(Validators.required)
-          .mailtemplateBody(this.mailtemplate$)
-          .build(),
-      ],
-      [new HiddenFormFieldBuilder(moment()).id(fields.DATUMGEVRAAGD).build()],
-      [
-        new DocumentenLijstFieldBuilder()
-          .id(fields.BIJLAGEN)
-          .label(fields.BIJLAGEN)
-          .documenten(documenten)
-          .openInNieuweTab()
-          .build(),
-      ],
-      [
-        new DateFormFieldBuilder(this.humanTaskData.fataledatum)
-          .id(AbstractTaakFormulier.TAAK_FATALEDATUM)
-          .minDate(tomorrow)
-          .label("fataledatum")
-          .showDays()
-          .build(),
-      ],
-      [
-        new MessageFormFieldBuilder()
-          .id("messageField")
-          .text(
-            this.getMessageFieldLabel(moment(this.humanTaskData.fataledatum)),
-          )
-          .level(MessageLevel.INFO)
-          .build(),
-      ],
-    );
-
-    afzenders$.subscribe((afzenders) => {
-      const defaultAfzender = afzenders.find((a) => a.defaultMail);
-      if (defaultAfzender) {
-        this.getFormField(fields.VERZENDER).formControl.setValue(
-          defaultAfzender.mail,
-        );
-      }
+      verzenderControl.setValue(defaultAfzender);
     });
 
-    this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
-      (afzender) => {
-        const verzender = this.getFormField(
-          fields.VERZENDER,
-        ) as SelectFormField;
-        this.getFormField(fields.REPLYTO).formControl.setValue(
-          verzender.getOption(afzender as Record<string, unknown>)?.replyTo,
-        );
-      },
+    const htmlEditorBody = await lastValueFrom(
+      this.mailtemplateService.findMailtemplate(
+        "TAAK_AANVULLENDE_INFORMATIE",
+        zaak.uuid,
+      ),
+    );
+    const htmlEditorControl = this.formBuilder.control(htmlEditorBody, [
+      Validators.required,
+    ]);
+
+    const taakFataleDatumControl = this.formBuilder.control<Moment | null>(
+      null,
+      [Validators.min(moment().add(1, "day").startOf("day").valueOf())],
+    );
+    const messageControl = this.formBuilder.control(
+      this.getMessageFieldLabel(zaak, null),
     );
 
-    if (this.isZaakSuspendable()) {
-      this.form.push([
-        new CheckboxFormFieldBuilder()
-          .id(fields.ZAAK_OPSCHORTEN)
-          .label(fields.ZAAK_OPSCHORTEN)
-          .build(),
-      ]);
-      this.getFormField(
-        fields.ZAAK_OPSCHORTEN,
-      ).formControl.valueChanges.subscribe((opschorten) => {
-        this.getFormField(AbstractTaakFormulier.TAAK_FATALEDATUM).required =
-          Boolean(opschorten);
+    taakFataleDatumControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        messageControl.setValue(
+          this.getMessageFieldLabel(zaak, value ? moment(value) : null),
+        );
       });
-    }
 
+    const emailControl = this.formBuilder.control<string | null>(null, [
+      Validators.required,
+      Validators.email,
+    ]);
     if (
-      this.zaak.initiatorIdentificatieType &&
-      this.zaak.initiatorIdentificatie
+      zaak.initiatorIdentificatie?.type &&
+      zaak.initiatorIdentificatie?.bsnNummer
     ) {
       this.klantenService
-        .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
-        .subscribe((gegevens) => {
-          if (gegevens.emailadres) {
-            const initiatorToevoegenIcon = new ActionIcon(
-              "person",
-              "actie.initiator.email.toevoegen",
-              new Subject<unknown>(),
-            );
-            const emailInput = this.getFormField(
-              this.fields.EMAILADRES,
-            ) as InputFormField;
-            if (Array.isArray(emailInput.icons)) {
-              emailInput.icons.push(initiatorToevoegenIcon);
-            } else {
-              emailInput.icons = [initiatorToevoegenIcon];
-            }
-            initiatorToevoegenIcon.iconClicked.subscribe(() => {
-              emailInput.value(gegevens.emailadres!);
-            });
-          }
+        .getContactDetailsForPerson(zaak.initiatorIdentificatie.bsnNummer)
+        .subscribe((value) => {
+          if (!value.emailadres) return;
+          emailControl.setValue(value.emailadres);
         });
     }
 
-    this.getFormField(
-      AbstractTaakFormulier.TAAK_FATALEDATUM,
-    ).formControl.valueChanges.subscribe((selectedMoment) => {
-      this.getFormField("messageField").label = this.getMessageFieldLabel(
-        selectedMoment as string,
-      );
-    });
+    const formFields: FormField[] = [
+      {
+        type: "checkbox",
+        key: "taakStuurGegevens.sendMail",
+        hidden: true,
+        control: this.formBuilder.control(true),
+      },
+      {
+        type: "input",
+        key: "taakStuurGegevens.mail",
+        hidden: true,
+        control: this.formBuilder.control("TAAK_AANVULLENDE_INFORMATIE"),
+      },
+      {
+        type: "select",
+        key: "verzender",
+        options: verzenderOptions,
+        optionDisplayValue: "value",
+        control: verzenderControl,
+      },
+      {
+        type: "input",
+        key: "replyTo",
+        hidden: true,
+        control: replyToControl,
+      },
+      {
+        type: "input",
+        key: "emailadres",
+        control: emailControl,
+      },
+      {
+        type: "html-editor",
+        key: "body",
+        control: htmlEditorControl,
+      },
+      {
+        type: "date",
+        key: "datumGevraagd",
+        hidden: true,
+        control: this.formBuilder.control(moment()),
+      },
+      {
+        type: "documents",
+        key: "bijlagen",
+        options:
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+            zaakUUID: zaak.uuid,
+          }),
+      },
+      {
+        type: "date",
+        key: "taakFataledatum",
+        label: "fataledatum",
+        control: taakFataleDatumControl,
+      },
+      {
+        type: "plain-text",
+        key: "messageField",
+        control: messageControl,
+      },
+    ];
+
+    if (this.isZaakSuspendable(zaak)) {
+      const zaakOpschortenControl = this.formBuilder.control(false);
+      zaakOpschortenControl.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((value) => {
+          if (value) {
+            taakFataleDatumControl.addValidators([Validators.required]);
+          } else {
+            taakFataleDatumControl.removeValidators([Validators.required]);
+          }
+
+          taakFataleDatumControl.updateValueAndValidity();
+        });
+
+      formFields.push({
+        type: "checkbox",
+        key: "zaakOpschorten",
+        control: zaakOpschortenControl,
+      });
+    }
+
+    return formFields;
+  }
+
+  async handleForm(
+    taak: GeneratedType<"RestTask">,
+    zaak: GeneratedType<"RestZaak">,
+  ): Promise<FormField[]> {
+    const datumGevraagdControl = this.formBuilder.control(
+      taak.taakdata?.["datumGevraagd"],
+    );
+    datumGevraagdControl.disable();
+
+    const formFields: FormField[] = [
+      {
+        type: "plain-text",
+        key: "verzender",
+        label: "verzender",
+      },
+      {
+        type: "plain-text",
+        key: "emailadres",
+        label: "emailadres",
+      },
+      {
+        type: "plain-text",
+        key: "body",
+        label: "body",
+      },
+      {
+        type: "date",
+        key: "datumGevraagd",
+        readonly: true,
+        control: datumGevraagdControl,
+      },
+      {
+        type: "date",
+        key: "datumGeleverd",
+        control: this.formBuilder.control(taak.taakdata?.["datumGeleverd"], [
+          Validators.required,
+        ]),
+      },
+      {
+        type: "radio",
+        key: "aanvullendeInformatie",
+        options: [
+          "aanvullende-informatie.geleverd-akkoord",
+          "aanvullende-informatie.geleverd-niet-akkoord",
+          "aanvullende-informatie.niet-geleverd",
+        ],
+        control: this.formBuilder.control(
+          taak.taakdata?.["aanvullendeInformatie"],
+          [Validators.required],
+        ),
+      },
+    ];
+
+    if (this.toonHervatten(zaak, taak)) {
+      formFields.push({
+        type: "radio",
+        key: "zaakHervatten",
+        label: "actie.zaak.hervatten",
+        options: ["zaak.hervatten.ja", "zaak.hervatten.nee"],
+      });
+    }
+
+    return formFields;
+  }
+
+  private isZaakSuspendable(zaak: GeneratedType<"RestZaak">) {
+    return Boolean(
+      zaak.zaaktype.opschortingMogelijk &&
+        !zaak.redenOpschorting &&
+        !zaak.isHeropend &&
+        zaak.rechten.behandelen &&
+        !zaak.eerdereOpschorting,
+    );
   }
 
   private getMessageFieldLabel(
-    humanTaskDataFatalDate: string | Moment,
+    zaak: GeneratedType<"RestZaak">,
+    humanTaskDataFatalDate?: string | Moment | null,
   ): string {
     const fatalZaakDate =
-      this.zaak.uiterlijkeEinddatumAfdoening &&
-      moment(this.zaak.uiterlijkeEinddatumAfdoening);
-    const suspendedTextSuffix = this.isZaakSuspendable() ? "" : ".opgeschort";
+      zaak.uiterlijkeEinddatumAfdoening &&
+      moment(zaak.uiterlijkeEinddatumAfdoening);
+    const suspendedTextSuffix = this.isZaakSuspendable(zaak)
+      ? ""
+      : ".opgeschort";
 
     if (!fatalZaakDate) {
       return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
@@ -243,124 +286,13 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
   }
 
-  _initBehandelForm() {
-    const fields = this.fields;
-    const aanvullendeInformatieDataElement = this.getDataElement(
-      fields.AANVULLENDE_INFORMATIE,
-    );
-    this.form.push(
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.VERZENDER))
-          .id(fields.VERZENDER)
-          .label(fields.VERZENDER)
-          .build(),
-      ],
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.EMAILADRES))
-          .id(fields.EMAILADRES)
-          .label(fields.EMAILADRES)
-          .build(),
-      ],
-      [
-        new ReadonlyFormFieldBuilder(this.getDataElement(fields.BODY))
-          .id(fields.BODY)
-          .label(fields.BODY)
-          .build(),
-      ],
-      [new DividerFormFieldBuilder().build()],
-      [
-        new DateFormFieldBuilder(this.getDataElement(fields.DATUMGEVRAAGD))
-          .id(fields.DATUMGEVRAAGD)
-          .label(fields.DATUMGEVRAAGD)
-          .readonly(true)
-          .build(),
-        new DateFormFieldBuilder(this.getDataElement(fields.DATUMGELEVERD))
-          .id(fields.DATUMGELEVERD)
-          .label(fields.DATUMGELEVERD)
-          .readonly(this.readonly)
-          .build(),
-      ],
-      [
-        new RadioFormFieldBuilder(
-          this.readonly && aanvullendeInformatieDataElement
-            ? this.translate.instant(String(aanvullendeInformatieDataElement))
-            : aanvullendeInformatieDataElement,
-        )
-          .id(fields.AANVULLENDE_INFORMATIE)
-          .label(fields.AANVULLENDE_INFORMATIE)
-          .options(this.getAanvullendeInformatieOpties())
-          .validators(Validators.required)
-          .readonly(this.readonly)
-          .build(),
-      ],
-    );
-
-    if (this.toonHervatten()) {
-      if (this.readonly) {
-        this.form.push([
-          new ReadonlyFormFieldBuilder(
-            this.translate.instant(
-              this.getDataElement(fields.ZAAK_HERVATTEN) === "true"
-                ? "zaak.hervatten.ja"
-                : "zaak.hervatten.nee",
-            ),
-          )
-            .id(fields.ZAAK_HERVATTEN)
-            .label("actie.zaak.hervatten")
-            .build(),
-        ]);
-      } else {
-        this.form.push([
-          new RadioFormFieldBuilder(
-            this.getDataElement<{
-              value: string;
-              label: string;
-            }>(fields.ZAAK_HERVATTEN),
-          )
-            .id(fields.ZAAK_HERVATTEN)
-            .label("actie.zaak.hervatten")
-            .options([
-              { value: "true", label: "zaak.hervatten.ja" },
-              { value: "false", label: "zaak.hervatten.nee" },
-            ])
-            .validators(Validators.required)
-            .optionLabel("label")
-            .optionValue("value")
-            .readonly(this.readonly)
-            .build(),
-        ]);
-      }
+  private toonHervatten(
+    zaak: GeneratedType<"RestZaak">,
+    taak: GeneratedType<"RestTask">,
+  ) {
+    if (taak?.status === "AFGEROND" || !taak?.rechten.wijzigen) {
+      return Boolean(taak.taakdata?.["zaakHervatten"]);
     }
-  }
-
-  getStartTitel(): string {
-    return this.translate.instant("title.taak.aanvullende-informatie.starten");
-  }
-
-  getBehandelTitel(): string {
-    if (this.readonly) {
-      return this.translate.instant(
-        "title.taak.aanvullende-informatie.raadplegen",
-      );
-    } else {
-      return this.translate.instant(
-        "title.taak.aanvullende-informatie.behandelen",
-      );
-    }
-  }
-
-  getAanvullendeInformatieOpties(): Observable<string[]> {
-    return of([
-      "aanvullende-informatie.geleverd-akkoord",
-      "aanvullende-informatie.geleverd-niet-akkoord",
-      "aanvullende-informatie.niet-geleverd",
-    ]);
-  }
-
-  private toonHervatten(): boolean {
-    if (this.readonly) {
-      return Boolean(this.getDataElement(this.fields.ZAAK_HERVATTEN));
-    }
-    return Boolean(this.zaak.isOpgeschort && this.zaak.rechten.behandelen);
+    return Boolean(zaak.isOpgeschort && zaak.rechten.behandelen);
   }
 }

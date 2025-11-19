@@ -7,13 +7,14 @@ package nl.info.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
@@ -31,7 +32,8 @@ import kotlin.collections.filter
 class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val configuratieService: ConfiguratieService,
 
     @ConfigProperty(name = "AUTH_RESOURCE")
     private val zacKeycloakClientId: String,
@@ -48,17 +50,27 @@ class IdentityService @Inject constructor(
         .sortedBy { it.name }
 
     /**
-     * Returns the list of groups that have access to the given zaaktype UUID based on the ZAC domain roles (if any)
-     * of this group and the domein (if any) configured in the zaakafhandelparameters for this zaaktype.
+     * With the ZAC PABC feature flag off: returns the list of groups that have access to the given zaaktype UUID
+     * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
+     * for this zaaktype.
+     * With the ZAC PABC feature flag on: returns all available groups, because group authorisation (for zaaktypes) is not yet
+     * supported in the new IAM architecture. This will be implemented in a future release of the PABC and ZAC.
      */
     fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         val groups = keycloakZacRealmResource.groups()
             .groups("", 0, Integer.MAX_VALUE, false)
             .map { it.toGroup(zacKeycloakClientId) }
-        val domein = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid).domein
-        return groups
-            .filter { (domein == null || domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value) || it.zacClientRoles.contains(domein) }
+        return if (!configuratieService.featureFlagPabcIntegration()) {
+            // only filter groups on domain authorisation when PABC integration is disabled
+            val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
+            groups.filter {
+                (domein == null || domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
+                    it.zacClientRoles.contains(domein)
+            }
+        } else {
+            groups
+        }
             .sortedBy { it.name }
     }
 

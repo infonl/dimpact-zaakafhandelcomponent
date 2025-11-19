@@ -1,11 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package net.atos.zac.admin.model;
 
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
+import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
+
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +22,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import nl.info.zac.admin.model.ReferenceTable;
+import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_referentie_tabel")
@@ -36,8 +39,8 @@ public class HumanTaskReferentieTabel {
     private ReferenceTable tabel;
 
     @NotNull @ManyToOne
-    @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id_humantask_parameters")
-    private HumanTaskParameters humantask;
+    @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id")
+    private ZaaktypeCmmnHumantaskParameters humantask;
 
     @NotBlank @Column(name = "veld", nullable = false)
     private String veld;
@@ -66,11 +69,11 @@ public class HumanTaskReferentieTabel {
         this.tabel = tabel;
     }
 
-    public HumanTaskParameters getHumantask() {
+    public ZaaktypeCmmnHumantaskParameters getHumantask() {
         return humantask;
     }
 
-    public void setHumantask(final HumanTaskParameters humantask) {
+    public void setHumantask(final ZaaktypeCmmnHumantaskParameters humantask) {
         this.humantask = humantask;
     }
 
@@ -80,5 +83,18 @@ public class HumanTaskReferentieTabel {
 
     public void setVeld(final String veld) {
         this.veld = veld;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HumanTaskReferentieTabel that))
+            return false;
+        return Objects.equals(tabel, that.tabel) &&
+               Objects.equals(veld, that.veld);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tabel, veld);
     }
 }

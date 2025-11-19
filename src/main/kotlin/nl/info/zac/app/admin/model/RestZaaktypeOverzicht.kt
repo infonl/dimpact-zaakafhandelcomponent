@@ -6,7 +6,7 @@ package nl.info.zac.app.admin.model
 
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.client.zgw.ztc.model.extensions.isServicenormBeschikbaar
+import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.util.AllOpen
@@ -41,7 +41,7 @@ fun ZaakType.toRestZaaktypeOverzicht() = RestZaaktypeOverzicht(
     identificatie = this.getIdentificatie(),
     doel = this.getDoel(),
     omschrijving = this.getOmschrijving(),
-    servicenorm = this.isServicenormBeschikbaar(),
+    servicenorm = this.isServicenormAvailable(),
     versiedatum = this.getVersiedatum(),
     nuGeldig = this.isNuGeldig(),
     beginGeldigheid = this.getBeginGeldigheid(),

@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -34,16 +34,16 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     }
 
     Given("JUEL expression in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val juelExpression = mockk<JuelExpression>()
         every { juelExpression.getValue(delegateExecution) } returns zaakStatusName
@@ -74,16 +74,16 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     }
 
     Given("Fixed value in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fixedValueExpression = mockk<FixedValue>()
         every { fixedValueExpression.getValue(delegateExecution) } returns zaakStatusName

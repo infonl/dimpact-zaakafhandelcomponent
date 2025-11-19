@@ -9,31 +9,35 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldBeJsonObject
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -44,52 +48,81 @@ import kotlin.time.Duration.Companion.seconds
 class TaskRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    lateinit var taskArray: JSONArray
 
-    Given("A zaak has been created and a task of type 'aanvullende informatie' has been started for this zaak") {
-        lateinit var responseBody: String
+    Given(
+        """
+            A zaak has been created and a task of type 'aanvullende informatie' has been started for this zaak
+            and a raadpleger authorised for this zaaktype is logged in 
+            """
+    ) {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
         When("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
             )
             Then(
-                """the list of taken for this zaak is returned and contains the expected task"""
+                """
+                    the list of taken for this zaak is returned and contains the expected task data
+                    with permissions only to read the task
+                    """
             ) {
-                responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, and in a previous test two 'aanvullende informatie' tasks have been started
                 // for this zaak, so there should be two (identical) tasks in the list
                 JSONArray(responseBody).length() shouldBe 2
                 for (task in JSONArray(responseBody)) {
                     with(task.toString()) {
-                        shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                        shouldContainJsonKeyValue(
-                            "formulierDefinitieId",
-                            FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-                        )
-                        shouldContainJsonKeyValue("status", "NIET_TOEGEKEND")
-                        shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                        shouldContainJsonKeyValue(
-                            "zaaktypeOmschrijving",
-                            ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-                        )
-                        shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                        shouldContainJsonKeyValue("zaaktypeUUID", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString())
-                        JSONObject(this,).getJSONObject("groep").apply {
-                            getString("id") shouldBe TEST_GROUP_A_ID
-                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
-                        }
+                        this shouldEqualJsonIgnoringOrderAndExtraneousFields
+                            """
+                            {
+                              "formulierDefinitieId" : "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
+                              "groep" : {
+                                "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                                "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                              },
+                              "naam" : "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                              "rechten" : {
+                                "lezen" : true,
+                                "toekennen" : false,
+                                "toevoegenDocument" : false,
+                                "wijzigen" : false
+                              },
+                              "status" : "NIET_TOEGEKEND",
+                              "taakdata" : { },
+                              "taakdocumenten" : [ ],
+                              "taakinformatie" : { },
+                              "tabellen" : { },
+                              "zaakIdentificatie" : "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                              "zaakUuid" : "$zaakProductaanvraag1Uuid",
+                              "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                              "zaaktypeUUID" : "$ZAAKTYPE_TEST_3_UUID"
+                            }
+                            """.trimIndent()
+                        shouldContainJsonKey("creatiedatumTijd")
                         shouldContainJsonKey("id")
-                        shouldNotContainJsonKey("toelichting")
+                        shouldContainJsonKey("fataledatum")
                     }
+                    taskArray = JSONArray(responseBody)
+                    task1ID = taskArray.getJSONObject(0).getString("id")
                 }
-                task1ID = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
+    }
+
+    Given(
+        """
+            A zaak has been created and a task of type 'aanvullende informatie' has been started for this zaak
+            and a behandelaar authorised for this zaaktype is logged in 
+            """
+    ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When("the update task endpoint is called") {
-            val taskArray = JSONArray(responseBody)
             val taskObject = taskArray.getJSONObject(0)
             taskObject.put("toelichting", "update")
 
@@ -99,19 +132,23 @@ class TaskRestServiceTest : BehaviorSpec({
             )
 
             Then("the taak has been updated successfully") {
-                responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonObject()
                 responseBody.shouldContainJsonKeyValue("toelichting", "update")
             }
         }
     }
+
     Given(
-        """A task has been started and a websocket subscription has been created to listen for a 'taken verdelen'
-            | screen event which will be sent by the asynchronous 'assign taken from list' job
+        """
+            A task has been started and a websocket subscription has been created to listen for a 'taken verdelen'
+            screen event which will be sent by the asynchronous 'assign taken from list' job
+            and a coordinator authorised for this zaaktype is logged in
         """.trimMargin()
     ) {
+        authenticate(COORDINATOR_DOMAIN_TEST_1)
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
@@ -134,16 +171,16 @@ class TaskRestServiceTest : BehaviorSpec({
             val assignTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
-                        "taken":[{"taakId":"$task1ID","zaakUuid":"$zaakProductaanvraag1Uuid"}],
-                         "groepId":"$TEST_GROUP_A_ID",
-                        "behandelaarGebruikersnaam":"$TEST_USER_2_ID",
-                        "reden":"fakeTasksAssignReason",
-                        "screenEventResourceId":"$uniqueResourceId"
+                        "taken": [ { "taakId": "$task1ID", "zaakUuid": "$zaakProductaanvraag1Uuid" } ],
+                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "behandelaarGebruikersnaam": "${BEHANDELAAR_1.username}",
+                        "reden": "fakeTasksAssignReason",
+                        "screenEventResourceId": "$uniqueResourceId"
                         }
                 """.trimIndent()
             )
             Then("the task is assigned correctly") {
-                val assignTasksResponseBody = assignTasksResponse.body.string()
+                val assignTasksResponseBody = assignTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 assignTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are assigned
@@ -158,9 +195,12 @@ class TaskRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
-        """A task has been started and a websocket subscription has been created to listen for a 'taken vrijgeven'
+        """
+            |A task has been started and a websocket subscription has been created to listen for a 'taken vrijgeven'
             |screen event which will be sent by the asynchronous 'release taken from list' job
+            |and a coordinator authorised for this zaaktype is logged in
         """.trimMargin()
     ) {
         val uniqueResourceId = UUID.randomUUID()
@@ -192,7 +232,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the task is released correctly") {
-                val assignTasksResponseBody = releaseTasksResponse.body.string()
+                val assignTasksResponseBody = releaseTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 releaseTasksResponse.code shouldBe HTTP_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the tasks are released

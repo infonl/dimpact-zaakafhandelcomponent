@@ -7,6 +7,7 @@ import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -18,6 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -32,6 +34,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
@@ -72,6 +75,8 @@ export class ZaakViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly queryClient = inject(QueryClient);
+
   readonly indicatiesLayout = IndicatiesLayout;
   zaak!: GeneratedType<"RestZaak">;
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
@@ -141,7 +146,6 @@ export class ZaakViewComponent
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
-  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -157,6 +161,10 @@ export class ZaakViewComponent
   @ViewChild("takenSort") takenSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
+
+  protected readonly loggedInUser = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     private takenService: TakenService,
@@ -214,7 +222,6 @@ export class ZaakViewComponent
           zaak: this.zaak.identificatie,
         });
 
-        this.getIngelogdeMedewerker();
         this.loadTaken();
         this.loadNotitieRechten();
       }),
@@ -242,12 +249,6 @@ export class ZaakViewComponent
     this.loadOpschorting();
     this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((loggedInUser) => {
-      this.loggedInUser = loggedInUser;
-    });
   }
 
   ngAfterViewInit() {
@@ -293,12 +294,12 @@ export class ZaakViewComponent
     this.dateFieldIconMap.set(
       "einddatumGepland",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
-        ),
+        (control: FormControl) => {
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum,
+          );
+        },
         "report_problem",
         "warningVerlopen_icon",
         this.zaak.einddatum
@@ -307,15 +308,16 @@ export class ZaakViewComponent
         "warning",
       ),
     );
+
     this.dateFieldIconMap.set(
       "uiterlijkeEinddatumAfdoening",
       new TextIcon(
-        DateConditionals.provideFormControlValue(
-          this.zaak.einddatum
-            ? DateConditionals.isPreceded
-            : DateConditionals.isExceeded,
-          this.zaak.einddatum ?? "",
-        ),
+        (control: FormControl) => {
+          return DateConditionals.isExceeded(
+            control.value,
+            this.zaak.einddatum,
+          );
+        },
         "report_problem",
         "errorVerlopen_icon",
         this.zaak.einddatum
@@ -380,7 +382,10 @@ export class ZaakViewComponent
     this.menu = [new HeaderMenuItem("zaak")];
 
     if (this.zaak.rechten.behandelen && !this.zaak.isProcesGestuurd) {
-      if (this.zaak.rechten.versturenOntvangstbevestiging) {
+      if (
+        this.zaak.rechten.versturenOntvangstbevestiging &&
+        !this.zaak.heeftOntvangstbevestigingVerstuurd
+      ) {
         this.menu.push(
           new ButtonMenuItem(
             "actie.ontvangstbevestiging.versturen",
@@ -580,7 +585,7 @@ export class ZaakViewComponent
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd &&
-      !this.zaak.isEerderOpgeschort
+      !this.zaak.eerdereOpschorting
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
@@ -662,17 +667,18 @@ export class ZaakViewComponent
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          if (result === "openBesluitVastleggen") {
-            this.activeSideAction = "actie.besluit.vastleggen";
-            this.actionsSidenav.open();
-          } else {
-            this.utilService.openSnackbar(
-              "msg.planitem.uitgevoerd." + planItem.userEventListenerActie,
-            );
-            this.updateZaak();
-          }
+        if (!result) return;
+
+        if (result === "openBesluitVastleggen") {
+          this.activeSideAction = "actie.besluit.vastleggen";
+          this.actionsSidenav.open();
+          return;
         }
+
+        this.utilService.openSnackbar(
+          `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
+        );
+        this.updateZaak();
       });
   }
 
@@ -716,7 +722,7 @@ export class ZaakViewComponent
   }
 
   private openZaakAfbrekenDialog() {
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
 
     if (this.zaak.isOpgeschort) {
       this.dialog.open(ActieOnmogelijkDialogComponent);
@@ -797,55 +803,22 @@ export class ZaakViewComponent
   }
 
   private openZaakAfsluitenDialog() {
-    this.actionsSidenav.close();
-    const dialogData = new DialogData<
-      unknown,
-      { toelichting: string; resultaattype: { id: string } }
-    >({
-      formFields: [
-        new SelectFormFieldBuilder()
-          .id("resultaattype")
-          .label("resultaat")
-          .optionLabel("naam")
-          .options(
-            this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid),
-          )
-          .validators(Validators.required)
-          .build(),
-        new InputFormFieldBuilder()
-          .id("toelichting")
-          .label("toelichting")
-          .maxlength(80)
-          .build(),
-      ],
-      callback: ({ toelichting, resultaattype: { id } }) =>
-        this.zakenService
-          .afsluiten(this.zaak.uuid, {
-            reden: toelichting,
-            resultaattypeUuid: id,
-          })
-          .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener)),
-          ),
-      confirmButtonActionKey: "actie.zaak.afsluiten",
-      icon: "thumb_up_alt",
-    });
+    void this.actionsSidenav.close();
 
     this.dialog
-      .open(DialogComponent, { data: dialogData })
+      .open(ZaakAfhandelenDialogComponent, { data: { zaak: this.zaak } })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
-        if (result) {
-          this.updateZaak();
-          this.loadTaken();
-          this.utilService.openSnackbar("msg.zaak.afgesloten");
-        }
+        if (!result) return;
+        this.updateZaak();
+        this.loadTaken();
+        this.utilService.openSnackbar("msg.zaak.afgesloten");
       });
   }
 
   private openZaakOpschortenDialog() {
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
     this.dialog
       .open(ZaakOpschortenDialogComponent, {
         data: { zaak: this.zaak },
@@ -978,6 +951,10 @@ export class ZaakViewComponent
       });
   }
 
+  protected bedrijfRouteLink(bedrijf: GeneratedType<"RestZaakBetrokkene">) {
+    return buildBedrijfRouteLink(bedrijf);
+  }
+
   private loadBagObjecten() {
     this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
       this.gekoppeldeBagObjecten = bagObjecten
@@ -1061,12 +1038,13 @@ export class ZaakViewComponent
   }
 
   showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
-    return Boolean(
-      taak.status !== "AFGEROND" &&
-        taak.rechten.toekennen &&
-        this.loggedInUser.id !== taak.behandelaar?.id &&
-        (this.loggedInUser.groupIds ?? []).indexOf(taak.groep?.id ?? "") >= 0,
-    );
+    if (taak.status === "AFGEROND") return false;
+    if (!taak.rechten.toekennen) return false;
+    if (!taak.groep?.id) return false;
+    const loggedInUser = this.loggedInUser.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === taak.behandelaar?.id) return false;
+    return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 
   initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
@@ -1122,8 +1100,12 @@ export class ZaakViewComponent
     if (!zaak) return;
 
     this.zaak = zaak;
+    const naam = [
+      zaak.initiatorIdentificatie?.kvkNummer,
+      zaak.initiatorIdentificatie?.vestigingsnummer,
+    ].filter(Boolean);
     this.utilService.openSnackbar(notification, {
-      naam: zaak.initiatorIdentificatie,
+      naam: naam.join(" - "),
     });
     this.loadHistorie();
   }
@@ -1249,7 +1231,7 @@ export class ZaakViewComponent
       .toekennenAanIngelogdeMedewerker({
         taakId: taak.id!,
         zaakUuid: taak.zaakUuid,
-        groepId: null as unknown as string,
+        groepId: taak.groep!.id!,
       })
       .subscribe((returnTaak) => {
         taak.behandelaar = returnTaak.behandelaar;
@@ -1275,7 +1257,7 @@ export class ZaakViewComponent
   sluitSidenav() {
     this.activeSideAction = null;
     this.actiefPlanItem = null;
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
   }
 
   taakGestart() {
@@ -1290,16 +1272,14 @@ export class ZaakViewComponent
 
   mailVerstuurd(mailVerstuurd: boolean) {
     this.sluitSidenav();
-    if (mailVerstuurd) {
-      this.updateZaak();
-    }
+    if (!mailVerstuurd) return;
+    this.updateZaak();
   }
 
   ontvangstBevestigd(ontvangstBevestigd: boolean) {
     this.sluitSidenav();
-    if (ontvangstBevestigd) {
-      this.updateZaak();
-    }
+    if (!ontvangstBevestigd) return;
+    this.updateZaak();
   }
 
   documentToegevoegd() {
@@ -1387,46 +1367,54 @@ export class ZaakViewComponent
       });
   }
 
-  betrokkeneGegevensOphalen(
+  async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
       gegevens?: string | null;
     },
   ) {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
-      case "NATUURLIJK_PERSOON":
-        this.klantenService
-          .readPersoon(betrokkene.identificatie, {
-            context: this.zaak.uuid,
-            action: "list betrokkene",
-          })
-          .subscribe((persoon) => {
-            betrokkene["gegevens"] = persoon.naam;
-            if (persoon.geboortedatum) {
-              betrokkene["gegevens"] += `, ${this.datumPipe.transform(
-                persoon.geboortedatum,
-              )}`;
-            }
-            if (persoon.verblijfplaats) {
-              betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
-            }
-          });
+      case "NATUURLIJK_PERSOON": {
+        const persoon = await this.queryClient.ensureQueryData(
+          this.klantenService.readPersoon(
+            betrokkene.identificatie,
+            this.zaak.identificatie,
+          ),
+        );
+        betrokkene["gegevens"] = persoon.naam;
+        if (persoon.geboortedatum) {
+          betrokkene["gegevens"] += `, ${this.datumPipe.transform(
+            persoon.geboortedatum,
+          )}`;
+        }
+        if (persoon.verblijfplaats)
+          betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
         break;
+      }
       case "NIET_NATUURLIJK_PERSOON":
-      case "VESTIGING":
-        this.klantenService
-          .readBedrijf(betrokkene.identificatie, betrokkene.kvkNummer ?? null)
-          .subscribe((bedrijf) => {
-            betrokkene["gegevens"] = bedrijf.naam;
-            if (bedrijf.adres) {
-              betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
-            }
-          });
+      case "VESTIGING": {
+        const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
+          identificatie: betrokkene.identificatie,
+          identificatieType: betrokkene.identificatieType,
+          kvkNummer: betrokkene.kvkNummer,
+          vestigingsnummer: betrokkene.identificatie,
+        });
+
+        const bedrijf = await this.queryClient.ensureQueryData(
+          this.klantenService.readBedrijf(betrokkeneIdentificatie),
+        );
+
+        if (!bedrijf) return;
+
+        betrokkene["gegevens"] = bedrijf.naam;
+        if (bedrijf.adres) betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
         break;
+      }
       case "ORGANISATORISCHE_EENHEID":
-      case "MEDEWERKER":
+      case "MEDEWERKER": {
         betrokkene["gegevens"] = "-";
         break;
+      }
     }
   }
 
@@ -1535,7 +1523,7 @@ export class ZaakViewComponent
 
     return Boolean(
       brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1548,7 +1536,7 @@ export class ZaakViewComponent
 
     return Boolean(
       kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatieType ?? ""),
+        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 

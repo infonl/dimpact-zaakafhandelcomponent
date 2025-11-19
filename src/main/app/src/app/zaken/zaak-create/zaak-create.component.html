@@ -27,7 +27,7 @@
       [sideNav]="actionsSidenav"
     ></zac-bag-zoek>
   </mat-sidenav>
-  <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
+  <form [formGroup]="form" (ngSubmit)="formSubmit()">
     <fieldset>
       <legend>
         <h1>{{ "actie.zaak.aanmaken" | translate }}</h1>
@@ -45,19 +45,28 @@
           }}</mat-hint>
         </zac-auto-complete>
         <zac-input
-          key="initiator"
+          key="initiatorIdentificatie"
+          label="initiator"
           [form]="form"
+          readonly
           class="col-12 col-md-6"
           [displayValue]="'naam'"
           (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
         >
           <button
+            type="button"
             mat-icon-button
             matSuffix
-            type="button"
             [disabled]="!canAddInitiator()"
+            (click)="
+              canAddInitiator() &&
+                (hasInitiator()
+                  ? clearInitiator()
+                  : openSideNav('actie.initiator.koppelen'));
+              $event.stopPropagation()
+            "
           >
-            <mat-icon>person</mat-icon>
+            <mat-icon>{{ hasInitiator() ? "close" : "person" }}</mat-icon>
           </button>
         </zac-input>
       </section>
@@ -72,8 +81,18 @@
           [displayValue]="bagDisplayValue"
           (click)="openSideNav('actie.bagObject.koppelen')"
         >
-          <button type="button" mat-icon-button matSuffix>
-            <mat-icon>gps_fixed</mat-icon>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="
+              hasBagObject()
+                ? clearBagObjecten()
+                : openSideNav('actie.bagObject.koppelen');
+              $event.stopPropagation()
+            "
+          >
+            <mat-icon>{{ hasBagObject() ? "close" : "gps_fixed" }}</mat-icon>
           </button>
         </zac-input>
       </section>
@@ -136,15 +155,11 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="!form.valid"
+          [disabled]="!form.valid || createZaakMutation.isPending()"
         >
           {{ "actie.aanmaken" | translate }}
         </button>
-        <button
-          type="button"
-          mat-raised-button
-          (click)="navigationService.back()"
-        >
+        <button type="button" mat-raised-button (click)="back()">
           {{ "actie.annuleren" | translate }}
         </button>
       </mat-action-row>

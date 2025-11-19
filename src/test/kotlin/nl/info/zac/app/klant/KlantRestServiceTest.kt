@@ -13,14 +13,13 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.createDigitalAddresses
 import nl.info.client.brp.BrpClientService
-import nl.info.client.brp.REQUEST_CONTEXT
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createPersoonBeperkt
 import nl.info.client.brp.model.createZoekMetGeslachtsnaamEnGeboortedatumResponse
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.createDigitalAddresses
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
 import nl.info.client.kvk.model.createResultaatItem
@@ -33,13 +32,11 @@ import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import java.time.LocalDate
-import java.util.Optional
 
+const val ZAAK = "ZAAK-2000-00002"
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
-const val CONTEXT = "ZAAK AANMAKEN"
-const val ACTION = "Zaak aanmaken"
-const val AUDIT_EVENT = "$CONTEXT@$ACTION"
 
+@Suppress("LargeClass")
 class KlantRestServiceTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
     val kvkClientService = mockk<KvkClientService>()
@@ -56,10 +53,10 @@ class KlantRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Read vestiging by vestigingsnummer") {
+    Context("Read vestiging by vestigingsnummer but without KVK nummer") {
         Given(
             """
-        a vestiging for which a company exists in the KVK client and for which a customer exists in the klanten client
+        a vestiging for which a company exists in the KVK client
         """
         ) {
             val vestigingsnummer = "fakeVestigingsnummer"
@@ -71,20 +68,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkNummer = kvkNummer,
                 vestingsnummer = vestigingsnummer
             )
-            val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
-
-            every {
-                klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
-            } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer)
-                } returns Optional.of(kvkResultaatItem)
-
+                } returns kvkResultaatItem
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
 
-                Then("it should return the vestiging including contact details") {
+                Then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
                         this.adres shouldBe with(adres.binnenlandsAdres) {
@@ -95,43 +86,6 @@ class KlantRestServiceTest : BehaviorSpec({
                         postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
-                        telefoonnummer shouldBe "+123-456-789"
-                        emailadres shouldBe "fake@example.com"
-                    }
-                }
-            }
-        }
-
-        Given(
-            """
-        a vestiging for which a company exists in the KVK client but for which no customer exists in the klanten client
-        """
-        ) {
-            clearAllMocks()
-            val vestigingsnummer = "fakeVestigingsnummer"
-            val kvkNummer = "fakeKvkNummer"
-            val adres = createAdresWithBinnenlandsAdres()
-            val kvkResultaatItem = createResultaatItem(
-                adres = adres,
-                type = "nevenvestiging",
-                kvkNummer = kvkNummer,
-                vestingsnummer = vestigingsnummer
-            )
-            every {
-                kvkClientService.findVestiging(vestigingsnummer)
-            } returns Optional.of(kvkResultaatItem)
-            every {
-                klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
-            } returns emptyList()
-
-            When("a request is made to get the vestiging") {
-                val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
-
-                Then("it should return the vestiging without contact details") {
-                    with(restBedrijf) {
-                        this.vestigingsnummer shouldBe vestigingsnummer
-                        naam shouldBe kvkResultaatItem.naam
-                        kvkNummer shouldBe kvkNummer
                         telefoonnummer shouldBe null
                         emailadres shouldBe null
                     }
@@ -139,15 +93,12 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a vestiging by vestigingsnummer which does not exist in the KVK client nor in in the klanten client") {
+        Given("a vestiging by vestigingsnummer which does not exist in the KVK client") {
             clearAllMocks()
             val vestigingsnummer = "fakeVestigingsnummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
-            } returns Optional.empty()
-            every {
-                klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
-            } returns emptyList()
+            } returns null
 
             When("a request is made to get the vestiging") {
                 val exception =
@@ -182,13 +133,13 @@ class KlantRestServiceTest : BehaviorSpec({
             val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
 
             every {
-                klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
             } returns digitalAddressesList
 
             When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer, kvkResultaatItem.kvkNummer)
-                } returns Optional.of(kvkResultaatItem)
+                } returns kvkResultaatItem
 
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummerAndKvkNummer(
                     vestigingsnummer,
@@ -221,9 +172,9 @@ class KlantRestServiceTest : BehaviorSpec({
             val kvkNummer = "fakeKvkNummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
-            } returns Optional.empty()
+            } returns null
             every {
-                klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
             } returns emptyList()
 
             When("a request is made to get the vestiging") {
@@ -253,11 +204,13 @@ class KlantRestServiceTest : BehaviorSpec({
                 email = emailAddress
             )
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-            every { brpClientService.retrievePersoon(bsn, AUDIT_EVENT) } returns persoon
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
+            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns persoon
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, AUDIT_EVENT)
+                val restPersoon = klantRestService.readPersoon(bsn, ZAAK)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
@@ -272,15 +225,14 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
-            val context = "ZAAK-2025-000000001"
-            val action = "Zaak zoeken"
-            val auditEvent = "$context@$action"
             val persoon = createPersoon(bsn = bsn)
-            every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
-            every { brpClientService.retrievePersoon(bsn, auditEvent) } returns persoon
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns persoon
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, auditEvent)
+                val restPersoon = klantRestService.readPersoon(bsn, ZAAK)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
@@ -301,12 +253,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 phone = telephoneNumber,
                 email = emailAddress
             )
-            every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-            every { brpClientService.retrievePersoon(bsn, AUDIT_EVENT) } returns null
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
+            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn, AUDIT_EVENT)
+                    klantRestService.readPersoon(bsn, ZAAK)
                 }
 
                 Then("an exception should be thrown") {
@@ -317,12 +271,206 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
-            every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
-            every { brpClientService.retrievePersoon(bsn, AUDIT_EVENT) } returns null
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn) } returns null
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn, AUDIT_EVENT)
+                    klantRestService.readPersoon(bsn)
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+                }
+            }
+        }
+    }
+
+    Context("Reading a rechtspersoon by RSIN") {
+        Given("A rechtspersoon with a matching RSIN in the KVK client") {
+            val rsin = "123456789"
+            val name = "fakeName"
+            val kvkNummer = "912345678"
+            val postcode = "1234AB"
+            every { kvkClientService.findRechtspersoonByRsin(rsin) } returns createResultaatItem(
+                rsin = rsin,
+                naam = name,
+                kvkNummer = kvkNummer,
+                vestingsnummer = null,
+                adres = createAdresWithBinnenlandsAdres(postcode = postcode),
+                type = "fakeType"
+            )
+
+            When("when the rechtspersoon is retrieved by RSIN") {
+                val restBedrijf = klantRestService.readRechtspersoonByRsin(rsin)
+
+                Then("the rechtspersoon should be returned") {
+                    with(restBedrijf) {
+                        this.rsin shouldBe rsin
+                        this.naam shouldBe name
+                        this.kvkNummer shouldBe null
+                        this.vestigingsnummer shouldBe null
+                        this.postcode = postcode
+                        this.type = type
+                    }
+                }
+            }
+        }
+
+        Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+            val bsn = "123456789"
+            val persoon = createPersoon(bsn = bsn)
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn) } returns persoon
+
+            When("when the person is retrieved") {
+                val restPersoon = klantRestService.readPersoon(bsn)
+
+                Then("the person should be returned and should not have contact details") {
+                    with(restPersoon) {
+                        this.bsn shouldBe bsn
+                        this.geslacht shouldBe persoon.geslacht
+                        this.emailadres shouldBe null
+                        this.telefoonnummer shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+            val bsn = "123456789"
+            val telephoneNumber = "0612345678"
+            val emailAddress = "test@example.com"
+            val digitaalAdresses = createDigitalAddresses(
+                phone = telephoneNumber,
+                email = emailAddress
+            )
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
+            every { brpClientService.retrievePersoon(bsn) } returns null
+
+            When("when the person is retrieved") {
+                val exception = shouldThrow<BrpPersonNotFoundException> {
+                    klantRestService.readPersoon(bsn)
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+                }
+            }
+        }
+
+        Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+            val bsn = "123456789"
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
+
+            When("when the person is retrieved") {
+                val exception = shouldThrow<BrpPersonNotFoundException> {
+                    klantRestService.readPersoon(bsn, ZAAK)
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+                }
+            }
+        }
+    }
+
+    Context("Reading a rechtspersoon by KVK nummer") {
+        Given("A rechtspersoon with a matching KVK nummer in the KVK client") {
+            val rsin = "123456789"
+            val name = "fakeName"
+            val kvkNummer = "12345678"
+            val postcode = "fakePostcode"
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns createResultaatItem(
+                rsin = rsin,
+                naam = name,
+                kvkNummer = kvkNummer,
+                vestingsnummer = null,
+                adres = createAdresWithBinnenlandsAdres(postcode = postcode),
+                type = "fakeType"
+            )
+
+            When("when the rechtspersoon is retrieved by KVK nummer") {
+                val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
+
+                Then("the rechtspersoon should be returned") {
+                    with(restBedrijf) {
+                        this.rsin shouldBe rsin
+                        this.naam shouldBe name
+                        this.kvkNummer shouldBe kvkNummer
+                        this.vestigingsnummer shouldBe null
+                        this.postcode = postcode
+                        this.type = type
+                    }
+                }
+            }
+        }
+
+        Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+            val bsn = "123456789"
+            val persoon = createPersoon(bsn = bsn)
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn) } returns persoon
+
+            When("when the person is retrieved") {
+                val restPersoon = klantRestService.readPersoon(bsn)
+
+                Then("the person should be returned and should not have contact details") {
+                    with(restPersoon) {
+                        this.bsn shouldBe bsn
+                        this.geslacht shouldBe persoon.geslacht
+                        this.emailadres shouldBe null
+                        this.telefoonnummer shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+            val bsn = "123456789"
+            val telephoneNumber = "0612345678"
+            val emailAddress = "test@example.com"
+            val digitaalAdresses = createDigitalAddresses(
+                phone = telephoneNumber,
+                email = emailAddress
+            )
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns digitaalAdresses
+            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns null
+
+            When("when the person is retrieved") {
+                val exception = shouldThrow<BrpPersonNotFoundException> {
+                    klantRestService.readPersoon(bsn, ZAAK)
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+                }
+            }
+        }
+
+        Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+            val bsn = "123456789"
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
+            } returns emptyList()
+            every { brpClientService.retrievePersoon(bsn) } returns null
+
+            When("when the person is retrieved") {
+                val exception = shouldThrow<BrpPersonNotFoundException> {
+                    klantRestService.readPersoon(bsn)
                 }
 
                 Then("an exception should be thrown") {
@@ -365,7 +513,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     )
                 )
             )
-            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
             When("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
@@ -410,7 +558,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 sbiActiviteiten = null,
                 adressen = null
             )
-            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+            every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
             When("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
@@ -486,8 +634,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK company without a vestigings number and without a RSIN") {
-            val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        Given("A KVK company with only a KVK nummer but without a vestigingsnummer and without a RSIN") {
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
                 kvkNummer = "fakeKvkNummer",
@@ -498,9 +645,56 @@ class KlantRestServiceTest : BehaviorSpec({
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
             When("the listBedrijven function is called") {
-                val result = klantRestService.listBedrijven(restListBedrijvenParameters)
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
 
-                Then("the result should contain no companies since the available company is not koppelbaar") {
+                Then(
+                    "the result should contain the company since the available company is koppelbaar since it has a KVK number"
+                ) {
+                    result.resultaten.size shouldBe 1
+                }
+            }
+        }
+
+        Given("A KVK company with a KVK nummer and an RSIN but without a vestigingsnummer") {
+            val resultaatItem = createResultaatItem(
+                naam = "fakeName",
+                kvkNummer = "fakeKvkNummer",
+                rsin = "fakeRsin",
+                type = "fakeType",
+                vestingsnummer = null
+            )
+            every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
+
+            When("the listBedrijven function is called") {
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
+
+                Then(
+                    "the result should contain the company since the available company is koppelbaar since it has a KVK number"
+                ) {
+                    result.resultaten.size shouldBe 1
+                }
+            }
+        }
+
+        Given("A KVK company without a KVK nummer and without a vestigingsnummer but with an RSIN") {
+            val resultaatItem = createResultaatItem(
+                naam = "fakeName",
+                kvkNummer = null,
+                rsin = "fakeRsin",
+                type = "fakeType",
+                vestingsnummer = null
+            )
+            every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
+
+            When("the listBedrijven function is called") {
+                val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
+
+                Then(
+                    """
+                        the result should contain no results since the available company is not koppelbaar since it lacks a KVK number
+                         or a vestigingsnummer
+                    """.trimIndent()
+                ) {
                     result.resultaten.size shouldBe 0
                 }
             }
@@ -514,19 +708,19 @@ class KlantRestServiceTest : BehaviorSpec({
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
             every {
-                brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+                brpClientService.retrievePersoon(bsn)
             } returns person
 
             When("listPersonen is called") {
-                val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+                val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 Then("it should return the retrieved person in the result") {
-                    verify { brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT) }
+                    verify { brpClientService.retrievePersoon(bsn) }
                     result.resultaten.size shouldBe 1
                 }
                 Then("queryPersonen should not be called") {
                     verify(exactly = 0) {
-                        brpClientService.queryPersonen(any(), any())
+                        brpClientService.queryPersonen(any())
                     }
                 }
             }
@@ -538,11 +732,11 @@ class KlantRestServiceTest : BehaviorSpec({
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
             every {
-                brpClientService.retrievePersoon(bsn, REQUEST_CONTEXT)
+                brpClientService.retrievePersoon(bsn)
             } returns null
 
             When("listPersonen is called no persoon is found") {
-                val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+                val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 Then("the result should be empty") {
                     result.resultaten shouldBe emptyList()
@@ -561,17 +755,16 @@ class KlantRestServiceTest : BehaviorSpec({
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
             every {
-                brpClientService.queryPersonen(any(), REQUEST_CONTEXT)
+                brpClientService.queryPersonen(any())
             } returns personenResponse
 
             When("listPersonen is called") {
-                val result = klantRestService.listPersonen(REQUEST_CONTEXT, restListPersonenParameters)
+                val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 Then("it should return the searched person in the result") {
                     verify {
                         brpClientService.queryPersonen(
-                            restListPersonenParameters.toPersonenQuery(),
-                            REQUEST_CONTEXT
+                            restListPersonenParameters.toPersonenQuery()
                         )
                     }
                     result.resultaten.size shouldBe 1

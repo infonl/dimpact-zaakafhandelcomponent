@@ -36,7 +36,6 @@ import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @AllOpen
 @NoArgConstructor
@@ -53,7 +52,6 @@ class MailTemplateHelper @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        private const val ACTION = "E-mail verzenden"
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
     }
 
@@ -113,7 +111,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiatorRole ->
                 replaceInitiatorVariables(
                     resolvedText = resolvedTekst,
-                    auditEvent = "${zaak.getIdentificatie()}@$ACTION",
+                    zaakIdentification = zaak.identificatie,
                     initiatorRole = initiatorRole
                 )
             } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
@@ -224,7 +222,7 @@ class MailTemplateHelper @Inject constructor(
     @Suppress("NestedBlockDepth")
     private fun replaceInitiatorVariables(
         resolvedText: String,
-        auditEvent: String,
+        zaakIdentification: String,
         initiatorRole: Rol<*>
     ): String {
         val identificatie = initiatorRole.getIdentificatienummer() ?: run {
@@ -233,25 +231,25 @@ class MailTemplateHelper @Inject constructor(
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                brpClientService.retrievePersoon(identificatie, auditEvent)?.let {
+                brpClientService.retrievePersoon(identificatie, zaakIdentification)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 
             BetrokkeneTypeEnum.VESTIGING ->
                 replaceInitiatorVariablesResultaatItem(
                     resolvedText,
-                    kvkClientService.findVestiging(identificatie).getOrNull()
+                    kvkClientService.findVestiging(identificatie)
                 )
 
             BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
                 val resultaatItem = (initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie).let {
                     when {
-                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoon(
+                        it.innNnpId?.isNotBlank() == true -> kvkClientService.findRechtspersoonByRsin(
                             identificatie
-                        ).getOrNull()
+                        )
                         it.vestigingsNummer?.isNotBlank() == true -> kvkClientService.findVestiging(
                             identificatie
-                        ).getOrNull()
+                        )
                         else -> {
                             LOG.warning { "Unsupported niet-natuurlijk persoon identificatie: '$it'" }
                             null

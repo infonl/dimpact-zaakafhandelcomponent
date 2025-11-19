@@ -133,22 +133,16 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
   verlengen() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    const {
-      duurDagen,
-      einddatumGepland,
-      uiterlijkeEinddatumAfdoening,
-      redenVerlenging,
-      takenVerlengen,
-    } = this.form.value;
+
+    const { value } = this.form;
 
     this.zakenService
       .verlengenZaak(this.data.zaak.uuid, {
-        duurDagen: duurDagen ?? undefined,
-        einddatumGepland: einddatumGepland?.toISOString(),
+        ...value,
+        einddatumGepland: value.einddatumGepland?.toISOString(),
         uiterlijkeEinddatumAfdoening:
-          uiterlijkeEinddatumAfdoening?.toISOString(),
-        redenVerlenging: redenVerlenging,
-        takenVerlengen: takenVerlengen ?? false,
+          value.uiterlijkeEinddatumAfdoening?.toISOString(),
+        takenVerlengen: value.takenVerlengen ?? false,
       })
       .subscribe({
         next: (result) => {

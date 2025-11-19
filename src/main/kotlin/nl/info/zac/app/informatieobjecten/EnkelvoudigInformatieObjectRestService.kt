@@ -196,10 +196,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
 
         val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
-            when {
-                isTaakObject -> restInformatieobjectConverter::convertTaakObject
-                else -> restInformatieobjectConverter::convertZaakObject
-            }
+            restInformatieobjectConverter::convertEnkelvoudigInformatieObject
         )
         val zaakInformatieobject = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
             zaak = zaak,
@@ -393,17 +390,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
     }
 
-    private fun updateEnkelvoudigInformatieobject(
-        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
-        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
-    ): RestEnkelvoudigInformatieobject =
-        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            enkelvoudigInformatieObject.url.extractUuid(),
-            enkelvoudigInformatieObjectWithLockRequest,
-            enkelvoudigInformatieObjectVersieGegevens.toelichting
-        ).let(restInformatieobjectConverter::convertToREST)
-
     @POST
     @Path("/informatieobject/{uuid}/lock")
     fun lockDocument(@PathParam("uuid") uuid: UUID, @QueryParam("zaak") zaakUUID: UUID): Response {
@@ -487,10 +473,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @QueryParam("zaak") zaakUUID: UUID
     ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
-        assertPolicy(
-            policyService.readDocumentRechten(document, zrcClientService.readZaak(zaakUUID)).wijzigen
-        )
-        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObject(
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        assertPolicy(policyService.readDocumentRechten(document, zaak).wijzigen)
+        enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
             document,
             enkelvoudigInformatieobjectUUID
         )
@@ -559,4 +544,15 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 )
             }
         }
+
+    private fun updateEnkelvoudigInformatieobject(
+        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
+        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
+    ): RestEnkelvoudigInformatieobject =
+        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+            enkelvoudigInformatieObject.url.extractUuid(),
+            enkelvoudigInformatieObjectWithLockRequest,
+            enkelvoudigInformatieObjectVersieGegevens.toelichting
+        ).let(restInformatieobjectConverter::convertToREST)
 }

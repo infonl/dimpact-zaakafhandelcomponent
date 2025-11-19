@@ -5,7 +5,9 @@
 
 # WildFly configuration script to configure WildFly for the Zaakafhandelcomponent
 
-# Add zaakafhandelcomponent datasource
+# Datasource configuration
+
+## Add zaakafhandelcomponent datasource
 data-source add \
     --name=ZaakafhandelcomponentDS \
     --jndi-name=java:jboss/datasources/ZaakafhandelcomponentDS \
@@ -14,7 +16,7 @@ data-source add \
     --use-java-context=true \
     --statistics-enabled=${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}
 
-# Add flowable datasource
+## Add flowable datasource
 data-source add \
     --name=FlowableDS \
     --jndi-name=java:jboss/datasources/FlowableDS \
@@ -46,13 +48,17 @@ data-source add \
     "otel.service.name" = "zac" \
 })
 
-# Create custom ZAC mail session
+# Mail configuration
+
+## Create custom ZAC mail session
 /subsystem=mail/mail-session=zac:add(jndi-name=java:jboss/mail/zac,debug=false)
 /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=zac-smtp-binding:add(host=${env.SMTP_SERVER},port=${env.SMTP_PORT})
 # Use fake credentials as defaults, to properly configure the mail session. Without credentials (or with empty string for user/password):
 #    - Weld fails to instantiate the mail session and satisfy the @Resource dependency in MailService
 #    - mail Transport we use throws AuthenticationFailedException because of insufficient configuration
 /subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:fakeDefaultUsername},password=${env.SMTP_PASSWORD:fakeDefaultPassword})
+
+# Logging configuration
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data

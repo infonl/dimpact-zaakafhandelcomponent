@@ -7,5 +7,13 @@ package net.atos.zac.flowable.delegate
 
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
+import java.time.ZonedDateTime
 
-fun Expression.resolveValueAsString(execution: DelegateExecution) = this.getValue(execution) as String
+fun Expression.resolveValueAsString(execution: DelegateExecution) =
+    this.getValue(execution) as String
+
+fun Expression.resolveValueAsLong(execution: DelegateExecution) =
+    (this.getValue(execution) as String).toLong()
+
+fun Expression.resolveValueAsZonedDateTime(execution: DelegateExecution): ZonedDateTime =
+    ZonedDateTime.parse(this.getValue(execution) as String)

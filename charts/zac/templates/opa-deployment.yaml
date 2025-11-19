@@ -52,7 +52,7 @@ spec:
             initialDelaySeconds: 5
           readinessProbe:
             httpGet:
-              path: /health?bundle=true  # Include bundle activation in readiness
+              path: /health
               scheme: HTTP
               port: 8181
             initialDelaySeconds: 5

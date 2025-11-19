@@ -31,6 +31,5 @@ data class RESTHumanTaskData(
 
     var taakdata: Map<String, String>? = null,
 
-    @field:NotNull
-    var taakStuurGegevens: RESTTaakStuurGegevens
+    var taakStuurGegevens: RESTTaakStuurGegevens?
 )

@@ -30,8 +30,8 @@ spec:
           {{- end }}
           containers:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
-              image: "{{ .Values.signaleringen.image.repository }}:{{ .Values.signaleringen.image.tag }}"
-              imagePullPolicy: {{ .Values.signaleringen.image.pullPolicy }}
+              image: "{{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}"
+              imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               resources:
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               args:

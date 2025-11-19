@@ -113,10 +113,11 @@ All required roles are already included in the Keycloak realm. No need to create
 
 Test users are imported into Keycloak on startup using the `zaakafhandelcomponent-realm.json` file.
 
-A ZAC user needs to have at the very least the base `zaakafhandelcomponent_user` role.
-
 For a ZAC admin the following user roles are required:
- - `zaakafhandelcomponent_user`
+ - `raadpleger`
+ - `behandelaar`
+ - `coordinator`
+ - `recordmanager`
  - `beheerder`
  - `domein_elk_zaaktype`
 

@@ -11,44 +11,104 @@ export class BetrokkeneIdentificatie
   public readonly bsnNummer?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
-  public readonly rsinNummer?: string | null = null;
+  /**
+   * @deprecated - use `kvkNummer` or `rsin` instead
+   *
+   * This should only be used for backwards compatibility and fetching data from the API.
+   */
+  public readonly rsin?: string | null = null;
   public readonly type: GeneratedType<"IdentificatieType">;
 
-  constructor(betrokkene: GeneratedType<"RestPersoon" | "RestBedrijf">) {
-    this.type = betrokkene.identificatieType!;
-    switch (betrokkene.identificatieType) {
+  constructor(
+    betrokkene: GeneratedType<
+      "RestPersoon" | "RestBedrijf" | "BetrokkeneIdentificatie"
+    >,
+  ) {
+    this.type = this.getType(betrokkene);
+    switch (this.type) {
       case "BSN":
-        if ("bsn" in betrokkene) {
+        if ("bsn" in betrokkene && betrokkene.bsn !== null) {
           this.bsnNummer = betrokkene.bsn;
-        } else {
-          throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a BSN number`,
-          );
+          break;
         }
-        break;
+        if ("bsnNummer" in betrokkene && betrokkene.bsnNummer !== null) {
+          this.bsnNummer = betrokkene.bsnNummer;
+          break;
+        }
+        throw new Error(
+          `${BetrokkeneIdentificatie.name}: Tried to add a ${this.type} betrokkene without a BSN number`,
+        );
       case "VN":
-        if ("kvkNummer" in betrokkene || "vestigingsnummer" in betrokkene) {
-          this.kvkNummer = betrokkene.kvkNummer;
+        if (
+          "vestigingsnummer" in betrokkene &&
+          betrokkene.vestigingsnummer !== null
+        ) {
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
           this.vestigingsnummer = betrokkene.vestigingsnummer;
-        } else {
-          throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a KVK or vestigings number`,
-          );
+          break;
         }
-        break;
+
+        if (
+          "identificatie" in betrokkene &&
+          betrokkene.identificatie !== null
+        ) {
+          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
+            this.kvkNummer = betrokkene.kvkNummer;
+          }
+          this.vestigingsnummer = betrokkene.identificatie;
+          break;
+        }
+
+        throw new Error(
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a vestigingsnummer`,
+        );
       case "RSIN":
-        if ("rsin" in betrokkene) {
-          this.rsinNummer = betrokkene.rsin;
-        } else {
-          throw new Error(
-            `${BetrokkeneIdentificatie.name}: Tried to add a betrokkene without a RSIN number`,
-          );
+        if (
+          ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) ||
+          ("rsin" in betrokkene && betrokkene.rsin !== null)
+        ) {
+          this.kvkNummer = betrokkene.kvkNummer; // A `rechtspersoon` has the type RSIN
+          this.rsin = betrokkene.rsin; // For backwards compatibility
+          break;
         }
-        break;
+        throw new Error(
+          `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a kvkNummer or rsin`,
+        );
       default:
         throw new Error(
-          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type ${betrokkene.identificatieType}`,
+          `${BetrokkeneIdentificatie.name}: Unsupported identificatie type "${this.type}"`,
         );
     }
+  }
+
+  private getType(
+    betrokkene: GeneratedType<
+      "RestPersoon" | "RestBedrijf" | "BetrokkeneIdentificatie"
+    >,
+  ): GeneratedType<"IdentificatieType"> {
+    if ("identificatieType" in betrokkene) {
+      return betrokkene.identificatieType!;
+    }
+
+    if ("type" in betrokkene) {
+      switch (
+        betrokkene.type as GeneratedType<"BedrijfType" | "IdentificatieType">
+      ) {
+        case "RECHTSPERSOON":
+        case "RSIN":
+          return "RSIN";
+        case "VN":
+        case "BSN":
+          return betrokkene.type as GeneratedType<"IdentificatieType">;
+        default:
+          throw new Error(`Unsupported betrokkene type "${betrokkene.type}"`);
+      }
+    }
+
+    throw new Error(
+      `${BetrokkeneIdentificatie.name}: Unsupported betrokkene type`,
+    );
   }
 }

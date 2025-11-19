@@ -13,5 +13,11 @@ import java.util.UUID
 data class RESTZaakAfsluitenGegevens(
     var reden: String? = null,
 
-    var resultaattypeUuid: UUID
+    var resultaattypeUuid: UUID,
+
+    /**
+     * De einddatum van het processtermijn voor de zaak.
+     * Ook wel de 'brondatum' genoemd.
+     */
+    var brondatumEigenschap: String? = null
 )

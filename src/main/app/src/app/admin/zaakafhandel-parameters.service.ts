@@ -4,7 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { PutBody, ZacHttpClient } from "../shared/http/zac-http-client";
+import { PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 
 @Injectable({
   providedIn: "root",
@@ -14,6 +15,10 @@ export class ZaakafhandelParametersService {
 
   listZaakafhandelParameters() {
     return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
+  }
+
+  listBpmnZaakafhandelParameters() {
+    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
   }
 
   readZaakafhandelparameters(zaaktypeUUID: string) {
@@ -57,6 +62,17 @@ export class ZaakafhandelParametersService {
 
   updateZaakafhandelparameters(body: PutBody<"/rest/zaakafhandelparameters">) {
     return this.zacHttpClient.PUT("/rest/zaakafhandelparameters", body);
+  }
+
+  updateBpmnZaakafhandelparameters(
+    processDefinitionKey: string,
+    body: PostBody<"/rest/zaaktype-bpmn-configuration/{processDefinitionKey}">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/zaaktype-bpmn-configuration/{processDefinitionKey}",
+      body,
+      { path: { processDefinitionKey } },
+    );
   }
 
   listFormulierDefinities() {

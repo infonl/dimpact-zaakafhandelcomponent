@@ -35,7 +35,6 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.IdentityService
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class MailTemplateHelperTest : BehaviorSpec({
@@ -197,7 +196,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, "fakeZaakIdentificatie@E-mail verzenden")
+                brpClientService.retrievePersoon(bsn, zaakIdentificatie)
             } returns persoon
 
             When(
@@ -249,7 +248,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, "fakeZaakIdentificatie@E-mail verzenden")
+                brpClientService.retrievePersoon(bsn, "fakeZaakIdentificatie")
             } returns persoon
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
@@ -288,7 +287,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-            every { kvkClientService.findVestiging(vestigingsnummer) } returns Optional.of(resultaatItem)
+            every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(

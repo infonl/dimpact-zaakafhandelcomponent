@@ -12,7 +12,7 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
@@ -24,19 +24,26 @@ import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
+import nl.info.zac.app.zaak.model.toRestResultaatTypes
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
@@ -60,7 +67,8 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val configuratieService: ConfiguratieService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -201,7 +209,11 @@ class ZaakService @Inject constructor(
         }
 
     /**
-     * Checks if the group has access to the domain associated with the specified zaak.
+     * Checks if the group is authorised for the domain associated with the specified zaak, through the
+     * zaakafhandelparameters of the zaaktype.
+     * This function currently only works for the old IAM architecture.
+     * In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
+     * This first needs to be implemented by the PABC.
      *
      * Domain access is granted to a:
      * - zaaktype without domain
@@ -213,20 +225,26 @@ class ZaakService @Inject constructor(
      * @return true if the group has access to the zaak's domain, false otherwise
      */
     private fun Group.hasDomainAccess(zaak: Zaak) =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).let { params ->
-            val hasAccess = params.domein == ZACRole.DOMEIN_ELK_ZAAKTYPE.value ||
-                this.zacClientRoles.contains(ZACRole.DOMEIN_ELK_ZAAKTYPE.value) ||
-                params.domein?.let {
-                    this.zacClientRoles.contains(it)
-                } ?: false
-            if (!hasAccess) {
-                LOG.fine(
-                    "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
-                        "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
-                )
-                eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+        if (configuratieService.featureFlagPabcIntegration()) {
+            // In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
+            // This first needs to be implemented by the PABC.
+            true
+        } else {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
+                val hasAccess = params.domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value ||
+                    this.zacClientRoles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
+                    params.domein?.let {
+                        this.zacClientRoles.contains(it)
+                    } ?: false
+                if (!hasAccess) {
+                    LOG.fine(
+                        "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
+                            "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
+                    )
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
+                }
+                hasAccess
             }
-            hasAccess
         }
 
     fun bepaalRolGroep(group: Group, zaak: Zaak) =
@@ -353,9 +371,63 @@ class ZaakService @Inject constructor(
                     zaak.url,
                     roleType,
                     explanation,
-                    NietNatuurlijkPersoonIdentificatie().apply { this.innNnpId = identification }
+                    NietNatuurlijkPersoonIdentificatie().apply { this.kvkNummer = identification }
                 )
         }
         zrcClientService.createRol(role, explanation)
     }
+
+    fun processBrondatumProcedure(zaak: Zaak, resultaatTypeUUID: UUID, brondatumArchiefprocedure: BrondatumArchiefprocedure) {
+        val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
+
+        when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
+            AfleidingswijzeEnum.EIGENSCHAP -> {
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank()) {
+                    throw InputValidationFailedException(
+                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                        message = """
+                    'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
+                    een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
+                        """.trimIndent()
+                    )
+                }
+                this.upsertEigenschapToZaak(
+                    resultaattype.brondatumArchiefprocedure.datumkenmerk,
+                    brondatumArchiefprocedure.datumkenmerk,
+                    zaak
+                )
+            }
+            else -> null
+        }
+    }
+
+    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
+        zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
+            zrcClientService.updateZaakeigenschap(
+                zaak.uuid, it.uuid,
+                it.apply {
+                    this.waarde = waarde
+                }
+            )
+        } ?: run {
+            ztcClientService.readEigenschap(zaak.zaaktype, eigenschap).let {
+                val zaakEigenschap = ZaakEigenschap().apply {
+                    this.eigenschap = it.url
+                    this.zaak = zaak.url
+                    this.waarde = waarde
+                }
+                zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
+            }
+        }
+    }
+
+    fun listStatusTypes(zaaktypeUUID: UUID) =
+        ztcClientService.readStatustypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
+
+    fun listResultTypes(zaaktypeUUID: UUID) =
+        ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
 }

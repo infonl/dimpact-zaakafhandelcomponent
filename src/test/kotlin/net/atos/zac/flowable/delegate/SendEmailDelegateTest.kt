@@ -10,7 +10,7 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -21,9 +21,9 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
+import org.flowable.common.engine.impl.el.FixedValue
+import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
-import org.flowable.engine.impl.el.FixedValue
-import org.flowable.engine.impl.el.JuelExpression
 
 class SendEmailDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -42,7 +42,7 @@ class SendEmailDelegateTest : BehaviorSpec({
     }
 
     Given("JUEL expression in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
@@ -50,9 +50,9 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { flowableHelper.mailService } returns mailService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fromExpression = mockk<JuelExpression>()
         every { fromExpression.getValue(delegateExecution) } returns fromEmail
@@ -100,7 +100,7 @@ class SendEmailDelegateTest : BehaviorSpec({
     }
 
     Given("Fixed value in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
@@ -108,9 +108,9 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { flowableHelper.mailService } returns mailService
 
         every { delegateExecution.parent } returns parentDelegateExecution
-        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns "fakeUUID"
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
-        every { zrcClientService.readZaakByID("fakeUUID") } returns zaak
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
         val fromExpression = mockk<FixedValue>()
         every { fromExpression.getValue(delegateExecution) } returns fromEmail

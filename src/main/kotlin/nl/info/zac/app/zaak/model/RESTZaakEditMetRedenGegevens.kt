@@ -10,7 +10,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakEditMetRedenGegevens(
-    var zaak: RestZaak,
+    var zaak: RestZaakCreateData,
 
     var reden: String
 )

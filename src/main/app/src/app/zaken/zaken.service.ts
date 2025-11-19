@@ -3,20 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import {
-  PatchBody,
-  PostBody,
-  PutBody,
-  ZacHttpClient,
-} from "../shared/http/zac-http-client";
+import { inject, Injectable } from "@angular/core";
+import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZakenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readZaak(uuid: string) {
     return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
@@ -30,15 +28,15 @@ export class ZakenService {
     });
   }
 
-  createZaak(body: PostBody<"/rest/zaken/zaak">) {
-    return this.zacHttpClient.POST("/rest/zaken/zaak", body);
+  createZaak() {
+    return this.zacQueryClient.POST("/rest/zaken/zaak");
   }
 
   updateZaak(
     uuid: string,
     update: {
       zaak: Omit<
-        Partial<GeneratedType<"RestZaak">>,
+        Partial<GeneratedType<"RestZaakCreateData">>,
         "zaakgeometrie" | "behandelaar"
       >;
       reden?: string;
@@ -47,7 +45,7 @@ export class ZakenService {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/zaak/{uuid}",
       {
-        zaak: update.zaak as GeneratedType<"RestZaak">,
+        zaak: update.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
         reden: update.reden ?? "",
       },
       { path: { uuid } },
@@ -90,12 +88,12 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/waarschuwing");
   }
 
-  listZaaktypes() {
-    return this.zacHttpClient.GET("/rest/zaken/zaaktypes");
+  listZaaktypesForCreation() {
+    return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
-  updateZaakdata(zaak: GeneratedType<"RestZaak">) {
-    return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak);
+  updateZaakdata() {
+    return this.zacQueryClient.PUT("/rest/zaken/zaakdata");
   }
 
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
@@ -243,6 +241,12 @@ export class ZakenService {
     });
   }
 
+  listStatustypes(zaaktypeUUID: string) {
+    return this.zacQueryClient.GET("/rest/zaken/statustypes/{zaaktypeUUID}", {
+      path: { zaaktypeUUID },
+    });
+  }
+
   koppelZaak(body: PatchBody<"/rest/zaken/zaak/koppel">) {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body);
   }
@@ -264,6 +268,6 @@ export class ZakenService {
   }
 
   listProcesVariabelen() {
-    return this.zacHttpClient.GET("/rest/zaken/procesvariabelen");
+    return this.zacQueryClient.GET("/rest/zaken/procesvariabelen");
   }
 }

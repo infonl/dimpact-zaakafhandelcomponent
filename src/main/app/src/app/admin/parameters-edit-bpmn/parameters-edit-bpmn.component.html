@@ -1,0 +1,148 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-stepper
+  *ngIf="algemeenFormGroup"
+  orientation="horizontal"
+  [linear]="true"
+  [selectedIndex]="selectedIndexStart"
+>
+  <!--
+    Step below is skipped on load when parameters are already saved
+  -->
+  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
+    <ng-template matStepLabel>{{
+      "gegevens.proces-definitie.BPMN" | translate
+    }}</ng-template>
+
+    <header>
+      <h2>{{ bpmnZaakafhandelParameters.zaaktype.omschrijving }}</h2>
+      <p>
+        {{ "zaps.step.proces-definitie.intro" | translate }}
+      </p>
+    </header>
+
+    <section>
+      <zac-radio
+        [form]="cmmnBpmnFormGroup"
+        key="options"
+        label="zaps.step.proces-definitie.label"
+        [options]="zaakProcessDefinitionOptions"
+        optionDisplayValue="label"
+      ></zac-radio>
+
+      <div class="flex-row items-center gap-10 ml-1 my-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+    </section>
+
+    <div class="button-group flex-row flex-wrap">
+      <button mat-raised-button matStepperNext>
+        {{ "actie.volgende" | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!isValid() || isLoading"
+        (click)="opslaan()"
+      >
+        {{ "actie.opslaan" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <mat-step *ngIf="algemeenFormGroup">
+    <ng-template matStepLabel>{{
+      "gegevens.algemeen" | translate
+    }}</ng-template>
+
+    <form [formGroup]="algemeenFormGroup">
+      <fieldset>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="zaaktypeOmschrijving"
+            [value]="bpmnZaakafhandelParameters.zaaktype.omschrijving"
+          />
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="doel"
+            [value]="bpmnZaakafhandelParameters.zaaktype.doel"
+          />
+        </section>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="identificatie"
+            [value]="bpmnZaakafhandelParameters.zaaktype.identificatie"
+          />
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="uuid"
+            [value]="bpmnZaakafhandelParameters.zaaktype.uuid"
+          />
+        </section>
+      </fieldset>
+      <fieldset class="my-5">
+        <section class="row">
+          <zac-select
+            class="col-12 col-lg-6"
+            key="bpmnDefinition"
+            optionDisplayValue="name"
+            [form]="algemeenFormGroup"
+            [options]="bpmnDefinitions"
+          >
+          </zac-select>
+        </section>
+        <section class="row">
+          <zac-select
+            class="col-12 col-lg-6"
+            key="defaultGroep"
+            label="groep"
+            optionDisplayValue="naam"
+            [form]="algemeenFormGroup"
+            [options]="groepen"
+          >
+          </zac-select>
+        </section>
+        <section class="row">
+          <zac-input
+            class="col-12 col-lg-6"
+            key="productaanvraagtype"
+            [form]="algemeenFormGroup"
+          >
+            <mat-hint>{{
+              "msg.zaakafhandelparameters.productaanvraagtype" | translate
+            }}</mat-hint>
+          </zac-input>
+        </section>
+      </fieldset>
+
+      <div class="flex-row items-center gap-10 ml-1 my-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+
+      <div class="button-group flex-row flex-wrap">
+        <button mat-raised-button matStepperPrevious>
+          {{ "actie.terug" | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="opslaan()"
+          [disabled]="!algemeenFormGroup.valid || isLoading"
+        >
+          {{ "actie.opslaan" | translate }}
+        </button>
+      </div>
+    </form>
+  </mat-step>
+</mat-stepper>

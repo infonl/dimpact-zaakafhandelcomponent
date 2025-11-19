@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -23,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_RSIN_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_TYPE_RECHTSPERSOON
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
@@ -41,26 +43,28 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 
-private const val HEADER_VERWERKING = "X-Verwerking"
+private const val HEADER_ZAAK_ID = "X-ZAAK-ID"
 
 /**
  * This test assumes a roltype has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 @Suppress("LongParameterList")
+@ExperimentalKotest
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
@@ -72,7 +76,7 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldBeJsonArray()
@@ -84,27 +88,9 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
-            val context = "ZAAK AANMAKEN"
-            val action = "Zaak aanmaken"
-            val auditEvent = "$context@$action"
 
-            val headers = Headers.Builder()
-                .add(HEADER_VERWERKING, auditEvent)
-                .build()
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                headers = headers
-            )
-            Then(
-                """
-                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
-                    """
-            ) {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+        Context("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+            val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
@@ -117,16 +103,56 @@ class KlantRestServiceTest : BehaviorSpec({
                       "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
                       "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"
                     }
-                """.trimIndent()
+            """.trimIndent()
+
+            When("zaak id is provided in the request headers") {
+                val headers = Headers.Builder()
+                    .add(HEADER_ZAAK_ID, ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                    .build()
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                    headers = headers
+                )
+                Then(
+                    """
+                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
+            }
+            When("no zaak information is provided") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                )
+                Then(
+                    """
+                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
             }
         }
-        When("a vestiging is requested which is present in the KVK test environment") {
+
+        When(
+            """
+                A vestiging is requested by vestigingsnummer and KVK number which is present in the KVK test environment
+                and for which contact details are present in Open Klant
+            """
+        ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
+                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1"
             )
-            Then("the vestiging is returned with the expected data") {
+            Then("the vestiging is returned with the expected data including contact details") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 // since there is customer contact data linked to this vestiging in our Open Klant container
                 // the response should contain an email address and telephone number
@@ -145,13 +171,42 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
+
+        When(
+            """
+                A vestiging is requested by vestigingsnummer alone which is present in the KVK test environment     
+            """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
+            )
+            Then("the vestiging is returned with the expected data including contact details") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                // even though there is customer contact data linked to this vestiging in our Open Klant container
+                // we do not support retrieving contact details when only the vestigingsnummer is provided,
+                // so the response should not contain an email address and telephone number
+                responseBody shouldEqualJson """
+                    {
+                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
+                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "naam": "$TEST_KVK_NAAM_1",
+                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                    }
+                """.trimIndent()
+            }
+        }
+
         When("a vestigingsprofiel is requested which is present in the KVK test environment") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"
             )
             Then("the vestigingsprofiel is returned with the expected data") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKey("adressen")
@@ -191,7 +246,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -219,7 +274,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -250,7 +305,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the customer contactmomenten") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -282,21 +337,45 @@ class KlantRestServiceTest : BehaviorSpec({
                 """
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/rechtspersoon/$TEST_KVK_RSIN_1",
+                url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                      "kvkNummer": "$TEST_KVK_NUMMER_1",
-                      "naam": "$TEST_KVK_NAAM_1",
-                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
-                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "identificatieType" : "RSIN",
+                      "naam" : "$TEST_KVK_NAAM_1",
+                      "rsin" : "$TEST_KVK_RSIN_1",
+                      "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
+                    }
+                """.trimIndent()
+            }
+        }
+        When(
+            """
+                the read rechtspersoon endpoint is called with the KVK nummer of a test company available in the KVK mock
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJson """
+                   {
+                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "identificatieType" : "RSIN",
+                      "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                      "naam" : "$TEST_KVK_NAAM_1",
+                      "rsin" : "$TEST_KVK_RSIN_1",
+                      "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
                 """.trimIndent()
             }
@@ -310,7 +389,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/klanten/personen/parameters",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
@@ -376,14 +455,14 @@ class KlantRestServiceTest : BehaviorSpec({
         }
         When(
             """
-                the betrokkenen are retrieved for the zaaktype 'indienen aansprakelijkstelling door derden behandelen'
+                the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'
                 """
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID/betrokkene",
+                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
             )
             Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson
@@ -392,32 +471,32 @@ class KlantRestServiceTest : BehaviorSpec({
                       {
                         "naam": "Belanghebbende",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE"
                       },
                       {
                         "naam": "Bewindvoerder",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER"
                       },
                       {
                         "naam": "Contactpersoon",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON"
                       },
                       {
                         "naam": "Gemachtigde",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE"
                       },
                       {
                         "naam": "Medeaanvrager",
                         "omschrijvingGeneriekEnum": "mede_initiator",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER"
                       },
                       {
                         "naam": "Plaatsvervanger",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER"
+                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
                     """.trimIndent()

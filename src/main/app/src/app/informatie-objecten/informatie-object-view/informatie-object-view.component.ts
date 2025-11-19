@@ -182,8 +182,8 @@ export class InformatieObjectViewComponent
               )
               .subscribe((infoObject) => {
                 this.documentNieuweVersieGegevens = infoObject;
+                void this.actionsSidenav.open();
               });
-            void this.actionsSidenav.open();
           },
           "difference",
         ),

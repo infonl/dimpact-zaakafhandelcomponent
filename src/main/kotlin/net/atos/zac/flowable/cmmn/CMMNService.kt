@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
@@ -16,6 +15,7 @@ import net.atos.zac.flowable.task.CreateUserTaskInterceptor
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -81,10 +81,10 @@ class CMMNService @Inject constructor(
     fun startCase(
         zaak: Zaak,
         zaaktype: ZaakType,
-        zaakafhandelParameters: ZaakafhandelParameters,
+        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         zaakData: Map<String, Any>? = null
     ) {
-        val caseDefinitionKey = zaakafhandelParameters.caseDefinitionID
+        val caseDefinitionKey = zaaktypeCmmnConfiguration.caseDefinitionID
         LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
         try {
             val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
@@ -92,7 +92,7 @@ class CMMNService @Inject constructor(
                 .businessKey(zaak.uuid.toString())
                 .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
                 .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
+                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUID, zaaktype.url.extractUuid())
                 .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
             zaakData?.let(caseInstanceBuilder::variables)
             caseInstanceBuilder.start()

@@ -18,6 +18,10 @@ on:
           - patch
           - minor
           - major
+      hotfix_version:
+        description: 'Explicit version for hotfix branch (e.g. 1.4.7). Required when dispatching on a hotfix/* branch.'
+        type: string
+        required: false
   push:
     branches:
       - main
@@ -26,7 +30,7 @@ on:
       - 'publiccode.yaml'
 
 env:
-  JAVA_VERSION: "21.0.8"
+  JAVA_VERSION: "21.0.9"
   CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
   APPLICATION_NAME: "zaakafhandelcomponent"
 
@@ -55,10 +59,106 @@ jobs:
           echo "Version will be bumped to next ${{ github.event.inputs.confirm || 'patch' }} number."
 
       - name: Manual version bump only allowed on main branch
-        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (!startsWith(github.ref_name, 'hotfix/') || github.event.inputs.hotfix_version == '') }}
         run: |
-          echo "Version can only be bumped on the main branch!"
+          echo "Version bump input only valid on main (hotfix branches require explicit hotfix_version)."
           exit 1
+
+  determine-version:
+    runs-on: ubuntu-24.04
+    needs: [validate-input]
+    outputs:
+      version: ${{ steps.set-hotfix-version.outputs.version || steps.get-version.outputs.version }}
+      tag: ${{ steps.set-hotfix-version.outputs.tag || steps.get-version.outputs.tag }}
+    steps:
+      # Checkout the repository including tags
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Ensure hotfix_version input provided
+        if: startsWith(github.ref_name, 'hotfix/')
+        run: |
+          if [ -z "${{ github.event.inputs.hotfix_version }}" ]; then
+            echo "hotfix_version input is required when running on a hotfix/* branch."
+            exit 1
+          fi
+
+      - name: Validate semantic version pattern
+        if: startsWith(github.ref_name, 'hotfix/')
+        run: |
+          V='${{ github.event.inputs.hotfix_version }}'
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?$'; then
+            echo "hotfix_version '$V' is not a valid semantic version (expected: N.N.N or N.N.N-suffix)."
+            exit 1
+          fi
+
+      - name: Check hotfix tag does not already exist
+        if: startsWith(github.ref_name, 'hotfix/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V='${{ github.event.inputs.hotfix_version }}'
+          if git ls-remote --exit-code --tags origin "refs/tags/v${V}" >/dev/null 2>&1; then
+            echo "Tag v${V} already exists. Choose a different version."
+            exit 1
+          fi
+
+      - name: Set hotfix version outputs
+        if: startsWith(github.ref_name, 'hotfix/')
+        id: set-hotfix-version
+        run: |
+          echo "version=${{ github.event.inputs.hotfix_version }}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${{ github.event.inputs.hotfix_version }}" >> "$GITHUB_OUTPUT"
+          echo "Calculated version: ${{ github.event.inputs.hotfix_version }} (tag: v${{ github.event.inputs.hotfix_version }})"
+
+      - name: Get next tag on main
+        if: ${{ !startsWith(github.ref_name, 'hotfix/') && github.ref == 'refs/heads/main' }}
+        id: get-tag-main
+        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
+          FORCE_WITHOUT_CHANGES: ${{ needs.validate-input.outputs.version-bump != 'patch' }}
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          BRANCH_HISTORY: last
+
+      - name: Get next tag on non-main (dry run)
+        if: ${{ !startsWith(github.ref_name, 'hotfix/') && github.ref != 'refs/heads/main' }}
+        id: get-tag-non-main
+        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          DRY_RUN: true
+          BRANCH_HISTORY: last
+
+      - name: Extract version (non-hotfix)
+        if: ${{ !startsWith(github.ref_name, 'hotfix/') }}
+        id: get-version
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TAG='${{ steps.get-tag-main.outputs.new_tag }}'
+          else
+            TAG='${{ steps.get-tag-non-main.outputs.new_tag }}'
+          fi
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Calculated version: $VERSION (tag: $TAG)"
+
+      - name: Comment next version on PR
+        if: github.event_name == 'pull_request' && !startsWith(github.ref_name, 'hotfix/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.version }}"
 
   paths-filter:
     runs-on: ubuntu-24.04
@@ -66,7 +166,7 @@ jobs:
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -79,10 +179,10 @@ jobs:
             changes-requiring-build:
               - '**'
               - '!**/*.md'
-              - '!**/*.pdf'       
-              - '!**/*.png'                 
-              - '!charts/**'          
-              - '!docs/**'          
+              - '!**/*.pdf'
+              - '!**/*.png'
+              - '!charts/**'
+              - '!docs/**'
               - '!*.sh'
               - '!.github/CODEOWNERS'
 
@@ -90,13 +190,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [paths-filter, validate-input]
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Set branch name
         id: gen_branch_name
@@ -111,7 +211,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -119,10 +219,10 @@ jobs:
           cache: 'maven'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        uses: gradle/actions/wrapper-validation@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
@@ -134,24 +234,23 @@ jobs:
           else
             ./gradlew build -x test --info --no-configuration-cache
           fi
-  
 
       - name: Cache Gradle build artefacts
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built frontend artefacts
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             src/main/app/dist/zaakafhandelcomponent
@@ -159,7 +258,7 @@ jobs:
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built ZAC JAR
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -167,40 +266,40 @@ jobs:
 
   run-unit-tests:
     needs: [build, paths-filter]
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore built frontend artefacts
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             build
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore generated Java clients
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             src/generated
@@ -210,7 +309,7 @@ jobs:
         run: ./gradlew -x processResources -x classes test --info --rerun-tasks
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
         if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
@@ -234,73 +333,17 @@ jobs:
 
       - name: Upload unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           flags: unittests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  next-version:
-    needs: [validate-input]
-    runs-on: ubuntu-24.04
-    outputs:
-      version: ${{ steps.get-version.outputs.replaced }}
-      tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
-    steps:
-      # Checkout the repository including tags
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-      # Determine the next semantic version based on the commit message tags
-      - name: Get next tag on main
-        id: get-tag-main
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c # 1.73.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRERELEASE: false
-          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
-          FORCE_WITHOUT_CHANGES: ${{ needs.validate-input.outputs.version-bump != 'patch' }}
-          WITH_V: true
-          RELEASE_BRANCHES: main
-          BRANCH_HISTORY: last
-      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
-      - name: Get next tag on non-main
-        id: get-tag-non-main
-        if: ${{ github.ref != 'refs/heads/main'}}
-        uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c # 1.73.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRERELEASE: false
-          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
-          WITH_V: true
-          RELEASE_BRANCHES: main
-          DRY_RUN: true
-          BRANCH_HISTORY: last
-      - name: Get next version
-        id: get-version
-        uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
-        with:
-          pattern: 'v(.*)'
-          string: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
-          replace-with: '$1'
-      - name: Print new tag and version
-        run: |
-          echo "Next version: ${{ steps.get-version.outputs.replaced }}"
-          echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
-      - name: Comment next version on PR
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.replaced }}"
-
   build-docker-image-and-run-itests:
-    needs: [build, paths-filter, next-version, validate-input]
+    needs: [build, paths-filter, validate-input, determine-version]
     # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
-    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main'}}
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -308,39 +351,29 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       GIT_COMMIT_HASH: ${{ github.sha }}
-      BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
+      BAG_API_CLIENT_MP_REST_URL: ${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
-      # workaround to avoid 'No space left on device' error
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          tool-cache: true
-          # do not clean up Docker images since we need them
-          docker-images: false
-          # disable cleaning up large packages since this takes a long time
-          large-packages: false
-
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: authenticate with docker hub
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup JDK
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       - name: Restore built ZAC JAR
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -364,9 +397,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run integration tests
+      - name: Run integration tests with ZAC PABC integration feature flag disabled
         run: |
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+            -PfeatureFlagPabcIntegration=false \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info --rerun-tasks
 
@@ -378,7 +412,36 @@ jobs:
           flags: integrationtests
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        if: ${{ !cancelled() }}
+        with:
+          check_name: integration-test-results
+          files: |
+            build/test-results/itest/**/*.xml    
+
+      - name: Delete integration test data
+        run: |
+          # Delete the integration test data to ensure that the next run starts with a clean slate
+          # This is required because the integration tests use the same data sources and we do not want to
+          # have leftover data from previous runs.
+          sudo rm -rf ./scripts/docker-compose/volume-data
+
+      - name: Run integration tests with ZAC PABC integration feature flag enabled
+        run: |
+          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+            -PfeatureFlagPabcIntegration=true \
+            -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
+            itest --info --rerun-tasks    
+
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
@@ -388,7 +451,7 @@ jobs:
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             build
@@ -398,7 +461,7 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           flags: integrationtests
         env:
@@ -406,7 +469,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         if: github.ref == 'refs/heads/main'
-        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         with:
           image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
           format: 'sarif'
@@ -423,40 +486,40 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: github.ref == 'refs/heads/main'
-        uses: github/codeql-action/upload-sarif@76621b61decf072c1cee8dd1ce2d2a82d33c17ed # v3.29.8
+        uses: github/codeql-action/upload-sarif@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4.31.4
         with:
           sarif_file: 'trivy-results.sarif'
 
       - name: Save Docker Image
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
       - name: Cache ZAC Docker Image
-        if: github.ref == 'refs/heads/main'
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
-    if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to') }}
+    if: ${{ (github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to')) || startsWith(github.ref_name, 'hotfix/') }}
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Docker Image
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -465,6 +528,7 @@ jobs:
         run: docker load --input docker-image.tar
 
       - name: Tag Docker Image with 'latest' tag
+        if: github.ref == 'refs/heads/main'
         run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
       - name: Tag Docker Image with next version tag
@@ -481,40 +545,50 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [next-version, push-docker-image]
-    if: github.ref == 'refs/heads/main'
+    needs: [push-docker-image, determine-version]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
     runs-on: ubuntu-24.04
     env:
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
-      NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
+      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - name: Read dependencies
+        id: dependencies
+        run: |
+          echo "dependencies<<EOF" >> $GITHUB_OUTPUT
+          cat DEPENDENCIES.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Create or update GitHub release
-        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.NEXT_VERSION_TAG }}
+          commit: ${{ github.sha }}
           name: ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}
           body: |
             This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available
             at ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ env.NEXT_VERSION }}
+            
+            ## Tested Against
+            
+            ${{ steps.dependencies.outputs.dependencies }}
           draft: false
           prerelease: false
           allowUpdates: true
-          makeLatest: true
+          makeLatest: ${{ github.ref == 'refs/heads/main' }}
           generateReleaseNotes: true
 
   trigger-provision:
-    needs: [next-version, push-docker-image, create-release]
+    needs: [determine-version, push-docker-image, create-release]
     env:
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
+      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
     steps:
-      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ secrets.PROVISION_TOKEN }}
           script: |

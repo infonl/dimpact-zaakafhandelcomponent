@@ -90,7 +90,7 @@ class MailServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
-        every { MailService.Companion.mailSession.properties } returns Properties()
+        every { MailService.mailSession.properties } returns Properties()
         mockkStatic(Transport::class)
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
@@ -141,7 +141,7 @@ class MailServiceTest : BehaviorSpec({
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
         every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
         mockkObject(MailService.Companion)
-        every { MailService.Companion.mailSession.properties } returns Properties()
+        every { MailService.mailSession.properties } returns Properties()
         mockkStatic(Transport::class)
         every { Transport.send(any<Message>()) } throws MessagingException()
 
@@ -171,7 +171,7 @@ class MailServiceTest : BehaviorSpec({
         every { mailTemplateHelper.resolveTaskVariables("fakeResolvedBody2", task) } returns resolvedBody
 
         mockkObject(MailService.Companion)
-        every { MailService.Companion.mailSession.properties } returns Properties()
+        every { MailService.mailSession.properties } returns Properties()
 
         mockkStatic(Transport::class)
         val transportSendRequest = slot<Message>()

@@ -7,32 +7,34 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
-import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
+import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 
 public final class RESTMailtemplateKoppelingConverter {
 
-    public static RESTMailtemplateKoppeling convert(final MailtemplateKoppeling mailtemplateKoppeling) {
+    public static RESTMailtemplateKoppeling convert(final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters) {
         final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();
-        restMailtemplateKoppeling.id = mailtemplateKoppeling.getId();
-        restMailtemplateKoppeling.mailtemplate = RESTMailtemplateConverter.convert(mailtemplateKoppeling.getMailTemplate());
+        restMailtemplateKoppeling.id = zaaktypeCmmnMailtemplateParameters.getId();
+        restMailtemplateKoppeling.mailtemplate = RESTMailtemplateConverter.convert(zaaktypeCmmnMailtemplateParameters.getMailTemplate());
 
         return restMailtemplateKoppeling;
     }
 
-    public static MailtemplateKoppeling convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
-        final MailtemplateKoppeling mailtemplateKoppeling = new MailtemplateKoppeling();
-        mailtemplateKoppeling.setMailTemplate(
+    public static ZaaktypeCmmnMailtemplateParameters convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
+        final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters = new ZaaktypeCmmnMailtemplateParameters();
+        zaaktypeCmmnMailtemplateParameters.setMailTemplate(
                 RESTMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate)
         );
-        return mailtemplateKoppeling;
+        return zaaktypeCmmnMailtemplateParameters;
     }
 
-    public static List<RESTMailtemplateKoppeling> convert(final Set<MailtemplateKoppeling> mailtemplateKoppelingen) {
-        return mailtemplateKoppelingen.stream().map(RESTMailtemplateKoppelingConverter::convert).toList();
+    public static List<RESTMailtemplateKoppeling> convert(
+            final Set<ZaaktypeCmmnMailtemplateParameters> zaaktypeCmmnMailtemplateKoppelingen
+    ) {
+        return zaaktypeCmmnMailtemplateKoppelingen.stream().map(RESTMailtemplateKoppelingConverter::convert).toList();
     }
 
-    public static List<MailtemplateKoppeling> convertRESTmailtemplateKoppelingen(
+    public static List<ZaaktypeCmmnMailtemplateParameters> convertRESTmailtemplateKoppelingen(
             final List<RESTMailtemplateKoppeling> restMailtemplateKoppelingen
     ) {
         return restMailtemplateKoppelingen.stream().map(RESTMailtemplateKoppelingConverter::convert).toList();

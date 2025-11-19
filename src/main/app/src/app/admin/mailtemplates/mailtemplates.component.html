@@ -187,11 +187,8 @@
             class="detail-row"
           ></tr>
         </table>
-        <p *ngIf="dataSource.data.length === 0">
+        <p *ngIf="!dataSource.data.length">
           {{ "msg.geen.gegevens.gevonden" | translate }}
-        </p>
-        <p *ngIf="dataSource.data.length === 0">
-          {{ "msg.loading" | translate }}
         </p>
       </mat-card-content>
     </mat-card>

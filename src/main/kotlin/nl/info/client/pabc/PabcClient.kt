@@ -15,6 +15,12 @@ import nl.info.client.pabc.util.PabcClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
+/**
+ * Constant for PABC entity type 'zaaktype'.
+ * In a future version of the PABC this will probably be replaced by an enum in the PABC API.
+ */
+const val ENTITY_TYPE_ZAAKTYPE = "zaaktype"
+
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)
 @Path("/api/v1")

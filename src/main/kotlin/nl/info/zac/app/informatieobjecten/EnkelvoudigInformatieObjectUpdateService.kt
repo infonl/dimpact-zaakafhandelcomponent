@@ -75,28 +75,6 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         }
     }
 
-    private fun addZaakInformatieobjectToTaak(
-        taskId: String,
-        zaakInformatieobject: ZaakInformatieobject,
-        skipPolicyCheck: Boolean,
-    ) {
-        val lock = stripes.get(taskId).also { it.lock() }
-        try {
-            val task = flowableTaskService.findOpenTask(taskId)
-                ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
-            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
-
-            mutableListOf<UUID>().apply {
-                addAll(readTaskDocuments(task))
-                add(zaakInformatieobject.informatieobject.extractUuid())
-            }.let {
-                taakVariabelenService.setTaakdocumenten(task, it)
-            }
-        } finally {
-            lock.unlock()
-        }
-    }
-
     fun verzendEnkelvoudigInformatieObject(uuid: UUID, verzenddatum: LocalDate?, toelichting: String?) {
         EnkelvoudigInformatieObjectWithLockRequest().apply {
             this.verzenddatum = verzenddatum
@@ -120,26 +98,52 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     }
 
     fun updateEnkelvoudigInformatieObjectWithLockData(
-        uuid: UUID,
+        enkelvoudigInformatieObjectUUID: UUID,
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
         toelichting: String?
     ): EnkelvoudigInformatieObject {
         var tempLock: EnkelvoudigInformatieObjectLock? = null
         try {
-            val enkelvoudigInformatieObjectLock = enkelvoudigInformatieObjectLockService.findLock(uuid)
-                ?: enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUserInstance.get().id).also {
-                    tempLock = it
-                }
-            enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock
+            val enkelvoudigInformatieObjectLock = enkelvoudigInformatieObjectLockService.findLock(
+                enkelvoudigInformatieObjectUUID
+            )
+            if (enkelvoudigInformatieObjectLock == null) {
+                tempLock = enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, loggedInUserInstance.get().id)
+                enkelvoudigInformatieObjectWithLockRequest.lock = tempLock.lock
+            } else {
+                enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock
+            }
             return drcClientService.updateEnkelvoudigInformatieobject(
-                uuid,
+                enkelvoudigInformatieObjectUUID,
                 enkelvoudigInformatieObjectWithLockRequest,
                 toelichting
             )
         } finally {
             if (tempLock != null) {
-                enkelvoudigInformatieObjectLockService.deleteLock(uuid)
+                enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
             }
+        }
+    }
+
+    private fun addZaakInformatieobjectToTaak(
+        taskId: String,
+        zaakInformatieobject: ZaakInformatieobject,
+        skipPolicyCheck: Boolean,
+    ) {
+        val lock = stripes.get(taskId).also { it.lock() }
+        try {
+            val task = flowableTaskService.findOpenTask(taskId)
+                ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
+            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
+
+            mutableListOf<UUID>().apply {
+                addAll(readTaskDocuments(task))
+                add(zaakInformatieobject.informatieobject.extractUuid())
+            }.let {
+                taakVariabelenService.setTaakdocumenten(task, it)
+            }
+        } finally {
+            lock.unlock()
         }
     }
 }

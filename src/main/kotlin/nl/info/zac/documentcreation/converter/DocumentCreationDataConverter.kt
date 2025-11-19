@@ -17,7 +17,6 @@ import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.model.generated.VerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
-import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.File
@@ -25,6 +24,7 @@ import nl.info.client.smartdocuments.model.document.GebruikerData
 import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
+import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -51,8 +51,6 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Objects
 import java.util.UUID
-
-private const val ACTION = "Document aanmaken"
 
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -121,12 +119,12 @@ class DocumentCreationDataConverter @Inject constructor(
             convertToAanvragerData(initiator, zaak.identificatie)
         }
 
-    private fun convertToAanvragerData(initiator: Rol<*>, zaakNummer: String): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaakIdentification: String): AanvragerData? =
         when (initiator.betrokkeneType) {
             NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
                 createAanvragerDataNatuurlijkPersoon(
                     bsn = this,
-                    auditEvent = "$zaakNummer@$ACTION"
+                    zaakIdentification = zaakIdentification
                 )
             }
             VESTIGING -> initiator.identificatienummer?.run {
@@ -136,8 +134,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, auditEvent: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, auditEvent)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakIdentification: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, zaakIdentification)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
@@ -157,9 +155,7 @@ class DocumentCreationDataConverter @Inject constructor(
         )
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
-        kvkClientService.findVestiging(vestigingsnummer)
-            .map { this.convertToAanvragerDataBedrijf(it) }
-            .orElse(null)
+        kvkClientService.findVestiging(vestigingsnummer)?.toAanvragerDataBedrijf()
 
     /**
      * Note that niet-natuurlijke personen can be used both for KVK niet-natuurlijke personen (with an RSIN)
@@ -169,7 +165,7 @@ class DocumentCreationDataConverter @Inject constructor(
         val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)
         val kvkResultaat = when {
             nietNatuurlijkPersoonIdentificatie?.innNnpId?.isNotBlank() == true ->
-                kvkClientService.findRechtspersoon(nietNatuurlijkPersoonIdentificatie.innNnpId)
+                kvkClientService.findRechtspersoonByRsin(nietNatuurlijkPersoonIdentificatie.innNnpId)
             nietNatuurlijkPersoonIdentificatie?.vestigingsNummer?.isNotBlank() == true ->
                 kvkClientService.findVestiging(nietNatuurlijkPersoonIdentificatie.vestigingsNummer)
             else -> error(
@@ -177,29 +173,8 @@ class DocumentCreationDataConverter @Inject constructor(
                     "nor vestigingsnummer is not supported"
             )
         }
-        return kvkResultaat
-            .map { this.convertToAanvragerDataBedrijf(it) }
-            .orElse(null)
+        return kvkResultaat?.toAanvragerDataBedrijf()
     }
-
-    private fun convertToAanvragerDataBedrijf(resultaatItem: ResultaatItem) =
-        resultaatItem.adres.binnenlandsAdres.let {
-            AanvragerData(
-                naam = resultaatItem.naam,
-                straat = it.straatnaam,
-                huisnummer = convertToHuisnummer(resultaatItem),
-                postcode = it.postcode,
-                woonplaats = it.plaats
-            )
-        }
-
-    private fun convertToHuisnummer(resultaatItem: ResultaatItem) =
-        resultaatItem.adres.binnenlandsAdres.let {
-            StringUtil.joinNonBlank(
-                Objects.toString(it.huisnummer, null),
-                it.huisletter
-            )
-        }
 
     private fun createStartformulierData(zaakUri: URI): StartformulierData? =
         ZaakobjectListParameters().apply {

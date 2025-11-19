@@ -1,0 +1,130 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+-->
+
+<form [formGroup]="form()" (ngSubmit)="submitForm()">
+  <fieldset>
+    @for (field of fields(); track field) {
+      @if (!field.hidden) {
+        @switch (field.type) {
+          @case ("plain-text") {
+            <section style="word-break: break-word">
+              @if (field.label) {
+                <mat-label style="font-weight: bold">{{
+                  field.label | translate
+                }}</mat-label>
+              }
+              <div
+                [innerHTML]="form().controls[field.key]?.value | translate"
+              ></div>
+            </section>
+          }
+          @case ("input") {
+            <zac-input
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+            />
+          }
+          @case ("date") {
+            <zac-date [form]="form()" [key]="field.key" [label]="field.label" />
+          }
+          @case ("select") {
+            <zac-select
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+              [options]="field.options"
+              [optionDisplayValue]="field.optionDisplayValue"
+            />
+          }
+          @case ("textarea") {
+            <zac-textarea
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+            />
+          }
+          @case ("auto-complete") {
+            <zac-auto-complete
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+              [options]="field.options"
+              [optionDisplayValue]="field.optionDisplayValue"
+            />
+          }
+          @case ("documents") {
+            <zac-documents
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+              [options]="field.options"
+              [readonly]="field.readonly || readonly()"
+            />
+          }
+          @case ("radio") {
+            <zac-radio
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+              [options]="field.options"
+            />
+          }
+          @case ("checkbox") {
+            <zac-checkbox
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+            />
+          }
+          @case ("html-editor") {
+            <zac-html-editor
+              [form]="form()"
+              [key]="field.key"
+              [label]="field.label"
+              [variables]="field.control.value.variabelen"
+            />
+          }
+        }
+      }
+    }
+  </fieldset>
+  <fieldset *ngIf="!readonly()">
+    <mat-action-row>
+      <button
+        *ngIf="config().hideCancelButton"
+        type="button"
+        mat-raised-button
+        color="accent"
+        [disabled]="form().invalid || loading()"
+        (click)="partiallySubmitForm()"
+      >
+        <mat-icon *ngIf="loading()">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        {{ config().partialSubmitLabel ?? "actie.opslaan" | translate }}
+      </button>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="form().invalid || loading()"
+      >
+        <mat-icon *ngIf="loading()">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
+        {{ config().submitLabel ?? "actie.verstuur" | translate }}
+      </button>
+      <button
+        *ngIf="!config().hideCancelButton"
+        type="reset"
+        mat-raised-button
+        (click)="cancelForm()"
+      >
+        {{ config().cancelLabel ?? "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>

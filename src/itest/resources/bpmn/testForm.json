@@ -18,153 +18,194 @@
       "tableView": false,
       "components": [
         {
-          "legend": "Approval by:",
-          "type": "groepMedewerkerFieldset",
-          "key": "AM_TeamBehandelaar",
-          "input": false,
-          "components": [
-            {
-              "label": "Group",
-              "type": "select",
-              "key": "AM_TeamBehandelaar_Groep",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "clearOnRefresh": true
-            },
-            {
-              "label": "User",
-              "type": "select",
-              "key": "AM_TeamBehandelaar_Medewerker",
-              "widget": "html5",
-              "input": true,
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "refreshOn": "AM_TeamBehandelaar_Groep",
-              "clearOnRefresh": true
-            }
-          ]
+          "label": "Group",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Groep",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_groep"
+          },
+          "dataSrc": "custom",
+          "clearOnRefresh": true
         },
         {
-          "legend": "SmartDocuments",
-          "type": "smartDocumentsFieldset",
-          "key": "SD_SmartDocuments",
-          "input": false,
-          "components": [
-            {
-              "label": "Template",
-              "type": "select",
-              "key": "SD_SmartDocuments_Template",
-              "input": true,
-              "widget": "html5",
-              "dataSrc": "custom",
-              "clearOnRefresh": true
-            },
-            {
-              "label": "Create",
-              "action": "event",
-              "showValidations": false,
-              "block": true,
-              "tableView": false,
-              "key": "SD_SmartDocuments_Create",
-              "type": "button",
-              "event": "createDocument",
-              "input": true,
-              "properties": {
-                "SmartDocuments_Group": "Dimpact/OpenZaak",
-                "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "df964baf-d3fe-430a-b711-03e389041f20",
-                "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-              }
-            }
-          ]
+          "label": "User",
+          "type": "select",
+          "key": "AM_TeamBehandelaar_Medewerker",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_medewerker"
+          },
+          "dataSrc": "custom",
+          "refreshOn": "AM_TeamBehandelaar_Groep",
+          "clearOnRefresh": true
         },
         {
-          "legend": "Available Documents",
-          "type": "documentsFieldset",
-          "key": "ZAAK_Documents",
-          "input": false,
-          "components": [
-            {
-              "label": "Documents",
-              "type": "select",
-              "key": "ZAAK_Documents_Select",
-              "input": true,
-              "widget": "choicesjs",
-              "multiple": true,
-              "defaultValue": [],
-              "clearOnRefresh": true,
-              "dataSrc": "custom",
-              "placeholder": "Select one or more documents",
-              "customOptions": {
-                "choicesOptions": {
-                  "removeItemButton": true,
-                  "placeholder": true,
-                  "searchEnabled": true,
-                  "shouldSort": false
-                }
-              },
-              "validate": {
-                "required": true
-              }
-            }
-          ]
+          "label": "Template",
+          "type": "select",
+          "key": "SD_SmartDocuments_Template",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_smart_documents_template"
+          },
+          "properties": {
+            "SmartDocuments_Group": "Dimpact/OpenZaak"
+          }
         },
         {
-          "legend": "Reference table",
-          "type": "referenceTableFieldset",
-          "key": "RT_ReferenceTable",
-          "input": false,
-          "components": [
-            {
-              "label": "Communication channel",
-              "type": "select",
-              "key": "RT_ReferenceTable_Values",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
-              },
-              "dataSrc": "custom",
-              "properties": {
-                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-              }
-            }
-          ]
+          "label": "Create",
+          "action": "event",
+          "showValidations": false,
+          "block": true,
+          "tableView": false,
+          "key": "SD_SmartDocuments_Create",
+          "type": "button",
+          "event": "createDocument",
+          "input": true,
+          "properties": {
+            "SmartDocuments_Group": "Dimpact/OpenZaak",
+            "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "df964baf-d3fe-430a-b711-03e389041f20",
+            "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+          }
         },
         {
-          "legend": "Zaak Status",
-          "type": "fieldset",
-          "key": "FS_ZaakStatus",
-          "input": false,
-          "components": [
-            {
-              "label": "Select status",
-              "optionsLabelPosition": "right",
-              "key": "RB_Status",
-              "values": [
-                {
-                  "label": "In behandeling",
-                  "value": "In behandeling"
-                },
-                {
-                  "label": "Onderzoek afgerond",
-                  "value": "Onderzoek afgerond"
-                }
-              ],
-              "validate": {
-                "required": true,
-                "onlyAvailableItems": true
-              },
-              "type": "radio",
-              "input": true,
-              "defaultValue": "In behandeling"
+          "label": "Documents",
+          "type": "select",
+          "key": "ZAAK_Documents_Select",
+          "input": true,
+          "widget": "choicesjs",
+          "multiple": true,
+          "defaultValue": [],
+          "clearOnRefresh": true,
+          "dataSrc": "custom",
+          "placeholder": "Select one or more documents",
+          "customOptions": {
+            "choicesOptions": {
+              "removeItemButton": true,
+              "placeholder": true,
+              "searchEnabled": true,
+              "shouldSort": false
             }
-          ]
+          },
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_documenten"
+          }
+        },
+        {
+          "label": "Communication channel",
+          "type": "select",
+          "key": "RT_ReferenceTable_Values",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
+        },
+        {
+          "label": "Select result",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Result",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_resultaat"
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        },
+        {
+          "label": "Select status",
+          "optionsLabelPosition": "right",
+          "key": "ZK_Status",
+          "widget": "html5",
+          "validate": {
+            "required": true,
+            "onlyAvailableItems": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_status"
+          },
+          "type": "select",
+          "input": true,
+          "dataSrc": "custom"
+        },
+        {
+          "label": "Initiator",
+          "key": "ZK_initiator",
+          "validate": {
+            "required": false
+          },
+          "type": "input",
+          "input": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_process_data"
+          }
+        },
+        {
+          "label": "Resume date",
+          "key": "ZK_Resume_Date",
+          "useLocaleSettings": true,
+          "format": "yyyy-MM-dd HH:mm",
+          "tableView": false,
+          "datePicker": {
+            "disableWeekends": true,
+            "disableWeekdays": false
+          },
+          "timePicker": {
+            "showMeridian": false
+          },
+          "defaultDate": "moment().add(1, 'hour')",
+          "validate": {
+            "required": true
+          },
+          "enableMinDateInput": false,
+          "enableMaxDateInput": false,
+          "validateWhenHidden": false,
+          "type": "datetime",
+          "input": true,
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "en",
+            "useLocaleSettings": true,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": true,
+            "noCalendar": false,
+            "format": "yyyy-MM-dd HH:mm",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true,
+            "minDate": null,
+            "disableWeekends": true,
+            "disableWeekdays": false,
+            "maxDate": null
+          }
         }
       ]
     }

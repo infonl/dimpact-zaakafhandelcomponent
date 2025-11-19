@@ -22,5 +22,11 @@ data class RESTUserEventListenerData(
 
     var resultaattypeUuid: UUID? = null,
 
-    var restMailGegevens: RESTMailGegevens? = null
+    var restMailGegevens: RESTMailGegevens? = null,
+
+    /**
+     * De einddatum van het processtermijn voor de zaak.
+     * Ook wel de 'brondatum' genoemd.
+     */
+    var brondatumEigenschap: String? = null
 )

@@ -12,6 +12,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * ZGW error indicating a validation error.
+ * The structure of these errors comply to the <a href="https://datatracker.ietf.org/doc/html/rfc7807">Problem Details Standard</a>.
  */
 public class ValidationZgwError extends ZgwError {
 

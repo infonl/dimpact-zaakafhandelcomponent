@@ -11,7 +11,7 @@ data class ZaakData(
     val open: Boolean,
 
     @field:JsonbProperty("zaaktype")
-    val zaaktype: String?,
+    val zaaktype: String,
 
     @field:JsonbProperty("opgeschort")
     val opgeschort: Boolean,

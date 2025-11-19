@@ -5,46 +5,40 @@
 
 export class FileIcon {
   // Generic files
-  private static readonly pdf = new FileIcon("pdf", "fa-file-pdf", "darkred");
-  private static readonly txt = new FileIcon("txt", "fa-file-lines");
+  private static readonly pdf = new FileIcon(
+    "pdf",
+    "picture_as_pdf",
+    "darkred",
+  );
+  private static readonly txt = new FileIcon("txt", "text_snippet");
   // Office documents
-  private static readonly doc = new FileIcon("doc", "fa-file-word", "blue");
-  private static readonly docx = new FileIcon("docx", "fa-file-word", "blue");
-  private static readonly ods = new FileIcon("ods", "fa-file-word", "blue");
-  private static readonly odt = new FileIcon("odt", "fa-file-word", "blue");
-  private static readonly ppt = new FileIcon(
-    "ppt",
-    "fa-file-powerpoint",
-    "red",
-  );
-  private static readonly pptx = new FileIcon(
-    "pptx",
-    "fa-file-powerpoint",
-    "red",
-  );
-  private static readonly rtf = new FileIcon("rtf", "fa-file-word");
-  private static readonly vsd = new FileIcon("vsd", "fa-file-image", "orange");
-  private static readonly xls = new FileIcon("xls", "fa-file-excel", "green");
-  private static readonly xlsx = new FileIcon("xlsx", "fa-file-excel", "green");
+  private static readonly doc = new FileIcon("doc", "description", "blue");
+  private static readonly docx = new FileIcon("docx", "description", "blue");
+  private static readonly ods = new FileIcon("ods", "description", "blue");
+  private static readonly odt = new FileIcon("odt", "description", "blue");
+  private static readonly ppt = new FileIcon("ppt", "slideshow", "red");
+  private static readonly pptx = new FileIcon("pptx", "slideshow", "red");
+  private static readonly rtf = new FileIcon("rtf", "description");
+  private static readonly vsd = new FileIcon("vsd", "architecture", "orange");
+  private static readonly xls = new FileIcon("xls", "table", "green");
+  private static readonly xlsx = new FileIcon("xlsx", "table", "green");
   // Image files
-  private static readonly bmp = new FileIcon("bmp", "fa-file-image");
-  private static readonly gif = new FileIcon("gif", "fa-file-image");
-  private static readonly jpeg = new FileIcon("jpeg", "fa-file-image");
-  private static readonly jpg = new FileIcon("jpg", "fa-file-image");
-  private static readonly png = new FileIcon("png", "fa-file-image");
+  private static readonly bmp = new FileIcon("bmp", "image");
+  private static readonly gif = new FileIcon("gif", "image");
+  private static readonly jpeg = new FileIcon("jpeg", "image");
+  private static readonly jpg = new FileIcon("jpg", "image");
+  private static readonly png = new FileIcon("png", "image");
   // Video files
-  private static readonly avi = new FileIcon("avi", "fa-file-video");
-  private static readonly flv = new FileIcon("flv", "fa-file-video");
-  private static readonly mkv = new FileIcon("mkv", "fa-file-video");
-  private static readonly mov = new FileIcon("mov", "fa-file-video");
-  private static readonly mp4 = new FileIcon("mp4", "fa-file-video");
-  private static readonly mpeg = new FileIcon("mpeg", "fa-file-video");
-  private static readonly wmv = new FileIcon("wmv", "fa-file-video");
-  private static readonly msg = new FileIcon("msg", "fa-file-lines");
-  private static readonly unknown = new FileIcon(
-    "unknown",
-    "fa-file-circle-question",
-  );
+  private static readonly avi = new FileIcon("avi", "video_file");
+  private static readonly flv = new FileIcon("flv", "video_file");
+  private static readonly mkv = new FileIcon("mkv", "video_file");
+  private static readonly mov = new FileIcon("mov", "video_file");
+  private static readonly mp4 = new FileIcon("mp4", "video_file");
+  private static readonly mpeg = new FileIcon("mpeg", "video_file");
+  private static readonly wmv = new FileIcon("wmv", "video_file");
+  // Other files
+  private static readonly msg = new FileIcon("msg", "chat");
+  private static readonly unknown = new FileIcon("unknown", "unknown_document");
 
   public static readonly fileIcons = [
     FileIcon.pdf,
