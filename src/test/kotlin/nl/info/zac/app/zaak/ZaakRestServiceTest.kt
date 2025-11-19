@@ -64,7 +64,6 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.Zaak.OMSCHRIJVING_MAX_LENGTH
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
