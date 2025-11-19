@@ -174,13 +174,13 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
-      this.page.getByRole("cell", { name: "Test form" }),
+      this.page.getByRole("cell", { name: "Test" }),
     ).not.toBeVisible();
     await this.page
       .getByRole("switch", { name: "Toon afgeronde taken" })
       .click();
     await expect(
-      this.page.getByRole("cell", { name: "Test form" }),
+      this.page.getByRole("cell", { name: "Test" }),
     ).toBeVisible();
   },
 );
