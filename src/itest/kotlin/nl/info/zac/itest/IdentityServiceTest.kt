@@ -47,6 +47,7 @@ import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_2
+import nl.info.zac.itest.config.PABC_ADMIN
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RAADPLEGER_2
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
@@ -296,6 +297,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${USER_WITHOUT_ANY_ROLE.username}",
                                     "naam": "${USER_WITHOUT_ANY_ROLE.displayName}"
+                                },
+                                {
+                                   "id": "${PABC_ADMIN.username}",
+                                    "naam": "${PABC_ADMIN.displayName}"
                                 }
                             ]
                 """.trimIndent()

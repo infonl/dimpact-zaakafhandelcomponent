@@ -443,7 +443,6 @@
           "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
           "attributes": {}
         },
-
         {
           "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
           "name": "behandelaar_domein_test_1",
@@ -532,6 +531,17 @@
           "composite": false,
           "clientRole": true,
           "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+          "attributes": {}
+        }
+      ],
+      "pabc": [
+        {
+          "id": "d75a1f4e-76a3-48d4-994d-ae9b8de2a64b",
+          "name": "administrator",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "c1160d7b-ad3e-496e-9c58-8e07516360f4",
           "attributes": {}
         }
       ]
@@ -1218,6 +1228,91 @@
             "introspection.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "clientAddress",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "access": {
+        "view": true,
+        "configure": true,
+        "manage": true
+      }
+    },
+    {
+      "id": "c1160d7b-ad3e-496e-9c58-8e07516360f4",
+      "clientId": "pabc",
+      "name": "pabc",
+      "description": "PABC API Client",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "pabcClientSecret",
+      "redirectUris": [
+        "http://localhost:8000/*",
+        "http://localhost:8006/*",
+        "http://host.docker.internal:8006/*",
+        "http://host.docker.internal:8000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8000",
+        "http://localhost:8006",
+        "http://host.docker.internal:8006",
+        "http://host.docker.internal:8000"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1734337478",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "f2f66821-e2b0-4e01-8965-d5bb47180ec2",
+          "name": "clientRole",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "roles",
             "jsonType.label": "String"
           }
         }
@@ -3096,6 +3191,33 @@
       "realmRoles": [],
       "notBefore": 0,
       "groups": []
+    },
+    {
+      "id": "f1f0cae8-7c71-4e64-8875-d1af397fe640",
+      "username": "pabcadmin",
+      "firstName": "PABC",
+      "lastName": "Admin",
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "22c5e729-2667-4db2-b667-ee1a6a486f52",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1754984431730,
+          "secretData": "{\"value\":\"Kw3PYlVF7w+NuSwnO7utsEP5vBwmmhtMXLUr852GH0o=\",\"salt\":\"ZQR2lAmR1Vxqdf2GFHI27A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [],
+      "notBefore": 0,
+      "groups": [],
+      "clientRoles": {
+        "pabc": ["administrator"]
+      }
     }
   ]
 }
