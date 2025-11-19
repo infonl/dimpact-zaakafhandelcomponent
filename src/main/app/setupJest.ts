@@ -37,6 +37,46 @@ Object.defineProperty(globalThis, "crypto", {
   configurable: false,
 });
 
+interface AnimationMock {
+  play: () => void;
+  pause: () => void;
+  cancel: () => void;
+  finish: () => void;
+  addEventListener: (name: string, cb: () => void) => void;
+  removeEventListener: (name: string, cb: () => void) => void;
+  finished: Promise<void>;
+}
+
+// Mock Element.prototype.animate for all tests
+(
+  Element.prototype as unknown as {
+    animate: (
+      keyframes: Keyframe[] | PropertyIndexedKeyframes,
+      options?: number | KeyframeAnimationOptions,
+    ) => AnimationMock;
+  }
+).animate = () => {
+  const listeners: Record<string, Array<() => void>> = {};
+
+  const player: AnimationMock = {
+    play: () => {},
+    pause: () => {},
+    cancel: () => {},
+    finish: () => {
+      (listeners["finish"] || []).forEach((cb) => cb());
+    },
+    addEventListener: (name: string, cb: () => void) => {
+      (listeners[name] ||= []).push(cb);
+    },
+    removeEventListener: (name: string, cb: () => void) => {
+      listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
+    },
+    finished: Promise.resolve(),
+  };
+
+  return player;
+};
+
 console.log = jest.fn();
 console.warn = jest.fn();
 console.error = jest.fn();

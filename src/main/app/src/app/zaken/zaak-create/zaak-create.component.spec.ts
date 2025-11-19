@@ -193,38 +193,6 @@ describe(ZaakCreateComponent.name, () => {
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-    beforeAll(() => {
-      // disable animations for the tests
-      (
-        Element.prototype as unknown as {
-          animate: (
-            keyframes: Keyframe[] | PropertyIndexedKeyframes,
-            options?: number | KeyframeAnimationOptions,
-          ) => AnimationMock;
-        }
-      ).animate = () => {
-        const listeners: Record<string, Array<() => void>> = {};
-
-        const player: AnimationMock = {
-          play: () => {},
-          pause: () => {},
-          cancel: () => {},
-          finish: () => {
-            (listeners["finish"] || []).forEach((cb) => cb());
-          },
-          addEventListener: (name: string, cb: () => void) => {
-            (listeners[name] ||= []).push(cb);
-          },
-          removeEventListener: (name: string, cb: () => void) => {
-            listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
-          },
-          finished: Promise.resolve(),
-        };
-
-        return player;
-      };
-    });
-
     const getAutocompleteOptions = async (options: {
       loader: HarnessLoader;
       inputs: MatInputHarness[];
