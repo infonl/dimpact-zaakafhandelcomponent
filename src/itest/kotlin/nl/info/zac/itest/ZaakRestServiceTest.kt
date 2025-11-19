@@ -603,7 +603,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
 
         When(
-            """"
+            """
             the 'update zaak' endpoint is called with a description field that is longer than allowed
             """
         ) {
