@@ -1,0 +1,70 @@
+# Minimal values for ct install / helm test
+
+contextUrl: "https://zac.test.local"
+
+db:
+  host: "db.test.local"
+  name: "zacdb"
+  user: "zacuser"
+  password: "test-password"
+
+auth:
+  server: "https://keycloak.test.local"
+  realm: "zac-realm"
+  clientId: "zac-client"
+  secret: "auth-client-secret"
+
+keycloak:
+  adminClient:
+    id: "zac-admin"
+    secret: "admin-client-secret"
+
+gemeente:
+  code: "9999"
+  naam: "Testgemeente"
+  mail: "info@testgemeente.local"
+
+mail:
+  smtp:
+    server: "smtp.test.local"
+    port: "587"
+    username: "smtp-user"
+    password: "smtp-pass"
+
+zgwApis:
+  url: "https://zgw.test.local"
+  clientId: "zgw-client-id"
+  secret: "zgw-secret"
+
+notificationsSecretKey: "notifications-secret"
+
+klantinteractiesApi:
+  url: "https://klantinteracties.test.local"
+  token: "klantinteracties-token"
+
+objectenApi:
+  url: "https://objecten.test.local"
+  token: "objecten-token"
+
+brpApi:
+  url: "https://brp.test.local"
+  apiKey: "brp-api-key"
+
+kvkApi:
+  url: "https://kvk.test.local"
+  apiKey: "kvk-api-key"
+
+bagApi:
+  url: "https://bag.test.local"
+  apiKey: "bag-api-key"
+
+openForms:
+  url: "https://openforms.test.local"
+
+zacInternalEndpointsApiKey: "internal-endpoints-api-key"
+
+organizations:
+  verantwoordelijke:
+    rsin: "123456782"
+  bron:
+    rsin: "234567893"

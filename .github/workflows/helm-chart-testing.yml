@@ -107,7 +107,9 @@ jobs:
 
       - name: Run chart-testing (install)
         continue-on-error: true
-        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+        run: |
+          ct install --target-branch ${{ github.event.repository.default_branch }} \
+          --helm-extra-args "--values=charts/zac/ci/zac-chart-test-values.yaml"
 
   bump-chart:
     runs-on: ubuntu-24.04
