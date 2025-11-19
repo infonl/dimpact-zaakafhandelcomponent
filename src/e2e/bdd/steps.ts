@@ -4,9 +4,7 @@
  */
 
 import { expect } from "@playwright/test";
-import { createBdd } from "playwright-bdd";
-
-const { When, Then } = createBdd();
+import { Then, When } from "./fixture";
 
 When("I am on the {string} page", async ({ page }, route: string) => {
   await page.goto(route);

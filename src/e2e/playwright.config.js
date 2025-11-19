@@ -19,15 +19,11 @@ const testDir = defineBddConfig({
 
 export default defineConfig({
   testDir,
-  reporter: [
-    ["html", { open: "never" }],
-    ["json", { outputFile: "reports/e2e-report.json" }],
-  ],
-  retries: 2,
+  reporter: [["html", { open: "never" }]],
+  retries: process.env.CI ? 2 : 1,
   use: {
     baseURL: ENV.baseUrl,
     locale: ENV.businessLanguage,
-    video: "retry-with-video",
-    screenshot: "only-on-failure",
+    trace: "on",
   },
 });

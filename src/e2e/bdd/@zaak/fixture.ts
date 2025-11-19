@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { test as base } from "../@login/fixture";
+import { createBdd } from "playwright-bdd";
+import { test as base } from "../fixture";
 
 export const test = base.extend<{
   caseNumber: { value: string };
@@ -16,3 +17,5 @@ export const test = base.extend<{
     await use({ value: "" });
   },
 });
+
+export const { Given, When, Then } = createBdd(test);

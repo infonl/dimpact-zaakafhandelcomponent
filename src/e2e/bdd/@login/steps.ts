@@ -5,10 +5,7 @@
 
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
-import { createBdd } from "playwright-bdd";
-import { test } from "./fixture";
-
-const { Given, When, Then } = createBdd(test);
+import { Given, Then, When } from "./fixture";
 
 Given("I am on the ZAC login page", async ({ page }) => {
   expect(await page.title()).toContain("Sign in");

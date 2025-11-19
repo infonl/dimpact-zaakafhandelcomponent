@@ -5,10 +5,7 @@
 
 import { expect } from "@playwright/test";
 import { ENV } from "bdd/types";
-import { createBdd } from "playwright-bdd";
-import { test } from "./fixture";
-
-const { Given, When, Then } = createBdd(test);
+import { Given, Then, When } from "./fixture";
 
 Given("the case type {string} exists", async ({ caseType }, type: string) => {
   console.log(`TODO: ensure the case type ${type} exists in ZAC, else make it`);
