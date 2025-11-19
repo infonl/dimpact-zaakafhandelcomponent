@@ -136,6 +136,16 @@ describe(ZaakCreateComponent.name, () => {
       ]),
     );
 
+    jest.spyOn(zakenService, "createZaak").mockReturnValue({
+      mutationKey: [],
+      mutationFn: () =>
+        Promise.resolve(
+          fromPartial<GeneratedType<"RestZaak">>({
+            identificatie: "test-zaak-uuid-123",
+          }),
+        ),
+    });
+
     bpmnService = TestBed.inject(BpmnService);
     jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
       of([
@@ -373,16 +383,6 @@ describe(ZaakCreateComponent.name, () => {
       });
 
       it("should fill all fields and submit", async () => {
-        jest.spyOn(zakenService, "createZaak").mockReturnValue({
-          mutationKey: [],
-          mutationFn: () =>
-            Promise.resolve(
-              fromPartial<GeneratedType<"RestZaak">>({
-                identificatie: "test-zaak-uuid-123",
-              }),
-            ),
-        });
-
         const navigateSpy = jest
           .spyOn(router, "navigate")
           .mockResolvedValue(true);
@@ -412,7 +412,7 @@ describe(ZaakCreateComponent.name, () => {
         await inputs[6].setValue("Automated test description");
         expect(await inputs[6].getValue()).toBe("Automated test description");
 
-        // --- Select Communication Channel ---
+        // --- Communication Channel ---
         await selects[0].clickOptions({ text: "Rooksignalen" });
         expect(await selects[0].getValueText()).toBe("Rooksignalen");
 
@@ -420,6 +420,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(await submitButton.isDisabled()).toBe(false);
         await submitButton.click();
 
+        // --- Mutation ---
         expect(zakenService.createZaak).toHaveBeenCalled();
         expect(navigateSpy).toHaveBeenCalledWith([
           "/zaken/",
