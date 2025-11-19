@@ -31,6 +31,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
@@ -80,7 +81,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every {
             zaaktypeCmmnConfigurationCriteriaQuery.select(zaaktypeCmmnConfigurationRoot)
         } returns zaaktypeCmmnConfigurationCriteriaQuery
-        every { zaaktypeCmmnConfigurationRoot.get<Any>("zaaktype_uuid") } returns path
+        every { zaaktypeCmmnConfigurationRoot.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns path
         every { criteriaBuilder.equal(path, zaaktypeCmmnConfiguration.zaakTypeUUID) } returns predicate
         every { zaaktypeCmmnConfigurationCriteriaQuery.where(predicate) } returns zaaktypeCmmnConfigurationCriteriaQuery
         every {

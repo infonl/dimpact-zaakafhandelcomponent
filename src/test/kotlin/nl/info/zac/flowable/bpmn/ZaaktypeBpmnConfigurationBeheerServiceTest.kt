@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
@@ -143,7 +144,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { criteriaQuery.select(root) } returns criteriaQuery
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
-            every { root.get<UUID>("zaaktype_uuid") } returns pathUuid
+            every { root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns pathUuid
             every { root.get<Any>("creatiedatum") } returns pathCreatieDatum
             every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
             every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery
@@ -168,7 +169,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { criteriaQuery.select(root) } returns criteriaQuery
             every { criteriaQuery.where(predicate) } returns criteriaQuery
             every { criteriaBuilder.equal(pathUuid, zaaktypeUUID) } returns predicate
-            every { root.get<UUID>("zaaktype_uuid") } returns pathUuid
+            every { root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns pathUuid
             every { root.get<Any>("creatiedatum") } returns pathCreatieDatum
             every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
             every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery

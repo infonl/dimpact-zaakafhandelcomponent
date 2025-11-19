@@ -44,7 +44,7 @@ abstract class ZaaktypeConfiguration {
 
     @Id
     @GeneratedValue(generator = "zaaktype_generator", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     var id: Long? = null
 
     // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
