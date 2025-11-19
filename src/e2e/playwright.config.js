@@ -10,7 +10,7 @@ import { ENV } from "./bdd/types";
 const testDir = defineBddConfig({
   language: ENV.businessLanguage,
   features: "bdd/**/*.feature",
-  steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts", "bdd/hooks.ts"],
+  steps: ["bdd/**/steps.ts", "bdd/**/fixture.ts", "bdd/**/hooks.ts"],
   aiFix: {
     promptAttachment: true,
   },

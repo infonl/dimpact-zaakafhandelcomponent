@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterStep, Before } from "./fixture";
+import { Before } from "./fixture";
 import { DEFAULT_USER, ENV } from "./types";
 
 Before({}, async ({ page }) => {
