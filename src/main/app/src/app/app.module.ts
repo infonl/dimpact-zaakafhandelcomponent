@@ -18,9 +18,10 @@ import { MatIconRegistry } from "@angular/material/icon";
 import {
   provideTanStackQuery,
   QueryClient,
-  QueryFeatures,
 } from "@tanstack/angular-query-experimental";
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { persistQueryClient } from "@tanstack/query-persist-client-core";
 import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -30,19 +31,23 @@ import { DashboardModule } from "./dashboard/dashboard.module";
 import { DocumentenModule } from "./documenten/documenten.module";
 import { FoutAfhandelingModule } from "./fout-afhandeling/fout-afhandeling.module";
 import { GebruikersvoorkeurenModule } from "./gebruikersvoorkeuren/gebruikersvoorkeuren.module";
+import { IdentityModule } from "./identity/identity.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
 import { MailModule } from "./mail/mail.module";
 import { PlanItemsModule } from "./plan-items/plan-items.module";
 import { ProductaanvragenModule } from "./productaanvragen/productaanvragen.module";
+import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
 import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
 
-const tanstackQueryFeatures: QueryFeatures[] = [];
+const queryClient = new QueryClient();
 
-if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
+// https://tanstack.com/query/latest/docs/framework/angular/devtools
+// @ts-expect-error -- window object extension
+window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 @NgModule({
   declarations: [AppComponent, ToolbarComponent],
@@ -62,6 +67,7 @@ if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
     ProductaanvragenModule,
     SignaleringenModule,
     TakenModule,
+    IdentityModule,
     AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
@@ -69,7 +75,12 @@ if (isDevMode()) tanstackQueryFeatures.push(withDevtools());
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideTanStackQuery(new QueryClient(), ...tanstackQueryFeatures),
+    provideTanStackQuery(
+      queryClient,
+      withDevtools(() => ({
+        loadDevtools: isDevMode(),
+      })),
+    ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })
@@ -79,5 +90,26 @@ export class AppModule {
   constructor(injector: Injector, iconRegistry: MatIconRegistry) {
     AppModule.injector = injector;
     iconRegistry.setDefaultFontSetClass("material-symbols-outlined");
+
+    persistQueryClient({
+      queryClient,
+      persister: createAsyncStoragePersister({
+        storage: window.sessionStorage,
+        key: "zac:tanstack:query",
+      }),
+      dehydrateOptions: {
+        shouldDehydrateQuery: ({ queryKey }) => {
+          const [url] = queryKey;
+          if (!url) return false;
+
+          const sessionStoragePersistedEndpoints: (keyof Paths)[] = [
+            "/rest/identity/loggedInUser",
+          ];
+          return sessionStoragePersistedEndpoints.includes(
+            String(url) as keyof Paths,
+          );
+        },
+      },
+    });
   }
 }

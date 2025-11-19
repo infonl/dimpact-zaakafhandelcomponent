@@ -20,9 +20,11 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -96,6 +98,7 @@ describe(InformatieObjectAddComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         {
           provide: MatDrawer,
           useValue: mockSideNav,
@@ -115,9 +118,10 @@ describe(InformatieObjectAddComponent.name, () => {
     translateService = TestBed.inject(TranslateService);
 
     // Mock services
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue(of({ id: "1234", naam: "Test User" }));
+    testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
+      id: "1234",
+      naam: "Test User",
+    });
 
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypesForZaak")
@@ -167,8 +171,7 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(listInformatieObjectTypes).toHaveBeenCalledWith(mockZaak.uuid);
     });
 
-    it("should call `identityService.readLoggedInUser`", () => {
-      const readLoggedInUser = jest.spyOn(identityService, "readLoggedInUser");
+    it("should call `configuratieService.readDefaultTaal`", () => {
       const readDefaultTaal = jest.spyOn(
         configuratieService,
         "readDefaultTaal",
@@ -176,7 +179,6 @@ describe(InformatieObjectAddComponent.name, () => {
 
       component.ngOnInit();
       expect(readDefaultTaal).toHaveBeenCalled();
-      expect(readLoggedInUser).toHaveBeenCalled();
     });
   });
 

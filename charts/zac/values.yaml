@@ -333,8 +333,10 @@ opa:
 
 # If an external solr instance is used, configure the URL here
 solr:
-  # -- The location of an existing solr instance to be used by zac
+  # -- The location of an existing solr instance (unmanaged by this chart) to be used by zac
   url: ""
+  # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
+  createZacCore: true
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
@@ -377,7 +379,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:facb103d02c3e0fcf34e272264b7d7deea98e1b2861075d2c9c4dd329d4c1c0d
+      tag: 1.37.0-glibc@sha256:3bf024f5b91b256d55fcecaa910a7f671bdd2b6bb5bb22ac6b774cc4678f2093
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -387,7 +389,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.9.0@sha256:9f220fd72cb887cd5229ca3a6536fc3c8accc1ed2c53a3b1e1206db8f2e489ae
+      tag: 9.10.0@sha256:60f3fbc0911eabd3ad0a6efb2f465b6e68d35ed487bda7b6bbf6339b9b5a39e6
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -396,8 +398,6 @@ solr-operator:
       affinity: {}
       # -- annotations for jobs
       annotations: {}
-      # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
-      createZacCore: true
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs

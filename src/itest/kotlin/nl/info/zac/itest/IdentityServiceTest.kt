@@ -24,6 +24,8 @@ import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_2
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
+import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
+import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -34,7 +36,7 @@ import nl.info.zac.itest.config.OLD_IAM_FUNCTIONAL_ADMIN_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
 import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
 import nl.info.zac.itest.config.OLD_IAM_RAADPLEGER_1
-import nl.info.zac.itest.config.OLD_IAM_RECORD_MANAGER_1
+import nl.info.zac.itest.config.OLD_IAM_RECORDMANAGER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_BEHANDELAARS
 import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
@@ -45,9 +47,12 @@ import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_1
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_DOMEIN_TEST_2
+import nl.info.zac.itest.config.PABC_ADMIN
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RAADPLEGER_2
 import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
+import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -111,6 +116,14 @@ val TEST_GROUPS_ALL =
                     "naam": "${GROUP_COORDINATORS_TEST_2.description}"
                 },
                 {
+                    "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
+                },
+                {
+                    "id": "${GROUP_RECORDMANAGERS_TEST_2.name}",
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}"
+                },
+                {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
                 }
@@ -138,10 +151,18 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
+    /**
+     * In the new IAM architecture the concept of domains and domain roles will be removed from ZAC and from Keycloak.
+     * However, for now we still need to support the old IAM architecture for backward compatibility.
+     * Once the new IAM architecture is fully adopted, and the concept of domains has been removed from ZAC,
+     * this test needs to be adopted. The endpoint under test will then always return all available groups.
+     * But in the future, once the PABC supports zaaktype authorisation for groups, this will change yet again
+     * and then only those groups which are authorised for the given zaaktype will be returned.
+     */
     Given(
         """
-            Groups in the Keycloak ZAC realm with a Keycloak role which is also configured in the 
-            zaaktypeCmmnConfiguration for a given zaaktype UUID
+            A group in the Keycloak ZAC realm with a Keycloak old IAM architecture domain role 
+            which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
@@ -149,22 +170,27 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
-                "only those groups which have the domain role are returned"
+                """only those groups which have the old IAM architecture domain role are returned
+                when the PABC feature flag is disabled; otherwise all groups are returned"""
             ) {
                 response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualSpecifiedJson """
+                if (FEATURE_FLAG_PABC_INTEGRATION) {
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                } else {
+                    response.bodyAsString shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
                                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                                 }
                             ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }
-    Given(
 
+    Given(
         """
             Groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
             zaaktypeCmmnConfiguration for a given domein role
@@ -197,8 +223,8 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${OLD_IAM_FUNCTIONAL_ADMIN_1.displayName}"
                                 },
                                 {
-                                    "id": "${OLD_IAM_RECORD_MANAGER_1.username}",
-                                    "naam": "${OLD_IAM_RECORD_MANAGER_1.displayName}"
+                                    "id": "${OLD_IAM_RECORDMANAGER_1.username}",
+                                    "naam": "${OLD_IAM_RECORDMANAGER_1.displayName}"
                                 },
                                 {
                                     "id": "${OLD_IAM_COORDINATOR_1.username}",
@@ -237,6 +263,14 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${COORDINATOR_2.displayName}"
                                 },
                                 {
+                                    "id": "${RECORDMANAGER_1.username}",
+                                    "naam": "${RECORDMANAGER_1.displayName}"
+                                },
+                                {
+                                    "id": "${RECORDMANAGER_2.username}",
+                                    "naam": "${RECORDMANAGER_2.displayName}"
+                                },
+                                {
                                     "id": "${BEHEERDER_1.username}",
                                     "naam": "${BEHEERDER_1.displayName}"
                                 },
@@ -263,6 +297,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${USER_WITHOUT_ANY_ROLE.username}",
                                     "naam": "${USER_WITHOUT_ANY_ROLE.displayName}"
+                                },
+                                {
+                                   "id": "${PABC_ADMIN.username}",
+                                    "naam": "${PABC_ADMIN.displayName}"
                                 }
                             ]
                 """.trimIndent()

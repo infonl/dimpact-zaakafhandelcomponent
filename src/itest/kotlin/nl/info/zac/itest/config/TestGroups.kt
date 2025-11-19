@@ -35,6 +35,14 @@ val GROUP_COORDINATORS_TEST_2 = TestGroup(
     name = "coordinators-test-2",
     description = "coordinators-test-2"
 )
+val GROUP_RECORDMANAGERS_TEST_1 = TestGroup(
+    name = "recordmanagers-test-1",
+    description = "recordmanagers-test-1"
+)
+val GROUP_RECORDMANAGERS_TEST_2 = TestGroup(
+    name = "recordmanagers-test-2",
+    description = "recordmanagers-test-2"
+)
 val GROUP_BEHEERDERS_ELK_DOMEIN = TestGroup(
     name = "beheerders-elk-domein",
     description = "beheerders-elk-domein"
@@ -77,3 +85,4 @@ val OLD_IAM_GROUP_DOMEIN_TEST_2 = TestGroup(
 // group constants that switch between old and new IAM test groups based on the PABC feature flag value
 val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RAADPLEGERS_TEST_1 else OLD_IAM_TEST_GROUP_RAADPLEGERS
 val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_BEHANDELAARS_TEST_1 else OLD_IAM_TEST_GROUP_BEHANDELAARS
+val COORDINATORS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_COORDINATORS_TEST_1 else OLD_IAM_TEST_GROUP_COORDINATORS

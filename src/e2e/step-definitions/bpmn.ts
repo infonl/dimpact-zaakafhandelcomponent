@@ -5,7 +5,6 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import playwright from "playwright";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -53,8 +52,6 @@ Given(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
-    await triggerDataLoad(this.page, "Template", { text: "SmartDocuments" });
-
     // BPMN form: create a document
     await this.page
       .getByLabel("Template")
@@ -85,31 +82,6 @@ Given(
   },
 );
 
-async function triggerDataLoad(
-  page: playwright.Page,
-  componentLabel: string,
-  options?: { text?: string; timeout?: number },
-) {
-  await expect(page.getByLabel(componentLabel)).toBeVisible({
-    timeout: FORTY_SECOND_IN_MS,
-  });
-
-  // First click
-  await page.getByLabel(componentLabel).click();
-  await page.getByLabel(componentLabel).press("ArrowDown");
-
-  if (options?.text) {
-    await page.getByText(options?.text).focus();
-    await page.getByText(options?.text).click();
-  }
-
-  await page.waitForTimeout(options?.timeout || TWO_SECONDS_IN_MS);
-
-  // Press arrow-down on the component again
-  await page.getByLabel(componentLabel).press("Escape");
-  await page.getByLabel(componentLabel).press("ArrowDown");
-}
-
 When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
@@ -134,10 +106,12 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await triggerDataLoad(this.page, "Select one or more documents", {
-      text: "Available Documents",
-      timeout: FIVE_SECONDS_IN_MS,
-    });
+    await this.page
+      .getByRole("searchbox", {
+        name: "Select one or more documents",
+      })
+      .fill(documentName);
+
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
@@ -148,8 +122,6 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
-
     await expect(this.page.getByLabel("Group")).toContainText(
       "Functioneelbeheerders",
       { timeout: FORTY_SECOND_IN_MS },
@@ -174,12 +146,10 @@ When(
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
     await this.page
-      .getByLabel("Test form")
-      .getByText("file A", { exact: true })
+      .getByRole("option", { name: "file A", exact: true })
       .click();
     await this.page
-      .getByLabel("Test form")
-      .getByText("file B", { exact: true })
+      .getByRole("option", { name: "file B", exact: true })
       .click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
     await this.page.getByLabel("Select result").click();
@@ -249,15 +219,21 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       "functioneelbeheerder2",
     );
-    await expect(this.page.getByRole("combobox")).toContainText("file A", {
-      timeout: FORTY_SECOND_IN_MS,
-    });
-    await expect(this.page.getByRole("combobox")).toContainText("file B", {
-      timeout: FORTY_SECOND_IN_MS,
-    });
-    await expect(
-      this.page.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue("E-mail");
+    await expect(this.page.getByRole("option", { name: "file A" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "file B" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
   },
 );
 

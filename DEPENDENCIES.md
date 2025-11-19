@@ -4,11 +4,11 @@ This document lists the Docker images and versions that this version of the ZAC 
 
 ## Core Dependencies
 
-- **postgres**: 17.6
+- **postgres**: 17.7
 - **keycloak**: 26.3.5
 - **postgis**: 17-3.4
 - **redis**: 7.4.7
-- **solr**: 9.9.0-slim
+- **solr**: 9.10.0-slim
 - **openpolicyagent/opa**: 1.10.1-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.1
@@ -17,8 +17,8 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **prom/prometheus**: v3.7.3
 - **grafana/grafana**: 12.2.1
 - **greenmail/standalone**: 2.1.7
-- **rabbitmq**: 4.2.0-alpine
-- **nginx**: 1.29.3
+- **rabbitmq**: 4.2.1-alpine
+- **nginxinc/nginx-unprivileged**: 1.29.2
 
 ## PodiumD dependencies
 
@@ -27,8 +27,8 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **open-klant**: 2.9.0
 - **open-notificaties**: 1.10.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 0.0.1-rc.4
-- **pabc-api**: 0.0.1-rc.4
+- **pabc-migrations**: 0.0.1-rc.5
+- **pabc-api**: 0.0.1-rc.5
 
 ## Update Process
 

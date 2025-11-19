@@ -5,10 +5,12 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
@@ -63,7 +65,7 @@ class ZacClient {
                         "yyyy-MM-dd'T'HH:mm+01:00"
                     ).format(ZonedDateTime.now())
                 )
-                .addFormDataPart("auteur", "dummyAuthor")
+                .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                 .addFormDataPart("taal", "dut")
                 .build()
         return itestHttpClient.performPostRequest(
@@ -281,7 +283,7 @@ class ZacClient {
                 ]
               },             
               "domein": ${domein?.let { "\"$it\"" }},
-              "defaultGroepId": "test-group-a",
+              "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
               "uiterlijkeEinddatumAfdoeningWaarschuwing": null,

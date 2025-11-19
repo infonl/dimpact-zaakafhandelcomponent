@@ -17,14 +17,19 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { Router, RouterModule } from "@angular/router";
+import {
+  NavigationSkipped,
+  Router,
+  RouterModule,
+  Routes,
+} from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { BpmnService } from "src/app/admin/bpmn.service";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -36,6 +41,8 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
+
+const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
 
 interface AnimationMock {
   play: () => void;
@@ -73,7 +80,7 @@ describe(ZaakCreateComponent.name, () => {
         provideQueryClient(new QueryClient()),
       ],
       imports: [
-        RouterModule.forRoot([]),
+        RouterModule.forRoot(routes),
         TranslateModule.forRoot(),
         NoopAnimationsModule,
         MatSidenavModule,
@@ -230,6 +237,36 @@ describe(ZaakCreateComponent.name, () => {
 
       return { autocomplete, autocompleteOptions, input };
     };
+
+    describe("form submitting", () => {
+      it("should reset the navigate flag", () => {
+        const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+        component.formSubmit();
+
+        expect(spy).toHaveBeenCalledWith(true);
+      });
+    });
+
+    describe("Navigation", () => {
+      it("should reset the form when the navigation is skipped", async () => {
+        const reset = jest.spyOn(component["form"], "reset");
+
+        const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+        (router.events as Subject<unknown>).next(navigationSkipped);
+
+        expect(reset).toHaveBeenCalled();
+      });
+
+      it("should ensure the navigate flag is set after navigation", async () => {
+        const spy = jest.spyOn(component["routeOnSuccess"], "set");
+
+        const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
+        (router.events as Subject<unknown>).next(navigationSkipped);
+
+        expect(spy).toHaveBeenCalledWith(false);
+      });
+    });
 
     describe("case type selection", () => {
       it("should handle CMMN case type selection", async () => {

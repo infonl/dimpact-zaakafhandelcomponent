@@ -70,6 +70,26 @@ val COORDINATOR_2 = TestUser(
 )
 
 /**
+ * A recordmanager in domein test 1.
+ */
+val RECORDMANAGER_1 = TestUser(
+    username = "recordmanager1newiam",
+    password = "recordmanager1newiam",
+    displayName = "Test Recordmanager 1 - new IAM",
+    email = "recordmanager-test-1@example.com"
+)
+
+/**
+ * A recordmanager in domein test 2.
+ */
+val RECORDMANAGER_2 = TestUser(
+    username = "recordmanager2newiam",
+    password = "recordmanager2newiam",
+    displayName = "Test Recordmanager 2 - new IAM",
+    email = "recordmanager-test-2@example.com"
+)
+
+/**
  * A beheerder in all domeinen (and hence all zaaktypes).
  */
 val BEHEERDER_1 = TestUser(
@@ -92,6 +112,11 @@ val USER_WITHOUT_ANY_ROLE = TestUser(
     username = "userwithoutanyrole",
     password = "userwithoutanyrole",
     displayName = "Test User Without Any Role"
+)
+val PABC_ADMIN = TestUser(
+    username = "pabcadmin",
+    password = "pabcadmin",
+    displayName = "PABC Admin"
 )
 
 // old IAM test users; will be removed in the future; do not use these to test new IAM functionality
@@ -123,7 +148,7 @@ val OLD_IAM_FUNCTIONAL_ADMIN_1 = TestUser(
     password = "functioneelbeheerder1",
     displayName = "Test Functioneelbeheerder1"
 )
-val OLD_IAM_RECORD_MANAGER_1 = TestUser(
+val OLD_IAM_RECORDMANAGER_1 = TestUser(
     username = "recordmanager1",
     password = "recordmanager1",
     displayName = "Test Recordmanager1"
@@ -152,4 +177,5 @@ val BEHANDELAAR_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) BEHANDELAAR_1
 val BEHANDELAAR_DOMAIN_TEST_2 = if (FEATURE_FLAG_PABC_INTEGRATION) BEHANDELAAR_2 else OLD_IAM_TEST_USER_DOMEIN_TEST_2
 val BEHEERDER_ELK_ZAAKTYPE = if (FEATURE_FLAG_PABC_INTEGRATION) BEHEERDER_1 else OLD_IAM_TEST_USER_1
 val COORDINATOR_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) COORDINATOR_1 else OLD_IAM_COORDINATOR_1
+val RECORDMANAGER_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) RECORDMANAGER_1 else OLD_IAM_RECORDMANAGER_1
 val RAADPLEGER_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) RAADPLEGER_1 else OLD_IAM_RAADPLEGER_1

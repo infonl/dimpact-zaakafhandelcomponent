@@ -5,6 +5,7 @@
 
 import {
   Component,
+  effect,
   EventEmitter,
   Input,
   OnDestroy,
@@ -15,6 +16,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
@@ -86,6 +88,10 @@ export class InformatieObjectCreateAttendedComponent
     [];
   protected templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[] = [];
 
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+
   constructor(
     private readonly smartDocumentsService: SmartDocumentsService,
     private readonly informatieObjectenService: InformatieObjectenService,
@@ -95,10 +101,15 @@ export class InformatieObjectCreateAttendedComponent
     private readonly translateService: TranslateService,
     private readonly dialog: MatDialog,
     private readonly formBuilder: FormBuilder,
-  ) {}
+  ) {
+    effect(() => {
+      this.form.controls.author.setValue(
+        this.loggedInUserQuery.data()?.naam ?? null,
+      );
+    });
+  }
 
   async ngOnInit() {
-    this.getIngelogdeMedewerker();
     this.fetchInformatieobjecttypes();
 
     this.form.controls.template.disable();
@@ -223,12 +234,6 @@ export class InformatieObjectCreateAttendedComponent
         this.document.emit(data);
         window.open(redirectURL);
       });
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.form.controls.author.setValue(ingelogdeMedewerker.naam);
-    });
   }
 
   ngOnDestroy() {

@@ -13,9 +13,12 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
@@ -23,8 +26,6 @@ import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
 import okhttp3.Headers
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -52,9 +53,9 @@ class WebDavServletTest : BehaviorSpec({
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = OLD_IAM_TEST_GROUP_A.name,
-            groupName = OLD_IAM_TEST_GROUP_A.description,
-            behandelaarId = OLD_IAM_TEST_USER_2.username,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
             val responseBody = bodyAsString
@@ -99,7 +100,7 @@ class WebDavServletTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", "dummyAuthor")
+                    .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "dut")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -121,6 +122,7 @@ class WebDavServletTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
+
         When("the edit endpoint is called on the enkelvoudig informatie object") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +

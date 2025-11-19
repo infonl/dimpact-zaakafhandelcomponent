@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
@@ -159,7 +160,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
@@ -368,7 +369,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
@@ -456,7 +457,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +

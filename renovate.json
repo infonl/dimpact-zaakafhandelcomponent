@@ -42,6 +42,18 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/charts/zac/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "appVersion: '(?<currentValue>[^']+)'"
+      ],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
@@ -287,10 +299,10 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*nginx\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*nginxinc/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/nginx",
+      "depNameTemplate": "docker.io/nginxinc/nginx-unprivileged",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -321,6 +333,19 @@
     }
   ],
   "packageRules": [
+    {
+      "groupName": "Platform Autorisatie Beheer Component (PABC)",
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations",
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "description": [
+        "Group PABC migrations and API updates into a single PR"
+      ]
+    },
     {
       "description": "Disable digest pinning for DEPENDENCIES.md - we only want version tags there",
       "matchFileNames": [
@@ -490,12 +515,13 @@
       "matchDatasources": [
         "github-releases"
       ],
+      "groupName": "dimpact-zaakafhandelcomponent release",
       "automerge": true,
       "schedule": [
         "* 0-8 1,15 * *"
       ],
       "description": [
-        "automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"
+        "Group and automerge the updates to publiccode.yaml and Chart.yaml appVersion on the 1st and 15th day of the month before 08:00"
       ]
     },
     {

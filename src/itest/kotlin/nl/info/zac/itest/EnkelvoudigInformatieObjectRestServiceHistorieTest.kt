@@ -17,6 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
@@ -60,14 +61,14 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                   {
                     "actie": "GEWIJZIGD",
                     "attribuutLabel": "registratiedatum",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "toelichting": "Door ondertekenen"
                   },
                   {
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "versie",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "3",
                     "oudeWaarde": "2",
                     "toelichting": "Door ondertekenen"
@@ -76,7 +77,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject.status",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$DOCUMENT_STATUS_DEFINITIEF",
                     "oudeWaarde": "$DOCUMENT_STATUS_IN_BEWERKING",
                     "toelichting": "Door ondertekenen"
@@ -85,14 +86,14 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "ondertekening",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "toelichting": "Door ondertekenen"
                   },
                   {
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "titel",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$DOCUMENT_UPDATED_FILE_TITLE",
                     "oudeWaarde": "$DOCUMENT_FILE_TITLE",
                     "toelichting": ""
@@ -101,7 +102,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "bestandsnaam",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$TEST_TXT_FILE_NAME",
                     "oudeWaarde": "$TEST_PDF_FILE_NAME",
                     "toelichting": ""
@@ -110,7 +111,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "documentType",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
                     "oudeWaarde": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                     "toelichting": ""
@@ -119,14 +120,14 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "registratiedatum",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "versie",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "2",
                     "oudeWaarde": "1",
                     "toelichting": ""
@@ -135,7 +136,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "formaat",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$TEXT_MIME_TYPE",
                     "oudeWaarde": "$PDF_MIME_TYPE",
                     "toelichting": ""
@@ -144,7 +145,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEKOPPELD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "indicatieGebruiksrecht",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "geen",
                     "toelichting": ""
                   },
@@ -152,7 +153,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     "actie": "GEKOPPELD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject",
-                    "door": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                    "door": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                     "nieuweWaarde": "$DOCUMENT_4_IDENTIFICATION",
                     "toelichting": ""
                   }

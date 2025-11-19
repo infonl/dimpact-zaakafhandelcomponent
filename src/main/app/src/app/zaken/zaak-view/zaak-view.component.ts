@@ -19,7 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -146,7 +146,6 @@ export class ZaakViewComponent
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
-  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -162,6 +161,10 @@ export class ZaakViewComponent
   @ViewChild("takenSort") takenSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
+
+  protected readonly loggedInUser = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     private takenService: TakenService,
@@ -219,7 +222,6 @@ export class ZaakViewComponent
           zaak: this.zaak.identificatie,
         });
 
-        this.getIngelogdeMedewerker();
         this.loadTaken();
         this.loadNotitieRechten();
       }),
@@ -247,12 +249,6 @@ export class ZaakViewComponent
     this.loadOpschorting();
     this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((loggedInUser) => {
-      this.loggedInUser = loggedInUser;
-    });
   }
 
   ngAfterViewInit() {
@@ -589,7 +585,7 @@ export class ZaakViewComponent
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd &&
-      !this.zaak.isEerderOpgeschort
+      !this.zaak.eerdereOpschorting
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
@@ -1042,12 +1038,13 @@ export class ZaakViewComponent
   }
 
   showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
-    return Boolean(
-      taak.status !== "AFGEROND" &&
-        taak.rechten.toekennen &&
-        this.loggedInUser.id !== taak.behandelaar?.id &&
-        (this.loggedInUser.groupIds ?? []).indexOf(taak.groep?.id ?? "") >= 0,
-    );
+    if (taak.status === "AFGEROND") return false;
+    if (!taak.rechten.toekennen) return false;
+    if (!taak.groep?.id) return false;
+    const loggedInUser = this.loggedInUser.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === taak.behandelaar?.id) return false;
+    return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 
   initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
@@ -1234,7 +1231,7 @@ export class ZaakViewComponent
       .toekennenAanIngelogdeMedewerker({
         taakId: taak.id!,
         zaakUuid: taak.zaakUuid,
-        groepId: null as unknown as string,
+        groepId: taak.groep!.id!,
       })
       .subscribe((returnTaak) => {
         taak.behandelaar = returnTaak.behandelaar;
