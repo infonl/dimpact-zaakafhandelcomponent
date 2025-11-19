@@ -11,7 +11,7 @@ import { EmptyPipe } from "./empty.pipe";
 import { LocationPipe } from "./location.pipe";
 
 @NgModule({
-  declarations: [
+  imports: [
     BestandsomvangPipe,
     EmptyPipe,
     DatumPipe,

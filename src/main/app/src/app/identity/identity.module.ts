@@ -10,7 +10,6 @@ import { IdentityService } from "./identity.service";
 
 @NgModule({
   providers: [IdentityService],
-  declarations: [IdentityComponent],
-  imports: [MaterialModule],
+  imports: [IdentityComponent, MaterialModule],
 })
 export class IdentityModule {}

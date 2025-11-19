@@ -13,12 +13,9 @@ import { FoutAfhandelingRoutingModule } from "./fout-afhandeling-routing.module"
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 
 @NgModule({
-  declarations: [
-    FoutAfhandelingComponent,
-    FoutDialogComponent,
-    ActieOnmogelijkDialogComponent,
-  ],
   exports: [FoutAfhandelingComponent],
-  imports: [SharedModule, MatExpansionModule, FoutAfhandelingRoutingModule],
+  imports: [FoutAfhandelingComponent,
+    FoutDialogComponent,
+    ActieOnmogelijkDialogComponent,SharedModule, MatExpansionModule, FoutAfhandelingRoutingModule],
 })
 export class FoutAfhandelingModule {}

@@ -66,8 +66,8 @@ describe(ZacFile.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacFile],
       imports: [
+        ZacFile,
         ReactiveFormsModule,
         MaterialModule,
         TranslateModule.forRoot(),

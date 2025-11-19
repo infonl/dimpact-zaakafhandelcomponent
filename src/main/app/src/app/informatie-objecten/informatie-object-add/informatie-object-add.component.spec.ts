@@ -84,8 +84,8 @@ describe(InformatieObjectAddComponent.name, () => {
   // As a refactor, it would be nice to have a custom method to fill the form (via the UI elements)
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectAddComponent],
       imports: [
+        InformatieObjectAddComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,

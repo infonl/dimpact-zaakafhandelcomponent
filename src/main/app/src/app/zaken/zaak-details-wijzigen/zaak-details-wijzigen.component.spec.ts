@@ -62,8 +62,8 @@ describe(CaseDetailsEditComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CaseDetailsEditComponent],
       imports: [
+        CaseDetailsEditComponent,
         ReactiveFormsModule,
         TranslateModule.forRoot(),
         MaterialFormBuilderModule,

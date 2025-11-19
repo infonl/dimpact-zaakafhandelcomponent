@@ -12,13 +12,11 @@ import { BagZakenTabelComponent } from "./bag-zaken-tabel/bag-zaken-tabel.compon
 import { BagZoekComponent } from "./zoek/bag-zoek/bag-zoek.component";
 
 @NgModule({
-  declarations: [
+  exports: [BagZoekComponent],
+  imports: [
     BagZoekComponent,
     BAGViewComponent,
     BagZakenTabelComponent,
-    BagLocatieComponent,
-  ],
-  exports: [BagZoekComponent],
-  imports: [BAGRoutingModule, SharedModule],
+    BagLocatieComponent,BAGRoutingModule, SharedModule],
 })
 export class BAGModule {}

@@ -20,8 +20,7 @@ describe(InboxDocumentenListComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
-      declarations: [InboxDocumentenListComponent],
+      imports: [HttpClientTestingModule, InboxDocumentenListComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: ActivatedRoute,

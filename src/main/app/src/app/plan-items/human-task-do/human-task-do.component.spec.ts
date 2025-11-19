@@ -32,8 +32,8 @@ describe("HumanTaskDoComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HumanTaskDoComponent],
       imports: [
+        HumanTaskDoComponent,
         ReactiveFormsModule,
         MaterialModule,
         MaterialFormBuilderModule,

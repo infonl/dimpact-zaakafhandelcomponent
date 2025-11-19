@@ -107,8 +107,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZaakAfhandelenDialogComponent, StaticTextComponent],
       imports: [
+        ZaakAfhandelenDialogComponent, StaticTextComponent,
         ReactiveFormsModule,
         TranslateModule.forRoot(),
         PipesModule,

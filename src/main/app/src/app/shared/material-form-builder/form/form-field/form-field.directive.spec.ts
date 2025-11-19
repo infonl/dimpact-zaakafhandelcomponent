@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CUSTOM_ELEMENTS_SCHEMA, Component } from "@angular/core";
+import {CUSTOM_ELEMENTS_SCHEMA, Component, DebugElement} from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MaterialFormBuilderService } from "../../material-form-builder.service";
@@ -17,12 +17,12 @@ class TestComponent {}
 
 describe("FormFieldDirective", () => {
   let fixture;
-  let des;
+  let des: DebugElement[];
 
   beforeEach(() => {
     fixture = TestBed.configureTestingModule({
       providers: [MaterialFormBuilderService],
-      declarations: [FormFieldDirective],
+      imports: [FormFieldDirective],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).createComponent(TestComponent);
     fixture.detectChanges(); // initial binding

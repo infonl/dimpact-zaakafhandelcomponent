@@ -44,8 +44,8 @@ import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vr
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 @NgModule({
-  declarations: [
-    BesluitCreateComponent,
+  exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
+  imports: [BesluitCreateComponent,
     BesluitEditComponent,
     BesluitViewComponent,
     IntakeAfrondenDialogComponent,
@@ -69,9 +69,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     NotitiesComponent,
     LocatieTonenComponent,
     ZaakDocumentenComponent,
-  ],
-  exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
-  imports: [
     SharedModule,
     ZakenRoutingModule,
     KlantenModule,

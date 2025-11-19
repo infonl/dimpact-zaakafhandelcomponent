@@ -32,8 +32,8 @@ describe(PersoonZoekComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PersoonZoekComponent],
       imports: [
+        PersoonZoekComponent,
         FormsModule,
         ReactiveFormsModule,
         MaterialFormBuilderModule,

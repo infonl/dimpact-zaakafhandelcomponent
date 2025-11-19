@@ -18,16 +18,6 @@ import { KlantZoekComponent } from "./zoek/klanten/klant-zoek.component";
 import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
 
 @NgModule({
-  declarations: [
-    BedrijfZoekComponent,
-    BedrijfsgegevensComponent,
-    PersoonZoekComponent,
-    PersoonsgegevensComponent,
-    KlantZakenTabelComponent,
-    KlantZoekComponent,
-    PersoonViewComponent,
-    BedrijfViewComponent,
-  ],
   exports: [
     BedrijfZoekComponent,
     BedrijfsgegevensComponent,
@@ -36,6 +26,15 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     KlantZoekComponent,
   ],
   imports: [
+
+    BedrijfZoekComponent,
+    BedrijfsgegevensComponent,
+    PersoonZoekComponent,
+    PersoonsgegevensComponent,
+    KlantZakenTabelComponent,
+    KlantZoekComponent,
+    PersoonViewComponent,
+    BedrijfViewComponent,
     SharedModule,
     RouterLink,
     KlantenRoutingModule,

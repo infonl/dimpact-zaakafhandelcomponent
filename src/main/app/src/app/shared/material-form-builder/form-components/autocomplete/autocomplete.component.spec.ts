@@ -24,8 +24,8 @@ describe(AutocompleteComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AutocompleteComponent],
       imports: [
+        AutocompleteComponent,
         ReactiveFormsModule,
         MatAutocompleteModule,
         MatFormFieldModule,

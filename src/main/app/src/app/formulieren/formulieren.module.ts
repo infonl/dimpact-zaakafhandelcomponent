@@ -13,13 +13,11 @@ import { FormulierComponent } from "./formulier/formulier.component";
 import { DocumentenFormulierVeldComponent } from "./formulier/velden/documenten/documenten-formulier-veld.component";
 
 @NgModule({
-  declarations: [
+  exports: [FormulierComponent, FormioWrapperComponent],
+  imports: [
     FormulierComponent,
     DocumentenFormulierVeldComponent,
     FormioWrapperComponent,
-  ],
-  exports: [FormulierComponent, FormioWrapperComponent],
-  imports: [
     SharedModule,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,

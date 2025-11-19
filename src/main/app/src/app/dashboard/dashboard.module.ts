@@ -16,16 +16,13 @@ import { ZaakZoekenCardComponent } from "./zaak-zoeken-card/zaak-zoeken-card.com
 import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
 
 @NgModule({
-  declarations: [
-    DashboardComponent,
+  exports: [DashboardComponent],
+  imports: [DashboardComponent,
     InformatieobjectenCardComponent,
     TakenCardComponent,
     TaakZoekenCardComponent,
     ZakenCardComponent,
     ZaakWaarschuwingenCardComponent,
-    ZaakZoekenCardComponent,
-  ],
-  exports: [DashboardComponent],
-  imports: [CommonModule, SharedModule, RouterModule],
+    ZaakZoekenCardComponent,CommonModule, SharedModule, RouterModule],
 })
 export class DashboardModule {}

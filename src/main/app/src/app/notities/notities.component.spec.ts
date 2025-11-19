@@ -41,8 +41,8 @@ describe("NotitiesComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NotitiesComponent],
       imports: [
+        NotitiesComponent,
         TranslateModule,
         MaterialModule,
         PipesModule,

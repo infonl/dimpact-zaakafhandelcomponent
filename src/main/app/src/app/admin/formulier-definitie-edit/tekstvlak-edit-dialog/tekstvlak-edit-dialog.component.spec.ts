@@ -25,8 +25,8 @@ describe(TekstvlakEditDialogComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TekstvlakEditDialogComponent],
       imports: [
+        TekstvlakEditDialogComponent,
         ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,

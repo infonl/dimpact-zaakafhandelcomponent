@@ -21,14 +21,11 @@ import { TakenVrijgevenDialogComponent } from "./taken-vrijgeven-dialog/taken-vr
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
 
 @NgModule({
-  declarations: [
-    TaakViewComponent,
+  imports: [TaakViewComponent,
     TakenWerkvoorraadComponent,
     TakenMijnComponent,
     TakenVerdelenDialogComponent,
     TakenVrijgevenDialogComponent,
-  ],
-  imports: [
     SharedModule,
     TakenRoutingModule,
     ZakenModule,
