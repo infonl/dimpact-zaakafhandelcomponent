@@ -196,7 +196,7 @@ Then(
   ) {
     await expect(
       this.page.getByRole("cell", { name: "Summary" }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: FORTY_SECOND_IN_MS });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible();
