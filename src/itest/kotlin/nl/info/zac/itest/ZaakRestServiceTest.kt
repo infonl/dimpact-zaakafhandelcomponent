@@ -90,6 +90,8 @@ import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
+const val ZAAK_OMSCHRIJVING_MAX_LENGTH = 80
+
 /**
  * This test assumes a zaak has been created in a previously run test.
  */
@@ -607,7 +609,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             the 'update zaak' endpoint is called with a description field that is longer than allowed
             """
         ) {
-            val descriptionThatIsTooLong = "x".repeat(OMSCHRIJVING_MAX_LENGTH + 1)
+            val descriptionThatIsTooLong = "x".repeat(ZAAK_OMSCHRIJVING_MAX_LENGTH + 1)
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                 requestBodyAsString = """
@@ -629,7 +631,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "classViolations" : [ ],
                       "parameterViolations" : [ {
                         "constraintType" : "PARAMETER",
-                        "message" : "size must be between 0 and $OMSCHRIJVING_MAX_LENGTH",
+                        "message" : "size must be between 0 and $ZAAK_OMSCHRIJVING_MAX_LENGTH",
                         "path" : "updateZaak.arg1.zaak.omschrijving",
                         "value" : "$descriptionThatIsTooLong"
                       } ],
