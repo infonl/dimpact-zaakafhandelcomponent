@@ -22,31 +22,31 @@ const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
 async function checkZaakAssignment(
   this: CustomWorld,
   zaakNumber: number,
-  userProfile: { group: string; username: string }
+  userProfile: { group: string; username: string },
 ) {
   await this.expect(
     this.page
       .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
-      .first()
+      .first(),
   ).toBeVisible();
 
   await this.expect(
     this.page.getByRole("cell", {
       name: "Aanvullende informatie",
       exact: true,
-    })
+    }),
   ).toBeVisible();
 
   await this.expect(
-    this.page.getByRole("cell", { name: "Toegekend" })
+    this.page.getByRole("cell", { name: "Toegekend" }),
   ).toBeVisible();
 
   await this.expect(
-    this.page.getByRole("cell", { name: userProfile.group })
+    this.page.getByRole("cell", { name: userProfile.group }),
   ).toBeVisible();
 
   await this.expect(
-    this.page.getByRole("cell", { name: userProfile.username })
+    this.page.getByRole("cell", { name: userProfile.username }),
   ).toBeVisible();
 }
 
@@ -63,15 +63,15 @@ Given(
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
-    status: z.infer<typeof zaakStatus>
+    status: z.infer<typeof zaakStatus>,
   ) {
     await openZaak.call(this, user, status);
 
     const parsedStatus = zaakStatus.parse(status);
     await this.expect(
-      this.page.getByText(`Status ${parsedStatus}`)
+      this.page.getByText(`Status ${parsedStatus}`),
     ).toBeVisible();
-  }
+  },
 );
 
 Given(
@@ -79,7 +79,7 @@ Given(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await openZaak.call(this, user);
-  }
+  },
 );
 
 When(
@@ -88,7 +88,7 @@ When(
   async function (
     this: CustomWorld,
     user1: z.infer<typeof worldUsers>,
-    user2: z.infer<typeof worldUsers>
+    user2: z.infer<typeof worldUsers>,
   ) {
     const zaakNumber = this.testStorage.get("caseNumber");
     const user2Parsed = worldUsers.parse(user2);
@@ -115,10 +115,10 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByRole("cell", { name: "Aanvullende informatie" })
+      this.page.getByRole("cell", { name: "Aanvullende informatie" }),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
-  }
+  },
 );
 
 When(
@@ -128,7 +128,7 @@ When(
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
     groupName: string,
-    userName: string
+    userName: string,
   ) {
     await this.page
       .getByRole("tabpanel", { name: "Gegevens" })
@@ -148,12 +148,12 @@ When(
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
     await this.page.getByRole("button", { name: "Opslaan" }).click();
     await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      groupName
+      groupName,
     );
     await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      userName
+      userName,
     );
-  }
+  },
 );
 
 When(
@@ -162,7 +162,7 @@ When(
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
-    zaakType: string
+    zaakType: string,
   ) {
     const bpmnZaakType: boolean = zaakType === "BPMN";
     const zaakTypeName: string = bpmnZaakType
@@ -236,7 +236,7 @@ When(
     } else {
       throw new Error("No case number found");
     }
-  }
+  },
 );
 
 Then(
@@ -248,7 +248,7 @@ Then(
     const zaakNumber = this.testStorage.get("caseNumber");
 
     await checkZaakAssignment.call(this, zaakNumber, user1Profile);
-  }
+  },
 );
 
 Then(
@@ -263,19 +263,19 @@ Then(
     await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
 
     await this.expect(
-      this.page.getByRole("cell", { name: caseNumber, exact: true }).first()
+      this.page.getByRole("cell", { name: caseNumber, exact: true }).first(),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
     await this.expect(
       this.page
         .getByRole("cell", { name: "Aanvullende informatie", exact: true })
-        .first()
+        .first(),
     ).toBeVisible();
 
     await this.expect(
-      this.page.getByRole("cell", { name: user1Profile.group }).first()
+      this.page.getByRole("cell", { name: user1Profile.group }).first(),
     ).toBeVisible();
-  }
+  },
 );
 
 Then(
@@ -289,7 +289,7 @@ Then(
       .getByText(caseNumber)
       .first()
       .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS });
-  }
+  },
 );
 
 Then(
@@ -299,12 +299,12 @@ Then(
     await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME);
     await this.page.getByText(/initiator/i).click();
     await this.expect(
-      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN)
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN),
     ).toBeVisible();
     await this.expect(
-      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER),
     ).toBeVisible();
-  }
+  },
 );
 
 Then(
@@ -312,9 +312,9 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.expect(
-      this.page.getByRole("option", { name: "Geen bevestiging verstuurd" })
+      this.page.getByRole("option", { name: "Geen bevestiging verstuurd" }),
     ).toBeVisible();
-  }
+  },
 );
 
 Then(
@@ -325,7 +325,7 @@ Then(
     await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
     await this.page.getByText("visibility").first().click();
-  }
+  },
 );
 
 Then(
@@ -336,7 +336,7 @@ Then(
 
     await this.page.getByText("plagiarism").nth(1).click();
     await this.expect(
-      this.page.getByAltText("Bijgevoegd document")
+      this.page.getByAltText("Bijgevoegd document"),
     ).toBeVisible();
 
     await this.page.getByText("more_vert").first().click();

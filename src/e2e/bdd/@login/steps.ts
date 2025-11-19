@@ -4,9 +4,9 @@
  */
 
 import { expect } from "@playwright/test";
+import { ENV } from "bdd/types";
 import { createBdd } from "playwright-bdd";
 import { test } from "./fixture";
-import { ENV } from "bdd/types";
 
 const { Given, When, Then } = createBdd(test);
 
@@ -19,7 +19,7 @@ When(
   async ({ userToLogin, signIn }, user: string) => {
     userToLogin.value = ENV.users[user];
     await signIn();
-  }
+  },
 );
 
 Given("I log out of the system", async ({ page }) => {

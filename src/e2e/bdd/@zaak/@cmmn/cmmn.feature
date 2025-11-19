@@ -8,11 +8,11 @@ Feature: CMMN zaken
   I want to be able to handle CMMN zaken
   So that I can organize my work
 
-    Background:
-      Given a valid CMMN case exists
-    
-    Scenario: Add a new CMMN case
-      Given I am on the "zaken/create" page
-      When I add a new "Test zaaktype 1" case
-      Then the case gets created
-      And I see the case in my overview
+  Background:
+    Given a valid CMMN case exists
+
+  Scenario: Add a new CMMN case
+    Given I am on the "zaken/create" page
+    When I add a new "Test zaaktype 1" case
+    Then the case gets created
+    And I see the case in my overview

@@ -8,11 +8,11 @@ Feature: BPMN zaken
   I want to be able to handle BPMN zaken
   So that I can organize my work
 
-    Background:
-      Given a valid BPMN case exists
-    
-    Scenario: Add a new BPMN case
-      Given I am on the "zaken/create" page
-      When I add a new "BPMN test zaaktype" case
-      Then the case gets created
-      And I see the case in my overview
+  Background:
+    Given a valid BPMN case exists
+
+  Scenario: Add a new BPMN case
+    Given I am on the "zaken/create" page
+    When I add a new "BPMN test zaaktype" case
+    Then the case gets created
+    And I see the case in my overview
