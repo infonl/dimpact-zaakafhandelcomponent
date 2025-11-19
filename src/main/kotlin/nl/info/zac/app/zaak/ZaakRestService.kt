@@ -739,13 +739,14 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/koppel")
-    fun linkZaak(restZaakLinkData: RestZaakLinkData) {
+    fun linkZaak(restZaakLinkData: RestZaakLinkData): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid)
         val (zaakToLinkTo, zaakToLinkToZaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(
             restZaakLinkData.teKoppelenZaakUuid
         )
+        val zaakToLinkToRechten = policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).koppelen)
-        assertPolicy(policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType).koppelen)
+        assertPolicy(zaakToLinkToRechten.koppelen)
 
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
@@ -763,6 +764,8 @@ class ZaakRestService @Inject constructor(
                 else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
+
+        return restZaakConverter.toRestZaak(zaakToLinkTo, zaakToLinkToZaakType, zaakToLinkToRechten)
     }
 
     @PATCH

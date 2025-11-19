@@ -3,17 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  Output,
-} from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
-import { Subject, takeUntil } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
@@ -24,10 +19,27 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
 })
-export class ZaakLinkComponent implements OnDestroy {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() zaakLinked = new EventEmitter();
+export class ZaakLinkComponent {
+  private readonly zoekenService = inject(ZoekenService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  protected readonly sideNav = input.required<MatDrawer>();
+
+  readonly zaakLinked = output();
+
+  private readonly koppelZaakMutation = injectMutation(() => ({
+    ...this.zakenService.koppelZaak(),
+    onSuccess: ({ identificatie }) => {
+      this.utilService.openSnackbar("msg.zaak.gekoppeld", {
+        case: identificatie,
+      });
+      this.zaakLinked.emit();
+      this.close();
+    },
+  }));
 
   public cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
@@ -66,18 +78,11 @@ export class ZaakLinkComponent implements OnDestroy {
     ]),
   });
 
-  private ngDestroy = new Subject<void>();
-
-  constructor(
-    private zoekenService: ZoekenService,
-    private zakenService: ZakenService,
-    private utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     this.form.controls.caseToSearchFor.disable();
 
     this.form.controls.caseRelationType.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
+      .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.form.controls.caseToSearchFor.reset();
         this.form.controls.caseToSearchFor.enable();
@@ -85,7 +90,7 @@ export class ZaakLinkComponent implements OnDestroy {
       });
 
     this.form.controls.caseToSearchFor.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
+      .pipe(takeUntilDestroyed())
       .subscribe(() => {
         if (
           this.cases.data?.length > 0 &&
@@ -101,7 +106,7 @@ export class ZaakLinkComponent implements OnDestroy {
 
     this.zoekenService
       .findLinkableZaken(
-        this.zaak.uuid,
+        this.zaak().uuid,
         this.form.controls.caseToSearchFor.value!,
         this.form.controls.caseRelationType.value!.value!,
       )
@@ -123,35 +128,19 @@ export class ZaakLinkComponent implements OnDestroy {
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
-    const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
-      zaakUuid: this.zaak.uuid,
+    void this.koppelZaakMutation.mutateAsync({
+      zaakUuid: this.zaak().uuid,
       teKoppelenZaakUuid: row.id,
       relatieType: this.form.controls.caseRelationType.value.value,
-    };
-
-    this.zakenService.koppelZaak(caseLinkDetails).subscribe({
-      next: () => {
-        this.utilService.openSnackbar("msg.zaak.gekoppeld", {
-          case: row.identificatie,
-        });
-        this.zaakLinked.emit();
-        this.close();
-      },
-      error: () => {
-        this.loading = false;
-        this.utilService.setLoading(false);
-      },
     });
   }
 
-  protected rowDisabled(
-    row: GeneratedType<"RestZaakKoppelenZoekObject">,
-  ): boolean {
-    return !row.isKoppelbaar || row.identificatie === this.zaak.identificatie;
+  protected rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    return !row.isKoppelbaar || row.identificatie === this.zaak().identificatie;
   }
 
   protected close() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.reset();
   }
 
@@ -160,15 +149,10 @@ export class ZaakLinkComponent implements OnDestroy {
     this.clearSearchResult();
   }
 
-  protected clearSearchResult() {
+  private clearSearchResult() {
     this.cases.data = [];
     this.totalCases = 0;
     this.loading = false;
     this.utilService.setLoading(false);
-  }
-
-  ngOnDestroy() {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
   }
 }

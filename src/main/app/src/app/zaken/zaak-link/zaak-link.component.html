@@ -6,7 +6,7 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>account_tree</mat-icon>
   <h3 class="flex-grow-1">{{ "actie.zaak.koppelen" | translate }}</h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
@@ -16,7 +16,9 @@
   <fieldset>
     <legend>
       <p>
-        {{ "zaak.koppelen.uitleg" | translate: { zaakID: zaak.identificatie } }}
+        {{
+          "zaak.koppelen.uitleg" | translate: { zaakID: zaak().identificatie }
+        }}
       </p>
     </legend>
     <zac-select
