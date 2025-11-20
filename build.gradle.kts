@@ -185,7 +185,6 @@ dependencies {
     providedCompile(libs.eclipse.microprofile.config.api)
     providedCompile(libs.eclipse.microprofile.health.api)
     providedCompile(libs.eclipse.microprofile.fault.tolerance.api)
-    providedCompile(libs.jboss.logging)
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
