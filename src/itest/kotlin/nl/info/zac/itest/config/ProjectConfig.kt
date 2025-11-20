@@ -31,6 +31,7 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_INDEX
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
@@ -252,14 +253,18 @@ class ProjectConfig : AbstractProjectConfig() {
     }
 
     private fun createDomainReferenceTableData() {
-        val DOMEIN_REFERENCE_TABLE_INDEX = 6
         val domeinReferenceTableId = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/referentietabellen"
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
             response.code shouldBe HTTP_OK
-            JSONArray(responseBody).getJSONObject(DOMEIN_REFERENCE_TABLE_INDEX).getInt("id")
+            JSONArray(responseBody)
+                .map { it as JSONObject }
+                .firstOrNull { it.getString("code") == REFERENCE_TABLE_DOMEIN_CODE }
+                ?.getInt("id")
+                ?: error("Reference table with code '$REFERENCE_TABLE_DOMEIN_CODE' not found")
+
         }
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
