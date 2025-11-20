@@ -64,3 +64,6 @@ Thumbs.db
 
 test-storage.json
 user.json
+
+# playwright-bdd
+.features-gen/
