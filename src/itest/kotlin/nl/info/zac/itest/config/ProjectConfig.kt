@@ -289,7 +289,7 @@ class ProjectConfig : AbstractProjectConfig() {
                                 { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
                             ]
                         }
-                        """.trimIndent()
+                    """.trimIndent()
                 )
                 shouldContainJsonKey("id")
             }
