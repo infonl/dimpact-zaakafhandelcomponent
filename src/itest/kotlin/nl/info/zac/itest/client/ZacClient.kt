@@ -91,7 +91,7 @@ class ZacClient {
         defaultGroupName: String
     ): ResponseContent {
         logger.info {
-            "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
+            "Creating a zaaktype CMMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performJSONPostRequest(
