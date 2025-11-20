@@ -12,6 +12,7 @@ src/generated
 .openapi-generator
 wildfly-*
 .env*
+!.env.example
 src/e2e/ExportData/*
 src/main/app/.nvmrc
 /bin
