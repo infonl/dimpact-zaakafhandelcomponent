@@ -89,6 +89,7 @@ export class ZaakAfhandelenDialogComponent {
       this.formGroup.controls.resultaattype.addValidators(Validators.required);
     }
     if (this.sendMailDefault) {
+      this.formGroup.controls.sendMail.setValue(true);
       this.formGroup.controls.verzender.addValidators(Validators.required);
       this.formGroup.controls.ontvanger.addValidators([Validators.required]);
     }

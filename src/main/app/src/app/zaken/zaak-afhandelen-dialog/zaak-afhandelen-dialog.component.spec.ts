@@ -52,7 +52,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       uuid: "test-zaaktype-uuid",
       omschrijving: "Test Zaaktype",
       zaakafhandelparameters: {
-        afrondenMail: "BESCHIKBAAR_AAN",
+        afrondenMail: "BESCHIKBAAR_UIT",
       },
     }),
     initiatorIdentificatie: fromPartial<
@@ -105,7 +105,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     body: "Test Body",
   });
 
-  beforeEach(async () => {
+  const createTestBed = async (zaakMock: GeneratedType<"RestZaak">) => {
+    TestBed.resetTestingModule();
+
     await TestBed.configureTestingModule({
       declarations: [ZaakAfhandelenDialogComponent, StaticTextComponent],
       imports: [
@@ -126,7 +128,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         {
           provide: MAT_DIALOG_DATA,
           useValue: {
-            zaak: mockZaak,
+            zaak: zaakMock,
             planItem: mockPlanItem,
           },
         },
@@ -162,6 +164,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await createTestBed(mockZaak);
   });
 
   describe("sendMail checkbox", () => {
@@ -246,7 +252,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-
       await options[2]?.click();
 
       await fixture.whenStable();
@@ -431,5 +436,59 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         }
       },
     );
+  });
+
+  describe("Open dialog with zaakafhandelparameters afrondenMail BESCHIKBAAR_AAN", () => {
+    beforeEach(async () => {
+      const mockZaakWithAfrondenMailAan = fromPartial<
+        GeneratedType<"RestZaak">
+      >({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-afronden-aan",
+        zaaktype: {
+          ...mockZaak.zaaktype,
+          zaakafhandelparameters: {
+            afrondenMail: "BESCHIKBAAR_AAN",
+          },
+        },
+      });
+
+      await createTestBed(mockZaakWithAfrondenMailAan);
+    });
+
+    it("should show sendMail checkbox checked and show verzender field", async () => {
+      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
+      expect(await sendMailCheckbox.isChecked()).toBe(true);
+
+      const fields = await loader.getAllHarnesses(MatSelectHarness);
+      const verzenderField = fields[1];
+
+      expect(verzenderField).toBeTruthy();
+    });
+  });
+
+  describe("Open dialog with zaakafhandelparameters afrondenMail NIET_BESCHIKBAAR", () => {
+    beforeEach(async () => {
+      const mockZaakWithAfrondenMailAan = fromPartial<
+        GeneratedType<"RestZaak">
+      >({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-afronden-niet-beschikbaar",
+        zaaktype: {
+          ...mockZaak.zaaktype,
+          zaakafhandelparameters: {
+            afrondenMail: "NIET_BESCHIKBAAR",
+          },
+        },
+      });
+
+      await createTestBed(mockZaakWithAfrondenMailAan);
+    });
+
+    it("should not show sendMail checkbox", async () => {
+      const sendMailCheckbox =
+        await loader.getHarnessOrNull(MatCheckboxHarness);
+      expect(sendMailCheckbox).toBeNull();
+    });
   });
 });
