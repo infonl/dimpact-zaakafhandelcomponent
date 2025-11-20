@@ -34,7 +34,6 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
@@ -152,16 +151,9 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI): Boolean {
+    fun upsertZaaktypeCmmnConfiguration(zaaktype: ZaakType) {
         zaaktypeCmmnConfigurationService.clearListCache()
-        ztcClientService.clearZaaktypeCache()
-
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         val zaaktypeUuid = zaaktype.url.extractUuid()
-        if (zaaktype.concept) {
-            LOG.warning { "Zaak type with UUID $zaaktypeUuid is still a concept. Ignoring" }
-            return false
-        }
 
         val zaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktypeUuid)
         zaaktypeCmmnConfiguration.apply {
@@ -197,8 +189,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                 }
             }
         }
-
-        return true
     }
 
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(

@@ -24,18 +24,19 @@ ALTER TABLE ${schema}.zaaktype_configuration
     DROP COLUMN smartdocuments_ingeschakeld;
 
 -- add discriminator column
-CREATE TYPE zaaktype_configuration_type AS ENUM ('CMMN', 'BPMN');
+CREATE TYPE zaaktype_configuration_type AS ENUM ('UNKNOWN', 'CMMN', 'BPMN');
 ALTER TABLE ${schema}.zaaktype_configuration
     ADD COLUMN configuration_type zaaktype_configuration_type;
 
--- mark configured zaaktypes as cmmn
+-- mark configured zaaktypes as CMMN
 UPDATE ${schema}.zaaktype_configuration
     SET configuration_type = 'CMMN'
     WHERE groep_id IS NOT NULL
     AND groep_id <> '';
 
--- drop all unconfigured CMMN zaaktype rows
-DELETE FROM ${schema}.zaaktype_cmmn_configuration
+-- mark zaaktypes that are not configured as UNKNOWN
+UPDATE ${schema}.zaaktype_configuration
+    SET configuration_type = 'UNKNOWN'
     WHERE groep_id IS NULL
     OR groep_id = '';
 

@@ -195,10 +195,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         every { zaaktypeCmmnConfigurationService.clearListCache() } returns "Cache cleared"
 
-        // ZtcClientService mocking
-        every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
-
         // Relaxed entity manager mocking; criteria queries and persisting
         val criteriaQuery = mockk<CriteriaQuery<ZaaktypeCmmnConfiguration>>(relaxed = true)
         every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
@@ -216,7 +212,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
 
         When("Publishing a new zaaktype") {
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
+            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
             Then("The new zaak type is stored") {
                 verify {
@@ -234,8 +230,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { zaaktypeCmmnConfigurationService.clearListCache() } returns "Cache cleared"
 
         // ZtcClientService mocking
-        every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
-        every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
         every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
         every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
 
@@ -270,7 +264,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 entityManager.merge(capture(slotPersistZaaktypeCmmnConfiguration))
             } answers { ZaaktypeCmmnConfiguration() }
 
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
+            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
             Then("The related zaaktypeCmmnConfiguration is stored through the entity manager") {
                 slotPersistZaaktypeCmmnConfiguration.isCaptured shouldBe true
@@ -314,7 +308,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 )
             } returns mockk {}
 
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktypeUri)
+            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
             Then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {

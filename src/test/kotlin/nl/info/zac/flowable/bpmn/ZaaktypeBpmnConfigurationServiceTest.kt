@@ -14,7 +14,6 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
 import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
@@ -25,10 +24,8 @@ import java.util.UUID
 
 class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
-    val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
-    val zaaktypeBpmnConfigurationService =
-        ZaaktypeBpmnConfigurationService(zaaktypeBpmnConfigurationBeheerService, ztcClientService)
+    val zaaktypeBpmnConfigurationService = ZaaktypeBpmnConfigurationService(zaaktypeBpmnConfigurationBeheerService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -123,14 +120,13 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
 
         Given("no previous configuration") {
             val zaakType = createZaakType()
-            every { ztcClientService.readZaaktype(zaakType.url) } returns zaakType
 
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.omschrijving)
             } returns null
 
             When("copying configuration") {
-                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType.url)
+                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType)
 
                 Then("no copying is done") {
                     verify(exactly = 0) {
@@ -144,7 +140,6 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
         Given("existing previous configuration") {
             val zaakType = createZaakType()
             val newZaaktypeUuid = zaakType.url.extractUuid()
-            every { ztcClientService.readZaaktype(zaakType.url) } returns zaakType
 
             val previousConfiguration = createZaaktypeBpmnConfiguration()
             every {
@@ -158,7 +153,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
             } returns newConfiguration
 
             When("copying configuration") {
-                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType.url)
+                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType)
 
                 Then("correct copy is stored") {
                     with(configurationSlot.captured) {

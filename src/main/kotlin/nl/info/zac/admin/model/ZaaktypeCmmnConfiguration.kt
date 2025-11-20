@@ -311,5 +311,5 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =
         getHumanTaskParametersCollection().find { it.planItemDefinitionID == planitemDefinitionID }
 
-    override fun getConfigurationType() = Companion.ZaakTypeConfigurationType.CMMN
+    override fun getConfigurationType() = Companion.ZaaktypeConfigurationType.CMMN
 }

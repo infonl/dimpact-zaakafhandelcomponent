@@ -34,7 +34,7 @@ import java.util.UUID
 @AllOpen
 abstract class ZaaktypeConfiguration {
     companion object {
-        enum class ZaakTypeConfigurationType { CMMN, BPMN }
+        enum class ZaaktypeConfigurationType { CMMN, BPMN, UNKNOWN }
 
         val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = ZaaktypeConfiguration::productaanvraagtype.name
         val ZAAKTYPE_UUID_VARIABLE_NAME = ZaaktypeConfiguration::zaakTypeUUID.name
@@ -73,5 +73,5 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "domein")
     var domein: String? = null
 
-    abstract fun getConfigurationType(): ZaakTypeConfigurationType
+    abstract fun getConfigurationType(): ZaaktypeConfigurationType
 }
