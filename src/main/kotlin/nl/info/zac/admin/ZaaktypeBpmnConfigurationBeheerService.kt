@@ -9,6 +9,8 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRES_NEW
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
@@ -17,6 +19,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJ
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
@@ -39,9 +42,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
      */
     fun storeConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration): ZaaktypeBpmnConfiguration {
         zaaktypeBpmnConfiguration.id?.let {
-            zaaktypeBpmnConfiguration.zaakTypeUUID?.let { zaaktypeUuid ->
+            zaaktypeBpmnConfiguration.zaaktypeUuid.let { zaaktypeUuid ->
                 if (findConfiguration(zaaktypeUuid) == null) {
-                    LOG.warning(
+                    LOG.info(
                         "BPMN configuration with zaaktype UUID '$zaaktypeUuid' not found, creating new configuration"
                     )
                     zaaktypeBpmnConfiguration.id = null
@@ -54,9 +57,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         } else {
             entityManager.persist(zaaktypeBpmnConfiguration)
             entityManager.flush()
-            zaaktypeBpmnConfiguration.zaakTypeUUID?.let {
-                findConfiguration(it)
-            } ?: throw ZaaktypeConfigurationNotFoundException(
+            findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid) ?: throw ZaaktypeConfigurationNotFoundException(
                 "BPMN zaaktype configuration for zaaktype `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
             )
         }
@@ -140,4 +141,19 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 }
             }
         }
+
+    fun copyConfiguration(zaaktype: ZaakType) {
+        // only copy settings if there is a previous configuration
+        findConfiguration(zaaktype.omschrijving)?.let {
+            ZaaktypeBpmnConfiguration().apply {
+                id = it.id
+                this.zaaktypeUuid = zaaktype.url.extractUuid()
+                zaaktypeOmschrijving = zaaktype.omschrijving
+                bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
+                productaanvraagtype = it.productaanvraagtype
+                groepID = it.groepID
+                creatiedatum = ZonedDateTime.now()
+            }.run(::storeConfiguration)
+        }
+    }
 }

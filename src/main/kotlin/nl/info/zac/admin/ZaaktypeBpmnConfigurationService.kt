@@ -7,14 +7,11 @@ package nl.info.zac.admin
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -38,28 +35,13 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
     fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
         zaaktypeBpmnConfiguration.productaanvraagtype?.let {
             zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
-                if (zaaktype.zaakTypeUUID != zaaktypeBpmnConfiguration.zaakTypeUUID) {
+                if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
                     LOG.info(
                         "Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
                     )
                     throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
                 }
             }
-        }
-    }
-
-    fun copyConfiguration(zaaktype: ZaakType) {
-        // only copy settings if there is a previous configuration
-        zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktype.omschrijving)?.let {
-            ZaaktypeBpmnConfiguration().apply {
-                id = it.id
-                this.zaakTypeUUID = zaaktype.url.extractUuid()
-                zaaktypeOmschrijving = zaaktype.omschrijving
-                bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
-                productaanvraagtype = it.productaanvraagtype
-                groepID = it.groepID
-                creatiedatum = ZonedDateTime.now()
-            }.run(zaaktypeBpmnConfigurationBeheerService::storeConfiguration)
         }
     }
 }

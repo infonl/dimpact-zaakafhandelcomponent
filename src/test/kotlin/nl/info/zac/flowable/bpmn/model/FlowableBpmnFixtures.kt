@@ -19,7 +19,7 @@ fun createZaaktypeBpmnConfiguration(
 ) = ZaaktypeBpmnConfiguration().apply {
     this.id = id
     zaaktypeUuid?.let {
-        this.zaakTypeUUID = zaaktypeUuid
+        this.zaaktypeUuid = zaaktypeUuid
     }
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
     this.zaaktypeOmschrijving = zaaktypeOmschrijving

@@ -81,11 +81,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnProcessDefinition.id
-            zaakTypeUUID = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
             groepID = restZaaktypeBpmnProcessDefinition.groepNaam
+                ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
             creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
@@ -102,7 +103,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
         RestZaaktypeBpmnConfiguration(
             id = this.id,
-            zaaktypeUuid = this.zaakTypeUUID,
+            zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,

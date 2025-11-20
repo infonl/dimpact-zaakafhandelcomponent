@@ -578,7 +578,7 @@ class ProductaanvraagService @Inject constructor(
         if (zaaktypeCmmnConfiguration.size > 1) {
             LOG.warning(
                 "Multiple zaaktypeCmmnConfiguration found for productaanvraag type '${productaanvraagDimpact.type}'. " +
-                    "Using the first one with zaaktype UUID: '${zaaktypeCmmnConfiguration.first().zaakTypeUUID}' " +
+                    "Using the first one with zaaktype UUID: '${zaaktypeCmmnConfiguration.first().zaaktypeUuid}' " +
                     "and zaaktype omschrijving: '${zaaktypeCmmnConfiguration.first().zaaktypeOmschrijving}'."
             )
         }
@@ -586,10 +586,10 @@ class ProductaanvraagService @Inject constructor(
         val firstZaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration.first()
         try {
             LOG.fine {
-                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaaktypeCmmnConfiguration.zaakTypeUUID}'"
+                "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaaktypeCmmnConfiguration.zaaktypeUuid}'"
             }
             startZaakWithCmmnProcess(
-                zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaakTypeUUID!!,
+                zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaaktypeUuid,
                 productaanvraagDimpact = productaanvraagDimpact,
                 productaanvraagObject = productaanvraagObject
             )
@@ -663,15 +663,16 @@ class ProductaanvraagService @Inject constructor(
         productaanvraagDimpact: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaakTypeUUID!!)
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
+        val zaakDataVariablesMap = zaaktypeBpmnConfiguration.groepID?.let { baseBpmnVariablesMap + mapOf(VAR_ZAAK_GROUP to it) }
+            ?: baseBpmnVariablesMap
         bpmnService.startProcess(
             zaak = zaak,
             zaaktype = zaaktype,
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
-            zaakData = getAanvraaggegevens(productaanvraagObject) + (
-                zaaktypeBpmnConfiguration.groepID?.let { buildMap { put(VAR_ZAAK_GROUP, it) } } ?: emptyMap()
-                )
+            zaakData = zaakDataVariablesMap
         )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.

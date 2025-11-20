@@ -20,8 +20,12 @@ import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
@@ -33,6 +37,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val root = mockk<Root<ZaaktypeBpmnConfiguration>>()
     val predicate = mockk<Predicate>()
     val pathUuid = mockk<Path<UUID>>()
+    val pathString = mockk<Path<String>>()
     val pathProductAanvraagType = mockk<Path<String>>()
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
@@ -51,7 +56,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { entityManager.flush() } just Runs
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
+                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
             } returns zaaktypeBpmnProcessDefinition
 
@@ -73,7 +78,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
+                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
             } returns zaaktypeBpmnProcessDefinition
             every { entityManager.merge(zaaktypeBpmnProcessDefinition) } returns zaaktypeBpmnProcessDefinition
@@ -93,9 +98,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val cmmnId = 1L
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(id = cmmnId)
             every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
-                )
+                zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnProcessDefinition.zaaktypeUuid)
             } returns null andThen zaaktypeBpmnProcessDefinition
             val zaaktypeBpmnConfigurationSlot = slot<ZaaktypeBpmnConfiguration>()
             every { entityManager.persist(capture(zaaktypeBpmnConfigurationSlot)) } just Runs
@@ -234,10 +237,9 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull() } returns null
 
             When("finding the BPMN process definition by productaanvraagtype") {
-                val result =
-                    zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
-                        productAanvraagType
-                    )
+                val result = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
+                    productAanvraagType
+                )
 
                 Then("null is returned") {
                     result shouldBe null
@@ -275,6 +277,66 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
 
                 Then("an empty list is returned") {
                     result shouldBe emptyList()
+                }
+            }
+        }
+    }
+
+    Context("copying configuration on a new zaaktype version") {
+
+        Given("no previous configuration") {
+            val zaakType = createZaakType()
+
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.omschrijving)
+            } returns null
+
+            When("copying configuration") {
+                zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
+
+                Then("no copying is done") {
+                    verify(exactly = 0) {
+                        entityManager.persist(any())
+                        entityManager.merge(any())
+                    }
+                }
+            }
+        }
+
+        Given("existing previous configuration") {
+            val zaakType = createZaakType()
+            val newZaaktypeUuid = zaakType.url.extractUuid()
+
+            val previousConfiguration = createZaaktypeBpmnConfiguration()
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
+            every { criteriaQuery.select(root) } returns criteriaQuery
+            every { criteriaQuery.where(predicate) } returns criteriaQuery
+            every { criteriaBuilder.equal(pathString, zaakType.omschrijving) } returns predicate
+            every { criteriaBuilder.equal(pathUuid, newZaaktypeUuid) } returns predicate
+            every { root.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME) } returns pathString
+            every { root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns pathUuid
+            every { root.get<Any>(CREATIEDATUM_VARIABLE_NAME) } returns pathCreatieDatum
+            every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
+            every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery
+            every {
+                entityManager.createQuery(criteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull()
+            } returns previousConfiguration
+
+            val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
+            val newConfiguration = createZaaktypeBpmnConfiguration()
+            every {
+                entityManager.merge(capture(configurationSlot))
+            } returns newConfiguration
+
+            When("copying configuration") {
+                zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
+
+                Then("correct copy is stored") {
+                    with(configurationSlot.captured) {
+                        zaaktypeUuid shouldBe newZaaktypeUuid
+                    }
                 }
             }
         }

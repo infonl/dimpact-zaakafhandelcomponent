@@ -29,25 +29,25 @@ class ZaaktypeConfigurationService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
     }
 
-    fun updateZaaktype(zaaktypeUri: URI) {
+    fun updateZaakafhandelParameters(zaaktypeUri: URI) {
         ztcClientService.clearZaaktypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
             if (it.concept) {
-                LOG.warning { "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
+                LOG.info { "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
                 return
             }
             getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
                 when (zaaktypeConfiguration.getConfigurationType()) {
                     CMMN -> zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(it)
-                    BPMN -> zaaktypeBpmnConfigurationService.copyConfiguration(it)
+                    BPMN -> zaaktypeBpmnConfigurationBeheerService.copyConfiguration(it)
                 }
-            } ?: LOG.warning {
+            } ?: LOG.info {
                 "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"
             }
         }

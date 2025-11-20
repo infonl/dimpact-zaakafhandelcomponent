@@ -6,24 +6,16 @@ package nl.info.zac.flowable.bpmn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
-import jakarta.persistence.EntityManager
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
 
 class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
-    val entityManager = mockk<EntityManager>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationService = ZaaktypeBpmnConfigurationService(zaaktypeBpmnConfigurationBeheerService)
 
@@ -112,54 +104,6 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
             When("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
                 Then("no exception is thrown") {}
-            }
-        }
-    }
-
-    Context("copying configuration on a new zaaktype version") {
-
-        Given("no previous configuration") {
-            val zaakType = createZaakType()
-
-            every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.omschrijving)
-            } returns null
-
-            When("copying configuration") {
-                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType)
-
-                Then("no copying is done") {
-                    verify(exactly = 0) {
-                        entityManager.persist(any())
-                        entityManager.merge(any())
-                    }
-                }
-            }
-        }
-
-        Given("existing previous configuration") {
-            val zaakType = createZaakType()
-            val newZaaktypeUuid = zaakType.url.extractUuid()
-
-            val previousConfiguration = createZaaktypeBpmnConfiguration()
-            every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.omschrijving)
-            } returns previousConfiguration
-
-            val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
-            val newConfiguration = createZaaktypeBpmnConfiguration()
-            every {
-                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(capture(configurationSlot))
-            } returns newConfiguration
-
-            When("copying configuration") {
-                zaaktypeBpmnConfigurationService.copyConfiguration(zaakType)
-
-                Then("correct copy is stored") {
-                    with(configurationSlot.captured) {
-                        zaakTypeUUID shouldBe newZaaktypeUuid
-                    }
-                }
             }
         }
     }

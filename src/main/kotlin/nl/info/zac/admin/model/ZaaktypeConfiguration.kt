@@ -16,6 +16,7 @@ import jakarta.persistence.InheritanceType
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
@@ -37,7 +38,7 @@ abstract class ZaaktypeConfiguration {
         enum class ZaaktypeConfigurationType { CMMN, BPMN }
 
         val PRODUCTAANVRAAGTYPE_VARIABLE_NAME = ZaaktypeConfiguration::productaanvraagtype.name
-        val ZAAKTYPE_UUID_VARIABLE_NAME = ZaaktypeConfiguration::zaakTypeUUID.name
+        val ZAAKTYPE_UUID_VARIABLE_NAME = ZaaktypeConfiguration::zaaktypeUuid.name
         val ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME = ZaaktypeConfiguration::zaaktypeOmschrijving.name
         val CREATIEDATUM_VARIABLE_NAME = ZaaktypeConfiguration::creatiedatum.name
     }
@@ -47,23 +48,19 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "id")
     var id: Long? = null
 
-    // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
+    @field:NotNull
     @Column(name = "zaaktype_uuid", nullable = false)
-    var zaakTypeUUID: UUID? = null
+    lateinit var zaaktypeUuid: UUID
 
-    @NotBlank
+    @field:NotBlank
     @Column(name = "zaaktype_omschrijving", nullable = false)
     lateinit var zaaktypeOmschrijving: String
 
-    /**
-     * This field is nullable because when a new zaaktype is published,
-     * ZAC creates an initial 'inactive' zaaktypeCmmnConfiguration record without a value.
-     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory is never null.
-     */
-    @Column(name = "groep_id")
+    @field:NotBlank
+    @Column(name = "groep_id", nullable = false)
     var groepID: String? = null
 
-    // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
+    @field:NotNull
     @Column(name = "creatiedatum", nullable = false)
     var creatiedatum: ZonedDateTime? = null
 

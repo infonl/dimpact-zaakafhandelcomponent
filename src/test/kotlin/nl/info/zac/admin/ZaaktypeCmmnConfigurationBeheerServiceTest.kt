@@ -4,11 +4,13 @@
  */
 package nl.info.zac.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -29,6 +31,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
@@ -82,7 +85,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationCriteriaQuery.select(zaaktypeCmmnConfigurationRoot)
         } returns zaaktypeCmmnConfigurationCriteriaQuery
         every { zaaktypeCmmnConfigurationRoot.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns path
-        every { criteriaBuilder.equal(path, zaaktypeCmmnConfiguration.zaakTypeUUID) } returns predicate
+        every { criteriaBuilder.equal(path, zaaktypeCmmnConfiguration.zaaktypeUuid) } returns predicate
         every { zaaktypeCmmnConfigurationCriteriaQuery.where(predicate) } returns zaaktypeCmmnConfigurationCriteriaQuery
         every {
             entityManager.createQuery(zaaktypeCmmnConfigurationCriteriaQuery).setMaxResults(1).resultList
@@ -90,12 +93,12 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         When("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
             val returnedZaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(
-                zaaktypeCmmnConfiguration.zaakTypeUUID!!
+                zaaktypeCmmnConfiguration.zaaktypeUuid
             )
 
             Then("the zaaktypeCmmnConfiguration should be returned") {
                 with(returnedZaaktypeCmmnConfiguration) {
-                    zaakTypeUUID shouldBe zaaktypeCmmnConfiguration.zaakTypeUUID
+                    zaaktypeUuid shouldBe zaaktypeCmmnConfiguration.zaaktypeUuid
                 }
             }
         }
@@ -129,7 +132,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 returnedZaaktypeCmmnConfiguration.size shouldBe 2
                 returnedZaaktypeCmmnConfiguration.forEachIndexed { index, returnedZaakafhandelparameter ->
                     with(returnedZaakafhandelparameter) {
-                        zaakTypeUUID shouldBe zaaktypeCmmnConfigurations[index].zaakTypeUUID
+                        zaaktypeUuid shouldBe zaaktypeCmmnConfigurations[index].zaaktypeUuid
                         id shouldBe zaaktypeCmmnConfigurations[index].id
                     }
                 }
@@ -200,10 +203,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
             every { createQuery(ZaaktypeCmmnConfiguration::class.java) } returns criteriaQuery
         }
-        val slotPersistZaaktypeCmmnConfiguration = slot<ZaaktypeCmmnConfiguration>()
-        every {
-            entityManager.persist(capture(slotPersistZaaktypeCmmnConfiguration))
-        } answers { ZaaktypeCmmnConfiguration() }
 
         every { entityManager.createQuery(criteriaQuery) } returns mockk {
             every { setMaxResults(1) } returns this
@@ -211,12 +210,12 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
 
         When("Publishing a new zaaktype") {
-            zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+            val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
+                zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
+            }
 
-            Then("The new zaak type is stored") {
-                verify {
-                    entityManager.persist(any<ZaaktypeCmmnConfiguration>())
-                }
+            Then("exception is thrown") {
+                exception.message shouldContain zaakType.omschrijving
             }
         }
     }
@@ -240,6 +239,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         val zaakafhandelParamentersId = 100L
         val originalZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             id = zaakafhandelParamentersId,
+            groupId = "fakeGroupId",
             zaaktypeUUID = zaaktypeUUID,
         )
 
@@ -275,7 +275,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             And("The zaaktype values have been copied into the zaakparameters") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {
                     id shouldBe zaakafhandelParamentersId
-                    zaakTypeUUID shouldBe zaakType.url.extractUuid()
+                    zaaktypeUuid shouldBe zaakType.url.extractUuid()
                     zaaktypeOmschrijving shouldBe zaakType.omschrijving
                 }
             }
@@ -311,7 +311,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             Then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {
-                    zaakTypeUUID shouldBe zaakType.url.extractUuid()
+                    zaaktypeUuid shouldBe zaakType.url.extractUuid()
                     zaaktypeOmschrijving shouldBe zaakType.omschrijving
                     caseDefinitionID shouldBe originalZaaktypeCmmnConfiguration.caseDefinitionID
                     groepID shouldBe originalZaaktypeCmmnConfiguration.groepID

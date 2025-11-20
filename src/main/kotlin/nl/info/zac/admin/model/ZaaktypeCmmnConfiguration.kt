@@ -297,7 +297,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         getZaakbeeindigParameters().firstOrNull {
             it.zaakbeeindigReden.id == zaakbeeindigRedenId
         } ?: throw RuntimeException(
-            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaakTypeUUID' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
+            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaaktypeUuid' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
         )
 
     @Suppress("TooGenericExceptionThrown")
@@ -305,7 +305,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         getUserEventListenerParametersCollection().firstOrNull {
             it.planItemDefinitionID == planitemDefinitionID
         } ?: throw RuntimeException(
-            "No UserEventListenerParameters found for zaaktypeUUID: '$zaakTypeUUID' and planitemDefinitionID: '$planitemDefinitionID'"
+            "No UserEventListenerParameters found for zaaktypeUUID: '$zaaktypeUuid' and planitemDefinitionID: '$planitemDefinitionID'"
         )
 
     fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =

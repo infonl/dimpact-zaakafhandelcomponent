@@ -57,7 +57,7 @@ UPDATE ${schema}.zaaktype_bpmn_configuration
     SET id = id + (SELECT COALESCE(MAX(id), 0) FROM ${schema}.zaaktype_configuration)
     WHERE group_id IS NOT NULL;
 
--- add non-conflicting BPMN data to zaaktype_configuration
+-- add BPMN data to zaaktype_configuration
 INSERT INTO ${schema}.zaaktype_configuration (
     SELECT
         id,
@@ -69,7 +69,7 @@ INSERT INTO ${schema}.zaaktype_configuration (
         NULL::VARCHAR AS domein,
         'BPMN'::zaaktype_configuration_type
     FROM ${schema}.zaaktype_bpmn_configuration
-) ON CONFLICT DO NOTHING;
+);
 
 -- drop the common zaaktype_configuration columns in bpmn-only table
 ALTER TABLE ${schema}.zaaktype_bpmn_configuration
