@@ -46,7 +46,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
     Given(
         """Default reference table data is provisioned on startup
-            and general test data reference table data is added in test setup"""
+            "and general test data reference table data is added in test setup"""
     ) {
         When("the reference tables are listed") {
             val response = itestHttpClient.performGetRequest(

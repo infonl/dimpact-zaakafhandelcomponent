@@ -17,7 +17,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
@@ -34,9 +33,6 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -244,26 +240,23 @@ class ProjectConfig : AbstractProjectConfig() {
     }
 
     /**
-     * Creates overall test setup data in ZAC, required for running the integration tests.
+     * Creates overal test setup data in ZAC, required for running the integration tests.
      */
     private fun createTestSetupData() {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
         createDomainReferenceTableData()
-        createZaaktypeConfigurations()
+        createZaakTypeConfigurations()
     }
 
     private fun createDomainReferenceTableData() {
+        val DOMEIN_REFERENCE_TABLE_INDEX = 6
         val domeinReferenceTableId = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/referentietabellen"
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
             response.code shouldBe HTTP_OK
-            JSONArray(responseBody)
-                .map { it as JSONObject }
-                .firstOrNull { it.getString("code") == REFERENCE_TABLE_DOMEIN_CODE }
-                ?.getInt("id")
-                ?: error("Reference table with code '$REFERENCE_TABLE_DOMEIN_CODE' not found")
+            JSONArray(responseBody).getJSONObject(DOMEIN_REFERENCE_TABLE_INDEX).getInt("id")
         }
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
@@ -293,25 +286,14 @@ class ProjectConfig : AbstractProjectConfig() {
                                 { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
                             ]
                         }
-                    """.trimIndent()
+                        """.trimIndent()
                 )
                 shouldContainJsonKey("id")
             }
         }
     }
 
-    private fun createZaaktypeConfigurations() {
-        zacClient.createZaaktypeBpmnConfiguration(
-            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_UUID,
-            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_DESCRIPTION,
-            bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
-            productaanvraagType = ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE,
-            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_OK
-        }
+    private fun createZaakTypeConfigurations() {
         zacClient.createZaaktypeCmmnConfiguration(
             zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
             zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
