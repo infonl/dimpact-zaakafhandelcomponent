@@ -377,8 +377,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
 
-    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
-    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
+    const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
     const val BPMN_TEST_TASK_NAME = "Test"

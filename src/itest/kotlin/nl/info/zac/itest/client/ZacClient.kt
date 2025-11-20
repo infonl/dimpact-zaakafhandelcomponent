@@ -82,6 +82,30 @@ class ZacClient {
         )
     }
 
+    @Suppress("LongParameterList")
+    fun createZaaktypeBpmnConfiguration(
+        zaakTypeUuid: UUID,
+        zaakTypeDescription: String,
+        bpmnProcessDefinitionKey: String,
+        productaanvraagType: String,
+        defaultGroupName: String
+    ): ResponseContent {
+        logger.info {
+            "Creating a zaaktype CMMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
+                "and UUID: $zaakTypeUuid"
+        }
+        return itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
+            requestBodyAsString = """{ 
+                  "zaaktypeUuid": "$zaakTypeUuid",
+                  "zaaktypeOmschrijving": "$zaakTypeDescription",
+                  "productaanvraagtype": "$productaanvraagType",
+                  "groepNaam": "$defaultGroupName"
+                }
+            """.trimIndent()
+        )
+    }
+
     @Suppress("LongMethod", "LongParameterList")
     fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
@@ -96,7 +120,7 @@ class ZacClient {
         automaticEmailConfirmationReply: String = "reply@example.com"
     ): ResponseContent {
         logger.info {
-            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating a zaaktype CMMN configuration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
