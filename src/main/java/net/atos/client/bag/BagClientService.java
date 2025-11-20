@@ -34,34 +34,37 @@ import nl.info.client.bag.model.generated.WoonplaatsIOHal;
 
 @ApplicationScoped
 public class BagClientService {
-
     public static final String DEFAULT_CRS = "epsg:28992";
-
     private static final String ADRES_EXPAND = "panden, adresseerbaarObject, nummeraanduiding, openbareRuimte, woonplaats";
-
     private static final String NUMMERAANDUIDING_EXPAND = "ligtAanOpenbareRuimte, ligtInWoonplaats";
-
     private static final String OPENBARE_RUIMTE_EXPAND = "ligtInWoonplaats";
 
-    @Inject
-    @RestClient
     private AdresApi adresApi;
-
-    @Inject
-    @RestClient
     private WoonplaatsApi woonplaatsApi;
-
-    @Inject
-    @RestClient
     private NummeraanduidingApi nummeraanduidingApi;
-
-    @Inject
-    @RestClient
     private PandApi pandApi;
+    private OpenbareRuimteApi openbareRuimteApi;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public BagClientService() {
+    }
 
     @Inject
-    @RestClient
-    private OpenbareRuimteApi openbareRuimteApi;
+    public BagClientService(
+            @RestClient AdresApi adresApi,
+            @RestClient WoonplaatsApi woonplaatsApi,
+            @RestClient NummeraanduidingApi nummeraanduidingApi,
+            @RestClient PandApi pandApi,
+            @RestClient OpenbareRuimteApi openbareRuimteApi
+    ) {
+        this.adresApi = adresApi;
+        this.woonplaatsApi = woonplaatsApi;
+        this.nummeraanduidingApi = nummeraanduidingApi;
+        this.pandApi = pandApi;
+        this.openbareRuimteApi = openbareRuimteApi;
+    }
 
     public AdresIOHal readAdres(final String nummeraanduidingIdentificatie) {
         return adresApi.bevraagAdressenMetNumId(nummeraanduidingIdentificatie, ADRES_EXPAND,

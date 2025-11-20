@@ -7,6 +7,9 @@ package net.atos.client.bag.model
 import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOLinks
 import nl.info.client.bag.model.generated.HalLink
+import nl.info.client.bag.model.generated.Woonplaats
+import nl.info.client.bag.model.generated.WoonplaatsIO
+import nl.info.client.bag.model.generated.WoonplaatsIOHal
 
 @Suppress("LongParameterList")
 fun createAdresIOHal(
@@ -35,4 +38,16 @@ fun createHalLink(
     href: String = "fakeHref"
 ) = HalLink().apply {
     this.href = href
+}
+
+fun createWoonplaats(
+    name: String = "fakeWoonplaatsName"
+) = Woonplaats().apply {
+    this.naam = name
+}
+
+fun createWoonplaatsIOHal(
+    woonplaats: Woonplaats = createWoonplaats()
+) = WoonplaatsIOHal().apply {
+        this.woonplaats = woonplaats
 }
