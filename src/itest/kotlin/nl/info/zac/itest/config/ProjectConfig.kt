@@ -6,29 +6,50 @@ package nl.info.zac.itest.config
 
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
+import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PABC_API_KEY
 import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
+import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
+import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
+import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
@@ -42,6 +63,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlin.toString
 
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
@@ -49,6 +71,7 @@ lateinit var dockerComposeContainer: ComposeContainer
 class ProjectConfig : AbstractProjectConfig() {
     private val logger = KotlinLogging.logger {}
     private val itestHttpClient = ItestHttpClient()
+    private val zacClient = ZacClient()
     private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
 
     // All variables below have to be overridable in the docker-compose.yaml file
@@ -85,7 +108,6 @@ class ProjectConfig : AbstractProjectConfig() {
     override suspend fun beforeProject() {
         try {
             deleteLocalDockerVolumeData()
-
             dockerComposeContainer = createDockerComposeContainer()
             dockerComposeContainer.start()
             logger.info { "Started ZAC Docker Compose containers" }
@@ -115,9 +137,9 @@ class ProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
+            createTestSetupData()
         } catch (exception: ContainerLaunchException) {
-            logger.error(exception) { "Failed to start Docker containers" }
+            logger.error(exception) { "Failed to start Docker Compose containers" }
             dockerComposeContainer.stop()
         }
     }
@@ -214,6 +236,98 @@ class ProjectConfig : AbstractProjectConfig() {
                     logger.error { "Failed to delete folder '$file'" }
                 }
             }
+        }
+    }
+
+    /**
+     * Creates overal test setup data in ZAC, required for running the integration tests.
+     */
+    private fun createTestSetupData() {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+        createDomainReferenceTableData()
+        createZaakTypeConfigurations()
+    }
+
+    private fun createDomainReferenceTableData() {
+        val DOMEIN_REFERENCE_TABLE_INDEX = 6
+        val domeinReferenceTableId = itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/referentietabellen"
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+            JSONArray(responseBody).getJSONObject(DOMEIN_REFERENCE_TABLE_INDEX).getInt("id")
+        }
+        itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
+            requestBodyAsString = """
+                  {
+                        "aantalWaarden" : 0,
+                        "code" : "$REFERENCE_TABLE_DOMEIN_CODE",
+                        "id" : $domeinReferenceTableId,
+                        "naam" : "$REFERENCE_TABLE_DOMEIN_NAME",
+                        "systeem" : true,
+                        "waarden": [ { "naam" : "$DOMEIN_TEST_1" } ]
+                    }
+            """.trimIndent()
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+            with(JSONObject(responseBody).toString()) {
+                shouldEqualJsonIgnoringExtraneousFields(
+                    """
+                        {
+                            "code": "$REFERENCE_TABLE_DOMEIN_CODE",
+                            "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
+                            "systeem": true,
+                            "aantalWaarden": 1,
+                            "waarden": [
+                                { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
+                            ]
+                        }
+                        """.trimIndent()
+                )
+                shouldContainJsonKey("id")
+            }
+        }
+    }
+
+    private fun createZaakTypeConfigurations() {
+        zacClient.createZaaktypeCmmnConfiguration(
+            zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
+            zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
+            productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
+            // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
+            domein = DOMEIN_TEST_2
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeCmmnConfiguration(
+            zaakTypeIdentificatie = ZAAKTYPE_TEST_2_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeDescription = ZAAKTYPE_TEST_2_DESCRIPTION,
+            productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
+            // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
+            domein = DOMEIN_TEST_1
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeCmmnConfiguration(
+            zaakTypeIdentificatie = ZAAKTYPE_TEST_3_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
+            zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
+            productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
+            automaticEmailConfirmationSender = "GEMEENTE"
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
         }
     }
 }

@@ -410,6 +410,11 @@ object ItestConfiguration {
     const val MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_NAME = "Taak formulierdefinitie: Extern advies (met e-mail)"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_MAIL = "ZAAK_AFGEHANDELD"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_NAME = "Zaak afgehandeld"
+    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY = "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met " +
+        "zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p>" +
+        "<p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>"
+    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT = "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: " +
+        "{ZAAK_NUMMER})</p>"
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL = "ZAAK_NIET_ONTVANKELIJK"
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME = "Zaak niet ontvankelijk"
     const val MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL = "ZAAK_ONTVANKELIJK"
