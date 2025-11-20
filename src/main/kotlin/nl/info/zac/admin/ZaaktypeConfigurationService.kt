@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRES_NEW
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -39,7 +40,7 @@ class ZaaktypeConfigurationService @Inject constructor(
         ztcClientService.clearZaaktypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
             if (it.concept) {
-                LOG.warning { "Zaaktype with URL $zaaktypeUri is still a concept. Ignoring" }
+                LOG.warning { "Zaaktype '${it.omschrijving}' with URL $zaaktypeUri is still a concept. Ignoring" }
                 return
             }
             getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
@@ -72,5 +73,15 @@ class ZaaktypeConfigurationService @Inject constructor(
                 creatiedatum = ZonedDateTime.now()
             }
         )
+    }
+
+    @Transactional(REQUIRES_NEW)
+    fun deleteLastUnknownConfiguration(zaaktypeDescription: String) {
+        getLastCreatedConfiguration(zaaktypeDescription)?.let {
+            if (it.getConfigurationType() == UNKNOWN) {
+                LOG.warning { "Deleting unknown configuration with UUID ${it.zaakTypeUUID} for zaaktype '$zaaktypeDescription'" }
+                entityManager.remove(it)
+            }
+        }
     }
 }

@@ -49,6 +49,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
 ) {
     companion object {
@@ -104,6 +105,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
 
         return if (zaaktypeCmmnConfiguration.id == null) {
+            zaaktypeConfigurationService.deleteLastUnknownConfiguration(zaaktypeCmmnConfiguration.zaaktypeOmschrijving)
             entityManager.persist(zaaktypeCmmnConfiguration)
             zaaktypeCmmnConfiguration
         } else {

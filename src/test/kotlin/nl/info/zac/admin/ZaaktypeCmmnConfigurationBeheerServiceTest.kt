@@ -11,7 +11,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
@@ -54,12 +56,14 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaaktypeCmmnConfigurationBeheerService = ZaaktypeCmmnConfigurationBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
     )
 
@@ -201,7 +205,9 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { createQuery(ZaaktypeCmmnConfiguration::class.java) } returns criteriaQuery
         }
         val slotPersistZaaktypeCmmnConfiguration = slot<ZaaktypeCmmnConfiguration>()
-
+        every {
+            zaaktypeConfigurationService.deleteLastUnknownConfiguration(zaakType.omschrijving)
+        } just runs
         every {
             entityManager.persist(capture(slotPersistZaaktypeCmmnConfiguration))
         } answers { ZaaktypeCmmnConfiguration() }
@@ -283,6 +289,9 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
 
         When("Publishing a new zaaktype") {
+            every {
+                zaaktypeConfigurationService.deleteLastUnknownConfiguration(zaakType.omschrijving)
+            } just runs
             every {
                 entityManager.persist(capture(slotPersistZaaktypeCmmnConfiguration))
             } answers { ZaaktypeCmmnConfiguration() }

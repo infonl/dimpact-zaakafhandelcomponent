@@ -11,6 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
@@ -21,6 +22,7 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
@@ -37,7 +39,9 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
+    val zaaktypeBpmnConfigurationBeheerService =
+        ZaaktypeBpmnConfigurationBeheerService(entityManager, zaaktypeConfigurationService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -53,6 +57,11 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                     zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
                 )
             } returns zaaktypeBpmnProcessDefinition
+            every {
+                zaaktypeConfigurationService.deleteLastUnknownConfiguration(
+                    zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+                )
+            } just runs
 
             When("the zaaktype BPMN process definition relation is created") {
                 zaaktypeBpmnConfigurationBeheerService.storeConfiguration(zaaktypeBpmnProcessDefinition)
@@ -96,6 +105,11 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                     zaaktypeBpmnProcessDefinition.zaakTypeUUID!!
                 )
             } returns null andThen zaaktypeBpmnProcessDefinition
+            every {
+                zaaktypeConfigurationService.deleteLastUnknownConfiguration(
+                    zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
+                )
+            } just runs
             val zaaktypeBpmnConfigurationSlot = slot<ZaaktypeBpmnConfiguration>()
             every { entityManager.persist(capture(zaaktypeBpmnConfigurationSlot)) } just Runs
             every { entityManager.flush() } just Runs

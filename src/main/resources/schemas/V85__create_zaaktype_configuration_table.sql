@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
--- copy CMMN table in the base table
+-- copy CMMN table definition in the base table
 CREATE TABLE ${schema}.zaaktype_configuration (
     LIKE ${schema}.zaaktype_cmmn_configuration INCLUDING ALL
 );
@@ -39,6 +39,16 @@ UPDATE ${schema}.zaaktype_configuration
     SET configuration_type = 'UNKNOWN'
     WHERE groep_id IS NULL
     OR groep_id = '';
+
+-- create table for unknown zaaktypes
+CREATE TABLE ${schema}.zaaktype_unknown_configuration (
+    id  BIGINT NOT NULL
+);
+
+-- populate unknown zaaktypes table
+INSERT INTO ${schema}.zaaktype_unknown_configuration
+    SELECT id FROM ${schema}.zaaktype_configuration
+    WHERE configuration_type = 'UNKNOWN';
 
 -- drop the common zaaktype_configuration columns in cmmn-only table
 ALTER TABLE ${schema}.zaaktype_cmmn_configuration
