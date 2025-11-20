@@ -129,7 +129,7 @@ class MdcLoggingFilter(
                 if (duration > SLOW_REQUEST_THRESHOLD_MS) {
                     LOG.warning(
                         "Slow request detected: ${requestContext.method} ${requestContext.uriInfo.path} " +
-                                "took ${duration}ms (threshold: ${SLOW_REQUEST_THRESHOLD_MS}ms)"
+                            "took ${duration}ms (threshold: ${SLOW_REQUEST_THRESHOLD_MS}ms)"
                     )
                 }
                 LOG.fine("Request completed: status=$status, duration=${duration}ms")
