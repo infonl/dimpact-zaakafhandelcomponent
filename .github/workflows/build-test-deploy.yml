@@ -317,6 +317,13 @@ jobs:
             build/test-results/test/**/*.xml
             src/main/app/reports/*.xml
 
+      - name: Upload unit test results to CodeCov
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: "test_results"
+
       - name: Generate unit test code coverage report
         if: ${{ github.event_name != 'merge_group' }}
         run: |
