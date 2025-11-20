@@ -31,7 +31,6 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
-import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_INDEX
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
@@ -264,7 +263,6 @@ class ProjectConfig : AbstractProjectConfig() {
                 .firstOrNull { it.getString("code") == REFERENCE_TABLE_DOMEIN_CODE }
                 ?.getInt("id")
                 ?: error("Reference table with code '$REFERENCE_TABLE_DOMEIN_CODE' not found")
-
         }
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
