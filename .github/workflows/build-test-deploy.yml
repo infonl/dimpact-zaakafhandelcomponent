@@ -153,13 +153,6 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Calculated version: $VERSION (tag: $TAG)"
 
-      - name: Comment next version on PR
-        if: github.event_name == 'pull_request' && !startsWith(github.ref_name, 'hotfix/')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.version }}"
-
   paths-filter:
     runs-on: ubuntu-24.04
     needs: validate-input

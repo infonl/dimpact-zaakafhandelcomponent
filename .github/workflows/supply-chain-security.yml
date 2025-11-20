@@ -8,13 +8,6 @@ on:
   schedule:
     # Run daily at 6 AM UTC to catch newly discovered vulnerabilities
     - cron: "0 6 * * *"
-  push:
-    branches: [main]
-    paths:
-      - '**/package.json'
-      - '**/package-lock.json'
-      - 'build.gradle.kts'
-      - 'gradle/libs.versions.toml'
   workflow_dispatch:
 
 permissions:
@@ -25,8 +18,8 @@ permissions:
   pages: write
 
 env:
-  NODE_VERSION: "22.19.0"
-  JAVA_VERSION: "21.0.8"
+  NODE_VERSION: "22.19.1"
+  JAVA_VERSION: "21.0.9"
   SECURITY_SCAN_RETENTION_DAYS: 30  # Maximum age of security scan reports in days
 
 jobs:
