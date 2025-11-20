@@ -439,6 +439,19 @@ describe(InformatieObjectAddComponent.name, () => {
       await submitButton.click();
       expect(mockSideNav.close).toHaveBeenCalled();
     });
+
+    it("should disable the submit button and add a spinner", () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const submitButton = fixture.debugElement.query(
+        By.css('button[type="submit"]'),
+      );
+      expect(submitButton.nativeElement.disabled).toBeTruthy();
+
+      const spinner = submitButton.query(By.css("mat-spinner"));
+      expect(spinner).toBeTruthy();
+    });
   });
 
   describe("Adding multiple documents to a Zaak", () => {

@@ -36,6 +36,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
+  isLoading = false;
 
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -199,7 +200,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   submit() {
     const { value } = this.form;
     const isTaskObject = this.zaakUuid !== this.documentReferenceId;
-
+    this.isLoading = true;
     this.informatieObjectenService
       .createEnkelvoudigInformatieobject(
         this.zaakUuid,
@@ -229,9 +230,11 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
           );
           if (value.addOtherInfoObject) {
             this.form.reset(this.defaultFormValues);
+            this.isLoading = false;
             return;
           }
           this.resetAndClose();
+          this.isLoading = false;
         },
         error: (err) => {
           console.error(err);

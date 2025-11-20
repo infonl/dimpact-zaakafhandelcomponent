@@ -73,9 +73,12 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="!form.valid"
+        [disabled]="!form.valid || isLoading"
       >
         {{ "actie.toevoegen" | translate }}
+        <mat-icon *ngIf="isLoading">
+          <mat-spinner diameter="18"></mat-spinner>
+        </mat-icon>
       </button>
       <button mat-button type="reset" (click)="resetAndClose()">
         {{ "actie.annuleren" | translate }}
