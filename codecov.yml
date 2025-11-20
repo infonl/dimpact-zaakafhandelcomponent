@@ -21,13 +21,3 @@ coverage:
         # This to avoid failing Codecov checks when the coverage drops with e.g. 0.01%
         # even when there are no changes made to the code.
         threshold: "1"
-component_management:
-  individual_components:
-    - component_id: frontend_unittests
-      name: Frontend Unit Tests
-      paths:
-        - src/main/app/**
-    - component_id: backend_unittests
-      name: Backend Unit Tests
-      paths:
-        - src/test/**

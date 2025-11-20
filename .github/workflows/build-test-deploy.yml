@@ -314,16 +314,8 @@ jobs:
         with:
           check_name: unit-test-results
           files: |
-            build/test-results/**/*.xml
+            build/test-results/test/**/*.xml
             src/main/app/reports/*.xml
-
-      - name: Upload unit test results report to Codecov
-        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: "test_results"
-          flags: unittests
 
       - name: Generate unit test code coverage report
         if: ${{ github.event_name != 'merge_group' }}
@@ -332,12 +324,21 @@ jobs:
           npmRunTestCoverage jacocoTestReport \
           --info 
 
-      - name: Upload unit test coverage report to Codecov
+      - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
+          flags: backendunittests
+          files: build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Upload frontend unit test coverage report to Codecov
+        if: ${{ github.event_name != 'merge_group' }}
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: frontendunittests
+          files: src/main/app/coverage/clover.xml
 
   build-docker-image-and-run-itests:
     needs: [build, paths-filter, validate-input, determine-version]
