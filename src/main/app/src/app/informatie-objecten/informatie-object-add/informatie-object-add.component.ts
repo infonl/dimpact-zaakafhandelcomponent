@@ -238,6 +238,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
         },
         error: (err) => {
           console.error(err);
+          this.isLoading = false;
         },
       });
   }
