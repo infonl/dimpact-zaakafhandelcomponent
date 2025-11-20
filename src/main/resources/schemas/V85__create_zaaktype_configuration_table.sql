@@ -3,6 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+-- delete unknown / "pristine" zaaktypes from CMMN table
+DELETE FROM ${schema}.zaaktype_cmmn_configuration
+    WHERE groep_id IS NULL
+    OR groep_id = '';
+
 -- copy CMMN table definition in the base table
 CREATE TABLE ${schema}.zaaktype_configuration (
     LIKE ${schema}.zaaktype_cmmn_configuration INCLUDING ALL
@@ -24,31 +29,16 @@ ALTER TABLE ${schema}.zaaktype_configuration
     DROP COLUMN smartdocuments_ingeschakeld;
 
 -- add discriminator column
-CREATE TYPE zaaktype_configuration_type AS ENUM ('UNKNOWN', 'CMMN', 'BPMN');
+CREATE TYPE zaaktype_configuration_type AS ENUM ('CMMN', 'BPMN');
 ALTER TABLE ${schema}.zaaktype_configuration
-    ADD COLUMN configuration_type zaaktype_configuration_type;
+    ADD COLUMN configuration_type zaaktype_configuration_type,
+    ALTER COLUMN groep_id SET NOT NULL;
 
 -- mark configured zaaktypes as CMMN
 UPDATE ${schema}.zaaktype_configuration
     SET configuration_type = 'CMMN'
     WHERE groep_id IS NOT NULL
     AND groep_id <> '';
-
--- mark zaaktypes that are not configured as UNKNOWN
-UPDATE ${schema}.zaaktype_configuration
-    SET configuration_type = 'UNKNOWN'
-    WHERE groep_id IS NULL
-    OR groep_id = '';
-
--- create table for unknown zaaktypes
-CREATE TABLE ${schema}.zaaktype_unknown_configuration (
-    id  BIGINT NOT NULL
-);
-
--- populate unknown zaaktypes table
-INSERT INTO ${schema}.zaaktype_unknown_configuration
-    SELECT id FROM ${schema}.zaaktype_configuration
-    WHERE configuration_type = 'UNKNOWN';
 
 -- drop the common zaaktype_configuration columns in cmmn-only table
 ALTER TABLE ${schema}.zaaktype_cmmn_configuration
@@ -67,7 +57,7 @@ UPDATE ${schema}.zaaktype_bpmn_configuration
     SET id = id + (SELECT COALESCE(MAX(id), 0) FROM ${schema}.zaaktype_configuration)
     WHERE group_id IS NOT NULL;
 
--- add BPMN data to zaaktype_configuration
+-- add non-conflicting BPMN data to zaaktype_configuration
 INSERT INTO ${schema}.zaaktype_configuration (
     SELECT
         id,
@@ -79,7 +69,7 @@ INSERT INTO ${schema}.zaaktype_configuration (
         NULL::VARCHAR AS domein,
         'BPMN'::zaaktype_configuration_type
     FROM ${schema}.zaaktype_bpmn_configuration
-);
+) ON CONFLICT DO NOTHING;
 
 -- drop the common zaaktype_configuration columns in bpmn-only table
 ALTER TABLE ${schema}.zaaktype_bpmn_configuration

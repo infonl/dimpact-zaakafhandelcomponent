@@ -8,21 +8,16 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jakarta.transaction.Transactional.TxType.REQUIRES_NEW
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
-import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.UNKNOWN
-import nl.info.zac.admin.model.ZaaktypeUnknownConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -44,16 +39,17 @@ class ZaaktypeConfigurationService @Inject constructor(
         ztcClientService.clearZaaktypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
             if (it.concept) {
-                LOG.warning { "Zaaktype '${it.omschrijving}' with URL $zaaktypeUri is still a concept. Ignoring" }
+                LOG.warning { "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
                 return
             }
             getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
                 when (zaaktypeConfiguration.getConfigurationType()) {
                     CMMN -> zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(it)
                     BPMN -> zaaktypeBpmnConfigurationService.copyConfiguration(it)
-                    UNKNOWN -> createUnknownZaaktype(it)
                 }
-            } ?: createUnknownZaaktype(it)
+            } ?: LOG.warning {
+                "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"
+            }
         }
     }
 
@@ -67,25 +63,5 @@ class ZaaktypeConfigurationService @Inject constructor(
             .orderBy(criteriaBuilder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
 
         return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
-    }
-
-    private fun createUnknownZaaktype(zaaktype: ZaakType) {
-        entityManager.persist(
-            ZaaktypeUnknownConfiguration().apply {
-                this.zaakTypeUUID = zaaktype.url.extractUuid()
-                zaaktypeOmschrijving = zaaktype.omschrijving
-                creatiedatum = ZonedDateTime.now()
-            }
-        )
-    }
-
-    @Transactional(REQUIRES_NEW)
-    fun deleteLastUnknownConfiguration(zaaktypeDescription: String) {
-        getLastCreatedConfiguration(zaaktypeDescription)?.let {
-            if (it.getConfigurationType() == UNKNOWN) {
-                LOG.warning { "Deleting unknown configuration with UUID ${it.zaakTypeUUID} for zaaktype '$zaaktypeDescription'" }
-                entityManager.remove(it)
-            }
-        }
     }
 }

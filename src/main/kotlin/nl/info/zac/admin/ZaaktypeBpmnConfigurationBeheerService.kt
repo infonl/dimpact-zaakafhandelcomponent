@@ -26,8 +26,7 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
+    private val entityManager: EntityManager
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -53,7 +52,6 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         return if (zaaktypeBpmnConfiguration.id != null) {
             entityManager.merge(zaaktypeBpmnConfiguration)
         } else {
-            zaaktypeConfigurationService.deleteLastUnknownConfiguration(zaaktypeBpmnConfiguration.zaaktypeOmschrijving)
             entityManager.persist(zaaktypeBpmnConfiguration)
             entityManager.flush()
             zaaktypeBpmnConfiguration.zaakTypeUUID?.let {
