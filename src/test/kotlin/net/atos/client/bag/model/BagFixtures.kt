@@ -8,7 +8,6 @@ import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOLinks
 import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.Woonplaats
-import nl.info.client.bag.model.generated.WoonplaatsIO
 import nl.info.client.bag.model.generated.WoonplaatsIOHal
 
 @Suppress("LongParameterList")
@@ -49,5 +48,5 @@ fun createWoonplaats(
 fun createWoonplaatsIOHal(
     woonplaats: Woonplaats = createWoonplaats()
 ) = WoonplaatsIOHal().apply {
-        this.woonplaats = woonplaats
+    this.woonplaats = woonplaats
 }
