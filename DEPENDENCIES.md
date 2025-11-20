@@ -12,10 +12,10 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **openpolicyagent/opa**: 1.10.1-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.1
-- **otel/opentelemetry-collector**: 0.139.0
+- **otel/opentelemetry-collector**: 0.140.1
 - **grafana/tempo**: 2.9.0
 - **prom/prometheus**: v3.7.3
-- **grafana/grafana**: 12.2.1
+- **grafana/grafana**: 12.3.0
 - **greenmail/standalone**: 2.1.7
 - **rabbitmq**: 4.2.1-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.2
