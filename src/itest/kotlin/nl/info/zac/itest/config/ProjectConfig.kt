@@ -244,7 +244,7 @@ class ProjectConfig : AbstractProjectConfig() {
     }
 
     /**
-     * Creates overal test setup data in ZAC, required for running the integration tests.
+     * Creates overall test setup data in ZAC, required for running the integration tests.
      */
     private fun createTestSetupData() {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
