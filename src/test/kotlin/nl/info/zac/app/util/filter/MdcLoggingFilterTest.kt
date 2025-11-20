@@ -34,7 +34,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
         val loggerProvider = TestLoggerProvider()
         var filter = MdcLoggingFilter(loggerProvider)
 
-        val uriInfo = mockk<UriInfo>{
+        val uriInfo = mockk<UriInfo> {
             every { path } returns "zaken/123"
         }
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
@@ -164,7 +164,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
         // Mock request contexts
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.getProperty(MdcLoggingFilter.CONTEXT_REQUEST_START_TIME) } returns
-                System.currentTimeMillis() - 150
+            System.currentTimeMillis() - 150
 
         // Mock response context
         val responseContext = mockk<ContainerResponseContext>()
@@ -192,7 +192,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
         // Mock request contexts
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.getProperty(MdcLoggingFilter.CONTEXT_REQUEST_START_TIME) } returns
-                System.currentTimeMillis() - 1500
+            System.currentTimeMillis() - 1500
         every { requestContext.method } returns "POST"
         every { requestContext.uriInfo } returns mockk<UriInfo> {
             every<String> { path } returns "taken/456"
@@ -294,6 +294,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
     }
 })
 
+@Suppress("EmptyFunctionBlock")
 class TestLoggerProvider : LoggerProvider {
     private val loggers = mutableMapOf<String, Logger>()
     val mdc = mutableMapOf<String, Any?>()
