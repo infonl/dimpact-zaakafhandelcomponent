@@ -4,15 +4,17 @@
  */
 package net.atos.client.bag;
 
+import java.util.Collections;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import net.atos.client.bag.api.*;
 import net.atos.client.bag.model.BevraagAdressenParameters;
 import nl.info.client.bag.model.generated.*;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import java.util.Collections;
-import java.util.List;
 
 @ApplicationScoped
 public class BagClientService {
