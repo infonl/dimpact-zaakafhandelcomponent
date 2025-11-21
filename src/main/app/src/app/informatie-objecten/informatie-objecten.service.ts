@@ -8,6 +8,7 @@ import moment from "moment";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+import {ZacQueryClient} from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
@@ -15,7 +16,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
 
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient, private  readonly  zacQueryClient: ZacQueryClient) {}
 
   /**
    * Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
@@ -96,7 +97,17 @@ export class InformatieObjectenService {
     );
   }
 
-  createDocumentAttended(
+    createEnkelvoudigInformatieobjectTanstack(zaakUuid: string, documentReferenceId: string
+    ) {
+        const formData = new FormData();
+
+        return this.zacQueryClient.POST(
+            "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+            { path: { zaakUuid, documentReferenceId } },
+        );
+    }
+
+    createDocumentAttended(
     documentCreationData: GeneratedType<"RestDocumentCreationAttendedData">,
   ) {
     return this.zacHttpClient.POST(

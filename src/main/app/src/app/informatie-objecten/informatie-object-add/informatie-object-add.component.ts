@@ -16,7 +16,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {injectMutation, injectQuery} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -41,6 +41,27 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
+
+    protected createDocumentMutation = injectMutation(() => ({
+        ...this.informatieObjectenService.createEnkelvoudigInformatieobjectTanstack(this.zaakUuid, this.documentReferenceId
+        ),
+        onSuccess: (data) => {
+            this.document.emit(data);
+            this.resetAndClose();
+        },
+        onMutate: () => {
+            this.isLoading = true;
+        },
+        onSettled: () => {
+            this.isLoading = false;
+        },
+        onError: () => {
+            this.isLoading = false;
+            this.form.reset()
+        }
+    }));
+
+
 
   protected zaakUuid!: string;
   protected documentReferenceId!: string;
@@ -197,51 +218,28 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     }
   }
 
-  submit() {
-    const { value } = this.form;
-    const isTaskObject = this.zaakUuid !== this.documentReferenceId;
-    this.isLoading = true;
-    this.informatieObjectenService
-      .createEnkelvoudigInformatieobject(
-        this.zaakUuid,
-        this.documentReferenceId,
-        {
-          bestand: value.bestand!,
-          bestandsnaam: value.bestand?.name,
-          formaat: value.bestand?.type,
-          titel: value.titel!,
-          beschrijving: value.beschrijving,
-          informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-          status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          creatiedatum: value.creatiedatum?.toISOString(),
-          verzenddatum: value.verzenddatum?.toISOString(),
-          ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          taal: value.taal!.code,
-          auteur: value.auteur!,
-        },
-        isTaskObject,
-      )
-      .subscribe({
-        next: (document) => {
-          this.document.emit(document);
-          this.utilService.openSnackbar(
-            "msg.document.nieuwe.versie.toegevoegd",
-          );
-          if (value.addOtherInfoObject) {
-            this.form.reset(this.defaultFormValues);
-            this.isLoading = false;
-            return;
-          }
-          this.resetAndClose();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.isLoading = false;
-        },
-      });
-  }
+    submit() {
+        const { value } = this.form;
+        // const isTaskObject = this.zaakUuid !== this.documentReferenceId;
+
+        this.createDocumentMutation.mutate({
+            bestand: value.bestand!,
+            bestandsnaam: value.bestand?.name,
+            formaat: value.bestand?.type,
+            titel: value.titel!,
+            beschrijving: value.beschrijving,
+            informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+            status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+            vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+            creatiedatum: value.creatiedatum?.toISOString(),
+            verzenddatum: value.verzenddatum?.toISOString(),
+            ontvangstdatum: value.ontvangstdatum?.toISOString(),
+            taal: value.taal!.code,
+            auteur: value.auteur!,
+        });
+    }
+
+
 
   protected resetAndClose() {
     void this.sideNav.close();
