@@ -6,9 +6,10 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { HttpClient, provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
@@ -67,7 +68,9 @@ describe(ZaakViewComponent.name, () => {
       omschrijving: "mock description",
     }),
     indicaties: [],
-    rechten: {},
+    rechten: {
+      behandelen: true,
+    },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
     gerelateerdeZaken: [],
@@ -109,6 +112,7 @@ describe(ZaakViewComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
+        PlanItemsService,
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
@@ -123,6 +127,10 @@ describe(ZaakViewComponent.name, () => {
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "setTitle").mockImplementation();
+
+    const test = TestBed.inject(HttpClient);
+    const spy = jest.spyOn(test, "post");
+    expect(spy).toHaveBeenCalledTimes(1);
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listHistorieVoorZaak").mockReturnValue(of([]));
@@ -139,7 +147,13 @@ describe(ZaakViewComponent.name, () => {
     planItemsService = TestBed.inject(PlanItemsService);
     jest
       .spyOn(planItemsService, "listUserEventListenerPlanItems")
-      .mockReturnValue(of([]));
+      .mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RESTPlanItem">>({
+            userEventListenerActie: "INTAKE_AFRONDEN",
+          }),
+        ]),
+      );
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItems")
       .mockReturnValue(of([]));
@@ -221,6 +235,7 @@ describe(ZaakViewComponent.name, () => {
         });
       });
 
+      loader.getHarnessOrNull(MatButtonHarness.with({ text: /Opschorten/ }));
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
@@ -430,16 +445,12 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("openPlanItemStartenDialog", () => {
-    const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-      userEventListenerActie: "ZAAK_AFHANDELEN",
-    });
-
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
     });
 
-    it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
+    it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", async () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
         "open",
@@ -448,7 +459,11 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(dialogRef, "afterClosed")
         .mockReturnValue(of("openBesluitVastleggen"));
 
-      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+      const listItem = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+      );
+
+      await listItem?.click();
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
@@ -456,14 +471,18 @@ describe(ZaakViewComponent.name, () => {
       );
     });
 
-    it("should show snackbar when dialog returns other value", () => {
+    it("should show snackbar when dialog returns other value", async () => {
       const spy = jest.spyOn(utilService, "openSnackbar");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
 
-      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+      const listItem = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+      );
+
+      await listItem?.click();
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
+        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
     });
