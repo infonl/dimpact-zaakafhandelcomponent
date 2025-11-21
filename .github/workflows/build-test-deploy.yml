@@ -336,16 +336,16 @@ jobs:
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: backendunittests
-          files: build/reports/jacoco/test/jacocoTestReport.xml
+          flags: backendunittests,unittests
+          files: ./build/reports/jacoco/test/jacocoTestReport.xml
 
       - name: Upload frontend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: frontendunittests
-          files: src/main/app/coverage/clover.xml
+          flags: frontendunittests,unittests
+          files: ./src/main/app/coverage/clover.xml
 
   build-docker-image-and-run-itests:
     needs: [build, paths-filter, validate-input, determine-version]
