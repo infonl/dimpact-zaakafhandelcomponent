@@ -404,7 +404,9 @@ export class ZaakViewComponent
     if (this.zaak.rechten.creerenDocument) {
       if (
         this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
-          .enabledForZaaktype
+          .enabledForZaaktype &&
+        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
+          .enabledGlobally
       ) {
         this.menu.push(
           new ButtonMenuItem(
@@ -498,7 +500,7 @@ export class ZaakViewComponent
             ),
           );
 
-          if (humanTaskPlanItems.length) {
+          if (processTaskPlanItems.length) {
             this.menu.push(new HeaderMenuItem("actie.proces.starten"));
           }
           this.menu = this.menu.concat(

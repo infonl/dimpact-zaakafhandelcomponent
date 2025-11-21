@@ -6,10 +6,9 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { HttpClient, provideHttpClient } from "@angular/common/http";
+import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
@@ -128,10 +127,6 @@ describe(ZaakViewComponent.name, () => {
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
-    const test = TestBed.inject(HttpClient);
-    const spy = jest.spyOn(test, "post");
-    expect(spy).toHaveBeenCalledTimes(1);
-
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listHistorieVoorZaak").mockReturnValue(of([]));
     jest.spyOn(zakenService, "listBetrokkenenVoorZaak").mockReturnValue(of([]));
@@ -235,7 +230,6 @@ describe(ZaakViewComponent.name, () => {
         });
       });
 
-      loader.getHarnessOrNull(MatButtonHarness.with({ text: /Opschorten/ }));
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
