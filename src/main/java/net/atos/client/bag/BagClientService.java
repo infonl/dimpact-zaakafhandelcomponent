@@ -4,17 +4,24 @@
  */
 package net.atos.client.bag;
 
-import java.util.Collections;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
+import net.atos.client.bag.api.AdresApi;
+import net.atos.client.bag.api.NummeraanduidingApi;
+import net.atos.client.bag.api.OpenbareRuimteApi;
+import net.atos.client.bag.api.PandApi;
+import net.atos.client.bag.api.WoonplaatsApi;
+import net.atos.client.bag.model.BevraagAdressenParameters;
+import nl.info.client.bag.model.generated.AdresIOHal;
+import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded;
+import nl.info.client.bag.model.generated.NummeraanduidingIOHal;
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHal;
+import nl.info.client.bag.model.generated.PandIOHal;
+import nl.info.client.bag.model.generated.WoonplaatsIOHal;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.bag.api.*;
-import net.atos.client.bag.model.BevraagAdressenParameters;
-import nl.info.client.bag.model.generated.*;
+import java.util.Collections;
+import java.util.List;
 
 @ApplicationScoped
 public class BagClientService {
