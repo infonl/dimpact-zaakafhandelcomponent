@@ -59,6 +59,7 @@ jobs:
           path: src/e2e/reports
           retention-days: 7
       - name: Create .env file from secrets
+        if: always()
         run: |
           echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
       - name: BDD playwright
