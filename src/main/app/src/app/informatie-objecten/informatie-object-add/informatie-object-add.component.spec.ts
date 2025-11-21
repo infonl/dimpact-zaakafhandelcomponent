@@ -16,6 +16,7 @@ import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing"
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -440,16 +441,17 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
-    it("should disable the submit button and add a spinner", () => {
+    it("should disable the submit button and add a spinner", async () => {
       component.isLoading = true;
       fixture.detectChanges();
 
-      const submitButton = fixture.debugElement.query(
-        By.css('button[type="submit"]'),
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-      expect(submitButton.nativeElement.disabled).toBeTruthy();
 
-      const spinner = submitButton.query(By.css("mat-spinner"));
+      expect(submitButton.isDisabled()).toBeTruthy();
+
+      const spinner = await loader.getHarness(MatProgressSpinnerHarness);
       expect(spinner).toBeTruthy();
     });
   });
