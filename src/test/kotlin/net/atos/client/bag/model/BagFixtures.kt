@@ -4,7 +4,6 @@
  */
 package net.atos.client.bag.model
 
-import nl.info.client.bag.model.generated.AdresIOEmbedded
 import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded
 import nl.info.client.bag.model.generated.AdresIOLinks
