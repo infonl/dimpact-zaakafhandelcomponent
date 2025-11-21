@@ -33,6 +33,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
+import {MatProgressSpinnerHarness} from "@angular/material/progress-spinner/testing";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
@@ -440,18 +441,19 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
-    it("should disable the submit button and add a spinner", () => {
-      component.isLoading = true;
-      fixture.detectChanges();
+      it("should disable the submit button and add a spinner", async () => {
+          component.isLoading = true;
+          fixture.detectChanges();
 
-      const submitButton = fixture.debugElement.query(
-        By.css('button[type="submit"]'),
-      );
-      expect(submitButton.nativeElement.disabled).toBeTruthy();
+          const submitButton = await loader.getHarness(
+              MatButtonHarness.with({ text: "actie.toevoegen" }),
+          );
 
-      const spinner = submitButton.query(By.css("mat-spinner"));
-      expect(spinner).toBeTruthy();
-    });
+          expect(submitButton.isDisabled()).toBeTruthy();
+
+          const spinner = await loader.getHarness(MatProgressSpinnerHarness);
+          expect(spinner).toBeTruthy();
+      });
   });
 
   describe("Adding multiple documents to a Zaak", () => {
