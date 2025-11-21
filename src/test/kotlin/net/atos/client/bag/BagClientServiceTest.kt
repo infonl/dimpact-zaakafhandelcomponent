@@ -106,7 +106,7 @@ class BagClientServiceTest : BehaviorSpec({
             When("listAdressen is called") {
                 val result = bagClientService.listAdressen(bevraagAdressenParameters)
 
-                Then("it should invoke he BAG adres API and should return an empty list") {
+                Then("it should invoke the BAG adres API and should return an empty list") {
                     verify(exactly = 1) {
                         adresApi.bevraagAdressen(bevraagAdressenParameters)
                     }
