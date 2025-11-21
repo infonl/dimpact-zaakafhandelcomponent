@@ -16,6 +16,8 @@ import net.atos.client.bag.api.OpenbareRuimteApi
 import net.atos.client.bag.api.PandApi
 import net.atos.client.bag.api.WoonplaatsApi
 import net.atos.client.bag.model.createAdresIOHal
+import net.atos.client.bag.model.createAdresIOHalCollectionEmbedded
+import net.atos.client.bag.model.createBevraagAdressenParameters
 import net.atos.client.bag.model.createWoonplaatsIOHal
 
 class BagClientServiceTest : BehaviorSpec({
@@ -72,6 +74,64 @@ class BagClientServiceTest : BehaviorSpec({
                 returnedWoonplaatsIOHal shouldBe woonplaatsIOHal
                 verify(exactly = 1) {
                     woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
+                }
+            }
+        }
+    }
+
+    Context("Listing addresses") {
+        Given("Valid list address parameters and available embedded addresses in the BAG API") {
+            val bevraagAdressenParameters = createBevraagAdressenParameters()
+            val adresIOHalCollectionEmbedded = createAdresIOHalCollectionEmbedded()
+            every {
+                adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded()
+            } returns adresIOHalCollectionEmbedded
+
+            When("listAdressen is called") {
+                val returnedAddresses = bagClientService.listAdressen(bevraagAdressenParameters)
+
+                Then("it should invoke the BAG adres API and should return the list of addresses") {
+                    verify(exactly = 1) {
+                        adresApi.bevraagAdressen(bevraagAdressenParameters)
+                    }
+                    returnedAddresses shouldBe adresIOHalCollectionEmbedded.adressen
+                }
+            }
+        }
+
+        Given("Valid list address parameters but no available embedded addresses in the BAG API") {
+            val bevraagAdressenParameters = createBevraagAdressenParameters()
+            every { adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded() } returns null
+
+            When("listAdressen is called") {
+                val result = bagClientService.listAdressen(bevraagAdressenParameters)
+
+                Then("it should invoke he BAG adres API and should return an empty list") {
+                    verify(exactly = 1) {
+                        adresApi.bevraagAdressen(bevraagAdressenParameters)
+                    }
+                    result shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("Valid list address parameters but the BAG adres API return null embedded addresses") {
+            val bevraagAdressenParameters = createBevraagAdressenParameters()
+            val adresIOHalCollectionEmbedded = createAdresIOHalCollectionEmbedded(
+                addressen = null
+            )
+            every {
+                adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded()
+            } returns adresIOHalCollectionEmbedded
+
+            When("listAdressen is called") {
+                val result = bagClientService.listAdressen(bevraagAdressenParameters)
+
+                Then("it should invoke the BAG adres API and return an empty list") {
+                    verify(exactly = 1) {
+                        adresApi.bevraagAdressen(bevraagAdressenParameters)
+                    }
+                    result shouldBe emptyList()
                 }
             }
         }

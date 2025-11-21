@@ -4,33 +4,15 @@
  */
 package net.atos.client.bag;
 
-import static net.atos.client.bag.util.BagClientHeadersFactory.API_KEY;
-import static net.atos.client.bag.util.BagClientHeadersFactory.X_API_KEY;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.client.Invocation;
-
+import net.atos.client.bag.api.*;
+import net.atos.client.bag.model.BevraagAdressenParameters;
+import nl.info.client.bag.model.generated.*;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.bag.api.AdresApi;
-import net.atos.client.bag.api.NummeraanduidingApi;
-import net.atos.client.bag.api.OpenbareRuimteApi;
-import net.atos.client.bag.api.PandApi;
-import net.atos.client.bag.api.WoonplaatsApi;
-import net.atos.client.bag.model.BevraagAdressenParameters;
-import net.atos.client.util.JAXRSClientFactory;
-import net.atos.zac.util.MediaTypes;
-import nl.info.client.bag.model.generated.AdresIOHal;
-import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded;
-import nl.info.client.bag.model.generated.NummeraanduidingIOHal;
-import nl.info.client.bag.model.generated.OpenbareRuimteIOHal;
-import nl.info.client.bag.model.generated.PandIOHal;
-import nl.info.client.bag.model.generated.WoonplaatsIOHal;
+import java.util.Collections;
+import java.util.List;
 
 @ApplicationScoped
 public class BagClientService {
@@ -94,15 +76,5 @@ public class BagClientService {
         } else {
             return Collections.emptyList();
         }
-    }
-
-    public AdresIOHal readAdres(final URI adresURI) {
-        return createInvocationBuilder(adresURI).get(AdresIOHal.class);
-    }
-
-    private Invocation.Builder createInvocationBuilder(final URI uri) {
-        return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .request(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-                .header(X_API_KEY, API_KEY);
     }
 }
