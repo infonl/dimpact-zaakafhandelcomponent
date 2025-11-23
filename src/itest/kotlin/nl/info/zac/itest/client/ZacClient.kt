@@ -28,9 +28,10 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class ZacClient {
+class ZacClient(
+    val itestHttpClient: ItestHttpClient = ItestHttpClient()
+) {
     private val logger = KotlinLogging.logger {}
-    private var itestHttpClient = ItestHttpClient()
 
     fun createEnkelvoudigInformatieobjectForZaak(
         zaakUUID: UUID,

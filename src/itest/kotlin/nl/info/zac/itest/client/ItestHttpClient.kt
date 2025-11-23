@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
     private var okHttpClient: OkHttpClient
+    private val openZaakClient = OpenZaakClient(this)
     private val logger = KotlinLogging.logger {}
 
     init {
@@ -216,7 +217,7 @@ class ItestHttpClient {
         headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 
     private fun generateBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-        generateOpenZaakJwtToken()
+        openZaakClient.generateOpenZaakJwtToken()
     } else {
         refreshAccessToken()
     }

@@ -14,7 +14,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
@@ -99,10 +101,10 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         """.trimIndent()
     ).bodyAsString
 
-    Given("A BPMN type zaak has been created") {
+    Given("A behandelaar is logged in and a BPMN type zaak has been created") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
-
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
