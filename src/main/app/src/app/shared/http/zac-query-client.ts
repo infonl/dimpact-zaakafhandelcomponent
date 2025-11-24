@@ -129,23 +129,20 @@ export class ZacQueryClient {
   public PATCH<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "patch",
-  >(
-    url: Path,
-    body: PatchBody<Path, Method>,
-    ...args: ArgsTuple<PathParameters<Path, Method>>
-  ) {
-    // @ts-expect-error Expression produces a union type that is too complex to represent.
-    return mutationOptions<
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    // @ts-expect-error(TS2590) Expression produces a union type that is too complex to represent.
+    const options = mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
       PatchBody<Path, Method>,
       void
     >({
       mutationKey: [url, ...args],
-      mutationFn: () =>
+      mutationFn: (body: PatchBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
       onMutate: () => this.utilService.setLoading(true),
       onSettled: () => this.utilService.setLoading(false),
     });
+    return options;
   }
 }

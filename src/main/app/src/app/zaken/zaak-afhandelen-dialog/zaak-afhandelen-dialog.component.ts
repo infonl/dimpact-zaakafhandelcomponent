@@ -7,12 +7,16 @@ import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -34,9 +38,9 @@ export class ZaakAfhandelenDialogComponent {
   private readonly planItemsService = inject(PlanItemsService);
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly klantenService = inject(KlantenService);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   private sendMailDefault: boolean;
-  protected loading = false;
 
   formGroup = this.formBuilder.group({
     resultaattype:
@@ -102,6 +106,16 @@ export class ZaakAfhandelenDialogComponent {
       this.formGroup.controls.verzender.setValue(defaultAfzender);
     }
   });
+
+  protected readonly afsluitenMutation = injectMutation(() =>
+    this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
+      path: { uuid: this.data.zaak.uuid },
+    }),
+  );
+
+  protected readonly planItemAfhandelenMutation = injectMutation(() =>
+    this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+  );
 
   constructor() {
     const zaakafhandelparameters =
@@ -172,7 +186,6 @@ export class ZaakAfhandelenDialogComponent {
 
   protected afhandelen() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
     if (!this.data.planItem) {
       this.afsluiten();
       return;
@@ -183,25 +196,37 @@ export class ZaakAfhandelenDialogComponent {
 
   private afsluiten() {
     const { value } = this.formGroup;
-    this.zakenService
-      .afsluiten(this.data.zaak.uuid, {
+    this.afsluitenMutation.mutate(
+      {
         reden: value.toelichting,
         resultaattypeUuid: value.resultaattype!.id,
         brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
-      })
-      .subscribe({
-        next: () => {
-          this.dialogRef.close(true);
-        },
-        error: () => this.dialogRef.close(false),
-      });
+      },
+      {
+        onSuccess: () => this.dialogRef.close(true),
+        onError: () => this.dialogRef.close(false),
+      },
+    );
   }
 
   private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
     const { value } = this.formGroup;
+    const mailtemplate = this.mailtemplateQuery.data();
 
-    this.planItemsService
-      .doUserEventListenerPlanItem({
+    const restMailGegevens =
+      value.sendMail && mailtemplate
+        ? ({
+            verzender: value.verzender?.mail,
+            replyTo: value.verzender?.replyTo,
+            ontvanger: value.ontvanger,
+            onderwerp: mailtemplate.onderwerp,
+            body: mailtemplate.body,
+            createDocumentFromMail: true,
+          } satisfies GeneratedType<"RESTMailGegevens">)
+        : undefined;
+
+    this.planItemAfhandelenMutation.mutate(
+      {
         actie: "ZAAK_AFHANDELEN",
         planItemInstanceId: planItem.id,
         zaakUuid: this.data.zaak.uuid,
@@ -209,25 +234,14 @@ export class ZaakAfhandelenDialogComponent {
           this.data.zaak.resultaat?.resultaattype?.id ??
           value.resultaattype?.id,
         resultaatToelichting: value.toelichting,
-        restMailGegevens:
-          value.sendMail && this.mailtemplateQuery.data()
-            ? ({
-                verzender: value.verzender?.mail,
-                replyTo: value.verzender?.replyTo,
-                ontvanger: value.ontvanger,
-                onderwerp: this.mailtemplateQuery.data()!.onderwerp,
-                body: this.mailtemplateQuery.data()!.body,
-                createDocumentFromMail: true,
-              } satisfies GeneratedType<"RESTMailGegevens">)
-            : undefined,
+        restMailGegevens,
         brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
-      })
-      .subscribe({
-        next: () => {
-          this.dialogRef.close(true);
-        },
-        error: () => this.dialogRef.close(false),
-      });
+      },
+      {
+        onSuccess: () => this.dialogRef.close(true),
+        onError: () => this.dialogRef.close(false),
+      },
+    );
   }
 
   protected setInitiatorEmail() {

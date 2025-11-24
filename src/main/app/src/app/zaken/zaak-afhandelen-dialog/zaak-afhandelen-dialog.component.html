@@ -113,9 +113,18 @@
       mat-raised-button
       color="primary"
       type="submit"
-      [disabled]="loading || formGroup.invalid"
+      [disabled]="
+        afsluitenMutation.isPending() ||
+        planItemAfhandelenMutation.isPending() ||
+        formGroup.invalid
+      "
     >
-      <mat-icon *ngIf="loading">
+      <mat-icon
+        *ngIf="
+          afsluitenMutation.isPending() ||
+          planItemAfhandelenMutation.isPending()
+        "
+      >
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
       {{ "actie.zaak.afhandelen" | translate }}
@@ -133,7 +142,9 @@
     </button>
     <button
       mat-raised-button
-      [disabled]="loading"
+      [disabled]="
+        afsluitenMutation.isPending() || planItemAfhandelenMutation.isPending()
+      "
       (click)="close()"
       type="button"
     >
