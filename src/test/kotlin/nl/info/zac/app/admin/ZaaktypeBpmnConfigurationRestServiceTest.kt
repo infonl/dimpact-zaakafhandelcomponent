@@ -58,7 +58,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                         zaaktypeOmschrijving shouldBe zaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
                         bpmnProcessDefinitionKey shouldBe zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
-                        groepNaam shouldBe zaaktypeBpmnProcessDefinition.groupId
+                        groepNaam shouldBe zaaktypeBpmnProcessDefinition.groepID
                     }
                 }
             }

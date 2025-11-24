@@ -56,7 +56,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         val restResultType = resultaatType.toRestResultaatType()
         val restZaakbeeindigParameter = createRestZaakbeeindigParameter(resultaattype = restResultType)
 
-        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaakTypeUUID!!) } returns zaakType
+        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
         every {
             ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
         } returns resultaatType
@@ -132,7 +132,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         every {
-            zaaktypeCmmnConfigurationService.fetchZaaktypeCmmnConfiguration(restZaakafhandelParameters.zaaktype.uuid!!)
+            zaaktypeCmmnConfigurationService.fetchZaaktypeCmmnConfiguration(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
@@ -144,10 +144,10 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             Then("the created object is correct") {
                 with(zaaktypeCmmnConfiguration) {
                     id shouldBe restZaakafhandelParameters.id
-                    zaakTypeUUID shouldBe restZaakafhandelParameters.zaaktype.uuid
+                    zaaktypeUuid shouldBe restZaakafhandelParameters.zaaktype.uuid
                     zaaktypeOmschrijving shouldBe "fakeOmschrijving"
                     caseDefinitionID shouldBe null
-                    groepID shouldBe null
+                    groepID shouldBe "fakeGroupId"
                     gebruikersnaamMedewerker shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
