@@ -35,7 +35,7 @@ class ZaaktypeConfigurationService @Inject constructor(
         private val LOG = Logger.getLogger(ZaaktypeConfigurationService::class.java.name)
     }
 
-    fun updateZaakafhandelParameters(zaaktypeUri: URI) {
+    fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
         ztcClientService.clearZaaktypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
             if (it.concept) {
