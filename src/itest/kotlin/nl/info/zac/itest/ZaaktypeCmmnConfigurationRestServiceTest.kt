@@ -11,10 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
@@ -39,52 +37,13 @@ import java.net.HttpURLConnection.HTTP_OK
 class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
 
     Given(
         """
-        ZAC Docker container is running and no zaaktypeCmmnConfiguration have been created
+        Zaaktype CMMN configuration have been created for the CMMN test zaaktypes,
         and a test domein exists in the domein reference table 
         """.trimIndent()
     ) {
-        When(
-            """
-            the create zaakafhandelparameters endpoint is called to create a new zaaktypeCmmnConfiguration
-            for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype without specifying a 'domein'
-            """.trimIndent()
-        ) {
-            val response = zacClient.createZaaktypeCmmnConfiguration(
-                zaakTypeIdentificatie = ZAAKTYPE_TEST_3_IDENTIFICATIE,
-                zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
-                zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
-                productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
-                automaticEmailConfirmationSender = "GEMEENTE"
-            )
-            Then("the response should be ok") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-        }
-        When(
-            """
-            the create zaakafhandelparameters endpoint is called to create a new zaakafhandelparameters
-            for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype with specifying the existing test domein
-            """.trimIndent()
-        ) {
-            val response = zacClient.createZaaktypeCmmnConfiguration(
-                zaakTypeIdentificatie = ZAAKTYPE_TEST_2_IDENTIFICATIE,
-                zaakTypeUuid = ZAAKTYPE_TEST_2_UUID,
-                zaakTypeDescription = ZAAKTYPE_TEST_2_DESCRIPTION,
-                productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
-                domein = DOMEIN_TEST_1
-            )
-            Then("the response should be ok") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-        }
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"

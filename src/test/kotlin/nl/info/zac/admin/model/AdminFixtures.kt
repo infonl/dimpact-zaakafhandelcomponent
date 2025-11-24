@@ -154,8 +154,8 @@ fun createAutomaticEmailConfirmation(
     id: Long? = 1234L,
     enabled: Boolean = true,
     templateName: String? = "fakeTemplateName",
-    emailSender: String? = "sender@info.nl",
-    emailReply: String? = "reply@info.nl",
+    emailSender: String? = "sender@example.com",
+    emailReply: String? = "reply@example.com",
     // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
 ) = ZaaktypeCmmnEmailParameters().apply {
