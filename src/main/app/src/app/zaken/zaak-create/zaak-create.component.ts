@@ -158,7 +158,6 @@ export class ZaakCreateComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (!value || this.isBpmnCaseTypeSelected) {
-          // for BPMB cases, the process itself sets the behandelaar
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
