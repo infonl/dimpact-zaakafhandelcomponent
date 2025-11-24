@@ -79,20 +79,18 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.zoekenService.reset$
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reset());
-
-    effect(() => {
-      this.zoekenSideNav()
-        ?.openedStart.pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          this.zoek.emit();
-        });
-    });
   }
 
   public ngAfterViewInit() {
     this.zoek.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.paginator().pageIndex = 0;
     });
+    this.zoekenSideNav()
+        ?.openedStart.pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.zoek.emit();
+        });
+
     merge(this.paginator().page, this.zoek)
       .pipe(
         takeUntil(this.destroy$),
