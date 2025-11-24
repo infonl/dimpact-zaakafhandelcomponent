@@ -8,10 +8,10 @@
 # See: https://docs.codecov.com/docs/codecov-yaml
 codecov:
   notify:
-    # only notify Codecov after two builds because we want to make sure
+    # only notify Codecov after three builds because we want to make sure
     # that the reported coverage from our GitHub workflow includes both
-    # our unit test and integration test coverage
-    after_n_builds: 2
+    # our frontend unit tests, backend unit tests and integration test coverage
+    after_n_builds: 3
   max_report_age: off
 coverage:
   status:
