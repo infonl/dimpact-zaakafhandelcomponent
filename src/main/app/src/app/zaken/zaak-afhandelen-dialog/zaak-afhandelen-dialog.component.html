@@ -61,7 +61,7 @@
     <div
       *ngIf="
         data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
-        'NIET_BESCHIKBAAR'
+          'NIET_BESCHIKBAAR' && !!data.planItem
       "
     >
       <mat-checkbox id="sendMail" formControlName="sendMail">

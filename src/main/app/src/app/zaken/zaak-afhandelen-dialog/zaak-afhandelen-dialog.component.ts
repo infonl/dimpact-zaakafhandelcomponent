@@ -113,7 +113,7 @@ export class ZaakAfhandelenDialogComponent {
     if (!this.data.zaak.resultaat) {
       this.formGroup.controls.resultaattype.addValidators(Validators.required);
     }
-    if (this.sendMailDefault) {
+    if (this.sendMailDefault && !!this.data.planItem) {
       this.formGroup.controls.sendMail.setValue(true);
       this.formGroup.controls.verzender.addValidators(Validators.required);
       this.formGroup.controls.ontvanger.addValidators([Validators.required]);
