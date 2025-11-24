@@ -133,7 +133,7 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({}))
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
       );
 
     bagService = TestBed.inject(BAGService);
@@ -147,7 +147,7 @@ describe(ZaakViewComponent.name, () => {
           fromPartial<GeneratedType<"RESTPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
-        ])
+        ]),
       );
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItems")
@@ -170,12 +170,12 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
     zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService
+      ZaakafhandelParametersService,
     );
     jest
       .spyOn(
         zaakafhandelParametersService,
-        "listZaakbeeindigRedenenForZaaktype"
+        "listZaakbeeindigRedenenForZaaktype",
       )
       .mockReturnValue(of([]));
 
@@ -220,7 +220,7 @@ describe(ZaakViewComponent.name, () => {
 
     it("should show the button", async () => {
       const button = await loader.getHarness(
-        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+        MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
       );
       expect(button).toBeTruthy();
     });
@@ -237,7 +237,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" })
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
         );
         expect(button).toBeNull();
       });
@@ -316,11 +316,11 @@ describe(ZaakViewComponent.name, () => {
         mockActivatedRoute.data.next({ zaak: { ...zaak, ...zaakData } });
 
         const icons = await loader.getAllHarnesses(
-          MatIconHarness.with({ name: "report_problem" })
+          MatIconHarness.with({ name: "report_problem" }),
         );
 
         expect(icons.length).toBe(expectedIcons);
-      }
+      },
     );
   });
 
@@ -346,7 +346,7 @@ describe(ZaakViewComponent.name, () => {
       const button = await loader.getHarness(
         MatNavListItemHarness.with({
           title: "actie.ontvangstbevestiging.versturen",
-        })
+        }),
       );
       expect(button).toBeTruthy();
     });
@@ -370,7 +370,7 @@ describe(ZaakViewComponent.name, () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({
             title: "actie.ontvangstbevestiging.versturen",
-          })
+          }),
         );
         expect(button).toBeNull();
       });
@@ -391,7 +391,7 @@ describe(ZaakViewComponent.name, () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({
             title: "actie.ontvangstbevestiging.versturen",
-          })
+          }),
         );
         expect(button).toBeNull();
       });
@@ -415,7 +415,7 @@ describe(ZaakViewComponent.name, () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({
             title: "actie.ontvangstbevestiging.versturen",
-          })
+          }),
         );
         expect(button).toBeNull();
       });
@@ -436,7 +436,7 @@ describe(ZaakViewComponent.name, () => {
         const button = await loader.getHarnessOrNull(
           MatNavListItemHarness.with({
             title: "actie.ontvangstbevestiging.versturen",
-          })
+          }),
         );
         expect(button).toBeNull();
       });
@@ -452,21 +452,21 @@ describe(ZaakViewComponent.name, () => {
     it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", async () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
-        "open"
+        "open",
       );
       jest
         .spyOn(dialogRef, "afterClosed")
         .mockReturnValue(of("openBesluitVastleggen"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ })
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
       );
 
       await listItem?.click();
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
-        "actie.besluit.vastleggen"
+        "actie.besluit.vastleggen",
       );
     });
 
@@ -475,15 +475,33 @@ describe(ZaakViewComponent.name, () => {
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
 
       const listItem = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ })
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
       );
 
       await listItem?.click();
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN"
+        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
+    });
+  });
+
+  describe("subscriptions$", () => {
+    let subscriptionsPushSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      subscriptionsPushSpy = jest.spyOn(
+        fixture.componentInstance["subscriptions$"],
+        "push",
+      );
+      mockActivatedRoute.data.next({ zaak });
+
+      fixture.detectChanges();
+    });
+
+    it("should add menu subscription to subscriptions$ array when setupMenu is called", () => {
+      expect(subscriptionsPushSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

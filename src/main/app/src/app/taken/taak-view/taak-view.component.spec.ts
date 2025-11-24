@@ -15,6 +15,7 @@ import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -39,7 +40,6 @@ import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.comp
 import { ZakenService } from "../../zaken/zaken.service";
 import { TakenService } from "../taken.service";
 import { TaakViewComponent } from "./taak-view.component";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
 
 describe(TaakViewComponent.name, () => {
   let fixture: ComponentFixture<TaakViewComponent>;
@@ -163,14 +163,14 @@ describe(TaakViewComponent.name, () => {
         Opcode.UPDATED,
         ObjectType.ZAAK_INFORMATIEOBJECTEN,
         taak.zaakUuid,
-        expect.any(Function)
+        expect.any(Function),
       );
     });
 
     it(`should reload the history when a ${Opcode.UPDATED} on ${ObjectType.ZAAK_INFORMATIEOBJECTEN} is received`, () => {
       const listHistorieVoorTaak = jest.spyOn(
         takenService,
-        "listHistorieVoorTaak"
+        "listHistorieVoorTaak",
       );
 
       component.instance.documentCreated();
@@ -248,7 +248,7 @@ describe(TaakViewComponent.name, () => {
                   form: [],
                 }),
             }),
-        })
+        }),
       );
     });
 
@@ -299,7 +299,7 @@ describe(TaakViewComponent.name, () => {
         const buttons = await loader.getAllHarnesses(MatNavListItemHarness);
 
         expect(buttons.length).toBe(expectButtons);
-      }
+      },
     );
   });
 });
