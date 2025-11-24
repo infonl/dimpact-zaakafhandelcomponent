@@ -4,19 +4,20 @@
   -->
 
 <mat-progress-bar
-  mode="determinate"
-  value="100"
-  *ngIf="
-    !utilService.loading() &&
-    !queryClient.isFetching() &&
-    !queryClient.isMutating()
-  "
-></mat-progress-bar>
-<mat-progress-bar
-  mode="query"
-  *ngIf="utilService.loading() || queryClient.isFetching()"
-></mat-progress-bar>
-<mat-progress-bar
   mode="indeterminate"
-  *ngIf="queryClient.isMutating()"
+  *ngIf="queryClient.isMutating(); else loadingQuery"
 ></mat-progress-bar>
+
+<ng-template #loadingQuery>
+  <mat-progress-bar
+    mode="query"
+    *ngIf="utilService.loading() || queryClient.isFetching(); else loadingDeterminate"
+  ></mat-progress-bar>
+</ng-template>
+
+<ng-template #loadingDeterminate>
+  <mat-progress-bar
+    mode="determinate"
+    value="100"
+  ></mat-progress-bar>
+</ng-template>
