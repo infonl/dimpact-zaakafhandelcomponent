@@ -4,14 +4,13 @@
  */
 package nl.info.zac.itest
 
-import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
@@ -21,25 +20,17 @@ import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
-import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
-import okhttp3.Headers.Companion.toHeaders
-import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
-import java.util.UUID
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * This test creates multiple zaken, tasks and documents, indexes them, and performs searches.
@@ -54,6 +45,7 @@ class SearchRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
     val taskHelper = TaskHelper(zacClient)
+    val documentHelper = DocumentHelper(zacClient)
     val logger = KotlinLogging.logger {}
 
     Context("Listing search results") {
@@ -63,21 +55,27 @@ class SearchRestServiceTest : BehaviorSpec({
             task has been added to the zaak           
             """".trimIndent()
         ) {
-            // log in as a beheerder authorised in all domains to create the zaken, tasks and documents and index them
+            // log in as a beheerder authorised in all domains
+            // and create the zaken, tasks and documents and index them
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
-            val zaak1Description = "fakeZaak1DescriptionForSearchRestServiceTest"
+            val zaakDescription = "fakeZaakDescriptionForSearchRestServiceTest"
+            val documentTitle = "fakeDocumentTitleForSearchRestServiceTest"
             val now = LocalDate.now()
             val aanvullendeInformatieTaskFatalDate = now.plusDays(1)
-            val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
-                zaakDescription = zaak1Description
+            val (zaakIdentification, zaakUuid) = zaakHelper.createAndIndexZaak(
+                zaakDescription = zaakDescription
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
-                zaakUuid = zaak1Uuid,
-                zaakIdentificatie = zaak1Identification,
+                zaakUuid = zaakUuid,
+                zaakIdentificatie = zaakIdentification,
                 fatalDate = aanvullendeInformatieTaskFatalDate,
                 group = BEHANDELAARS_DOMAIN_TEST_1
             )
-            // TODO: upload document to a zaak and index it (if needed)
+            documentHelper.uploadDocumentToZaakAndIndexDocument(
+                documentTitle = documentTitle,
+                fileName = TEST_PDF_FILE_NAME,
+                zaakUUID = zaakUuid
+            )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
             When("the search endpoint is called to search open zaken on the unique description of the just created zaak") {
@@ -91,7 +89,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "alleenOpenstaandeZaken": true,
                             "alleenAfgeslotenZaken": false,
                             "alleenMijnTaken": false,
-                            "zoeken": { "ZAAK_OMSCHRIJVING": "$zaak1Description" },
+                            "zoeken": { "ZAAK_OMSCHRIJVING": "$zaakDescription" },
                             "filters": {},
                             "datums": {},
                             "rows": 10,
@@ -122,15 +120,15 @@ class SearchRestServiceTest : BehaviorSpec({
                             "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
                             "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                             "groepNaam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
-                            "id" : "$zaak1Uuid",
-                            "identificatie" : "$zaak1Identification",
+                            "id" : "$zaakUuid",
+                            "identificatie" : "$zaakIdentification",
                             "indicatieDeelzaak" : false,
                             "indicatieHeropend" : false,
                             "indicatieHoofdzaak" : false,
                             "indicatieOpschorting" : false,
                             "indicatieVerlenging" : false,
                             "indicaties" : [ ],
-                            "omschrijving" : "$zaak1Description",
+                            "omschrijving" : "$zaakDescription",
                             "rechten" : {
                               "afbreken" : false,
                               "behandelen" : false,
@@ -257,7 +255,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         getInt("totaal") shouldBeGreaterThan 0
                         getJSONArray("resultaten")
                             .map { it as JSONObject }
-                            .first { it.getString("zaakOmschrijving") == zaak1Description }
+                            .first { it.getString("zaakOmschrijving") == zaakDescription }
                     }
                     aanvullendeInformatieTask shouldNotBe null
                     aanvullendeInformatieTask.toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -274,10 +272,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             },
                             "status": "NIET_TOEGEKEND",
                             "type": "TAAK",
-                            "zaakIdentificatie": "$zaak1Identification",
-                            "zaakOmschrijving": "$zaak1Description",
+                            "zaakIdentificatie": "$zaakIdentification",
+                            "zaakOmschrijving": "$zaakDescription",
                             "zaakToelichting": "null",
-                            "zaakUuid": "$zaak1Uuid",
+                            "zaakUuid": "$zaakUuid",
                             "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
                         }
                     """.trimIndent()
@@ -295,7 +293,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "alleenOpenstaandeZaken": false,
                         "alleenAfgeslotenZaken": false,
                         "alleenMijnTaken": false,
-                        "zoeken": { "DOCUMENT_TITEL": "Fake test document" },
+                        "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
                         "filters": {},
                         "datums": {},
                         "rows": 10,

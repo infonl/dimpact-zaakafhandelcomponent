@@ -12,10 +12,12 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import nl.info.zac.itest.config.TestGroup
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -26,16 +28,19 @@ class ZaakHelper(
     val itestHttpClient = zacClient.itestHttpClient
 
     suspend fun createAndIndexZaak(
-        zaakDescription: String
+        zaakDescription: String,
+        zaaktypeUUID: UUID = ZAAKTYPE_TEST_2_UUID,
+        group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
+        startDate: ZonedDateTime = DATE_TIME_2024_01_01
     ): Pair<String, UUID> {
         var zaak1Identification1: String
         var zaak1Uuid1: UUID
         zacClient.createZaak(
+            zaakTypeUUID = zaaktypeUUID,
             description = zaakDescription,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2024_01_01,
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
+            groupId = group.name,
+            groupName = group.description,
+            startDate = startDate
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -45,6 +50,7 @@ class ZaakHelper(
             }
         }
         // (re)index all zaken
+        // TODO: more efficient to send a 'create zaak' notification for the created zaak only
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
             headers = mapOf(

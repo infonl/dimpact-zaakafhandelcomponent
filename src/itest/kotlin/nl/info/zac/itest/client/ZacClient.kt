@@ -41,6 +41,8 @@ class ZacClient(
     fun createEnkelvoudigInformatieobjectForZaak(
         zaakUUID: UUID,
         fileName: String,
+        title: String = DOCUMENT_FILE_TITLE,
+        authorName: String = FAKE_AUTHOR_NAME,
         fileMediaType: String,
         vertrouwelijkheidaanduiding: String
     ): ResponseContent {
@@ -53,7 +55,7 @@ class ZacClient(
             MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("bestandsnaam", fileName)
-                .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
+                .addFormDataPart("titel", title)
                 .addFormDataPart("bestandsomvang", file.length().toString())
                 .addFormDataPart("formaat", fileMediaType)
                 .addFormDataPart(
@@ -73,7 +75,7 @@ class ZacClient(
                         "yyyy-MM-dd'T'HH:mm+01:00"
                     ).format(ZonedDateTime.now())
                 )
-                .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
+                .addFormDataPart("auteur", authorName)
                 .addFormDataPart("taal", "dut")
                 .build()
         return itestHttpClient.performPostRequest(

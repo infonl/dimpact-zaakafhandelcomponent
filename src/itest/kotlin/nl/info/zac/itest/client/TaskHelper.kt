@@ -11,7 +11,6 @@ import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.time.LocalDate
 import java.util.UUID
