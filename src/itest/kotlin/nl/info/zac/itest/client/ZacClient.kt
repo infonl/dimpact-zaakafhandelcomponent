@@ -18,12 +18,15 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.TestGroup
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONArray
 import java.io.File
 import java.net.URLDecoder
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -410,6 +413,57 @@ class ZacClient(
         }
         return itestHttpClient.performGetRequest(
             url = "${ZAC_API_URI}/zaken/zaak/id/$id"
+        )
+    }
+
+    fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID): ResponseContent {
+        logger.info {
+            "Retrieving human task plan items for zaak with UUID: $zaakUUID"
+        }
+        return itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+        )
+    }
+
+    fun startHumanTaskPlanItem(
+        planItemInstanceId: String,
+        fatalDate: LocalDate,
+        groupId: String,
+        groupName: String,
+        sendMail: Boolean = false
+    ): ResponseContent {
+        logger.info {
+            "Starting human task plan item with plan item instance id: $planItemInstanceId, " +
+                "fatal date: $fatalDate, group id: $groupId, group name: $groupName, send mail: $sendMail"
+        }
+        return itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
+            requestBodyAsString = """{
+                    "planItemInstanceId": "$planItemInstanceId",
+                    "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
+                    "taakStuurGegevens": { "sendMail": $sendMail },
+                    "groep": { "id": "$groupId", "naam": "$groupName" },
+                    "taakdata":{}
+                }
+            """.trimIndent()
+        )
+    }
+
+    fun startAanvullendeInformatieTaskForZaak(
+        zaakUUID: UUID,
+        fatalDate: LocalDate,
+        group: TestGroup,
+        sendMail: Boolean = false
+    ): ResponseContent {
+        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(zaakUUID).let { response ->
+            JSONArray(response.bodyAsString).getJSONObject(0).getString("id")
+        }
+        return startHumanTaskPlanItem(
+            planItemInstanceId = aanvullendeInformatieHumanTaskPlanItemId,
+            fatalDate = fatalDate,
+            groupId = group.name,
+            groupName = group.description,
+            sendMail = sendMail
         )
     }
 }

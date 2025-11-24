@@ -4,6 +4,7 @@
  */
 package nl.info.zac.itest
 
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
@@ -30,6 +31,7 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -46,59 +48,22 @@ class SearchRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Context("Listing search results") {
-        Given("A logged-in raadpleger and multiple zaken, tasks and documents have been created and are indexed") {
+        Given("A logged-in raadpleger and a zaak, a task and a document have been created and are indexed") {
             // log in as a beheerder authorised in all domains to create the zaken, tasks and documents and index them
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
-            // TODO: create two zaken and two tasks and two documents
             val zaak1Description = "fakeZaak1DescriptionForSearchRestServiceTest"
-            var zaak1Identification: String
-            var zaak1Uuid: UUID
-            zacClient.createZaak(
-                description = zaak1Description,
-                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-                startDate = DATE_TIME_2024_01_01,
-                zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
-            ).run {
-                logger.info { "Response: $bodyAsString" }
-                code shouldBe HTTP_OK
-                JSONObject(bodyAsString).run {
-                    zaak1Identification = getString("identificatie")
-                    zaak1Uuid = getString("uuid").run(UUID::fromString)
-                }
-            }
-            // (re)index all zaken
-            itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
-                headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
-            ).run {
-                code shouldBe HTTP_NO_CONTENT
-            }
-            // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
-            eventually(10.seconds) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
-                        {
-                            "alleenMijnZaken": false,
-                            "alleenOpenstaandeZaken": true,
-                            "alleenAfgeslotenZaken": false,
-                            "alleenMijnTaken": false,
-                            "zoeken": { "ZAAK_OMSCHRIJVING": "$zaak1Description" },
-                            "filters": {},
-                            "datums": {},
-                            "rows": 1,
-                            "page": 0,
-                            "type": "ZAAK"
-                        }
-                    """.trimIndent()
-                )
-                JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
-            }
+            val (zaak1Identification, zaak1Uuid) = createAndIndexZaak(
+                zacClient = zacClient,
+                itestHttpClient = itestHttpClient,
+                logger = logger,
+                zaakDescription = zaak1Description
+            )
+            // TODO: create and index a task and a document
+            zacClient.startAanvullendeInformatieTaskForZaak(
+                zaakUUID = zaak1Uuid,
+                fatalDate = LocalDate.now().plusDays(1),
+                group = BEHANDELAARS_DOMAIN_TEST_1
+            )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
             When("the search endpoint is called to search all open zaken in the description of the just created zaak") {
@@ -900,3 +865,60 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 })
+
+private suspend fun createAndIndexZaak(
+    zacClient: ZacClient,
+    itestHttpClient: ItestHttpClient,
+    logger: KLogger,
+    zaakDescription: String,
+): Pair<String, UUID> {
+    var zaak1Identification1: String
+    var zaak1Uuid1: UUID
+    zacClient.createZaak(
+        description = zaakDescription,
+        groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+        groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+        startDate = DATE_TIME_2024_01_01,
+        zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
+    ).run {
+        logger.info { "Response: $bodyAsString" }
+        code shouldBe HTTP_OK
+        JSONObject(bodyAsString).run {
+            zaak1Identification1 = getString("identificatie")
+            zaak1Uuid1 = getString("uuid").run(UUID::fromString)
+        }
+    }
+    // (re)index all zaken
+    itestHttpClient.performGetRequest(
+        url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
+        headers = mapOf(
+            "Content-Type" to "application/json",
+            "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+        ).toHeaders(),
+        addAuthorizationHeader = false
+    ).run {
+        code shouldBe HTTP_NO_CONTENT
+    }
+    // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
+    eventually(10.seconds) {
+        val response = itestHttpClient.performPutRequest(
+            url = "$ZAC_API_URI/zoeken/list",
+            requestBodyAsString = """
+                {
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": { "ZAAK_OMSCHRIJVING": "$zaakDescription" },
+                    "filters": {},
+                    "datums": {},
+                    "rows": 1,
+                    "page": 0,
+                    "type": "ZAAK"
+                }
+            """.trimIndent()
+        )
+        JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
+    }
+    return Pair(zaak1Identification1, zaak1Uuid1)
+}
