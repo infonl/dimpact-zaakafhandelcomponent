@@ -133,7 +133,7 @@ VALUES
     '',
     '',
     NULL,
-    'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling',
+    'fakeToelichtingAfgebroken',
     (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'),
     '_etag',
     NULL,
@@ -185,7 +185,7 @@ VALUES
     '',
     '',
     NULL,
-    'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
+    'fakeToelichtingVerleend',
     (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), -- Zaaktype ID
     '_etag',
     NULL,

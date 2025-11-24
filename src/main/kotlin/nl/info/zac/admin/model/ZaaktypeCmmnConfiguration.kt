@@ -25,9 +25,8 @@ import java.util.UUID
 @Suppress("TooManyFunctions")
 class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     /**
-     * This field is nullable because when a new zaaktype is published,
-     * ZAC creates an initial 'inactive' zaaktypeCmmnConfiguration record without a value.
-     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory is never null.
+     * This field is nullable because for a new zaaktype we return non-filled zaaktype data to the UI.
+     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory and is never null.
      */
     @Column(name = "id_case_definition")
     var caseDefinitionID: String? = null
