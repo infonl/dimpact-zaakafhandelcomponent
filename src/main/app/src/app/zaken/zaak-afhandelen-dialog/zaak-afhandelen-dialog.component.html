@@ -43,11 +43,11 @@
       [value]="besluit.besluittype?.naam"
     />
     <zac-select
+      *ngIf="!data.zaak.resultaat"
       [form]="formGroup"
       key="resultaattype"
       label="resultaat"
-      *ngIf="!data.zaak.resultaat"
-      [options]="resultaattypes"
+      [options]="resultaattypesQuery.data() ?? []"
       optionDisplayValue="naam"
     />
     <zac-input [form]="formGroup" key="toelichting" />
@@ -61,7 +61,7 @@
     <div
       *ngIf="
         data.zaak.zaaktype.zaakafhandelparameters?.afrondenMail !==
-          'NIET_BESCHIKBAAR' && !!data.planItem
+        'NIET_BESCHIKBAAR'
       "
     >
       <mat-checkbox id="sendMail" formControlName="sendMail">
@@ -69,20 +69,20 @@
       </mat-checkbox>
     </div>
     <zac-select
+      *ngIf="formGroup.controls.sendMail.value"
       [form]="formGroup"
       key="verzender"
-      *ngIf="formGroup.controls.sendMail.value"
-      [options]="afzenders"
+      [options]="afzendersQuery.data() ?? []"
       optionDisplayValue="mail"
       suffix="suffix"
     />
     <zac-input
+      *ngIf="formGroup.controls.sendMail.value"
       [form]="formGroup"
       key="ontvanger"
-      *ngIf="formGroup.controls.sendMail.value"
     >
       <button
-        *ngIf="initiatorEmail"
+        *ngIf="initiatorEmailQuery.data()?.emailadres"
         mat-icon-button
         type="button"
         matSuffix
@@ -93,13 +93,13 @@
       </button>
     </zac-input>
     <mat-expansion-panel
-      class="mat-elevation-z0"
       *ngIf="formGroup.controls.sendMail.value"
+      class="mat-elevation-z0"
     >
       <mat-expansion-panel-header>
         {{ "body" | translate }}
       </mat-expansion-panel-header>
-      <p class="readonly" [innerHTML]="mailtemplate?.body"></p>
+      <p class="readonly" [innerHTML]="mailtemplateQuery.data()?.body"></p>
     </mat-expansion-panel>
   </mat-dialog-content>
   <mat-dialog-actions>

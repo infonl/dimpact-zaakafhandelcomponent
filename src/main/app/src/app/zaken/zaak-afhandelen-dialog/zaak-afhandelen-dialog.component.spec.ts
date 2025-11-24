@@ -16,11 +16,11 @@ import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { EMPTY, of } from "rxjs";
-import { KlantenService } from "../../klanten/klanten.service";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { EMPTY } from "rxjs";
+import { QueryClient } from "@tanstack/query-core";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -28,7 +28,6 @@ import { PipesModule } from "../../shared/pipes/pipes.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZakenService } from "../zaken.service";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
@@ -36,10 +35,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   let loader: HarnessLoader;
 
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
-  let zakenService: ZakenService;
   let planItemsService: PlanItemsService;
-  let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
+  let queryClient: QueryClient;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -121,6 +118,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(
+          new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+        ),
         {
           provide: MatDialogRef,
           useValue: mockDialogRef,
@@ -137,33 +137,32 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     }).compileComponents();
 
     dialogRef = TestBed.inject(MatDialogRef);
-    zakenService = TestBed.inject(ZakenService);
     planItemsService = TestBed.inject(PlanItemsService);
-    mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
+    queryClient = TestBed.inject(QueryClient);
 
-    jest
-      .spyOn(zakenService, "listResultaattypes")
-      .mockReturnValue(of(mockResultaattypes));
-    jest
-      .spyOn(zakenService, "listAfzendersVoorZaak")
-      .mockReturnValue(of(mockAfzenders));
-    jest
-      .spyOn(zakenService, "readDefaultAfzenderVoorZaak")
-      .mockReturnValue(of(mockAfzenders[0]));
-    jest
-      .spyOn(mailtemplateService, "findMailtemplate")
-      .mockReturnValue(of(mockMailtemplate));
-    jest
-      .spyOn(klantenService, "getContactDetailsForPerson")
-      .mockReturnValue(of({ emailadres: "initiator@example.com" }));
     jest
       .spyOn(planItemsService, "doUserEventListenerPlanItem")
       .mockReturnValue(EMPTY);
 
+    queryClient.setQueryData(
+      ["resultaattypes", zaakMock.zaaktype.uuid],
+      mockResultaattypes,
+    );
+    queryClient.setQueryData(["afzenders", zaakMock.uuid], mockAfzenders);
+    queryClient.setQueryData(["mailtemplate", zaakMock.uuid], mockMailtemplate);
+    queryClient.setQueryData(
+      ["initiatorEmail", zaakMock.initiatorIdentificatie?.bsnNummer],
+      { emailadres: "initiator@example.com" },
+    );
+    queryClient.setQueryData(
+      ["defaultAfzender", zaakMock.uuid],
+      mockAfzenders[0],
+    );
+
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
+    await fixture.whenStable();
   };
 
   beforeEach(async () => {
