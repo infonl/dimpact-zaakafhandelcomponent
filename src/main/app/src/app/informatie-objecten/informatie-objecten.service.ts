@@ -66,12 +66,11 @@ export class InformatieObjectenService {
     documentReferenceId: string,
     taakObject: boolean,
   ) {
-      console.log('taak in service', taakObject)
     return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
       {
         path: { zaakUuid, documentReferenceId },
-        query: { taakObject }
+        query: { taakObject },
       },
     );
   }

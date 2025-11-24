@@ -7,7 +7,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import {HttpTestingController, provideHttpClientTesting} from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -15,12 +18,16 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {provideAngularQuery, provideQueryClient, provideTanStackQuery} from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  provideTanStackQuery,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of } from "rxjs";
@@ -33,8 +40,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
-import {MatIconHarness} from "@angular/material/icon/testing";
-import {ZacQueryClient} from "../../shared/http/zac-query-client";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
@@ -45,12 +50,12 @@ describe(InformatieObjectAddComponent.name, () => {
   let informatieObjectenService: InformatieObjectenService;
   let configuratieService: ConfiguratieService;
   let translateService: TranslateService;
-    let httpTestingController: HttpTestingController;
+  let httpTestingController: HttpTestingController;
 
-    const mockSideNav = fromPartial<MatDrawer>({
+  const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
   });
-  let createEnkelvoudigInformatieobjectSpy: jest.SpyInstance
+  let createEnkelvoudigInformatieobjectSpy: jest.SpyInstance;
 
   const mockInformatieObjectTypes = [
     fromPartial<GeneratedType<"RestInformatieobjecttype">>({
@@ -84,7 +89,7 @@ describe(InformatieObjectAddComponent.name, () => {
 
   const mockEnkelvoudigInformatieobject = {
     bestand: mockFile,
-      titel: "Test Title",
+    titel: "Test Title",
     formaat: "text/plain",
     beschrijving: "Test Description",
     status: "IN_BEWERKING",
@@ -134,15 +139,17 @@ describe(InformatieObjectAddComponent.name, () => {
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypesForZaak")
       .mockReturnValue(of(mockInformatieObjectTypes));
-    createEnkelvoudigInformatieobjectSpy = jest.spyOn(informatieObjectenService, "createEnkelvoudigInformatieobject")
+    createEnkelvoudigInformatieobjectSpy = jest.spyOn(
+      informatieObjectenService,
+      "createEnkelvoudigInformatieobject",
+    );
 
     configuratieService = TestBed.inject(ConfiguratieService);
 
     translateService = TestBed.inject(TranslateService);
-      httpTestingController = TestBed.inject(HttpTestingController);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
-
-      // Mock services
+    // Mock services
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
       id: "1234",
       naam: "Test User",
@@ -247,7 +254,7 @@ describe(InformatieObjectAddComponent.name, () => {
         mockZaak.uuid,
         false,
       );
-    })
+    });
 
     it("should call createEnkelvoudigInformatieobject when submit button is clicked", async () => {
       const creatiedatum = moment("2025-09-24T11:59:23.111Z");
@@ -266,27 +273,32 @@ describe(InformatieObjectAddComponent.name, () => {
         verzenddatum,
       });
 
-        await fixture.whenStable();
-        fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-        const submitButton = await loader.getHarness(
+      const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
       await submitButton.click();
 
-      informatieObjectenService.createEnkelvoudigInformatieobject(mockZaak.uuid, mockZaak.uuid, false);
+      informatieObjectenService.createEnkelvoudigInformatieobject(
+        mockZaak.uuid,
+        mockZaak.uuid,
+        false,
+      );
 
-        const req = httpTestingController.expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`);
-        expect(req.request.method).toEqual("POST");
+      const req = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      expect(req.request.method).toEqual("POST");
 
-        const data = req.request.body as FormData
-        expect(data).toBeInstanceOf(FormData)
+      const data = req.request.body as FormData;
+      expect(data).toBeInstanceOf(FormData);
 
-        const formDataObject = Object.fromEntries(data.entries());
-        expect(formDataObject.titel).toBe(mockEnkelvoudigInformatieobject.titel);
-        expect(formDataObject.status).toBe("IN_BEWERKING");
-        expect(formDataObject.file).toBeInstanceOf(File)
-
+      const formDataObject = Object.fromEntries(data.entries());
+      expect(formDataObject.titel).toBe(mockEnkelvoudigInformatieobject.titel);
+      expect(formDataObject.status).toBe("IN_BEWERKING");
+      expect(formDataObject.file).toBeInstanceOf(File);
     });
 
     it("should emit document event after form add and submit", async () => {
@@ -311,10 +323,12 @@ describe(InformatieObjectAddComponent.name, () => {
 
       await submitButton.click();
       httpTestingController
-          .expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`)
-          .flush(mockEnkelvoudigInformatieobject)
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+        )
+        .flush(mockEnkelvoudigInformatieobject);
 
-      await sleep()
+      await sleep();
 
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -340,12 +354,14 @@ describe(InformatieObjectAddComponent.name, () => {
 
       await submitButton.click();
 
-            await submitButton.click();
+      await submitButton.click();
       httpTestingController
-          .expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`)
-          .flush(mockEnkelvoudigInformatieobject)
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+        )
+        .flush(mockEnkelvoudigInformatieobject);
 
-      await sleep()
+      await sleep();
       expect(mockSideNav.close).toHaveBeenCalled();
     });
   });
@@ -401,18 +417,19 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-      console.debug('mocktaak: ', mockTaak.id)
 
       await submitButton.click();
       expect(createSpy).toHaveBeenCalledWith(
         mockTaak.zaakUuid,
-          mockZaak.uuid,
+        mockZaak.uuid,
         false,
       );
 
-        const req = httpTestingController.expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockTaak.zaakUuid}?taakObject=false`);
-        expect(req.request.method).toEqual("POST");
-        req.flush(mockEnkelvoudigInformatieobject);
+      const req = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockTaak.zaakUuid}?taakObject=false`,
+      );
+      expect(req.request.method).toEqual("POST");
+      req.flush(mockEnkelvoudigInformatieobject);
     });
 
     it("should emit document event after form add and submit", async () => {
@@ -429,51 +446,55 @@ describe(InformatieObjectAddComponent.name, () => {
         auteur: "Test Author",
       });
 
-        fixture.detectChanges();
+      fixture.detectChanges();
 
-        const submitButton = await loader.getHarness(
-            MatButtonHarness.with({ text: "actie.toevoegen" }),
-        );
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
 
-        await submitButton.click();
-        httpTestingController
-            .expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`)
-            .flush(mockEnkelvoudigInformatieobject)
+      await submitButton.click();
+      httpTestingController
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+        )
+        .flush(mockEnkelvoudigInformatieobject);
 
-        await sleep()
+      await sleep();
 
-        expect(emitSpy).toHaveBeenCalled();
+      expect(emitSpy).toHaveBeenCalled();
     });
 
-      it("should close side nav after successful add", async () => {
-          component["form"].patchValue({
-              bestand: mockFile,
-              titel: "Test Title",
-              beschrijving: "Test Description",
-              taal: mockTalen[0],
-              status: { label: "In bewerking", value: "IN_BEWERKING" },
-              informatieobjectType: mockInformatieObjectTypes[0],
-              vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
-              auteur: "Test Author",
-              addOtherInfoObject: false,
-          });
-
-          fixture.detectChanges();
-
-          const submitButton = await loader.getHarness(
-              MatButtonHarness.with({ text: "actie.toevoegen" }),
-          );
-
-          await submitButton.click();
-
-          await submitButton.click();
-          httpTestingController
-              .expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`)
-              .flush(mockEnkelvoudigInformatieobject)
-
-          await sleep()
-          expect(mockSideNav.close).toHaveBeenCalled();
+    it("should close side nav after successful add", async () => {
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        beschrijving: "Test Description",
+        taal: mockTalen[0],
+        status: { label: "In bewerking", value: "IN_BEWERKING" },
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+        addOtherInfoObject: false,
       });
+
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+
+      await submitButton.click();
+
+      await submitButton.click();
+      httpTestingController
+        .expectOne(
+          `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+        )
+        .flush(mockEnkelvoudigInformatieobject);
+
+      await sleep();
+      expect(mockSideNav.close).toHaveBeenCalled();
+    });
 
     it("should disable the submit button and add a spinner", async () => {
       fixture.detectChanges();
@@ -486,7 +507,9 @@ describe(InformatieObjectAddComponent.name, () => {
       fixture.detectChanges();
 
       expect(submitButton.isDisabled()).toBeTruthy();
-      const spinner = MatIconHarness.with({ selector: 'button[type="submit"] mat-icon' })
+      const spinner = MatIconHarness.with({
+        selector: 'button[type="submit"] mat-icon',
+      });
       expect(spinner).toBeTruthy();
     });
   });
@@ -498,7 +521,6 @@ describe(InformatieObjectAddComponent.name, () => {
     });
 
     it("should call createEnkelvoudigInformatieobject when submit button is clicked", async () => {
-        console.debug("emitter of the failing test")
       const createSpy = jest.spyOn(
         informatieObjectenService,
         "createEnkelvoudigInformatieobject",
@@ -532,13 +554,15 @@ describe(InformatieObjectAddComponent.name, () => {
         false,
       );
 
-        const req = httpTestingController.expectOne(`/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`);
-        expect(req.request.method).toEqual("POST");
-        req.flush(mockEnkelvoudigInformatieobject);
+      const req = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      expect(req.request.method).toEqual("POST");
+      req.flush(mockEnkelvoudigInformatieobject);
 
       fixture.detectChanges();
       fixture.whenStable();
-      sleep();
+      await sleep();
 
       expect(emitSpy).toHaveBeenCalled();
       expect(mockSideNav.close).not.toHaveBeenCalled();

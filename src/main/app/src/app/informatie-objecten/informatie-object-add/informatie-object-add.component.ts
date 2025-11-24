@@ -50,12 +50,10 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
       this.zaakUuid,
       this.documentReferenceId,
-        this.zaakUuid !== this.documentReferenceId,
+      this.zaakUuid !== this.documentReferenceId,
     ),
     onSuccess: (data) => {
       this.document.emit(data);
-      console.debug('emitted');
-      
       if (this.form.controls.addOtherInfoObject.value === true) {
         this.form.reset(this.defaultFormValues);
       } else {
@@ -252,7 +250,6 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
 
   submit() {
     this.isTaakObject = this.zaakUuid !== this.documentReferenceId;
-      console.log('isTaakObject ', this.isTaakObject)
 
     const { value } = this.form;
     const payload = {
