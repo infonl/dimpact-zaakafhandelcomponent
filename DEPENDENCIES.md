@@ -23,7 +23,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 ## PodiumD dependencies
 
 - **open-zaak**: 1.23.0
-- **objects-api**: 3.1.4
+- **objects-api**: 3.2.0
 - **open-klant**: 2.9.0
 - **open-notificaties**: 1.10.0
 - **open-archiefbeheer**: 1.1.1
