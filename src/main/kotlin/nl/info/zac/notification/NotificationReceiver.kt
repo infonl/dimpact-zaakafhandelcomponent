@@ -293,7 +293,7 @@ class NotificationReceiver @Inject constructor(
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                zaaktypeConfigurationService.updateZaakafhandelParameters(notification.resourceUrl)
+                zaaktypeConfigurationService.updateZaaktypeConfiguration(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

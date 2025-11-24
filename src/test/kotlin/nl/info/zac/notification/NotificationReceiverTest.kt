@@ -110,7 +110,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeConfigurationService.updateZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -120,7 +120,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaaktypeConfigurationService.updateZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -138,7 +138,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { zaaktypeConfigurationService.updateZaakafhandelParameters(zaaktypeUri) } just runs
+        every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -148,7 +148,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    zaaktypeConfigurationService.updateZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
@@ -173,7 +173,7 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
                 verify(exactly = 0) {
-                    zaaktypeConfigurationService.updateZaakafhandelParameters(zaaktypeUri)
+                    zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
                 }
             }
         }
