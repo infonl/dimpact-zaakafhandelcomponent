@@ -66,7 +66,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   constructor() {
     effect(() => {
       const trefwoorden = this.zoekenService.trefwoorden();
-      if (this.trefwoordenControl.value == trefwoorden) return;
+      if (this.trefwoordenControl.value === trefwoorden) return;
       this.trefwoordenControl.setValue(trefwoorden);
     });
 
