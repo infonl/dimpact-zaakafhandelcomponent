@@ -7,6 +7,7 @@ import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -15,7 +16,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
-import { injectQuery } from "@tanstack/angular-query-experimental";
 
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",
