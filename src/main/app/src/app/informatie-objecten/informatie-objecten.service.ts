@@ -64,11 +64,13 @@ export class InformatieObjectenService {
   createEnkelvoudigInformatieobject(
     zaakUuid: string,
     documentReferenceId: string,
-    // isTaakObject: boolean = false,
+    taakObject: boolean,
   ) {
     return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
-      { path: { zaakUuid, documentReferenceId } },
+      { path: { zaakUuid, documentReferenceId },
+        query: { taakObject }
+      },
     );
   }
 

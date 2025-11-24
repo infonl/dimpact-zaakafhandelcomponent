@@ -40,7 +40,7 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
-  private isTaakObject = false;
+  isTaakObject = false;
 
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -50,11 +50,15 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
       this.zaakUuid,
       this.documentReferenceId,
-      // this.isTaakObject,
+      this.isTaakObject,
     ),
     onSuccess: (data) => {
       this.document.emit(data);
-      this.resetAndClose();
+      if (this.form.controls.addOtherInfoObject.value === true) {
+        this.form.reset(this.defaultFormValues);
+      } else {
+        this.resetAndClose();
+      }
     },
     onError: () => {
       this.form.reset();
@@ -246,6 +250,9 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
 
   submit() {
     this.isTaakObject = this.zaakUuid !== this.documentReferenceId;
+      console.log('zaakUuid ', this.zaakUuid)
+      console.log('documentReferenceId ', this.documentReferenceId)
+      console.log('isTaakObject ', this.isTaakObject)
 
     const { value } = this.form;
     const payload = {

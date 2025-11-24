@@ -16,6 +16,7 @@ import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing"
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -33,7 +34,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
-import {MatProgressSpinnerHarness} from "@angular/material/progress-spinner/testing";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
@@ -132,9 +132,17 @@ describe(InformatieObjectAddComponent.name, () => {
 
     jest
       .spyOn(informatieObjectenService, "createEnkelvoudigInformatieobject")
-      .mockReturnValue(
-        of(fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({})),
-      );
+      .mockReturnValue({
+        mutationKey: ["create-informatieobject"],
+        mutationFn: jest
+          .fn()
+          .mockResolvedValue(
+            fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({}),
+          ),
+        onMutate: () => undefined,
+        onSettled: () => undefined,
+        onSuccess: () => undefined,
+      });
 
     jest
       .spyOn(translateService, "instant")
@@ -255,21 +263,6 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(createSpy).toHaveBeenCalledWith(
         mockZaak.uuid,
         mockZaak.uuid,
-        {
-          bestand: mockFile,
-          titel: "Test Title",
-          formaat: "text/plain",
-          beschrijving: "Test Description",
-          status: "IN_BEWERKING",
-          informatieobjectTypeUUID: mockInformatieObjectTypes[0].uuid,
-          bestandsnaam: "test-file.txt",
-          creatiedatum: "2025-09-24T11:59:23.111Z",
-          ontvangstdatum: undefined,
-          verzenddatum: "2025-09-24T11:59:23.333Z",
-          vertrouwelijkheidaanduiding: "intern",
-          taal: mockTalen[0].code,
-          auteur: "Test Author",
-        },
         false,
       );
     });
@@ -376,21 +369,6 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(createSpy).toHaveBeenCalledWith(
         mockTaak.zaakUuid,
         mockTaak.id,
-        {
-          bestand: mockFile,
-          titel: "Test Title",
-          formaat: "text/plain",
-          beschrijving: "Test Description",
-          status: "IN_BEWERKING",
-          informatieobjectTypeUUID: mockInformatieObjectTypes[0].uuid,
-          bestandsnaam: "test-file.txt",
-          creatiedatum: "2025-09-24T11:59:23.111Z",
-          ontvangstdatum: undefined,
-          verzenddatum: "2025-09-24T11:59:23.333Z",
-          vertrouwelijkheidaanduiding: "intern",
-          taal: mockTalen[0].code,
-          auteur: "Test Author",
-        },
         true,
       );
     });
@@ -441,19 +419,18 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
-      it("should disable the submit button and add a spinner", async () => {
-          component.isLoading = true;
-          fixture.detectChanges();
+    it("should disable the submit button and add a spinner", async () => {
+      fixture.detectChanges();
 
-          const submitButton = await loader.getHarness(
-              MatButtonHarness.with({ text: "actie.toevoegen" }),
-          );
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
 
-          expect(submitButton.isDisabled()).toBeTruthy();
+      expect(submitButton.isDisabled()).toBeTruthy();
 
-          const spinner = await loader.getHarness(MatProgressSpinnerHarness);
-          expect(spinner).toBeTruthy();
-      });
+      const spinner = await loader.getHarness(MatProgressSpinnerHarness);
+      expect(spinner).toBeTruthy();
+    });
   });
 
   describe("Adding multiple documents to a Zaak", () => {
@@ -495,21 +472,6 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(createSpy).toHaveBeenCalledWith(
         mockZaak.uuid,
         mockZaak.uuid,
-        {
-          bestand: mockFile,
-          titel: "Test Title",
-          formaat: "text/plain",
-          beschrijving: "Test Description",
-          status: "IN_BEWERKING",
-          informatieobjectTypeUUID: mockInformatieObjectTypes[0].uuid,
-          bestandsnaam: "test-file.txt",
-          creatiedatum: "2025-09-24T11:59:23.111Z",
-          ontvangstdatum: undefined,
-          verzenddatum: "2025-09-24T11:59:23.333Z",
-          vertrouwelijkheidaanduiding: "intern",
-          taal: mockTalen[0].code,
-          auteur: "Test Author",
-        },
         false,
       );
 
