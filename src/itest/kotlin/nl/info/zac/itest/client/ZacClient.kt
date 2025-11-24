@@ -11,6 +11,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
+import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
@@ -24,6 +25,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.net.URLDecoder
 import java.time.LocalDate
@@ -456,7 +458,13 @@ class ZacClient(
         sendMail: Boolean = false
     ): ResponseContent {
         val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(zaakUUID).let { response ->
-            JSONArray(response.bodyAsString).getJSONObject(0).getString("id")
+            JSONArray(response.bodyAsString)
+                .map { it as JSONObject }
+                .firstOrNull {
+                it.getString("formulierDefinitie") == FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+            }?.getString("id") ?: throw IllegalStateException(
+                "No human task plan item with formulier definitie '$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE' found for zaak with UUID: '$zaakUUID'"
+            )
         }
         return startHumanTaskPlanItem(
             planItemInstanceId = aanvullendeInformatieHumanTaskPlanItemId,

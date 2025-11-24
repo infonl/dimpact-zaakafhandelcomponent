@@ -8,8 +8,13 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.TaskHelper
+import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
@@ -18,6 +23,7 @@ import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
+import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -25,7 +31,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import okhttp3.Headers.Companion.toHeaders
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -44,28 +52,35 @@ import kotlin.time.Duration.Companion.seconds
 class SearchRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
+    val zaakHelper = ZaakHelper(zacClient)
+    val taskHelper = TaskHelper(zacClient)
     val logger = KotlinLogging.logger {}
 
     Context("Listing search results") {
-        Given("A logged-in raadpleger and a zaak, a task and a document have been created and are indexed") {
+        Given(
+            """
+            A logged-in raadpleger and a zaak has been created and is indexed and an 'aanvullende informatie' 
+            task has been added to the zaak           
+            """".trimIndent()
+            ) {
             // log in as a beheerder authorised in all domains to create the zaken, tasks and documents and index them
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val zaak1Description = "fakeZaak1DescriptionForSearchRestServiceTest"
-            val (zaak1Identification, zaak1Uuid) = createAndIndexZaak(
-                zacClient = zacClient,
-                itestHttpClient = itestHttpClient,
-                logger = logger,
+            val now = LocalDate.now()
+            val aanvullendeInformatieTaskFatalDate = now.plusDays(1)
+            val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
                 zaakDescription = zaak1Description
             )
-            // TODO: create and index a task and a document
-            zacClient.startAanvullendeInformatieTaskForZaak(
-                zaakUUID = zaak1Uuid,
-                fatalDate = LocalDate.now().plusDays(1),
+            taskHelper.startAanvullendeInformatieTaskForZaak(
+                zaakUuid = zaak1Uuid,
+                zaakIdentificatie = zaak1Identification,
+                fatalDate = aanvullendeInformatieTaskFatalDate,
                 group = BEHANDELAARS_DOMAIN_TEST_1
             )
+            // TODO: upload document to a zaak and index it (if needed)
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
-            When("the search endpoint is called to search all open zaken in the description of the just created zaak") {
+            When("the search endpoint is called to search open zaken on the unique description of the just created zaak") {
                 // keep on calling the search endpoint until we see the expected number of total objects
                 // because the indexing will take some time to complete
                 val response = itestHttpClient.performPutRequest(
@@ -80,13 +95,17 @@ class SearchRestServiceTest : BehaviorSpec({
                             "filters": {},
                             "datums": {},
                             "rows": 10,
-                            "page": 0                  
+                            "page": 0,
+                            "type": "ZAAK"
                         }
                     """.trimIndent()
                 )
 
                 Then(
-                    "the response is successful and the search results include the newly created zaken, tasks and documents"
+                    """
+                        the response is successful and the search results contain the newly created zaak and includes
+                        data about the started 'aanvullende informatie' task
+                    """.trimMargin()
                 ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -95,7 +114,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         {
                           "foutmelding" : "",
                           "resultaten" : [ {
-                            "aantalOpenstaandeTaken" : 0,
+                            "aantalOpenstaandeTaken" : 1,
                             "afgehandeld" : false,
                             "betrokkenen" : {
                               "Behandelaar" : [ "${BEHANDELAARS_DOMAIN_TEST_1.name}" ]
@@ -136,338 +155,72 @@ class SearchRestServiceTest : BehaviorSpec({
                             "registratiedatum" : "${LocalDate.now()}",
                             "startdatum" : "$DATE_2024_01_01",
                             "statusToelichting" : "Status gewijzigd",
-                            "statustypeOmschrijving" : "Intake",
+                            "statustypeOmschrijving" : "Wacht op aanvullende informatie",
                             "toelichting" : "null",
                             "type" : "ZAAK",
-                            "uiterlijkeEinddatumAfdoening" : "$DATE_2024_01_31",
+                            "uiterlijkeEinddatumAfdoening" : "$aanvullendeInformatieTaskFatalDate",
                             "vertrouwelijkheidaanduiding" : "OPENBAAR",
                             "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
                           } ],
                           "totaal" : 1,
-                          "filters" : {
-                            "TYPE" : [ {
-                              "aantal" : 1,
-                              "naam" : "ZAAK"
-                            } ],
-                            "ZAAKTYPE" : [ {
-                              "aantal" : 1,
-                              "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
-                            } ],
-                            "BEHANDELAAR" : [ ],
-                            "GROEP" : [ {
-                              "aantal" : 1,
-                              "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
-                            } ],
-                            "TOEGEKEND" : [ {
-                              "aantal" : 1,
-                              "naam" : "false"
-                            } ],
-                            "ZAAK_STATUS" : [ {
-                              "aantal" : 1,
-                              "naam" : "Intake"
-                            } ],
-                            "ZAAK_RESULTAAT" : [ ],
-                            "ZAAK_INDICATIES" : [ ],
-                            "ZAAK_COMMUNICATIEKANAAL" : [ {
-                              "aantal" : 1,
-                              "naam" : "$COMMUNICATIEKANAAL_TEST_1"
-                            } ],
-                            "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ {
-                              "aantal" : 1,
-                              "naam" : "OPENBAAR"
-                            } ],
-                            "ZAAK_ARCHIEF_NOMINATIE" : [ ],
-                            "TAAK_NAAM" : [ ],
-                            "TAAK_STATUS" : [ ],
-                            "DOCUMENT_STATUS" : [ ],
-                            "DOCUMENT_TYPE" : [ ],
-                            "DOCUMENT_VERGRENDELD_DOOR" : [ ],
-                            "DOCUMENT_INDICATIES" : [ ]
+                          "filters" : {                            
+                            "ZAAKTYPE" : [ 
+                              {
+                                "aantal" : 1,
+                                "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                               } 
+                            ],
+                            "BEHANDELAAR": [ 
+                              {
+                                "aantal": 1,
+                                "naam": "-NULL-"
+                               } 
+                             ],         
+                            "GROEP" : [ 
+                              {
+                                "aantal" : 1,
+                                "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                              } 
+                            ],                           
+                            "ZAAK_STATUS" : [ 
+                              {
+                                "aantal" : 1,
+                                "naam" : "$STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE"
+                              } 
+                            ],
+                            "ZAAK_RESULTAAT": [
+                              {
+                                "aantal": 1,
+                                "naam": "-NULL-"
+                              }
+                            ],
+                            "ZAAK_INDICATIES": [
+                              {
+                                "aantal": 1,
+                                "naam": "-NULL-"
+                              }
+                            ],
+                            "ZAAK_COMMUNICATIEKANAAL" : [ 
+                              {
+                                "aantal" : 1,
+                                "naam" : "$COMMUNICATIEKANAAL_TEST_1"
+                              } 
+                            ],
+                            "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ 
+                              {
+                                "aantal" : 1,
+                                "naam" : "OPENBAAR"
+                              } 
+                            ],
+                            "ZAAK_ARCHIEF_NOMINATIE": [
+                              {
+                                "aantal": 1,
+                                "naam": "-NULL-"
+                              }
+                            ]                         
                           }
                         }
                     """.trimIndent()
-
-//                    {
-//                        "foutmelding": "",
-//                        "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN + TOTAL_COUNT_INDEXED_TASKS + TOTAL_COUNT_INDEXED_DOCUMENTS},
-//                        "filters": {
-//                            "TYPE": [
-//                                {
-//                                    "aantal": $TOTAL_COUNT_INDEXED_ZAKEN,
-//                                    "naam": "ZAAK"
-//                                },
-//                                {
-//                                    "aantal": $TOTAL_COUNT_INDEXED_TASKS,
-//                                    "naam": "TAAK"
-//                                },
-//                                {
-//                                    "aantal": $TOTAL_COUNT_INDEXED_DOCUMENTS,
-//                                    "naam": "DOCUMENT"
-//                                }
-//                            ],
-//                            "ZAAKTYPE": [
-//                                {
-//                                    "aantal": 7,
-//                                    "naam": "$ZAAKTYPE_TEST_2_DESCRIPTION"
-//                                },
-//                                {
-//                                    "aantal": 19,
-//                                    "naam": "$ZAAKTYPE_TEST_3_DESCRIPTION"
-//                                },
-//                                {
-//                                    "aantal": 6,
-//                                    "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-//                                 }
-//                            ],
-//                            "BEHANDELAAR": [
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
-//                                }
-//                            ],
-//                            "GROEP": [
-//                                {
-//                                    "aantal": 18,
-//                                    "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
-//                                }
-//                            ],
-//                            "TOEGEKEND": [
-//                                {
-//                                    "aantal": 17,
-//                                    "naam": "false"
-//                                },
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "true"
-//                                }
-//                            ],
-//                            "ZAAK_STATUS": [
-//                                {
-//                                    "aantal": 2,
-//                                    "naam": "Wacht op aanvullende informatie"
-//                                },
-//                                {
-//                                    "aantal": 7,
-//                                    "naam": "Intake"
-//                                },
-//                                {
-//                                    "aantal": 2,
-//                                    "naam": "Afgerond"
-//                                },
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "In behandeling"
-//                                }
-//                            ],
-//                           "ZAAK_RESULTAAT" : [
-//                                { "aantal": 2, "naam": "Buiten behandeling" }
-//                            ],
-//                            "ZAAK_INDICATIES": [
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "VERLENGD"
-//                                }
-//                            ],
-//                            "ZAAK_COMMUNICATIEKANAAL": [
-//                                {
-//                                    "aantal": 8,
-//                                    "naam": "$COMMUNICATIEKANAAL_TEST_1"
-//                                },
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "$COMMUNICATIEKANAAL_TEST_2"
-//                                },
-//                                {
-//                                    "aantal": 5,
-//                                    "naam": "E-formulier"
-//                                }
-//                            ],
-//                            "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
-//                                {
-//                                    "aantal": 14,
-//                                    "naam": "OPENBAAR"
-//                                }
-//                            ],
-//                            "ZAAK_ARCHIEF_NOMINATIE": [
-//                                {
-//                                    "aantal": 2,
-//                                    "naam": "VERNIETIGEN"
-//                                }
-//                            ],
-//                            "TAAK_NAAM": [
-//                                {
-//                                    "aantal": 2,
-//                                    "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
-//                                },
-//                                {
-//                                    "aantal": 2,
-//                                    "naam": "$BPMN_TEST_TASK_NAME"
-//                                }
-//                            ],
-//                            "TAAK_STATUS": [
-//                                {
-//                                    "aantal": 3,
-//                                    "naam": "NIET_TOEGEKEND"
-//                                },
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "TOEGEKEND"
-//                                }
-//                            ],
-//                            "DOCUMENT_STATUS": [
-//                                {
-//                                    "aantal": 10,
-//                                    "naam": "definitief"
-//                                },
-//                                {
-//                                    "aantal": 4,
-//                                    "naam": "in_bewerking"
-//                                }
-//                            ],
-//                            "DOCUMENT_TYPE": [
-//                                {
-//                                    "aantal": 9,
-//                                    "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
-//                                },
-//                                {
-//                                    "aantal": 4,
-//                                    "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
-//                                },
-//                                {
-//                                    "aantal": 1,
-//                                    "naam": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
-//                                }
-//                            ],
-//                            "DOCUMENT_VERGRENDELD_DOOR": [],
-//                            "DOCUMENT_INDICATIES": [
-//                                {
-//                                    "aantal": 11,
-//                                    "naam": "GEBRUIKSRECHT"
-//                                },
-//                                {
-//                                    "aantal": 14,
-//                                    "naam": "ONDERTEKEND"
-//                                },
-//                                {
-//                                    "aantal": 4,
-//                                    "naam": "VERZONDEN"
-//                                }
-//                            ]
-//                        }
-//                    }
-//                        """.trimIndent()
-                }
-            }
-
-            When(
-                """
-                the search endpoint is called to search for all objects of type 'ZAAK' filtered on a specific zaaktype
-                and sorted on zaaktype
-                """.trimMargin()
-            ) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
-                   {
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": true,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": {},
-                    "filters": {
-                        "ZAAKTYPE": {
-                             "values": [
-                               "$ZAAKTYPE_TEST_2_DESCRIPTION"
-                             ],
-                             "inverse": "false"
-                        }
-                      },
-                    "datums": {},
-                    "rows": 10,
-                    "page" :0,
-                    "type": "ZAAK",
-                    "sorteerRichting": "asc",
-                    "sorteerVeld": "ZAAK_ZAAKTYPE"
-                    }
-                    """.trimIndent()
-                )
-                Then(
-                    """
-                   the response is successful and the search results include the indexed zaken for this zaaktype only
-                """
-                ) {
-                    val responseBody = response.bodyAsString
-                    logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
-                    // TODO
-//                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-//                    {
-//                      "foutmelding" : "",
-//                      "totaal" : 4,
-//                      "filters" : {
-//                        "ZAAKTYPE" : [ {
-//                          "aantal" : 6,
-//                          "naam" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
-//                        }, {
-//                          "aantal" : 4,
-//                          "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
-//                        }, {
-//                          "aantal": 2,
-//                          "naam": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION"
-//                        }],
-//                        "BEHANDELAAR": [
-//                          {
-//                            "aantal": 4,
-//                            "naam": "-NULL-"
-//                          }
-//                        ],
-//                        "GROEP" : [
-//                            {
-//                                "aantal": 4,
-//                                "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
-//                            }
-//                        ],
-//                        "ZAAK_STATUS" : [
-//                           {
-//                                "aantal": 2,
-//                                "naam": "Intake"
-//                           },
-//                           {
-//                                "aantal": 1,
-//                                "naam": "In behandeling"
-//                            },
-//                            {
-//                                "aantal" : 1,
-//                                "naam" : "Wacht op aanvullende informatie"
-//                            }
-//                         ],
-//                        "ZAAK_RESULTAAT" : [
-//                          {
-//                            "aantal" : 4,
-//                            "naam" : "-NULL-"
-//                          }
-//                        ],
-//                        "ZAAK_INDICATIES" : [
-//                          {
-//                            "aantal" : 4,
-//                            "naam" : "-NULL-"
-//                          }
-//                        ],
-//                        "ZAAK_COMMUNICATIEKANAAL" : [ {
-//                          "aantal" : 4,
-//                          "naam" : "$COMMUNICATIEKANAAL_TEST_1"
-//                        } ],
-//                        "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ {
-//                          "aantal" : 4,
-//                          "naam" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
-//                        } ],
-//                        "ZAAK_ARCHIEF_NOMINATIE" : [ {
-//                          "aantal" : 4,
-//                          "naam" : "-NULL-"
-//                        } ]
-//                      }
-//                    }
-//                    """.trimIndent()
                 }
             }
 
@@ -490,14 +243,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 )
                 Then(
                     """
-                   the response is successful and the search results include the indexed zaken with compatibility info 
-                   about the information object type UUID
+                   the response is successful and the search results include the indexed zaken
+                   that may be linked according to the information object type UUID
                     """.trimMargin()
                 ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    // TODO
+                    // TODO; delete this test?
 //                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
 //                {
 //                  "foutmelding": "",
@@ -595,23 +348,23 @@ class SearchRestServiceTest : BehaviorSpec({
             }
 
             When(
-                """the search endpoint is called to search for all objects of type 'TAAK'"""
+                """the search endpoint is called to search for 'aanvullende informatie' tasks"""
             ) {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
                     requestBodyAsString = """
-                   {
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": false,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": {},
-                    "filters": {},
-                    "datums": {},
-                    "rows": 10,
-                    "page": 0,
-                    "type": "TAAK"
-                    }
+                       {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": false,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": {},
+                        "filters": { "TAAK_NAAM": { "values": [ "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM" ] } },
+                        "datums": {},
+                        "rows": 10,
+                        "page": 0,
+                        "type": "TAAK"
+                        }
                     """.trimIndent()
                 )
                 Then(
@@ -623,6 +376,37 @@ class SearchRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
+                    val aanvullendeInformatieTask = with(JSONObject(responseBody)) {
+                        getInt("totaal") shouldBeGreaterThan 0
+                        getJSONArray("resultaten")
+                            .map { it as JSONObject }
+                            .first { it.getString("zaakOmschrijving") == zaak1Description }
+                    }
+                    aanvullendeInformatieTask shouldNotBe null
+                    aanvullendeInformatieTask.toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                            "creatiedatum": "$now",
+                            "fataledatum": "$aanvullendeInformatieTaskFatalDate",
+                            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+                            "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                            "rechten": {
+                                "lezen": true,
+                                "toekennen": false,
+                                "toevoegenDocument": false,
+                                "wijzigen": false
+                            },
+                            "status": "NIET_TOEGEKEND",
+                            "type": "TAAK",
+                            "zaakIdentificatie": "$zaak1Identification",
+                            "zaakOmschrijving": "$zaak1Description",
+                            "zaakToelichting": "null",
+                            "zaakUuid": "$zaak1Uuid",
+                            "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        }
+                    """.trimIndent()
+
+                    //                             "id": "480",
+
                     // we do not test on the actual results ('resultaten' attribute) to keep the test somewhat maintainable
                     // TODO
 //                    /responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -864,60 +648,3 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 })
-
-private suspend fun createAndIndexZaak(
-    zacClient: ZacClient,
-    itestHttpClient: ItestHttpClient,
-    logger: KLogger,
-    zaakDescription: String,
-): Pair<String, UUID> {
-    var zaak1Identification1: String
-    var zaak1Uuid1: UUID
-    zacClient.createZaak(
-        description = zaakDescription,
-        groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-        groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-        startDate = DATE_TIME_2024_01_01,
-        zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
-    ).run {
-        logger.info { "Response: $bodyAsString" }
-        code shouldBe HTTP_OK
-        JSONObject(bodyAsString).run {
-            zaak1Identification1 = getString("identificatie")
-            zaak1Uuid1 = getString("uuid").run(UUID::fromString)
-        }
-    }
-    // (re)index all zaken
-    itestHttpClient.performGetRequest(
-        url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
-        headers = mapOf(
-            "Content-Type" to "application/json",
-            "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-        ).toHeaders(),
-        addAuthorizationHeader = false
-    ).run {
-        code shouldBe HTTP_NO_CONTENT
-    }
-    // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
-    eventually(10.seconds) {
-        val response = itestHttpClient.performPutRequest(
-            url = "$ZAC_API_URI/zoeken/list",
-            requestBodyAsString = """
-                {
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": true,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": { "ZAAK_OMSCHRIJVING": "$zaakDescription" },
-                    "filters": {},
-                    "datums": {},
-                    "rows": 1,
-                    "page": 0,
-                    "type": "ZAAK"
-                }
-            """.trimIndent()
-        )
-        JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
-    }
-    return Pair(zaak1Identification1, zaak1Uuid1)
-}
