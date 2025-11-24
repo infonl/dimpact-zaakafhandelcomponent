@@ -488,12 +488,12 @@ class ZaakRestService @Inject constructor(
 
         zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
             zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                zaaktypeCmmnConfiguration.zaaktypeUuid?.let { uuid ->
                     einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
                 }
             }
             zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                zaaktypeCmmnConfiguration.zaaktypeUuid?.let { uuid ->
                     uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
                 }
             }

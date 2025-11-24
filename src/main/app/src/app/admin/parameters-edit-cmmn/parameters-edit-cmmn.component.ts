@@ -74,7 +74,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     },
     zaakAfzenders: [],
     userEventListenerParameters: [],
-    zaaktype: {},
+    zaaktype: {
+      uuid: "",
+    },
     betrokkeneKoppelingen: {
       brpKoppelen: false,
       kvkKoppelen: false,

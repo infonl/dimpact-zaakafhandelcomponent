@@ -24,7 +24,7 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RestZaaktypeOverzicht(
-    var uuid: UUID?,
+    var uuid: UUID,
     var identificatie: String?,
     var doel: String?,
     var omschrijving: String?,

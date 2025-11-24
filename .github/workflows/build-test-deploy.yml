@@ -314,15 +314,15 @@ jobs:
         with:
           check_name: unit-test-results
           files: |
-            build/test-results/**/*.xml
+            build/test-results/test/**/*.xml
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
+          report_type: "test_results"
 
       - name: Generate unit test code coverage report
         if: ${{ github.event_name != 'merge_group' }}
@@ -331,13 +331,21 @@ jobs:
           npmRunTestCoverage jacocoTestReport \
           --info 
 
-      - name: Upload unit test coverage report to Codecov
+      - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
-          flags: unittests
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: backendunittests,unittests
+          directory: ./build/reports/jacoco/test
+
+      - name: Upload frontend unit test coverage report to Codecov
+        if: ${{ github.event_name != 'merge_group' }}
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: frontendunittests,unittests
+          directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
     needs: [build, paths-filter, validate-input, determine-version]
