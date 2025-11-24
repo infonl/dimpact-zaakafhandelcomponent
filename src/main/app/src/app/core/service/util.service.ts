@@ -4,18 +4,16 @@
  */
 
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
-import { ComponentType } from "@angular/cdk/portal";
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, Optional, Signal } from "@angular/core";
+import { Inject, Injectable, Optional, signal, Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { InterpolationParameters, TranslateService } from "@ngx-translate/core";
-import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
-import { delay, map, shareReplay, switchMap } from "rxjs/operators";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { map, shareReplay } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
-import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
 
 @Injectable({
@@ -25,18 +23,11 @@ export class UtilService {
   private headerTitle: BehaviorSubject<string> = new BehaviorSubject<string>(
     "zaakafhandelcomponent",
   );
-  private loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false,
-  );
+
+  readonly loading = signal(false);
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();
   public disable$ = new Subject<boolean>();
-
-  public loading$: Observable<boolean> = this.loading.pipe(
-    switchMap((loading) =>
-      iif(() => loading, of(loading).pipe(delay(700)), of(loading)),
-    ),
-  );
 
   public isHandset$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
@@ -92,7 +83,7 @@ export class UtilService {
   }
 
   setLoading(loading: boolean): void {
-    this.loading.next(loading);
+    this.loading.set(loading);
   }
 
   getEnumAsSelectList(prefix: string, enumValue: object) {
@@ -165,22 +156,6 @@ export class UtilService {
       .onAction();
   }
 
-  openSnackbarFromComponent<T>(
-    component: ComponentType<T>,
-    config?: MatSnackBarConfig<unknown>,
-  ) {
-    return this.snackbar.openFromComponent(component, config);
-  }
-
-  openProgressSnackbar(data: {
-    progressPercentage: Signal<number>;
-    message: string;
-  }) {
-    return this.openSnackbarFromComponent(ProgressSnackbar, {
-      data,
-    });
-  }
-
   openProgressDialog(data: {
     progressPercentage: Signal<number>;
     message: string;
@@ -199,13 +174,6 @@ export class UtilService {
 
   closeProgressDialog() {
     this.dialog.closeAll();
-  }
-
-  reloadRoute(): void {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
-      this.router.navigate([currentUrl]);
-    });
   }
 
   getUniqueItemsList<

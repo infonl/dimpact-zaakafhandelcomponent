@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { Subject } from "rxjs";
 import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -13,11 +13,11 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class ZoekenService {
-  public trefwoorden$ = new Subject<string>();
-  public hasSearched$ = new Subject<boolean>();
+  public readonly trefwoorden = signal<string | null>(null);
+  public readonly hasSearched = signal(false);
   public reset$ = new Subject<void>();
 
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
 
   list(body: PutBody<"/rest/zoeken/list">) {
     return this.zacHttpClient.PUT("/rest/zoeken/list", body);
