@@ -104,38 +104,14 @@ class ZaakRestServiceTest : BehaviorSpec({
     val fatalDateNew = startDateNew.plusDays(1)
     lateinit var zaak2UUID: UUID
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
-    afterSpec {
-        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Context("Listing zaaktypes for creating zaken") {
-        Given("A beheerder with access to all zaaktypes in all domains is logged in") {
-            When("zaaktype CMMN configuration is created") {
-                val response = zacClient.createZaaktypeCmmnConfiguration(
-                    zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
-                    zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
-                    zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
-                    productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
-                    domein = DOMEIN_TEST_2
-                )
-                Then("the response should be ok") {
-                    val responseBody = response.bodyAsString
-                    logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
-                }
-            }
-        }
-
         Given(
             """
             zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
             """.trimIndent()
         ) {
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
             When("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
                 lateinit var responseBody: String
