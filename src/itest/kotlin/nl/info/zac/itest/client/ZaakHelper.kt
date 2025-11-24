@@ -9,14 +9,15 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.TestGroup
-import okhttp3.Headers.Companion.toHeaders
+import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -29,14 +30,14 @@ class ZaakHelper(
 
     suspend fun createAndIndexZaak(
         zaakDescription: String,
-        zaaktypeUUID: UUID = ZAAKTYPE_TEST_2_UUID,
+        zaaktypeUuid: UUID,
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01
     ): Pair<String, UUID> {
-        var zaak1Identification1: String
-        var zaak1Uuid1: UUID
+        var zaakIdentification: String
+        var zaakUuid: UUID
         zacClient.createZaak(
-            zaakTypeUUID = zaaktypeUUID,
+            zaakTypeUUID = zaaktypeUuid,
             description = zaakDescription,
             groupId = group.name,
             groupName = group.description,
@@ -45,18 +46,29 @@ class ZaakHelper(
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
-                zaak1Identification1 = getString("identificatie")
-                zaak1Uuid1 = getString("uuid").run(UUID::fromString)
+                zaakIdentification = getString("identificatie")
+                zaakUuid = getString("uuid").run(UUID::fromString)
             }
         }
-        // (re)index all zaken
-        // TODO: more efficient to send a 'create zaak' notification for the created zaak only
-        itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
-            headers = mapOf(
-                "Content-Type" to "application/json",
-                "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-            ).toHeaders(),
+        // trigger the notification service to index the zaak
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaak",
+                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString(),
             addAuthorizationHeader = false
         ).run {
             code shouldBe HTTP_NO_CONTENT
@@ -79,10 +91,10 @@ class ZaakHelper(
                     "page": 0,
                     "type": "ZAAK"
                 }
-            """.trimIndent()
+                """.trimIndent()
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
-        return Pair(zaak1Identification1, zaak1Uuid1)
+        return Pair(zaakIdentification, zaakUuid)
     }
 }

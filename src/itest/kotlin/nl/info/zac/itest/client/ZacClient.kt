@@ -38,6 +38,7 @@ class ZacClient(
 ) {
     private val logger = KotlinLogging.logger {}
 
+    @Suppress("LongParameterList")
     fun createEnkelvoudigInformatieobjectForZaak(
         zaakUUID: UUID,
         fileName: String,

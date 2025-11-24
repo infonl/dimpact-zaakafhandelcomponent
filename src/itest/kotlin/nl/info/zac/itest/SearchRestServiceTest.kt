@@ -24,6 +24,8 @@ import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
@@ -53,17 +55,20 @@ class SearchRestServiceTest : BehaviorSpec({
             """
             A logged-in raadpleger and a zaak has been created and is indexed and an 'aanvullende informatie' 
             task has been added to the zaak           
-            """".trimIndent()
+            "
+            """.trimIndent()
         ) {
             // log in as a beheerder authorised in all domains
             // and create the zaken, tasks and documents and index them
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val zaakDescription = "fakeZaakDescriptionForSearchRestServiceTest"
             val documentTitle = "fakeDocumentTitleForSearchRestServiceTest"
-            val now = LocalDate.now()
-            val aanvullendeInformatieTaskFatalDate = now.plusDays(1)
+            val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
+            val today = LocalDate.now()
+            val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
             val (zaakIdentification, zaakUuid) = zaakHelper.createAndIndexZaak(
-                zaakDescription = zaakDescription
+                zaakDescription = zaakDescription,
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakUuid,
@@ -72,9 +77,10 @@ class SearchRestServiceTest : BehaviorSpec({
                 group = BEHANDELAARS_DOMAIN_TEST_1
             )
             documentHelper.uploadDocumentToZaakAndIndexDocument(
+                zaakUuid = zaakUuid,
                 documentTitle = documentTitle,
-                fileName = TEST_PDF_FILE_NAME,
-                zaakUUID = zaakUuid
+                authorName = documentAuthorName,
+                fileName = TEST_PDF_FILE_NAME
             )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
@@ -260,7 +266,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     aanvullendeInformatieTask shouldNotBe null
                     aanvullendeInformatieTask.toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
-                            "creatiedatum": "$now",
+                            "creatiedatum": "$today",
                             "fataledatum": "$aanvullendeInformatieTaskFatalDate",
                             "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
                             "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
@@ -283,7 +289,7 @@ class SearchRestServiceTest : BehaviorSpec({
             }
 
             When(
-                """the search endpoint is called to search for a specific document"""
+                """the search endpoint is called to search for the uploaded document"""
             ) {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
@@ -311,16 +317,79 @@ class SearchRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    // TODO
-//                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "foutmelding" : "",
+                          "resultaten" : [ {
+                            "auteur" : "$documentAuthorName",
+                            "bestandsnaam" : "$TEST_PDF_FILE_NAME",
+                            "creatiedatum" : "$today",
+                            "documentType" : "bijlage",
+                            "formaat" : "application/pdf",
+                            "indicatieGebruiksrecht" : false,
+                            "indicatieOndertekend" : true,
+                            "indicatieVergrendeld" : false,
+                            "indicaties" : [ "ONDERTEKEND" ],
+                            "rechten" : {
+                              "lezen" : true,
+                              "ondertekenen" : false,
+                              "ontgrendelen" : false,
+                              "toevoegenNieuweVersie" : false,
+                              "vergrendelen" : false,
+                              "verwijderen" : false,
+                              "wijzigen" : false
+                            },
+                            "registratiedatum" : "$today",
+                            "status" : "in_bewerking",
+                            "titel" : "$documentTitle",
+                            "type" : "DOCUMENT",
+                            "versie" : 1,
+                            "vertrouwelijkheidaanduiding" : "ZAAKVERTROUWELIJK",
+                            "zaakIdentificatie" : "$zaakIdentification",
+                            "zaakRelatie" : "Hoort bij, omgekeerd: kent",
+                            "zaakUuid" : "$zaakUuid",
+                            "zaaktypeIdentificatie" : "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                            "zaaktypeUuid" : "$ZAAKTYPE_TEST_2_UUID"
+                          } ],
+                          "totaal" : 1,
+                          "filters" : {
+                            "ZAAKTYPE" : [ {
+                              "aantal" : 1,
+                              "naam" : "Test zaaktype 2"
+                            } ],
+                            "DOCUMENT_STATUS" : [ {
+                              "aantal" : 1,
+                              "naam" : "in_bewerking"
+                            } ],
+                            "DOCUMENT_TYPE" : [ {
+                              "aantal" : 1,
+                              "naam" : "bijlage"
+                            } ],
+                            "DOCUMENT_VERGRENDELD_DOOR" : [ {
+                              "aantal" : 1,
+                              "naam" : "-NULL-"
+                            } ],
+                            "DOCUMENT_INDICATIES" : [ {
+                              "aantal" : 1,
+                              "naam" : "GEBRUIKSRECHT"
+                            }, {
+                              "aantal" : 1,
+                              "naam" : "ONDERTEKEND"
+                            } ]
+                          }
+                        }
+                    """.trimIndent()
                 }
             }
         }
     }
 
     Context("Listing zaken for information object type") {
-        Given("""Two zaken have been created and indexed, 
-                one of which can be linked to an information object of a specific type""") {
+        Given(
+            """Two zaken have been created and indexed, 
+                one of which can be linked to an information object of a specific type"""
+        ) {
             When(
                 """
                 the search endpoint is called to search for all objects of type 'ZAAK' 
