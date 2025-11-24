@@ -53,8 +53,9 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
         this.zaakUuid !== this.documentReferenceId,
     ),
     onSuccess: (data) => {
-      console.debug({data}, this.document.emit)
       this.document.emit(data);
+      console.debug('emitted');
+      
       if (this.form.controls.addOtherInfoObject.value === true) {
         this.form.reset(this.defaultFormValues);
       } else {
