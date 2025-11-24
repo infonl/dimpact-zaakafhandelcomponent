@@ -16,11 +16,15 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import {injectMutation, injectQuery} from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { PostBody } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -36,32 +40,26 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
-  isLoading = false;
+  private isTaakObject = false;
 
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
 
-    protected createDocumentMutation = injectMutation(() => ({
-        ...this.informatieObjectenService.createEnkelvoudigInformatieobjectTanstack(this.zaakUuid, this.documentReferenceId
-        ),
-        onSuccess: (data) => {
-            this.document.emit(data);
-            this.resetAndClose();
-        },
-        onMutate: () => {
-            this.isLoading = true;
-        },
-        onSettled: () => {
-            this.isLoading = false;
-        },
-        onError: () => {
-            this.isLoading = false;
-            this.form.reset()
-        }
-    }));
-
-
+  protected createDocumentMutation = injectMutation(() => ({
+    ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
+      this.zaakUuid,
+      this.documentReferenceId,
+      // this.isTaakObject,
+    ),
+    onSuccess: (data) => {
+      this.document.emit(data);
+      this.resetAndClose();
+    },
+    onError: () => {
+      this.form.reset();
+    },
+  }));
 
   protected zaakUuid!: string;
   protected documentReferenceId!: string;
@@ -218,28 +216,59 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     }
   }
 
-    submit() {
-        const { value } = this.form;
-        // const isTaskObject = this.zaakUuid !== this.documentReferenceId;
-
-        this.createDocumentMutation.mutate({
-            bestand: value.bestand!,
-            bestandsnaam: value.bestand?.name,
-            formaat: value.bestand?.type,
-            titel: value.titel!,
-            beschrijving: value.beschrijving,
-            informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-            status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-            vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-            creatiedatum: value.creatiedatum?.toISOString(),
-            verzenddatum: value.verzenddatum?.toISOString(),
-            ontvangstdatum: value.ontvangstdatum?.toISOString(),
-            taal: value.taal!.code,
-            auteur: value.auteur!,
-        });
+  toInformatieobjectFormData(
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      bestand: File;
+    },
+  ): FormData {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(infoObject)) {
+      if (value === undefined || value === null) continue;
+      switch (key) {
+        case "creatiedatum":
+        case "ontvangstdatum":
+        case "verzenddatum":
+          formData.append(
+            key,
+            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
+          );
+          break;
+        case "bestand":
+          formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          break;
+        default:
+          formData.append(key, value.toString());
+          break;
+      }
     }
+    return formData;
+  }
 
+  submit() {
+    this.isTaakObject = this.zaakUuid !== this.documentReferenceId;
 
+    const { value } = this.form;
+    const payload = {
+      bestand: value.bestand!,
+      bestandsnaam: value.bestand?.name,
+      formaat: value.bestand?.type,
+      titel: value.titel!,
+      beschrijving: value.beschrijving,
+      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+      status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      creatiedatum: value.creatiedatum?.toISOString(),
+      verzenddatum: value.verzenddatum?.toISOString(),
+      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      taal: value.taal!.code,
+      auteur: value.auteur!,
+    };
+    const formData = this.toInformatieobjectFormData(payload);
+
+    this.createDocumentMutation.mutate(
+      formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
+    );
+  }
 
   protected resetAndClose() {
     void this.sideNav.close();

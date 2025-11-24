@@ -7,8 +7,8 @@ import { Injectable } from "@angular/core";
 import moment from "moment";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
-import {ZacQueryClient} from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
@@ -16,7 +16,10 @@ import {ZacQueryClient} from "../shared/http/zac-query-client";
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
 
-  constructor(private readonly zacHttpClient: ZacHttpClient, private  readonly  zacQueryClient: ZacQueryClient) {}
+  constructor(
+    private readonly zacHttpClient: ZacHttpClient,
+    private readonly zacQueryClient: ZacQueryClient,
+  ) {}
 
   /**
    * Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
@@ -61,53 +64,15 @@ export class InformatieObjectenService {
   createEnkelvoudigInformatieobject(
     zaakUuid: string,
     documentReferenceId: string,
-    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-      bestand: File;
-    },
-    taakObject: boolean,
+    // isTaakObject: boolean = false,
   ) {
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(infoObject)) {
-      if (value === undefined || value === null) continue;
-      switch (key) {
-        case "creatiedatum":
-        case "ontvangstdatum":
-        case "verzenddatum":
-          formData.append(
-            key,
-            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
-          );
-          break;
-        case "bestand":
-          formData.append("file", value as Blob, infoObject.bestandsnaam!);
-          break;
-        default:
-          formData.append(key, value.toString());
-          break;
-      }
-    }
-
-    return this.zacHttpClient.POST(
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
-      formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
-      {
-        path: { zaakUuid, documentReferenceId },
-        query: { taakObject },
-      },
+      { path: { zaakUuid, documentReferenceId } },
     );
   }
 
-    createEnkelvoudigInformatieobjectTanstack(zaakUuid: string, documentReferenceId: string
-    ) {
-        const formData = new FormData();
-
-        return this.zacQueryClient.POST(
-            "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
-            { path: { zaakUuid, documentReferenceId } },
-        );
-    }
-
-    createDocumentAttended(
+  createDocumentAttended(
     documentCreationData: GeneratedType<"RestDocumentCreationAttendedData">,
   ) {
     return this.zacHttpClient.POST(

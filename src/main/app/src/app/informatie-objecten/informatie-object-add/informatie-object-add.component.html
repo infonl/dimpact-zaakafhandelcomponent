@@ -73,10 +73,10 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="!form.valid || isLoading"
+        [disabled]="!form.valid || createDocumentMutation.isPending()"
       >
         {{ "actie.toevoegen" | translate }}
-        <mat-icon *ngIf="isLoading">
+        <mat-icon *ngIf="createDocumentMutation.isPending()">
           <mat-spinner diameter="18"></mat-spinner>
         </mat-icon>
       </button>
