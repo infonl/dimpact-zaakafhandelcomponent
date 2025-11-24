@@ -26,8 +26,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -57,8 +56,7 @@ class NotificationReceiver @Inject constructor(
     private val productaanvraagService: ProductaanvraagService,
     private val indexingService: IndexingService,
     private val inboxDocumentenService: InboxDocumentenService,
-    private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
@@ -295,9 +293,7 @@ class NotificationReceiver @Inject constructor(
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                if (zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(notification.resourceUrl)) {
-                    zaaktypeBpmnConfigurationService.copyConfiguration(notification.resourceUrl)
-                }
+                zaaktypeConfigurationService.updateZaakafhandelParameters(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
             warning("zaaktype", notification, exception)

@@ -1,4 +1,4 @@
--- SQL script that creates the 'Test zaaktype 2' zaaktype in the Open Zaak database
+-- SQL script that creates the 'BPMN test zaaktype' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -94,55 +94,53 @@ VALUES
 -- For the first JSON object
 INSERT INTO catalogi_resultaattype
 (
-  id,
-  uuid,
-  omschrijving,
-  resultaattypeomschrijving,
-  omschrijving_generiek,
-  selectielijstklasse,
-  archiefnominatie,
-  archiefactietermijn,
-  brondatum_archiefprocedure_afleidingswijze,
-  brondatum_archiefprocedure_datumkenmerk,
-  brondatum_archiefprocedure_einddatum_bekend,
-  brondatum_archiefprocedure_objecttype,
-  brondatum_archiefprocedure_registratie,
-  brondatum_archiefprocedure_procestermijn,
-  toelichting,
-  zaaktype_id,
-  _etag,
-  indicatie_specifiek,
-  procesobjectaard,
-  procestermijn,
-  datum_begin_geldigheid,
-  datum_einde_geldigheid
+    id,
+    uuid,
+    omschrijving,
+    resultaattypeomschrijving,
+    omschrijving_generiek,
+    selectielijstklasse,
+    archiefnominatie,
+    archiefactietermijn,
+    brondatum_archiefprocedure_afleidingswijze,
+    brondatum_archiefprocedure_datumkenmerk,
+    brondatum_archiefprocedure_einddatum_bekend,
+    brondatum_archiefprocedure_objecttype,
+    brondatum_archiefprocedure_registratie,
+    brondatum_archiefprocedure_procestermijn,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    indicatie_specifiek,
+    procesobjectaard,
+    procestermijn,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
 )
 VALUES
 (
-  -- Adjust ID as needed
-  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
-  '940a8805-1117-45e8-838a-c3874b780996', -- UUID
-  'Geweigerd', -- Omschrijving
-  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/1f750958-431c-4916-bc01-af5d3a753b41', -- Resultaattypeomschrijving
-  'Geweigerd', -- Omschrijving Generiek
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/2431e1ee-cacd-44af-bd12-ea7280a8928b', -- Selectielijstklasse
-  'vernietigen', -- Archiefnominatie
-  'P1Y', -- Archiefactietermijn
-  'afgehandeld', -- Brondatum Archiefprocedure Afleidingswijze
-  '', -- Brondatum Archiefprocedure Datumkenmerk
-  false, -- Brondatum Archiefprocedure Einddatum Bekend
-  '', -- Brondatum Archiefprocedure Objecttype
-  '', -- Brondatum Archiefprocedure Registratie
-  NULL, -- Brondatum Archiefprocedure Procestermijn
-  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling', -- Toelichting
-  -- Assuming zaaktype_id needs to be retrieved from the URL, adjust as needed
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'),
-  '_etag',
-  NULL,
-  '',
-  NULL,
-  NULL,
-  NULL
+    (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
+    '82442c7f-05f2-4e9d-a0ae-c038344809af', -- UUID
+    'Afgebroken',
+    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
+    'Afgebroken',
+    'https://selectielijst.openzaak.nl/api/v1/resultaten/0d978967-6bf2-452f-951a-c16bff338f42',
+    'vernietigen',
+    'P1Y',
+    'afgehandeld',
+    '',
+    false,
+    '',
+    '',
+    NULL,
+    'fakeToelichtingAfgebroken',
+    (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'),
+    '_etag',
+    NULL,
+    '',
+    NULL,
+    NULL,
+    NULL
 );
 
 -- For the second JSON object
@@ -176,9 +174,9 @@ VALUES
     (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1,
     '538fa40d-3b83-4b32-8e03-d5e0b8fa0e8b',
     'Verleend',
-    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/45a3fcff-4898-4d63-8dcc-cb3fdc506b08',
+    'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
     'Verleend',
-    'https://selectielijst.openzaak.nl/api/v1/resultaten/f49b00e6-0612-4480-aaf5-8390be88d9f8',
+    'https://selectielijst.openzaak.nl/api/v1/resultaten/85c22ea4-b276-456b-8a80-d03c5c3795ba',
     'vernietigen',
     'P1Y',
     'afgehandeld',
@@ -187,7 +185,7 @@ VALUES
     '',
     '',
     NULL,
-    'Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen',
+    'fakeToelichtingVerleend',
     (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), -- Zaaktype ID
     '_etag',
     NULL,
@@ -196,163 +194,6 @@ VALUES
     NULL,
     NULL
 );
-
--- For the third JSON object
-INSERT INTO catalogi_resultaattype
-(
-  id,
-  uuid,
-  omschrijving,
-  resultaattypeomschrijving,
-  omschrijving_generiek,
-  selectielijstklasse,
-  archiefnominatie,
-  archiefactietermijn,
-  brondatum_archiefprocedure_afleidingswijze,
-  brondatum_archiefprocedure_datumkenmerk,
-  brondatum_archiefprocedure_einddatum_bekend,
-  brondatum_archiefprocedure_objecttype,
-  brondatum_archiefprocedure_registratie,
-  brondatum_archiefprocedure_procestermijn,
-  toelichting,
-  zaaktype_id,
-  _etag,
-  indicatie_specifiek,
-  procesobjectaard,
-  procestermijn,
-  datum_begin_geldigheid,
-  datum_einde_geldigheid
-)
-VALUES
-(
-  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
-  '82442c7f-05f2-4e9d-a0ae-c038344809af', -- UUID
-  'Afgebroken',
-  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
-  'Afgebroken',
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/0d978967-6bf2-452f-951a-c16bff338f42',
-  'vernietigen',
-  'P1Y',
-  'afgehandeld',
-  '',
-  false,
-  '',
-  '',
-  NULL,
-  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling',
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'),
-  '_etag',
-  NULL,
-  '',
-  NULL,
-  NULL,
-  NULL
-);
-
--- For the third JSON object
-INSERT INTO catalogi_resultaattype
-(
-  id,
-  uuid,
-  omschrijving,
-  resultaattypeomschrijving,
-  omschrijving_generiek,
-  selectielijstklasse,
-  archiefnominatie,
-  archiefactietermijn,
-  brondatum_archiefprocedure_afleidingswijze,
-  brondatum_archiefprocedure_datumkenmerk,
-  brondatum_archiefprocedure_einddatum_bekend,
-  brondatum_archiefprocedure_objecttype,
-  brondatum_archiefprocedure_registratie,
-  brondatum_archiefprocedure_procestermijn,
-  toelichting,
-  zaaktype_id,
-  _etag,
-  indicatie_specifiek,
-  procesobjectaard,
-  procestermijn,
-  datum_begin_geldigheid,
-  datum_einde_geldigheid
-)
-VALUES
-(
-  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
-  '9dbda017-0945-4fbb-8c53-ab336292ccb9', -- UUID
-  'Toegekend', -- Omschrijving
-  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/fb65d251-1518-4185-865f-b8bdcfad07b1', -- Resultaattypeomschrijving
-  'Toegekend', -- Omschrijving Generiek
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/2431e1ee-cacd-44af-bd12-ea7280a8928b', -- Selectielijstklasse
-  'vernietigen', -- Archiefnominatie
-  'P1Y', -- Archiefactietermijn
-  'afgehandeld', -- Brondatum Archiefprocedure Afleidingswijze
-  '', -- Brondatum Archiefprocedure Datumkenmerk
-  false, -- Brondatum Archiefprocedure Einddatum Bekend
-  '', -- Brondatum Archiefprocedure Objecttype
-  '', -- Brondatum Archiefprocedure Registratie
-  NULL, -- Brondatum Archiefprocedure Procestermijn
-  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling', -- Toelichting
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), -- Zaaktype ID
-  '_etag',
-  NULL,
-  '',
-  NULL,
-  NULL,
-  NULL
-);
-
--- For the fourth JSON object
-INSERT INTO catalogi_resultaattype
-(
-  id,
-  uuid,
-  omschrijving,
-  resultaattypeomschrijving,
-  omschrijving_generiek,
-  selectielijstklasse,
-  archiefnominatie,
-  archiefactietermijn,
-  brondatum_archiefprocedure_afleidingswijze,
-  brondatum_archiefprocedure_datumkenmerk,
-  brondatum_archiefprocedure_einddatum_bekend,
-  brondatum_archiefprocedure_objecttype,
-  brondatum_archiefprocedure_registratie,
-  brondatum_archiefprocedure_procestermijn,
-  toelichting,
-  zaaktype_id,
-  _etag,
-  indicatie_specifiek,
-  procesobjectaard,
-  procestermijn,
-  datum_begin_geldigheid,
-  datum_einde_geldigheid
-)
-VALUES
-(
-  (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
-  'a1f99809-74d0-4973-bd4a-356d8c8462ca', -- UUID
-  'Buiten behandeling', -- Omschrijving
-  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506', -- Resultaattypeomschrijving
-  'Afgebroken', -- Omschrijving Generiek
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/949daaef-57e6-43aa-a1f2-4aeea5d4f7fc', -- Selectielijstklasse
-  'vernietigen', -- Archiefnominatie
-  'P1Y', -- Archiefactietermijn
-  'afgehandeld', -- Brondatum Archiefprocedure Afleidingswijze
-  '', -- Brondatum Archiefprocedure Datumkenmerk
-  false, -- Brondatum Archiefprocedure Einddatum Bekend
-  '', -- Brondatum Archiefprocedure Objecttype
-  '', -- Brondatum Archiefprocedure Registratie
-  NULL, -- Brondatum Archiefprocedure Procestermijn
-  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling', -- Toelichting
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = '26076928-ce07-4d5d-8638-c2d276f6caca'), -- Zaaktype ID
-  '_etag',
-  NULL,
-  '',
-  NULL,
-  NULL,
-  NULL
-);
-
 
 -- STATUSTYPES
 -- For the first JSON object

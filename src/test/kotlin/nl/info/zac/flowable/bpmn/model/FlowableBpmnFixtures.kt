@@ -24,6 +24,6 @@ fun createZaaktypeBpmnConfiguration(
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
     this.zaaktypeOmschrijving = zaaktypeOmschrijving
     this.productaanvraagtype = productaanvraagtype
-    this.groupId = groupName
+    this.groepID = groupName
     this.creatiedatum = ZonedDateTime.now()
 }

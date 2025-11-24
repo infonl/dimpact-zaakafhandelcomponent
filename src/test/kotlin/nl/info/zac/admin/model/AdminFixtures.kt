@@ -109,7 +109,7 @@ fun createZaaktypeCmmnConfiguration(
         this.id = id
         this.creatiedatum = creationDate
         this.domein = domein
-        this.zaakTypeUUID = zaaktypeUUID
+        this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype

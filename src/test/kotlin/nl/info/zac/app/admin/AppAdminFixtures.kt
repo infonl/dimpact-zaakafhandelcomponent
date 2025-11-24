@@ -77,7 +77,7 @@ fun createRestZaakafhandelParameters(
     domein: String = "fakeDomein",
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
-    defaultGroupId: String? = null,
+    defaultGroupId: String? = "fakeGroupId",
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
     restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()

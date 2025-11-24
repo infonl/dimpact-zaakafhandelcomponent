@@ -418,7 +418,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.2.0",
+      "allowedVersions": "< 3.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -430,7 +430,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.1.0",
+      "allowedVersions": "< 3.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -442,7 +442,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.10.0",
+      "allowedVersions": "< 2.14.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -454,7 +454,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.24.0",
+      "allowedVersions": "< 1.26.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -466,7 +466,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.11.0",
+      "allowedVersions": "< 1.14.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -478,7 +478,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 7.5.0",
+      "allowedVersions": "< 8.1.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
