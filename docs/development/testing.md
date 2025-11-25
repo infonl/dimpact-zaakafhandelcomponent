@@ -37,10 +37,15 @@ To do this you will first need to do the following:
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.
 
-### Configuring the integration tests
+### Configuring Docker Compose containers start/stop behaviour
 
-Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests:
-TESTCONTAINERS_RYUK_DISABLED
+Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
+* `TESTCONTAINERS_RYUK_DISABLED` - do not stop Docker containers after the tests finish executing
+* `DO_NOT_START_DOCKER_COMPOSE` - do not start Docker Compose when running the integration tests
+
+![Run Configuration](./attachments/images/run-configuration.gif)
+
+In such way you can run the integration tests in a more controlled environment and start up Docker Compose only once.
 
 ### Debugging integration tests
 

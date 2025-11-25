@@ -103,18 +103,17 @@ class ProjectConfig : AbstractProjectConfig() {
             "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
             // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
             "ZAC_DOCKER_ENTRYPOINT" to
-                    "java" +
-                    " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
-                    // make sure that the WildFly management port is accessible from outside the container
-                    " -Djboss.bind.address.management=0.0.0.0" +
-                    " -Xms1024m" +
-                    " -Xmx1024m" +
-                    " -jar zaakafhandelcomponent.jar",
+                "java" +
+                " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+                // make sure that the WildFly management port is accessible from outside the container
+                " -Djboss.bind.address.management=0.0.0.0" +
+                " -Xms1024m" +
+                " -Xmx1024m" +
+                " -jar zaakafhandelcomponent.jar",
             "ZAC_DOCKER_IMAGE" to zacDockerImage,
             "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
         )
     }
-
 
     override suspend fun beforeProject() {
         try {
@@ -123,6 +122,10 @@ class ProjectConfig : AbstractProjectConfig() {
                 dockerComposeContainer = createDockerComposeContainer()
                 dockerComposeContainer.start()
                 logger.info { "Started ZAC Docker Compose containers" }
+            } else {
+                logger.warn {
+                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
+                }
             }
 
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
@@ -151,6 +154,8 @@ class ProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
+
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
 
             if (!skipDockerComposeStart) {
                 createTestSetupData()
@@ -272,7 +277,6 @@ class ProjectConfig : AbstractProjectConfig() {
      * Creates overall test setup data in ZAC, required for running the integration tests.
      */
     private fun createTestSetupData() {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         createDomainReferenceTableData()
         createZaaktypeConfigurations()
     }
