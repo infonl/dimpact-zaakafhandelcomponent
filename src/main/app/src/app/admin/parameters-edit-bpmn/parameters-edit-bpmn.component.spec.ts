@@ -55,21 +55,20 @@ describe(ParametersEditBpmnComponent.name, () => {
     },
   });
 
-  const bpmnProcessDefinitionsList: GeneratedType<"RestBpmnProcessDefinition">[] =
-    [
-      {
-        id: "RestBpmnProcessDefinition-1",
-        key: "itProcessDefinition-2",
-        name: "BPMN Process Definition - 2",
-        version: 1,
-      },
-      {
-        id: "RestBpmnProcessDefinition-2",
-        key: "itProcessDefinition-2",
-        name: "BPMN Process Definition - 2",
-        version: 1,
-      },
-    ];
+  const bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [
+    {
+      id: "RestBpmnProcessDefinition-1",
+      key: "itProcessDefinition-2",
+      name: "BPMN Process Definition - 2",
+      version: 1,
+    },
+    {
+      id: "RestBpmnProcessDefinition-2",
+      key: "itProcessDefinition-2",
+      name: "BPMN Process Definition - 2",
+      version: 1,
+    },
+  ];
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -106,7 +105,7 @@ describe(ParametersEditBpmnComponent.name, () => {
               parameters: {
                 zaakafhandelParameters,
                 bpmnZaakafhandelParameters,
-                bpmnProcessDefinitionsList,
+                bpmnProcessDefinitions,
                 isSavedZaakafhandelParameters: true,
               },
             }),

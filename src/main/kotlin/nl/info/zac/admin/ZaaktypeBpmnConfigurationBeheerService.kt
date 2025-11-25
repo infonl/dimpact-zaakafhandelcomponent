@@ -9,14 +9,17 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRES_NEW
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
@@ -39,9 +42,13 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
      */
     fun storeConfiguration(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration): ZaaktypeBpmnConfiguration {
         zaaktypeBpmnConfiguration.id?.let {
-            if (findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid) == null) {
-                LOG.warning("BPMN configuration with zaaktype UUID '$it' not found, creating new configuration")
-                zaaktypeBpmnConfiguration.id = null
+            zaaktypeBpmnConfiguration.zaaktypeUuid.let { zaaktypeUuid ->
+                if (findConfiguration(zaaktypeUuid) == null) {
+                    LOG.info(
+                        "BPMN configuration with zaaktype UUID '$zaaktypeUuid' not found, creating new configuration"
+                    )
+                    zaaktypeBpmnConfiguration.id = null
+                }
             }
         }
 
@@ -50,10 +57,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         } else {
             entityManager.persist(zaaktypeBpmnConfiguration)
             entityManager.flush()
-            findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-                ?: throw ZaaktypeConfigurationNotFoundException(
-                    "BPMN zaaktype configuration for `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
-                )
+            findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid) ?: throw ZaaktypeConfigurationNotFoundException(
+                "BPMN zaaktype configuration for zaaktype `${zaaktypeBpmnConfiguration.zaaktypeOmschrijving}` not found"
+            )
         }
     }
 
@@ -89,7 +95,12 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java).let { root ->
                     query.select(root)
-                        .where(criteriaBuilder.equal(root.get<String>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
+                        .where(
+                            criteriaBuilder.equal(
+                                root.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME),
+                                zaaktypeDescription
+                            )
+                        )
                         .orderBy(criteriaBuilder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
                     entityManager.createQuery(query).setMaxResults(1).resultStream.findFirst().getOrNull()
                 }
@@ -130,4 +141,19 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 }
             }
         }
+
+    fun copyConfiguration(zaaktype: ZaakType) {
+        // only copy settings if there is a previous configuration
+        findConfiguration(zaaktype.omschrijving)?.let {
+            ZaaktypeBpmnConfiguration().apply {
+                id = it.id
+                this.zaaktypeUuid = zaaktype.url.extractUuid()
+                zaaktypeOmschrijving = zaaktype.omschrijving
+                bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
+                productaanvraagtype = it.productaanvraagtype
+                groepID = it.groepID
+                creatiedatum = ZonedDateTime.now()
+            }.run(::storeConfiguration)
+        }
+    }
 }

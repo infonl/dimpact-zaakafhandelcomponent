@@ -7,15 +7,11 @@ package nl.info.zac.admin
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.net.URI
-import java.time.ZonedDateTime
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -23,8 +19,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationService @Inject constructor(
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val ztcClientService: ZtcClientService
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationService::class.java.name)
@@ -47,24 +42,6 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
                     throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
                 }
             }
-        }
-    }
-
-    fun copyConfiguration(zaaktypeUri: URI) {
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
-        val zaaktypeUuid = zaaktype.url.extractUuid()
-
-        // only copy settings if there is a previous configuration
-        zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktype.omschrijving)?.let {
-            ZaaktypeBpmnConfiguration().apply {
-                id = it.id
-                this.zaaktypeUuid = zaaktypeUuid
-                zaaktypeOmschrijving = zaaktype.omschrijving
-                bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
-                productaanvraagtype = it.productaanvraagtype
-                groupId = it.groupId
-                creatiedatum = ZonedDateTime.now()
-            }.run(zaaktypeBpmnConfigurationBeheerService::storeConfiguration)
         }
     }
 }

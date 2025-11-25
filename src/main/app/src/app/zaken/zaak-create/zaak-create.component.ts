@@ -15,6 +15,8 @@ import {
 } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of } from "rxjs";
+import { BpmnService } from "src/app/admin/bpmn.service";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
@@ -43,6 +45,7 @@ export class ZaakCreateComponent {
   private readonly router = inject(Router);
   private readonly klantenService = inject(KlantenService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
+  private readonly bpmnService = inject(BpmnService);
 
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
@@ -56,6 +59,10 @@ export class ZaakCreateComponent {
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
+  protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
+    [];
+  protected isBpmnCaseTypeSelected = false;
+
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
@@ -109,13 +116,17 @@ export class ZaakCreateComponent {
     toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
-  constructor() {
+  constructor(private readonly foutAfhandelingService: FoutAfhandelingService) {
     this.utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
     this.form.controls.groep.disable();
     this.form.controls.behandelaar.disable();
     this.form.controls.initiatorIdentificatie.disable();
+
+    this.bpmnService.listbpmnProcessConfigurations().subscribe((configs) => {
+      this.bpmnCaseTypesConfigurations = configs;
+    });
 
     this.referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
@@ -146,11 +157,12 @@ export class ZaakCreateComponent {
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value) {
+        if (!value || this.isBpmnCaseTypeSelected) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
         }
+
         this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
@@ -207,14 +219,23 @@ export class ZaakCreateComponent {
 
   caseTypeSelected(caseType?: GeneratedType<"RestZaaktype"> | null) {
     if (!caseType) return;
+
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
+
     this.groups = this.identityService.listGroups(caseType.uuid);
 
+    const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
+      ({ zaaktypeUuid }) => zaaktypeUuid === caseType.uuid,
+    )?.groepNaam;
+
     this.groups.subscribe((groups) => {
-      this.form.controls.groep.setValue(
-        groups?.find(({ id }) => id === zaakafhandelparameters?.defaultGroepId),
+      const selectedGroup = groups?.find(
+        ({ id }) =>
+          id === zaakafhandelparameters?.defaultGroepId ||
+          id === bpmnDefaultGroepId,
       );
+      this.form.controls.groep.setValue(selectedGroup);
     });
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
@@ -229,6 +250,11 @@ export class ZaakCreateComponent {
     ) {
       this.form.controls.initiatorIdentificatie.setValue(null);
     }
+
+    this.isBpmnCaseTypeSelected = !!this.bpmnCaseTypesConfigurations.find(
+      ({ zaaktypeUuid }) =>
+        zaaktypeUuid === zaakafhandelparameters?.zaaktype.uuid,
+    );
   }
 
   protected async openSideNav(action: string) {
