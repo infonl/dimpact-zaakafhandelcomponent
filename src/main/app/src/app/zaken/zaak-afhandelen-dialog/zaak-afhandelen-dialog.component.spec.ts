@@ -322,7 +322,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      // Verify the mutation function was called with the correct data
       expect(postMutationFnSpy).toHaveBeenCalled();
       const callArgs = postMutationFnSpy.mock.calls[0][0];
       expect(callArgs.brondatumEigenschap).toBe("2021-12-31T23:00:00.000Z");
