@@ -28,6 +28,15 @@ class ZaakHelper(
     val logger = KotlinLogging.logger {}
     val itestHttpClient = zacClient.itestHttpClient
 
+    /**
+     * Creates a new zaak with the given unique description and zaaktype UUID,
+     * sends a notification to ZAC to index the newly created zaak,
+     * and waits until the zaak is findable via the search API.
+     * This function expects that the provided zaak description is unique, because
+     * it uses the description to search for the newly created zaak.
+     *
+     * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
+     */
     suspend fun createAndIndexZaak(
         zaakDescription: String,
         zaaktypeUuid: UUID,
@@ -52,7 +61,6 @@ class ZaakHelper(
         }
         sendZaakCreateNotification(zaakUuid)
         // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
-        // note that this assumes that the zaak description is unique
         eventually(5.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
