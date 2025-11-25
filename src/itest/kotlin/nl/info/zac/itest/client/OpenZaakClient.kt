@@ -8,7 +8,18 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC256
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import java.util.Date
+import java.util.UUID
+
+class OpenZaakClient(
+    val itestHttpClient: ItestHttpClient
+) {
+    fun getRolesForZaak(zaakUUID: UUID): ResponseContent =
+        itestHttpClient.performGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID"
+        )
+}
 
 /**
  * Generates a JWT token for OpenZaak client authentication from our integration tests.

@@ -49,7 +49,6 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
@@ -86,17 +85,16 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
                             "alleenMijnTaken": false,
-                            "zoeken":{},
+                            "zoeken": {},
                             "filters": {},
                             "datums": {},
                             "rows": 100,
                             "page": 0,
-                            "type":"TAAK"
+                            "type": "TAAK"
                         }
                         """.trimIndent()
                     )
@@ -123,7 +121,6 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,

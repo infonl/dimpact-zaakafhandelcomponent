@@ -13,6 +13,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
@@ -55,7 +56,8 @@ import kotlin.time.Duration.Companion.seconds
 class SignaleringRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
+    val zacClient = ZacClient(itestHttpClient)
+    val openZaakClient = OpenZaakClient(itestHttpClient)
     val afterThirtySeconds = eventuallyConfig {
         duration = 30.seconds
         interval = 500.milliseconds
@@ -116,9 +118,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         zaakPath = "zaken/api/v1/zaken/$zaakUUID"
         // retrieve the roles of this zaak from Open Zaak
-        val zaakRollenResponse = itestHttpClient.performGetRequest(
-            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
-        )
+        val zaakRollenResponse = openZaakClient.getRolesForZaak(zaakUUID)
         val responseBody = zaakRollenResponse.bodyAsString
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
