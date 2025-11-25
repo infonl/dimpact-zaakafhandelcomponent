@@ -67,7 +67,6 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-import kotlin.toString
 
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
