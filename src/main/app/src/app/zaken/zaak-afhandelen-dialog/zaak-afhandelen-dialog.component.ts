@@ -15,7 +15,6 @@ import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
@@ -35,7 +34,6 @@ export class ZaakAfhandelenDialogComponent {
   };
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
-  private readonly planItemsService = inject(PlanItemsService);
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly klantenService = inject(KlantenService);
   private readonly zacQueryClient = inject(ZacQueryClient);
@@ -129,7 +127,10 @@ export class ZaakAfhandelenDialogComponent {
     if (this.sendMailDefault && !!this.data.planItem) {
       this.formGroup.controls.sendMail.setValue(true);
       this.formGroup.controls.verzender.addValidators(Validators.required);
-      this.formGroup.controls.ontvanger.addValidators([Validators.required]);
+      this.formGroup.controls.ontvanger.addValidators([
+        Validators.required,
+        CustomValidators.email,
+      ]);
     }
 
     this.formGroup.controls.sendMail.valueChanges
