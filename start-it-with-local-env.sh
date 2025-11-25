@@ -10,11 +10,10 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC Docker Image."
    echo
-   echo "Syntax: $0 [-b|d|v|s|u|r|h]"
+   echo "Syntax: $0 [-b|d|s|u|r|h]"
    echo "options:"
    echo "-b     Build a local ZAC Docker image"
    echo "-d     Delete local Docker volume data before starting Docker Compose"
-   echo "-v     Keep local Docker Compose volume data after test execution"
    echo "-c     Keep local Docker Compose containers running after test execution"
    echo "-s     Do not start Docker Compose containers before test execution"
    echo "-u     Turn on debug logs"
@@ -35,7 +34,7 @@ args=""
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
 build=false
-while getopts ':bdvcsurh' OPTION; do
+while getopts ':bdcsurh' OPTION; do
   case "$OPTION" in
     b)
       build=true
@@ -44,9 +43,6 @@ while getopts ':bdvcsurh' OPTION; do
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
       rm -rf $volumeDataFolder
       echo "Done"
-      ;;
-    v)
-      export REMOVE_DOCKER_COMPOSE_VOLUMES=false
       ;;
     c)
       export TESTCONTAINERS_RYUK_DISABLED=true

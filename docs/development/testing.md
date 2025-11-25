@@ -37,6 +37,11 @@ To do this you will first need to do the following:
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.
 
+### Configuring the integration tests
+
+Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests:
+TESTCONTAINERS_RYUK_DISABLED
+
 ### Debugging integration tests
 
 Debugging integration tests can be difficult, because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
@@ -44,7 +49,7 @@ The following steps can help you debug failing integration tests:
 
 1. Build the ZAC Docker Image. See instructions above.
 2. Make sure there are no running Docker containers on your computer.
-3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right click and select `Debug Tests in Zaakafhandelcomponent `
+3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right-click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
    2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
    3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
