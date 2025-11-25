@@ -96,7 +96,6 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
         takeUntil(this.destroy$),
         switchMap(() => {
           if (!this.trefwoordenControl.value) {
-            this.zoekenSideNav()?.close();
             return of(null);
           }
 
@@ -115,8 +114,16 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
         }),
       )
       .subscribe((data) => {
-        if (!data) return;
-        this.paginator().length = data.totaal ?? 0;
+        this.paginator().length = data?.totaal ?? 0;
+        if (!data) {
+          this.zoekResultaat = {
+            resultaten: [],
+            totaal: 0,
+            filters: {},
+            foutmelding: "",
+          };
+          return;
+        }
         this.hasSearched = true;
         this.zoekenService.hasSearched.set(true);
         this.zoekResultaat = data as ZoekResultaat<
