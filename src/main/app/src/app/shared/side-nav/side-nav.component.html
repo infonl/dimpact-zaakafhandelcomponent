@@ -18,9 +18,8 @@
       >
     </h3>
     <mat-divider *ngSwitchCase="menuItemType.HEADER" />
-
-    <a
-      mat-list-item
+    <mat-list-item
+      role="link"
       *ngSwitchCase="menuItemType.LINK"
       [disabled]="menuItem.disabled"
       [activated]="menuItem.activated"
@@ -35,10 +34,9 @@
         >{{ menuItem.icon }}</mat-icon
       >
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </a>
-    <button
-      type="button"
-      mat-list-item
+    </mat-list-item>
+    <mat-list-item
+      role="button"
       *ngSwitchCase="menuItemType.BUTTON"
       [disabled]="menuItem.disabled"
       [activated]="activeItem() === menuItem.title"
@@ -53,9 +51,9 @@
         >{{ menuItem.icon }}</mat-icon
       >
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </button>
-    <a
-      mat-list-item
+    </mat-list-item>
+    <mat-list-item
+      role="link"
       *ngSwitchCase="menuItemType.HREF"
       [disabled]="menuItem.disabled"
       [href]="asHrefMenuItem(menuItem).url"
@@ -68,7 +66,7 @@
         >{{ menuItem.icon }}</mat-icon
       >
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </a>
+    </mat-list-item>
   </ng-container>
 </mat-nav-list>
 <mat-toolbar class="toolbar-footer">
