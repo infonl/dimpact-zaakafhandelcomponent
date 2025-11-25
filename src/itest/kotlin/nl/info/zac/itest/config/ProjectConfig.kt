@@ -67,7 +67,6 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-import kotlin.toString
 
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
@@ -77,6 +76,8 @@ class ProjectConfig : AbstractProjectConfig() {
     private val itestHttpClient = ItestHttpClient()
     private val zacClient = ZacClient()
     private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
+    private val skipStart = System.getenv("DO_NOT_START_DOCKER_COMPOSE")?.toBoolean() ?: false
+    private val skipContainerCleanup = System.getenv("TESTCONTAINERS_RYUK_DISABLED")?.toBoolean() ?: false
 
     // All variables below have to be overridable in the docker-compose.yaml file
     private val dockerComposeOverrideEnvironment = mapOf(
@@ -111,10 +112,13 @@ class ProjectConfig : AbstractProjectConfig() {
 
     override suspend fun beforeProject() {
         try {
-            deleteLocalDockerVolumeData()
-            dockerComposeContainer = createDockerComposeContainer()
-            dockerComposeContainer.start()
-            logger.info { "Started ZAC Docker Compose containers" }
+            if (!skipStart) {
+                deleteLocalDockerVolumeData()
+                dockerComposeContainer = createDockerComposeContainer()
+                dockerComposeContainer.start()
+                logger.info { "Started ZAC Docker Compose containers" }
+            }
+
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
             eventually(
                 eventuallyConfig {
@@ -141,7 +145,10 @@ class ProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
-            createTestSetupData()
+
+            if (!skipStart) {
+                createTestSetupData()
+            }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker Compose containers" }
             dockerComposeContainer.stop()
@@ -150,6 +157,19 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
+        if (skipContainerCleanup) {
+            logger.warn {
+                "TESTCONTAINERS_RYUK_DISABLED environment variable is set to true, not stopping Docker Compose containers"
+            }
+            Runtime.getRuntime().halt(0)
+        }
+        if (skipStart) {
+            logger.warn {
+                "DO_NOT_START_DOCKER_COMPOSE environment variable is set to true, not stopping Docker Compose containers"
+            }
+            Runtime.getRuntime().halt(0)
+        }
+
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
         dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
             logger.info { "Stopping ZAC Docker container" }
@@ -169,7 +189,7 @@ class ProjectConfig : AbstractProjectConfig() {
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
-        return ComposeContainer(File("docker-compose.yaml"))
+        return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
             .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
