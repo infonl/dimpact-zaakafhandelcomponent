@@ -17,6 +17,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -26,6 +27,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
@@ -84,7 +87,10 @@ class SearchRestServiceTest : BehaviorSpec({
             )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
-            When("the search endpoint is called to search open zaken on the unique description of the just created zaak") {
+            When(
+                """the search endpoint is called to search open zaken on the unique description
+                    of the just created zaak"""
+            ) {
                 // keep on calling the search endpoint until we see the expected number of total objects
                 // because the indexing will take some time to complete
                 val response = itestHttpClient.performPutRequest(
@@ -387,12 +393,25 @@ class SearchRestServiceTest : BehaviorSpec({
 
     Context("Listing zaken for information object type") {
         Given(
-            """Two zaken have been created and indexed, 
-                one of which can be linked to an information object of a specific type"""
+            """Two zaken have been created, each with a different zaaktype, and have been indexed, 
+                one of which can be linked to an information object of a specific type,
+                and a logged-in raadpleger authorised for the domain of these zaaktypes"""
         ) {
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            val zaak1Description = "fakeZaak1Description"
+            val zaak2Description = "fakeZaak2Description"
+            val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
+                zaakDescription = zaak1Description,
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+            )
+            val (zaak2Identification, zaak2Uuid) = zaakHelper.createAndIndexZaak(
+                zaakDescription = zaak2Description,
+                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID
+            )
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When(
                 """
-                the search endpoint is called to search for all objects of type 'ZAAK' 
+                the search endpoint is called to search for the first created zaak
                 with a specific information object UUID
                 """.trimMargin()
             ) {
@@ -402,62 +421,46 @@ class SearchRestServiceTest : BehaviorSpec({
                 {
                     "rows": 5,
                     "page": 0,
-                    "zaakIdentificator": "zaak",
+                    "zaakIdentificator": "$zaak1Identification",
                     "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                 }
                     """.trimIndent()
                 )
                 Then(
                     """
-                   the response is successful and the search results include the indexed zaken
-                   that may be linked according to the information object type UUID
+                   the response is successful and the search results consists of the indexed zaak
+                   with a 'linkable' flag set to true
                     """.trimMargin()
                 ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    // TODO
-//                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-//                {
-//                  "foutmelding": "",
-//                  "resultaten": [
-//                    {
-//                      "isKoppelbaar": true,
-//                      "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": true,
-//                      "identificatie": "ZAAK-2000-0000000007",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": true,
-//                      "identificatie": "ZAAK-2000-0000000006",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": true,
-//                      "identificatie": "ZAAK-2000-0000000005",
-//                      "type": "ZAAK"
-//                    }
-//                  ],
-//                  "totaal": ${TOTAL_COUNT_INDEXED_ZAKEN},
-//                  "filters": {}
-//                }
-//                    """.trimIndent()
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ 
+                      {
+                        "id" : "$zaak1Uuid",
+                        "identificatie" : "$zaak1Identification",
+                        "isKoppelbaar" : true,
+                        "omschrijving" : "$zaak1Description",
+                        "statustypeOmschrijving" : "Intake",
+                        "toelichting" : "null",
+                        "type" : "ZAAK",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                      } 
+                      ],
+                      "totaal" : 1,
+                      "filters" : { }
+                    }
+                    """.trimIndent()
                 }
             }
 
             When(
                 """
-                the search endpoint is called to search for all objects of type 'ZAAK' 
-                with a non-existing information object UUID
+                the search endpoint is called to search for the second created zaak
+                with a specific information object UUID
                 """.trimMargin()
             ) {
                 val response = itestHttpClient.performPutRequest(
@@ -466,50 +469,87 @@ class SearchRestServiceTest : BehaviorSpec({
                 {
                     "rows": 5,
                     "page": 0,
-                    "zaakIdentificator": "zaak",
+                    "zaakIdentificator": "$zaak2Identification",
+                    "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                }
+                    """.trimIndent()
+                )
+                Then(
+                    """
+                      the response is successful and the search results consists of the indexed zaak
+                      with a 'linkable' flag set to false
+                    """.trimMargin()
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ 
+                      {
+                        "id" : "$zaak2Uuid",
+                        "identificatie" : "$zaak2Identification",
+                        "isKoppelbaar" : false,
+                        "omschrijving" : "$zaak2Description",
+                        "statustypeOmschrijving" : "Intake",
+                        "toelichting" : "null",
+                        "type" : "ZAAK",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                      } 
+                      ],
+                      "totaal" : 1,
+                      "filters" : { }
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called to search for the first created zaak 
+                but with a non-existing information object UUID
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                {
+                    "rows": 5,
+                    "page": 0,
+                    "zaakIdentificator": "$zaak1Identification",
                     "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                     """.trimIndent()
                 )
-                Then("the response is successful and search results contain no zaak that can be linked to") {
+                Then(
+                    """
+                    the response is successful and the search results consists of the indexed zaak
+                    with a 'linkable' flag set to false
+                    """
+                ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    // TODO
-//                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-//                {
-//                  "foutmelding": "",
-//                  "resultaten": [
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "$ZAAK_MANUAL_2024_01_IDENTIFICATION",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "ZAAK-2000-0000000007",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "ZAAK-2000-0000000006",
-//                      "type": "ZAAK"
-//                    },
-//                    {
-//                      "isKoppelbaar": false,
-//                      "identificatie": "ZAAK-2000-0000000005",
-//                      "type": "ZAAK"
-//                    }
-//                  ],
-//                  "totaal": $TOTAL_COUNT_INDEXED_ZAKEN,
-//                  "filters": {}
-//                }
-//                    """.trimIndent()
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                        "foutmelding" : "",
+                        "resultaten" : [
+                        {
+                            "id" : "$zaak1Uuid",
+                            "identificatie" : "$zaak1Identification",
+                            "isKoppelbaar" : false,
+                            "omschrijving" : "$zaak1Description",
+                            "statustypeOmschrijving" : "Intake",
+                            "toelichting" : "null",
+                            "type" : "ZAAK",
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        }
+                        ],
+                        "totaal" : 1,
+                        "filters" : { }
+                    }
+                    """.trimIndent()
                 }
             }
         }

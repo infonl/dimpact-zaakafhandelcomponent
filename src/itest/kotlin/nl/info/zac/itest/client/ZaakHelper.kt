@@ -50,29 +50,7 @@ class ZaakHelper(
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
         }
-        // trigger the notification service to index the zaak
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/notificaties",
-            headers = Headers.headersOf(
-                "Content-Type",
-                "application/json",
-                "Authorization",
-                OPEN_NOTIFICATIONS_API_SECRET_KEY
-            ),
-            requestBodyAsString = JSONObject(
-                mapOf(
-                    "kanaal" to "zaken",
-                    "resource" to "zaak",
-                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
-                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
-                    "actie" to "create",
-                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                )
-            ).toString(),
-            addAuthorizationHeader = false
-        ).run {
-            code shouldBe HTTP_NO_CONTENT
-        }
+        sendZaakCreateNotification(zaakUuid)
         // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
         // note that this assumes that the zaak description is unique
         eventually(5.seconds) {
@@ -96,5 +74,34 @@ class ZaakHelper(
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
         return Pair(zaakIdentification, zaakUuid)
+    }
+
+    /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a zaak,
+     * so that ZAC will index the newly created zaak in Solr.
+     */
+    private fun sendZaakCreateNotification(zaakUuid: UUID) {
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaak",
+                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString(),
+            addAuthorizationHeader = false
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
     }
 }

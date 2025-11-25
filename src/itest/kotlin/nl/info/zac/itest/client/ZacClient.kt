@@ -454,6 +454,9 @@ class ZacClient(
         )
     }
 
+    /**
+     * Starts the "Aanvullende Informatie" human task plan item (i.e. task) for the given zaak.
+     */
     fun startAanvullendeInformatieTaskForZaak(
         zaakUUID: UUID,
         fatalDate: LocalDate,
@@ -464,9 +467,10 @@ class ZacClient(
             JSONArray(response.bodyAsString)
                 .map { it as JSONObject }
                 .firstOrNull {
-                it.getString("formulierDefinitie") == FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-            }?.getString("id") ?: throw IllegalStateException(
-                "No human task plan item with formulier definitie '$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE' found for zaak with UUID: '$zaakUUID'"
+                    it.getString("formulierDefinitie") == FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+                }?.getString("id") ?: error(
+                "No human task plan item with formulier definitie '$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE' " +
+                    "found for zaak with UUID: '$zaakUUID'"
             )
         }
         return startHumanTaskPlanItem(

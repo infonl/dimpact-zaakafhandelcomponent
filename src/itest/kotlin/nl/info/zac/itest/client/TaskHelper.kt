@@ -53,7 +53,7 @@ class TaskHelper(
                         "page": 0,
                         "type": "TAAK"
                         }
-                    """.trimIndent()
+                """.trimIndent()
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
