@@ -6,8 +6,12 @@
 @import "../../../../node_modules/bootstrap/dist/css/bootstrap.css";
 
 /**
-  * Font Awesome icon overrides
-  */
+ * Override Font Awesome icons with Material Symbols for visual consistency across the application.
+ * This affects all `.fa` classes within the scope of this component, replacing their font and appearance.
+ * Currently, only the `fa-calendar` icon is specifically mapped to the Material Symbol `calendar_month`.
+ * All other Font Awesome icons will display a generic fallback ("abc").
+ * Additional icon mappings may be added here in the future as needed.
+ */
 .fa {
   font-family: "Material Symbols Outlined" !important;
   font-weight: normal !important;
