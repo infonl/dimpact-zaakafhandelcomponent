@@ -54,11 +54,12 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     ),
     onSuccess: (data) => {
       this.document.emit(data);
-      if (this.form.controls.addOtherInfoObject.value === true) {
+      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+      if (this.form.controls.addOtherInfoObject.value) {
         this.form.reset(this.defaultFormValues);
-      } else {
-        this.resetAndClose();
+        return;
       }
+      this.resetAndClose();
     },
     onError: () => {
       this.form.reset();
