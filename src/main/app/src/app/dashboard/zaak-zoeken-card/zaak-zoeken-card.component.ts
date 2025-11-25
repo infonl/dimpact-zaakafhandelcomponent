@@ -43,7 +43,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     return zoekParameters;
   });
 
-  zoekQuery = injectQuery(() => ({
+  protected readonly zoekQuery = injectQuery(() => ({
     queryKey: ["zaak zoeken dashboard", this.zoekParameters()],
     queryFn: () =>
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),

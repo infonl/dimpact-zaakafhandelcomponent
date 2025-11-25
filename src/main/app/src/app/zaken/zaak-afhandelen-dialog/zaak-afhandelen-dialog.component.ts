@@ -51,7 +51,7 @@ export class ZaakAfhandelenDialogComponent {
     brondatumEigenschap: this.formBuilder.control<Moment | null>(null),
   });
 
-  resultaattypesQuery = injectQuery(() => ({
+  protected readonly resultaattypesQuery = injectQuery(() => ({
     queryKey: ["resultaattypes", this.data.zaak.zaaktype.uuid],
     queryFn: () =>
       firstValueFrom(
@@ -59,7 +59,7 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  afzendersQuery = injectQuery(() => ({
+  protected readonly afzendersQuery = injectQuery(() => ({
     queryKey: ["afzenders", this.data.zaak.uuid],
     queryFn: () =>
       firstValueFrom(
@@ -67,7 +67,7 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  mailtemplateQuery = injectQuery(() => ({
+  protected readonly mailtemplateQuery = injectQuery(() => ({
     queryKey: ["mailtemplate", this.data.zaak.uuid],
     queryFn: () =>
       firstValueFrom(
@@ -78,7 +78,7 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  initiatorEmailQuery = injectQuery(() => {
+  protected readonly initiatorEmailQuery = injectQuery(() => {
     const bsn = this.data.zaak.initiatorIdentificatie?.bsnNummer;
     if (!bsn) {
       return { queryKey: [], queryFn: () => Promise.resolve(null) };
@@ -90,7 +90,7 @@ export class ZaakAfhandelenDialogComponent {
     };
   });
 
-  defaultAfzenderQuery = injectQuery(() => ({
+  protected readonly defaultAfzenderQuery = injectQuery(() => ({
     queryKey: ["defaultAfzender", this.data.zaak.uuid],
     queryFn: () =>
       firstValueFrom(
