@@ -4,3 +4,31 @@
  */
 
 @import "../../../../node_modules/bootstrap/dist/css/bootstrap.css";
+
+/**
+  * Font Awesome icon overrides
+  */
+.fa {
+  font-family: "Material Symbols Outlined" !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+
+  &::before {
+    content: "abc" !important; // fallback for any font awesome icon
+    font-variation-settings: "FILL" 1 !important;
+    font-size: 16px !important;
+  }
+}
+
+.fa.fa-calendar {
+  &::before {
+    content: "calendar_month" !important;
+  }
+}
