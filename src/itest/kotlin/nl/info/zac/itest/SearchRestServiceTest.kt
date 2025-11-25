@@ -64,8 +64,10 @@ class SearchRestServiceTest : BehaviorSpec({
             // log in as a beheerder authorised in all domains
             // and create the zaken, tasks and documents and index them
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
-            val zaakDescription = "fakeZaakDescriptionForSearchRestServiceTest"
-            val documentTitle = "fakeDocumentTitleForSearchRestServiceTest"
+            // make sure the zaak description and document title are unique for this test run,
+            // because we use it later on to search on this zaak
+            val zaakDescription = "${SearchRestServiceTest::class.simpleName}lsr${System.currentTimeMillis()}"
+            val documentTitle = "${SearchRestServiceTest::class.simpleName}lsr${System.currentTimeMillis()}"
             val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
             val today = LocalDate.now()
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
@@ -398,8 +400,10 @@ class SearchRestServiceTest : BehaviorSpec({
                 and a logged-in raadpleger authorised for the domain of these zaaktypes"""
         ) {
             authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-            val zaak1Description = "fakeZaak1Description"
-            val zaak2Description = "fakeZaak2Description"
+            // make sure the zaak descriptions are unique for this test run,
+            // because we use it later on to search on these zaken
+            val zaak1Description = "${SearchRestServiceTest::class.simpleName}lzfiot1${System.currentTimeMillis()}"
+            val zaak2Description = "${SearchRestServiceTest::class.simpleName}lzfiot2${System.currentTimeMillis()}"
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
                 zaakDescription = zaak1Description,
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
