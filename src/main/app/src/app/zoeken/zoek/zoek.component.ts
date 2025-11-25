@@ -86,10 +86,10 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
       this.paginator().pageIndex = 0;
     });
     this.zoekenSideNav()
-        ?.openedStart.pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          this.zoek.emit();
-        });
+      ?.openedStart.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.zoek.emit();
+      });
 
     merge(this.paginator().page, this.zoek)
       .pipe(
