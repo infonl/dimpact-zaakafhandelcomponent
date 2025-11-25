@@ -20,8 +20,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { EMPTY } from "rxjs";
-import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -30,7 +28,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
-import type { MutationOptions } from "@tanstack/query-core";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
@@ -39,8 +36,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
   let queryClient: QueryClient;
   let zacQueryClient: ZacQueryClient;
-  let patchSpy: jest.SpyInstance;
-  let postSpy: jest.SpyInstance;
+  let afsluitenMutationSpy: jest.SpyInstance;
+  let planItemMutationSpy: jest.SpyInstance;
   let postMutationFnSpy: jest.Mock;
 
   const mockDialogRef = {
@@ -107,7 +104,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     body: "Test Body",
   });
 
-  const createTestBed = async (zaakMock: GeneratedType<"RestZaak">) => {
+  const createTestBed = async (
+    zaakMock: GeneratedType<"RestZaak">,
+    planItemMock?: GeneratedType<"RESTPlanItem"> | null,
+  ) => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
@@ -134,7 +134,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           provide: MAT_DIALOG_DATA,
           useValue: {
             zaak: zaakMock,
-            planItem: mockPlanItem,
+            planItem: planItemMock ?? mockPlanItem,
           },
         },
         CustomValidators,
@@ -162,14 +162,14 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     zacQueryClient = TestBed.inject(ZacQueryClient);
 
     postMutationFnSpy = jest.fn(async () => ({ success: true }));
-    patchSpy = jest.spyOn(zacQueryClient, "PATCH").mockReturnValue({
+    afsluitenMutationSpy = jest.spyOn(zacQueryClient, "PATCH").mockReturnValue({
       mutationKey: ["/rest/zaken/zaak/{uuid}/afsluiten"],
       mutationFn: async () => ({ success: true }),
       onMutate: undefined,
       onSettled: undefined,
     });
 
-    postSpy = jest.spyOn(zacQueryClient, "POST").mockReturnValue({
+    planItemMutationSpy = jest.spyOn(zacQueryClient, "POST").mockReturnValue({
       mutationKey: ["/rest/planitems/doUserEventListenerPlanItem"],
       mutationFn: postMutationFnSpy,
       onMutate: undefined,
@@ -183,7 +183,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   };
 
   beforeEach(async () => {
-    await createTestBed(mockZaak);
+    await createTestBed(mockZaak, mockPlanItem);
   });
 
   describe("sendMail checkbox", () => {
@@ -283,7 +283,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   });
 
   describe("form submission", () => {
-    it("should call POST mutation on submit", async () => {
+    it("should call planItem mutation on submit", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
@@ -297,8 +297,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      // Verify POST was called during component initialization
-      expect(postSpy).toHaveBeenCalledWith(
+      expect(planItemMutationSpy).toHaveBeenCalledWith(
         "/rest/planitems/doUserEventListenerPlanItem",
       );
     });
@@ -475,7 +474,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         },
       });
 
-      await createTestBed(mockZaakWithAfrondenMailAan);
+      await createTestBed(mockZaakWithAfrondenMailAan, mockPlanItem);
     });
 
     it("should show sendMail checkbox checked and show verzender field", async () => {
@@ -504,13 +503,46 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         },
       });
 
-      await createTestBed(mockZaakWithAfrondenMailAan);
+      await createTestBed(mockZaakWithAfrondenMailAan, mockPlanItem);
     });
 
     it("should not show sendMail checkbox", async () => {
       const sendMailCheckbox =
         await loader.getHarnessOrNull(MatCheckboxHarness);
       expect(sendMailCheckbox).toBeNull();
+    });
+  });
+
+  describe("Open dialog with planItem null (reopened case)", () => {
+    beforeEach(async () => {
+      const mockZaakWithNoPlanItem = fromPartial<GeneratedType<"RestZaak">>({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-no-planitem",
+      });
+
+      await createTestBed(mockZaakWithNoPlanItem, null);
+    });
+
+    it("should call afsluiten mutation on submit", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[2]?.click();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+
+      await submitButton.click();
+      await fixture.whenStable();
+
+      expect(afsluitenMutationSpy).toHaveBeenCalledWith(
+        "/rest/zaken/zaak/{uuid}/afsluiten",
+        expect.objectContaining({
+          path: { uuid: "test-zaak-uuid-no-planitem" },
+        }),
+      );
     });
   });
 });
