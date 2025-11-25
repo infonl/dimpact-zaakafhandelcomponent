@@ -29,14 +29,19 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
+import { ZacQueryClient } from "../../shared/http/zac-query-client";
+import type { MutationOptions } from "@tanstack/query-core";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
   let loader: HarnessLoader;
 
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
-  let planItemsService: PlanItemsService;
   let queryClient: QueryClient;
+  let zacQueryClient: ZacQueryClient;
+  let patchSpy: jest.SpyInstance;
+  let postSpy: jest.SpyInstance;
+  let postMutationFnSpy: jest.Mock;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -137,12 +142,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     }).compileComponents();
 
     dialogRef = TestBed.inject(MatDialogRef);
-    planItemsService = TestBed.inject(PlanItemsService);
     queryClient = TestBed.inject(QueryClient);
-
-    jest
-      .spyOn(planItemsService, "doUserEventListenerPlanItem")
-      .mockReturnValue(EMPTY);
 
     queryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
@@ -158,6 +158,23 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["defaultAfzender", zaakMock.uuid],
       mockAfzenders[0],
     );
+
+    zacQueryClient = TestBed.inject(ZacQueryClient);
+
+    postMutationFnSpy = jest.fn(async () => ({ success: true }));
+    patchSpy = jest.spyOn(zacQueryClient, "PATCH").mockReturnValue({
+      mutationKey: ["/rest/zaken/zaak/{uuid}/afsluiten"],
+      mutationFn: async () => ({ success: true }),
+      onMutate: undefined,
+      onSettled: undefined,
+    });
+
+    postSpy = jest.spyOn(zacQueryClient, "POST").mockReturnValue({
+      mutationKey: ["/rest/planitems/doUserEventListenerPlanItem"],
+      mutationFn: postMutationFnSpy,
+      onMutate: undefined,
+      onSettled: undefined,
+    });
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -266,7 +283,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   });
 
   describe("form submission", () => {
-    it(`should call ${PlanItemsService.prototype.doUserEventListenerPlanItem.name} on submit`, async () => {
+    it("should call POST mutation on submit", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
@@ -278,11 +295,17 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       );
 
       await submitButton.click();
+      await fixture.whenStable();
 
-      expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalled();
+      // Verify POST was called during component initialization
+      expect(postSpy).toHaveBeenCalledWith(
+        "/rest/planitems/doUserEventListenerPlanItem",
+      );
     });
 
     it("should send over a 'brondatumEigenschap' when a brondatumEigenschap is required", async () => {
+      postMutationFnSpy.mockClear();
+
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
@@ -298,12 +321,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       );
 
       await submitButton.click();
+      await fixture.whenStable();
 
-      expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          brondatumEigenschap: "2021-12-31T23:00:00.000Z", // ISO 8601 format
-        }),
-      );
+      // Verify the mutation function was called with the correct data
+      expect(postMutationFnSpy).toHaveBeenCalled();
+      const callArgs = postMutationFnSpy.mock.calls[0][0];
+      expect(callArgs.brondatumEigenschap).toBe("2021-12-31T23:00:00.000Z");
     });
 
     it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {

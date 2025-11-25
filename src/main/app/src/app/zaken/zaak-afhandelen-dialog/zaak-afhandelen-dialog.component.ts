@@ -122,7 +122,6 @@ export class ZaakAfhandelenDialogComponent {
       this.data.zaak.zaaktype.zaakafhandelparameters;
     this.sendMailDefault =
       zaakafhandelparameters?.afrondenMail === "BESCHIKBAAR_AAN";
-    console.group("data", this.data);
 
     if (!this.data.zaak.resultaat) {
       this.formGroup.controls.resultaattype.addValidators(Validators.required);
