@@ -20,7 +20,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { testQueryClient } from "setupJest";
+import { testQueryClient } from "../../../../setupJest";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
