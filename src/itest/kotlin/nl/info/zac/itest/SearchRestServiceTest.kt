@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
@@ -23,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
+import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
@@ -165,7 +165,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "registratiedatum" : "${LocalDate.now()}",
                             "startdatum" : "$DATE_2024_01_01",
                             "statusToelichting" : "Status gewijzigd",
-                            "statustypeOmschrijving" : "Wacht op aanvullende informatie",
+                            "statustypeOmschrijving" : "$STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE",
                             "toelichting" : "null",
                             "type" : "ZAAK",
                             "uiterlijkeEinddatumAfdoening" : "$aanvullendeInformatieTaskFatalDate",
