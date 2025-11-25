@@ -20,6 +20,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -27,7 +28,6 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
-import { ZacQueryClient } from "../../shared/http/zac-query-client";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
