@@ -58,7 +58,7 @@ class SearchRestServiceTest : BehaviorSpec({
             """
             A logged-in raadpleger and a zaak has been created and is indexed and an 'aanvullende informatie' 
             task has been added to the zaak           
-            "
+            
             """.trimIndent()
         ) {
             // log in as a beheerder authorised in all domains
