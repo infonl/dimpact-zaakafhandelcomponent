@@ -92,17 +92,16 @@ class CsvRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/csv/export",
                 requestBodyAsString = """
                    {
-                    "filtersType":"ZoekParameters",
-                    "alleenMijnZaken":false,
-                    "alleenOpenstaandeZaken":true,
-                    "alleenAfgeslotenZaken":false,
-                    "alleenMijnTaken":false,
-                    "zoeken":{},
-                    "filters":{},
-                    "datums":{},
-                    "rows":10,
-                    "page":0,
-                    "type":"ZAAK"
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": {},
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page": 0,
+                    "type": "ZAAK"
                     }
                 """.trimIndent()
             )
