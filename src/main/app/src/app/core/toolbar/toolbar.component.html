@@ -129,7 +129,7 @@
       matInput
       placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
       [formControl]="zoekenFormControl"
-      (keyup.enter)="zoekenSideNav.open()"
+      (keydown.enter)="zoekenSideNav.open()"
     />
     <button
       *ngIf="zoekenService.hasSearched()"
