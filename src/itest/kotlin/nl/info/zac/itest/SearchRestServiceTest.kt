@@ -52,6 +52,7 @@ class SearchRestServiceTest : BehaviorSpec({
     val taskHelper = TaskHelper(zacClient)
     val documentHelper = DocumentHelper(zacClient)
     val logger = KotlinLogging.logger {}
+    val now = System.currentTimeMillis()
 
     Context("Listing search results") {
         Given(
@@ -66,8 +67,8 @@ class SearchRestServiceTest : BehaviorSpec({
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
             // make sure the zaak description and document title are unique for this test run,
             // because we use it later on to search on this zaak
-            val zaakDescription = "${SearchRestServiceTest::class.simpleName}lsr${System.currentTimeMillis()}"
-            val documentTitle = "${SearchRestServiceTest::class.simpleName}lsr${System.currentTimeMillis()}"
+            val zaakDescription = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
+            val documentTitle = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
             val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
             val today = LocalDate.now()
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
@@ -402,8 +403,8 @@ class SearchRestServiceTest : BehaviorSpec({
             authenticate(BEHANDELAAR_DOMAIN_TEST_1)
             // make sure the zaak descriptions are unique for this test run,
             // because we use it later on to search on these zaken
-            val zaak1Description = "${SearchRestServiceTest::class.simpleName}lzfiot1${System.currentTimeMillis()}"
-            val zaak2Description = "${SearchRestServiceTest::class.simpleName}lzfiot2${System.currentTimeMillis()}"
+            val zaak1Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype1-$now"
+            val zaak2Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype2-$now"
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
                 zaakDescription = zaak1Description,
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
