@@ -35,7 +35,7 @@ class OpenZaakClient(
 
     /**
      * Retrieves all zaken from OpenZaak.
-     * Note that we assume here that our integrations tests will never create more than the default page size (=100) zaken.
+     * Note that we assume here that our integration tests will never create more than the default page size (=100) zaken.
      * Otherwise, we would need to implement pagination here.
      */
     fun getZaken(): ResponseContent =
