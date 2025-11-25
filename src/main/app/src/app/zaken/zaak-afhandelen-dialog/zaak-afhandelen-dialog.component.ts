@@ -105,15 +105,19 @@ export class ZaakAfhandelenDialogComponent {
     }
   });
 
-  protected readonly afsluitenMutation = injectMutation(() =>
-    this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
+  protected readonly afsluitenMutation = injectMutation(() => ({
+    ...this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
       path: { uuid: this.data.zaak.uuid },
     }),
-  );
+    onSuccess: () => this.dialogRef.close(true),
+    onError: () => this.dialogRef.close(false),
+  }));
 
-  protected readonly planItemAfhandelenMutation = injectMutation(() =>
-    this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
-  );
+  protected readonly planItemAfhandelenMutation = injectMutation(() => ({
+    ...this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+    onSuccess: () => this.dialogRef.close(true),
+    onError: () => this.dialogRef.close(false),
+  }));
 
   constructor() {
     const zaakafhandelparameters =
@@ -196,17 +200,11 @@ export class ZaakAfhandelenDialogComponent {
 
   private afsluiten() {
     const { value } = this.formGroup;
-    this.afsluitenMutation.mutate(
-      {
-        reden: value.toelichting,
-        resultaattypeUuid: value.resultaattype!.id,
-        brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
-      },
-      {
-        onSuccess: () => this.dialogRef.close(true),
-        onError: () => this.dialogRef.close(false),
-      },
-    );
+    this.afsluitenMutation.mutate({
+      reden: value.toelichting,
+      resultaattypeUuid: value.resultaattype!.id,
+      brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
+    });
   }
 
   private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
@@ -225,23 +223,16 @@ export class ZaakAfhandelenDialogComponent {
           } satisfies GeneratedType<"RESTMailGegevens">)
         : undefined;
 
-    this.planItemAfhandelenMutation.mutate(
-      {
-        actie: "ZAAK_AFHANDELEN",
-        planItemInstanceId: planItem.id,
-        zaakUuid: this.data.zaak.uuid,
-        resultaattypeUuid:
-          this.data.zaak.resultaat?.resultaattype?.id ??
-          value.resultaattype?.id,
-        resultaatToelichting: value.toelichting,
-        restMailGegevens,
-        brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
-      },
-      {
-        onSuccess: () => this.dialogRef.close(true),
-        onError: () => this.dialogRef.close(false),
-      },
-    );
+    this.planItemAfhandelenMutation.mutate({
+      actie: "ZAAK_AFHANDELEN",
+      planItemInstanceId: planItem.id,
+      zaakUuid: this.data.zaak.uuid,
+      resultaattypeUuid:
+        this.data.zaak.resultaat?.resultaattype?.id ?? value.resultaattype?.id,
+      resultaatToelichting: value.toelichting,
+      restMailGegevens,
+      brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
+    });
   }
 
   protected setInitiatorEmail() {
