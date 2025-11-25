@@ -12,8 +12,10 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -80,6 +82,30 @@ class ZacClient {
         )
     }
 
+    @Suppress("LongParameterList")
+    fun createZaaktypeBpmnConfiguration(
+        zaakTypeUuid: UUID,
+        zaakTypeDescription: String,
+        bpmnProcessDefinitionKey: String,
+        productaanvraagType: String,
+        defaultGroupName: String
+    ): ResponseContent {
+        logger.info {
+            "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
+                "and UUID: $zaakTypeUuid"
+        }
+        return itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
+            requestBodyAsString = """{ 
+                  "zaaktypeUuid": "$zaakTypeUuid",
+                  "zaaktypeOmschrijving": "$zaakTypeDescription",
+                  "productaanvraagtype": "$productaanvraagType",
+                  "groepNaam": "$defaultGroupName"
+                }
+            """.trimIndent()
+        )
+    }
+
     @Suppress("LongMethod", "LongParameterList")
     fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
@@ -90,11 +116,11 @@ class ZacClient {
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
         brpVerwerkingWaarde: String = "Algemeen",
-        automaticEmailConfirmationSender: String = "sender@info.nl",
-        automaticEmailConfirmationReply: String = "reply@info.nl"
+        automaticEmailConfirmationSender: String = "sender@example.com",
+        automaticEmailConfirmationReply: String = "reply@example.com"
     ): ResponseContent {
         logger.info {
-            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating a zaaktype CMMN configuration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
@@ -181,12 +207,12 @@ class ZacClient {
               "mailtemplateKoppelingen": [
                 {
                   "mailtemplate": {
-                    "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                    "body": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY",
                     "defaultMailtemplate": true,
                     "id": 2,
                     "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
                     "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
-                    "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                    "onderwerp": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT",
                     "variabelen": [
                       "GEMEENTE",
                       "ZAAK_NUMMER",
