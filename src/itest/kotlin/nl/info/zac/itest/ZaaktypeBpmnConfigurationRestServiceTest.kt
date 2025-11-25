@@ -9,7 +9,10 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
@@ -34,8 +37,14 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         }
     """.trimIndent()
 
+    afterSpec {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+    }
+
     Given("A BPMN zaaktype configuration was created in the overall test setup") {
         lateinit var responseBody: String
+
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
