@@ -472,12 +472,10 @@ export class ZaakViewComponent
           );
         }
 
-        const actions =
-          userEventListenerPlanItems.length + actionMenuItems.length;
-        if (actions) {
-          this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
-        }
         if (this.zaak.rechten.behandelen) {
+          if (userEventListenerPlanItems.length) {
+            this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
+          }
           this.menu = this.menu.concat(
             userEventListenerPlanItems
               .map((userEventListenerPlanItem) =>
