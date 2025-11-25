@@ -322,9 +322,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      expect(postMutationFnSpy).toHaveBeenCalled();
-      const callArgs = postMutationFnSpy.mock.calls[0][0];
-      expect(callArgs.brondatumEigenschap).toBe("2021-12-31T23:00:00.000Z");
+      expect(postMutationFnSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          brondatumEigenschap: "2021-12-31T23:00:00.000Z",
+        }),
+        expect.anything(), // Ignore the second argument
+      );
     });
 
     it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {
