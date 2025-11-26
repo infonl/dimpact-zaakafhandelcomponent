@@ -156,7 +156,7 @@ describe(ZacFormActions.name, () => {
           expect(isDisabled).toBe(false);
         });
 
-        it("should disable the cancel button", async () => {
+        it("should enable the cancel button", async () => {
           const cancelButton = await loader.getHarness(
             MatButtonHarness.with({ text: "actie.annuleren" }),
           );
