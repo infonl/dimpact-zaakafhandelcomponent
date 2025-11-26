@@ -209,6 +209,8 @@ fun createRestZaakDataUpdate(
 
 @Suppress("LongParameterList")
 fun createRestZaakCreateData(
+    description: String = "fakeDescription",
+    explanation: String = "fakeExplanation",
     behandelaar: RestUser = createRestUser(),
     restGroup: RestGroup = createRestGroup(),
     restZaakType: RestZaaktype = createRestZaaktype(),
@@ -218,8 +220,8 @@ fun createRestZaakCreateData(
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
 ) = RestZaakCreateData(
-    omschrijving = "Sample Zaak",
-    toelichting = "This is a test zaak",
+    omschrijving = description,
+    toelichting = explanation,
     zaaktype = restZaakType,
     bronorganisatie = "Sample Bronorganisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),

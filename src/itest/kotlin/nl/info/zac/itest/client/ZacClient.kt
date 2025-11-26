@@ -11,28 +11,39 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
+import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.TestGroup
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.net.URLDecoder
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class ZacClient {
+class ZacClient(
+    val itestHttpClient: ItestHttpClient = ItestHttpClient()
+) {
     private val logger = KotlinLogging.logger {}
-    private var itestHttpClient = ItestHttpClient()
 
+    @Suppress("LongParameterList")
     fun createEnkelvoudigInformatieobjectForZaak(
         zaakUUID: UUID,
         fileName: String,
+        title: String = DOCUMENT_FILE_TITLE,
+        authorName: String = FAKE_AUTHOR_NAME,
         fileMediaType: String,
         vertrouwelijkheidaanduiding: String
     ): ResponseContent {
@@ -45,7 +56,7 @@ class ZacClient {
             MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("bestandsnaam", fileName)
-                .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
+                .addFormDataPart("titel", title)
                 .addFormDataPart("bestandsomvang", file.length().toString())
                 .addFormDataPart("formaat", fileMediaType)
                 .addFormDataPart(
@@ -65,7 +76,7 @@ class ZacClient {
                         "yyyy-MM-dd'T'HH:mm+01:00"
                     ).format(ZonedDateTime.now())
                 )
-                .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
+                .addFormDataPart("auteur", authorName)
                 .addFormDataPart("taal", "dut")
                 .build()
         return itestHttpClient.performPostRequest(
@@ -80,6 +91,30 @@ class ZacClient {
         )
     }
 
+    @Suppress("LongParameterList")
+    fun createZaaktypeBpmnConfiguration(
+        zaakTypeUuid: UUID,
+        zaakTypeDescription: String,
+        bpmnProcessDefinitionKey: String,
+        productaanvraagType: String,
+        defaultGroupName: String
+    ): ResponseContent {
+        logger.info {
+            "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
+                "and UUID: $zaakTypeUuid"
+        }
+        return itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
+            requestBodyAsString = """{ 
+                  "zaaktypeUuid": "$zaakTypeUuid",
+                  "zaaktypeOmschrijving": "$zaakTypeDescription",
+                  "productaanvraagtype": "$productaanvraagType",
+                  "groepNaam": "$defaultGroupName"
+                }
+            """.trimIndent()
+        )
+    }
+
     @Suppress("LongMethod", "LongParameterList")
     fun createZaaktypeCmmnConfiguration(
         zaakTypeIdentificatie: String,
@@ -90,11 +125,11 @@ class ZacClient {
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
         brpVerwerkingWaarde: String = "Algemeen",
-        automaticEmailConfirmationSender: String = "sender@info.nl",
-        automaticEmailConfirmationReply: String = "reply@info.nl"
+        automaticEmailConfirmationSender: String = "sender@example.com",
+        automaticEmailConfirmationReply: String = "reply@example.com"
     ): ResponseContent {
         logger.info {
-            "Creating zaaktypeCmmnConfiguration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
+            "Creating a zaaktype CMMN configuration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
@@ -181,12 +216,12 @@ class ZacClient {
               "mailtemplateKoppelingen": [
                 {
                   "mailtemplate": {
-                    "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
+                    "body": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY",
                     "defaultMailtemplate": true,
                     "id": 2,
                     "mail": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL",
                     "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME",
-                    "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
+                    "onderwerp": "$MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT",
                     "variabelen": [
                       "GEMEENTE",
                       "ZAAK_NUMMER",
@@ -383,6 +418,67 @@ class ZacClient {
         }
         return itestHttpClient.performGetRequest(
             url = "${ZAC_API_URI}/zaken/zaak/id/$id"
+        )
+    }
+
+    fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID): ResponseContent {
+        logger.info {
+            "Retrieving human task plan items for zaak with UUID: $zaakUUID"
+        }
+        return itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+        )
+    }
+
+    fun startHumanTaskPlanItem(
+        planItemInstanceId: String,
+        fatalDate: LocalDate,
+        groupId: String,
+        groupName: String,
+        sendMail: Boolean = false
+    ): ResponseContent {
+        logger.info {
+            "Starting human task plan item with plan item instance id: $planItemInstanceId, " +
+                "fatal date: $fatalDate, group id: $groupId, group name: $groupName, send mail: $sendMail"
+        }
+        return itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
+            requestBodyAsString = """{
+                    "planItemInstanceId": "$planItemInstanceId",
+                    "fataledatum": "${fatalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
+                    "taakStuurGegevens": { "sendMail": $sendMail },
+                    "groep": { "id": "$groupId", "naam": "$groupName" },
+                    "taakdata":{}
+                }
+            """.trimIndent()
+        )
+    }
+
+    /**
+     * Starts the "Aanvullende Informatie" human task plan item (i.e. task) for the given zaak.
+     */
+    fun startAanvullendeInformatieTaskForZaak(
+        zaakUUID: UUID,
+        fatalDate: LocalDate,
+        group: TestGroup,
+        sendMail: Boolean = false
+    ): ResponseContent {
+        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(zaakUUID).let { response ->
+            JSONArray(response.bodyAsString)
+                .map { it as JSONObject }
+                .firstOrNull {
+                    it.getString("formulierDefinitie") == FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+                }?.getString("id") ?: error(
+                "No human task plan item with formulier definitie '$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE' " +
+                    "found for zaak with UUID: '$zaakUUID'"
+            )
+        }
+        return startHumanTaskPlanItem(
+            planItemInstanceId = aanvullendeInformatieHumanTaskPlanItemId,
+            fatalDate = fatalDate,
+            groupId = group.name,
+            groupName = group.description,
+            sendMail = sendMail
         )
     }
 }

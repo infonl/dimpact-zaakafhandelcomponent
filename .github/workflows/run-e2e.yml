@@ -37,7 +37,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 22
@@ -56,8 +56,23 @@ jobs:
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: always()
         with:
-          
           path: src/e2e/reports
+          retention-days: 7
+      - name: Create .env file from secrets
+        if: always()
+        run: |
+          echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
+      - name: BDD playwright
+        run: cd src/e2e && npm run bdd:ci
+        if: always()
+        continue-on-error: true
+      - name: Upload BDD test artifacts
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: bdd-test-artifacts
+          path: |
+            src/e2e/playwright-report
           retention-days: 7
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}

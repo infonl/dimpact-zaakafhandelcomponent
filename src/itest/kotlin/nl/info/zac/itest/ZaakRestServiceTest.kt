@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
@@ -22,8 +23,6 @@ import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_2
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
-import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
-import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
@@ -36,15 +35,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_15
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
-import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
-import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
@@ -61,7 +53,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTIO
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
@@ -80,12 +71,15 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
+
+const val ZAAK_OMSCHRIJVING_MAX_LENGTH = 80
 
 /**
  * This test assumes a zaak has been created in a previously run test.
@@ -112,23 +106,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing zaaktypes for creating zaken") {
-        Given("A beheerder with access to all zaaktypes in all domains is logged in") {
-            When("zaaktype CMMN configuration is created") {
-                val response = zacClient.createZaaktypeCmmnConfiguration(
-                    zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
-                    zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
-                    zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
-                    productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
-                    domein = DOMEIN_TEST_2
-                )
-                Then("the response should be ok") {
-                    val responseBody = response.bodyAsString
-                    logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
-                }
-            }
-        }
-
         Given(
             """
             zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
@@ -190,7 +167,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
                 And("the response body should contain only the zaaktypes for which the user is authorized") {
-                    // In the old IAM architecture we always return BPMN zaaktypes
+                    // In the old IAM architecture we always return BPMN zaaktypes in the 'zaaktypes for creation' list
                     val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
                         ""
                     } else {
@@ -217,47 +194,53 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
-        """
+    Context("Creating zaken") {
+        Given(
+            """
             zaaktype CMMN configuration has been created for zaaktype test 3 
             and a behandelaar authorised for this zaaktype is logged in
-        """.trimIndent()
-    ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-        lateinit var responseBody: String
+            """.trimIndent()
+        ) {
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            lateinit var responseBody: String
 
-        When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
-            val response = zacClient.createZaak(
-                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-                startDate = DATE_TIME_2020_01_01,
-                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
-                description = ZAAK_DESCRIPTION_2,
-                toelichting = ZAAK_EXPLANATION_1
-            )
-            Then("the response should be a 200 HTTP response") {
-                responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-            }
-            And(
-                """
+            When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                    startDate = DATE_TIME_2020_01_01,
+                    communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
+                    vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                    description = ZAAK_DESCRIPTION_2,
+                    toelichting = ZAAK_EXPLANATION_1
+                )
+                Then("the response should be a 200 HTTP response") {
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+                And(
+                    """
                 the response should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen' permissions
                 set to false since these actions are not allowed for the 'behandelaar' role
                 """
-            ) {
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                ) {
+                    // Note that we do not check the contents of the `zaakafhandelparameters` field below, in order to make
+                    // this test more manageable.
+                    // Also, the `zaakafhandelparameters` are already tested in other integration tests.
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "besluiten": [],
                       "bronorganisatie": "$BRON_ORGANISATIE",
                       "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                      "eerdereOpschorting": false,
                       "gerelateerdeZaken": [],
                       "groep": {
                         "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                       },
+                      "heeftOntvangstbevestigingVerstuurd": false,
                       "identificatie": "$ZAAK_MANUAL_2020_01_IDENTIFICATION",
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
@@ -267,7 +250,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "isInIntakeFase": false,
                       "isOpen": true,
                       "isOpgeschort": false,
-                      "eerdereOpschorting": false,
                       "isProcesGestuurd": false,
                       "isVerlengd": false,
                       "kenmerken": [],
@@ -290,7 +272,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "verwijderenBetrokkene": true,
                         "verwijderenInitiator": true,
                         "wijzigen": true,
-                        "wijzigenDoorlooptijd": true
+                        "wijzigenDoorlooptijd": true,
+                        "wijzigenLocatie": true
                       },
                       "registratiedatum": "${LocalDate.now()}",
                       "startdatum": "$DATE_2020_01_01",
@@ -320,217 +303,18 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
-                        "vertrouwelijkheidaanduiding": "openbaar",
-                        "zaakafhandelparameters": {
-                          "afrondenMail": "BESCHIKBAAR_UIT",
-                          "caseDefinition": {
-                            "humanTaskDefinitions": [
-                              {
-                                "defaultFormulierDefinitie": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
-                                "id": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              {
-                                "defaultFormulierDefinitie": "GOEDKEUREN",
-                                "id": "GOEDKEUREN",
-                                "naam": "Goedkeuren",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              {
-                                "defaultFormulierDefinitie": "ADVIES",
-                                "id": "ADVIES_INTERN",
-                                "naam": "Advies intern",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              {
-                                "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
-                                "id": "ADVIES_EXTERN",
-                                "naam": "Advies extern",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              {
-                                "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
-                                "id": "DOCUMENT_VERZENDEN_POST",
-                                "naam": "Document verzenden",
-                                "type": "$HUMAN_TASK_TYPE"
-                              }
-                            ],
-                            "key": "generiek-zaakafhandelmodel",
-                            "naam": "Generiek zaakafhandelmodel",
-                            "userEventListenerDefinitions": [
-                              {
-                                "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
-                                "id": "$ACTIE_INTAKE_AFRONDEN",
-                                "naam": "Intake afronden",
-                                "type": "USER_EVENT_LISTENER"
-                              },
-                              {
-                                "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
-                                "id": "$ACTIE_ZAAK_AFHANDELEN",
-                                "naam": "Zaak afhandelen",
-                                "type": "USER_EVENT_LISTENER"
-                              }
-                            ]
-                          },
-                          "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                          "humanTaskParameters": [
-                            {
-                              "actief": true,
-                              "formulierDefinitieId": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
-                              "planItemDefinition": {
-                                "defaultFormulierDefinitie": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
-                                "id": "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
-                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              "referentieTabellen": []
-                            },
-                            {
-                              "actief": true,
-                              "formulierDefinitieId": "GOEDKEUREN",
-                              "planItemDefinition": {
-                                "defaultFormulierDefinitie": "GOEDKEUREN",
-                                "id": "GOEDKEUREN",
-                                "naam": "Goedkeuren",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              "referentieTabellen": []
-                            },
-                            {
-                              "actief": true,
-                              "formulierDefinitieId": "ADVIES",
-                              "planItemDefinition": {
-                                "defaultFormulierDefinitie": "ADVIES",
-                                "id": "ADVIES_INTERN",
-                                "naam": "Advies intern",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              "referentieTabellen": [
-                                {
-                                  "id": 1,
-                                  "tabel": {
-                                    "aantalWaarden": 5,
-                                    "code": "ADVIES",
-                                    "id": 1,
-                                    "naam": "Advies",
-                                    "systeem": true,
-                                    "waarden": []
-                                  },
-                                  "veld": "ADVIES"
-                                }
-                              ]
-                            },
-                            {
-                              "actief": true,
-                              "formulierDefinitieId": "EXTERN_ADVIES_VASTLEGGEN",
-                              "planItemDefinition": {
-                                "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
-                                "id": "ADVIES_EXTERN",
-                                "naam": "Advies extern",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              "referentieTabellen": []
-                            },
-                            {
-                              "actief": true,
-                              "formulierDefinitieId": "DOCUMENT_VERZENDEN_POST",                       
-                              "planItemDefinition": {
-                                "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
-                                "id": "DOCUMENT_VERZENDEN_POST",
-                                "naam": "Document verzenden",
-                                "type": "$HUMAN_TASK_TYPE"
-                              },
-                              "referentieTabellen": []
-                            }
-                          ],
-                          "id": 1,
-                          "intakeMail": "BESCHIKBAAR_UIT",
-                          "mailtemplateKoppelingen": [
-                            {
-                              "mailtemplate": {
-                                "body": "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
-                                "defaultMailtemplate": true,
-                                "id": 2,
-                                "mail": "ZAAK_NIET_ONTVANKELIJK",
-                                "mailTemplateNaam": "Zaak niet ontvankelijk",
-                                "onderwerp": "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: {ZAAK_NUMMER})</p>",
-                                "variabelen": [
-                                  "GEMEENTE",
-                                  "ZAAK_NUMMER",
-                                  "ZAAK_TYPE",
-                                  "ZAAK_STATUS",
-                                  "ZAAK_REGISTRATIEDATUM",
-                                  "ZAAK_STARTDATUM",
-                                  "ZAAK_STREEFDATUM",
-                                  "ZAAK_FATALEDATUM",
-                                  "ZAAK_OMSCHRIJVING",
-                                  "ZAAK_TOELICHTING",
-                                  "ZAAK_INITIATOR",
-                                  "ZAAK_INITIATOR_ADRES"
-                                ]
-                              }
-                            }
-                          ],
-                          "productaanvraagtype": "$PRODUCTAANVRAAG_TYPE_1",
-                          "userEventListenerParameters": [
-                            {
-                              "id": "$ACTIE_INTAKE_AFRONDEN",
-                              "naam": "Intake afronden"
-                            },
-                            {
-                              "id": "$ACTIE_ZAAK_AFHANDELEN",
-                              "naam": "Zaak afhandelen"
-                            }
-                          ],
-                          "valide": true,
-                          "zaakAfzenders": [
-                            {
-                              "defaultMail": false,
-                              "mail": "GEMEENTE",
-                              "speciaal": true
-                            },
-                            {
-                              "defaultMail": false,
-                              "mail": "MEDEWERKER",
-                              "speciaal": true
-                            }
-                          ],
-                          "zaakNietOntvankelijkResultaattype": {
-                            "archiefNominatie": "VERNIETIGEN",
-                            "archiefTermijn": "5 jaren",
-                            "besluitVerplicht": false,
-                            "id": "$RESULTAAT_TYPE_GEWEIGERD_UUID",
-                            "naam": "Geweigerd",
-                            "naamGeneriek": "Geweigerd",
-                            "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
-                            "vervaldatumBesluitVerplicht": false
-                          },
-                          "zaakbeeindigParameters": [],
-                          "zaaktype": {
-                            "beginGeldigheid": "$DATE_2023_09_21",
-                            "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                            "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
-                            "nuGeldig": true,
-                            "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                            "servicenorm": false,
-                            "uuid": "$ZAAKTYPE_TEST_3_UUID",
-                            "versiedatum": "$DATE_2023_09_21",
-                            "vertrouwelijkheidaanduiding": "openbaar"
-                          }
-                        },
+                        "vertrouwelijkheidaanduiding": "openbaar",                    
                         "zaaktypeRelaties": []
                       }
                     }
-                """.trimIndent()
-                zaak2UUID = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
+                    """.trimIndent()
+                    zaak2UUID = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
+                }
             }
         }
     }
 
     Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         When("the get zaak endpoint is called") {
             val response = zacClient.retrieveZaak(zaak2UUID)
             Then("the response should be a 200 HTTP response and contain the created zaak") {
@@ -598,6 +382,45 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        When(
+            """
+            the 'update zaak' endpoint is called with a description field that is longer than allowed
+            """
+        ) {
+            val descriptionThatIsTooLong = "x".repeat(ZAAK_OMSCHRIJVING_MAX_LENGTH + 1)
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
+                            "omschrijving": "$descriptionThatIsTooLong"
+                        },
+                        "reden": "fakeReason"
+                    }
+                """.trimIndent()
+            )
+            Then("the response should be a 400 HTTP response with the validation error message") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+                response.bodyAsString shouldEqualJson """
+                   {
+                      "classViolations" : [ ],
+                      "parameterViolations" : [ {
+                        "constraintType" : "PARAMETER",
+                        "message" : "size must be between 0 and $ZAAK_OMSCHRIJVING_MAX_LENGTH",
+                        "path" : "updateZaak.arg1.zaak.omschrijving",
+                        "value" : "$descriptionThatIsTooLong"
+                      } ],
+                      "propertyViolations" : [ ],
+                      "returnValueViolations" : [ ]
+                    }
+                """.trimIndent()
+            }
+        }
+
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",

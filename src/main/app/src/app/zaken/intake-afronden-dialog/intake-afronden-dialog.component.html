@@ -30,8 +30,8 @@
       }}</mat-radio-button>
     </mat-radio-group>
   </div>
-  <div *ngIf="formGroup.get('ontvankelijk').dirty">
-    <div *ngIf="!formGroup.get('ontvankelijk').value">
+  <div *ngIf="formGroup.get('ontvankelijk')?.dirty">
+    <div *ngIf="!formGroup.get('ontvankelijk')?.value">
       <p
         *ngIf="this.data.zaak.isOpgeschort"
         [innerHTML]="
@@ -53,7 +53,7 @@
             matInput
           ></textarea>
           <mat-hint align="end"
-            >{{ formGroup.get("reden").value.length }}/100</mat-hint
+            >{{ formGroup.get("reden")?.value.length }}/100</mat-hint
           >
           <mat-error>{{
             getError(formGroup.get("reden"), "redenNietOntvankelijk")
@@ -63,8 +63,8 @@
     </div>
     <ng-container
       *ngIf="
-        formGroup.get('ontvankelijk').value ||
-        (!formGroup.get('ontvankelijk').value && !this.data.zaak.isOpgeschort)
+        formGroup.get('ontvankelijk')?.value ||
+        (!formGroup.get('ontvankelijk')?.value && !this.data.zaak.isOpgeschort)
       "
     >
       <mat-checkbox
@@ -74,7 +74,7 @@
         >{{ "sendMail" | translate }}</mat-checkbox
       >
       <mat-form-field
-        *ngIf="formGroup.get('sendMail').value"
+        *ngIf="formGroup.get('sendMail')?.value"
         appearance="fill"
         class="full-width"
       >
@@ -85,7 +85,7 @@
           [compareWith]="compareObject"
         >
           <mat-select-trigger>
-            {{ formGroup.get("verzender").value?.mail }}
+            {{ formGroup.get("verzender")?.value?.mail }}
           </mat-select-trigger>
           <mat-option
             *ngFor="let afzender of afzenders | async"
@@ -99,7 +99,7 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field
-        *ngIf="formGroup.get('sendMail').value"
+        *ngIf="formGroup.get('sendMail')?.value"
         appearance="fill"
         class="full-width"
       >
@@ -122,7 +122,7 @@
           formControlName="ontvanger"
         />
         <mat-hint align="end"
-          >{{ formGroup.get("ontvanger").value.length }}/200</mat-hint
+          >{{ formGroup.get("ontvanger")?.value.length }}/200</mat-hint
         >
         <mat-error>{{
           getError(formGroup.get("ontvanger"), "ontvanger")
@@ -130,18 +130,18 @@
       </mat-form-field>
       <mat-expansion-panel
         class="mat-elevation-z0"
-        *ngIf="formGroup.get('sendMail').value"
+        *ngIf="formGroup.get('sendMail')?.value"
       >
         <mat-expansion-panel-header>
           {{ "body" | translate }}
         </mat-expansion-panel-header>
         <div
-          *ngIf="formGroup.get('ontvankelijk').value"
+          *ngIf="formGroup.get('ontvankelijk')?.value"
           class="readonly"
           [innerHTML]="zaakOntvankelijkMail?.body"
         ></div>
         <div
-          *ngIf="!formGroup.get('ontvankelijk').value"
+          *ngIf="!formGroup.get('ontvankelijk')?.value"
           class="readonly"
           [innerHTML]="zaakNietOntvankelijkMail?.body"
         ></div>

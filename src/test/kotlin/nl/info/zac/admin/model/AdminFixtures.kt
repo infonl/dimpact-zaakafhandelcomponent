@@ -109,7 +109,7 @@ fun createZaaktypeCmmnConfiguration(
         this.id = id
         this.creatiedatum = creationDate
         this.domein = domein
-        this.zaakTypeUUID = zaaktypeUUID
+        this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
@@ -154,8 +154,8 @@ fun createAutomaticEmailConfirmation(
     id: Long? = 1234L,
     enabled: Boolean = true,
     templateName: String? = "fakeTemplateName",
-    emailSender: String? = "sender@info.nl",
-    emailReply: String? = "reply@info.nl",
+    emailSender: String? = "sender@example.com",
+    emailReply: String? = "reply@example.com",
     // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
 ) = ZaaktypeCmmnEmailParameters().apply {

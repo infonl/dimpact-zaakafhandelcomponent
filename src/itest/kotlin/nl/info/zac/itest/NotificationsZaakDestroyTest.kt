@@ -124,7 +124,6 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
                     {
-                        "filtersType": "ZoekParameters",
                         "alleenMijnZaken": false,
                         "alleenOpenstaandeZaken": true,
                         "alleenAfgeslotenZaken": false,
@@ -208,7 +207,6 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                     {
-                        "filtersType": "ZoekParameters",
                         "alleenMijnZaken": false,
                         "alleenOpenstaandeZaken": true,
                         "alleenAfgeslotenZaken": false,

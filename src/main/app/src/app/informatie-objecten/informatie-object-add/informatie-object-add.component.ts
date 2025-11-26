@@ -16,11 +16,15 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { PostBody } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -36,10 +40,31 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input() zaak?: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
+  isTaakObject = false;
 
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
+
+  protected createDocumentMutation = injectMutation(() => ({
+    ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
+      this.zaakUuid,
+      this.documentReferenceId,
+      this.zaakUuid !== this.documentReferenceId,
+    ),
+    onSuccess: (data) => {
+      this.document.emit(data);
+      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+      if (this.form.controls.addOtherInfoObject.value) {
+        this.form.reset(this.defaultFormValues);
+        return;
+      }
+      this.resetAndClose();
+    },
+    onError: () => {
+      this.form.reset();
+    },
+  }));
 
   protected zaakUuid!: string;
   protected documentReferenceId!: string;
@@ -196,47 +221,58 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     }
   }
 
-  submit() {
-    const { value } = this.form;
-    const isTaskObject = this.zaakUuid !== this.documentReferenceId;
-
-    this.informatieObjectenService
-      .createEnkelvoudigInformatieobject(
-        this.zaakUuid,
-        this.documentReferenceId,
-        {
-          bestand: value.bestand!,
-          bestandsnaam: value.bestand?.name,
-          formaat: value.bestand?.type,
-          titel: value.titel!,
-          beschrijving: value.beschrijving,
-          informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-          status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          creatiedatum: value.creatiedatum?.toISOString(),
-          verzenddatum: value.verzenddatum?.toISOString(),
-          ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          taal: value.taal!.code,
-          auteur: value.auteur!,
-        },
-        isTaskObject,
-      )
-      .subscribe({
-        next: (document) => {
-          this.document.emit(document);
-          this.utilService.openSnackbar(
-            "msg.document.nieuwe.versie.toegevoegd",
+  private toInformatieobjectFormData(
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      bestand: File;
+    },
+  ): FormData {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(infoObject)) {
+      if (value === undefined || value === null) continue;
+      switch (key) {
+        case "creatiedatum":
+        case "ontvangstdatum":
+        case "verzenddatum":
+          formData.append(
+            key,
+            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
           );
-          if (value.addOtherInfoObject) {
-            this.form.reset(this.defaultFormValues);
-            return;
-          }
-          this.resetAndClose();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+          break;
+        case "bestand":
+          formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          break;
+        default:
+          formData.append(key, value.toString());
+          break;
+      }
+    }
+    return formData;
+  }
+
+  submit() {
+    this.isTaakObject = this.zaakUuid !== this.documentReferenceId;
+
+    const { value } = this.form;
+    const payload = {
+      bestand: value.bestand!,
+      bestandsnaam: value.bestand?.name,
+      formaat: value.bestand?.type,
+      titel: value.titel!,
+      beschrijving: value.beschrijving,
+      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+      status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      creatiedatum: value.creatiedatum?.toISOString(),
+      verzenddatum: value.verzenddatum?.toISOString(),
+      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      taal: value.taal!.code,
+      auteur: value.auteur!,
+    };
+    const formData = this.toInformatieobjectFormData(payload);
+
+    this.createDocumentMutation.mutate(
+      formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
+    );
   }
 
   protected resetAndClose() {

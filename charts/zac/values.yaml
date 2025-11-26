@@ -333,8 +333,10 @@ opa:
 
 # If an external solr instance is used, configure the URL here
 solr:
-  # -- The location of an existing solr instance to be used by zac
+  # -- The location of an existing solr instance (unmanaged by this chart) to be used by zac
   url: ""
+  # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
+  createZacCore: true
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
@@ -396,8 +398,6 @@ solr-operator:
       affinity: {}
       # -- annotations for jobs
       annotations: {}
-      # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
-      createZacCore: true
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs
@@ -532,7 +532,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.139.0@sha256:faf125d656fa47cea568b2f3b4494efd2525083bc75c1e96038bc23f05cd68fd"
+    tag: "0.140.1@sha256:5901567d6f684547bafee53f02403869b5655e13a4e0af65aa6ae9f6301075d9"
   presets:
     clusterMetrics:
       enabled: false

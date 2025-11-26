@@ -104,9 +104,6 @@ describe(ParametersEditCmmnComponent.name, () => {
     jest
       .spyOn(zaakafhandelParametersService, "listResultaattypes")
       .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listBpmnZaakafhandelParameters")
-      .mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     jest

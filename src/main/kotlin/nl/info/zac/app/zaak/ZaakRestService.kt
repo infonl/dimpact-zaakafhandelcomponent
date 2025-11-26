@@ -322,7 +322,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
+        @Valid restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
@@ -488,12 +488,12 @@ class ZaakRestService @Inject constructor(
 
         zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
             zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                zaaktypeCmmnConfiguration.zaaktypeUuid?.let { uuid ->
                     einddatumGeplandWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
                 }
             }
             zaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing?.let { days ->
-                zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
+                zaaktypeCmmnConfiguration.zaaktypeUuid?.let { uuid ->
                     uiterlijkeEinddatumAfdoeningWaarschuwing[uuid] = datumWaarschuwing(vandaag, days)
                 }
             }

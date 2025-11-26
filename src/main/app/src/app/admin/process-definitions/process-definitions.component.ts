@@ -16,7 +16,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
-import { ProcessDefinitionsService } from "../process-definitions.service";
+import { BpmnService } from "../bpmn.service";
 
 @Component({
   templateUrl: "./process-definitions.component.html",
@@ -40,7 +40,7 @@ export class ProcessDefinitionsComponent
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private processDefinitionsService: ProcessDefinitionsService,
+    private bpmnService: BpmnService,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {
     super(utilService, configuratieService);
@@ -62,7 +62,7 @@ export class ProcessDefinitionsComponent
 
       this.readFileContent(file)
         .then((content) => {
-          this.processDefinitionsService
+          this.bpmnService
             .uploadProcessDefinition({
               content,
               filename: file.name,
@@ -85,9 +85,7 @@ export class ProcessDefinitionsComponent
             key: "msg.procesdefinitie.verwijderen.bevestigen",
             args: { naam: processDefinition.name },
           },
-          this.processDefinitionsService.deleteProcessDefinition(
-            processDefinition.key,
-          ),
+          this.bpmnService.deleteProcessDefinition(processDefinition.key),
         ),
       })
       .afterClosed()
@@ -105,7 +103,7 @@ export class ProcessDefinitionsComponent
   private loadProcessDefinitions() {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
-    this.processDefinitionsService
+    this.bpmnService
       .listProcessDefinitions()
       .subscribe((processDefinitions) => {
         this.dataSource.data = processDefinitions;
