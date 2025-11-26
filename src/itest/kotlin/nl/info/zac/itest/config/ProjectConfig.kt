@@ -307,7 +307,7 @@ class ProjectConfig : AbstractProjectConfig() {
         }
     }
 
-    fun createBpmnProcessTaskForms() {
+    private fun createBpmnProcessTaskForms() {
         val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
             BPMN_TEST_FORM_RESOURCE_PATH
         )?.let {
