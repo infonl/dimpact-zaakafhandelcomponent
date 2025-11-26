@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { AbstractFormControlField } from "./abstract-form-control-field";
 import { FieldType } from "./field-type.enum";
 
