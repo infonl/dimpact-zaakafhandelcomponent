@@ -29,7 +29,7 @@ class ZaakHelper(
     val itestHttpClient = zacClient.itestHttpClient
 
     /**
-     * Creates a new zaak with the given   description and zaaktype UUID,
+     * Creates a new zaak with the given description and zaaktype UUID,
      * sends a notification to ZAC to index the newly created zaak,
      * and waits until the zaak is findable via the search API using the
      * (unique) zaak identification.
