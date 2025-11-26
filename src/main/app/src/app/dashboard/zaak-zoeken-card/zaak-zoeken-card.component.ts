@@ -43,7 +43,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     return zoekParameters;
   });
 
-  zoekQuery = injectQuery(() => ({
+  protected readonly zoekQuery = injectQuery(() => ({
     queryKey: ["zaak zoeken dashboard", this.zoekParameters()],
     queryFn: () =>
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
@@ -58,7 +58,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      if (this.paginator) this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal ?? 0;
     });
   }
 

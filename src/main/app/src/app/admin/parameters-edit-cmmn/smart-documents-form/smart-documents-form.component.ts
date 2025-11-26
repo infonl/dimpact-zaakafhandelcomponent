@@ -79,7 +79,7 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
+  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
     queryKey: ["allSmartDocumentTemplateGroupsQuery"],
     refetchOnWindowFocus: false,
     queryFn: () =>
@@ -88,7 +88,7 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  currentTemplateMappingsQuery = injectQuery(() => ({
+  private readonly currentTemplateMappingsQuery = injectQuery(() => ({
     queryKey: ["currentTemplateMappingsQuery", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>
@@ -97,7 +97,7 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  informationObjectTypesQuery = injectQuery(() => ({
+  private readonly informationObjectTypesQuery = injectQuery(() => ({
     queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>
