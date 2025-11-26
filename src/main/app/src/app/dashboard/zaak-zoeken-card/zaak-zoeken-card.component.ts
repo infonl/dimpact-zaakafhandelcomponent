@@ -58,7 +58,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      if (this.paginator) this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal ?? 0;
     });
   }
 
