@@ -98,7 +98,7 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  private readonly defaultAfzenderEffect = effect(() => {
+  private readonly _defaultAfzenderEffect = effect(() => {
     const defaultAfzender = this.defaultAfzenderQuery.data();
     if (defaultAfzender) {
       this.formGroup.controls.verzender.setValue(defaultAfzender);
