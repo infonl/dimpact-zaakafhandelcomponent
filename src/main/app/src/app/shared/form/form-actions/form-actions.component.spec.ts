@@ -115,12 +115,12 @@ describe(ZacFormActions.name, () => {
     });
 
     it("should disable the submit button when the form is disabled", async () => {
-        form.disable();
-        const submitButton = await loader.getHarness(
-          MatButtonHarness.with({ text: "actie.verstuur" }),
-        );
-        const isSubmitDisabled = await submitButton.isDisabled();
-        expect(isSubmitDisabled).toBe(true);
+      form.disable();
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      const isSubmitDisabled = await submitButton.isDisabled();
+      expect(isSubmitDisabled).toBe(true);
     });
 
     describe("when mutating", () => {
