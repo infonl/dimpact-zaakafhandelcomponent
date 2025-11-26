@@ -114,7 +114,7 @@ describe(ZacFormActions.name, () => {
       });
     });
 
-    it("should disable the submit button the form is disabled", async () => {
+    it("should disable the submit button when the form is disabled", async () => {
         form.disable();
         const submitButton = await loader.getHarness(
           MatButtonHarness.with({ text: "actie.verstuur" }),
