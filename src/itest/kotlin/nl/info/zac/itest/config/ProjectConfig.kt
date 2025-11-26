@@ -313,7 +313,7 @@ class ProjectConfig : AbstractProjectConfig() {
         )?.let {
             File(it.path)
         }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
-        val response = itestHttpClient.performJSONPostRequest(
+        itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/formio-formulieren",
             requestBodyAsString = """
                 {
