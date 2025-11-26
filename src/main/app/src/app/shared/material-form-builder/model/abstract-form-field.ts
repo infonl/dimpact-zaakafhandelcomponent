@@ -14,13 +14,13 @@ import { FormFieldHint } from "./form-field-hint";
 export abstract class AbstractFormField<T = unknown> {
   static formControlOptions: FormControlOptions = { nonNullable: true };
 
-  id: string;
-  styleClass: string;
-  label: string;
-  required: boolean;
-  readonly: boolean;
-  abstract formControl: AbstractControl<T>;
-  hint: FormFieldHint;
+  id!: string;
+  styleClass?: string;
+  label!: string;
+  required!: boolean;
+  readonly!: boolean;
+  abstract formControl: AbstractControl<T | null | undefined>;
+  hint?: FormFieldHint;
 
   abstract fieldType: FieldType;
 

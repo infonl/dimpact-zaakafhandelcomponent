@@ -9,7 +9,7 @@ import { AbstractFormField } from "./abstract-form-field";
 export abstract class AbstractFormControlField<
   T = unknown,
 > extends AbstractFormField<T> {
-  formControl: FormControl<T | undefined | null>;
+  formControl!: FormControl<T | undefined | null>;
 
   protected constructor() {
     super();
@@ -17,7 +17,19 @@ export abstract class AbstractFormControlField<
 
   initControl(value?: T | null) {
     this.formControl = AbstractFormField.formControlInstance<T | null>(
-      value ?? null,
+      this.coerce(value) ?? null,
     );
+  }
+
+  /**
+   * This is a dirty hack to coerce `"null"` or `"undefined"`
+   *
+   * As we are moving over to the Angular `FormBuilder` API,
+   * this class is deprecated and will be removed in future versions.
+   */
+  private coerce(value: T | null | undefined) {
+    if (value === "null") return null;
+    if (value === "undefined") return undefined;
+    return value;
   }
 }

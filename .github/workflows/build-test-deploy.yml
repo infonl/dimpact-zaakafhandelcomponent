@@ -336,7 +336,7 @@ jobs:
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: backendunittests,unittests
+          flags: backendunittests
           directory: ./build/reports/jacoco/test
 
       - name: Upload frontend unit test coverage report to Codecov
@@ -344,7 +344,7 @@ jobs:
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: frontendunittests,unittests
+          flags: frontendunittests
           directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
