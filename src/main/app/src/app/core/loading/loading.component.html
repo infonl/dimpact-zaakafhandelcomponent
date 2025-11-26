@@ -1,6 +1,12 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-progress-bar mode="query" *ngIf="loading"></mat-progress-bar>
+@if (queryClient.isMutating()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (utilService.loading() || queryClient.isFetching()) {
+  <mat-progress-bar mode="query"></mat-progress-bar>
+} @else {
+  <mat-progress-bar mode="determinate" value="100"></mat-progress-bar>
+}
