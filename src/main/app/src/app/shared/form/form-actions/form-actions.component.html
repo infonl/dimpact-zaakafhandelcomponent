@@ -1,0 +1,17 @@
+<fieldset>
+  <mat-action-row>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      class="flex-col gap-8"
+      [disabled]="!form().valid || mutation().isPending()"
+    >
+      {{ submitLabel() | translate }}
+        <mat-spinner diameter="18"></mat-spinner>
+    </button>
+    <button mat-raised-button (click)="onCancel($event)" type="reset">
+      {{ cancelLabel() | translate }}
+    </button>
+  </mat-action-row>
+</fieldset>

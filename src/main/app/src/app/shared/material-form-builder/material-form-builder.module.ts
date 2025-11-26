@@ -49,6 +49,7 @@ import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFile } from "../form/file/file";
 import { ZacForm } from "../form/form";
+import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
@@ -122,6 +123,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacDocuments,
     ZacRadio,
     ZacForm,
+    ZacFormActions,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -156,6 +158,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacRadio,
     ZacForm,
     CapitalizeFirstLetterPipe,
+    ZacFormActions,
   ],
   imports: [
     FileDragAndDropDirective,
