@@ -477,13 +477,14 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await createTestBed(mockZaakWithAfrondenMailAan, mockPlanItem);
     });
 
-    it("should show sendMail checkbox checked and show verzender field", async () => {
+    it("should show sendMail checkbox checked", async () => {
       const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
       expect(await sendMailCheckbox.isChecked()).toBe(true);
+    });
 
+    it("should show verzender field", async () => {
       const fields = await loader.getAllHarnesses(MatSelectHarness);
       const verzenderField = fields[1];
-
       expect(verzenderField).toBeTruthy();
     });
   });
@@ -513,6 +514,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const sendMailCheckbox =
         await loader.getHarnessOrNull(MatCheckboxHarness);
       expect(sendMailCheckbox).toBeNull();
+    });
+
+    it("should not show verzender field", async () => {
+      const fields = await loader.getAllHarnesses(MatSelectHarness);
+      const verzenderField = fields[1];
+      expect(verzenderField).toBeFalsy();
     });
   });
 
