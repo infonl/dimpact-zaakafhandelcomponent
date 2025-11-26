@@ -29,11 +29,10 @@ class ZaakHelper(
     val itestHttpClient = zacClient.itestHttpClient
 
     /**
-     * Creates a new zaak with the given unique description and zaaktype UUID,
+     * Creates a new zaak with the given   description and zaaktype UUID,
      * sends a notification to ZAC to index the newly created zaak,
-     * and waits until the zaak is findable via the search API.
-     * This function expects that the provided zaak description is unique, because
-     * it uses the description to search for the newly created zaak.
+     * and waits until the zaak is findable via the search API using the
+     * (unique) zaak identification.
      *
      * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
      */
@@ -70,7 +69,7 @@ class ZaakHelper(
                     "alleenOpenstaandeZaken": true,
                     "alleenAfgeslotenZaken": false,
                     "alleenMijnTaken": false,
-                    "zoeken": { "ZAAK_OMSCHRIJVING": "$zaakDescription" },
+                    "zoeken": { "ZAAK_IDENTIFICATIE": "$zaakIdentification" },
                     "filters": {},
                     "datums": {},
                     "rows": 1,

@@ -13,7 +13,7 @@
         "equalTo": "Basic fakeSmartDocumentsAuthentication"
       },
       "Username": {
-        "equalTo": "beheerder1newiam"
+        "equalTo": "behandelaar1"
       }
     },
     "bodyPatterns": [
@@ -42,8 +42,8 @@
                   "naam": "Héndrika Janse"
                 },
                 "gebruiker": {
-                  "id": "beheerder1newiam",
-                  "naam": "Test Beheerder 1 - new IAM"
+                  "id": "behandelaar1",
+                  "naam": "Test Behandelaar1"
                 },
                 "startformulier": {
                   "data": {
@@ -55,8 +55,8 @@
                 },
                 "zaak": {
                   "communicatiekanaal": "E-formulier",
-                  "groep": "behandelaars-test-1",
-                  "identificatie": "ZAAK-1970-0000000001",
+                  "groep": "test-group-bh",
+                  "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeZaakOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
                   "startdatum": "01-01-1970",
@@ -91,16 +91,16 @@
               },
               "data": {
                 "gebruiker": {
-                  "id": "beheerder1newiam",
-                  "naam": "Test Beheerder 1 - new IAM"
+                  "id": "behandelaar1",
+                  "naam": "Test Behandelaar1"
                 },
                 "taak": {
                   "naam": "Test"
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "behandelaars-test-1",
-                  "identificatie": "ZAAK-2000-0000000004",
+                  "groep": "test-group-bh",
+                  "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
                   "startdatum": "01-01-2000",
