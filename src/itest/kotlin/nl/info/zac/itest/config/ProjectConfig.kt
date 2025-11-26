@@ -72,48 +72,62 @@ import kotlin.time.toJavaDuration
 lateinit var dockerComposeContainer: ComposeContainer
 
 class ProjectConfig : AbstractProjectConfig() {
-    private val logger = KotlinLogging.logger {}
-    private val itestHttpClient = ItestHttpClient()
-    private val zacClient = ZacClient()
-    private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
+    companion object {
+        private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
+        private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
 
-    // All variables below have to be overridable in the docker-compose.yaml file
-    private val dockerComposeOverrideEnvironment = mapOf(
-        "APP_ENV" to "itest",
-        "AUTH_SSL_REQUIRED" to "none",
-        "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
-        "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
-        "FEATURE_FLAG_BPMN_SUPPORT" to "true",
-        "FEATURE_FLAG_PABC_INTEGRATION" to FEATURE_FLAG_PABC_INTEGRATION.toString(),
-        "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
-        "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
-        "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
-        "PABC_API_KEY" to PABC_API_KEY,
-        "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
-        "SMARTDOCUMENTS_ENABLED" to "true",
-        "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
-        "SMTP_SERVER" to "greenmail",
-        "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
-        "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
-        // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
-        "ZAC_DOCKER_ENTRYPOINT" to
-            "java" +
-            " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
-            // make sure that the WildFly management port is accessible from outside the container
-            " -Djboss.bind.address.management=0.0.0.0" +
-            " -Xms1024m" +
-            " -Xmx1024m" +
-            " -jar zaakafhandelcomponent.jar",
-        "ZAC_DOCKER_IMAGE" to zacDockerImage,
-        "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-    )
+        private val logger = KotlinLogging.logger {}
+        private val itestHttpClient = ItestHttpClient()
+        private val zacClient = ZacClient()
+        private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
+        private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
+        private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+
+        // All variables below have to be overridable in the docker-compose.yaml file
+        private val dockerComposeOverrideEnvironment = mapOf(
+            "APP_ENV" to "itest",
+            "AUTH_SSL_REQUIRED" to "none",
+            "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
+            "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
+            "FEATURE_FLAG_BPMN_SUPPORT" to "true",
+            "FEATURE_FLAG_PABC_INTEGRATION" to FEATURE_FLAG_PABC_INTEGRATION.toString(),
+            "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
+            "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
+            "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
+            "PABC_API_KEY" to PABC_API_KEY,
+            "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
+            "SMARTDOCUMENTS_ENABLED" to "true",
+            "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
+            "SMTP_SERVER" to "greenmail",
+            "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
+            "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
+            // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
+            "ZAC_DOCKER_ENTRYPOINT" to
+                "java" +
+                " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+                // make sure that the WildFly management port is accessible from outside the container
+                " -Djboss.bind.address.management=0.0.0.0" +
+                " -Xms1024m" +
+                " -Xmx1024m" +
+                " -jar zaakafhandelcomponent.jar",
+            "ZAC_DOCKER_IMAGE" to zacDockerImage,
+            "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
+        )
+    }
 
     override suspend fun beforeProject() {
         try {
-            deleteLocalDockerVolumeData()
-            dockerComposeContainer = createDockerComposeContainer()
-            dockerComposeContainer.start()
-            logger.info { "Started ZAC Docker Compose containers" }
+            if (!skipDockerComposeStart) {
+                deleteLocalDockerVolumeData()
+                dockerComposeContainer = createDockerComposeContainer()
+                dockerComposeContainer.start()
+                logger.info { "Started ZAC Docker Compose containers" }
+            } else {
+                logger.warn {
+                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not starting Docker Compose containers"
+                }
+            }
+
             logger.info { "Waiting until Keycloak is healthy by calling the health endpoint and checking the response" }
             eventually(
                 eventuallyConfig {
@@ -140,7 +154,12 @@ class ProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
-            createTestSetupData()
+
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
+            if (!skipDockerComposeStart) {
+                createTestSetupData()
+            }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker Compose containers" }
             dockerComposeContainer.stop()
@@ -149,6 +168,19 @@ class ProjectConfig : AbstractProjectConfig() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
+        if (skipDockerComposeStart) {
+            logger.warn {
+                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+            }
+            return
+        }
+        if (skipContainerCleanup) {
+            logger.warn {
+                "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+            }
+            Runtime.getRuntime().halt(0)
+        }
+
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
         dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
             logger.info { "Stopping ZAC Docker container" }
@@ -168,8 +200,7 @@ class ProjectConfig : AbstractProjectConfig() {
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
-        return ComposeContainer(File("docker-compose.yaml"))
-            .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
+        return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
@@ -246,7 +277,6 @@ class ProjectConfig : AbstractProjectConfig() {
      * Creates overall test setup data in ZAC, required for running the integration tests.
      */
     private fun createTestSetupData() {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         createDomainReferenceTableData()
         createZaaktypeConfigurations()
     }
