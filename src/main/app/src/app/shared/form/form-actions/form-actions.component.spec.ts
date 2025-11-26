@@ -121,7 +121,7 @@ describe(ZacFormActions.name, () => {
         );
         const isSubmitDisabled = await submitButton.isDisabled();
         expect(isSubmitDisabled).toBe(true);
-    })
+    });
 
     describe("when mutating", () => {
       beforeEach(async () => {
