@@ -129,10 +129,10 @@
       matInput
       placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
       [formControl]="zoekenFormControl"
-      (keyup.enter)="zoekenSideNav.open()"
+      (keydown.enter)="zoekenSideNav.open()"
     />
     <button
-      *ngIf="hasSearched"
+      *ngIf="zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       [title]="'actie.zoekopdracht.wissen' | translate"
@@ -141,7 +141,7 @@
       <mat-icon outlined>close</mat-icon>
     </button>
     <button
-      *ngIf="!hasSearched"
+      *ngIf="!zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       type="button"

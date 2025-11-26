@@ -1,9 +1,9 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="form" [class.loading]="utilService.loading$ | async">
+<div class="form" [class.loading]="utilService.loading()">
   <div class="button-row flex-row items-center">
     <div class="full-width title">
       <ng-container *ngIf="zoekType == ZoekType.ZAC">{{
@@ -109,7 +109,7 @@
         matSuffix
         id="wissen-button"
       >
-        <mat-icon outlined>close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
       <button
         *ngIf="!hasSearched && zoekType === ZoekType.ZAC"
@@ -119,7 +119,7 @@
         id="zoeken-button"
         [title]="'actie.zoeken' | translate"
       >
-        <mat-icon outlined>search</mat-icon>
+        <mat-icon>search</mat-icon>
       </button>
       <mat-progress-bar
         *ngIf="isLoadingResults && slow"
@@ -186,12 +186,12 @@
           <ng-container [ngSwitch]="zoekObject.type">
             <zac-zaak-zoek-object
               *ngSwitchCase="'ZAAK'"
-              [sideNav]="zoekenSideNav"
+              [sideNav]="zoekenSideNav()"
               [zaak]="getZaakZoekObject(zoekObject)"
             ></zac-zaak-zoek-object>
             <zac-taak-zoek-object
               *ngSwitchCase="'TAAK'"
-              [sideNav]="zoekenSideNav"
+              [sideNav]="zoekenSideNav()"
               [taak]="getTaakZoekObject(zoekObject)"
             ></zac-taak-zoek-object>
             <zac-document-zoek-object
@@ -212,13 +212,13 @@
     </div>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.PERSONEN">
-    <zac-persoon-zoek [sideNav]="zoekenSideNav"> </zac-persoon-zoek>
+    <zac-persoon-zoek [sideNav]="zoekenSideNav()"> </zac-persoon-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BEDRIJVEN">
-    <zac-bedrijf-zoek [sideNav]="zoekenSideNav"></zac-bedrijf-zoek>
+    <zac-bedrijf-zoek [sideNav]="zoekenSideNav()"></zac-bedrijf-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BAG_OBJECTEN">
-    <zac-bag-zoek [sideNav]="zoekenSideNav"></zac-bag-zoek>
+    <zac-bag-zoek [sideNav]="zoekenSideNav()"></zac-bag-zoek>
   </ng-container>
   <mat-paginator
     [ngClass]="{ hide: zoekType !== ZoekType.ZAC }"

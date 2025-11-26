@@ -11,7 +11,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
 import { lastValueFrom } from "rxjs";
-import { UtilService } from "../../core/service/util.service";
 import type {
   ArgsTuple,
   DeleteBody,
@@ -41,7 +40,6 @@ export enum StaleTimes {
 })
 export class ZacQueryClient {
   private readonly httpClient = inject(HttpClient);
-  private readonly utilService = inject(UtilService);
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
@@ -74,8 +72,6 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PostBody<Path, Method>) =>
         lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
-      onMutate: () => this.utilService.setLoading(true),
-      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -92,8 +88,6 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
-      onMutate: () => this.utilService.setLoading(true),
-      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -121,8 +115,6 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: () =>
         lastValueFrom(this.httpClient.DELETE<Path, Method>(url, ...args)),
-      onMutate: () => this.utilService.setLoading(true),
-      onSettled: () => this.utilService.setLoading(false),
     });
   }
 
@@ -144,8 +136,6 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: () =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
-      onMutate: () => this.utilService.setLoading(true),
-      onSettled: () => this.utilService.setLoading(false),
     });
   }
 }
