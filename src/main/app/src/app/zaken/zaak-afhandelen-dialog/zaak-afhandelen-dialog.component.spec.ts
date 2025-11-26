@@ -6,7 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -37,9 +40,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
   let queryClient: QueryClient;
   let zacQueryClient: ZacQueryClient;
-  let afsluitenMutationSpy: jest.SpyInstance;
   let planItemMutationSpy: jest.SpyInstance;
   let postMutationFnSpy: jest.Mock;
+  let httpTestingController: HttpTestingController;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -85,7 +88,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       datumKenmerkVerplicht: false,
     }),
     fromPartial<GeneratedType<"RestResultaattype">>({
-      id: "resultaat-2",
+      id: "resultaat-3",
       naam: "Test Resultaat 3",
       besluitVerplicht: false,
       datumKenmerkVerplicht: false,
@@ -142,6 +145,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
     dialogRef = TestBed.inject(MatDialogRef);
     queryClient = TestBed.inject(QueryClient);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     queryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
@@ -159,21 +163,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     );
 
     zacQueryClient = TestBed.inject(ZacQueryClient);
-
-    postMutationFnSpy = jest.fn(async () => ({ success: true }));
-    afsluitenMutationSpy = jest.spyOn(zacQueryClient, "PATCH").mockReturnValue({
-      mutationKey: ["/rest/zaken/zaak/{uuid}/afsluiten"],
-      mutationFn: async () => ({ success: true }),
-      onMutate: undefined,
-      onSettled: undefined,
-    });
-
-    planItemMutationSpy = jest.spyOn(zacQueryClient, "POST").mockReturnValue({
-      mutationKey: ["/rest/planitems/doUserEventListenerPlanItem"],
-      mutationFn: postMutationFnSpy,
-      onMutate: undefined,
-      onSettled: undefined,
-    });
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -296,14 +285,21 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      expect(planItemMutationSpy).toHaveBeenCalledWith(
-        "/rest/planitems/doUserEventListenerPlanItem",
+      const req = httpTestingController.expectOne(
+        `/rest/planitems/doUserEventListenerPlanItem`,
+      );
+      expect(req.request.method).toEqual("POST");
+      expect(req.request.body).toEqual(
+        expect.objectContaining({
+          actie: "ZAAK_AFHANDELEN",
+          planItemInstanceId: "test-plan-item-id",
+          zaakUuid: "test-zaak-uuid",
+          resultaattypeUuid: "resultaat-3",
+        }),
       );
     });
 
     it("should send over a 'brondatumEigenschap' when a brondatumEigenschap is required", async () => {
-      postMutationFnSpy.mockClear();
-
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
@@ -312,6 +308,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
+      await inputs[0].setValue("test toelichting");
       await inputs[1].setValue("2022-01-01");
 
       const submitButton = await loader.getHarness(
@@ -321,11 +318,19 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      expect(postMutationFnSpy).toHaveBeenCalledWith(
+      const req = httpTestingController.expectOne(
+        `/rest/planitems/doUserEventListenerPlanItem`,
+      );
+      expect(req.request.method).toEqual("POST");
+      expect(req.request.body).toEqual(
         expect.objectContaining({
+          actie: "ZAAK_AFHANDELEN",
+          planItemInstanceId: "test-plan-item-id",
+          zaakUuid: "test-zaak-uuid",
+          resultaattypeUuid: "resultaat-1",
+          resultaatToelichting: "test toelichting",
           brondatumEigenschap: "2021-12-31T23:00:00.000Z",
         }),
-        expect.anything(), // Ignore the second argument
       );
     });
 
@@ -538,10 +543,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await submitButton.click();
       await fixture.whenStable();
 
-      expect(afsluitenMutationSpy).toHaveBeenCalledWith(
-        "/rest/zaken/zaak/{uuid}/afsluiten",
+      const req = httpTestingController.expectOne(
+        `/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`,
+      );
+      expect(req.request.method).toEqual("PATCH");
+      expect(req.request.body).toEqual(
         expect.objectContaining({
-          path: { uuid: "test-zaak-uuid-no-planitem" },
+          resultaattypeUuid: "resultaat-3",
         }),
       );
     });
