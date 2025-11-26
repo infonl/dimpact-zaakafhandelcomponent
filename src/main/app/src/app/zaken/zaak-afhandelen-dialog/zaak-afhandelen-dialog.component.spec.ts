@@ -24,7 +24,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { testQueryClient } from "../../../../setupJest";
-import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -39,9 +38,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
   let queryClient: QueryClient;
-  let zacQueryClient: ZacQueryClient;
-  let planItemMutationSpy: jest.SpyInstance;
-  let postMutationFnSpy: jest.Mock;
   let httpTestingController: HttpTestingController;
 
   const mockDialogRef = {
@@ -161,8 +157,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["defaultAfzender", zaakMock.uuid],
       mockAfzenders[0],
     );
-
-    zacQueryClient = TestBed.inject(ZacQueryClient);
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
