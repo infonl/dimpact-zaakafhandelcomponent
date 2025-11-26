@@ -208,7 +208,7 @@ testing {
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
-        val itest by registering(JvmTestSuite::class) {
+        register("itest", JvmTestSuite::class) {
             useJUnitJupiter()
 
             dependencies {
