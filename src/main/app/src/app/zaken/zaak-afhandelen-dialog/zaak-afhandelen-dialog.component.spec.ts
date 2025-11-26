@@ -132,7 +132,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           provide: MAT_DIALOG_DATA,
           useValue: {
             zaak: zaakMock,
-            planItem: planItemMock !== null ? planItemMock : null,
+            planItem: planItemMock,
           },
         },
         CustomValidators,
