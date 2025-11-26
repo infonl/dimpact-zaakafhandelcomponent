@@ -12,7 +12,12 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" class="mt-2" (submit)="onFormSubmit()">
+<form
+  [formGroup]="form"
+  class="mt-2"
+  (submit)="onFormSubmit()"
+  (cancel)="sideNav().close()"
+>
   <fieldset>
     <zac-select
       [form]="form"
@@ -43,9 +48,7 @@
   <fieldset class="px-3">
     <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   </fieldset>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="sendMailMutation"
-    (cancel)="sideNav().close()"
-  />
+  <fieldset>
+    <zac-form-actions [form]="form" [mutation]="sendMailMutation" />
+  </fieldset>
 </form>
