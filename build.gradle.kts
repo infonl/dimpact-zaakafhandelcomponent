@@ -14,12 +14,13 @@ import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.Locale
-
+import org.gradle.api.tasks.testing.Test
 
 plugins {
     java
     war
     jacoco
+    `jvm-test-suite`
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.jsonschema2pojo)
@@ -111,12 +112,6 @@ val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
 val e2ePath = srcE2e.toProjectRelativePath()
 
-// create custom source set for our integration tests
-val itest by sourceSets.creating {
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += sourceSets.main.get().output
-}
-
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.kotlinx.coroutines.core)
@@ -200,21 +195,54 @@ dependencies {
     // for our unit tests we use the reference implementation
     testImplementation(libs.glassfish.expressly)
 
-    // integration test dependencies
-    "itestImplementation"(libs.testcontainers.testcontainers)
-    "itestImplementation"(libs.testcontainers.mockserver)
-    "itestImplementation"(libs.testcontainers.postgresql)
-    "itestImplementation"(libs.json)
-    "itestImplementation"(libs.kotest.runner.junit5)
-    "itestImplementation"(libs.kotest.assertions.json)
-    "itestImplementation"(libs.slf4j.simple)
-    "itestImplementation"(libs.okhttp)
-    "itestImplementation"(libs.okhttp.urlconnection)
-    "itestImplementation"(libs.auth0.java.jwt)
-    "itestImplementation"(libs.github.kotlin.logging)
-    "itestImplementation"(libs.kotlin.csv.jvm)
+    // integration test dependencies - the jvm-test-suite plugin will create matching configurations like `itestImplementation`
+
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
+}
+
+testing {
+    suites {
+        // configure the default unit test suite to use JUnit Jupiter
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+        }
+
+        // register integration test suite named `itest` to preserve existing task/config names
+        val itest by registering(JvmTestSuite::class) {
+            useJUnitJupiter()
+
+            dependencies {
+                implementation(libs.testcontainers.testcontainers)
+                implementation(libs.testcontainers.mockserver)
+                implementation(libs.testcontainers.postgresql)
+                implementation(libs.json)
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.kotest.assertions.json)
+                implementation(libs.slf4j.simple)
+                implementation(libs.okhttp)
+                implementation(libs.okhttp.urlconnection)
+                implementation(libs.auth0.java.jwt)
+                implementation(libs.github.kotlin.logging)
+                implementation(libs.kotlin.csv.jvm)
+            }
+
+            targets {
+                all {
+                    // configure the generated test task for this suite
+                    testTask.configure {
+                        // mirror previous behavior
+                        useJUnitPlatform()
+                        systemProperty("zacDockerImage", zacDockerImage)
+                        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
+                        dependsOn("buildDockerImage")
+                        // do not use the Gradle build cache for this suite's test task
+                        outputs.cacheIf { false }
+                    }
+                }
+            }
+        }
+    }
 }
 
 allOpen {
@@ -496,6 +524,7 @@ tasks {
         autoCorrect = true
         ignoreFailures = true
     }
+
     withType<Detekt>().configureEach {
         config.setFrom("$rootDir/config/detekt.yml")
         setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
@@ -513,6 +542,7 @@ tasks {
     getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
     getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
 
+    // ensure the integration test compilation task depends on the jacoco agent copy and runs after docker image build
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
         mustRunAfter("buildDockerImage")
@@ -801,19 +831,6 @@ tasks {
             "org.jacoco.agent-runtime.jar"
         }
         into(layout.buildDirectory.dir("jacoco/itest/jacoco-agent"))
-    }
-
-    register<Test>("itest") {
-        description = "Runs the integration test suite"
-        group = "verification"
-        dependsOn("buildDockerImage")
-
-        testClassesDirs = itest.output.classesDirs
-        classpath = itest.runtimeClasspath
-        systemProperty("zacDockerImage", zacDockerImage)
-        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
-        // do not use the Gradle build cache for this task
-        outputs.cacheIf { false }
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {
