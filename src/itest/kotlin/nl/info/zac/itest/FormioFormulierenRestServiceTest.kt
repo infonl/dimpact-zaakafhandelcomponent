@@ -52,9 +52,7 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the Form.io forms are retrieved and a beheerder is logged in") {
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
+        When("the Form.io forms are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/formio-formulieren"
             )
