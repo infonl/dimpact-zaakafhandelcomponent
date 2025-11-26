@@ -10,11 +10,11 @@ import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
+import org.gradle.api.tasks.testing.Test
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.Locale
-import org.gradle.api.tasks.testing.Test
 
 plugins {
     java
@@ -196,7 +196,6 @@ dependencies {
     testImplementation(libs.glassfish.expressly)
 
     // integration test dependencies - the jvm-test-suite plugin will create matching configurations like `itestImplementation`
-
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
