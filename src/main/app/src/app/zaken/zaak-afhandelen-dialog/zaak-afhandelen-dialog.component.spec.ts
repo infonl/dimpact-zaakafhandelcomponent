@@ -490,7 +490,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   describe("Open dialog with zaakafhandelparameters afrondenMail NIET_BESCHIKBAAR", () => {
     beforeEach(async () => {
-      const mockZaakWithAfrondenMailAan = fromPartial<
+      const mockZaakWithAfrondenMailNietBeschikbaar = fromPartial<
         GeneratedType<"RestZaak">
       >({
         ...mockZaak,
@@ -503,7 +503,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         },
       });
 
-      await createTestBed(mockZaakWithAfrondenMailAan, mockPlanItem);
+      await createTestBed(
+        mockZaakWithAfrondenMailNietBeschikbaar,
+        mockPlanItem,
+      );
     });
 
     it("should not show sendMail checkbox", async () => {
