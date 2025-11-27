@@ -35,7 +35,7 @@ class DocumentHelper(
         authorName: String,
         mediaType: String = PDF_MIME_TYPE,
         vertrouwelijkheidsaanduiding: String = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
-    ) {
+    ): Pair<UUID, String> {
         val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
             fileName = fileName,
@@ -49,30 +49,10 @@ class DocumentHelper(
         response.code shouldBe HTTP_OK
         val responseBodyAsJsonObject = JSONObject(responseBody)
         responseBodyAsJsonObject.getString("bestandsnaam") shouldBe fileName
-        val informatieobjectUUID = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
+        val informatieobjectUuid = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
+        val informatieobjectIdentification = responseBodyAsJsonObject.getString("identificatie")
         // trigger the notification service to index the document
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/notificaties",
-            headers = Headers.headersOf(
-                "Content-Type",
-                "application/json",
-                "Authorization",
-                OPEN_NOTIFICATIONS_API_SECRET_KEY
-            ),
-            requestBodyAsString = JSONObject(
-                mapOf(
-                    "kanaal" to "documenten",
-                    "resource" to "enkelvoudiginformatieobject",
-                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUUID",
-                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUUID",
-                    "actie" to "create",
-                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                )
-            ).toString(),
-            addAuthorizationHeader = false
-        ).run {
-            code shouldBe HTTP_NO_CONTENT
-        }
+        sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid)
         // wait for the indexing to complete by searching for the newly created document until we get the expected result
         // note that this assumes that the document title is unique
         eventually(10.seconds) {
@@ -94,6 +74,32 @@ class DocumentHelper(
                 """.trimIndent()
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
+        }
+        return Pair(informatieobjectUuid, informatieobjectIdentification)
+    }
+
+    private fun sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid: UUID?) {
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "documenten",
+                    "resource" to "enkelvoudiginformatieobject",
+                    "hoofdObject" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUuid",
+                    "resourceUrl" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUuid",
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString(),
+            addAuthorizationHeader = false
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
         }
     }
 }

@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 def __build_podiumd_version(v = None, b = None):
     """
-    Build PodiumD version information for the provided version, and print it.
+    Build Dimpact PodiumD version information for the provided version, and print it.
 
     :param v: Version to retrieve and print component version information for (optional)
     :param b: Branch to retrieve information from (optional)
@@ -28,7 +28,7 @@ def __build_podiumd_version(v = None, b = None):
 
 def __print_podiumd_versions_and_compare_latest_with(old_version, new_version = None, new_branch = None):
     """
-    Print podiumd version information for both versions provided and compare these versions to get information about the
+    Print Dimpact PodiumD version information for both versions provided and compare these versions to get information about the
     difference between the used components in these PodiumD versions.
 
     :param old_version: version to start comparison from

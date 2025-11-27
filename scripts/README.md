@@ -18,7 +18,7 @@ Contains Linux override to workaround `host.docker.internal`
 Test GitHub Workflow using [ACT](https://github.com/nektos/act)
 
 ## python
-List latest versions of ZAC and PodiumD components
+List latest versions of ZAC and used PodiumD components
 
 ## solr
 Reindex Solr data.
