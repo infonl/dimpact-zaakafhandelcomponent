@@ -34,16 +34,14 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Given(
         """
             Default communicatiekanalen referentietabel data is provisioned on startup,
             and a logged-in beheerder
             """
     ) {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
@@ -58,7 +56,9 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Zaak types are configured correctly") {
+    Given("Zaak types are configured correctly and a logged-in beheerder") {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
         When("the check for zaak types validity is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/zaaktypes"
