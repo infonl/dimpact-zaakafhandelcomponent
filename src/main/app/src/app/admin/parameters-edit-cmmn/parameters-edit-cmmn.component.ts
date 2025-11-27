@@ -1015,9 +1015,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  /**
-   * Validator to ensure at least one afzender has defaultMail set to true
-   */
   private afzenderValidator: ValidatorFn = (): ValidationErrors | null => {
     const hasDefaultAfzender = this.parameters.zaakAfzenders?.some(
       (afzender) => afzender.defaultMail,
