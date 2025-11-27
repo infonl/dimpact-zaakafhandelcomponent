@@ -723,7 +723,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-884e643
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-f926d1d
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -734,6 +734,8 @@ services:
       Oidc__ClientId: "pabc"
       Oidc__ClientSecret: "pabcClientSecret"
       Oidc__FunctioneelBeheerderRole: "administrator"
+      # in our Docker Compose setup we run Keycloak on HTTP
+      Oidc__RequireHttps: "false"
     ports:
       - "8006:8000"
     depends_on:
