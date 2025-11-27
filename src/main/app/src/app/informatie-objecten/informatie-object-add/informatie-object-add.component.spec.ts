@@ -281,12 +281,6 @@ describe(InformatieObjectAddComponent.name, () => {
       );
       await submitButton.click();
 
-      informatieObjectenService.createEnkelvoudigInformatieobject(
-        mockZaak.uuid,
-        mockZaak.uuid,
-        false,
-      );
-
       const req = httpTestingController.expectOne(
         `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
       );
@@ -351,8 +345,6 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-
-      await submitButton.click();
 
       await submitButton.click();
       httpTestingController

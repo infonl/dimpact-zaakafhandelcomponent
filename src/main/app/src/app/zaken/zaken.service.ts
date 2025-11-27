@@ -71,17 +71,10 @@ export class ZakenService {
     );
   }
 
-  verlengenZaak(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/verlenging">,
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}/verlenging",
-      body,
-      {
-        path: { uuid },
-      },
-    );
+  verlengenZaak(uuid: string) {
+    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
+      path: { uuid },
+    });
   }
 
   listZaakWaarschuwingen() {

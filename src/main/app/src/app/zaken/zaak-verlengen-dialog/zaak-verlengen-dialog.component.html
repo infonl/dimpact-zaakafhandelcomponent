@@ -38,9 +38,9 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="loading || !form.valid"
+        [disabled]="extendZaakMutation.isPending() || !form.valid"
       >
-        <mat-icon *ngIf="loading">
+        <mat-icon *ngIf="extendZaakMutation.isPending()">
           <mat-spinner diameter="18"></mat-spinner>
         </mat-icon>
         {{ "actie.zaak.verlengen" | translate }}
@@ -49,7 +49,7 @@
         autofocus
         mat-raised-button
         type="button"
-        [disabled]="loading"
+        [disabled]="extendZaakMutation.isPending()"
         (click)="close()"
       >
         {{ "actie.annuleren" | translate }}
@@ -57,3 +57,4 @@
     </fieldset>
   </form>
 </mat-dialog-content>
+`
