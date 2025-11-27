@@ -7,6 +7,7 @@ package net.atos.zac.flowable.delegate
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -94,6 +95,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 with(mailGegevensSlot.first()) {
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
+                    isCreateDocumentFromMail shouldBe true
                 }
             }
         }
@@ -152,6 +154,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 with(mailGegevensSlot.first()) {
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
+                    isCreateDocumentFromMail shouldBe true
                 }
             }
         }
