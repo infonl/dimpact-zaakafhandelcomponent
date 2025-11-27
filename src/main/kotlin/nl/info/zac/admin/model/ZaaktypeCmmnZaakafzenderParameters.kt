@@ -73,4 +73,13 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
         id = null
         return this
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ZaaktypeCmmnZaakafzenderParameters) return false
+        return mail == other.mail && defaultMail == other.defaultMail && Objects.equals(replyTo, other.replyTo)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(mail, defaultMail, replyTo)
+    }
 }
