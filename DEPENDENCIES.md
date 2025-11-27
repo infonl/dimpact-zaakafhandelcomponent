@@ -20,7 +20,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **rabbitmq**: 4.2.1-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.2
 
-## PodiumD dependencies
+## Common Ground components
 
 - **open-zaak**: 1.23.0
 - **objects-api**: 3.3.1

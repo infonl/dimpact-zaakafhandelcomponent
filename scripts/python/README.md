@@ -46,10 +46,10 @@ Postgresql latest version: 17.4 - https://www.postgresql.org/docs/release/17.4/
 Infinispan latest version: 15.1.5.Final-1 - https://hub.docker.com/layers/infinispan/server/15.1.5.Final-1/images/sha256-a298b0e90e2e473eca9a087d0f3b8e1326fb0a896e9f9aed84d79d6a8db45208
 ```
 
-## PodiumD scripts
+## Dimpact PodiumD scripts
 The [podiumd folder](podiumd) contains classes and a main script 
-[versions.py](podiumd/versions.py) that can be used to compare the 'latest' podiumd 
-component versions to a specific older podiumd version. It will pull this information from the Chart 
+[versions.py](podiumd/versions.py) that can be used to compare the 'latest' Dimpact PodiumD 
+component versions to a specific older PodiumD version. It will pull this information from the Chart 
 and Version files from [GitHub PodiumD Helm Charts](https://github.com/Dimpact-Samenwerking/helm-charts).
 
 To run the script use the following command:
