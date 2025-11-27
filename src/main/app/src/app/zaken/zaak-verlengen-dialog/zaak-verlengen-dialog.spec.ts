@@ -23,7 +23,7 @@ import {
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { testQueryClient } from "../../../../setupJest";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -97,17 +97,17 @@ describe("ZaakVerlengenDialogComponent", () => {
 
     expect(component.verlengen).toHaveBeenCalled();
 
-      await fixture.whenStable();
-      const req = httpTestingController.expectOne(
-          `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
-      );
-      expect(req.request.method).toEqual("PATCH");
-      expect(req.request.body).toEqual(
-          expect.objectContaining({
-              duurDagen: "5",
-              redenVerlenging: "Reden verlenging",
-          }),
-      );
+    await fixture.whenStable();
+    const req = httpTestingController.expectOne(
+      `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+    );
+    expect(req.request.method).toEqual("PATCH");
+    expect(req.request.body).toEqual(
+      expect.objectContaining({
+        duurDagen: "5",
+        redenVerlenging: "Reden verlenging",
+      }),
+    );
   });
 
   it("should call close() when annuleren button is clicked", async () => {
