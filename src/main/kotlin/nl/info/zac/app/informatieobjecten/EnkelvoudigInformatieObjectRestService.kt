@@ -474,7 +474,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readDocumentRechten(document, zaak).wijzigen)
+        assertPolicy(policyService.readDocumentRechten(document, zaak).converteren)
         enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
             document,
             enkelvoudigInformatieobjectUUID

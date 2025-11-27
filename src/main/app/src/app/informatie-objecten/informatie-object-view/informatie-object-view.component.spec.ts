@@ -169,4 +169,25 @@ describe(InformatieObjectViewComponent.name, () => {
       expect(sidebar.opened).toBe(true);
     });
   });
+
+  describe("actie.converteren", () => {
+    it("should not have a button when the user does not have the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: false,
+            },
+          }),
+        );
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeNull();
+    });
+  });
 });

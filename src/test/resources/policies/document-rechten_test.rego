@@ -624,3 +624,24 @@ test_ontkoppelen_wrong_role_fails if {
     not downloaden
         with input.user.rollen as ["fakeRole"]
 }
+
+############
+# converteren
+############
+test_converteren if  {
+    converteren
+        with input.user.rollen as ["behandelaar"]
+        with input.document.definitief as true
+}
+
+test_converteren_wrong_role_fails if {
+    not converteren
+        with input.user.rollen as ["raadpleger"]
+        with input.document.definitief as true
+}
+
+test_converteren_document_not_definitief_fails if {
+    not converteren
+        with input.user.rollen as ["behandelaar"]
+        with input.document.definitief as false
+}
