@@ -498,7 +498,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
             } returns Pair(zaak, zaakType)
             every {
-                zaakService.assignZaakToLoggedInUser(
+                zaakService.assignZaak(
                     zaak,
                     restZaakAssignmentToLoggedInUserData.groupId,
                     loggedInUserId,

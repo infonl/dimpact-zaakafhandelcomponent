@@ -566,7 +566,7 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
 
-        zaakService.assignZaakToLoggedInUser(
+        zaakService.assignZaak(
             zaak,
             restZaakAssignmentToLoggedInUserData.groupId,
             loggedInUserInstance.get().id,
@@ -799,7 +799,7 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
 
-        zaakService.assignZaakToLoggedInUser(
+        zaakService.assignZaak(
             zaak,
             restZaakAssignmentToLoggedInUserData.groupId,
             loggedInUserInstance.get().id,
