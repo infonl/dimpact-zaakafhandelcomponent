@@ -17,7 +17,9 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
@@ -61,6 +63,7 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import kotlin.jvm.optionals.getOrNull
@@ -278,7 +281,51 @@ class ProjectConfig : AbstractProjectConfig() {
      */
     private fun createTestSetupData() {
         createDomainReferenceTableData()
+        createBpmnProcessDefinition()
+        createBpmnProcessTaskForms()
         createZaaktypeConfigurations()
+    }
+
+    private fun createBpmnProcessDefinition() {
+        val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
+            BPMN_TEST_PROCESS_RESOURCE_PATH
+        )?.let {
+            File(it.path)
+        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/bpmn-process-definitions",
+            requestBodyAsString = """
+                {
+                    "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
+                    "content": "$bpmnTestProcessFileContent"
+                }
+            """.trimIndent()
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_CREATED
+        }
+    }
+
+    private fun createBpmnProcessTaskForms() {
+        val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
+            BPMN_TEST_FORM_RESOURCE_PATH
+        )?.let {
+            File(it.path)
+        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/formio-formulieren",
+            requestBodyAsString = """
+                {
+                    "filename": "$BPMN_TEST_FORM_RESOURCE_PATH",
+                    "content": "$formIoFileContent"
+                }
+            """.trimIndent()
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_CREATED
+        }
     }
 
     private fun createDomainReferenceTableData() {

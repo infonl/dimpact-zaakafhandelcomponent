@@ -7,7 +7,6 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -16,7 +15,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -25,9 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import okhttp3.FormBody
@@ -40,10 +37,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-/**
- * This test assumes that a SmartDocuments template mapping has been created in previously run tests.
- */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -52,7 +45,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var taskId: String
 
     beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         bpmnZaakUuid = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
@@ -79,7 +72,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("BPMN zaak and task exists") {
+    Given("BPMN test process is available in ZAC, a BPMN zaak and task exists and a behandelaar is logged in") {
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -179,9 +172,11 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
-                locationHeader shouldContain "static/smart-documents-result.html" +
-                    "?zaak=$ZAAK_BPMN_TEST_IDENTIFICATION&taak=$taskId" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                // the zaak identification is generated dynamically on every test run
+                // so we do not check for its value here
+                locationHeader shouldContain "static/smart-documents-result.html?zaak="
+                locationHeader shouldContain "&taak=$taskId" +
+                    "&doc=${SMART_DOCUMENTS_FILE_TITLE.urlEncode()}" +
                     "&result=success"
             }
         }
@@ -222,10 +217,11 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
-                locationHeader shouldContain "static/smart-documents-result.html" +
-                    "?zaak=$ZAAK_BPMN_TEST_IDENTIFICATION" +
-                    "&taak=$taskId" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                // the zaak identification is generated dynamically on every test run
+                // so we do not check for its value here
+                locationHeader shouldContain "static/smart-documents-result.html?zaak="
+                locationHeader shouldContain "&taak=$taskId" +
+                    "&doc=${SMART_DOCUMENTS_FILE_TITLE.urlEncode()}" +
                     "&result=success"
             }
         }
@@ -263,10 +259,11 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 logger.info { "Location header: $locationHeader" }
 
                 response.code shouldBe HTTP_SEE_OTHER
-                locationHeader shouldContain "static/smart-documents-result.html" +
-                    "?zaak=$ZAAK_BPMN_TEST_IDENTIFICATION" +
-                    "&taak=$taskId" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                // the zaak identification is generated dynamically on every test run
+                // so we do not check for its value here
+                locationHeader shouldContain "static/smart-documents-result.html?zaak="
+                locationHeader shouldContain "&taak=$taskId" +
+                    "&doc=${SMART_DOCUMENTS_FILE_TITLE.urlEncode()}" +
                     "&result=cancelled"
             }
         }
