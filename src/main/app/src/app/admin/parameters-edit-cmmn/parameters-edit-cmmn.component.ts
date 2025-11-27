@@ -19,6 +19,8 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
@@ -509,10 +511,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createMailForm() {
-    this.mailFormGroup = this.formBuilder.group({
-      intakeMail: [this.parameters.intakeMail, [Validators.required]],
-      afrondenMail: [this.parameters.afrondenMail, [Validators.required]],
-    });
+    this.mailFormGroup = this.formBuilder.group(
+      {
+        intakeMail: [this.parameters.intakeMail, [Validators.required]],
+        afrondenMail: [this.parameters.afrondenMail, [Validators.required]],
+      },
+      { validators: this.afzenderValidator },
+    );
     this.mailtemplateKoppelingen.forEach((beschikbareKoppeling) => {
       const mailtemplate = this.parameters.mailtemplateKoppelingen.find(
         (mailtemplateKoppeling) =>
@@ -745,12 +750,17 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.parameters.zaakAfzenders.push(zaakAfzender);
     this.loadZaakAfzenders();
     this.removeAfzender(afzender);
+    this.mailFormGroup.markAsTouched();
+    this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 
   protected updateZaakAfzenders(afzender: string): void {
     for (const zaakAfzender of this.parameters.zaakAfzenders) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
+    // Force re-validation by updating the form group status
+    this.mailFormGroup.markAsTouched();
+    this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 
   protected removeZaakAfzender(afzender: string): void {
@@ -762,6 +772,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
     this.loadZaakAfzenders();
     this.addAfzender(afzender);
+    this.mailFormGroup.markAsTouched();
+    this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 
   private addZaakAfzenderControl(
@@ -821,6 +833,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
+      this.mailFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
       this.automatischeOntvangstbevestigingFormGroup.valid &&
       this.betrokkeneKoppelingen.valid &&
@@ -1003,6 +1016,16 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
     }
   }
+
+  /**
+   * Validator to ensure at least one afzender has defaultMail set to true
+   */
+  private afzenderValidator: ValidatorFn = (): ValidationErrors | null => {
+    const hasDefaultAfzender = this.parameters.zaakAfzenders?.some(
+      (afzender) => afzender.defaultMail,
+    );
+    return hasDefaultAfzender ? null : { noDefaultAfzender: true };
+  };
 
   protected compareObject = (a: unknown, b: unknown) =>
     this.utilService.compare(a, b);
