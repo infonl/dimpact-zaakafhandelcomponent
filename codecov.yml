@@ -20,4 +20,4 @@ coverage:
         # Allow the coverage to drop a little bit before failing the Codecov check.
         # This to avoid failing Codecov checks when the coverage drops with e.g. 0.01%
         # even when there are no changes made to the code.
-        threshold: "1"
+        threshold: 1
