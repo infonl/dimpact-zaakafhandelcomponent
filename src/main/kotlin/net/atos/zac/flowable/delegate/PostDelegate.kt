@@ -18,8 +18,8 @@ class PostDelegate : AbstractDelegate() {
 
     override fun execute(delegateExecution: DelegateExecution) {
         LOG.info(
-            "Verstuur per post besluit van zaak '${getZaakIdentificatie(delegateExecution)}' via " +
-                "${PostDelegate::class.java.simpleName} met template '${template.expressionText}'."
+            "Send besluit by post for zaak '${getZaakIdentificatie(delegateExecution)}' via " +
+                "${PostDelegate::class.java.simpleName} with template '${template.expressionText}'."
         )
     }
 }

@@ -20,8 +20,7 @@ class BerichtenboxDelegate : JavaDelegate {
     }
 
     override fun execute(delegateExecution: DelegateExecution) {
-        LOG.info("Verstuur besluit via Berichtenbox.")
-        LOG.info("VerzendenGelukt = $verzendenGelukt")
+        LOG.info("Send decision via Berichtenbox (Message Box). Send successfully: $verzendenGelukt")
         delegateExecution.setVariable(BERICHTENBOX_VERZONDEN_VARIABLE, verzendenGelukt)
         if (!verzendenGelukt) {
             delegateExecution.setVariable(VERZENDEN_METHODE_VARIABLE, VERZENDEN_METHODE_POST)
