@@ -153,10 +153,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["initiatorEmail", zaakMock.initiatorIdentificatie?.bsnNummer],
       { emailadres: "initiator@example.com" },
     );
-    queryClient.setQueryData(
-      ["defaultAfzender", zaakMock.uuid],
-      mockAfzenders[0],
-    );
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
