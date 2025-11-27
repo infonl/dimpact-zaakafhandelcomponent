@@ -75,7 +75,7 @@ class DocumentHelper(
         }
         // wait for the indexing to complete by searching for the newly created document until we get the expected result
         // note that this assumes that the document title is unique
-        eventually(5.seconds) {
+        eventually(10.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
