@@ -16,6 +16,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -40,10 +41,14 @@ import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
+import nl.info.zac.identity.model.getFullName
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
@@ -63,11 +68,14 @@ private val LOG = Logger.getLogger(ZaakService::class.java.name)
 class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
+    private val zgwApiService: ZGWApiService,
     private var eventingService: EventingService,
     private var zaakVariabelenService: ZaakVariabelenService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
+    private val indexingService: IndexingService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val bpmnService: BpmnService,
     private val configuratieService: ConfiguratieService
 ) {
     fun addBetrokkeneToZaak(
@@ -160,6 +168,98 @@ class ZaakService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(it))
         }
     }
+
+    fun assignZaak(zaak: Zaak, groupId: String, user: String?, reason: String?) {
+        user?.let {
+            identityService.validateIfUserIsInGroup(it, groupId)
+        }
+
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie?.identificatie
+        val (user, userUpdated) = assignUser(zaak, user, reason, behandelaar)
+        val (group, groupUpdated) = assignGroup(zaak, groupId, reason)
+        changeZaakDataAssignment(zaak.uuid, group, user)
+        if (userUpdated || groupUpdated) {
+            indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+        }
+    }
+
+    private fun assignUser(
+        zaak: Zaak,
+        userName: String?,
+        reason: String?,
+        behandelaar: String?
+    ): Pair<User?, kotlin.Boolean> {
+        var user: User? = null
+        var userUpdated = false
+        userName?.takeIf { it.isNotEmpty() }?.let {
+            user = identityService.readUser(it)
+            if (behandelaar != userName) {
+                zrcClientService.updateRol(
+                    zaak,
+                    bepaalRolMedewerker(user, zaak),
+                    reason
+                )
+                userUpdated = true
+            }
+        } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason).also {
+            userUpdated = true
+        }
+        return Pair(user, userUpdated)
+    }
+
+    private fun assignGroup(
+        zaak: Zaak,
+        groupId: String,
+        reason: String?
+    ): Pair<Group, kotlin.Boolean> {
+        var groupUpdated = false
+        val group = identityService.readGroup(groupId)
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+            // if the zaak is not already assigned to the requested group, assign it to this group
+            if (currentGroupId == null || currentGroupId != groupId) {
+                val role = bepaalRolGroep(group, zaak)
+                zrcClientService.updateRol(zaak, role, reason)
+                groupUpdated = true
+            }
+        }
+        return Pair(group, groupUpdated)
+    }
+
+    private fun changeZaakDataAssignment(
+        zaakUuid: UUID,
+        group: Group,
+        user: User?
+    ) {
+        if (bpmnService.isZaakProcessDriven(zaakUuid)) {
+            zaakVariabelenService.setGroup(zaakUuid, group.name)
+            user?.let {
+                zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+            } ?: zaakVariabelenService.removeUser(zaakUuid)
+        }
+    }
+
+    fun assignZaakToLoggedInUser(zaak: Zaak, groupId: String, userId: String, reason: String?) {
+        identityService.validateIfUserIsInGroup(userId, groupId)
+
+        val user = assignLoggedInUserToZaak(zaak, userId, reason)
+        val (group) = assignGroup(
+            zaak = zaak,
+            groupId = groupId,
+            reason = reason
+        )
+        changeZaakDataAssignment(zaak.uuid, group, user)
+        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+    }
+
+    private fun assignLoggedInUserToZaak(zaak: Zaak, userId: String, reason: String?) =
+        identityService.readUser(userId).also {
+            zrcClientService.updateRol(
+                zaak = zaak,
+                rol = bepaalRolMedewerker(it, zaak),
+                toelichting = reason
+            )
+        }
 
     fun readZaakAndZaakTypeByZaakID(zaakID: String): Pair<Zaak, ZaakType> =
         zrcClientService.readZaakByID(zaakID).let { zaak ->
