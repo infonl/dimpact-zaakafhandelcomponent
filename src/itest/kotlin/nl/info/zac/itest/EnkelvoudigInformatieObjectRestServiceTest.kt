@@ -63,16 +63,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     lateinit var enkelvoudigInformatieObject2UUID: String
 
-    beforeSpec {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-    }
-
     Given(
         """
             ZAC and all related Docker containers are running and a zaak exists
             and a behandelaar authorised for the zaaktype of the zaak is logged in
         """
     ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When(
             """
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file

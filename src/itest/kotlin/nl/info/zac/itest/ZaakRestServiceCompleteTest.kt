@@ -16,7 +16,9 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -24,6 +26,7 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
@@ -40,7 +43,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
+    Given(
+        """
+        A zaak has been created that has finished the intake phase with the status 'admissible'
+        and a logged-in recordmanager voor domain test 1
+        """
+    ) {
+        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
@@ -190,7 +199,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has been created that has not finished the intake phase") {
+    Given(
+        """
+        A zaak has been created that has not finished the intake phase
+        and a logged-in recordmanager for domain test 1
+        """
+    ) {
+        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val afhandelenId: Int
