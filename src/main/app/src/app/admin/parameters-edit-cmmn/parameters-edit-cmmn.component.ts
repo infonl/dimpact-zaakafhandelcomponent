@@ -758,8 +758,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     for (const zaakAfzender of this.parameters.zaakAfzenders) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
-    // Force re-validation by updating the form group status
-    this.mailFormGroup.markAsTouched();
     this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 

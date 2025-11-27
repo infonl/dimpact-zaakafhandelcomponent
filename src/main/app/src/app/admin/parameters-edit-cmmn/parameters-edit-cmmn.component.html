@@ -554,33 +554,9 @@
                 ></tr>
               </table>
             </div>
-            <mat-error
-              *ngIf="
-                mailFormGroup.hasError('noDefaultAfzender') &&
-                mailFormGroup.touched
-              "
-              class="mt-2 block"
-              style="color: red"
-            >
+            <mat-error *ngIf="mailFormGroup.hasError('noDefaultAfzender')">
               {{ "validation.afzender.required" | translate }}
             </mat-error>
-            <div style="margin-top: 12px; font-size: 12px; color: #666">
-              <p>
-                mailFormGroup.valid: <strong>{{ mailFormGroup.valid }}</strong>
-              </p>
-              <p>
-                mailFormGroup.errors:
-                <strong>{{ mailFormGroup.errors | json }}</strong>
-              </p>
-              <p>
-                mailFormGroup.touched:
-                <strong>{{ mailFormGroup.touched }}</strong>
-              </p>
-              <p>
-                zaakAfzenders count:
-                <strong>{{ parameters.zaakAfzenders.length }}</strong>
-              </p>
-            </div>
           </mat-card-content>
         </mat-card>
         <mat-card>
