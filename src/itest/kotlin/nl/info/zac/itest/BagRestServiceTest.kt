@@ -34,11 +34,9 @@ class BagRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    beforeSpec {
-        authenticate(RAADPLEGER_DOMAIN_TEST_1)
-    }
-
     Given("A logged-in raadpleger, and address data is present in the BAG API mock") {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
+
         When("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
@@ -1168,19 +1166,16 @@ class BagRestServiceTest : BehaviorSpec({
 
     Given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-        lateinit var zaakUUID: UUID
-        zacClient.createZaak(
+        val zaakUUID = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
-        ).run {
-            val responseBody = bodyAsString
-            logger.info { "Response: $responseBody" }
-            JSONObject(responseBody).run {
-                zaakUUID = getString("uuid").run(UUID::fromString)
-            }
+        ).let { responseContent ->
+            logger.info { "Response: ${responseContent.bodyAsString}" }
+            JSONObject(responseContent.bodyAsString).getString("uuid").run(UUID::fromString)
         }
+
         When("a BAG object is added") {
             // note that the zaakobject fields 'woonplaatsNaam' and 'openbareRuimteNaam'
             // are mandatory for a zaakobject of type 'ADRES' by OpenZaak

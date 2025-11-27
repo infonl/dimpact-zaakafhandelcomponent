@@ -24,11 +24,9 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    beforeSpec {
-        authenticate(RAADPLEGER_DOMAIN_TEST_1)
-    }
-
     Given("Configuration items are available in ZAC and a user with at least one ZAC role is logged in") {
+        authenticate(RAADPLEGER_DOMAIN_TEST_1)
+
         When("the talen are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen"

@@ -37,7 +37,7 @@ class TaskHelper(
         // The task is automatically indexed, so no need to (re)index here.
         // However, the indexing may still take some time to complete, so we perform a search
         // here to ensure the task is findable.
-        eventually(5.seconds) {
+        eventually(10.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
