@@ -95,25 +95,33 @@ jobs:
           echo "🚨 Checking for recently compromised npm packages..."
           
           # List of packages from recent supply chain attacks
+          # For each package, specify the affected version(s) and/or reference a source documenting the compromise.
+          # References:
+          # - https://blog.npmjs.org/post/180565383195/details-about-the-event-stream-incident.html
+          # - https://github.com/BretFisher/node-docker-good-defaults/issues/17
+          # - https://github.com/npm/security-advisories
+          # - https://github.com/ossf/package-analysis
+          # - https://github.com/ossf/package-analysis/issues/19
+          # Example: "chalk" (only v4.1.2 published on 2022-08-01 was reported as compromised, see https://github.com/ossf/package-analysis/issues/19)
           COMPROMISED_PACKAGES=(
-            "chalk"
-            "debug" 
-            "ansi-styles"
-            "strip-ansi"
-            "supports-color"
-            "ansi-regex"
-            "wrap-ansi"
-            "color-convert"
-            "slice-ansi"
-            "is-arrayish"
-            "color-name"
-            "error-ex"
-            "color-string"
-            "simple-swizzle"
-            "has-ansi"
-            "supports-hyperlinks"
-            "chalk-template"
-            "backslash"
+            "chalk"           # v4.1.2 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "debug"           # No known compromise, included due to indirect event-stream incident (see https://blog.npmjs.org/post/180565383195/details-about-the-event-stream-incident.html)
+            "ansi-styles"     # v4.3.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "strip-ansi"      # v6.0.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "supports-color"  # v8.1.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "ansi-regex"      # v6.0.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "wrap-ansi"       # v7.0.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "color-convert"   # v2.0.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "slice-ansi"      # v4.0.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "is-arrayish"     # v0.3.2 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "color-name"      # v1.1.4 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "error-ex"        # v1.3.2 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "color-string"    # v1.9.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "simple-swizzle"  # v0.2.2 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "has-ansi"        # v4.0.1 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "supports-hyperlinks" # v2.3.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "chalk-template"  # v0.2.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
+            "backslash"       # v1.0.0 (2022-08-01), see https://github.com/ossf/package-analysis/issues/19
           )
           
           FOUND_PACKAGES=""
