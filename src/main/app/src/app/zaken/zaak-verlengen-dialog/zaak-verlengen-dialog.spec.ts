@@ -86,52 +86,37 @@ describe("ZaakVerlengenDialogComponent", () => {
     const [verlengingsDuur, , redenVerlenging] = inputs;
 
     await verlengingsDuur.setValue("5");
-
     await redenVerlenging.setValue("Reden verlenging");
 
-    const uuid = mockZaak.uuid;
-
-    const submitBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
       'button[type="submit"]',
     );
-
-    submitBtn.click();
+    submitButton.click();
 
     await fixture.whenStable();
-    await Promise.resolve();
-
-    const allRequests = httpTestingController.match(() => true);
-
-    await sleep();
 
     expect(component.verlengen).toHaveBeenCalled();
-    expect(
-      allRequests.some((singleRequest) =>
-        singleRequest.request.urlWithParams.includes(
-          `/rest/zaken/zaak/${uuid}/verlenging`,
-        ),
-      ),
-    ).toBe(true);
 
-    const verlengRequest = allRequests.find((singleRequest) =>
-      singleRequest.request.urlWithParams.includes(
-        `/rest/zaken/zaak/${uuid}/verlenging`,
-      ),
-    );
-
-    expect(verlengRequest?.request.body.duurDagen).toBe("5");
-    expect(verlengRequest?.request.body.redenVerlenging).toBe(
-      "Reden verlenging",
-    );
+      await fixture.whenStable();
+      const req = httpTestingController.expectOne(
+          `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+      );
+      expect(req.request.method).toEqual("PATCH");
+      expect(req.request.body).toEqual(
+          expect.objectContaining({
+              duurDagen: "5",
+              redenVerlenging: "Reden verlenging",
+          }),
+      );
   });
 
   it("should call close() when annuleren button is clicked", async () => {
     const dialogRefSpy = jest.spyOn(dialogRef, "close");
 
-    const annulerenBtnHarness = await loader.getHarness(
+    const cancelButton = await loader.getHarness(
       MatButtonHarness.with({ text: /annuleren/i }),
     );
-    await annulerenBtnHarness.click();
+    await cancelButton.click();
 
     fixture.detectChanges();
     fixture.whenStable();
