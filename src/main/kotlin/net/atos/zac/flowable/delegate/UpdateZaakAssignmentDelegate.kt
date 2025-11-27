@@ -11,13 +11,13 @@ import java.util.logging.Logger
 
 class UpdateZaakAssignmentDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
-    lateinit var group: Expression
+    lateinit var groepId: Expression
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
-    val user: Expression? = null
+    val behandelaarGebruikersnaam: Expression? = null
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
-    val reason: Expression? = null
+    val reden: Expression? = null
 
     companion object {
         private val LOG: Logger = Logger.getLogger(UpdateZaakAssignmentDelegate::class.java.name)
@@ -28,14 +28,14 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         LOG.info {
-            "Updating zaak ${zaak.identificatie} assignment with group '${group.expressionText}', " +
-                "user '${user?.expressionText}', reason '${reason?.expressionText}'"
+            "Updating zaak ${zaak.identificatie} assignment with group '${groepId.expressionText}', " +
+                "user '${behandelaarGebruikersnaam?.expressionText}', reason '${reden?.expressionText}'"
         }
         flowableHelper.zaakService.assignZaak(
             zaak,
-            groupId = group.resolveValueAsString(execution),
-            user = user?.resolveValueAsString(execution),
-            reason = reason?.resolveValueAsString(execution)
+            groupId = groepId.resolveValueAsString(execution),
+            user = behandelaarGebruikersnaam?.resolveValueAsString(execution),
+            reason = reden?.resolveValueAsString(execution)
         )
     }
 }

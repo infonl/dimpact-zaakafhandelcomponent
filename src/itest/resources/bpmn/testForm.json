@@ -18,35 +18,45 @@
       "tableView": false,
       "components": [
         {
-          "label": "Group",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Groep",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_groep"
-          },
-          "dataSrc": "custom",
-          "clearOnRefresh": true
-        },
-        {
-          "label": "User",
-          "type": "select",
-          "key": "AM_TeamBehandelaar_Medewerker",
-          "widget": "html5",
-          "input": true,
-          "validate": {
-            "required": true
-          },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_medewerker"
-          },
-          "dataSrc": "custom",
-          "refreshOn": "AM_TeamBehandelaar_Groep",
-          "clearOnRefresh": true
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Approved by:",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Group",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Groep",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_groep"
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "User",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_medewerker"
+              },
+              "dataSrc": "custom",
+              "refreshOn": "AM_TeamBehandelaar_Groep",
+              "clearOnRefresh": true
+            }
+          ]
         },
         {
           "label": "Template",
