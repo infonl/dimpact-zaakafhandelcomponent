@@ -45,7 +45,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
     Given(
         """
         A zaak has been created that has finished the intake phase with the status 'admissible'
-        and a logged-in recordmanager voor domain test 1
+        and a logged-in recordmanager for domain test 1
         """
     ) {
         authenticate(RECORDMANAGER_DOMAIN_TEST_1)
