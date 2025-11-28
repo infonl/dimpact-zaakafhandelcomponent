@@ -15,8 +15,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -52,6 +56,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         BrowserAnimationsModule,
         MaterialModule,
         MaterialFormBuilderModule,
+        NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
@@ -81,47 +86,68 @@ describe("ZaakVerlengenDialogComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should call verlengen() when submit button is clicked", async () => {
-    const inputs = await loader.getAllHarnesses(MatInputHarness);
-    const [verlengingsDuur, , redenVerlenging] = inputs;
+  describe("Buttons and form submission", () => {
+    it("should call verlengen() when submit button is clicked", async () => {
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+      const [verlengingsDuur, , redenVerlenging] = inputs;
 
-    await verlengingsDuur.setValue("5");
-    await redenVerlenging.setValue("Reden verlenging");
+      await verlengingsDuur.setValue("5");
+      await redenVerlenging.setValue("Reden verlenging");
 
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
-      'button[type="submit"]',
-    );
-    submitButton.click();
+      const submitButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('button[type="submit"]');
+      submitButton.click();
 
-    await fixture.whenStable();
+      await fixture.whenStable();
 
-    expect(component.verlengen).toHaveBeenCalled();
+      expect(component.verlengen).toHaveBeenCalled();
 
-    await fixture.whenStable();
-    const req = httpTestingController.expectOne(
-      `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
-    );
-    expect(req.request.method).toEqual("PATCH");
-    expect(req.request.body).toEqual(
-      expect.objectContaining({
-        duurDagen: "5",
-        redenVerlenging: "Reden verlenging",
-      }),
-    );
+      await fixture.whenStable();
+      const req = httpTestingController.expectOne(
+        `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+      );
+      expect(req.request.method).toEqual("PATCH");
+      expect(req.request.body).toEqual(
+        expect.objectContaining({
+          duurDagen: "5",
+          redenVerlenging: "Reden verlenging",
+        }),
+      );
+    });
+
+    it("should call close() when annuleren button is clicked", async () => {
+      const dialogRefSpy = jest.spyOn(dialogRef, "close");
+
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /annuleren/i }),
+      );
+      await cancelButton.click();
+
+      fixture.detectChanges();
+      fixture.whenStable();
+
+      expect(component.close).toHaveBeenCalled();
+      expect(dialogRefSpy).toHaveBeenCalled();
+    });
   });
 
-  it("should call close() when annuleren button is clicked", async () => {
-    const dialogRefSpy = jest.spyOn(dialogRef, "close");
+  describe("Check errors", () => {
+    it("should show an error when verlengingsDuur exceeds the zaaktype limit", async () => {
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+      const [verlengingsDuur, , redenVerlenging] = inputs;
 
-    const cancelButton = await loader.getHarness(
-      MatButtonHarness.with({ text: /annuleren/i }),
-    );
-    await cancelButton.click();
+      await verlengingsDuur.setValue("30");
+      await redenVerlenging.setValue("Reden verlenging");
 
-    fixture.detectChanges();
-    fixture.whenStable();
+      const submitButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('button[type="submit"]');
+      submitButton.click();
 
-    expect(component.close).toHaveBeenCalled();
-    expect(dialogRefSpy).toHaveBeenCalled();
+      await fixture.whenStable();
+      const errorHarness = await loader.getHarness(MatErrorHarness);
+
+      const errorText = await errorHarness.getText();
+      expect(errorText).toContain("validators.max");
+    });
   });
 });
