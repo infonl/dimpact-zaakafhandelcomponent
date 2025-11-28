@@ -107,9 +107,9 @@ export class OntvangstbevestigingComponent implements OnInit {
     );
   }
 
-  async submit() {
+  submit() {
     const { value } = this.form;
-    await this.sendAcknowledgeReceiptMutation.mutateAsync({
+    this.sendAcknowledgeReceiptMutation.mutate({
       ...value,
       verzender: value.verzender?.mail,
       replyTo: value.verzender?.replyTo,
