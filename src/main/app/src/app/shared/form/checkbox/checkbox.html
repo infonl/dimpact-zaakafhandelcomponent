@@ -5,10 +5,7 @@
   -->
 
 <div [formGroup]="form()" class="full-width">
-  <mat-checkbox
-    [formControlName]="key()"
-    [required]="isRequired()"
-  >
+  <mat-checkbox [formControlName]="key()" [required]="isRequired()">
     {{ label() ?? key() | translate | capitalizeFirstLetter }}
   </mat-checkbox>
   <mat-error *ngIf="formError()">{{ formError() }}</mat-error>
