@@ -48,9 +48,9 @@ export class SingleInputFormField<
     () => {
       const control = this.form().controls[this.key()];
 
-      if(this.readonly()) control.disable({emitEvent: false});
+      if (this.readonly()) control.disable({ emitEvent: false });
 
-      return control
+      return control;
     },
   );
 
