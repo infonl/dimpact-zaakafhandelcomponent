@@ -74,7 +74,7 @@
     <zac-informatie-object-add
       *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
-      [zaak]="zaak"
+      [zaakUuid]="zaak!.uuid"
       (document)="documentToegevoegd()"
     ></zac-informatie-object-add>
     <zac-informatie-verzenden
