@@ -426,7 +426,7 @@ jobs:
         with:
           check_name: integration-test-results
           files: |
-            build/test-results/itest/**/*.xml    
+            build/test-results/itest/**/*.xml
 
       - name: Delete integration test data
         run: |

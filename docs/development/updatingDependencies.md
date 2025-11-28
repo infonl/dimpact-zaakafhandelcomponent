@@ -4,12 +4,12 @@ This document describes how to update dependencies in ZAC and (OpenAPI) API spec
 
 ## Updating dependencies in ZAC
 
-This is normally done by Renovate using the installed github app in in the project.
-This includes updating of backend (Java), frontend (TypeScript) as well as GitHub Action and Docker dependencies.
+This is normally done by Renovate in our GitHub repository.
+This includes updating of backend, frontend as well as GitHub Action and Docker dependencies.
 
-## Updating docker-compose images
+## Updating Docker Compose images
 
-This is done by Renovate and its configuration file renovate.json. The version restrictions are following PodiumD 2.0 development. 
+This is done by Renovate. In the [Renovate configuration file](../../renovate.json) version restrictions for the used Docker images are defined. 
 
 ### Renovate configuration
 

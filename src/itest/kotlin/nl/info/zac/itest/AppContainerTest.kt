@@ -21,11 +21,6 @@ import java.net.HttpURLConnection.HTTP_OK
 class AppContainerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    afterSpec {
-        // re-authenticate using beheerder user since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Given("ZAC Docker container and all related Docker containers are running") {
         When("the health endpoint is called") {
             val response = itestHttpClient.performGetRequest(

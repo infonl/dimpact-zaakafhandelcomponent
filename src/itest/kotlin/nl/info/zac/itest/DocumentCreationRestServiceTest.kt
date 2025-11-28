@@ -11,7 +11,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
@@ -42,7 +44,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("A zaak exists") {
+    Given("A zaak exists and the behandelaar test user is logged in") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
