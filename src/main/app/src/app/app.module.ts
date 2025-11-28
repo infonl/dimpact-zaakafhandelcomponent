@@ -42,6 +42,7 @@ import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
+import {bootstrapApplication} from "@angular/platform-browser";
 
 const queryClient = new QueryClient();
 
@@ -50,10 +51,9 @@ const queryClient = new QueryClient();
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 @NgModule({
-  declarations: [AppComponent, ToolbarComponent],
   exports: [ToolbarComponent],
-  bootstrap: [AppComponent],
   imports: [
+    AppComponent, ToolbarComponent,
     CoreModule,
     SharedModule,
     DashboardModule,
@@ -71,17 +71,6 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
-  ],
-  providers: [
-    { provide: APP_BASE_HREF, useValue: "/" },
-    { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideTanStackQuery(
-      queryClient,
-      withDevtools(() => ({
-        loadDevtools: isDevMode(),
-      })),
-    ),
-    provideHttpClient(withInterceptorsFromDi()),
   ],
 })
 export class AppModule {
@@ -113,3 +102,17 @@ export class AppModule {
     });
   }
 }
+
+void bootstrapApplication(AppModule, {
+  providers: [
+    { provide: APP_BASE_HREF, useValue: "/" },
+    { provide: LocationStrategy, useClass: PathLocationStrategy },
+    provideTanStackQuery(
+        queryClient,
+        withDevtools(() => ({
+          loadDevtools: isDevMode(),
+        })),
+    ),
+    provideHttpClient(withInterceptorsFromDi()),
+  ],
+})

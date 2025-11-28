@@ -82,8 +82,8 @@ describe("NotitiesComponent Harness with Host Wrapper", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TestHostComponent, NotitiesComponent],
       imports: [
+        TestHostComponent, NotitiesComponent,
         TranslateModule.forRoot(),
         MaterialModule,
         PipesModule,

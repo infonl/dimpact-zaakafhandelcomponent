@@ -51,8 +51,8 @@ describe(ZacHtmlEditor.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacHtmlEditor],
       imports: [
+        ZacHtmlEditor,
         CommonModule,
         ReactiveFormsModule,
         NoopAnimationsModule,

@@ -38,8 +38,8 @@ describe("PersoonsgegevensComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [PersoonsgegevensComponent],
       imports: [
+        PersoonsgegevensComponent,
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,

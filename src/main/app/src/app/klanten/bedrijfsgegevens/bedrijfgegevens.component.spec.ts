@@ -46,6 +46,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
+        BedrijfsgegevensComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
         MaterialModule,
@@ -57,7 +58,6 @@ describe(BedrijfsgegevensComponent.name, () => {
         provideHttpClientTesting(),
         provideTanStackQuery(queryClient),
       ],
-      declarations: [BedrijfsgegevensComponent],
     });
 
     klantenService = TestBed.inject(KlantenService);

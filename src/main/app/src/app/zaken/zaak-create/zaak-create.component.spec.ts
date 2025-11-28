@@ -67,8 +67,8 @@ describe(ZaakCreateComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ZaakCreateComponent, ZacInput],
       providers: [
+        ZaakCreateComponent, ZacInput,
         ZakenService,
         BpmnService,
         NavigationService,

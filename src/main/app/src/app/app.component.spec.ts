@@ -22,8 +22,8 @@ describe(AppComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
       providers: [
+        AppComponent,
         IdentityService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

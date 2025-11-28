@@ -29,7 +29,7 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 
 @NgModule({
-  declarations: [
+  imports: [
     GroepSignaleringenComponent,
     ParametersEditWrapperComponent,
     ParametersComponent,
@@ -48,8 +48,8 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     SmartDocumentsFormItemComponent,
     ProcessDefinitionsComponent,
     FormioFormulierenComponent,
+    SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule
   ],
   exports: [],
-  imports: [SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule],
 })
 export class AdminModule {}

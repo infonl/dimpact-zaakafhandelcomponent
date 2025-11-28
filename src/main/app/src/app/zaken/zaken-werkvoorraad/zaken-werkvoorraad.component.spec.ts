@@ -30,8 +30,8 @@ describe(ZakenWerkvoorraadComponent.name, () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      declarations: [ZakenWerkvoorraadComponent],
       imports: [
+        ZakenWerkvoorraadComponent,
         MaterialModule,
         RouterModule,
         PipesModule,

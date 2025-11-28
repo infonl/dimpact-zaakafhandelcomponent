@@ -20,14 +20,6 @@ import { InformatieObjectenRoutingModule } from "./informatie-objecten-routing.m
 import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
 
 @NgModule({
-  declarations: [
-    InformatieObjectViewComponent,
-    InformatieObjectEditComponent,
-    InformatieObjectAddComponent,
-    InformatieObjectCreateAttendedComponent,
-    InformatieObjectVerzendenComponent,
-    InformatieObjectLinkComponent,
-  ],
   exports: [
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
@@ -37,7 +29,12 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
   providers: [
     { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
   ],
-  imports: [
+  imports: [InformatieObjectViewComponent,
+    InformatieObjectEditComponent,
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectVerzendenComponent,
+    InformatieObjectLinkComponent,
     SharedModule,
     InformatieObjectenRoutingModule,
     DocumentIconComponent,

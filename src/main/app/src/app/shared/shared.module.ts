@@ -43,7 +43,7 @@ import { ToggleFilterComponent } from "./table-zoek-filters/toggle-filter/toggle
 import { VersionComponent } from "./version/version.component";
 
 @NgModule({
-  declarations: [
+  imports: [
     SideNavComponent,
     BackButtonDirective,
     StaticTextComponent,
@@ -68,8 +68,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
-  ],
-  imports: [
     FormsModule,
     BrowserAnimationsModule,
     RouterModule,

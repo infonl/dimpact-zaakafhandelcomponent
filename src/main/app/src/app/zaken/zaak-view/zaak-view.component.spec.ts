@@ -90,7 +90,7 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
         ZaakViewComponent,
         ZaakIndicatiesComponent,
         ZaakDocumentenComponent,
@@ -99,8 +99,6 @@ describe(ZaakViewComponent.name, () => {
         PersoonsgegevensComponent,
         StaticTextComponent,
         ZaakInitiatorToevoegenComponent,
-      ],
-      imports: [
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,

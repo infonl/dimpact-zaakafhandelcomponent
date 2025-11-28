@@ -63,13 +63,11 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
         InformatieObjectViewComponent,
         SideNavComponent,
         StaticTextComponent,
         InformatieObjectEditComponent,
-      ],
-      imports: [
         MaterialModule,
         InformatieObjectIndicatiesComponent,
         TranslateModule.forRoot(),

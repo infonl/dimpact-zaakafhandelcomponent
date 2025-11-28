@@ -37,8 +37,8 @@ describe(MedewerkerGroepComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MedewerkerGroepComponent],
       providers: [
+        MedewerkerGroepComponent,
         IdentityService,
         provideHttpClient(),
         provideHttpClientTesting(),

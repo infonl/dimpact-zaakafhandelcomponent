@@ -17,10 +17,20 @@ import {
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { FormioFormulierenService } from "../formio-formulieren.service";
+import {MatCard, MatCardContent} from "@angular/material/card";
+import {MaterialModule} from "../../shared/material/material.module";
+import {PipesModule} from "../../shared/pipes/pipes.module";
+import {TranslateModule} from "@ngx-translate/core";
+import {SideNavComponent} from "../../shared/side-nav/side-nav.component";
 
 @Component({
   templateUrl: "./formio-formulieren.component.html",
   styleUrls: ["./formio-formulieren.component.less"],
+  imports: [
+      MaterialModule,
+      TranslateModule,
+      SideNavComponent
+  ]
 })
 export class FormioFormulierenComponent
   extends AdminComponent

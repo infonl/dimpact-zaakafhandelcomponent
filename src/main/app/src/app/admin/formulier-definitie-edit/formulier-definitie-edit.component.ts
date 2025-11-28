@@ -25,10 +25,18 @@ import { FormulierVeldDefinitie } from "../model/formulieren/formulier-veld-defi
 import { FormulierVeldtype } from "../model/formulieren/formulier-veld-type.enum";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { TekstvlakEditDialogComponent } from "./tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
+import {MaterialModule} from "../../shared/material/material.module";
+import {SideNavComponent} from "../../shared/side-nav/side-nav.component";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./formulier-definitie-edit.component.html",
   styleUrls: ["./formulier-definitie-edit.component.less"],
+  imports: [
+      MaterialModule,
+      SideNavComponent,
+      TranslateModule
+  ]
 })
 export class FormulierDefinitieEditComponent
   extends AdminComponent
