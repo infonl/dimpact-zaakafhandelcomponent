@@ -146,12 +146,12 @@ class ZaakService @Inject constructor(
             return
         }
 
-        val zaken = zaakUUIDs.map(zrcClientService::readZaak)
-        val zakenToSkip = zaken
-            .filterNot { isZaakOpen(it) && group.hasDomainAccess(it) }
+        val (zakenAssignedList, zakenToSkip) = zaakUUIDs
+            .map(zrcClientService::readZaak)
+            .partition { isZaakOpen(it) && group.hasDomainAccess(it) }
+        zakenToSkip
             .onEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
-            .toSet()
-        val zakenAssignedList = (zaken - zakenToSkip)
+        zakenAssignedList
             .onEach { zaak ->
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
                 user?.let {
