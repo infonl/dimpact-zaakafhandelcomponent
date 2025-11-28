@@ -27,5 +27,10 @@
     <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
     <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
   </mat-dialog-content>
-  <zac-form-actions [form]="form" [mutation]="mutation" wrapper="dialog" submitLabel="actie.vrijgeven" />
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    submitLabel="actie.vrijgeven"
+  />
 </form>

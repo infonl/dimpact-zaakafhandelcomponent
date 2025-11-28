@@ -24,9 +24,14 @@ export class ZakenVrijgevenDialogComponent {
     ...this.zakenService.vrijgevenVanuitLijst(),
     onSuccess: () => this.dialogRef.close(true),
     onMutate: () => {
-      this.dialogRef.disableClose = true
-    }
+      this.dialogRef.disableClose = true;
+    },
   }));
+
+  constructor() {
+    if (this.data.length) return;
+    this.form.disable();
+  }
 
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string | null>(null, [
