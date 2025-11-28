@@ -52,9 +52,9 @@ describe(ZacFormActions.name, () => {
         mutationFn: jest.fn().mockReturnValue(
           new Promise((resolve) => {
             setTimeout(() => resolve({ success: true }), MUTATION_TIMEOUT);
-          })
+          }),
         ),
-      }))
+      })),
     );
 
     fixture = TestBed.createComponent(ZacFormActions);
@@ -69,7 +69,7 @@ describe(ZacFormActions.name, () => {
       const buttons = await loader.getAllHarnesses(
         MatButtonHarness.with({
           text: /actie./,
-        })
+        }),
       );
 
       expect(buttons.length).toBe(2);
@@ -79,11 +79,11 @@ describe(ZacFormActions.name, () => {
       "should have button the %s button",
       async (label) => {
         const button = await loader.getHarness(
-          MatButtonHarness.with({ text: label })
+          MatButtonHarness.with({ text: label }),
         );
 
         expect(button).toBeDefined();
-      }
+      },
     );
   });
 
@@ -97,7 +97,7 @@ describe(ZacFormActions.name, () => {
       });
       it("should set the submit button state", async () => {
         const submitButton = await loader.getHarness(
-          MatButtonHarness.with({ text: "actie.verstuur" })
+          MatButtonHarness.with({ text: "actie.verstuur" }),
         );
 
         const isSubmitDisabled = await submitButton.isDisabled();
@@ -106,7 +106,7 @@ describe(ZacFormActions.name, () => {
 
       it("should not disable the cancel button", async () => {
         const cancelButton = await loader.getHarness(
-          MatButtonHarness.with({ text: "actie.annuleren" })
+          MatButtonHarness.with({ text: "actie.annuleren" }),
         );
 
         const isCancelDisabled = await cancelButton.isDisabled();
@@ -118,7 +118,7 @@ describe(ZacFormActions.name, () => {
       form.disable();
       await fixture.whenStable();
       const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: "actie.verstuur" })
+        MatButtonHarness.with({ text: "actie.verstuur" }),
       );
       const isSubmitDisabled = await submitButton.isDisabled();
       expect(isSubmitDisabled).toBe(true);
@@ -131,7 +131,7 @@ describe(ZacFormActions.name, () => {
 
       it("should disable the submit button", async () => {
         const submitButton = await loader.getHarness(
-          MatButtonHarness.with({ text: "actie.verstuur" })
+          MatButtonHarness.with({ text: "actie.verstuur" }),
         );
         const isDisabled = await submitButton.isDisabled();
         expect(isDisabled).toBe(true);
@@ -139,7 +139,7 @@ describe(ZacFormActions.name, () => {
 
       it("should disable the cancel button", async () => {
         const cancelButton = await loader.getHarness(
-          MatButtonHarness.with({ text: "actie.annuleren" })
+          MatButtonHarness.with({ text: "actie.annuleren" }),
         );
         const isDisabled = await cancelButton.isDisabled();
         expect(isDisabled).toBe(true);
@@ -151,7 +151,7 @@ describe(ZacFormActions.name, () => {
         });
         it("should enable the submit button again", async () => {
           const submitButton = await loader.getHarness(
-            MatButtonHarness.with({ text: "actie.verstuur" })
+            MatButtonHarness.with({ text: "actie.verstuur" }),
           );
           const isDisabled = await submitButton.isDisabled();
           expect(isDisabled).toBe(false);
@@ -159,7 +159,7 @@ describe(ZacFormActions.name, () => {
 
         it("should enable the cancel button", async () => {
           const cancelButton = await loader.getHarness(
-            MatButtonHarness.with({ text: "actie.annuleren" })
+            MatButtonHarness.with({ text: "actie.annuleren" }),
           );
           const isDisabled = await cancelButton.isDisabled();
           expect(isDisabled).toBe(false);
