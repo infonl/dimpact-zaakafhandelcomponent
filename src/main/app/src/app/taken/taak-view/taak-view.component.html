@@ -44,7 +44,8 @@
     <zac-informatie-object-add
       *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
-      [taak]="taak"
+      [zaakUuid]="taak!.zaakUuid"
+      [taakId]="taak!.id"
       (document)="updateTaakdocumenten($event)"
     ></zac-informatie-object-add>
     <zac-informatie-object-link
