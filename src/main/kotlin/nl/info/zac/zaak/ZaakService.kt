@@ -146,9 +146,12 @@ class ZaakService @Inject constructor(
             return
         }
 
-        val zakenAssignedList = zaakUUIDs
-            .map(zrcClientService::readZaak)
-            .filter { isZaakOpen(it) && group.hasDomainAccess(it) }
+        val zaken = zaakUUIDs.map(zrcClientService::readZaak)
+        val zakenToSkip = zaken
+            .filterNot { isZaakOpen(it) && group.hasDomainAccess(it) }
+            .onEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
+            .toSet()
+        val zakenAssignedList = (zaken - zakenToSkip)
             .onEach { zaak ->
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
                 user?.let {
@@ -476,7 +479,6 @@ class ZaakService @Inject constructor(
         zaak.let {
             if (!it.isOpen()) {
                 LOG.fine("Zaak with UUID '${zaak.uuid} is not open. Therefore it is skipped and not assigned.")
-                eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
             }
             it.isOpen()
         }
@@ -514,7 +516,6 @@ class ZaakService @Inject constructor(
                         "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
                             "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
                     )
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaak))
                 }
                 hasAccess
             }
