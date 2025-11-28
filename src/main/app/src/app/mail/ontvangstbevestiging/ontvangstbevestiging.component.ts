@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -19,14 +20,33 @@ import { MailService } from "../mail.service";
   templateUrl: "./ontvangstbevestiging.component.html",
 })
 export class OntvangstbevestigingComponent implements OnInit {
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Output() ontvangstBevestigd = new EventEmitter<boolean>();
+  private readonly zakenService = inject(ZakenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly mailService = inject(MailService);
+  private readonly mailtemplateService = inject(MailtemplateService);
+  private readonly utilService = inject(UtilService);
+  private readonly klantenService = inject(KlantenService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  protected readonly sideNav = input.required<MatDrawer>();
+  protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
+
+  protected readonly ontvangstBevestigd = output<boolean>();
 
   protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
   protected variables: GeneratedType<"MailTemplateVariables">[] = [];
   protected contactGegevens: GeneratedType<"RestContactDetails"> | null = null;
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
+
+  protected readonly sendAcknowledgeReceiptMutation = injectMutation(() => ({
+    ...this.mailService.sendAcknowledgeReceipt(this.zaak().uuid),
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.email.verstuurd");
+      this.ontvangstBevestigd.emit(true);
+    },
+  }));
 
   protected readonly form = this.formBuilder.group({
     verzender:
@@ -48,43 +68,34 @@ export class OntvangstbevestigingComponent implements OnInit {
     >([]),
   });
 
-  constructor(
-    private readonly zakenService: ZakenService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly mailService: MailService,
-    private readonly mailtemplateService: MailtemplateService,
-    private readonly utilService: UtilService,
-    private readonly klantenService: KlantenService,
-    private readonly formBuilder: FormBuilder,
-  ) {}
-
   ngOnInit() {
     this.informatieObjectenService
       .listEnkelvoudigInformatieobjecten({
-        zaakUUID: this.zaak.uuid,
+        zaakUUID: this.zaak().uuid,
       })
       .subscribe((documents) => {
         this.documents = documents;
       });
 
     this.zakenService
-      .listAfzendersVoorZaak(this.zaak.uuid)
+      .listAfzendersVoorZaak(this.zaak().uuid)
       .subscribe((afzenders) => {
         this.afzenders = afzenders;
       });
 
     this.mailtemplateService
-      .findMailtemplate("TAAK_ONTVANGSTBEVESTIGING", this.zaak.uuid)
+      .findMailtemplate("TAAK_ONTVANGSTBEVESTIGING", this.zaak().uuid)
       .subscribe((mailtemplate) => {
         this.form.controls.onderwerp.setValue(mailtemplate?.onderwerp);
         this.form.controls.body.setValue(mailtemplate?.body);
         this.variables = mailtemplate?.variabelen ?? [];
       });
 
-    if (!this.zaak.initiatorIdentificatie?.bsnNummer) return;
+    const bsnNummer = this.zaak().initiatorIdentificatie?.bsnNummer;
+    if (!bsnNummer) return;
 
     this.klantenService
-      .getContactDetailsForPerson(this.zaak.initiatorIdentificatie.bsnNummer)
+      .getContactDetailsForPerson(bsnNummer)
       .subscribe((gegevens) => {
         this.contactGegevens = gegevens;
       });
@@ -96,19 +107,14 @@ export class OntvangstbevestigingComponent implements OnInit {
     );
   }
 
-  submit() {
+  async submit() {
     const { value } = this.form;
-    this.mailService
-      .sendAcknowledgeReceipt(this.zaak.uuid, {
-        ...value,
-        verzender: value.verzender?.mail,
-        replyTo: value.verzender?.replyTo,
-        bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
-        createDocumentFromMail: true,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.email.verstuurd");
-        this.ontvangstBevestigd.emit(true);
-      });
+    await this.sendAcknowledgeReceiptMutation.mutateAsync({
+      ...value,
+      verzender: value.verzender?.mail,
+      replyTo: value.verzender?.replyTo,
+      bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
+      createDocumentFromMail: true,
+    });
   }
 }
