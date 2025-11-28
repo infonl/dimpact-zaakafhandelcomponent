@@ -46,7 +46,11 @@ export class SingleInputFormField<
 
   protected readonly control = computed<AbstractControl<Option | null> | null>(
     () => {
-      return this.form().controls[this.key()];
+      const control = this.form().controls[this.key()];
+
+      if(this.readonly()) control.disable({emitEvent: false});
+
+      return control
     },
   );
 

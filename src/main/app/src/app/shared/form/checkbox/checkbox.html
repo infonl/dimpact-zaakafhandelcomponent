@@ -7,7 +7,6 @@
 <div [formGroup]="form()" class="full-width">
   <mat-checkbox
     [formControlName]="key()"
-    [disabled]="readonly()"
     [required]="isRequired()"
   >
     {{ label() ?? key() | translate | capitalizeFirstLetter }}
