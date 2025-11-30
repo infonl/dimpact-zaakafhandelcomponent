@@ -29,6 +29,7 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
+import { FileFormat } from "../model/file-format";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
@@ -59,6 +60,7 @@ describe(InformatieObjectViewComponent.name, () => {
       titel: "test informatieobject",
       vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
       rechten: {},
+      formaat: FileFormat.DOCX,
     };
 
   beforeEach(async () => {
@@ -86,7 +88,11 @@ describe(InformatieObjectViewComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ zaak, informatieObject: enkelvoudigInformatieobject }),
+            data: of({
+              zaak,
+              informatieObject: enkelvoudigInformatieobject,
+              infoObject: enkelvoudigInformatieobject,
+            }),
           },
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,
@@ -171,7 +177,26 @@ describe(InformatieObjectViewComponent.name, () => {
   });
 
   describe("actie.converteren", () => {
-    it("should not have a button when the user does not have the right to convert a document", async () => {
+    it("should have a button when the document is of format DOCX and the user has the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: true,
+            },
+          }),
+        );
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeTruthy();
+    });
+
+    it("should not have a button when the document is of format DOCX and the user does not have the right to convert a document", async () => {
       jest
         .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
         .mockReturnValue(
@@ -182,6 +207,37 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeNull();
+    });
+
+    it("should not have a button when the document is of format TEXT and the user has the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: true,
+            },
+          }),
+        );
+
+      // set file format in component to TEXT
+      fixture.detectChanges();
+      await fixture.whenStable();
+      component.infoObject = {
+        ...component.infoObject,
+        formaat: FileFormat.TEXT,
+      };
+      // rebuild the menu so view reflects the correct state
+      (
+        component as unknown as { toevoegenActies: () => void }
+      ).toevoegenActies();
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
