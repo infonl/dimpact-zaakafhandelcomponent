@@ -11,7 +11,10 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
+import {
+  MatNavListItemHarness,
+  MatSubheaderHarness,
+} from "@angular/material/list/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -502,6 +505,89 @@ describe(ZaakViewComponent.name, () => {
 
     it("should add menu subscription to subscriptions$ array when setupMenu is called", () => {
       expect(subscriptionsPushSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("actie.zaak.acties header", () => {
+    const baseZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      isProcesGestuurd: false,
+      isHeropend: false,
+      isOpgeschort: false,
+      eerdereOpschorting: false,
+      zaaktype: {
+        ...zaak.zaaktype,
+        opschortingMogelijk: false,
+        verlengingMogelijk: false,
+      },
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      jest
+        .spyOn(planItemsService, "listHumanTaskPlanItems")
+        .mockReturnValue(of([]));
+      jest
+        .spyOn(planItemsService, "listProcessTaskPlanItems")
+        .mockReturnValue(of([]));
+    });
+
+    it("should add header when userEventListenerPlanItems.length > 0 and actionMenuItems.length === 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(
+          of([
+            fromPartial<GeneratedType<"RESTPlanItem">>({
+              userEventListenerActie: "INTAKE_AFRONDEN",
+            }),
+          ]),
+        );
+
+      mockActivatedRoute.data.next({ zaak: baseZaak });
+
+      const subheader = await loader.getHarness(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeTruthy();
+    });
+
+    it("should add header when userEventListenerPlanItems.length === 0 and actionMenuItems.length > 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(of([]));
+
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...baseZaak,
+          isOpen: false,
+          rechten: {
+            ...baseZaak.rechten,
+            heropenen: true,
+          },
+        },
+      });
+
+      const subheader = await loader.getHarness(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeTruthy();
+    });
+
+    it("should not add header when both userEventListenerPlanItems.length === 0 and actionMenuItems.length === 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(of([]));
+
+      mockActivatedRoute.data.next({ zaak: baseZaak });
+
+      const subheader = await loader.getHarnessOrNull(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeNull();
     });
   });
 });
