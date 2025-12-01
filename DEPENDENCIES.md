@@ -22,7 +22,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 
 ## Common Ground components
 
-- **open-zaak**: 1.23.0
+- **open-zaak**: 1.25.0
 - **objects-api**: 3.3.1
 - **open-klant**: 2.9.0
 - **open-notificaties**: 1.13.0
