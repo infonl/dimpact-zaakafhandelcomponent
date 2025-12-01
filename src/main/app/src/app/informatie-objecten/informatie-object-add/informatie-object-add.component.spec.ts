@@ -231,6 +231,7 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
+
       await submitButton.click();
       httpTestingController
         .expectOne(
