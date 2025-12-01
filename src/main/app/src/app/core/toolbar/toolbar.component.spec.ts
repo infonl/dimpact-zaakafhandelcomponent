@@ -94,6 +94,7 @@ describe(ToolbarComponent.name, () => {
 
     it("should disable the create zaak button when createZaak mutation is in progress", async () => {
       createZaakMutation.mutate({});
+      fixture.detectChanges();
 
       const button = await loader.getHarness(
         MatButtonHarness.with({ text: "create_new_folder" }),
