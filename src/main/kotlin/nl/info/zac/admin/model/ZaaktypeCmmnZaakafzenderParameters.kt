@@ -44,18 +44,19 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
 
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
-    @NotNull
+    @field:NotNull
     lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @Column(name = "default_mail", nullable = false)
     var defaultMail: Boolean = false
 
     @Column(name = "mail", nullable = false)
-    @NotBlank
+    @field:NotBlank
     lateinit var mail: String
 
     @Column(name = "replyto")
-    var replyTo: String? = null
+    @field:NotBlank
+    lateinit var replyTo: String
 
     override fun isModifiedFrom(original: ZaaktypeCmmnZaakafzenderParameters): Boolean {
         return Objects.equals(mail, original.mail) && (

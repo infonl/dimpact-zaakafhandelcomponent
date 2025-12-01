@@ -21,3 +21,11 @@ coverage:
         # This to avoid failing Codecov checks when the coverage drops with e.g. 0.01%
         # even when there are no changes made to the code.
         threshold: "1"
+flag_management:
+  individual_flags:
+    - name: backendunittests
+      after_n_builds: 1
+    - name: frontendunittests
+      after_n_builds: 1
+    - name: integrationtests
+      after_n_builds: 1

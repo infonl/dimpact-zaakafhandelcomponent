@@ -182,7 +182,7 @@ fun createZaakAfzender(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     defaultMail: Boolean = false,
     mail: String = "mail@example.com",
-    replyTo: String? = "replyTo@example.com",
+    replyTo: String = "replyTo@example.com",
 ) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration

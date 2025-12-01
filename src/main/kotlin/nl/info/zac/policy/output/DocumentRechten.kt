@@ -18,5 +18,6 @@ data class DocumentRechten @JsonbCreator constructor(
     @param:JsonbProperty("toevoegen_nieuwe_versie") val toevoegenNieuweVersie: Boolean,
     @param:JsonbProperty("verplaatsen") val verplaatsen: Boolean,
     @param:JsonbProperty("ontkoppelen") val ontkoppelen: Boolean,
-    @param:JsonbProperty("downloaden") val downloaden: Boolean
+    @param:JsonbProperty("downloaden") val downloaden: Boolean,
+    @param:JsonbProperty("converteren") val converteren: Boolean
 ) : OpaRuleResult
