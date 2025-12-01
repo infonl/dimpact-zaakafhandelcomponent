@@ -43,9 +43,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.model.createOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoonForReads
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoonForReads
@@ -61,13 +59,9 @@ import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
-import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
-import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -119,7 +113,6 @@ import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
@@ -132,7 +125,6 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
-import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
@@ -183,38 +175,38 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryService = mockk<ZaakHistoryService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
-        zgwApiService = zgwApiService,
-        productaanvraagService = productaanvraagService,
-        decisionService = decisionService,
-        brcClientService = brcClientService,
-        drcClientService = drcClientService,
-        ztcClientService = ztcClientService,
-        zrcClientService = zrcClientService,
-        eventingService = eventingService,
-        identityService = identityService,
-        signaleringService = signaleringService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
-        indexingService = indexingService,
-        policyService = policyService,
-        cmmnService = cmmnService,
         bpmnService = bpmnService,
-        flowableTaskService = flowableTaskService,
-        objectsClientService = objectsClientService,
-        inboxProductaanvraagService = inboxProductaanvraagService,
-        zaakVariabelenService = zaakVariabelenService,
+        brcClientService = brcClientService,
+        cmmnService = cmmnService,
         configuratieService = configuratieService,
-        loggedInUserInstance = loggedInUserInstance,
-        restZaakConverter = restZaakConverter,
-        restZaaktypeConverter = restZaaktypeConverter,
-        restDecisionConverter = restDecisionConverter,
-        restZaakOverzichtConverter = restZaakOverzichtConverter,
-        zaakHistoryLineConverter = zaakHistoryLineConverter,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        decisionService = decisionService,
+        dispatcher = testDispatcher,
+        drcClientService = drcClientService,
+        eventingService = eventingService,
+        flowableTaskService = flowableTaskService,
         healthCheckService = healthCheckService,
+        identityService = identityService,
+        inboxProductaanvraagService = inboxProductaanvraagService,
+        indexingService = indexingService,
+        loggedInUserInstance = loggedInUserInstance,
+        objectsClientService = objectsClientService,
+        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
         opschortenZaakHelper = opschortenZaakHelper,
-        zaakService = zaakService,
+        policyService = policyService,
+        productaanvraagService = productaanvraagService,
+        restDecisionConverter = restDecisionConverter,
+        restZaakConverter = restZaakConverter,
+        restZaakOverzichtConverter = restZaakOverzichtConverter,
+        restZaaktypeConverter = restZaaktypeConverter,
+        signaleringService = signaleringService,
+        zaakHistoryLineConverter = zaakHistoryLineConverter,
         zaakHistoryService = zaakHistoryService,
-        dispatcher = testDispatcher
+        zaakService = zaakService,
+        zaakVariabelenService = zaakVariabelenService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        zgwApiService = zgwApiService,
+        zrcClientService = zrcClientService,
+        ztcClientService = ztcClientService
     )
 
     beforeEach {
@@ -454,341 +446,83 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Assigning a zaak") {
-        Given("a zaak exists, no user and no group are assigned and zaak assignment data is provided") {
-            val restZaakToekennenGegevens = createRESTZaakAssignmentData()
+        Given("zaak assignment data is provided") {
+            val restZaakAssignmentData = createRESTZaakAssignmentData()
             val zaak = createZaak()
             val zaakType = createZaakType()
-            val user = createLoggedInUser()
-            val rolSlot = mutableListOf<Rol<*>>()
             val restZaak = createRestZaak()
-            val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
-            val rolMedewerker = createRolMedewerker()
-            val group = createGroup()
-            val rolGroup = createRolOrganisatorischeEenheid()
 
-            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakToekennenGegevens.zaakUUID) } returns Pair(zaak, zaakType)
-            every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
-            every { zgwApiService.findGroepForZaak(zaak) } returns null
-            every { identityService.readGroup(restZaakToekennenGegevens.groupId) } returns group
-            every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
-            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-            every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
-
-            When("the zaak is assigned to a user and a group") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
-                every {
-                    identityService.validateIfUserIsInGroup(
-                        restZaakToekennenGegevens.assigneeUserName!!,
-                        restZaakToekennenGegevens.groupId
-                    )
-                } just runs
-
-                val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
-
-                Then("the zaak is assigned both to the group and the user") {
-                    returnedRestZaak shouldBe restZaak
-                    verify(exactly = 2) {
-                        zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                    }
-                    with(rolSlot[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
-                            identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolMedewerker.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
-                    with(rolSlot[1]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
-                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
-                            identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolGroup.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
-                }
-
-                And("the zaken search index is updated") {
-                    verify(exactly = 1) {
-                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                    }
-                }
-
-                And("the zaak data is updated accordingly") {
-                    verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
-                    }
-                }
-            }
-        }
-
-        Given("a zaak with no user and group assigned and zaak assignment data is provided") {
-            val restZaakToekennenGegevensUnknownGroup = createRESTZaakAssignmentData(groepId = "unknown")
-            val zaak = createZaak()
-            val zaakType = createZaakType()
-
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
             every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakToekennenGegevensUnknownGroup.zaakUUID)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
-            every {
-                identityService.validateIfUserIsInGroup(
-                    restZaakToekennenGegevensUnknownGroup.assigneeUserName!!,
-                    restZaakToekennenGegevensUnknownGroup.groupId
+                zaakService.assignZaak(
+                    zaak,
+                    restZaakAssignmentData.groupId,
+                    restZaakAssignmentData.assigneeUserName,
+                    restZaakAssignmentData.reason
                 )
-            } throws UserNotInGroupException()
-
-            When("the zaak is assigned to an unknown group") {
-                shouldThrow<UserNotInGroupException> {
-                    zaakRestService.assignZaak(restZaakToekennenGegevensUnknownGroup)
-                }
-
-                Then("an exception is thrown") {}
-            }
-        }
-
-        Given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
-            val restZaakToekennenGegevens = createRESTZaakAssignmentData()
-            val zaak = createZaak()
-            val zaakType = createZaakType()
-            val zaakRechten = createZaakRechten()
-            val user = createLoggedInUser()
-            val rolSlot = mutableListOf<Rol<*>>()
-            val restZaak = createRestZaak()
-            val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
-            val existingRolMedewerker = createRolMedewerker()
-            val rolMedewerker = createRolMedewerker(
-                zaakURI = zaak.url,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
-            )
-            val group = createGroup()
-            val existingRolGroup = createRolOrganisatorischeEenheid()
-            val rolGroup = createRolOrganisatorischeEenheid(
-                zaakURI = zaak.url,
-                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
-            )
-
-            every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakToekennenGegevens.zaakUUID)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
-            every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
-            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
-            every { identityService.readGroup(restZaakToekennenGegevens.groupId) } returns group
-            every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
+            } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
-            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-            every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
-            When("the zaak is assigned to a user and a group") {
+            When("toekennen policy is assigned to the user") {
                 every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
-                every {
-                    identityService.validateIfUserIsInGroup(
-                        restZaakToekennenGegevens.assigneeUserName!!,
-                        restZaakToekennenGegevens.groupId
-                    )
-                } just runs
+                val returnedRestZaak = zaakRestService.assignZaak(restZaakAssignmentData)
 
-                val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
-
-                Then("the zaak is assigned both to the group and the user") {
+                Then("expected response is prepared") {
                     returnedRestZaak shouldBe restZaak
-                    verify(exactly = 2) {
-                        zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                    }
-                    with(rolSlot[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
-                            identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolMedewerker.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
-                    with(rolSlot[1]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
-                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
-                            identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolGroup.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
-                }
-
-                And("the zaken search index is updated") {
-                    verify(exactly = 1) {
-                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                    }
-                }
-
-                And("the zaak data is updated accordingly") {
-                    verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
-                    }
                 }
             }
-        }
 
-        Given(
-            "a zaak exists, with a user and group already assigned and zaak assignment for a group only is provided"
-        ) {
-            val restZaakToekennenGegevens = createRESTZaakAssignmentData().apply {
-                assigneeUserName = null
-            }
-            val zaak = createZaak()
-            val zaakType = createZaakType()
-            val zaakRechten = createZaakRechten()
-            val updateRolSlot = mutableListOf<Rol<*>>()
-            val restZaak = createRestZaak()
-            val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
-            val existingRolMedewerker = createRolMedewerker()
-            val group = createGroup()
-            val existingRolGroup = createRolOrganisatorischeEenheid()
-            val rolGroup = createRolOrganisatorischeEenheid(
-                zaakURI = zaak.url,
-                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
-            )
-
-            every {
-                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakToekennenGegevens.zaakUUID)
-            } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zrcClientService.updateRol(zaak, capture(updateRolSlot), restZaakToekennenGegevens.reason) } just runs
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, restZaakToekennenGegevens.reason) } just runs
-            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
-            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
-            every { identityService.readGroup(restZaakToekennenGegevens.groupId) } returns group
-            every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
-            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-            every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
-
-            When("the zaak is assigned to a user and a group") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
-
-                val returnedRestZaak = zaakRestService.assignZaak(restZaakToekennenGegevens)
-
-                Then("the zaak is assigned both to the group and the user") {
-                    returnedRestZaak shouldBe restZaak
-                    verify(exactly = 1) {
-                        zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                    }
-                    with(updateRolSlot.first()) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
-                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
-                            identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolGroup.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
+            When("toekennen policy is missing") {
+                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = false)
+                shouldThrow<PolicyException> {
+                    zaakRestService.assignZaak(restZaakAssignmentData)
                 }
 
-                And("the zaken search index is updated") {
-                    verify(exactly = 1) {
-                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
-                    }
-                }
-
-                And("the zaak data is updated accordingly") {
-                    verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                        zaakVariabelenService.removeUser(zaak.uuid)
-                    }
-                }
+                Then("exception is thrown") {}
             }
         }
     }
 
     Context("Assigning a zaak to the logged-in user") {
-        Given("a zaak exists, with assigned user and group that are not the logged-in user ones") {
+        Given("when zaak is open and toekennen policy is assigned to the logged-in user") {
             val restZaakAssignmentToLoggedInUserData = createRestZaakAssignmentToLoggedInUserData()
             val zaak = createZaak()
             val zaakType = createZaakType()
-            val zaakRechten = createZaakRechten()
-            val rolSlot = mutableListOf<Rol<*>>()
             val restZaak = createRestZaak()
-            val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
-            val rolMedewerker = createRolMedewerker(
-                zaakURI = zaak.url,
-                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "newUser")
-            )
-            val group = createGroup()
-            val existingRolGroup = createRolOrganisatorischeEenheid()
-            val rolGroup = createRolOrganisatorischeEenheid(
-                zaakURI = zaak.url,
-                organisatorischeEenheidIdentificatie = createOrganisatorischeEenheid(identificatie = "newGroup")
-            )
 
             val loggedInUserId = "loggedInUserId"
             val loggedInUser = createLoggedInUser(id = loggedInUserId)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { identityService.readUser(loggedInUserId) } returns loggedInUser
-            every { zaakService.bepaalRolMedewerker(loggedInUser, zaak) } returns rolMedewerker
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakAssignmentToLoggedInUserData.reason) } just runs
-            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
-            every { identityService.readGroup(restZaakAssignmentToLoggedInUserData.groupId) } returns group
-            every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
+            every {
+                zaakService.assignZaak(
+                    zaak,
+                    restZaakAssignmentToLoggedInUserData.groupId,
+                    loggedInUserId,
+                    restZaakAssignmentToLoggedInUserData.reason
+                )
+            } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
-            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
-            When("the zaak is assigned to the logged-in user") {
+            When("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
-                every {
-                    identityService.validateIfUserIsInGroup(loggedInUserId, restZaakAssignmentToLoggedInUserData.groupId)
-                } just runs
-
                 val returnedRestZaak = zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
 
                 Then("the zaak is assigned both to the group and the user") {
                     returnedRestZaak shouldBe restZaak
-                    verify(exactly = 2) {
-                        zrcClientService.updateRol(zaak, any(), restZaakAssignmentToLoggedInUserData.reason)
-                    }
-                    with(rolSlot[0]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
-                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
-                            identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolMedewerker.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
-                    with(rolSlot[1]) {
-                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
-                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
-                            identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
-                        }
-                        this.zaak shouldBe rolGroup.zaak
-                        omschrijving shouldBe rolType.omschrijving
-                    }
+                }
+            }
+
+            When("logged-in user does not have toekennen policy") {
+                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = false)
+                shouldThrow<PolicyException> {
+                    zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
                 }
 
-                And("the zaak data is updated accordingly") {
-                    verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
-                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
-                    }
-                }
+                Then("exception is thrown") {}
             }
         }
     }

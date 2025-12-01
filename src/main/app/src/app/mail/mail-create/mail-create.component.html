@@ -6,13 +6,18 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>mail</mat-icon>
   <span class="flex-grow-1">{{ "actie.mail.versturen" | translate }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" class="mt-2" (submit)="onFormSubmit()">
+<form
+  [formGroup]="form"
+  class="mt-2"
+  (submit)="onFormSubmit()"
+  (cancel)="sideNav().close()"
+>
   <fieldset>
     <zac-select
       [form]="form"
@@ -44,18 +49,6 @@
     <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   </fieldset>
   <fieldset>
-    <mat-action-row>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="!form.valid"
-      >
-        {{ "actie.versturen" | translate }}
-      </button>
-      <button mat-raised-button (click)="sideNav.close()" type="reset">
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
+    <zac-form-actions [form]="form" [mutation]="sendMailMutation" />
   </fieldset>
 </form>

@@ -90,21 +90,6 @@ export class ZaakAfhandelenDialogComponent {
     };
   });
 
-  protected readonly defaultAfzenderQuery = injectQuery(() => ({
-    queryKey: ["defaultAfzender", this.data.zaak.uuid],
-    queryFn: () =>
-      firstValueFrom(
-        this.zakenService.readDefaultAfzenderVoorZaak(this.data.zaak.uuid),
-      ),
-  }));
-
-  private readonly _defaultAfzenderEffect = effect(() => {
-    const defaultAfzender = this.defaultAfzenderQuery.data();
-    if (defaultAfzender) {
-      this.formGroup.controls.verzender.setValue(defaultAfzender);
-    }
-  });
-
   protected readonly afsluitenMutation = injectMutation(() => ({
     ...this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
       path: { uuid: this.data.zaak.uuid },
@@ -120,6 +105,13 @@ export class ZaakAfhandelenDialogComponent {
   }));
 
   constructor() {
+    effect(() => {
+      const afzenders = this.afzendersQuery.data();
+      this.formGroup.controls.verzender.setValue(
+        afzenders?.find((afzender) => afzender.defaultMail) ?? null,
+      );
+    });
+
     const zaakafhandelparameters =
       this.data.zaak.zaaktype.zaakafhandelparameters;
     this.sendMailDefault =

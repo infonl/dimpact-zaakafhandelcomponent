@@ -71,17 +71,10 @@ export class ZakenService {
     );
   }
 
-  verlengenZaak(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/verlenging">,
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}/verlenging",
-      body,
-      {
-        path: { uuid },
-      },
-    );
+  verlengenZaak(uuid: string) {
+    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
+      path: { uuid },
+    });
   }
 
   listZaakWaarschuwingen() {
@@ -104,8 +97,8 @@ export class ZakenService {
     return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
   }
 
-  vrijgevenVanuitLijst(body: PutBody<"/rest/zaken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body);
+  vrijgevenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/zaken/lijst/vrijgeven");
   }
 
   toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
