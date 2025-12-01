@@ -149,7 +149,6 @@ export class InformatieObjectAddComponent {
     effect(() => {
       this.informatieObjectenService
         .listInformatieobjecttypesForZaak(this.zaakUuid())
-        .pipe(takeUntilDestroyed())
         .subscribe((informatieObjectTypes) => {
           this.informatieObjectTypes = informatieObjectTypes;
         });
