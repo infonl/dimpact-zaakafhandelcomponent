@@ -313,16 +313,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
-| solr-operator.solr.podOptions.topologySpreadConstraints[0].labelSelector.matchLabels.technology | string | `"solr-cloud"` |  |
-| solr-operator.solr.podOptions.topologySpreadConstraints[0].matchLabelKeys[0] | string | `"controller-revision-hash"` |  |
-| solr-operator.solr.podOptions.topologySpreadConstraints[0].maxSkew | int | `1` |  |
-| solr-operator.solr.podOptions.topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
-| solr-operator.solr.podOptions.topologySpreadConstraints[0].whenUnsatisfiable | string | `"DoNotSchedule"` |  |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
 | solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
+| solr-operator.solr.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"solr-cloud"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for solr in solrcloud |
 | solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
 | solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
@@ -343,16 +339,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | zookeeper image repository |
 | solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"` | zookeeper image tag |
 | solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
-| solr-operator.zookeeper-operator.zookeeper.pod.topologySpreadConstraints[0].labelSelector.matchLabels.technology | string | `"zookeeper"` |  |
-| solr-operator.zookeeper-operator.zookeeper.pod.topologySpreadConstraints[0].matchLabelKeys[0] | string | `"controller-revision-hash"` |  |
-| solr-operator.zookeeper-operator.zookeeper.pod.topologySpreadConstraints[0].maxSkew | int | `1` |  |
-| solr-operator.zookeeper-operator.zookeeper.pod.topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
-| solr-operator.zookeeper-operator.zookeeper.pod.topologySpreadConstraints[0].whenUnsatisfiable | string | `"DoNotSchedule"` |  |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
