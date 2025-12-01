@@ -122,7 +122,7 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "patch",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    // @ts-expect-error(TS2590) Expression produces a union type that is too complex to represent.
+    // @ts-expect-error Expression produces a union type that is too complex to represent.
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,

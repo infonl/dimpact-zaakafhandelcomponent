@@ -30,7 +30,7 @@ fun RestZaakAfzender.toZaakAfzender() = ZaaktypeCmmnZaakafzenderParameters().app
     id = this@toZaakAfzender.id
     defaultMail = this@toZaakAfzender.defaultMail
     this@toZaakAfzender.mail?.let { mail = it }
-    replyTo = this@toZaakAfzender.replyTo
+    this@toZaakAfzender.replyTo?.let { replyTo = it }
 }
 
 fun ZaaktypeCmmnZaakafzenderParameters.toRestZaakAfzender() = RestZaakAfzender(

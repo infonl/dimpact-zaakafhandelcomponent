@@ -418,9 +418,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             createZaakInformatieobjectForCreatesAndUpdates()
         )
         val besluitType = createBesluitType(
-            url = URI("http://example.com/$besluittypeUuid"),
+            url = URI("https://example.com/$besluittypeUuid"),
             informatieobjecttypen = listOf(
-                URI("http://example.com/$informatieobjectUUID"),
+                URI("https://example.com/$informatieobjectUUID"),
             )
         )
 
@@ -474,14 +474,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
             }
         }
-        When("the enkelvoudig informatieobject is trying to be converted with status definitief") {
+        When("the enkelvoudig informatieobject is converted") {
             every {
                 enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(), any()
                 )
             } just Runs
 
-            enkelvoudiginformatieobject.status = StatusEnum.DEFINITIEF
             val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
                 informatieobjectUUID,
                 zaak.uuid
@@ -490,7 +489,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 resp.status shouldBe 200
             }
         }
-        When("the enkelvoudig informatieobject is trying to be converted with status in bewerking") {
+        When("the enkelvoudig informatieobject is converted but an exception was thrown") {
             every {
                 enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(),

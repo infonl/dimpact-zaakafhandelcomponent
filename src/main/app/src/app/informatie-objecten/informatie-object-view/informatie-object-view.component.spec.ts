@@ -14,9 +14,10 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, ReplaySubject } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -29,6 +30,7 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
+import { FileFormat } from "../model/file-format";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
@@ -38,6 +40,13 @@ describe(InformatieObjectViewComponent.name, () => {
   let loader: HarnessLoader;
 
   let informatieObjectenService: InformatieObjectenService;
+
+  const mockActivatedRoute = {
+    data: new ReplaySubject<{
+      zaak: GeneratedType<"RestZaak">;
+      informatieObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+    }>(1),
+  };
 
   const zaak: GeneratedType<"RestZaak"> = {
     uuid: "zaak-001",
@@ -59,6 +68,7 @@ describe(InformatieObjectViewComponent.name, () => {
       titel: "test informatieobject",
       vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
       rechten: {},
+      formaat: FileFormat.DOCX,
     };
 
   beforeEach(async () => {
@@ -85,9 +95,7 @@ describe(InformatieObjectViewComponent.name, () => {
         provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
-          useValue: {
-            data: of({ zaak, informatieObject: enkelvoudigInformatieobject }),
-          },
+          useValue: mockActivatedRoute,
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
@@ -122,9 +130,21 @@ describe(InformatieObjectViewComponent.name, () => {
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));
 
+    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    jest
+      .spyOn(foutAfhandelingService, "httpErrorAfhandelen")
+      .mockReturnValue(of());
+
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    mockActivatedRoute.data.next({
+      zaak,
+      informatieObject: enkelvoudigInformatieobject,
+    });
+
+    fixture.detectChanges();
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
@@ -139,6 +159,10 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
@@ -158,15 +182,92 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
       );
-      const host = await button.host();
-      await host.click();
+      await button.click();
 
       const sidebar = component.actionsSidenav;
       expect(sidebar.opened).toBe(true);
+    });
+  });
+
+  describe("actie.converteren", () => {
+    it("should have a button when the document is of format DOCX and the user has the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: true,
+            },
+          }),
+        );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeTruthy();
+    });
+
+    it("should not have a button when the document is of format DOCX and the user does not have the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: false,
+            },
+          }),
+        );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeNull();
+    });
+
+    it("should not have a button when the document is of format TEXT and the user has the right to convert a document", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              converteren: true,
+            },
+          }),
+        );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: {
+          ...enkelvoudigInformatieobject,
+          formaat: FileFormat.TEXT,
+        },
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.converteren" }),
+      );
+
+      expect(button).toBeNull();
     });
   });
 });
