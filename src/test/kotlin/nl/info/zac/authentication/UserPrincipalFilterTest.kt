@@ -82,11 +82,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
             }
         }
+
         Given(
-            """A logged-in user is present in the HTTP session and a servlet request containing 
-            a user principal with a different id as the logged-in user"""
+            """A logged-in user is present in the HTTP session with a token containing functional roles
+                as realm roles and a servlet request containing a user principal with a different id 
+                as the logged-in user"""
         ) {
-            val roles = listOf("fakeRole1", "fakeRole2")
+            val functionalRoles = listOf("fakeFunctionalRole1", "fakeFunctionalRole2")
             val loggedInUser = createLoggedInUser()
             val entityTypeId = "fakeZaaktypeOmschrijving1"
             val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
@@ -94,11 +96,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 JwtClaims.parse(
                     """
                     {
-                    "name": "fakeFullName",
-                    "given_name": "fakeGivenName",
-                    "family_name": "fakeFamilyName",
-                    "preferred_username": "fakeUserName",
-                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ]
+                        "name": "fakeFullName",
+                        "given_name": "fakeGivenName",
+                        "family_name": "fakeFamilyName",
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "${functionalRoles.joinToString(separator = "\", \"")}" ]
+                        }
                     }                    
                     """.trimMargin(),
                     null
@@ -114,7 +118,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
             every {
-                pabcClientService.getApplicationRoles(roles)
+                pabcClientService.getApplicationRoles(functionalRoles)
             } returns GetApplicationRolesResponse().apply {
                 results = listOf(createApplicationRolesResponseModel(entityTypeId, pabcRoleNames))
             }
@@ -132,10 +136,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         filterChain.doFilter(httpServletRequest, servletResponse)
                         httpSession.invalidate()
                         newHttpSession.setAttribute("logged-in-user", any())
-                        pabcClientService.getApplicationRoles(roles)
+                        pabcClientService.getApplicationRoles(functionalRoles)
                     }
                     with(capturedLoggedInUser.captured) {
-                        this.roles shouldContainAll roles
+                        this.roles shouldContainAll functionalRoles
                         this.applicationRolesPerZaaktype[entityTypeId]?.shouldContainAll(pabcRoleNames)
                     }
                 }
@@ -153,20 +157,22 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val fullName = "fakeFullName"
             val email = "fake@example.com"
             val groups = listOf("fakeGroup1")
-            val roles = listOf("coordinator")
+            val functionalRoles = listOf("fakeFunctionalRole")
             val zaaktypeId = "fakeZaaktypeId1"
             val pabcRoleNames = listOf("testApplicationRole1")
             val accessToken = AccessToken(
                 JwtClaims.parse(
                     """
                     {
-                    "name": "$fullName",
-                    "given_name": "$givenName",
-                    "family_name": "$familyName",
-                    "preferred_username": "$userName",
-                    "roles": [ "${roles.joinToString(separator = "\", \"")}" ],
-                    "email": "$email",
-                    "group_membership": [ "${groups.joinToString(separator = "\", \"")}" ]
+                        "name": "$fullName",
+                        "given_name": "$givenName",
+                        "family_name": "$familyName",
+                        "preferred_username": "$userName",
+                        "realm_access": {
+                            "roles": [ "${functionalRoles.joinToString(separator = "\", \"")}" ]
+                        },
+                        "email": "$email",
+                        "group_membership": [ "${groups.joinToString(separator = "\", \"")}" ]
                     }                    
                     """.trimMargin(),
                     null
@@ -213,7 +219,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         this.lastName shouldBe familyName
                         this.getFullName() shouldBe fullName
                         this.email shouldBe email
-                        this.roles shouldContainAll roles
+                        this.roles shouldContainAll functionalRoles
                         this.groupIds shouldContainAll groups
                         this.applicationRolesPerZaaktype[zaaktypeId]?.shouldContainAll(pabcRoleNames)
                     }
@@ -232,8 +238,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 JwtClaims.parse(
                     """
                     {
-                    "preferred_username": "fakeUserName",
-                    "roles": [ "fakeFunctionalRole" ]
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
                     }                    
                     """.trimMargin(),
                     null
