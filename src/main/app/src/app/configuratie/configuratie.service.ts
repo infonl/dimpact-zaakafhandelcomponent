@@ -4,19 +4,22 @@
  */
 
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import { Observable } from "rxjs";
 import { catchError, shareReplay } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class ConfiguratieService {
+  private readonly zacQueryClient = inject(ZacQueryClient);
+
   private readonly basepath = "/rest/configuratie";
   private talen$?: Observable<GeneratedType<"RestTaal">[]>;
-  private defaultTaal$?: Observable<GeneratedType<"RestTaal">>;
   private maxFileSizeMB$?: Observable<number>;
   private additionalAllowedFileTypes$?: Observable<string[]>;
   private gemeenteCode$?: Observable<string>;
@@ -42,15 +45,11 @@ export class ConfiguratieService {
   }
 
   readDefaultTaal() {
-    if (!this.defaultTaal$) {
-      this.defaultTaal$ = this.http
-        .get<GeneratedType<"RestTaal">>(`${this.basepath}/talen/default`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.defaultTaal$;
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/configuratie/talen/default"),
+      staleTime: StaleTimes.Infinite,
+      gcTime: StaleTimes.Infinite,
+    });
   }
 
   readMaxFileSizeMB(): Observable<number> {

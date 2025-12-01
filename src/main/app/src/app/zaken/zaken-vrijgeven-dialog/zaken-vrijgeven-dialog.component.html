@@ -17,36 +17,20 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content>
-  <form [formGroup]="form">
+<form [formGroup]="form" (submit)="vrijgeven()" (cancel)="close()">
+  <mat-dialog-content>
     <fieldset class="p-0">
       <section class="row">
         <zac-input class="col-12" [form]="form" key="reden"></zac-input>
       </section>
     </fieldset>
-  </form>
-  <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
-  <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button
-    [disabled]="loading || !data.length"
-    mat-raised-button
-    color="primary"
-    (click)="vrijgeven()"
-    id="zakenVrijgeven_button"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.vrijgeven" | translate }}
-  </button>
-  <button
-    [disabled]="loading"
-    mat-raised-button
-    (click)="close()"
-    type="button"
-  >
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+    <p *ngIf="data.length === 1">{{ "msg.vrijgeven.zaak" | translate }}</p>
+    <p *ngIf="data.length !== 1">{{ "msg.vrijgeven.zaken" | translate }}</p>
+  </mat-dialog-content>
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    submitLabel="actie.vrijgeven"
+  />
+</form>
