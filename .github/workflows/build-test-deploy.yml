@@ -417,7 +417,6 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: integrationtests
           report_type: "test_results"
 
       - name: Publish integration test results
@@ -447,7 +446,6 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: integrationtests
           report_type: "test_results"
 
       - name: Publish integration test results

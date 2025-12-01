@@ -219,7 +219,7 @@ export class InformatieObjectenService {
     );
   }
 
-  getDownloadURL(uuid: string, versie?: number): string {
+  getDownloadURL(uuid: string, versie?: number | null): string {
     if (versie) {
       return `${this.basepath}/informatieobject/${uuid}/${versie}/download`;
     }

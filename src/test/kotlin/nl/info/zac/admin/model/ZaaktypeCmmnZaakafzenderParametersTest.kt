@@ -7,6 +7,7 @@ package nl.info.zac.admin.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import jakarta.validation.Validation
 
 class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
     val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -129,6 +130,37 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
 
                 And("they should have different hashcodes") {
                     hashCode1 shouldNotBe hashCode2
+                }
+            }
+        }
+    }
+
+    Context("validation") {
+        val validator = Validation.buildDefaultValidatorFactory().validator
+
+        Given("a valid zaakafzender") {
+            val zaakafzenderParameters = createZaakAfzender(zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration)
+
+            When("validating the zaakafzender") {
+                val validationResult = validator.validate(zaakafzenderParameters)
+
+                Then("there should be no validation errors") {
+                    validationResult.isEmpty() shouldBe true
+                }
+            }
+        }
+
+        Given("an empty replyTo") {
+            val zaakafzenderParameters = createZaakAfzender(
+                replyTo = "",
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+            )
+
+            When("validating the zaakafzender") {
+                val validationResult = validator.validate(zaakafzenderParameters)
+
+                Then("there should be no validation errors") {
+                    validationResult.isEmpty() shouldBe true
                 }
             }
         }
