@@ -5,7 +5,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2025-09-02T14:21:57.393Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2025-11-27T13:57:04.917Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2025-12-01T10:50:44.482Z]]></design:modificationdate>
     </extensionElements>
     <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
       <extensionElements>
@@ -63,7 +63,7 @@
           <flowable:expression><![CDATA[resume test]]></flowable:expression>
         </flowable:field>
         <flowable:field name="hervattenDatum">
-          <flowable:expression><![CDATA[${ZK_resume_date}]]></flowable:expression>
+          <flowable:expression><![CDATA[${ZK_Resume_Date}]]></flowable:expression>
         </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>

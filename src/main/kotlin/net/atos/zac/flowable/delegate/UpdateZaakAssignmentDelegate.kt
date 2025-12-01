@@ -34,7 +34,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         flowableHelper.zaakService.assignZaak(
             zaak,
             groupId = groepId.resolveValueAsString(execution),
-            user = behandelaarGebruikersnaam?.resolveValueAsString(execution),
+            userName = behandelaarGebruikersnaam?.resolveValueAsString(execution),
             reason = reden?.resolveValueAsString(execution)
         )
     }
