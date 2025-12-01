@@ -14,7 +14,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, ReplaySubject } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -39,6 +39,13 @@ describe(InformatieObjectViewComponent.name, () => {
   let loader: HarnessLoader;
 
   let informatieObjectenService: InformatieObjectenService;
+
+  const mockActivatedRoute = {
+    data: new ReplaySubject<{
+      zaak: GeneratedType<"RestZaak">;
+      informatieObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+    }>(1),
+  };
 
   const zaak: GeneratedType<"RestZaak"> = {
     uuid: "zaak-001",
@@ -87,13 +94,7 @@ describe(InformatieObjectViewComponent.name, () => {
         provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
-          useValue: {
-            data: of({
-              zaak,
-              informatieObject: enkelvoudigInformatieobject,
-              infoObject: enkelvoudigInformatieobject,
-            }),
-          },
+          useValue: mockActivatedRoute,
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
@@ -131,6 +132,11 @@ describe(InformatieObjectViewComponent.name, () => {
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    mockActivatedRoute.data.next({
+      zaak,
+      informatieObject: enkelvoudigInformatieobject,
+    });
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
@@ -226,18 +232,15 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
-
-      // set file format in component to TEXT
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: {
+          ...enkelvoudigInformatieobject,
+          formaat: FileFormat.TEXT,
+        },
+      });
       fixture.detectChanges();
       await fixture.whenStable();
-      component.infoObject = {
-        ...component.infoObject,
-        formaat: FileFormat.TEXT,
-      };
-      // rebuild the menu so view reflects the correct state
-      (
-        component as unknown as { toevoegenActies: () => void }
-      ).toevoegenActies();
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
