@@ -16,7 +16,6 @@ import { TakenService } from "../taken.service";
 @Component({
   selector: "zac-taken-verdelen-dialog",
   templateUrl: "./taken-verdelen-dialog.component.html",
-  styleUrls: ["./taken-verdelen-dialog.component.less"],
 })
 export class TakenVerdelenDialogComponent {
   private readonly dialogRef = inject(MatDialogRef);
