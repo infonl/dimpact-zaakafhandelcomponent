@@ -17,6 +17,7 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, ReplaySubject } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -129,6 +130,11 @@ describe(InformatieObjectViewComponent.name, () => {
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest.spyOn(configuratieService, "listTalen").mockReturnValue(of([]));
 
+    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    jest
+      .spyOn(foutAfhandelingService, "httpErrorAfhandelen")
+      .mockReturnValue(of());
+
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -137,6 +143,8 @@ describe(InformatieObjectViewComponent.name, () => {
       zaak,
       informatieObject: enkelvoudigInformatieobject,
     });
+
+    fixture.detectChanges();
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
@@ -151,6 +159,10 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
@@ -170,12 +182,15 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
       );
-      const host = await button.host();
-      await host.click();
+      await button.click();
 
       const sidebar = component.actionsSidenav;
       expect(sidebar.opened).toBe(true);
@@ -194,6 +209,10 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
@@ -213,6 +232,10 @@ describe(InformatieObjectViewComponent.name, () => {
             },
           }),
         );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
@@ -239,8 +262,6 @@ describe(InformatieObjectViewComponent.name, () => {
           formaat: FileFormat.TEXT,
         },
       });
-      fixture.detectChanges();
-      await fixture.whenStable();
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.converteren" }),
