@@ -16,10 +16,11 @@ fun createDocumentRechten(
     toevoegenNieuweVersie: Boolean = true,
     verplaatsen: Boolean = true,
     ontkoppelen: Boolean = true,
-    downloaden: Boolean = true
+    downloaden: Boolean = true,
+    converteren: Boolean = true,
 ) = DocumentRechten(
     lezen, wijzigen, verwijderen, vergrendelen, ontgrendelen, ondertekenen,
-    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
+    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden, converteren
 )
 
 @Suppress("LongParameterList")
@@ -33,10 +34,11 @@ fun createDocumentRechtenAllDeny(
     toevoegenNieuweVersie: Boolean = false,
     verplaatsen: Boolean = false,
     ontkoppelen: Boolean = false,
-    downloaden: Boolean = false
+    downloaden: Boolean = false,
+    converteren: Boolean = false
 ) = createDocumentRechten(
     lezen, wijzigen, verwijderen, vergrendelen, ontgrendelen, ondertekenen,
-    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden
+    toevoegenNieuweVersie, verplaatsen, ontkoppelen, downloaden, converteren
 )
 
 fun createTaakRechten(

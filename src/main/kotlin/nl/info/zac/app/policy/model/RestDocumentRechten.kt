@@ -13,7 +13,8 @@ data class RestDocumentRechten(
     val vergrendelen: Boolean,
     val ontgrendelen: Boolean,
     val ondertekenen: Boolean,
-    val toevoegenNieuweVersie: Boolean
+    val toevoegenNieuweVersie: Boolean,
+    val converteren: Boolean
 )
 
 fun DocumentRechten.toRestDocumentRechten() = RestDocumentRechten(
@@ -23,5 +24,6 @@ fun DocumentRechten.toRestDocumentRechten() = RestDocumentRechten(
     vergrendelen = this.vergrendelen,
     verwijderen = this.verwijderen,
     ondertekenen = this.ondertekenen,
-    toevoegenNieuweVersie = this.toevoegenNieuweVersie
+    toevoegenNieuweVersie = this.toevoegenNieuweVersie,
+    converteren = this.converteren
 )

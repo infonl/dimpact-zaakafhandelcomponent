@@ -41,7 +41,6 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val zgwApiService = mockk<ZGWApiService>()
-
     val enkelvoudigInformatieObjectUpdateService = EnkelvoudigInformatieObjectUpdateService(
         drcClientService,
         enkelvoudigInformatieObjectLockService,
@@ -51,7 +50,6 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         taakVariabelenService,
         zgwApiService
     )
-
     val zaak = Zaak()
     val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
     val zaakInformatieObject = createZaakInformatieobjectForCreatesAndUpdates()
