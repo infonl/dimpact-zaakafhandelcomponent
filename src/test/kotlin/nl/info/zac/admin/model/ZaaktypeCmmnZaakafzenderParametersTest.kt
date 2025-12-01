@@ -150,7 +150,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             }
         }
 
-        Given("an invalid zaakafzender") {
+        Given("an empty replyTo") {
             val zaakafzenderParameters = createZaakAfzender(
                 replyTo = "",
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
@@ -160,8 +160,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                 val validationResult = validator.validate(zaakafzenderParameters)
 
                 Then("there should be no validation errors") {
-                    validationResult.size shouldBe 1
-                    validationResult.first().message shouldBe "must not be blank"
+                    validationResult.isEmpty() shouldBe true
                 }
             }
         }

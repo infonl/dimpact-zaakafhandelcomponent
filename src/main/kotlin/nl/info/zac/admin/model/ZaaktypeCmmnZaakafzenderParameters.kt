@@ -55,8 +55,7 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
     lateinit var mail: String
 
     @Column(name = "replyto")
-    @field:NotBlank
-    lateinit var replyTo: String
+    var replyTo: String? = null
 
     override fun isModifiedFrom(original: ZaaktypeCmmnZaakafzenderParameters): Boolean {
         return Objects.equals(mail, original.mail) && (
