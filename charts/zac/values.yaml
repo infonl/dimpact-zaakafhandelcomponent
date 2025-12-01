@@ -411,16 +411,6 @@ solr-operator:
     # name:
     # -- nodeSelector for solr in solrcloud
     nodeSelector: {}
-    podOptions:
-      topologySpreadConstraints:
-        - topologyKey: kubernetes.io/hostname
-          maxSkew: 1
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              technology: solr-cloud
-          matchLabelKeys:
-            - controller-revision-hash
     # -- replicas for solr in solrcloud, should be an odd number
     replicas: 3
     # solr storage parameters
@@ -433,6 +423,16 @@ solr-operator:
       size: 1Gi
     # -- tolerations for solr in solrcloud
     tolerations: []
+    # -- topologySpreadConstraints for solr in solrcloud
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            technology: solr-cloud
+        matchLabelKeys:
+          - controller-revision-hash
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -485,16 +485,6 @@ solr-operator:
         tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
       # -- nodeSelector for zookeeper
       nodeSelector: {}
-      pod:
-        topologySpreadConstraints:
-          - topologyKey: kubernetes.io/hostname
-            maxSkew: 1
-            whenUnsatisfiable: DoNotSchedule
-            labelSelector:
-              matchLabels:
-                technology: zookeeper
-            matchLabelKeys:
-              - controller-revision-hash
       # -- replicas for zookeeper, should be an odd number
       replicas: 3
       # zookeeper storage parameters
@@ -507,7 +497,16 @@ solr-operator:
         size: 1Gi
       # -- tolerations for zookeeper
       tolerations: []
-
+      # -- topologySpreadConstraints for zookeeper
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              technology: zookeeper
+          matchLabelKeys:
+            - controller-revision-hash
 # office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
