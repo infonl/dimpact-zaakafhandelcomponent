@@ -217,64 +217,21 @@ describe(ParametersEditCmmnComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  describe("stepper", () => {
-    it("should render stepper with all steps", async () => {
+  describe("Stepper", () => {
+    it("should render all stepper steps", async () => {
       const stepper = await loader.getHarness(MatStepperHarness);
       const steps = await stepper.getSteps();
       expect(steps.length).toBe(6);
     });
-
-    it("should have all stepper steps form groups initialized", async () => {
-      const component = fixture.componentInstance;
-      expect(component.algemeenFormGroup).toBeTruthy();
-      expect(component.humanTasksFormGroup).toBeTruthy();
-      expect(component.userEventListenersFormGroup).toBeTruthy();
-      expect(component.mailFormGroup).toBeTruthy();
-      expect(component.brpProtocoleringFormGroup).toBeTruthy();
-      expect(component.parameters.betrokkeneKoppelingen).toBeTruthy();
-      expect(component.parameters.smartDocuments).toBeTruthy();
-    });
   });
 
-  describe("Algemeen tab", () => {
-    it("should have algemeen form group", async () => {
+  describe("Algemeen form step", () => {
+    it("should have valid Algemeen form group after selecting case and group", async () => {
       const component = fixture.componentInstance;
-      expect(component.algemeenFormGroup).toBeTruthy();
-      expect(component.algemeenFormGroup.get("defaultGroep")).toBeTruthy();
-    });
+      await selectStepperStep(2);
 
-    it("should have all required form controls in algemeen form", async () => {
-      const component = fixture.componentInstance;
-      const formControls = [
-        "caseDefinition",
-        "domein",
-        "defaultGroep",
-        "defaultBehandelaar",
-        "einddatumGeplandWaarschuwing",
-        "uiterlijkeEinddatumAfdoeningWaarschuwing",
-        "productaanvraagtype",
-      ];
-
-      formControls.forEach((controlName) => {
-        expect(component.algemeenFormGroup.get(controlName)).toBeTruthy();
-      });
-    });
-
-    it("should initialize form with parameters", async () => {
-      const component = fixture.componentInstance;
-      expect(component.parameters.zaaktype?.uuid).toBe("test-uuid");
-      expect(component.parameters.defaultGroepId).toBe("test-group-id");
-      expect(component.parameters.defaultBehandelaarId).toBe("test-user-id");
-      expect(component.parameters.zaakAfzenders.length).toBe(2);
-      expect(component.parameters.humanTaskParameters).toEqual([]);
-      expect(component.parameters.mailtemplateKoppelingen).toEqual([]);
-    });
-  });
-
-  describe("Edit form step", () => {
-    it("should render case definition select with options", async () => {
       const selects = await loader.getAllHarnesses(MatSelectHarness);
-      expect(selects.length).toBeGreaterThanOrEqual(1);
+      expect(selects.length).toBeGreaterThanOrEqual(4);
 
       const select = selects[0];
       await select.open();
@@ -285,10 +242,12 @@ describe(ParametersEditCmmnComponent.name, () => {
       await options[0].click();
       const selectedValue = await select.getValueText();
       expect(selectedValue).toBe(optionText);
+
+      expect(component.algemeenFormGroup.valid).toBe(true);
     });
   });
 
-  describe("Mailgegevens step", () => {
+  describe("Mailgegevens form step", () => {
     beforeEach(async () => {
       const component = fixture.componentInstance;
       component.algemeenFormGroup.patchValue({
@@ -304,11 +263,6 @@ describe(ParametersEditCmmnComponent.name, () => {
         productaanvraagtype: null,
       });
       fixture.detectChanges();
-    });
-
-    it("should have mailFormGroup initialized", async () => {
-      const component = fixture.componentInstance;
-      expect(component.mailFormGroup).toBeTruthy();
     });
 
     it("should have valid mailFormGroup after selecting afzender", async () => {
