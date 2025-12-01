@@ -35,6 +35,9 @@
     routerLink="/zaken/create"
     mat-mini-fab
     title="{{ 'actie.zaak.aanmaken' | translate }}"
+    [disabled]="
+      queryClient.isMutating({ mutationKey: createZaakMutationKey }) > 0
+    "
     aria-label="Zaak toevoegen"
   >
     <mat-icon>create_new_folder</mat-icon>
