@@ -7,6 +7,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -18,7 +19,15 @@ import { ZakenService } from "../zaken.service";
 export class ZaakVerlengenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  loading = false;
+  protected extendZaakMutation = injectMutation(() => ({
+    ...this.zakenService.verlengenZaak(this.data.zaak.uuid),
+    onSuccess: (result) => {
+      this.dialogRef.close(result);
+    },
+    onError: () => {
+      this.dialogRef.disableClose = false;
+    },
+  }));
 
   protected readonly form = this.formBuilder.group({
     duurDagen: this.formBuilder.control<number | null>(null, [
@@ -132,28 +141,20 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
 
   verlengen() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
 
-    const { value } = this.form;
+    const formValues = this.form.value;
+    const body = {
+      ...formValues,
+      einddatumGepland: formValues.einddatumGepland?.toISOString(),
+      uiterlijkeEinddatumAfdoening:
+        formValues.uiterlijkeEinddatumAfdoening?.toISOString(),
+      takenVerlengen: formValues.takenVerlengen ?? false,
+      redenVerlenging: formValues.redenVerlenging,
+      duurDagen: formValues.duurDagen,
+      verlengingVastleggen: formValues.verlengingVastleggen ?? false,
+    };
 
-    this.zakenService
-      .verlengenZaak(this.data.zaak.uuid, {
-        ...value,
-        einddatumGepland: value.einddatumGepland?.toISOString(),
-        uiterlijkeEinddatumAfdoening:
-          value.uiterlijkeEinddatumAfdoening?.toISOString(),
-        takenVerlengen: value.takenVerlengen ?? false,
-      })
-      .subscribe({
-        next: (result) => {
-          this.loading = false;
-          this.dialogRef.close(result);
-        },
-        error: () => {
-          this.loading = false;
-          this.dialogRef.disableClose = false;
-        },
-      });
+    this.extendZaakMutation.mutate(body);
   }
 
   close() {
