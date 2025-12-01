@@ -104,8 +104,8 @@ export class ZakenService {
     return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
   }
 
-  vrijgevenVanuitLijst(body: PutBody<"/rest/zaken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body);
+  vrijgevenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/zaken/lijst/vrijgeven");
   }
 
   toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
