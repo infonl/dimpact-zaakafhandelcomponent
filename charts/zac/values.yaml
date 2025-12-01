@@ -288,6 +288,9 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
+# -- set topologySpreadConstraints parameters
+topologySpreadConstraints: []
+
 # set initContainer parameters
 initContainer:
   enabled: true
@@ -408,6 +411,16 @@ solr-operator:
     # name:
     # -- nodeSelector for solr in solrcloud
     nodeSelector: {}
+    podOptions:
+      topologySpreadConstraints:
+        - topologyKey: kubernetes.io/hostname
+          maxSkew: 1
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              technology: solr-cloud
+          matchLabelKeys:
+            - controller-revision-hash
     # -- replicas for solr in solrcloud, should be an odd number
     replicas: 3
     # solr storage parameters
@@ -472,6 +485,16 @@ solr-operator:
         tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
       # -- nodeSelector for zookeeper
       nodeSelector: {}
+      pod:
+        topologySpreadConstraints:
+          - topologyKey: kubernetes.io/hostname
+            maxSkew: 1
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                technology: zookeeper
+            matchLabelKeys:
+              - controller-revision-hash
       # -- replicas for zookeeper, should be an odd number
       replicas: 3
       # zookeeper storage parameters
