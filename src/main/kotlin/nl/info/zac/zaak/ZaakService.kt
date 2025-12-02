@@ -148,7 +148,7 @@ class ZaakService @Inject constructor(
 
         val (zakenAssignedList, zakenToSkip) = zaakUUIDs
             .map(zrcClientService::readZaak)
-            .partition { isZaakOpen(it) && group.hasDomainAccess(it) }
+            .partition { isZaakOpen(it) && group.isAuthorisedForZaaktype(it.zaaktype.extractUuid()) }
         zakenToSkip
             .onEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
         zakenAssignedList
@@ -484,8 +484,8 @@ class ZaakService @Inject constructor(
         }
 
     /**
-     * Checks if the group is authorised for the domain associated with the specified zaak, through the
-     * zaakafhandelparameters of the zaaktype.
+     * Checks if the group is authorised for the specified zaaktype, using the domain associated
+     * with the specified zaak, through the zaakafhandelparameters of the zaaktype.
      * This function currently only works for the old IAM architecture.
      * In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
      * This first needs to be implemented by the PABC.
@@ -496,16 +496,16 @@ class ZaakService @Inject constructor(
      * - group with domain/role DOMEIN_ELK_ZAAKTYPE has access to all domains
      * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
      *
-     * @param zaak The zaak to check domain access for
+     * @param zaakTypeUuid The zaaktype UUID to check domain access for
      * @return true if the group has access to the zaak's domain, false otherwise
      */
-    private fun Group.hasDomainAccess(zaak: Zaak) =
+    private fun Group.isAuthorisedForZaaktype(zaakTypeUuid: UUID) =
         if (configuratieService.featureFlagPabcIntegration()) {
             // In the new IAM architecture, zaaktype authorisation for groups is not yet supported.
             // This first needs to be implemented by the PABC.
             true
         } else {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid()).let { params ->
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUuid).let { params ->
                 val hasAccess = params.domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value ||
                     this.zacClientRoles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
                     params.domein?.let {
@@ -513,7 +513,7 @@ class ZaakService @Inject constructor(
                     } ?: false
                 if (!hasAccess) {
                     LOG.fine(
-                        "Zaak with UUID '${zaak.uuid}' is skipped and not assigned. Group '${this.name}' " +
+                        "Zaak with UUID '$zaakTypeUuid' is skipped and not assigned. Group '${this.name}' " +
                             "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
                     )
                 }
