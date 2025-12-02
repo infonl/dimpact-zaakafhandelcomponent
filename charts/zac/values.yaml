@@ -288,6 +288,9 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
+# -- set topologySpreadConstraints parameters
+topologySpreadConstraints: []
+
 # set initContainer parameters
 initContainer:
   enabled: true
@@ -420,6 +423,16 @@ solr-operator:
       size: 1Gi
     # -- tolerations for solr in solrcloud
     tolerations: []
+    # -- topologySpreadConstraints for solr in solrcloud
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            technology: solr-cloud
+        matchLabelKeys:
+          - controller-revision-hash
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -484,7 +497,16 @@ solr-operator:
         size: 1Gi
       # -- tolerations for zookeeper
       tolerations: []
-
+      # -- topologySpreadConstraints for zookeeper
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              technology: zookeeper
+          matchLabelKeys:
+            - controller-revision-hash
 # office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true

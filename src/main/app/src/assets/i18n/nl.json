@@ -912,7 +912,6 @@
   "msg.vrijgegeven.taak": "De taak wordt vrijgegeven...",
   "msg.zaak.afgebroken": "Zaak is afgebroken",
   "msg.zaak.afgesloten": "Zaak is afgesloten",
-  "msg.zaak.aangemaakt": "Zaak {{identificatie}} is aangemaakt",
   "msg.zaak.heropend": "Zaak is heropend",
   "msg.zaak.hervatten": "De werkelijke duur van de opschorting is {{duur}} dagen (verwachte duur {{verwachteDuur}} dagen).",
   "msg.zaak.opschorten": "Geef aan wat de verwachte duur van de opschorting is.",

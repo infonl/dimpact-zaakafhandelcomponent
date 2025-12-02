@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, signal, ViewChild } from "@angular/core";
+import { Component, inject, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
-import { NavigationSkipped, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import {
   injectMutation,
@@ -69,22 +69,10 @@ export class ZaakCreateComponent {
     Vertrouwelijkheidaanduiding,
   );
 
-  private readonly routeOnSuccess = signal(true);
   protected createZaakMutation = injectMutation(() => ({
     ...this.zakenService.createZaak(),
     onSuccess: ({ identificatie }) => {
-      if (this.routeOnSuccess()) {
-        void this.router.navigate(["/zaken/", identificatie]);
-        return;
-      }
-
-      this.utilService
-        .openSnackbarAction("msg.zaak.aangemaakt", "actie.zaak.bekijken", {
-          identificatie,
-        })
-        .subscribe(() => {
-          void this.router.navigate(["/zaken/", identificatie]);
-        });
+      void this.router.navigate(["/zaken/", identificatie]);
     },
     onError: () => this.form.reset({ startdatum: moment() }),
   }));
@@ -178,19 +166,9 @@ export class ZaakCreateComponent {
       });
 
     void this.handleProductRequest(this.inboxProductaanvraag);
-
-    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
-      if (event instanceof NavigationSkipped) {
-        this.routeOnSuccess.set(false);
-        this.form.reset({
-          startdatum: moment(),
-        });
-      }
-    });
   }
 
   formSubmit() {
-    this.routeOnSuccess.set(true);
     const { value } = this.form;
 
     this.createZaakMutation.mutate({
