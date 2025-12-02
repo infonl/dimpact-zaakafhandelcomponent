@@ -5,7 +5,7 @@
 
 package nl.info.zac.app.admin.model
 
-import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.NoArgConstructor
 
@@ -17,7 +17,7 @@ data class RestBetrokkeneKoppelingen(
     var kvkKoppelen: Boolean = false,
 )
 
-fun ZaaktypeCmmnBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
+fun ZaaktypeBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKoppelingen =
     RestBetrokkeneKoppelingen().apply {
         id = this@toRestBetrokkeneKoppelingen.id
         this@toRestBetrokkeneKoppelingen.brpKoppelen?.let { brpKoppelen = it }
@@ -26,9 +26,9 @@ fun ZaaktypeCmmnBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokke
 
 fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-): ZaaktypeCmmnBetrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters().apply {
+): ZaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
     id = this@toBetrokkeneKoppelingen.id
     brpKoppelen = this@toBetrokkeneKoppelingen.brpKoppelen
     kvkKoppelen = this@toBetrokkeneKoppelingen.kvkKoppelen
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeCmmnConfiguration
 }

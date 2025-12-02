@@ -176,9 +176,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             )
             it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
-            it.zaaktypeCmmnBetrokkeneParameters =
+            it.zaaktypeBetrokkeneParameters =
                 restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
-            it.zaaktypeCmmnBrpParameters =
+            it.zaaktypeBrpParameters =
                 restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
             it.zaaktypeCmmnEmailParameters =
                 restZaakafhandelParameters.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)

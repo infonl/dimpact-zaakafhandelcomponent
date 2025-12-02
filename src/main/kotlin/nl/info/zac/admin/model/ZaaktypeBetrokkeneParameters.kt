@@ -25,7 +25,7 @@ import nl.info.zac.util.AllOpen
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnBetrokkeneParameters {
+class ZaaktypeBetrokkeneParameters {
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_betrokkene_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -33,7 +33,7 @@ class ZaaktypeCmmnBetrokkeneParameters {
 
     @OneToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id", nullable = false)
-    var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null
+    var zaaktypeConfiguration: ZaaktypeConfiguration? = null
 
     @Column(name = "brpKoppelen")
     var brpKoppelen: Boolean? = false

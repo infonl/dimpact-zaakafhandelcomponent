@@ -26,7 +26,7 @@ import nl.info.zac.util.AllOpen
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnBrpParameters {
+class ZaaktypeBrpParameters {
     @Id
     @GeneratedValue(generator = "sq_zaaktype_cmmn_brp_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -35,7 +35,7 @@ class ZaaktypeCmmnBrpParameters {
     @OneToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 
     @Column(name = "zoekWaarde")
     var zoekWaarde: String? = null
