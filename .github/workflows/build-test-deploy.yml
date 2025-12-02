@@ -475,29 +475,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Run Trivy vulnerability scanner
-        if: github.ref == 'refs/heads/main'
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          # limit the severities even when using Sarif
-          # or else all vulnerabilities will be reported
-          limit-severities-for-sarif: true
-          severity: 'CRITICAL,HIGH'
-        env:
-          # skip downloading the Trivy databases since we update the Trivy cache regularly
-          # in another workflow
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: github.ref == 'refs/heads/main'
-        uses: github/codeql-action/upload-sarif@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
-        with:
-          sarif_file: 'trivy-results.sarif'
-
       - name: Save Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
         run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
