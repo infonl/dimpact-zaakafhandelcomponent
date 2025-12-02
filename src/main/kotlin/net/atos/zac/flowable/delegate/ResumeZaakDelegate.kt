@@ -18,7 +18,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
     var hervattenDatum: Expression? = null
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(SendEmailDelegate::class.java.name)
+        private val LOG = Logger.getLogger(ResumeZaakDelegate::class.java.name)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -27,7 +27,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         val resumeReason = hervattenReden.resolveValueAsString(execution)
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)
 
-        LOG.info(
+        LOG.fine(
             "Resuming zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
                 "with reason '$resumeReason' ${resumeDate?.let { "and resume date '$it'" } ?: ""}"
         )

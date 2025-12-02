@@ -12,7 +12,7 @@ class BerichtenboxDelegate : JavaDelegate {
     private var verzendenGelukt = true
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(BerichtenboxDelegate::class.java.name)
+        private val LOG = Logger.getLogger(BerichtenboxDelegate::class.java.name)
 
         private const val BERICHTENBOX_VERZONDEN_VARIABLE = "berichtenbox_verzonden"
         private const val VERZENDEN_METHODE_VARIABLE = "verzend_methode"
@@ -20,8 +20,7 @@ class BerichtenboxDelegate : JavaDelegate {
     }
 
     override fun execute(delegateExecution: DelegateExecution) {
-        LOG.info("Verstuur besluit via Berichtenbox.")
-        LOG.info("VerzendenGelukt = $verzendenGelukt")
+        LOG.fine("Send besluit via Berichtenbox (Message Box). VerzendenGelukt flag: $verzendenGelukt")
         delegateExecution.setVariable(BERICHTENBOX_VERZONDEN_VARIABLE, verzendenGelukt)
         if (!verzendenGelukt) {
             delegateExecution.setVariable(VERZENDEN_METHODE_VARIABLE, VERZENDEN_METHODE_POST)

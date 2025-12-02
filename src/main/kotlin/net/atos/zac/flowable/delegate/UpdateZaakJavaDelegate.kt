@@ -17,7 +17,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
     val resultaattypeOmschrijving: Expression? = null
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(UpdateZaakJavaDelegate::class.java.name)
+        private val LOG = Logger.getLogger(UpdateZaakJavaDelegate::class.java.name)
 
         private const val TOELICHTING = "Aangepast vanuit proces"
     }
@@ -28,15 +28,12 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
 
         if (resultaattypeOmschrijving != null) {
             val resultaattypeOmschrijving = resultaattypeOmschrijving.resolveValueAsString(execution)
-            LOG.info(
-                "Zaak '${zaak.getUuid()}': Aanmaken Status met resultaattype omschrijving " +
-                    "'$resultaattypeOmschrijving'"
-            )
+            LOG.fine("Zaak '${zaak.getUuid()}': setting resultaattype '$resultaattypeOmschrijving'")
             flowableHelper.zgwApiService.createResultaatForZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
         }
 
         val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
-        LOG.info("Zaak '${zaak.getUuid()}': Aanmaken Status met statustype omschrijving '$statustypeOmschrijving'")
+        LOG.fine("Zaak '${zaak.getUuid()}': setting statustype '$statustypeOmschrijving'")
         flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
     }
 }

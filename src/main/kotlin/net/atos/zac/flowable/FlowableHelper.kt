@@ -19,6 +19,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakService
 
 /**
  * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.
@@ -28,17 +29,18 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @Suppress("LongParameterList")
 class FlowableHelper @Inject constructor(
-    val zaakVariabelenService: ZaakVariabelenService,
-    val taakVariabelenService: TaakVariabelenService,
-    val zgwApiService: ZGWApiService,
-    val ztcClientService: ZtcClientService,
-    val zrcClientService: ZrcClientService,
     val eventingService: EventingService,
-    val indexeerService: IndexingService,
     val identityService: IdentityService,
+    val indexeerService: IndexingService,
     val mailService: MailService,
     val mailTemplateService: MailTemplateService,
-    val suspensionZaakHelper: SuspensionZaakHelper
+    val suspensionZaakHelper: SuspensionZaakHelper,
+    val taakVariabelenService: TaakVariabelenService,
+    val zaakService: ZaakService,
+    val zaakVariabelenService: ZaakVariabelenService,
+    val zgwApiService: ZGWApiService,
+    val zrcClientService: ZrcClientService,
+    val ztcClientService: ZtcClientService
 ) {
     companion object FlowableHelperProvider {
         fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
