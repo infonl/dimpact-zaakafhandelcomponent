@@ -157,6 +157,18 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson "true"
             }
         }
+        When("the feature flag 'PABC integration' is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/configuratie/feature-flags/pabc-integration"
+            )
+
+            Then("'true' is returned because PABC integration is enabled for the integration tests") {
+                response.code shouldBe HTTP_OK
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                responseBody shouldEqualJson "true"
+            }
+        }
         When("the audit log provider is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/brp/protocollering-provider"
