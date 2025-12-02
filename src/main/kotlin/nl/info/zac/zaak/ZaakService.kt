@@ -497,7 +497,7 @@ class ZaakService @Inject constructor(
      * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
      *
      * @param zaakTypeUuid The zaaktype UUID to check domain access for
-     * @return true if the group has access to the zaak's domain, false otherwise
+     * @return true if the group is authorised for the specified zaaktype, false otherwise
      */
     private fun Group.isAuthorisedForZaaktype(zaakTypeUuid: UUID) =
         if (configuratieService.featureFlagPabcIntegration()) {
