@@ -20,7 +20,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
     var reden: Expression? = null
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(UpdateZaakAssignmentDelegate::class.java.name)
+        private val LOG = Logger.getLogger(UpdateZaakAssignmentDelegate::class.java.name)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -31,7 +31,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         val userId = behandelaarGebruikersnaam?.resolveValueAsString(execution)
         val reason = reden?.resolveValueAsString(execution)
 
-        LOG.info { "Updating zaak ${zaak.identificatie} assignment with group '$groupId', user '$userId', reason '$reason'" }
+        LOG.fine { "Updating zaak ${zaak.identificatie} assignment with group '$groupId', user '$userId', reason '$reason'" }
         flowableHelper.zaakService.assignZaak(zaak, groupId, userId, reason)
     }
 }

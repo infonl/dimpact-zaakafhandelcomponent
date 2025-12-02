@@ -18,14 +18,14 @@ class SuspendZaakDelegate : AbstractDelegate() {
     lateinit var opschortingReden: Expression
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(SendEmailDelegate::class.java.name)
+        private val LOG = Logger.getLogger(SuspendZaakDelegate::class.java.name)
     }
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
-        LOG.info(
+        LOG.fine(
             "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
                 "for $aantalDagen days with reason '$opschortingReden'"
         )

@@ -13,7 +13,7 @@ class PostDelegate : AbstractDelegate() {
     private lateinit var template: FixedValue
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(PostDelegate::class.java.name)
+        private val LOG = Logger.getLogger(PostDelegate::class.java.name)
     }
 
     override fun execute(delegateExecution: DelegateExecution) {
