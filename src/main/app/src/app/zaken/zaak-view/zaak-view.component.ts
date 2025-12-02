@@ -473,7 +473,7 @@ export class ZaakViewComponent
         }
 
         if (this.zaak.rechten.behandelen) {
-          if (userEventListenerPlanItems.length) {
+          if (userEventListenerPlanItems.length || actionMenuItems.length) {
             this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
           }
           this.menu = this.menu.concat(
