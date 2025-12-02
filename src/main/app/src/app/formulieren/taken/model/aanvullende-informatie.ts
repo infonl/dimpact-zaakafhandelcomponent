@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -19,6 +20,8 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
   providedIn: "root",
 })
 export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
+  private readonly queryClient = inject(QueryClient);
+
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(
@@ -30,15 +33,11 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
 
-    const afzendersVoorZaak = this.zakenService.listAfzendersVoorZaak(
-      zaak.uuid,
-    );
-    const verzenderOptions = (
-      await lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid))
-    ).map((afzender) => ({
-      key: afzender.mail,
-      value: afzender.mail,
-    }));
+    const afzendersVoorZaak = await this.queryClient.ensureQueryData({
+      queryKey: ["afzender", zaak.uuid],
+      queryFn: () =>
+        lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid)),
+    });
     const verzenderControl =
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
         Validators.required,
@@ -49,22 +48,25 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         replyToControl.patchValue(value?.replyTo ?? null);
       });
 
-    afzendersVoorZaak.subscribe((options) => {
-      const defaultAfzender = options.find(({ defaultMail }) => defaultMail);
-      if (!defaultAfzender) return;
-
-      verzenderControl.setValue(defaultAfzender);
-    });
-
-    const htmlEditorBody = await lastValueFrom(
-      this.mailtemplateService.findMailtemplate(
-        "TAAK_AANVULLENDE_INFORMATIE",
-        zaak.uuid,
-      ),
+    const defaultAfzender = afzendersVoorZaak?.find(
+      ({ defaultMail }) => defaultMail,
     );
-    const htmlEditorControl = this.formBuilder.control(htmlEditorBody, [
-      Validators.required,
-    ]);
+    verzenderControl.setValue(defaultAfzender ?? null);
+
+    const mailTemplate = await this.queryClient.ensureQueryData({
+      queryKey: ["mailtemplate", "TAAK_AANVULLENDE_INFORMATIE", zaak.uuid],
+      queryFn: () =>
+        lastValueFrom(
+          this.mailtemplateService.findMailtemplate(
+            "TAAK_AANVULLENDE_INFORMATIE",
+            zaak.uuid,
+          ),
+        ),
+    });
+    const htmlEditorControl = this.formBuilder.control<string>(
+      mailTemplate.body,
+      [Validators.required],
+    );
 
     const taakFataleDatumControl = this.formBuilder.control<Moment | null>(
       null,
@@ -114,7 +116,10 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       {
         type: "select",
         key: "verzender",
-        options: verzenderOptions,
+        options: afzendersVoorZaak.map(({ mail }) => ({
+          key: mail,
+          value: mail,
+        })),
         optionDisplayValue: "value",
         control: verzenderControl,
       },
@@ -239,11 +244,27 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     ];
 
     if (this.toonHervatten(zaak, taak)) {
+      const options = [
+        { value: "true", key: "zaak.hervatten.ja" },
+        { value: "false", key: "zaak.hervatten.nee" },
+      ];
+      const zaakHervattenControl = this.formBuilder.control<
+        (typeof options)[number] | null
+      >(null);
+      zaakHervattenControl.setValue(
+        options.find(
+          (option) => option.value === taak.taakdata?.["zaakHervatten"],
+        ) ?? null,
+      );
+
       formFields.push({
         type: "radio",
         key: "zaakHervatten",
         label: "actie.zaak.hervatten",
-        options: ["zaak.hervatten.ja", "zaak.hervatten.nee"],
+        options: options,
+        // @ts-expect-error -- unable to infer type correctly
+        optionDisplayValue: "key",
+        control: zaakHervattenControl,
       });
     }
 
@@ -251,29 +272,30 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
   }
 
   private isZaakSuspendable(zaak: GeneratedType<"RestZaak">) {
-    return Boolean(
-      zaak.zaaktype.opschortingMogelijk &&
-        !zaak.redenOpschorting &&
-        !zaak.isHeropend &&
-        zaak.rechten.behandelen &&
-        !zaak.eerdereOpschorting,
-    );
+    if (!zaak.zaaktype.opschortingMogelijk) return false;
+    if (zaak.redenOpschorting) return false;
+    if (zaak.isHeropend) return false;
+    if (!zaak.rechten.behandelen) return false;
+    if (zaak.eerdereOpschorting) return false;
+
+    return true;
   }
 
   private getMessageFieldLabel(
     zaak: GeneratedType<"RestZaak">,
     humanTaskDataFatalDate?: string | Moment | null,
-  ): string {
+  ) {
     const fatalZaakDate =
       zaak.uiterlijkeEinddatumAfdoening &&
       moment(zaak.uiterlijkeEinddatumAfdoening);
-    const suspendedTextSuffix = this.isZaakSuspendable(zaak)
-      ? ""
-      : ".opgeschort";
 
     if (!fatalZaakDate) {
       return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
     }
+
+    const suspendedTextSuffix = this.isZaakSuspendable(zaak)
+      ? ""
+      : ".opgeschort";
 
     if (!humanTaskDataFatalDate) {
       return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
@@ -291,7 +313,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     taak: GeneratedType<"RestTask">,
   ) {
     if (taak?.status === "AFGEROND" || !taak?.rechten.wijzigen) {
-      return Boolean(taak.taakdata?.["zaakHervatten"]);
+      return taak.taakdata?.["zaakHervatten"] === "true";
     }
     return Boolean(zaak.isOpgeschort && zaak.rechten.behandelen);
   }

@@ -6,6 +6,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -17,7 +18,10 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -117,6 +121,18 @@ export class TaakViewComponent
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
+
+  private readonly updateTaakdataMutation = injectMutation(() => ({
+    ...this.takenService.updateTaakdata(),
+    onSuccess: (task) => {
+      if (task.status === "AFGEROND") {
+        return this.utilService.openSnackbar("msg.taak.afgerond");
+      }
+      this.utilService.openSnackbar("msg.taak.opgeslagen");
+    },
+  }));
+
+  protected readonly isSubmitting = computed(() => false);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -435,9 +451,10 @@ export class TaakViewComponent
     if (!taskBody) return;
 
     if (partial) {
-      this.takenService.updateTaakdata(taskBody).subscribe((task) => {
-        this.utilService.openSnackbar("msg.taak.opgeslagen");
-        this.init(task, false);
+      this.updateTaakdataMutation.mutate(taskBody, {
+        onSuccess: (task) => {
+          this.init(task, false);
+        },
       });
       return;
     }
@@ -453,9 +470,10 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.updateTaakdata(this.taak).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
-      this.init(task);
+    this.updateTaakdataMutation.mutate(this.taak, {
+      onSuccess: (task) => {
+        this.init(task);
+      },
     });
   }
 
@@ -464,9 +482,10 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.complete(this.taak).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.afgerond");
-      this.init(task);
+    this.updateTaakdataMutation.mutate(this.taak, {
+      onSuccess: (task) => {
+        this.init(task);
+      },
     });
   }
 
@@ -488,9 +507,7 @@ export class TaakViewComponent
       return;
     }
 
-    this.takenService.updateTaakdata(this.taak).subscribe(() => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
-    });
+    this.updateTaakdataMutation.mutate(this.taak);
   }
 
   onFormioFormChange(event: FormioChangeEvent) {
