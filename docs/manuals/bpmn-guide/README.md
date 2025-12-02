@@ -23,8 +23,8 @@ As the group should always be provided when creating a zaak we set the candidate
 
 For example:
 ```xml
-    <userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
-  ... the rest of userTask tags ...
+<userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
+... the rest of userTask tags ...
 </userTask>
 ```
 
@@ -239,7 +239,7 @@ For example:
 
 ### User/group
 
-#### Group
+#### Listing groups
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
 
 ```json
@@ -256,7 +256,7 @@ For example:
 }
 ```
 
-#### User
+#### Listing users in a group
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
 * An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
 
@@ -275,7 +275,35 @@ For example:
 }
 ```
 
-#### Setting task group and user
+#### Assigning a group/user to a zaak
+To assign a group or user to a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate`
+* add fields:
+    * `groepId` - group to use for the assignment
+    * `behandelaarGebruikersnaam` - user to use for the assignment (optional)
+    * `reden` - the reason for the assignment
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_362" name="Assign for approval" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate">
+      <extensionElements>
+        <flowable:field name="groepId">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Groep}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="behandelaarGebruikersnaam">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Medewerker}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="reden">
+          <flowable:expression><![CDATA[Please check case ${zaakIdentificatie}]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+#### Assigning specific task's group/user
 The following BPMN-specific variables can be used in expressions in the BPMN process:
 * `zaakGroep` - group assigned to the zaak
 * `zaakBehandelaar` (optional) - user assigned to the zaak
@@ -432,7 +460,7 @@ Example:
 }
 ```
 
-### Documenten
+### Documents
 * A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
 
 ```json
