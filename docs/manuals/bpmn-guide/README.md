@@ -66,7 +66,7 @@ For example, the emails can be validated by specifying `validate` and `type` key
 }
 ```
 
-## ZAC extensions
+### ZAC extensions
 
 ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
 
@@ -79,6 +79,26 @@ Available ZAC types are:
 * `ZAC_resultaat`
 * `ZAC_status`
 * `ZAC_process_data`
+
+
+## Supported functionality
+The following functionality is supported by the BPMN process definition:
+* Zaak
+   * listing status and result types
+   * changing status and result
+   * suspending
+   * resuming
+* Send email
+* User/group
+   * listing groups/users
+   * assigning a group/user
+   * assigning specific task's group/user
+* Documents
+  * listing attached documents
+  * listing available SmartDocuments templates
+  * creating documents
+* Listing reference table data
+* Process data
 
 ### Zaak
 
@@ -313,7 +333,7 @@ The above variables can be used in `assignee` and `candidateGroups` attributes f
 <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
 ```
 
-### SmartDocuments
+### Documents
 
 #### Listing available documents
 To display linked documents of a zaak you can use:
@@ -414,6 +434,38 @@ The path to the SmartDocuments group specifies which group of templates to list.
 First, a lookup for the template-specific information object type (informatieobjecttype) UUID is attempted. If a template-specific UUID is not found, the default is used.
 The template name should be snake-case (`Data Test` becomes `Data_Test`).
 
+#### Listing attached documents
+* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
+
+```json
+{
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": true,
+      "searchEnabled": true,
+      "shouldSort": false
+    }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
+```
+
 ### Reference Table values
 To display and use values from a reference table you can use:
 * a fieldset with type `referenceTableFieldset`
@@ -460,34 +512,11 @@ Example:
 }
 ```
 
-### Documents
-* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
-
-```json
-{
-  "label": "Documents",
-  "type": "select",
-  "key": "ZAAK_Documents_Select",
-  "input": true,
-  "widget": "choicesjs",
-  "multiple": true,
-  "defaultValue": [],
-  "clearOnRefresh": true,
-  "dataSrc": "custom",
-  "placeholder": "Select one or more documents",
-  "customOptions": {
-    "choicesOptions": {
-      "removeItemButton": true,
-      "placeholder": true,
-      "searchEnabled": true,
-      "shouldSort": false
-    }
-  },
-  "validate": {
-    "required": true
-  },
-  "attributes": {
-    "ZAC_TYPE": "ZAC_documenten"
-  }
-}
-```
+#### Supported process data variables
+* `zaakUUID` - zaak UUID
+* `zaakIdentificatie` - zaak id
+* `zaakCommunicatiekanaal` - zaak communication channel
+* `zaakGroep` - zaak group
+* `zaakBehandelaar` - zaak assigned user`
+* `zaaktypeUUID` - zaaktype UUID
+* `zaaktypeOmschrijving` - zaaktype description
