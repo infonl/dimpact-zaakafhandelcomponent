@@ -513,7 +513,7 @@ class ZaakService @Inject constructor(
                     } ?: false
                 if (!hasAccess) {
                     LOG.fine(
-                        "Zaak with UUID '$zaakTypeUuid' is skipped and not assigned. Group '${this.name}' " +
+                        "Zaaktype with UUID '$zaakTypeUuid' is skipped and not assigned. Group '${this.name}' " +
                             "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
                     )
                 }
