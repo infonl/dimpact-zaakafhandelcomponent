@@ -35,6 +35,9 @@ class ConfiguratieServiceTest : BehaviorSpec({
     }
 
     Given("A valid configuration with BPMN and PABC feature flags set to true") {
+        val catalogusUri = "https://example.com/catalogus"
+        every { catalogus.url } returns URI(catalogusUri)
+        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
         val bpmnSupport = true
         val pabcIntegration = true
         val brpConfiguration = createBrpConfiguration()
@@ -57,9 +60,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
             catalogusDomein,
             brpConfiguration
         )
-        val catalogusUri = "https://example.com/catalogus"
-        every { catalogus.url } returns URI(catalogusUri)
-        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
 
         When("zaak tonen URL is requested") {
             val zaakTonenUrl = configurationService.zaakTonenUrl(zaakIdentificatie = "id")
@@ -145,6 +145,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
 
     Given("An empty additional file list") {
         val catalogusUri = "https://example.com/catalogus"
+        every { catalogus.url } returns URI(catalogusUri)
+        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
@@ -167,8 +169,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
             catalogusDomein,
             brpConfiguration
         )
-        every { catalogus.url } returns URI(catalogusUri)
-        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
 
         When("a list of additional allowed file types are requested") {
             val fileTypes = configurationService.readAdditionalAllowedFileTypes()
