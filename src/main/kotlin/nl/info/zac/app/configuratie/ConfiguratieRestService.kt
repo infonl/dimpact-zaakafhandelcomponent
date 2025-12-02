@@ -36,6 +36,10 @@ class ConfiguratieRestService @Inject constructor(
     fun featureFlagBpmnSupport(): Boolean = configuratieService.featureFlagBpmnSupport()
 
     @GET
+    @Path("feature-flags/pabc-integration")
+    fun featureFlagPabcIntegration(): Boolean = configuratieService.featureFlagPabcIntegration()
+
+    @GET
     @Path("talen")
     fun listTalen(): List<RestTaal> = configuratieService.listTalen().toRestTalen()
 
