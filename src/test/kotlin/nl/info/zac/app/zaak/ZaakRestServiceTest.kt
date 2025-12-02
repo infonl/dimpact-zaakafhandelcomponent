@@ -768,6 +768,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
             every {
+                zaakVariabelenService.setCommunicatiekanaal(
+                    zaak.uuid,
+                    restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
+                )
+            } just runs
+            every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
             } returns createZaaktypeCmmnConfiguration()
 
@@ -852,6 +858,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+                every {
+                    zaakVariabelenService.setCommunicatiekanaal(
+                        zaak.uuid,
+                        restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
+                    )
+                } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
@@ -899,6 +911,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+                every {
+                    zaakVariabelenService.setCommunicatiekanaal(
+                        zaak.uuid,
+                        restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
+                    )
+                } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
