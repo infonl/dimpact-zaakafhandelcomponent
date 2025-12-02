@@ -912,7 +912,6 @@
   "msg.vrijgegeven.taak": "The task is being released...",
   "msg.zaak.afgebroken": "Case is aborted",
   "msg.zaak.afgesloten": "Case has been closed",
-  "msg.zaak.aangemaakt": "Case {{identificatie}} has been created",
   "msg.zaak.heropend": "Case has been reopened",
   "msg.zaak.hervatten": "The actual duration of the supension has been {{duur}} days (expected duration {{verwachteDuur}} days).",
   "msg.zaak.opschorten": "Enter the expected duration of the supension.",
