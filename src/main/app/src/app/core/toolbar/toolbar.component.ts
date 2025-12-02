@@ -7,6 +7,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   Input,
   OnDestroy,
   OnInit,
@@ -15,7 +16,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
@@ -24,6 +25,7 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
+import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "../websocket/model/object-type";
@@ -37,6 +39,10 @@ import { WebsocketService } from "../websocket/websocket.service";
   styleUrls: ["./toolbar.component.less"],
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
+  protected readonly queryClient = inject(QueryClient);
+  protected readonly createZaakMutationKey =
+    this.zakenService.createZaak().mutationKey;
+
   @Input({ required: true }) zoekenSideNav!: MatSidenav;
   zoekenFormControl = new FormControl<string>("");
 
@@ -69,6 +75,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private websocketService: WebsocketService,
     private policyService: PolicyService,
     private router: Router,
+    private readonly zakenService: ZakenService,
   ) {
     effect(() => {
       const loggedInUser = this.loggedInUserQuery.data();
