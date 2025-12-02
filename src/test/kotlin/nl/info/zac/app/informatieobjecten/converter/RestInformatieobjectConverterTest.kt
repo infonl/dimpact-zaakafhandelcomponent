@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.app.informatieobjecten.converter
 
 import com.google.common.collect.ImmutableList
@@ -12,6 +11,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
@@ -37,7 +37,6 @@ import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockSe
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.policy.output.createDocumentRechtenAllDeny
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
@@ -56,7 +55,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-
     val restInformatieobjectConverter = RestInformatieobjectConverter(
         brcClientService,
         configuratieService,
@@ -68,6 +66,10 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         zrcClientService,
         ztcClientService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("REST taak document data and REST file upload are provided") {
         val restTaakDocumentData = createRestTaskDocumentData()
@@ -120,7 +122,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val restFileUpload = createRESTFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
 
-        every { loggedInUserInstance.get() } returns loggedInUser
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
@@ -157,7 +158,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
         val documentRechten = createDocumentRechtenAllDeny(lezen = true)
 
-        every { loggedInUserInstance.get() } returns loggedInUser
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
         } returns documentRechten
@@ -190,14 +190,13 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A uuid that's found in open zaak") {
-        val rechten = DocumentRechten(false, false, false, false, false, false, false, false, false, false)
+    Given("A uuid that is found in open zaak") {
+        val rechten = createDocumentRechtenAllDeny()
         val uuid = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
-            url = URI("http://example.com/$uuid")
+            url = URI("https://example.com/$uuid")
         )
 
-        every { loggedInUserInstance.get() } returns loggedInUser
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } returns document
@@ -225,8 +224,10 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+
         When("We try to convert a list with that uuid") {
-            val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
+            val result = restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
+
             Then("An empty list is returned") {
                 result.shouldBeEmpty()
             }
@@ -235,16 +236,27 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
 
     Given("A uuid that causes an error response other than 404 in open zaak") {
         val uuid = UUID.randomUUID()
-        val expectedException = ZgwErrorException(ZgwError(null, null, null, 500, null, null))
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
-        } throws expectedException
+        } throws ZgwErrorException(
+            ZgwError(
+                URI("https://example.com/fakeType"),
+                "fakeCode",
+                "fakeTitle",
+                HttpStatus.INTERNAL_SERVER_ERROR_500,
+                "fakeDetail",
+                URI("https://example.com/fakeInstance")
+            )
+        )
+
         When("We try to convert a list with that uuid") {
+            val exception = shouldThrow<ZgwErrorException> {
+                restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
+            }
+
             Then("The exception bubbles up") {
-                val exception = shouldThrow<ZgwErrorException> {
-                    restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
-                }
-                exception.shouldBe(expectedException)
+                exception.message shouldBe "fakeTitle [500 fakeCode] fakeDetail " +
+                    "(https://example.com/fakeType https://example.com/fakeInstance)"
             }
         }
     }

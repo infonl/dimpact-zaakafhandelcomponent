@@ -114,10 +114,10 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
             .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, false) }
             .onEach { restZaakafhandelParameters ->
-                restZaakafhandelParameters.zaaktype.uuid?.let { zaaktypeUuid ->
-                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid)?.let {
-                        restZaakafhandelParameters.valide = true
-                    }
+                zaaktypeBpmnConfigurationBeheerService.findConfiguration(
+                    restZaakafhandelParameters.zaaktype.uuid
+                )?.let {
+                    restZaakafhandelParameters.valide = true
                 }
             }
     }
@@ -171,7 +171,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             val updatedZaakafhandelParameters = zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(
                 zaakafhandelParameters
             )
-            zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
+            zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
             zaaktypeCmmnConfigurationService.clearListCache()
             zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(
                 updatedZaakafhandelParameters,

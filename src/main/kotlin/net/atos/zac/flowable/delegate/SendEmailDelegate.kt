@@ -54,7 +54,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
-                isCreateDocumentFromMail = false
+                isCreateDocumentFromMail = true
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

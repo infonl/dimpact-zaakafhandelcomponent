@@ -120,6 +120,7 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAAK_ROLLEN = "ZAAK_ROLLEN"
+    const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
@@ -139,8 +140,6 @@ object ItestConfiguration {
 
     const val TOTAL_COUNT_INDEXED_ZAKEN = 14
     const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 4
-    const val TOTAL_COUNT_INDEXED_TASKS = 4
-    const val TOTAL_COUNT_INDEXED_DOCUMENTS = 14
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -377,8 +376,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
 
-    const val BPMN_TEST_PROCESS_ID = "itProcessDefinition"
-    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_ID.bpmn"
+    const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
+    const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
     const val BPMN_TEST_TASK_NAME = "Test"
@@ -410,6 +409,11 @@ object ItestConfiguration {
     const val MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_NAME = "Taak formulierdefinitie: Extern advies (met e-mail)"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_MAIL = "ZAAK_AFGEHANDELD"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_NAME = "Zaak afgehandeld"
+    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY = "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met " +
+        "zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p>" +
+        "<p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>"
+    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT = "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: " +
+        "{ZAAK_NUMMER})</p>"
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL = "ZAAK_NIET_ONTVANKELIJK"
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME = "Zaak niet ontvankelijk"
     const val MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL = "ZAAK_ONTVANKELIJK"

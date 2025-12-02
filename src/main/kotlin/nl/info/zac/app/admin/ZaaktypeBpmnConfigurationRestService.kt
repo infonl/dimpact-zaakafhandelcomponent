@@ -42,7 +42,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
         return zaaktypeBpmnConfigurationBeheerService.listConfigurations().map {
             it.toRestZaaktypeBpmnConfiguration()
         }
@@ -53,7 +53,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun getZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().beheren)
+        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
         val processDefinitions = zaaktypeBpmnConfigurationBeheerService
             .listConfigurations()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
@@ -85,7 +85,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+            groepID = restZaaktypeBpmnProcessDefinition.groepNaam
+                ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
             creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
@@ -105,7 +106,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-            groepNaam = this.groupId,
+            groepNaam = this.groepID,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum,
         )

@@ -3,24 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  effect,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, effect, inject, input, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { PostBody } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -30,19 +25,52 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
 })
-export class InformatieObjectAddComponent implements OnChanges, OnInit {
-  @Input()
-  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input() zaak?: GeneratedType<"RestZaak">;
-  @Input() taak?: GeneratedType<"RestTask">;
+export class InformatieObjectAddComponent {
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly utilService = inject(UtilService);
+  private readonly configuratieService = inject(ConfiguratieService);
+  private readonly identityService = inject(IdentityService);
+  private readonly formBuilder = inject(FormBuilder);
 
-  @Output() document = new EventEmitter<
-    GeneratedType<"RestEnkelvoudigInformatieobject">
-  >();
+  protected readonly infoObject =
+    input<GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">>();
+  protected readonly sideNav = input.required<MatDrawer>();
+  protected readonly zaakUuid = input.required<string>();
+  protected readonly taakId = input<string>();
 
-  protected zaakUuid!: string;
-  protected documentReferenceId!: string;
+  protected readonly document =
+    output<GeneratedType<"RestEnkelvoudigInformatieobject">>();
+
+  private readonly defaultTaalQuery = injectQuery(() =>
+    this.configuratieService.readDefaultTaal(),
+  );
+
+  protected createDocumentMutation = injectMutation(() => ({
+    ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
+      this.zaakUuid(),
+      this.taakId() ?? this.zaakUuid(),
+      !!this.taakId(),
+    ),
+    onSuccess: (data) => {
+      this.document.emit(data);
+      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+      if (this.form.controls.addOtherInfoObject.value) {
+        this.form.reset({
+          taal: this.defaultTaalQuery.data(),
+          auteur: this.loggedInUserQuery.data()?.naam ?? null,
+          creatiedatum: moment(),
+          addOtherInfoObject: true,
+        });
+        return;
+      }
+      this.resetAndClose();
+    },
+    onError: () => {
+      this.form.reset();
+    },
+  }));
 
   protected readonly informatieobjectStatussen =
     this.utilService.getEnumAsSelectListExceptFor(
@@ -97,34 +125,35 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
     addOtherInfoObject: this.formBuilder.control(false, []),
   });
 
-  protected defaultFormValues: {
-    taal: GeneratedType<"RestTaal"> | null;
-    creatiedatum: Moment;
-    auteur: string | null;
-    addOtherInfoObject: boolean;
-  } = {
-    taal: null,
-    creatiedatum: moment(),
-    auteur: null,
-    addOtherInfoObject: true, // default set to true, since this whole object is only used when adding other info object, and so is checked (and so is true)
-  };
-
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
 
-  constructor(
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly configuratieService: ConfiguratieService,
-    private readonly identityService: IdentityService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
+    effect(
+      () => {
+        this.form.controls.auteur.setValue(
+          this.loggedInUserQuery.data()?.naam ?? null,
+        );
+      },
+      { allowSignalWrites: true },
+    );
+
+    effect(
+      () => {
+        this.form.controls.taal.setValue(this.defaultTaalQuery.data() ?? null);
+      },
+      { allowSignalWrites: true },
+    );
+
     effect(() => {
-      this.defaultFormValues.auteur =
-        this.loggedInUserQuery.data()?.naam ?? null;
-      this.form.controls.auteur.setValue(this.defaultFormValues.auteur);
+      this.informatieObjectenService
+        .listInformatieobjecttypesForZaak(this.zaakUuid())
+        .subscribe((informatieObjectTypes) => {
+          this.informatieObjectTypes = informatieObjectTypes;
+        });
     });
+
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -170,77 +199,60 @@ export class InformatieObjectAddComponent implements OnChanges, OnInit {
       });
   }
 
-  ngOnInit() {
-    this.configuratieService.readDefaultTaal().subscribe((defaultTaal) => {
-      this.defaultFormValues.taal = defaultTaal;
-      this.form.controls.taal.setValue(this.defaultFormValues.taal);
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (
-      (changes.zaak && changes.zaak.currentValue) ||
-      (changes.taak && changes.taak.currentValue)
-    ) {
-      this.zaakUuid =
-        changes?.zaak?.currentValue.uuid ??
-        changes?.taak?.currentValue.zaakUuid;
-      this.documentReferenceId =
-        changes?.zaak?.currentValue.uuid ?? changes?.taak?.currentValue.id;
-
-      this.informatieObjectenService
-        .listInformatieobjecttypesForZaak(this.zaakUuid)
-        .subscribe((informatieObjectTypes) => {
-          this.informatieObjectTypes = informatieObjectTypes;
-        });
+  private toInformatieobjectFormData(
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      bestand: File;
+    },
+  ): FormData {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(infoObject)) {
+      if (value === undefined || value === null) continue;
+      switch (key) {
+        case "creatiedatum":
+        case "ontvangstdatum":
+        case "verzenddatum":
+          formData.append(
+            key,
+            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
+          );
+          break;
+        case "bestand":
+          formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          break;
+        default:
+          formData.append(key, value.toString());
+          break;
+      }
     }
+    return formData;
   }
 
   submit() {
     const { value } = this.form;
-    const isTaskObject = this.zaakUuid !== this.documentReferenceId;
+    const payload = {
+      bestand: value.bestand!,
+      bestandsnaam: value.bestand?.name,
+      formaat: value.bestand?.type,
+      titel: value.titel!,
+      beschrijving: value.beschrijving,
+      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+      status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      creatiedatum: value.creatiedatum?.toISOString(),
+      verzenddatum: value.verzenddatum?.toISOString(),
+      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      taal: value.taal!.code,
+      auteur: value.auteur!,
+    };
+    const formData = this.toInformatieobjectFormData(payload);
 
-    this.informatieObjectenService
-      .createEnkelvoudigInformatieobject(
-        this.zaakUuid,
-        this.documentReferenceId,
-        {
-          bestand: value.bestand!,
-          bestandsnaam: value.bestand?.name,
-          formaat: value.bestand?.type,
-          titel: value.titel!,
-          beschrijving: value.beschrijving,
-          informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-          status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          creatiedatum: value.creatiedatum?.toISOString(),
-          verzenddatum: value.verzenddatum?.toISOString(),
-          ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          taal: value.taal!.code,
-          auteur: value.auteur!,
-        },
-        isTaskObject,
-      )
-      .subscribe({
-        next: (document) => {
-          this.document.emit(document);
-          this.utilService.openSnackbar(
-            "msg.document.nieuwe.versie.toegevoegd",
-          );
-          if (value.addOtherInfoObject) {
-            this.form.reset(this.defaultFormValues);
-            return;
-          }
-          this.resetAndClose();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+    this.createDocumentMutation.mutate(
+      formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
+    );
   }
 
   protected resetAndClose() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.form.reset();
   }
 }

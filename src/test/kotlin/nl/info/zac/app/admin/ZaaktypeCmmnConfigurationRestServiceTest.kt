@@ -90,7 +90,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters) } returns
                 updatedZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
+                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
             } just runs
             every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
             every {
@@ -113,7 +113,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
                         zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(
-                            zaakafhandelParameters.zaakTypeUUID
+                            zaakafhandelParameters.zaaktypeUuid
                         )
                         zaaktypeCmmnConfigurationService.clearListCache()
                     }
@@ -158,7 +158,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaakTypeUUID)
+                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
             } just runs
             every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
 

@@ -5,45 +5,24 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
-import java.io.File
-import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_OK
 
-@Order(TEST_SPEC_ORDER_INITIAL)
 class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("No existing BPMN process definitions") {
-        When("the integration test BPMN process definition is created from our BPMN test process file") {
-            val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
-                BPMN_TEST_PROCESS_RESOURCE_PATH
-            )?.let {
-                File(it.path)
-            }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/bpmn-process-definitions",
-                requestBodyAsString = """
-                {
-                    "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
-                    "content": "$bpmnTestProcessFileContent"
-                }
-                """.trimIndent()
-            )
-            Then("the response is successful") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_CREATED
-            }
-        }
+    Given(
+        """A BPMN process definition has been created in ZAC in the integration test setup phase
+            and a beheerder is logged in"""
+    ) {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         When("the process definitions are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/bpmn-process-definitions"

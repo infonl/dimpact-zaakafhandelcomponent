@@ -35,6 +35,9 @@
     routerLink="/zaken/create"
     mat-mini-fab
     title="{{ 'actie.zaak.aanmaken' | translate }}"
+    [disabled]="
+      queryClient.isMutating({ mutationKey: createZaakMutationKey }) > 0
+    "
     aria-label="Zaak toevoegen"
   >
     <mat-icon>create_new_folder</mat-icon>
@@ -129,10 +132,10 @@
       matInput
       placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
       [formControl]="zoekenFormControl"
-      (keyup.enter)="zoekenSideNav.open()"
+      (keydown.enter)="zoekenSideNav.open()"
     />
     <button
-      *ngIf="hasSearched"
+      *ngIf="zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       [title]="'actie.zoekopdracht.wissen' | translate"
@@ -141,7 +144,7 @@
       <mat-icon outlined>close</mat-icon>
     </button>
     <button
-      *ngIf="!hasSearched"
+      *ngIf="!zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       type="button"

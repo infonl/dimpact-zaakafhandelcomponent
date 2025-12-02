@@ -44,7 +44,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     var domeinReferenceTableId = 0
     var serverErrorTextErrorReferenceTableId = 0
 
-    Given("Default reference table data is provisioned on startup") {
+    Given(
+        """Default reference table data is provisioned on startup
+            and general test data reference table data is added in test setup"""
+    ) {
         When("the reference tables are listed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen"
@@ -96,7 +99,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "systeem": true
                             },
                             {
-                                "aantalWaarden": 0,
+                                "aantalWaarden": 1,
                                 "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
                                 "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
                                 "systeem": true
@@ -198,7 +201,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId"
             )
             Then(
-                """no domeinen should be returned because none are provisioned"""
+                """the domein created in the test setup is returned"""
             ) {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -211,26 +214,16 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
                             "id" : $domeinReferenceTableId,
                             "systeem": true,
-                            "aantalWaarden": 0,
-                            "waarden": []
+                            "aantalWaarden": 1,
+                            "waarden": [
+                                {
+                                  "systemValue": false,
+                                  "naam": "$DOMEIN_TEST_1"
+                                }
+                            ]
                         }
                         """.trimIndent()
                     )
-                }
-            }
-        }
-        When("the get domeinen endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/referentietabellen/domein"
-            )
-            Then(
-                """the provisioned default domeinen are returned"""
-            ) {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                with(JSONArray(responseBody)) {
-                    length() shouldBe 0
                 }
             }
         }
@@ -294,42 +287,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("a reference value is added to the domein reference table") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
-                requestBodyAsString = """
-                  {
-                        "aantalWaarden" : 0,
-                        "code" : "$REFERENCE_TABLE_DOMEIN_CODE",
-                        "id" : $domeinReferenceTableId,
-                        "naam" : "$REFERENCE_TABLE_DOMEIN_NAME",
-                        "systeem" : true,
-                        "waarden": [ { "naam" : "$DOMEIN_TEST_1" } ]
-                    }
-                """.trimIndent()
-            )
-            Then("the response should be 'ok'") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                with(JSONObject(responseBody).toString()) {
-                    shouldEqualJsonIgnoringExtraneousFields(
-                        """
-                        {
-                            "code": "$REFERENCE_TABLE_DOMEIN_CODE",
-                            "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
-                            "systeem": true,
-                            "aantalWaarden": 1,
-                            "waarden": [
-                                { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
-                            ]
-                        }
-                        """.trimIndent()
-                    )
-                    shouldContainJsonKey("id")
-                }
-            }
-        }
+
         When("a new reference table is added") {
             val referenceTableCode = "fakeReferenceTableCode1"
             val referenceTableName = "fakeReferenceTableName1"

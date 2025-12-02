@@ -554,6 +554,9 @@
                 ></tr>
               </table>
             </div>
+            <mat-error *ngIf="mailFormGroup.hasError('noDefaultAfzender')">
+              {{ "validators.required" | translate }}
+            </mat-error>
           </mat-card-content>
         </mat-card>
         <mat-card>

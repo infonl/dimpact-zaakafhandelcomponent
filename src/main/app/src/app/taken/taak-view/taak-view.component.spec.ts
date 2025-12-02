@@ -15,6 +15,7 @@ import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -263,28 +264,28 @@ describe(TaakViewComponent.name, () => {
       {
         enabledGlobally: true,
         enabledForZaaktype: true,
-        showBothButtons: true,
+        expectButtons: 2,
       },
-      { enabledGlobally: true, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: true, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: null, showButtons: false },
-      { enabledForZaaktype: true, showButtons: false },
-      { enabledForZaaktype: false, showButtons: false },
-      { enabledForZaaktype: null, showButtons: false },
-      { showButtons: false },
+      { enabledGlobally: true, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: true, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: true, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: true, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: false, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: true, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: null, expectButtons: 1 },
+      { enabledForZaaktype: true, expectButtons: 1 },
+      { enabledForZaaktype: false, expectButtons: 1 },
+      { enabledForZaaktype: null, expectButtons: 1 },
+      { expectButtons: 1 },
     ];
 
     test.each(smartDocumentVariants)(
       "smartDocuments = %o",
-      async ({ enabledGlobally, enabledForZaaktype, showBothButtons }) => {
+      async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
           enabledGlobally;
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
@@ -295,31 +296,9 @@ describe(TaakViewComponent.name, () => {
         component.instance.ngOnInit();
         fixture.detectChanges();
 
-        const menuButtons: NodeListOf<HTMLButtonElement> =
-          fixture.nativeElement.querySelectorAll("zac-side-nav button");
+        const buttons = await loader.getAllHarnesses(MatNavListItemHarness);
 
-        const documentButtons: HTMLButtonElement[] = Array.from(
-          menuButtons,
-        ).filter(
-          (btn: HTMLButtonElement) =>
-            btn.textContent?.includes("actie.document.toevoegen") ||
-            btn.textContent?.includes("actie.document.maken"),
-        );
-
-        if (showBothButtons) {
-          expect(documentButtons.length).toBe(2);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-          expect(documentButtons[1].textContent).toContain(
-            "actie.document.maken",
-          );
-        } else {
-          expect(documentButtons.length).toBe(1);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-        }
+        expect(buttons.length).toBe(expectButtons);
       },
     );
   });

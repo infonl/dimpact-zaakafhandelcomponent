@@ -8,13 +8,18 @@
   <span class="flex-grow-1">{{
     "actie.ontvangstbevestiging.versturen" | translate
   }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (submit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="sideNav().close()"
+  class="mt-2"
+>
   <fieldset>
     <zac-select
       [form]="form"
@@ -42,20 +47,13 @@
     />
     <zac-html-editor [form]="form" key="body" [variables]="variables" />
   </fieldset>
-  <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   <fieldset>
-    <mat-action-row>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        [disabled]="form.invalid"
-      >
-        {{ "actie.versturen" | translate }}
-      </button>
-      <button mat-button type="button" (click)="sideNav.close()">
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
+    <zac-documents [form]="form" key="bijlagen" [options]="documents" />
+  </fieldset>
+  <fieldset>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="sendAcknowledgeReceiptMutation"
+    />
   </fieldset>
 </form>

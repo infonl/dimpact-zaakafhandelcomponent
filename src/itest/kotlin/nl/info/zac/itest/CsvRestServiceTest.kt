@@ -82,27 +82,24 @@ class CsvRestServiceTest : BehaviorSpec({
         "bagObjectIDs"
     )
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Given("Multiple open zaken and a logged-in beheerder") {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
         When("all the open zaken are exported") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/csv/export",
                 requestBodyAsString = """
                    {
-                    "filtersType":"ZoekParameters",
-                    "alleenMijnZaken":false,
-                    "alleenOpenstaandeZaken":true,
-                    "alleenAfgeslotenZaken":false,
-                    "alleenMijnTaken":false,
-                    "zoeken":{},
-                    "filters":{},
-                    "datums":{},
-                    "rows":10,
-                    "page":0,
-                    "type":"ZAAK"
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": {},
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page": 0,
+                    "type": "ZAAK"
                     }
                 """.trimIndent()
             )

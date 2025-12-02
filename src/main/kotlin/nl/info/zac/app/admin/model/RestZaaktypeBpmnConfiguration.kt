@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -18,15 +19,15 @@ data class RestZaaktypeBpmnConfiguration(
     @field:NotNull
     var zaaktypeUuid: UUID,
 
-    @field:NotNull
+    @field:NotBlank
     var zaaktypeOmschrijving: String,
 
     var bpmnProcessDefinitionKey: String,
 
     var productaanvraagtype: String?,
 
-    @field:NotNull
-    var groepNaam: String,
+    @field:NotBlank
+    var groepNaam: String? = null,
 
     var creatiedatum: ZonedDateTime?
 )

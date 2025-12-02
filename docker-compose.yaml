@@ -117,7 +117,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.23.0@sha256:605509fa027597bcfdeda1c69532d888eaf82263b0e0947926ac6b4268466638
+    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -166,7 +166,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.23.0@sha256:605509fa027597bcfdeda1c69532d888eaf82263b0e0947926ac6b4268466638
+    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -187,7 +187,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:3.1.4@sha256:0d080242a8cf0342aff8e0667f4329027169c1274eab95dcecfef19dd06e1256
+    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -233,7 +233,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:3.1.4@sha256:0d080242a8cf0342aff8e0667f4329027169c1274eab95dcecfef19dd06e1256
+    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -384,7 +384,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.139.0@sha256:8ac5df2a931e9264667b236d65bf7591fa4ba633a7a634e6caa2f0a4fc549c07
+    image: docker.io/otel/opentelemetry-collector:0.140.1@sha256:e448b3c73de52e379d85875c3441faf499e470ef91e775439e7937bca67e9c4f
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -427,7 +427,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.2.1@sha256:35c41e0fd0295f5d0ee5db7e780cf33506abfaf47686196f825364889dee878b
+    image: docker.io/grafana/grafana:12.3.0@sha256:70d9599b186ce287be0d2c5ba9a78acb2e86c1a68c9c41449454d0fc3eeb84e8
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -495,7 +495,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -538,7 +538,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -556,7 +556,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -723,7 +723,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-884e643
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-f926d1d
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -734,6 +734,8 @@ services:
       Oidc__ClientId: "pabc"
       Oidc__ClientSecret: "pabcClientSecret"
       Oidc__FunctioneelBeheerderRole: "administrator"
+      # in our Docker Compose setup we run Keycloak on HTTP
+      Oidc__RequireHttps: "false"
     ports:
       - "8006:8000"
     depends_on:

@@ -9,24 +9,24 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
-import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatInputHarness } from "@angular/material/input/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import {
-  NavigationSkipped,
-  Router,
-  RouterModule,
-  Routes,
-} from "@angular/router";
+import { Router, RouterModule, Routes } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
-import { of, Subject } from "rxjs";
+import { of } from "rxjs";
+import { BpmnService } from "src/app/admin/bpmn.service";
 import { ZacInput } from "src/app/shared/form/input/input";
-import { testQueryClient } from "../../../../setupJest";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -39,12 +39,25 @@ import { ZaakCreateComponent } from "./zaak-create.component";
 
 const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
 
+interface AnimationMock {
+  play: () => void;
+  pause: () => void;
+  cancel: () => void;
+  finish: () => void;
+  addEventListener: (name: string, cb: () => void) => void;
+  removeEventListener: (name: string, cb: () => void) => void;
+  finished: Promise<void>;
+}
+
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
+  let bpmnService: BpmnService;
+  let utilService: UtilService;
+  let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
-  let loader: HarnessLoader;
   let component: ZaakCreateComponent;
+  let loader: HarnessLoader;
   let router: Router;
 
   beforeEach(() => {
@@ -52,13 +65,14 @@ describe(ZaakCreateComponent.name, () => {
       declarations: [ZaakCreateComponent, ZacInput],
       providers: [
         ZakenService,
+        BpmnService,
         NavigationService,
         KlantenService,
         ReferentieTabelService,
         UtilService,
         IdentityService,
         provideHttpClient(),
-        provideQueryClient(testQueryClient),
+        provideQueryClient(new QueryClient()),
       ],
       imports: [
         RouterModule.forRoot(routes),
@@ -75,9 +89,12 @@ describe(ZaakCreateComponent.name, () => {
     }).compileComponents();
 
     identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "listGroups")
-      .mockReturnValue(of([{ id: "test-group-id", naam: "test group" }]));
+    jest.spyOn(identityService, "listGroups").mockReturnValue(
+      of([
+        { id: "test-cmmn-group-id", naam: "test group CMMN" },
+        { id: "test-bpmn-group-id", naam: "test group BPMN" },
+      ]),
+    );
     jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
@@ -86,172 +103,293 @@ describe(ZaakCreateComponent.name, () => {
     jest.spyOn(zakenService, "listZaaktypesForCreation").mockReturnValue(
       of([
         fromPartial<GeneratedType<"RestZaaktype">>({
-          uuid: "test-zaaktype-1",
-          omschrijving: "test-description-1",
+          uuid: "test-cmmn-zaaktype-1",
+          omschrijving: "test-cmmn-description-1",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
+          zaakafhandelparameters: {
+            defaultGroepId: "test-cmmn-group-id",
+            defaultBehandelaarId: "test-user-id",
+            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-1" },
+          },
         }),
         fromPartial<GeneratedType<"RestZaaktype">>({
-          uuid: "test-zaaktype-2",
-          omschrijving: "test-description-2",
+          uuid: "test-cmmn-zaaktype-2",
+          omschrijving: "test-cmmn-description-2",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
+          zaakafhandelparameters: {
+            zaaktype: { uuid: "uuid-test-cmmn-zaaktype-2" },
+          },
+        }),
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          uuid: "test-bpmn-zaaktype-1",
+          omschrijving: "test-bpmn-description-1",
+          vertrouwelijkheidaanduiding: "OPENBAAR",
+          zaakafhandelparameters: {
+            zaaktype: { uuid: "uuid-test-bpmn-zaaktype-1" },
+          },
+        }),
+      ]),
+    );
+    jest.spyOn(zakenService, "createZaak").mockReturnValue({
+      mutationKey: [],
+      mutationFn: () =>
+        Promise.resolve(
+          fromPartial<GeneratedType<"RestZaak">>({
+            identificatie: "test-zaak-uuid-123",
+          }),
+        ),
+    });
+
+    bpmnService = TestBed.inject(BpmnService);
+    jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
+      of([
+        fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
+          bpmnProcessDefinitionKey: "bpmn-process-1",
+          groepNaam: "test-bpmn-group-id",
+          zaaktypeUuid: "uuid-test-bpmn-zaaktype-1",
         }),
       ]),
     );
 
+    utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "getEnumAsSelectList").mockImplementation(
+      jest.fn(() => [
+        { label: "Openbaar", value: "OPENBAAR" },
+        { label: "INTERN", value: "INTERN" },
+      ]),
+    );
+    jest.spyOn(utilService, "setTitle").mockImplementation(jest.fn());
+
+    referentieTabelService = TestBed.inject(ReferentieTabelService);
+    jest
+      .spyOn(referentieTabelService, "listCommunicatiekanalen")
+      .mockReturnValue(
+        of([
+          "Boeman",
+          "Koebel",
+          "Telegram",
+          "Tamtam",
+          "PostDuif",
+          "Rooksignalen",
+          "Telefoon",
+        ]),
+      );
+
     router = TestBed.inject(Router);
+    jest.spyOn(router, "navigate").mockImplementation(async () => true);
 
     fixture = TestBed.createComponent(ZaakCreateComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
-    // TODO validate that we can use the `MatAutocompleteHarness` to write this test
-    it.todo(`should set the default group`);
+    beforeAll(() => {
+      // disable animations for the tests
+      (
+        Element.prototype as unknown as {
+          animate: (
+            keyframes: Keyframe[] | PropertyIndexedKeyframes,
+            options?: number | KeyframeAnimationOptions,
+          ) => AnimationMock;
+        }
+      ).animate = () => {
+        const listeners: Record<string, Array<() => void>> = {};
 
-    it.todo(`should set the default case worker`);
+        const player: AnimationMock = {
+          play: () => {},
+          pause: () => {},
+          cancel: () => {},
+          finish: () => {
+            (listeners["finish"] || []).forEach((cb) => cb());
+          },
+          addEventListener: (name: string, cb: () => void) => {
+            (listeners[name] ||= []).push(cb);
+          },
+          removeEventListener: (name: string, cb: () => void) => {
+            listeners[name] = (listeners[name] || []).filter((fn) => fn !== cb);
+          },
+          finished: Promise.resolve(),
+        };
 
-    it.todo(`should set the confidentiality notice`);
-  });
-
-  describe("Bag objects field editing", () => {
-    const mockBagObjects: GeneratedType<"RESTBAGObject">[] = [
-      {
-        url: "https://example.com/bagobject/123",
-        identificatie: "123456789",
-        geconstateerd: true,
-        bagObjectType: "PAND",
-        omschrijving: "Test Pand aan de Dorpsstraat 1",
-      },
-      {
-        url: "https://example.com/bagobject/456",
-        identificatie: "987654321",
-        geconstateerd: false,
-        bagObjectType: "ADRES",
-        omschrijving: "Test Adres in de Dorpsstraat 2",
-      },
-    ];
-
-    beforeEach(() => {
-      const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockImplementation(async () => true);
+        return player;
+      };
     });
 
-    it("should show the BagObjects icon when there are no bag objects selected", async () => {
-      component.clearBagObjecten();
+    const getAutocompleteOptions = async (options: {
+      loader: HarnessLoader;
+      inputs: MatInputHarness[];
+      inputIndex: number;
+      name: string;
+      query: string;
+    }) => {
+      const { loader, inputs, inputIndex, name, query } = options;
 
-      fixture.detectChanges();
-      const icon = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "gps_fixed" }),
-      );
-      expect(icon.length).toBeTruthy();
-    });
+      const input = inputs[inputIndex];
+      await input.focus();
+      await input.setValue(query);
 
-    it("should empty the bagobjects field when the close icon has been clicked", async () => {
-      component.clearBagObjecten();
-
-      component["form"].get("bagObjecten")?.setValue(mockBagObjects);
-      fixture.detectChanges();
-
-      expect(component.hasBagObject()).toBe(true);
-
-      const closeIcon = await loader.getHarness(
-        MatIconHarness.with({ name: "close" }),
-      );
-      expect(closeIcon).toBeTruthy();
-
-      const button = await loader.getHarness(
-        MatButtonHarness.with({
-          selector:
-            'zac-input[key="bagObjecten"] button[mat-icon-button][matSuffix]',
+      const autocomplete = await loader.getHarness(
+        MatAutocompleteHarness.with({
+          selector: `[ng-reflect-name="${name}"]`,
         }),
       );
+      const autocompleteOptions = await autocomplete.getOptions();
 
-      await button.click();
-      fixture.detectChanges();
-
-      expect(component.hasBagObject()).toBe(false);
-    });
-  });
-
-  describe("Initiator field editing", () => {
-    const mockInitiator: GeneratedType<"BetrokkeneIdentificatie"> = {
-      bsnNummer: "123456789",
-      type: "BSN",
+      return { autocomplete, autocompleteOptions, input };
     };
 
-    beforeEach(() => {
-      const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockImplementation(async () => true);
+    describe("case type selection", () => {
+      it("should handle CMMN case type selection", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-      component["form"].get("zaaktype")?.setValue(
-        fromPartial({
-          zaakafhandelparameters: {
-            betrokkeneKoppelingen: { brpKoppelen: true },
-          },
-        }),
-      );
+        // --- Zaaktype ---
+        let { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "cmmn",
+        });
+        expect(autocompleteOptions.length).toEqual(2);
 
-      fixture.detectChanges();
-    });
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-cmmn-description-1");
+        expect(identityService.listGroups).toHaveBeenCalled();
 
-    it("should show the person icon when there is no initiator selected", async () => {
-      component.clearInitiator();
-      fixture.detectChanges();
+        // --- Groep ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 4,
+          name: "groep",
+          query: "cmmn",
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
 
-      const icon = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "person" }),
-      );
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test group CMMN");
+        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
-      expect(icon.length).toBeTruthy();
-    });
+        // --- Behandelaar ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 5,
+          name: "behandelaar",
+          query: "test",
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
 
-    it("should clear the initiator field when the close icon is clicked", async () => {
-      component.clearInitiator();
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test user");
+      });
 
-      component["form"].controls.initiatorIdentificatie.setValue(mockInitiator);
-      fixture.detectChanges();
+      it("should handle BPMN case type selection", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        expect(zakenService.listZaaktypesForCreation).toHaveBeenCalled();
 
-      expect(component.hasInitiator()).toBe(true);
+        // --- Zaaktype ---
+        let { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "bpmn",
+        });
+        expect(autocompleteOptions.length).toEqual(1);
 
-      const buttons = await loader.getAllHarnesses(
-        MatButtonHarness.with({
-          text: "clear",
-        }),
-      );
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-bpmn-description-1");
+        expect(identityService.listGroups).toHaveBeenCalled();
 
-      await buttons[0].click();
-      fixture.detectChanges();
+        // --- Groep ---
+        ({ autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 4,
+          name: "groep",
+          query: "bpmn",
+        }));
+        expect(autocompleteOptions.length).toEqual(1);
 
-      expect(component.hasInitiator()).toBe(false);
-    });
-  });
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test group BPMN");
+        expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
 
-  describe("form submitting", () => {
-    it("should reset the navigate flag", () => {
-      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+        // --- Behandelaar should be disabled ---
+        expect(await inputs[5].isDisabled()).toBe(true);
+      });
 
-      component.formSubmit();
+      it("should set the confidentiality notice", async () => {
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
 
-      expect(spy).toHaveBeenCalledWith(true);
-    });
-  });
+        // --- Zaaktype ---
+        const { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "test",
+        });
+        expect(autocompleteOptions.length).toBeGreaterThan(0);
 
-  describe("Navigation", () => {
-    it("should reset the form when the navigation is skipped", async () => {
-      const reset = jest.spyOn(component["form"], "reset");
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBeTruthy();
 
-      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
-      (router.events as Subject<unknown>).next(navigationSkipped);
+        const selectFields = await loader.getAllHarnesses(MatSelectHarness);
+        expect(selectFields.length).toEqual(2);
+        expect(await selectFields[1].getValueText()).toBe("Openbaar");
+      });
 
-      expect(reset).toHaveBeenCalled();
-    });
+      it("should fill all fields and submit", async () => {
+        const navigateSpy = jest
+          .spyOn(router, "navigate")
+          .mockResolvedValue(true);
 
-    it("should ensure the navigate flag is set after navigation", async () => {
-      const spy = jest.spyOn(component["routeOnSuccess"], "set");
+        const inputs = await loader.getAllHarnesses(MatInputHarness);
+        const selects = await loader.getAllHarnesses(MatSelectHarness);
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.aanmaken" }),
+        );
 
-      const navigationSkipped = new NavigationSkipped(1, "/", "mock-skipped");
-      (router.events as Subject<unknown>).next(navigationSkipped);
+        expect(await submitButton.isDisabled()).toBe(true);
 
-      expect(spy).toHaveBeenCalledWith(false);
+        // --- Zaaktype ---
+        const { autocompleteOptions, input } = await getAutocompleteOptions({
+          loader,
+          inputs,
+          inputIndex: 0,
+          name: "zaaktype",
+          query: "cmmn",
+        });
+        expect(autocompleteOptions.length).toEqual(2);
+
+        await autocompleteOptions[0].click();
+        expect(await input.getValue()).toBe("test-cmmn-description-1");
+
+        // --- Description ---
+        await inputs[6].setValue("Automated test description");
+        expect(await inputs[6].getValue()).toBe("Automated test description");
+
+        // --- Select Communication Channel ---
+        await selects[0].clickOptions({ text: "Rooksignalen" });
+        expect(await selects[0].getValueText()).toBe("Rooksignalen");
+
+        // --- Submit ---
+        expect(await submitButton.isDisabled()).toBe(false);
+        await submitButton.click();
+
+        expect(zakenService.createZaak).toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith([
+          "/zaken/",
+          "test-zaak-uuid-123",
+        ]);
+      });
     });
   });
 });

@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Subscription } from "rxjs";
+import { Component, inject } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../service/util.service";
 
 @Component({
@@ -12,20 +12,7 @@ import { UtilService } from "../service/util.service";
   templateUrl: "./loading.component.html",
   styleUrls: ["./loading.component.less"],
 })
-export class LoadingComponent implements OnInit, OnDestroy {
-  loading: boolean;
-
-  private subscription$: Subscription;
-
-  constructor(private utilService: UtilService) {}
-
-  ngOnInit(): void {
-    this.subscription$ = this.utilService.loading$.subscribe(
-      (value) => (this.loading = value),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscription$.unsubscribe();
-  }
+export class LoadingComponent {
+  protected readonly utilService = inject(UtilService);
+  protected readonly queryClient = inject(QueryClient);
 }

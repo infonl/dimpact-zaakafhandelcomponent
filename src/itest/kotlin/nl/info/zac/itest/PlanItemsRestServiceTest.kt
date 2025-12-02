@@ -35,14 +35,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-
     lateinit var humanTaskItemAanvullendeInformatieId: String
 
     Given("A zaak has been created") {
         When("the list human task plan items endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
-            )
+            val response = zacClient.getHumanTaskPlanItemsForZaak(zaakProductaanvraag1Uuid)
+
             Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -83,24 +81,16 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         }
 
         When("the start human task plan items endpoint is called") {
-            val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
-                .minusDays(1)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
-                requestBodyAsString = """{
-                    "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
-                    "fataledatum": "$fataleDatum",
-                    "taakStuurGegevens": {"sendMail": false},
-                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
-                    "taakdata":{}
-                }
-                """.trimIndent()
+            val response = zacClient.startHumanTaskPlanItem(
+                planItemInstanceId = humanTaskItemAanvullendeInformatieId,
+                fatalDate = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
+                    .minusDays(1),
+                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                groupName = BEHANDELAARS_DOMAIN_TEST_1.description
             )
             Then("a task is started for this zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }

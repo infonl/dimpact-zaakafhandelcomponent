@@ -6,13 +6,18 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>upload_file</mat-icon>
   <h3 class="flex-grow-1">{{ "actie.document.toevoegen" | translate }}</h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (submit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="resetAndClose()"
+  class="mt-2"
+>
   <fieldset>
     <section class="row">
       <zac-file
@@ -68,18 +73,10 @@
     </section>
   </fieldset>
   <fieldset>
-    <mat-action-row>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="!form.valid"
-      >
-        {{ "actie.toevoegen" | translate }}
-      </button>
-      <button mat-button type="reset" (click)="resetAndClose()">
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="createDocumentMutation"
+      submitLabel="actie.toevoegen"
+    />
   </fieldset>
 </form>

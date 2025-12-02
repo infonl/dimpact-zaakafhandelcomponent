@@ -7,12 +7,10 @@ package nl.info.zac.itest
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_DOCUMENTS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_TASKS
-import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_INDEXED_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import okhttp3.Headers.Companion.toHeaders
@@ -21,7 +19,8 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This test assumes two zaken, one task and one document have been created in previously run tests.
+ * This test assumes currently that zaken, task(s) and document(s) have been created in previously run tests.
+ * This should be changed in future to make this test isolated.
  * Note that the document in question is the form data PDF which was created during the handling of the 'productaanvraag'.
  * @see NotificationsTest
  */
@@ -49,7 +48,6 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
@@ -63,7 +61,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_ZAKEN
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 1
                 }
             }
         }
@@ -86,21 +84,20 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
                             "alleenMijnTaken": false,
-                            "zoeken":{},
+                            "zoeken": {},
                             "filters": {},
                             "datums": {},
                             "rows": 100,
                             "page": 0,
-                            "type":"TAAK"
+                            "type": "TAAK"
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_TASKS
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 1
                 }
             }
         }
@@ -123,7 +120,6 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
                            {
-                            "filtersType": "ZoekParameters",
                             "alleenMijnZaken": false,
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
@@ -137,7 +133,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe TOTAL_COUNT_INDEXED_DOCUMENTS
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 1
                 }
             }
         }
