@@ -60,6 +60,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
+    val today = LocalDate.now()
     lateinit var enkelvoudigInformatieObject2UUID: String
 
     Given(
@@ -178,7 +179,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "auteur" : "$FAKE_AUTHOR_NAME",
                       "beschrijving" : "",
                       "bestandsomvang" : $TEST_TXT_FILE_SIZE,
-                      "creatiedatum" : "${LocalDate.now()}",
+                      "creatiedatum" : "$today",
                       "formaat" : "$TEXT_MIME_TYPE",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
@@ -221,6 +222,56 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 logger.info { "$endpointUrl status code: ${response.code}" }
                 response.code shouldBe HTTP_OK
+            }
+        }
+
+        When("the get enkelvoudiginformatieobject endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/"
+            )
+            Then(
+                """
+                the response should be OK and should contain an `ONDERTEKEND` indicatie
+                and data about the ondertekening and the status should be 'definitief'
+                """
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "bestandsnaam" : "$TEST_TXT_FILE_NAME",
+                      "auteur" : "$FAKE_AUTHOR_NAME",
+                      "beschrijving" : "",                    
+                      "bestandsomvang" : $TEST_TXT_FILE_SIZE,
+                      "creatiedatum" : "$today",
+                      "formaat" : "$TEXT_MIME_TYPE",
+                      "indicatieGebruiksrecht" : false,
+                      "indicaties" : [ "ONDERTEKEND" ],
+                      "informatieobjectTypeOmschrijving" : "factuur",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID",
+                      "isBesluitDocument" : false,
+                      "ondertekening" : {
+                        "datum" : "$today",
+                        "soort" : "digitaal"
+                      },
+                      "rechten" : {
+                        "converteren" : true,
+                        "lezen" : true,
+                        "ondertekenen" : false,
+                        "ontgrendelen" : false,
+                        "toevoegenNieuweVersie" : false,
+                        "vergrendelen" : false,
+                        "verwijderen" : false,
+                        "wijzigen" : false
+                      },
+                      "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                      "taal" : "Nederlands",
+                      "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
+                      "versie" : 3,
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                    }
+                """.trimIndent()
             }
         }
 
@@ -347,6 +398,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """
         An enkelvoudig informatie object of type TXT exists, has the status DEFINITIEF

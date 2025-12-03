@@ -121,15 +121,10 @@ data class DocumentZoekObject(
         this.status = status.toString()
     }
 
-    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties.contains(indicatie.name) == true
+    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties.contains(indicatie.name)
 
-    fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> {
-        val documentIndicaties = EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
-        for (indicatie in indicaties) {
-            documentIndicaties.add(DocumentIndicatie.valueOf(indicatie))
-        }
-        return documentIndicaties
-    }
+    fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> =
+        indicaties.mapTo(EnumSet.noneOf(DocumentIndicatie::class.java)) { DocumentIndicatie.valueOf(it) }
 
     fun setIndicatie(indicatie: DocumentIndicatie, value: Boolean) {
         updateIndicaties(indicatie, value)
