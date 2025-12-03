@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PatchBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class TakenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}", {
@@ -55,8 +57,8 @@ export class TakenService {
     return this.zacHttpClient.PATCH("/rest/taken/complete", body);
   }
 
-  verdelenVanuitLijst(body: PutBody<"/rest/taken/lijst/verdelen">) {
-    return this.zacHttpClient.PUT("/rest/taken/lijst/verdelen", body);
+  verdelenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/taken/lijst/verdelen");
   }
 
   vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {
