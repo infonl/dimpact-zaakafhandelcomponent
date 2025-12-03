@@ -91,7 +91,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         inboxDocumentenService = inboxDocumentenService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
         eventingService = eventingService,
-        zaakInformatieobjectConverter = zaakInformatieobjectConverter,
+        restZaakInformatieobjectConverter = zaakInformatieobjectConverter,
         restInformatieobjectConverter = restInformatieobjectConverter,
         restInformatieobjecttypeConverter = restInformatieobjecttypeConverter,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
