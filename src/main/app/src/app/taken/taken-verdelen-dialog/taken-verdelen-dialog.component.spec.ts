@@ -115,7 +115,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
     });
 
     const button = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.verdelen/i })
+      MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
 
@@ -144,7 +144,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
     component["form"].patchValue(formData);
 
     const button = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.verdelen/i })
+      MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
 
