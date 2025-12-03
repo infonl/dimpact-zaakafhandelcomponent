@@ -6,7 +6,7 @@
 package nl.info.zac.app.admin.model
 
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -27,11 +27,11 @@ fun ZaaktypeBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
     }
 
 fun RestBrpDoelbindingen.toBrpDoelbindingen(
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    zaaktypeConfiguration: ZaaktypeConfiguration
 ): ZaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
     id = this@toBrpDoelbindingen.id
     zoekWaarde = this@toBrpDoelbindingen.zoekWaarde
     raadpleegWaarde = this@toBrpDoelbindingen.raadpleegWaarde
     verwerkingregisterWaarde = this@toBrpDoelbindingen.verwerkingregisterWaarde
-    this.zaaktypeConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
 }
