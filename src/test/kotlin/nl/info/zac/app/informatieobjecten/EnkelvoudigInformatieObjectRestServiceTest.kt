@@ -21,7 +21,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService

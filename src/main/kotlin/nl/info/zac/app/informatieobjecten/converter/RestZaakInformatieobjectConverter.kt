@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.informatieobjecten.converter
+package nl.info.zac.app.informatieobjecten.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
