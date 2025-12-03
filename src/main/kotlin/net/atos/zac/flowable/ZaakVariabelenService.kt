@@ -30,28 +30,30 @@ open class ZaakVariabelenService @Inject constructor(
 ) {
 
     companion object {
-        const val VAR_ZAAK_UUID = "zaakUUID"
-        const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
-        const val VAR_ZAAKTYPE_UUID = "zaaktypeUUID"
-        const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
-        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
         const val VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort"
+        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
+        private const val VAR_ONTVANKELIJK = "ontvankelijk"
         const val VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort"
         const val VAR_ZAAK_USER = "zaakBehandelaar"
+        const val VAR_ZAAK_COMMUNICATIEKANAAL = "zaakCommunicatiekanaal"
         const val VAR_ZAAK_GROUP = "zaakGroep"
-        private const val VAR_ONTVANKELIJK = "ontvankelijk"
+        const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
+        const val VAR_ZAAK_UUID = "zaakUUID"
+        const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
+        const val VAR_ZAAKTYPE_UUID = "zaaktypeUUID"
 
         val ALL_ZAAK_VARIABLE_NAMES = listOf(
-            VAR_ZAAK_UUID,
-            VAR_ZAAK_IDENTIFICATIE,
-            VAR_ZAAK_USER,
-            VAR_ZAAK_GROUP,
-            VAR_ZAAKTYPE_UUID,
-            VAR_ZAAKTYPE_OMSCHRIJVING,
-            VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
             VAR_DATUMTIJD_OPGESCHORT,
+            VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
+            VAR_ONTVANKELIJK,
             VAR_VERWACHTE_DAGEN_OPGESCHORT,
-            VAR_ONTVANKELIJK
+            VAR_ZAAK_USER,
+            VAR_ZAAK_COMMUNICATIEKANAAL,
+            VAR_ZAAK_GROUP,
+            VAR_ZAAK_IDENTIFICATIE,
+            VAR_ZAAK_UUID,
+            VAR_ZAAKTYPE_OMSCHRIJVING,
+            VAR_ZAAKTYPE_UUID,
         )
     }
 
@@ -117,6 +119,9 @@ open class ZaakVariabelenService @Inject constructor(
 
     fun removeUser(zaakUUID: UUID) =
         removeVariable(zaakUUID, VAR_ZAAK_USER)
+
+    fun setCommunicatiekanaal(zaakUUID: UUID, communicatiekanaal: String) =
+        setVariable(zaakUUID, VAR_ZAAK_COMMUNICATIEKANAAL, communicatiekanaal)
 
     fun readZaakdata(zaakUUID: UUID) =
         findVariables(zaakUUID) ?: emptyMap()
