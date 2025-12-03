@@ -90,7 +90,9 @@ export class ZacHtmlEditor<
 
       if (!control.hasValidator(Validators.required)) return;
 
-      control.addValidators(CustomValidators.nonEmptyHtmlElement);
+      if (!control.hasValidator(CustomValidators.nonEmptyHtmlElement)) {
+        control.addValidators(CustomValidators.nonEmptyHtmlElement);
+      }
     });
   }
 
