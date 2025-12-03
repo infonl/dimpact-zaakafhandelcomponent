@@ -12,15 +12,14 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 data class RestZaakStatus(
-    var naam: String,
-
-    var toelichting: String
+    val naam: String,
+    val toelichting: String
 )
 
 fun toRestZaakStatus(
-    status: Status,
-    statustype: StatusType
+    statustype: StatusType,
+    status: Status
 ) = RestZaakStatus(
-    toelichting = status.statustoelichting,
-    naam = statustype.omschrijving
+    naam = statustype.omschrijving,
+    toelichting = status.statustoelichting
 )

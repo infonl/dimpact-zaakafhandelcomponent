@@ -245,7 +245,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val zaakObjectPand = createZaakobjectPand()
             val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val bronOrganisatie = "fakeBronOrganisatie"
             val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
             val zaakCreatedSlot = slot<Zaak>()
@@ -390,7 +390,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val zaakObjectPand = createZaakobjectPand()
             val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val bronOrganisatie = "fakeBronOrganisatie"
             val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
             val zaakCreatedSlot = slot<Zaak>()
@@ -1412,7 +1412,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("A zaak and no managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
@@ -1457,7 +1457,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(
                 uuid = zaakUuid,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 resultaat = URI("https://example.com/${UUID.randomUUID()}")
             )
 
@@ -1482,7 +1482,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             clearAllMocks()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultTypeUUID = UUID.randomUUID()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeCmmnCompletionParameters = setOf(
@@ -1906,7 +1906,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
-                zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
@@ -1983,7 +1983,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
-                zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             zaaktypeCmmnConfiguration.setZaakAfzenders(emptyList())

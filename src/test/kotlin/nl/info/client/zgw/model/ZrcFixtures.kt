@@ -235,6 +235,23 @@ fun createRolVestiging(
     vestigingIdentificatie
 )
 
+fun createStatus(
+    url: URI = URI("https://example.com/status/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    indicatieLaatstGezetteStatus: Boolean = false,
+    zaakinformatieobjecten: List<URI>? = null,
+    statustypeUri: URI = URI("https://example.com/statustype/${UUID.randomUUID()}"),
+    statusToelichting: String = "fakeStatusToelichting"
+) = Status(
+    url,
+    uuid,
+    indicatieLaatstGezetteStatus,
+    zaakinformatieobjecten
+).apply {
+    this.statustype = statustypeUri
+    this.statustoelichting = statusToelichting
+}
+
 fun createVestigingIdentificatie(
     vestigingsNummer: String = "fakeVestigingsNummer",
     handelsnaam: List<String>? = listOf("fakeHandelsnaam1", "fakeHandelsnaam2"),
@@ -248,7 +265,7 @@ fun createVestigingIdentificatie(
 @Suppress("LongParameterList")
 fun createZaak(
     uuid: UUID = UUID.randomUUID(),
-    zaakTypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    zaaktypeUri: URI = URI("https://example.com/${UUID.randomUUID()}"),
     startDate: LocalDate = LocalDate.now(),
     endDate: LocalDate? = null,
     bronOrganisatie: String = "fakeBronOrganisatie",
@@ -280,7 +297,7 @@ fun createZaak(
     null,
     resultaat
 ).apply {
-    this.zaaktype = zaakTypeURI
+    this.zaaktype = zaaktypeUri
     this.startdatum = startDate
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting

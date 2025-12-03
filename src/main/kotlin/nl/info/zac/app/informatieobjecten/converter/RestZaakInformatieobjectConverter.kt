@@ -6,9 +6,9 @@ package nl.info.zac.app.informatieobjecten.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.policy.PolicyService
@@ -22,19 +22,19 @@ class RestZaakInformatieobjectConverter @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
-        val restZaakInformatieobject = RestZaakInformatieobject()
-        restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie()
-        restZaakInformatieobject.zaakRechten = zaakrechten.toRestZaakRechten()
-        if (zaakrechten.lezen) {
-            restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum()
-            restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland()
-            restZaakInformatieobject.zaaktypeOmschrijving = zaaktype.getOmschrijving()
-            zaak.getStatus()?.let { statusUri ->
-                val status = zrcClientService.readStatus(statusUri)
-                val statustype = ztcClientService.readStatustype(status.getStatustype())
-                restZaakInformatieobject.zaakStatus = toRestZaakStatus(status, statustype)
+        return RestZaakInformatieobject(
+            zaakIdentificatie = zaak.getIdentificatie(),
+            zaakRechten = zaakrechten.toRestZaakRechten(),
+            zaakStartDatum = takeIf { zaakrechten.lezen }?.let { zaak.getStartdatum() },
+            zaakEinddatumGepland = takeIf { zaakrechten.lezen }?.let { zaak.getEinddatumGepland() },
+            zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.getOmschrijving() },
+            zaakStatus = takeIf { zaakrechten.lezen }?.let {
+                zaak.getStatus()?.let { statusUri ->
+                    val status = zrcClientService.readStatus(statusUri)
+                    val statustype = ztcClientService.readStatustype(status.getStatustype())
+                    toRestZaakStatus(statustype, status)
+                }
             }
-        }
-        return restZaakInformatieobject
+        )
     }
 }
