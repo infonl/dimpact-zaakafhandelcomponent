@@ -30,10 +30,7 @@ export class TakenVerdelenDialogComponent {
 
   protected readonly mutation = injectMutation(() => ({
     ...this.takenService.verdelenVanuitLijst(),
-    onSuccess: (data) => this.dialogRef.close(data),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
-    },
+    onSuccess: () => this.dialogRef.close(this.form.value),
   }));
 
   protected readonly form = this.formBuilder.group({

@@ -888,10 +888,11 @@ class ZaakRestServiceTest : BehaviorSpec({
     Context("Updating a zaak") {
         clearAllMocks()
 
-        Given("a zaak with tasks exists and zaak and tasks have final date and communication channel set") {
+        Given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType(servicenorm = "P10D")
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten()
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData = createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate).apply {
@@ -902,6 +903,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val patchedZaak = createZaak()
             val patchedRestZaak = createRestZaak()
             val task = mockk<Task>()
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -919,6 +921,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
+            every { configuratieService.featureFlagBpmnSupport() } returns true
+            every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
             every {
                 zaakVariabelenService.setCommunicatiekanaal(
                     zaak.uuid,
@@ -987,6 +991,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("no verlengenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten(verlengenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
@@ -1019,12 +1024,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every {
-                    zaakVariabelenService.setCommunicatiekanaal(
-                        zaak.uuid,
-                        restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
-                    )
-                } just runs
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns null
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
@@ -1041,6 +1042,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("no wijzigenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten(wijzigenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
@@ -1072,12 +1074,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every {
-                    zaakVariabelenService.setCommunicatiekanaal(
-                        zaak.uuid,
-                        restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
-                    )
-                } just runs
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns null
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 

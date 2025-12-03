@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
 import java.util.Locale
+import kotlin.collections.remove
 
 @NoArgConstructor // required for Java bean inspection
 data class DocumentZoekObject(
@@ -102,7 +103,7 @@ data class DocumentZoekObject(
     var vergrendeldDoorGebruikersnaam: String? = null,
 
     @Field("informatieobject_indicaties")
-    private var indicaties: MutableList<String> = mutableListOf(),
+    private var indicaties: MutableList<String>? = null,
 
     @Field("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
@@ -121,10 +122,11 @@ data class DocumentZoekObject(
         this.status = status.toString()
     }
 
-    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties.contains(indicatie.name)
+    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties?.contains(indicatie.name) ?: false
 
     fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> =
-        indicaties.mapTo(EnumSet.noneOf(DocumentIndicatie::class.java)) { DocumentIndicatie.valueOf(it) }
+        indicaties?.mapTo(EnumSet.noneOf(DocumentIndicatie::class.java)) { DocumentIndicatie.valueOf(it) }
+            ?: EnumSet.noneOf(DocumentIndicatie::class.java)
 
     fun setIndicatie(indicatie: DocumentIndicatie, value: Boolean) {
         updateIndicaties(indicatie, value)
@@ -132,13 +134,12 @@ data class DocumentZoekObject(
     }
 
     private fun updateIndicaties(indicatie: DocumentIndicatie, value: Boolean) {
+        indicaties = indicaties ?: mutableListOf()
         val key = indicatie.name
         if (value) {
-            if (!indicaties.contains(key)) {
-                indicaties.add(key)
-            }
+            indicaties?.let { if (key !in it) it.add(key) }
         } else {
-            indicaties.remove(key)
+            indicaties?.remove(key)
         }
     }
 

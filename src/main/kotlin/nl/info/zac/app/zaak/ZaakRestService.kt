@@ -350,12 +350,7 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
-        restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
-            zaakVariabelenService.setCommunicatiekanaal(
-                zaakUUID,
-                it
-            )
-        }
+        changeCommunicationChannel(zaakType, zaak, restZaakEditMetRedenGegevens, zaakUUID)
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
@@ -1358,6 +1353,28 @@ class ZaakRestService @Inject constructor(
             betrokkeneParameters.brpKoppelen?.let { enabled ->
                 if (initiator.type.isBsn && !enabled) {
                     throw BetrokkeneNotAllowedException()
+                }
+            }
+        }
+    }
+
+    private fun changeCommunicationChannel(
+        zaakType: ZaakType,
+        zaak: Zaak,
+        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens,
+        zaakUUID: UUID
+    ) {
+        if (zaakType.hasBPMNProcessDefinition()) {
+            val statustype = zaak.status?.let {
+                ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
+            }
+            // reopened zaak does not have active execution, so no need to change communicatiekanaal
+            if (!statustype.isHeropend()) {
+                restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
+                    zaakVariabelenService.setCommunicatiekanaal(
+                        zaakUUID,
+                        it
+                    )
                 }
             }
         }

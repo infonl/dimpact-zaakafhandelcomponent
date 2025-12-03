@@ -336,10 +336,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             "documentType" : "bijlage",
                             "formaat" : "application/pdf",
                             "indicatieGebruiksrecht" : false,
-                            "indicatieOndertekend" : true,
+                            "indicatieOndertekend" : false,
                             "indicatieVergrendeld" : false,
-                            "indicaties" : [ "ONDERTEKEND" ],
+                            "indicaties" : [ ],
                             "rechten" : {
+                              "converteren": false,
                               "lezen" : true,
                               "ondertekenen" : false,
                               "ontgrendelen" : false,
@@ -382,9 +383,6 @@ class SearchRestServiceTest : BehaviorSpec({
                             "DOCUMENT_INDICATIES" : [ {
                               "aantal" : 1,
                               "naam" : "GEBRUIKSRECHT"
-                            }, {
-                              "aantal" : 1,
-                              "naam" : "ONDERTEKEND"
                             } ]
                           }
                         }

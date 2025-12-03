@@ -117,7 +117,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -142,6 +142,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
+      - OTEL_SDK_DISABLED=true
     ports:
       - "8001:8000"
     volumes:
@@ -166,7 +167,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
