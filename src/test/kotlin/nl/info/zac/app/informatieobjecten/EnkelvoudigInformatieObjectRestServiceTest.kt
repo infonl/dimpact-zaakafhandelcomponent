@@ -42,8 +42,8 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
-import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
-import nl.info.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
+import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
+import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -111,7 +111,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
-        val restFileUpload = createRESTFileUpload()
+        val restFileUpload = createRestFileUpload()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
 
@@ -359,7 +359,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     ) {
         val zaakUuid = UUID.randomUUID()
         val informatieobjectUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-        val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
+        val restInformatieobjectZoekParameters = createRestInformatieobjectZoekParameters(
             informatieobjectUUIDs = informatieobjectUUIDs,
             zaakUuid = zaakUuid
         )
@@ -399,7 +399,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaakUuid = UUID.randomUUID()
         val besluittypeUuid = UUID.randomUUID()
         val informatieobjectUUID = UUID.randomUUID()
-        val restInformatieobjectZoekParameters = createRESTInformatieobjectZoekParameters(
+        val restInformatieobjectZoekParameters = createRestInformatieobjectZoekParameters(
             besluittypeUuid = besluittypeUuid,
             gekoppeldeZaakDocumenten = true,
             informatieobjectUUIDs = null,

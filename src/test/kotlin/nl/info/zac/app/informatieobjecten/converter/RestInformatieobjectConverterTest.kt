@@ -26,7 +26,7 @@ import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
-import nl.info.zac.app.informatieobjecten.model.createRESTFileUpload
+import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.task.model.createRestTaskDocumentData
@@ -73,7 +73,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
 
     Given("REST taak document data and REST file upload are provided") {
         val restTaakDocumentData = createRestTaskDocumentData()
-        val restFileUpload = createRESTFileUpload()
+        val restFileUpload = createRestFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
 
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -119,7 +119,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             taal = "fakeTaal",
             bestandsNaam = "fakeBestandsNaam"
         )
-        val restFileUpload = createRESTFileUpload()
+        val restFileUpload = createRestFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
 
         every {

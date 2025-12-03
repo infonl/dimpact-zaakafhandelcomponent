@@ -7,6 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
+import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
@@ -14,6 +15,18 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate
 import java.util.UUID
+
+fun createRestDocumentVerzendGegevens(
+    zaakUuid: UUID = UUID.randomUUID(),
+    verzenddatum: LocalDate = LocalDate.now(),
+    informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
+    toelichting: String = "fakeToelichting",
+) = RestDocumentVerzendGegevens().apply {
+    this.zaakUuid = zaakUuid
+    this.verzenddatum = verzenddatum
+    this.informatieobjecten = informatieobjecten
+    this.toelichting = toelichting
+}
 
 @Suppress("LongParameterList")
 fun createRestEnkelvoudigInformatieobject(
@@ -42,7 +55,7 @@ fun createRestEnkelvoudigInformatieobject(
     this.indicatieGebruiksrecht = indicatieGebruiksrecht ?: false
 }
 
-fun createRESTFileUpload(
+fun createRestFileUpload(
     file: ByteArray = "fakeFile".toByteArray(),
     fileSize: Long = 123L,
     filename: String = "fakeFilename",
@@ -85,7 +98,7 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }
 
-fun createRESTInformatieobjectZoekParameters(
+fun createRestInformatieobjectZoekParameters(
     informatieobjectUUIDs: List<UUID>? = listOf(UUID.randomUUID(), UUID.randomUUID()),
     zaakUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
