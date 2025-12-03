@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten.model;
 
 import java.time.LocalDate;
@@ -10,9 +9,6 @@ import java.time.LocalDate;
 import nl.info.zac.app.policy.model.RestZaakRechten;
 import nl.info.zac.app.zaak.model.RestZaakStatus;
 
-/**
- * weergave van een zaak die is gekoppeld aan een (enkelvoudig) informatieobject
- */
 public class RestZaakInformatieobject {
 
     public String zaakIdentificatie;

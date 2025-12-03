@@ -82,7 +82,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
-    private val zaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
+    private val restZaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
@@ -270,7 +270,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         .let(drcClientService::readEnkelvoudigInformatieobject)
         .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)
-        .map(zaakInformatieobjectConverter::convert)
+        .map(restZaakInformatieobjectConverter::toRestZaakInformatieobject)
 
     @GET
     @Path("informatieobject/{uuid}/edit")
