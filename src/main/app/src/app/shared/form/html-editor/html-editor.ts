@@ -8,14 +8,16 @@ import {
   booleanAttribute,
   Component,
   computed,
+  effect,
   input,
   OnDestroy,
   SecurityContext,
 } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, Validators } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { Editor, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
+import { CustomValidators } from "../../validators/customValidators";
 import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
@@ -61,17 +63,13 @@ export class ZacHtmlEditor<
   protected computedToolbar = computed(() =>
     this.isPlainText() ? [] : this.toolbar(),
   );
+
   protected variables = input<string[]>([]);
 
   protected editor = computed(() => {
     if (!this.isPlainText()) return new Editor();
 
-    const sanitized = this.domSanitizer.sanitize(
-      SecurityContext.HTML,
-      this.control()?.value ?? null,
-    ) as Option | null;
-
-    this.control()?.setValue(sanitized);
+    this.control()?.setValue(this.sanitizeInput(this.control()?.value ?? null));
 
     return new Editor({
       keyboardShortcuts: false,
@@ -85,9 +83,28 @@ export class ZacHtmlEditor<
 
   constructor(private readonly domSanitizer: DomSanitizer) {
     super();
+
+    effect(() => {
+      const control = this.control();
+      if (!control) return;
+
+      if (!control.hasValidator(Validators.required)) return;
+
+      if (!control.hasValidator(CustomValidators.nonEmptyHtmlElement)) {
+        control.addValidators(CustomValidators.nonEmptyHtmlElement);
+      }
+    });
   }
 
   ngOnDestroy() {
     this.editor().destroy();
+    super.ngOnDestroy();
+  }
+
+  private sanitizeInput(value?: string | null) {
+    return this.domSanitizer.sanitize(
+      SecurityContext.HTML,
+      value ?? null,
+    ) as Option | null;
   }
 }
