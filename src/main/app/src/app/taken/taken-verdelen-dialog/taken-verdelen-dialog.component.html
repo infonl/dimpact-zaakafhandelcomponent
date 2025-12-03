@@ -17,8 +17,8 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content>
-  <form [formGroup]="form">
+<form [formGroup]="form" (submit)="verdeel()" (cancel)="close()">
+  <mat-dialog-content>
     <fieldset class="p-0">
       <section class="row">
         <zac-auto-complete
@@ -42,27 +42,11 @@
         <zac-input class="col-12" [form]="form" key="reden"></zac-input>
       </section>
     </fieldset>
-  </form>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button
-    (click)="verdeel()"
-    [disabled]="isDisabled() || !data.taken.length"
-    color="primary"
-    id="takenVerdelen_button"
-    mat-raised-button
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ "actie.verdelen" | translate }}
-  </button>
-  <button
-    (click)="close()"
-    [disabled]="loading"
-    id="annuleren_button"
-    mat-raised-button
-  >
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+  </mat-dialog-content>
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    submitLabel="actie.verdelen"
+    wrapper="dialog"
+  />
+</form>
