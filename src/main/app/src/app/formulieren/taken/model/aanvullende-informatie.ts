@@ -12,6 +12,7 @@ import { InformatieObjectenService } from "../../../informatie-objecten/informat
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/form";
+import { StaleTimes } from "../../../shared/http/zac-query-client";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
@@ -37,6 +38,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       queryKey: ["afzender", zaak.uuid],
       queryFn: () =>
         lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid)),
+      staleTime: StaleTimes.Short,
     });
     const verzenderControl =
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
@@ -62,6 +64,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
             zaak.uuid,
           ),
         ),
+      staleTime: StaleTimes.Short,
     });
     const htmlEditorControl = this.formBuilder.control<string>(
       mailTemplate.body,
@@ -139,6 +142,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         type: "html-editor",
         key: "body",
         control: htmlEditorControl,
+        variables: mailTemplate.variabelen ?? [],
       },
       {
         type: "date",
@@ -163,6 +167,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       {
         type: "plain-text",
         key: "messageField",
+        icon: "info-circle",
         control: messageControl,
       },
     ];
