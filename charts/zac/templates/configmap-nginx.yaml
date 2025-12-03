@@ -7,6 +7,8 @@ metadata:
   labels:
   {{- include "zaakafhandelcomponent.nginx.labels" . | nindent 4 }}
 data:
+  error.html: |
+
   proxy: |
     proxy_pass_header Server;
     proxy_set_header X-Real-IP $remote_addr;
@@ -69,8 +71,14 @@ data:
       add_header X-XSS-Protection "1; mode=block";
       add_header Strict-Transport-Security max-age=15768000;
 
+      error_page 502 503 /error.html;
       error_page 555 = @longtimeout;
       error_page 556 = @normal;
+
+      location = /error.html {
+        root /etc/nginx/conf.d;
+        internal;
+      }
 
       include conf.d/proxy;
 
