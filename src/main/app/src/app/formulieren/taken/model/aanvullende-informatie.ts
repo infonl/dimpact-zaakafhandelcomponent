@@ -116,11 +116,12 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       {
         type: "select",
         key: "verzender",
-        options: afzendersVoorZaak.map(({ mail }) => ({
-          key: mail,
-          value: mail,
+        options: afzendersVoorZaak.map((afzender) => ({
+          ...afzender,
+          key: afzender.mail,
+          value: afzender.mail,
         })),
-        optionDisplayValue: "value",
+        optionDisplayValue: "mail",
         control: verzenderControl,
       },
       {
