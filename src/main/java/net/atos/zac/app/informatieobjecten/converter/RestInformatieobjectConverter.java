@@ -135,8 +135,7 @@ public class RestInformatieobjectConverter {
                 enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
                 enkelvoudigInformatieObject.getOndertekening().getDatum() != null
             ) {
-                restEnkelvoudigInformatieobject.ondertekening =
-                        toRestOndertekening(enkelvoudigInformatieObject.getOndertekening());
+                restEnkelvoudigInformatieobject.ondertekening = toRestOndertekening(enkelvoudigInformatieObject.getOndertekening());
             }
         } else {
             restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getIdentificatie();
