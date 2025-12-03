@@ -10,6 +10,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
+import kotlin.collections.remove
 
 @NoArgConstructor
 data class ZaakZoekObject(
@@ -179,14 +180,12 @@ data class ZaakZoekObject(
     }
 
     private fun updateIndicaties(indicatie: ZaakIndicatie, value: Boolean) {
-        if (indicaties == null) { indicaties = mutableListOf() }
+        indicaties = indicaties ?: mutableListOf()
         val key = indicatie.name
         if (value) {
-            if (!indicaties!!.contains(key)) {
-                indicaties!!.add(key)
-            }
+            indicaties?.let { if (key !in it) it.add(key) }
         } else {
-            indicaties!!.remove(key)
+            indicaties?.remove(key)
         }
     }
 
