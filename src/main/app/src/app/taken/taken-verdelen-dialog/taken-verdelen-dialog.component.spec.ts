@@ -21,7 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -34,6 +34,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
   let component: TakenVerdelenDialogComponent;
   let loader: HarnessLoader;
   let httpTestingController: HttpTestingController;
+  let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
 
   const dialogData: {
     taken: TaakZoekObject[];
@@ -63,6 +64,10 @@ describe(TakenVerdelenDialogComponent.name, () => {
   };
 
   beforeEach(async () => {
+    dialogRef = {
+      close: jest.fn(),
+    } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
+
     await TestBed.configureTestingModule({
       declarations: [TakenVerdelenDialogComponent],
       imports: [
@@ -83,7 +88,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
         },
         {
           provide: MatDialogRef,
-          useValue: {},
+          useValue: dialogRef,
         },
       ],
     }).compileComponents();
@@ -110,7 +115,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
     });
 
     const button = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.verdelen/i }),
+      MatButtonHarness.with({ text: /actie.verdelen/i })
     );
     await button.click();
 
@@ -127,5 +132,27 @@ describe(TakenVerdelenDialogComponent.name, () => {
       reden: "test-reden",
       screenEventResourceId: dialogData.screenEventResourceId,
     });
+  });
+
+  it("should close the dialog with form data after successful mutation", async () => {
+    const formData = {
+      groep: mockGroup,
+      medewerker: mockUser,
+      reden: "test-reden",
+    };
+
+    component["form"].patchValue(formData);
+
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ text: /actie.verdelen/i })
+    );
+    await button.click();
+
+    const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
+    req.flush({});
+
+    await sleep();
+
+    expect(dialogRef.close).toHaveBeenCalledWith(formData);
   });
 });
