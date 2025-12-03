@@ -15,6 +15,7 @@ import { FormField } from "../../../shared/form/form";
 import { StaleTimes } from "../../../shared/http/zac-query-client";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
+import { OptionValue } from "../taak.utils";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
 @Injectable({
@@ -40,19 +41,27 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
         lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid)),
       staleTime: StaleTimes.Short,
     });
-    const verzenderControl =
-      this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
-        Validators.required,
-      ]);
+    const afzendersVoorZaakOptions = afzendersVoorZaak.map(
+      (afzender) =>
+        ({
+          ...afzender,
+          key: afzender.mail,
+          value: afzender.mail,
+        }) satisfies OptionValue,
+    );
+    const verzenderControl = this.formBuilder.control<
+      (GeneratedType<"RestZaakAfzender"> & OptionValue) | null
+    >(null, [Validators.required]);
     verzenderControl.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         replyToControl.patchValue(value?.replyTo ?? null);
       });
 
-    const defaultAfzender = afzendersVoorZaak?.find(
+    const defaultAfzender = afzendersVoorZaakOptions.find(
       ({ defaultMail }) => defaultMail,
     );
+
     verzenderControl.setValue(defaultAfzender ?? null);
 
     const mailTemplate = await this.queryClient.ensureQueryData({
@@ -119,11 +128,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       {
         type: "select",
         key: "verzender",
-        options: afzendersVoorZaak.map((afzender) => ({
-          ...afzender,
-          key: afzender.mail,
-          value: afzender.mail,
-        })),
+        options: afzendersVoorZaakOptions,
         optionDisplayValue: "mail",
         control: verzenderControl,
       },

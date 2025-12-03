@@ -6,9 +6,15 @@
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { isMoment } from "moment";
 import { GeneratedType } from "../../shared/utils/generated-types";
+
 type ControlMapOptions = {
   documentKey: keyof GeneratedType<"RestEnkelvoudigInformatieobject">;
   documentSeparator?: string;
+};
+
+export type OptionValue = {
+  key: unknown;
+  value: unknown;
 };
 
 function mapControlToTaskDataValue(
