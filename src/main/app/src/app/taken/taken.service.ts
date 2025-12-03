@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -53,8 +53,8 @@ export class TakenService {
     return this.zacQueryClient.PUT("/rest/taken/taakdata");
   }
 
-  complete(body: PatchBody<"/rest/taken/complete">) {
-    return this.zacHttpClient.PATCH("/rest/taken/complete", body);
+  complete() {
+    return this.zacQueryClient.PATCH("/rest/taken/complete");
   }
 
   verdelenVanuitLijst(body: PutBody<"/rest/taken/lijst/verdelen">) {

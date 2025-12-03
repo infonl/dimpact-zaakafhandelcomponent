@@ -124,15 +124,23 @@ export class TaakViewComponent
 
   private readonly updateTaakdataMutation = injectMutation(() => ({
     ...this.takenService.updateTaakdata(),
-    onSuccess: (task) => {
-      if (task.status === "AFGEROND") {
-        return this.utilService.openSnackbar("msg.taak.afgerond");
-      }
+    onSuccess: () => {
       this.utilService.openSnackbar("msg.taak.opgeslagen");
     },
   }));
 
-  protected readonly isSubmitting = computed(() => false);
+  private readonly completeTaakMutation = injectMutation(() => ({
+    ...this.takenService.complete(),
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.taak.afgerond");
+    },
+  }));
+
+  protected readonly isPending = computed(
+    () =>
+      this.updateTaakdataMutation.isPending() ||
+      this.completeTaakMutation.isPending(),
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -459,9 +467,10 @@ export class TaakViewComponent
       return;
     }
 
-    this.takenService.complete(taskBody).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.afgerond");
-      this.init(task, false);
+    this.completeTaakMutation.mutate(taskBody, {
+      onSuccess: (task) => {
+        this.init(task, false);
+      },
     });
   }
 
@@ -482,7 +491,7 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.updateTaakdataMutation.mutate(this.taak, {
+    this.completeTaakMutation.mutate(this.taak, {
       onSuccess: (task) => {
         this.init(task);
       },
@@ -501,9 +510,7 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     if (submission.state === "submitted") {
-      this.takenService.complete(this.taak).subscribe(() => {
-        this.utilService.openSnackbar("msg.taak.afgerond");
-      });
+      this.completeTaakMutation.mutate(this.taak);
       return;
     }
 
