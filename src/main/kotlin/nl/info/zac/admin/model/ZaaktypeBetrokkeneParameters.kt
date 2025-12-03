@@ -17,17 +17,17 @@ import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_betrokkene_parameters")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_betrokkene_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_zaaktype_cmmn_betrokkene_parameters",
-    sequenceName = "sq_zaaktype_cmmn_betrokkene_parameters",
+    name = "sq_zaaktype_betrokkene_parameters",
+    sequenceName = "sq_zaaktype_betrokkene_parameters",
     allocationSize = 1
 )
 @AllOpen
 class ZaaktypeBetrokkeneParameters {
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_betrokkene_parameters", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_zaaktype_betrokkene_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     var id: Long? = null
 
