@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.zac.app.informatieobjecten.converter.RestOndertekeningConverterKt.toRestOndertekening;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
@@ -134,9 +135,8 @@ public class RestInformatieobjectConverter {
                 enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
                 enkelvoudigInformatieObject.getOndertekening().getDatum() != null
             ) {
-                restEnkelvoudigInformatieobject.ondertekening = RestOndertekeningConverter.convert(
-                        enkelvoudigInformatieObject.getOndertekening()
-                );
+                restEnkelvoudigInformatieobject.ondertekening =
+                        toRestOndertekening(enkelvoudigInformatieObject.getOndertekening());
             }
         } else {
             restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getIdentificatie();

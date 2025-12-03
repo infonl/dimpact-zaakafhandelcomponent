@@ -7,7 +7,7 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.time.LocalDate;
 
-public class RESTOndertekening {
+public class RestOndertekening {
 
     public String soort;
 

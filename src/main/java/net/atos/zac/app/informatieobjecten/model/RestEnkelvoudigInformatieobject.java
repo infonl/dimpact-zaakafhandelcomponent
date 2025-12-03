@@ -84,7 +84,7 @@ public class RestEnkelvoudigInformatieobject extends RestEnkelvoudigInformatieFi
     public String link;
 
     @FormParam("ondertekening")
-    public RESTOndertekening ondertekening;
+    public RestOndertekening ondertekening;
 
     @FormParam("indicatieGebruiksrecht")
     public boolean indicatieGebruiksrecht;
