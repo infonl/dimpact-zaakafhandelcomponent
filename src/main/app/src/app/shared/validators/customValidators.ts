@@ -182,7 +182,7 @@ export class CustomValidators {
   private static nonEmptyHtmlElementVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
       if (!control.value) {
-        return { emptyHtmlElement: true };
+        return null; // Let Validators.required handle empty values
       }
       const isEmptyHtmlElement = this.isEmptyHtmlElement(String(control.value));
       if (isEmptyHtmlElement) return { emptyHtmlElement: true };

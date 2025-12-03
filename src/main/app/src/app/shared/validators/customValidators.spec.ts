@@ -112,8 +112,8 @@ describe(CustomValidators.name, () => {
     ["<p>  Content  </p>", null],
     ["<div><p>Content</p></div>", null],
     ['<p class="test">Content</p>', null],
-    [null, { emptyHtmlElement: true }],
-    ["", { emptyHtmlElement: true }],
+    [null, null], // Let Validators.required handle empty values
+    ["", null], // Let Validators.required handle empty values
   ])(
     "Non-empty HTML element validation: for %s it should return %p",
     (html, expected) => {
