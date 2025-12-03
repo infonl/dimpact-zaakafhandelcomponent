@@ -242,7 +242,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     {
                       "bestandsnaam" : "$TEST_TXT_FILE_NAME",
                       "auteur" : "$FAKE_AUTHOR_NAME",
-                      "beschrijving" : "",                    
+                      "beschrijving" : "",
                       "bestandsomvang" : $TEST_TXT_FILE_SIZE,
                       "creatiedatum" : "$today",
                       "formaat" : "$TEXT_MIME_TYPE",
