@@ -1038,6 +1038,7 @@
   "validators.fileTooLarge": "The file is too large ({{size}}MB)",
   "validators.fileTypeInvalid": "The filetype is not allowed ({{type}})",
   "validators.fileEmpty": "The file is empty",
+  "validators.emptyHtmlElement": "The message is required",
   "form.input.file.hint": "Max files size: {{sizeInMB}}MB | Allowed formats: {{formats}}",
   " 12 ": ">>--> TODO <--<<",
   "gegevens": "Details",

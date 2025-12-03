@@ -21,6 +21,7 @@ export class CustomValidators {
   static emails = CustomValidators.emailVFn(true);
   static bedrijfsnaam = CustomValidators.bedrijfsnaamVFn();
   static huisnummer = CustomValidators.huisnummerVFn();
+  static nonEmptyHtmlElement = CustomValidators.nonEmptyHtmlElementVFn();
 
   private static postcodeRegex = /^[1-9][0-9]{3}(?!sa|sd|ss)[a-z]{2}$/i;
 
@@ -176,6 +177,21 @@ export class CustomValidators {
       }
       return null;
     };
+  }
+
+  private static nonEmptyHtmlElementVFn(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: boolean } | null => {
+      if (!control.value) {
+        return { emptyHtmlElement: true };
+      }
+      const isEmptyHtmlElement = this.isEmptyHtmlElement(String(control.value));
+      if (isEmptyHtmlElement) return { emptyHtmlElement: true };
+      return null;
+    };
+  }
+
+  private static isEmptyHtmlElement(htmlString: string) {
+    return htmlString.replace(/<[^>]*>/g, "").trim() === "";
   }
 
   public static getErrorMessage(

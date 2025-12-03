@@ -27,6 +27,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { NgxEditorModule, Toolbar } from "ngx-editor";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { PipesModule } from "../../pipes/pipes.module";
+import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -186,6 +187,20 @@ describe(ZacHtmlEditor.name, () => {
         }),
       );
       expect(error).toBeTruthy();
+    });
+
+    it("should add nonEmptyHtmlElement validator when field has required validator", () => {
+      const form = createTestForm();
+      form.controls.content.addValidators(Validators.required);
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
+      fixture.detectChanges();
+
+      expect(
+        form.controls.content.hasValidator(
+          CustomValidators.nonEmptyHtmlElement,
+        ),
+      ).toBe(true);
     });
   });
 
