@@ -7,7 +7,7 @@ metadata:
   labels:
   {{- include "zaakafhandelcomponent.nginx.labels" . | nindent 4 }}
 data:
-  error.html: |
+  error-503.html: |
 
   proxy: |
     proxy_pass_header Server;
@@ -71,11 +71,11 @@ data:
       add_header X-XSS-Protection "1; mode=block";
       add_header Strict-Transport-Security max-age=15768000;
 
-      error_page 502 503 /error.html;
+      error_page 502 503 /error-503.html;
       error_page 555 = @longtimeout;
       error_page 556 = @normal;
 
-      location = /error.html {
+      location = /error-503.html {
         root /etc/nginx/conf.d;
         internal;
       }
