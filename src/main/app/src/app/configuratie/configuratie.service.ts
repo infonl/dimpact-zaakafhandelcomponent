@@ -25,6 +25,7 @@ export class ConfiguratieService {
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
   private bpmnSupport$?: Observable<boolean>;
+  private pabcIntegration$?: Observable<boolean>;
   private brpProtocollering$?: Observable<string>;
 
   constructor(
@@ -110,6 +111,18 @@ export class ConfiguratieService {
         );
     }
     return this.bpmnSupport$;
+  }
+
+  readFeatureFlagPabcIntegration(): Observable<boolean> {
+    if (!this.pabcIntegration$) {
+      this.pabcIntegration$ = this.http
+        .get<boolean>(`${this.basepath}/feature-flags/pabc-integration`)
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+          shareReplay(1),
+        );
+    }
+    return this.pabcIntegration$;
   }
 
   readBrpProtocollering(): Observable<string> {

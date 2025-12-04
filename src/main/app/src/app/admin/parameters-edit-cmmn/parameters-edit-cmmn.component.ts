@@ -64,6 +64,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected isSavedZaakafhandelParameters: boolean = false;
   protected featureFlagBpmnSupport: boolean = false;
+  protected featurePabcIntegration: boolean = false;
   protected showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
@@ -235,6 +236,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
       this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
+      this.featurePabcIntegration = data.parameters.featurePabcIntegration;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
