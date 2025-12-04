@@ -17,8 +17,8 @@ import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
+import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
@@ -413,10 +413,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeCmmnBetrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            brpKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen
+        zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
+            zaaktypeConfiguration = newZaaktypeCmmnConfiguration
+            brpKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
+            kvkKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
         }
     }
 
@@ -424,11 +424,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.zoekWaarde
-            raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.raadpleegWaarde
-            verwerkingregisterWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde
+        zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+            zaaktypeConfiguration = newZaaktypeCmmnConfiguration
+            zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.zoekWaarde
+            raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
         }
     }
 
