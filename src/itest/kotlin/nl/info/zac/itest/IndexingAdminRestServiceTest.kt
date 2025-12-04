@@ -129,7 +129,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "datums": {},
                             "rows": 100,
                             "page": 0,
-                            "type":"DOCUMENT"
+                            "type": "DOCUMENT"
                         }
                         """.trimIndent()
                     )
