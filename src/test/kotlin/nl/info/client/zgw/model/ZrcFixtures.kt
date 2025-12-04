@@ -110,9 +110,9 @@ fun createGeoJSONGeometryWithDeletionSupport(
 ) = DeleteGeoJSONGeometry().apply {
     this.type = GeometryTypeEnum.POINT
     this.coordinates = listOf(
-                    longitude,
-                    latitude
-                )
+        longitude,
+        latitude
+    )
 }
 
 fun createResultaat(

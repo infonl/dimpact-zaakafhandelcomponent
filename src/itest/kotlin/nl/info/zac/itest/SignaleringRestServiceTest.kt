@@ -313,18 +313,23 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
             }
             When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-                val response = itestHttpClient.performPutRequest(
-                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
-                    requestBodyAsString = """
+                // it may take a while before the notification is processed and the signalering is created
+                lateinit var responseBody: String
+                eventually(10.seconds) {
+                    val response = itestHttpClient.performPutRequest(
+                        "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                        requestBodyAsString = """
                         {
                             "page": 0,
                             "rows": 5
                         }
-                    """.trimIndent()
-                )
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
+                        """.trimIndent()
+                    )
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getDouble("totaal") shouldBe 1.0
+                }
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {

@@ -26,7 +26,6 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
