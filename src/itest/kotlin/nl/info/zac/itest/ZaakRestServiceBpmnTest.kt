@@ -19,10 +19,12 @@ import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -118,6 +120,30 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 getJSONObject("zaakdata").run {
                     bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
                     zaakIdentificatie = getString("zaakIdentificatie")
+                }
+            }
+        }
+
+        When("initiator is added") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/initiator",
+                requestBodyAsString = """
+                    {
+                        "betrokkeneIdentificatie": {
+                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
+                        },
+                        "zaakUUID": "$bpmnZaakUuid"
+                    }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response and the initiator should be added") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
+                    shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
+                    shouldContainJsonKeyValue("bsnNummer", TEST_PERSON_HENDRIKA_JANSE_BSN)
                 }
             }
         }

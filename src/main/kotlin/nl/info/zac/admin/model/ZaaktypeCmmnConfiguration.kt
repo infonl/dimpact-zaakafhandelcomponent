@@ -103,22 +103,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     )
     var zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters? = null
 
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters? = null
-
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = null
-
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(
         mappedBy = "zaaktypeCmmnConfiguration",
@@ -161,10 +145,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     }
 
     fun getAutomaticEmailConfirmation(): ZaaktypeCmmnEmailParameters? = zaaktypeCmmnEmailParameters
-
-    fun setAutomaticEmailConfirmation(value: ZaaktypeCmmnEmailParameters?) {
-        zaaktypeCmmnEmailParameters = value
-    }
 
     fun getZaakbeeindigParameters(): Set<ZaaktypeCmmnCompletionParameters> =
         zaaktypeCmmnCompletionParameters ?: emptySet()
@@ -265,20 +245,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
                 targetCollection.add(candidate.resetId())
             }
         }
-    }
-
-    fun getBetrokkeneParameters(): ZaaktypeCmmnBetrokkeneParameters =
-        zaaktypeCmmnBetrokkeneParameters ?: ZaaktypeCmmnBetrokkeneParameters()
-
-    fun setBetrokkeneParameters(value: ZaaktypeCmmnBetrokkeneParameters?) {
-        zaaktypeCmmnBetrokkeneParameters = value
-    }
-
-    fun getBrpParameters(): ZaaktypeCmmnBrpParameters =
-        zaaktypeCmmnBrpParameters ?: ZaaktypeCmmnBrpParameters()
-
-    fun setBrpParameters(value: ZaaktypeCmmnBrpParameters?) {
-        zaaktypeCmmnBrpParameters = value
     }
 
     /**

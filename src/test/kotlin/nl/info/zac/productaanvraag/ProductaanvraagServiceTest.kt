@@ -240,8 +240,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeUUID = zaakTypeUUID,
             )
             zaaktypeCmmnConfiguration.apply {
-                zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                     brpKoppelen = true,
                     kvkKoppelen = true
                 )
@@ -387,8 +387,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 gebruikersnaamMedewerker = gebruikersnaamMedewerker
             )
             zaaktypeCmmnConfiguration.apply {
-                zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                     brpKoppelen = true,
                     kvkKoppelen = true
                 )
@@ -519,8 +519,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 gebruikersnaamMedewerker = gebruikersnaamMedewerker
             )
             zaaktypeCmmnConfiguration.apply {
-                zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
-                    zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
+                    zaaktypeConfiguration = zaaktypeCmmnConfiguration,
                     brpKoppelen = false,
                     kvkKoppelen = false
                 )
@@ -637,15 +637,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
-            val gebruikersnaamMedewerker = "fakeGebruikersnaamMedewerker"
-            val fakeGebruikersnaamMedewerker = createUser()
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
-                zaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
                     brpKoppelen = false,
                     kvkKoppelen = true
                 )

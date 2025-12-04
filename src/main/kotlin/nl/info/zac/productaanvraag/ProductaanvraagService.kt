@@ -774,10 +774,10 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun isBrpEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
-        zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.brpKoppelen ?: false
+        zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen ?: false
 
     private fun isKvkEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
-        zaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen ?: false
+        zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen ?: false
 
     private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
         "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +

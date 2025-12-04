@@ -19,7 +19,7 @@ import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
+import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.util.Optional
 
@@ -52,7 +52,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val retrievePersoonPurpose = "raadpleegWaarde"
         val processingValue = "Leerplicht"
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
                 verwerkingregisterWaarde = processingValue
             }
@@ -124,7 +124,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val queryPersonenPurpose = "zoekWaarde"
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                 zoekWaarde = queryPersonenPurpose
                 verwerkingregisterWaarde = "Leerplicht"
             }
@@ -175,7 +175,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val retrievePersoonPurpose = "raadpleegWaarde"
         val processingValue = "Bíj́na"
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
                 verwerkingregisterWaarde = processingValue
             }
@@ -220,7 +220,7 @@ class BrpClientServiceTest : BehaviorSpec({
         val retrievePersoonPurpose = "raadpleegWaarde"
         val processingValue = "  \t Process ing\tvalue\t with whitespaces \t"
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                 raadpleegWaarde = retrievePersoonPurpose
                 verwerkingregisterWaarde = processingValue
             }
@@ -265,7 +265,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
         val zaak = createZaak()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-            zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
                 zoekWaarde = ""
                 raadpleegWaarde = ""
                 verwerkingregisterWaarde = ""

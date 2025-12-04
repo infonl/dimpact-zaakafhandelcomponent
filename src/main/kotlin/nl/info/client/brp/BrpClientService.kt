@@ -74,7 +74,7 @@ class BrpClientService @Inject constructor(
                         zaakIdentificatie,
                         brpConfiguration.doelbindingZoekMetDefault.getOrNull()
                     ) {
-                        it.zaaktypeCmmnBrpParameters?.zoekWaarde
+                        it.zaaktypeBrpParameters?.zoekWaarde
                     },
                     verwerking = resoleVerwerkingregister(
                         zaakIdentificatie,
@@ -104,7 +104,7 @@ class BrpClientService @Inject constructor(
                             zaakIdentificatie,
                             brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
                         ) {
-                            it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
+                            it.zaaktypeBrpParameters?.raadpleegWaarde
                         },
                         verwerking = resoleVerwerkingregister(
                             zaakIdentificatie,
@@ -158,7 +158,7 @@ class BrpClientService @Inject constructor(
             zaakIdentificatie = zaakIdentificatie,
             defaultValue = defaultVerwerkingregisterValue,
             valueDescription = "verwerkingregister value",
-            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde },
+            resolveFunction = { it.zaaktypeBrpParameters?.verwerkingregisterWaarde },
             buildFunction = { resolvedValue, zaakTypeConfiguration ->
                 "${resolvedValue ?: defaultVerwerkingregisterValue}@${zaakTypeConfiguration.zaaktypeOmschrijving}"
             }
