@@ -66,6 +66,7 @@
             [form]="form"
             [fields]="formFields"
             [readonly]="isReadonly()"
+            [loading]="isPending()"
             [config]="_formConfig"
             (formSubmitted)="onHardCodedFormSubmit($event, false)"
             (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"

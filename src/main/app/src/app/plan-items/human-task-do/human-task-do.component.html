@@ -27,7 +27,7 @@
     [form]="form"
     [fields]="formFields"
     [config]="_formConfig"
-    [loading]="loading"
+    [loading]="doHumanTaskPlanItemMutation.isPending()"
     (formSubmitted)="onFormSubmit($event)"
     (formCancelled)="onFormCancel()"
   />

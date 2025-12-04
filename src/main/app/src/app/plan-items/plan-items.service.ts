@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class PlanItemsService {
-  private basepath = "/rest/planitems";
-
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readHumanTaskPlanItem(planItemId: string) {
     return this.zacHttpClient.GET("/rest/planitems/humanTaskPlanItem/{id}", {
@@ -54,17 +54,8 @@ export class PlanItemsService {
     );
   }
 
-  doHumanTaskPlanItem(
-    humanTaskData: PostBody<"/rest/planitems/doHumanTaskPlanItem">,
-  ) {
-    if (!humanTaskData.medewerker?.id) {
-      humanTaskData.medewerker = null;
-    }
-
-    return this.zacHttpClient.POST(
-      "/rest/planitems/doHumanTaskPlanItem",
-      humanTaskData,
-    );
+  doHumanTaskPlanItem() {
+    return this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem");
   }
 
   doProcessTaskPlanItem(

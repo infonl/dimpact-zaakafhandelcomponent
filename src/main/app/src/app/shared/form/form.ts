@@ -58,6 +58,7 @@ type DateFormField<Form extends _Form> = SingleInputFormField<Form> & {
 
 type HtmlEditorField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "html-editor";
+  variables?: string[];
 };
 
 type CheckboxField<Form extends _Form> = SingleInputFormField<Form> & {
@@ -83,6 +84,7 @@ type DocumentFormField<
 
 type PlainTextField<Form extends _Form> = SingleInputFormField<Form> & {
   type: "plain-text";
+  icon?: string;
 };
 
 type RadioFormField<
@@ -144,13 +146,20 @@ export class ZacForm<Form extends _Form> {
 
   constructor() {
     effect(() => {
-      const _isReadOnly = this.readonly();
-      const _formGroup = this.form();
+      const isReadonly = this.readonly();
+      const formGroup = this.form();
+      const fields = this.fields();
 
-      if (_isReadOnly && _formGroup.enabled) {
-        _formGroup.disable({ onlySelf: true });
-      } else if (!_isReadOnly && _formGroup.disabled) {
-        _formGroup.enable({ onlySelf: true });
+      if (isReadonly && formGroup.enabled) {
+        formGroup.disable({ onlySelf: true });
+      } else if (!isReadonly && formGroup.disabled) {
+        formGroup.enable({ onlySelf: true });
+
+        for (const field of fields) {
+          if (!field.readonly) continue;
+          const control = formGroup.controls[field.key];
+          control.disable({ emitEvent: false, onlySelf: true });
+        }
       }
     });
   }

@@ -10,7 +10,9 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { TranslateService } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "./taak-formulieren.service";
 
 describe("TaakFormulierenService", () => {
@@ -23,6 +25,7 @@ describe("TaakFormulierenService", () => {
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),
+        provideTanStackQuery(testQueryClient),
       ],
     });
     service = TestBed.inject(TaakFormulierenService);
