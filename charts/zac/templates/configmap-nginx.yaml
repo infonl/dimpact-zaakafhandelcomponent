@@ -323,7 +323,7 @@ data:
         proxy_read_timeout 300s;
         
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
       }
@@ -408,7 +408,7 @@ data:
         {{- end }}
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $api_proxy_brp {{ .Values.nginx.api_proxy.brp.host }}{{ .Values.nginx.api_proxy.brp.proxy_path }};
         proxy_pass https://$api_proxy_brp;
         {{- if .Values.nginx.api_proxy.brp.ssl_verify }}
@@ -468,7 +468,7 @@ data:
         {{- end }}
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $api_proxy_kvk_basisprofiel {{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
         proxy_pass https://$api_proxy_kvk_basisprofiel;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
@@ -497,7 +497,7 @@ data:
         {{- end }}
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $api_proxy_kvk_vestigingsprofiel {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
         proxy_pass https://$api_proxy_kvk_vestigingsprofiel;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
