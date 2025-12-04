@@ -54,6 +54,8 @@ export class ParametersEditBpmnComponent {
       doel: "",
       omschrijving: "",
     },
+    betrokkeneKoppelingen: {},
+    brpDoelbindingen: {},
   };
 
   protected readonly zaakProcessDefinitionOptions: Array<{
@@ -163,6 +165,9 @@ export class ParametersEditBpmnComponent {
         productaanvraagtype:
           this.algemeenFormGroup.value.productaanvraagtype || null,
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
+        betrokkeneKoppelingen:
+          this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
+        brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
       })
       .subscribe({
         next: (data) => {

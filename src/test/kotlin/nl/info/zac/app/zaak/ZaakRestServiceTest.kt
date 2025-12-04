@@ -573,10 +573,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("This is not allowed in the zaak afhandel parameters") {
                 val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
                     brpKoppelen = false,
-                    zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+                    zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
                 )
                 val zaaktypeCmmnConfiguration =
-                    createZaaktypeCmmnConfiguration(zaaktypeCmmnBetrokkeneParameters = betrokkeneKoppelingen)
+                    createZaaktypeCmmnConfiguration(zaaktypeBetrokkeneParameters = betrokkeneKoppelingen)
                 val zaakType = createZaakType()
                 val restZaakCreateData = createRestZaakCreateData()
                 val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(restZaakCreateData = restZaakCreateData)

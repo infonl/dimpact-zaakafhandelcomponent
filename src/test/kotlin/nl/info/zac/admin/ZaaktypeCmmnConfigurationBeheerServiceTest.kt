@@ -32,7 +32,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
-import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -243,13 +243,13 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             zaaktypeUUID = zaaktypeUUID,
         )
 
-        val betrokkeneKoppelingen = ZaaktypeCmmnBetrokkeneParameters().apply {
+        val betrokkeneKoppelingen = ZaaktypeBetrokkeneParameters().apply {
             brpKoppelen = true
             kvkKoppelen = false
-            zaaktypeCmmnConfiguration = originalZaaktypeCmmnConfiguration
+            zaaktypeConfiguration = originalZaaktypeCmmnConfiguration
         }
 
-        originalZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters = betrokkeneKoppelingen
+        originalZaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters = betrokkeneKoppelingen
 
         val slotPersistZaaktypeCmmnConfiguration = slot<ZaaktypeCmmnConfiguration>()
 
