@@ -379,7 +379,7 @@ data:
         {{- end }}
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $api_proxy_bag {{ .Values.nginx.api_proxy.bag.host }}{{ .Values.nginx.api_proxy.bag.proxy_path }};
         proxy_pass https://$api_proxy_bag;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
