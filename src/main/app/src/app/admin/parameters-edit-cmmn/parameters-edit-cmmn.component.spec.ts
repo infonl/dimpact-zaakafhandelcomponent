@@ -120,7 +120,7 @@ describe(ParametersEditCmmnComponent.name, () => {
                 zaakafhandelParameters,
                 isSavedZaakafhandelParameters: true,
                 featureFlagBpmnSupport: false,
-                featurePabcIntegration: true,
+                featureFlagPabcIntegration: true,
               },
             }),
           },
