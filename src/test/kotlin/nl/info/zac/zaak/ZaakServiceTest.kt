@@ -363,7 +363,7 @@ class ZaakServiceTest : BehaviorSpec({
             clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
             )
             val zakenList = listOf(openZaak, closedZaak)
             zakenList.map {
@@ -782,7 +782,7 @@ class ZaakServiceTest : BehaviorSpec({
             clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
-                archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+                archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
             )
             val zakenList = listOf(openZaak, closedZaak)
             zakenList.map {

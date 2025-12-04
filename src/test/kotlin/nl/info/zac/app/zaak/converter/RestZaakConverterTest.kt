@@ -26,6 +26,7 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
@@ -342,7 +343,7 @@ class RestZaakConverterTest : BehaviorSpec({
                 omschrijving = STATUSTYPE_OMSCHRIJVING_HEROPEND
             }
         val zaak = createZaak().apply {
-            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
         }
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
@@ -401,7 +402,7 @@ class RestZaakConverterTest : BehaviorSpec({
             }
         val opschorting = createOpschorting(eerdereOpschorting = true)
         val zaak = createZaak().apply {
-            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
             this.opschorting = opschorting
         }
         val zaakType = createZaakType()

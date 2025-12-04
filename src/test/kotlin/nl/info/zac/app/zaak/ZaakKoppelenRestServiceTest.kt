@@ -74,7 +74,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
         Given("A source zaak which is not linked and a target not linked zaak") {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI
             )
 
@@ -173,7 +173,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
         Given("A source zaak which is not linked and a target hoofdzaak") {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
             )
 
@@ -184,7 +184,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -259,7 +259,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
         Given("A source zaak which is not linked and a target deelzaak") {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
             )
 
@@ -270,7 +270,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -347,7 +347,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
@@ -359,7 +359,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -436,7 +436,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
@@ -448,7 +448,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -525,7 +525,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
@@ -537,7 +537,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
 
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
@@ -620,7 +620,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
@@ -632,7 +632,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
 
@@ -709,7 +709,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
@@ -721,7 +721,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
 
@@ -799,7 +799,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val deelzaakUuid = UUID.randomUUID()
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
-                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+                archiefnominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaakTypeURI = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
@@ -810,7 +810,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 omschrijving = OMSCHRIJVING,
                 statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
-                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+                archiefNominatie = Zaak.ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
             val zoekParametersSlot = slot<ZoekParameters>()

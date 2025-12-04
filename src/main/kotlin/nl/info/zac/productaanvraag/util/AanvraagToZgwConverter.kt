@@ -20,8 +20,14 @@ fun Geometry.toGeoJSONGeometry(): GeoJSONGeometry =
         Geometry.Type.POINT -> GeoJSONGeometry().apply {
             type = GeometryTypeEnum.POINT
             coordinates = listOf(
-                this@toGeoJSONGeometry.coordinates[1].toBigDecimal(), // longitude
-                this@toGeoJSONGeometry.coordinates[0].toBigDecimal() // latitude
+                listOf(
+                    listOf(
+                        listOf(
+                            this@toGeoJSONGeometry.coordinates[1].toBigDecimal(), // longitude
+                            this@toGeoJSONGeometry.coordinates[0].toBigDecimal() // latitude
+                        )
+                    )
+                )
             )
         }
         else -> throw IllegalArgumentException("Unsupported geometry type: ${this.type}")

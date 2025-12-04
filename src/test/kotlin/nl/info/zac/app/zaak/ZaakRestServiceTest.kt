@@ -1148,8 +1148,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(patchZaakSlot.captured) {
                         zaakgeometrie.shouldBeInstanceOf<GeoJSONGeometry>()
                         with(zaakgeometrie as GeoJSONGeometry) {
-                            coordinates[0].toDouble() shouldBe restGeometry.point!!.longitude
-                            coordinates[1].toDouble() shouldBe restGeometry.point!!.latitude
+                            coordinates[0][0][0][0].toDouble() shouldBe restGeometry.point!!.longitude
+                            coordinates[0][0][0][1].toDouble() shouldBe restGeometry.point!!.latitude
                         }
                     }
                 }

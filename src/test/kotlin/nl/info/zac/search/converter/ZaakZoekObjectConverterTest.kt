@@ -24,6 +24,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
@@ -72,7 +73,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaak = createZaak(
             resultaat = resultaat.url,
             zaakTypeURI = zaakType.url,
-            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_initiator")

@@ -35,8 +35,14 @@ fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
         GeometryTypeEnum.POINT.name -> GeoJSONGeometry().apply {
             type = GeometryTypeEnum.POINT
             coordinates = listOf(
-                this@toGeoJSONGeometry.point?.longitude?.toBigDecimal(),
-                this@toGeoJSONGeometry.point?.latitude?.toBigDecimal(),
+                listOf(
+                    listOf(
+                        listOf(
+                            this@toGeoJSONGeometry.point?.longitude?.toBigDecimal(),
+                            this@toGeoJSONGeometry.point?.latitude?.toBigDecimal()
+                        )
+                    )
+                )
             )
         }
         else -> {
@@ -49,8 +55,8 @@ fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
     type = this.type.toString(),
     point = if (this.type == GeometryTypeEnum.POINT) {
         RestCoordinates(
-            longitude = this.coordinates[0].toDouble(),
-            latitude = this.coordinates[1].toDouble(),
+            longitude = this.coordinates[0][0][0][0].toDouble(),
+            latitude = this.coordinates[0][0][0][1].toDouble(),
         )
     } else {
         null
