@@ -10,61 +10,61 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-
-    <title>Geen toestemming</title>
-
+    <title>Zaakafhandelcomponent - Geen toestemming</title>
     <link
       rel="preload"
       href="/assets/fonts/Roboto/400.woff2"
       as="font"
       type="font/woff2"
-      crossorigin="anonymous"
+      crossorigin
     />
     <link
       rel="preload"
       href="/assets/fonts/Roboto/500.woff2"
       as="font"
       type="font/woff2"
-      crossorigin="anonymous"
+      crossorigin
     />
-    <link
-      rel="preload"
-      href="/assets/i18n/nl.json"
-      as="fetch"
-      crossorigin="anonymous"
-    />
-
-    <!-- Optimized CSS -->
     <style>
       :root {
         --background-color: #fff;
         --primary-color: #212121;
         --secondary-color: #fff;
         --header-bar-color: #3f51b5;
-        --success-bg: #dfede3;
-        --success-fill: #46a35e;
-        --error-bg: #ffe5e5;
-        --error-fill: #f44336;
-        --warning-bg: #fbedd5;
-        --warning-fill: #ffa500;
       }
 
       @font-face {
         font-family: Roboto;
-        font-style: normal;
-        font-weight: 400 500;
+        font-weight: 400;
         font-display: swap;
-        src:
-          url("/assets/fonts/Roboto/400.woff2") format("woff2"),
-          url("/assets/fonts/Roboto/500.woff2") format("woff2");
+        src: url("/assets/fonts/Roboto/400.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: Roboto;
+        font-weight: 500;
+        font-display: swap;
+        src: url("/assets/fonts/Roboto/500.woff2") format("woff2");
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
       }
 
       body {
-        font-family: Roboto, "Helvetica Neue", sans-serif;
-        font-size: 14px;
+        font-family: Roboto, sans-serif;
+        font-size: 16px;
         font-weight: 400;
-        line-height: 20px;
         color: var(--primary-color);
+        background-color: var(--background-color);
       }
 
       /* Material Design Layout Structure */
@@ -73,7 +73,10 @@
         flex-direction: column;
         width: 100%;
         height: 100%;
-        background-color: var(--background-color);
+      }
+
+      .mdl-layout--fixed-header {
+        padding-top: 68px;
       }
 
       .mdl-layout__header {
@@ -81,21 +84,8 @@
         color: var(--secondary-color);
         display: flex;
         align-items: center;
-        height: 64px;
-        position: relative;
-        z-index: 3;
-      }
-
-      .mdl-layout__header-row {
-        display: flex;
         justify-content: center;
-        align-items: center;
-        height: 100%;
-        padding: 0 16px;
-        width: 100%;
-      }
-
-      .mdl-layout--fixed-header .mdl-layout__header {
+        height: 68px;
         position: fixed;
         top: 0;
         left: 0;
@@ -103,27 +93,113 @@
         z-index: 4;
       }
 
+      .mdl-layout__header-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        position: relative;
+        padding: 0 32px;
+      }
+
+      .home-button {
+        position: absolute;
+        left: 32px;
+        text-decoration: none;
+      }
+
+      .home-button-inner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        box-shadow:
+          0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+          0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+          0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+      }
+
+      .home-button:hover .home-button-inner {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      .home-icon {
+        display: block;
+        width: 24px;
+        height: 24px;
+        fill: white;
+      }
+
       .mdl-layout__content {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: calc(100vh);
+        flex: 1;
         overflow-y: auto;
-        flex-grow: 1;
         position: relative;
-        z-index: 1;
       }
 
       .mdl-layout-title {
+        font-family: Roboto, sans-serif;
         font-size: 20px;
         font-weight: 500;
         margin: 0;
-        padding: 0 16px !important;
+        padding: 0 16px;
         color: inherit;
       }
 
-      .wrapper {
-        min-width: 444px;
+      .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+      }
+
+      .page-wrapper p {
+        text-align: center;
+        margin: 0 0 16px 0;
+      }
+
+      .page-wrapper p:last-child {
+        margin-bottom: 0;
+      }
+
+      .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        margin-top: 16px;
+        border-radius: 4px;
+        background-color: rgb(63, 81, 181);
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0px 1.5px 2.5px -0.5px rgba(0, 0, 0, 0.2),
+          0px 3px 5px 0px rgba(0, 0, 0, 0.14),
+          0px 0.5px 9px 0px rgba(0, 0, 0, 0.12);
+      }
+
+      .primary-button:hover {
+        background: linear-gradient(
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.05)
+          ),
+          rgb(63, 81, 181);
+        box-shadow:
+          0px 2.5px 2.5px -1.5px rgba(0, 0, 0, 0.2),
+          0px 4px 5px 0.5px rgba(0, 0, 0, 0.14),
+          0px 1.5px 7px 1px rgba(0, 0, 0, 0.12);
       }
     </style>
   </head>
@@ -131,18 +207,27 @@
     <div class="mdl-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
-          <span id="layout-title" class="mdl-layout-title mdl-layout-title__zac"
-            >Geen toestemming</span
-          >
+          <a href="/" class="home-button" title="Ga naar home" role="button">
+            <div class="home-button-inner">
+              <svg
+                class="home-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 -960 960 960"
+              >
+                <path
+                  d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"
+                />
+              </svg>
+            </div>
+          </a>
+          <span class="mdl-layout-title">Geen toestemming</span>
         </div>
       </header>
 
       <main class="mdl-layout__content">
-        <div class="page-content">
-          <div class="wrapper">
-            <p>U heeft helaas geen toestemming om deze pagina te bekijken.</p>
-            <p><a href="/logout">Uitloggen</a></p>
-          </div>
+        <div class="page-wrapper">
+          <p>U heeft geen toestemming om deze pagina te bekijken.</p>
+          <a href="/logout" class="primary-button" role="button">Uitloggen</a>
         </div>
       </main>
     </div>
