@@ -45,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started with group "Coördinatorsgroep" and user "Coördinator"
+    Then "Bob" sees that the summary task is started with group "Functioneelbeheerders" and user "Functioneel Beheerder2"
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
