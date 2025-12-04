@@ -10,6 +10,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum
+import nl.info.client.klanten.model.generated.CodeRegisterEnum
+import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
 import java.util.UUID
 
 class KlantClientServiceTest : BehaviorSpec({
@@ -65,17 +68,17 @@ class KlantClientServiceTest : BehaviorSpec({
             val otherKvkIdentificatorUUID = UUID.randomUUID()
             val kvkIdentificator = createPartijIdentificator(
                 partijIdentificator = createPartijIdentificatorGroepType(
-                    codeObjecttype = "niet_natuurlijk_persoon",
-                    codeRegister = "fakeCodeRegister",
-                    codeSoortObjectId = "kvk_nummer",
+                    codeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON,
+                    codeRegister = CodeRegisterEnum.HR,
+                    codeSoortObjectId = CodeSoortObjectIdEnum.KVK_NUMMER,
                     objectId = kvkNummer
                 )
             )
             val otherKvkIdentificator = createPartijIdentificator(
                 partijIdentificator = createPartijIdentificatorGroepType(
-                    codeObjecttype = "niet_natuurlijk_persoon",
-                    codeRegister = "fakeCodeRegister",
-                    codeSoortObjectId = "kvk_nummer",
+                    codeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON,
+                    codeRegister = CodeRegisterEnum.HR,
+                    codeSoortObjectId = CodeSoortObjectIdEnum.KVK_NUMMER,
                     objectId = otherKvkNummer
                 )
             )
@@ -93,9 +96,9 @@ class KlantClientServiceTest : BehaviorSpec({
                         partijIdentificatoren = listOf(
                             createPartijIdentificator(
                                 partijIdentificator = createPartijIdentificatorGroepType(
-                                    codeObjecttype = "vestiging",
-                                    codeRegister = "fakeCodeRegister",
-                                    codeSoortObjectId = "vestigingsnummer",
+                                    codeObjecttype = CodeObjecttypeEnum.VESTIGING,
+                                    codeRegister = CodeRegisterEnum.HR,
+                                    codeSoortObjectId = CodeSoortObjectIdEnum.VESTIGINGSNUMMER,
                                     objectId = vestigingsnummer
                                 ),
                                 subIdentificatorVan = createPartijIdentificatorForeignkey(
@@ -113,9 +116,9 @@ class KlantClientServiceTest : BehaviorSpec({
                         partijIdentificatoren = listOf(
                             createPartijIdentificator(
                                 partijIdentificator = createPartijIdentificatorGroepType(
-                                    codeObjecttype = "vestiging",
-                                    codeRegister = "fakeCodeRegister",
-                                    codeSoortObjectId = "vestigingsnummer",
+                                    codeObjecttype = CodeObjecttypeEnum.VESTIGING,
+                                    codeRegister = CodeRegisterEnum.HR,
+                                    codeSoortObjectId = CodeSoortObjectIdEnum.VESTIGINGSNUMMER,
                                     objectId = vestigingsnummer
                                 ),
                                 subIdentificatorVan = createPartijIdentificatorForeignkey(
@@ -161,9 +164,9 @@ class KlantClientServiceTest : BehaviorSpec({
             val kvkIdentificatorUUID = UUID.randomUUID()
             val kvkIdentificator = createPartijIdentificator(
                 partijIdentificator = createPartijIdentificatorGroepType(
-                    codeObjecttype = "niet_natuurlijk_persoon",
-                    codeRegister = "fakeCodeRegister",
-                    codeSoortObjectId = "kvk_nummer",
+                    codeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON,
+                    codeRegister = CodeRegisterEnum.HR,
+                    codeSoortObjectId = CodeSoortObjectIdEnum.KVK_NUMMER,
                     objectId = subIdentificatorVanKvkNummer
                 )
             )
@@ -176,9 +179,9 @@ class KlantClientServiceTest : BehaviorSpec({
                         partijIdentificatoren = listOf(
                             createPartijIdentificator(
                                 partijIdentificator = createPartijIdentificatorGroepType(
-                                    codeObjecttype = "vestiging",
-                                    codeRegister = "fakeCodeRegister",
-                                    codeSoortObjectId = "vestigingsnummer",
+                                    codeObjecttype = CodeObjecttypeEnum.VESTIGING,
+                                    codeRegister = CodeRegisterEnum.HR,
+                                    codeSoortObjectId = CodeSoortObjectIdEnum.VESTIGINGSNUMMER,
                                     objectId = vestigingsnummer
                                 ),
                                 subIdentificatorVan = createPartijIdentificatorForeignkey(
@@ -214,9 +217,9 @@ class KlantClientServiceTest : BehaviorSpec({
     Context("Listing betrokkenen") {
         Given("A number for which betrokkenen exist") {
             val number = "12345"
-            val expandBetrokkenen = listOf(
-                createExpandBetrokkene(fullName = "fakeFullName1"),
-                createExpandBetrokkene(fullName = "fakeFullName2")
+            val betrokkenen = listOf(
+                createBetrokkene(fullName = "fakeFullName1"),
+                createBetrokkene(fullName = "fakeFullName2")
             )
             every {
                 klantClient.partijenList(
@@ -228,7 +231,7 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns mockk {
                 every { getResults() } returns listOf(
                     mockk {
-                        every { getExpand()?.betrokkenen } returns expandBetrokkenen
+                        every { getExpand()?.betrokkenen } returns betrokkenen
                     }
                 )
             }
@@ -237,7 +240,7 @@ class KlantClientServiceTest : BehaviorSpec({
                 val result = klantClientService.listBetrokkenen(number, 1)
 
                 Then("it should return the digital addresses") {
-                    result shouldContainExactly expandBetrokkenen
+                    result shouldContainExactly betrokkenen
                 }
             }
         }

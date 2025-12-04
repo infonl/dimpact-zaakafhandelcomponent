@@ -12,9 +12,9 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.klant.exception.KlantRuntimeResponseExceptionMapper
-import nl.info.client.klant.model.PaginatedExpandPartijList
-import nl.info.client.klant.model.PartijIdentificator
 import nl.info.client.klant.util.KlantClientHeadersFactory
+import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
+import nl.info.client.klanten.model.generated.PartijIdentificator
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
