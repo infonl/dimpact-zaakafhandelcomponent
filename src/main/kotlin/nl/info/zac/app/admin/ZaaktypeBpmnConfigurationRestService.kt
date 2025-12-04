@@ -100,8 +100,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
-            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen.toBrpDoelbindingen(it)
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
