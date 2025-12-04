@@ -535,7 +535,7 @@ services:
       - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
     depends_on:
       opennotificaties-init:
-          condition: service_completed_successfully
+        condition: service_completed_successfully
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
@@ -568,8 +568,8 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-        opennotificaties:
-            condition: service_healthy
+      opennotificaties:
+        condition: service_healthy
     profiles: [ "opennotificaties" ]
 
   openarchiefbeheer-database:
