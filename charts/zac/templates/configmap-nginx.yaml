@@ -322,7 +322,7 @@ data:
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
         
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
@@ -332,7 +332,7 @@ data:
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
@@ -349,7 +349,7 @@ data:
         proxy_set_header Cache-Control private;
         proxy_ignore_headers Expires Cache-Control;
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
@@ -378,7 +378,7 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.bag.server_secret }};
         {{- end }}
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $api_proxy_bag {{ .Values.nginx.api_proxy.bag.host }}{{ .Values.nginx.api_proxy.bag.proxy_path }};
         proxy_pass https://$api_proxy_bag;
@@ -407,7 +407,7 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.brp.server_secret }};
         {{- end }}
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $api_proxy_brp {{ .Values.nginx.api_proxy.brp.host }}{{ .Values.nginx.api_proxy.brp.proxy_path }};
         proxy_pass https://$api_proxy_brp;
@@ -438,7 +438,7 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.zoeken.server_secret }};
         {{- end }}
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $api_proxy_kvk {{ .Values.nginx.api_proxy.kvk.zoeken.host }}{{ .Values.nginx.api_proxy.kvk.zoeken.proxy_path }};
         proxy_pass https://$api_proxy_kvk;
@@ -467,7 +467,7 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.basisprofiel.server_secret }};
         {{- end }}
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $api_proxy_kvk_basisprofiel {{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
         proxy_pass https://$api_proxy_kvk_basisprofiel;
@@ -496,7 +496,7 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret }};
         {{- end }}
 
-        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
         set $api_proxy_kvk_vestigingsprofiel {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
         proxy_pass https://$api_proxy_kvk_vestigingsprofiel;
