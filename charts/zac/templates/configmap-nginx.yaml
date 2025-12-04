@@ -321,13 +321,21 @@ data:
       location @normal {
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
-        proxy_pass http://{{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        proxy_pass http://$zac_url;
       }
 
       location @longtimeout {
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
-        proxy_pass http://{{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        proxy_pass http://$zac_url;
       }
 
       location ~* \.woff2$ {
@@ -340,7 +348,11 @@ data:
         expires 30d;
         proxy_set_header Cache-Control private;
         proxy_ignore_headers Expires Cache-Control;
-        proxy_pass http://{{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        proxy_pass http://$zac_url;
       }
 
       location /_health/ {
@@ -365,7 +377,11 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.bag.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.bag.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.bag.host }}{{ .Values.nginx.api_proxy.bag.proxy_path }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $api_proxy_bag {{ .Values.nginx.api_proxy.bag.host }}{{ .Values.nginx.api_proxy.bag.proxy_path }};
+        proxy_pass https://$api_proxy_bag;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
         proxy_ssl_verify on;
         {{- else }}
@@ -390,7 +406,11 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.brp.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.brp.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.brp.host }}{{ .Values.nginx.api_proxy.brp.proxy_path }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $api_proxy_brp {{ .Values.nginx.api_proxy.brp.host }}{{ .Values.nginx.api_proxy.brp.proxy_path }};
+        proxy_pass https://$api_proxy_brp;
         {{- if .Values.nginx.api_proxy.brp.ssl_verify }}
         proxy_ssl_verify on;
         {{- else }}
@@ -418,7 +438,10 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.zoeken.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.zoeken.host }}{{ .Values.nginx.api_proxy.kvk.zoeken.proxy_path }};
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $api_proxy_kvk {{ .Values.nginx.api_proxy.kvk.zoeken.host }}{{ .Values.nginx.api_proxy.kvk.zoeken.proxy_path }};
+        proxy_pass https://$api_proxy_kvk;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
         proxy_ssl_verify on;
         {{- else }}
@@ -443,7 +466,11 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.basisprofiel.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $api_proxy_kvk_basisprofiel {{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
+        proxy_pass https://$api_proxy_kvk_basisprofiel;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
         proxy_ssl_verify on;
         {{- else }}
@@ -468,7 +495,11 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
+
+        # Defining the proxy_pass via a variable disabled DNS lookup validation on nginx startup.
+        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        set $api_proxy_kvk_vestigingsprofiel {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
+        proxy_pass https://$api_proxy_kvk_vestigingsprofiel;
         {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
         proxy_ssl_verify on;
         {{- else }}
