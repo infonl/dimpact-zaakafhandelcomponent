@@ -13,7 +13,7 @@ data:
       ~ SPDX-License-Identifier: EUPL-1.2+
       -->
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="nl">
       <!--
         This HTML file is designed to be served directly by nginx.
         It has no external dependencies or peer dependencies - all resources (CSS, JavaScript, etc.) are inlined within this single file.
