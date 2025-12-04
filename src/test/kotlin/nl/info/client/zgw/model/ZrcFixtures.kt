@@ -290,6 +290,7 @@ fun createZaak(
     uuid,
     endDate,
     null,
+    null,
     deelzaken,
     null,
     null,
