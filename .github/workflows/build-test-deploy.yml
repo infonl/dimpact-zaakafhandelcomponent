@@ -305,7 +305,12 @@ jobs:
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Run unit tests and generate test coverage reports
+      - name: Run unit tests when in merge queue
+        if: ${{ github.event_name == 'merge_group' }}
+        run: ./gradlew -x processResources -x classes test --info --rerun-tasks
+
+      - name: Run unit tests and generate test coverage reports when not in merge queue
+        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
 
       - name: Publish unit test results
