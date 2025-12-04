@@ -108,7 +108,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -169,7 +169,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(1)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -216,7 +216,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(3)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -249,7 +249,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
 
@@ -304,11 +304,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(numberOfDays)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now()
             )
             val extendedZaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
@@ -375,7 +375,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -446,7 +446,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance

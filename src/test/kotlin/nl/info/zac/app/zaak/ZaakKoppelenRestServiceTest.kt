@@ -75,7 +75,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI
+                zaaktypeUri = zaakTypeURI
             )
 
             val zaakZoekObject = createZaakZoekObject(
@@ -174,7 +174,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
             )
 
             val zaakZoekObject = createZaakZoekObject(
@@ -260,7 +260,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val sourceZaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
             )
 
             val zaakZoekObject = createZaakZoekObject(
@@ -348,7 +348,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
 
@@ -437,7 +437,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
 
@@ -526,7 +526,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
 
@@ -621,7 +621,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
 
@@ -710,7 +710,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
 
@@ -800,7 +800,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-                zaakTypeURI = zaakTypeURI,
+                zaaktypeUri = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
             val zaakZoekObject = createZaakZoekObject(

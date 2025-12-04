@@ -124,7 +124,7 @@ class RestZaakConverter @Inject constructor(
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaakType),
-            status = status?.let { toRestZaakStatus(it, statustype!!) },
+            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort(),
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },

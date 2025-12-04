@@ -120,6 +120,7 @@ describe(ParametersEditCmmnComponent.name, () => {
                 zaakafhandelParameters,
                 isSavedZaakafhandelParameters: true,
                 featureFlagBpmnSupport: false,
+                featureFlagPabcIntegration: true,
               },
             }),
           },
@@ -231,7 +232,7 @@ describe(ParametersEditCmmnComponent.name, () => {
       await selectStepperStep(2);
 
       const selects = await loader.getAllHarnesses(MatSelectHarness);
-      expect(selects.length).toBeGreaterThanOrEqual(4);
+      expect(selects.length).toEqual(3);
 
       const select = selects[0];
       await select.open();

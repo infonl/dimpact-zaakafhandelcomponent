@@ -15,6 +15,7 @@ import jakarta.ws.rs.FormParam;
 
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
 import nl.info.zac.app.identity.model.RestUser;
+import nl.info.zac.app.informatieobjecten.model.RestOndertekening;
 import nl.info.zac.app.policy.model.RestDocumentRechten;
 import nl.info.zac.search.model.DocumentIndicatie;
 
@@ -84,7 +85,7 @@ public class RestEnkelvoudigInformatieobject extends RestEnkelvoudigInformatieFi
     public String link;
 
     @FormParam("ondertekening")
-    public RESTOndertekening ondertekening;
+    public RestOndertekening ondertekening;
 
     @FormParam("indicatieGebruiksrecht")
     public boolean indicatieGebruiksrecht;

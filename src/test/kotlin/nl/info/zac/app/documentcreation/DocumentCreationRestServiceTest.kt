@@ -61,7 +61,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaak = createZaak(
-            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+            zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
         )
         val taskId = "fakeTaskId"
         val task = createTestTask()
