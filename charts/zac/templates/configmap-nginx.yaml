@@ -333,7 +333,7 @@ data:
         proxy_send_timeout 1d;
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start succesfully if the upstream endpoint cannot be resolved
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
         set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
       }
