@@ -111,7 +111,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
         val zaak = createZaak(
             zaakTypeURI = zaakType.url,
-            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
 
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject

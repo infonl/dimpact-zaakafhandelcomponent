@@ -234,7 +234,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
         val closedZaak = createZaak(
-            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()

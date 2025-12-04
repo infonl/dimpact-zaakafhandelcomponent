@@ -110,15 +110,9 @@ fun createGeoJSONGeometryWithDeletionSupport(
 ) = DeleteGeoJSONGeometry().apply {
     this.type = GeometryTypeEnum.POINT
     this.coordinates = listOf(
-        listOf(
-            listOf(
-                listOf(
                     longitude,
                     latitude
                 )
-            )
-        )
-    )
 }
 
 fun createResultaat(
@@ -260,7 +254,7 @@ fun createZaak(
     bronOrganisatie: String = "fakeBronOrganisatie",
     verantwoordelijkeOrganisatie: String = "fakeVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
-    archiefnominatie: Zaak.ArchiefnominatieEnum? = null,
+    archiefnominatie: ArchiefnominatieEnum? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
     identificatie: String = "fakeIdentificatie",

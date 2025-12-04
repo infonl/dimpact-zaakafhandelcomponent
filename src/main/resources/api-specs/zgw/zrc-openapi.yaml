@@ -13612,9 +13612,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRol'
@@ -13709,9 +13711,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRolRequest'
@@ -13830,9 +13834,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRol'
@@ -13921,9 +13927,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRolRequest'
@@ -14040,9 +14048,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRol'
@@ -14134,9 +14144,11 @@ components:
 
             * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
             * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/IndicatieMachtigingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         contactpersoonRol:
           allOf:
           - $ref: '#/components/schemas/ContactPersoonRolRequest'
@@ -14531,6 +14543,8 @@ components:
       - nog_niet
       - gedeeltelijk
       - geheel
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     BetrokkeneTypeEnum:
       enum:
@@ -14781,6 +14795,8 @@ components:
       enum:
       - betrokkenen
       - intern
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     EHerkenningAuthContextLevelOfAssuranceEnum:
       enum:
@@ -14913,14 +14929,16 @@ components:
     GeoJSONGeometry:
       title: GeoJSONGeometry
       type: object
-      oneOf:
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      allOf:
+      #oneOf:
       - $ref: '#/components/schemas/Point'
-      - $ref: '#/components/schemas/MultiPoint'
-      - $ref: '#/components/schemas/LineString'
-      - $ref: '#/components/schemas/MultiLineString'
-      - $ref: '#/components/schemas/Polygon'
-      - $ref: '#/components/schemas/MultiPolygon'
-      - $ref: '#/components/schemas/GeometryCollection'
+      #- $ref: '#/components/schemas/MultiPoint'
+      #- $ref: '#/components/schemas/LineString'
+      #- $ref: '#/components/schemas/MultiLineString'
+      #- $ref: '#/components/schemas/Polygon'
+      #- $ref: '#/components/schemas/MultiPolygon'
+      #- $ref: '#/components/schemas/GeometryCollection'
       discriminator:
         propertyName: type
     GeoWithinRequest:
@@ -14973,11 +14991,15 @@ components:
       - m
       - v
       - o
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     IndicatieMachtigingEnum:
       enum:
       - gemachtigde
       - machtiginggever
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     InnRechtsvormEnum:
       enum:
@@ -15000,6 +15022,8 @@ components:
       - kapitaalvennootschap_binnen_eer
       - overige_buitenlandse_rechtspersoon_vennootschap
       - kapitaalvennootschap_buiten_eer
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     KlantContact:
       type: object
@@ -15240,9 +15264,11 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         geboortedatum:
           type: string
           maxLength: 18
@@ -15298,9 +15324,11 @@ components:
             * `m` - Man
             * `v` - Vrouw
             * `o` - Onbekend
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         geboortedatum:
           type: string
           maxLength: 18
@@ -15343,9 +15371,11 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/InnRechtsvormEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         bezoekadres:
           type: string
           description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
@@ -15390,9 +15420,11 @@ components:
           maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/InnRechtsvormEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         bezoekadres:
           type: string
           description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
@@ -17006,9 +17038,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         laatsteBetaaldatum:
           type: string
           format: date-time
@@ -17070,10 +17104,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
@@ -17237,9 +17272,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         laatsteBetaaldatum:
           type: string
           format: date-time
@@ -17301,10 +17338,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
-          - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
+            - $ref: '#/components/schemas/ArchiefnominatieEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
@@ -18104,9 +18142,11 @@ components:
           description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
         doelgroep:
           description: Indicatie van van de zichtbaarheid van een substatus.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/DoelgroepEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
       required:
       - omschrijving
       - url
@@ -18140,9 +18180,11 @@ components:
           description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
         doelgroep:
           description: Indicatie van van de zichtbaarheid van een substatus.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/DoelgroepEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
       required:
       - omschrijving
       - zaak
@@ -18708,9 +18750,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         betalingsindicatieWeergave:
           type: string
           description: Uitleg bij `betalingsindicatie`.
@@ -18817,9 +18861,9 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual change by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the `oneOf` construct fully yet
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
           # manual change by INFO.nl: generated NullEnum class does not compile
@@ -19879,9 +19923,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         betalingsindicatieWeergave:
           type: string
           description: Uitleg bij `betalingsindicatie`.
@@ -19996,9 +20042,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
           # manual change by INFO.nl: generated NullEnum class does not compile
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
@@ -20282,9 +20330,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         laatsteBetaaldatum:
           type: string
           format: date-time
@@ -20346,10 +20396,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
@@ -20543,9 +20594,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         betalingsindicatieWeergave:
           type: string
           description: Uitleg bij `betalingsindicatie`.
@@ -20652,10 +20705,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
@@ -20843,9 +20897,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         laatsteBetaaldatum:
           type: string
           format: date-time
@@ -20907,10 +20963,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:
@@ -21141,9 +21198,11 @@ components:
             * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
             * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
             * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         betalingsindicatieWeergave:
           type: string
           description: Uitleg bij `betalingsindicatie`.
@@ -21258,10 +21317,11 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          oneOf:
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+          allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          # manual change by INFO.nl: generated NullEnum class does not compile
+          #- $ref: '#/components/schemas/BlankEnum'
           #- $ref: '#/components/schemas/NullEnum'
         archiefstatus:
           allOf:

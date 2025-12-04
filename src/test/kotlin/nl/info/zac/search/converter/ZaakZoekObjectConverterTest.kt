@@ -73,7 +73,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaak = createZaak(
             resultaat = resultaat.url,
             zaakTypeURI = zaakType.url,
-            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
             rolType = createRolType(omschrijving = "fake_role_initiator")

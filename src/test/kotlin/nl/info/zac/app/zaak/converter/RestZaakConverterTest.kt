@@ -343,7 +343,7 @@ class RestZaakConverterTest : BehaviorSpec({
                 omschrijving = STATUSTYPE_OMSCHRIJVING_HEROPEND
             }
         val zaak = createZaak().apply {
-            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         }
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
@@ -402,7 +402,7 @@ class RestZaakConverterTest : BehaviorSpec({
             }
         val opschorting = createOpschorting(eerdereOpschorting = true)
         val zaak = createZaak().apply {
-            archiefnominatie = Zaak.ArchiefnominatieEnum.VERNIETIGEN
+            archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
             this.opschorting = opschorting
         }
         val zaakType = createZaakType()
