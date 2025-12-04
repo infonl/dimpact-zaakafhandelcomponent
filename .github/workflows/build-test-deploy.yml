@@ -305,8 +305,8 @@ jobs:
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Run unit tests
-        run: ./gradlew -x processResources -x classes test --info --rerun-tasks
+      - name: Run unit tests and generate test coverage reports
+        run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
@@ -323,13 +323,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: "test_results"
-
-      - name: Generate unit test code coverage report
-        if: ${{ github.event_name != 'merge_group' }}
-        run: |
-          ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild \
-          npmRunTestCoverage jacocoTestReport \
-          --info 
 
       - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
