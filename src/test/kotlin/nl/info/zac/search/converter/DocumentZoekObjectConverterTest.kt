@@ -61,7 +61,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = documentUUID)
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             archiefnominatie = null
         )
 
@@ -109,7 +109,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = documentUUID)
         val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
 

@@ -90,7 +90,7 @@ class BpmnServiceTest : BehaviorSpec({
             referentieProces = createReferentieProcess(name = referentieProcesName)
         )
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             uuid = zaakUUID
         )
         val zaakData = mapOf<String, Any>("fakeKey" to "fakeValue")

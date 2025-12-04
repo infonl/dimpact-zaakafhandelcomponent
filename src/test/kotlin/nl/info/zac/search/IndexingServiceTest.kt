@@ -97,8 +97,8 @@ class IndexingServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val zaaktypeURI = URI("http://example.com/${zaakType.url}")
         val zaken = listOf(
-            createZaak(zaakTypeURI = zaaktypeURI),
-            createZaak(zaakTypeURI = zaaktypeURI)
+            createZaak(zaaktypeUri = zaaktypeURI),
+            createZaak(zaaktypeUri = zaaktypeURI)
         )
         val zaakZoekObjecten = listOf(
             createZaakZoekObject(),

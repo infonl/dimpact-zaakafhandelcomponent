@@ -62,7 +62,7 @@ class BpmnDocumentCreationServiceTest : BehaviorSpec({
     Given("Document creation data with a zaak and an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
-        val zaak = createZaak(zaakTypeURI = zaakTypeURI)
+        val zaak = createZaak(zaaktypeUri = zaakTypeURI)
         val taskId = "fakeTaskId"
         val documentCreationData = createBpmnDocumentCreationDataAttended(
             zaak = zaak,

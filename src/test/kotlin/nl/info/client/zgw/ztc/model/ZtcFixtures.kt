@@ -213,15 +213,15 @@ fun createResultaatType(
 
 @Suppress("LongParameterList")
 fun createStatusType(
-    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     zaaktypeIdentificatie: String? = null,
     isEindstatus: Boolean = false,
-    catalogus: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    eigenschappen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
-    zaakobjecttypen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    catalogus: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    eigenschappen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
+    zaakobjecttypen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now(),
-    omschrijving: String? = null,
+    omschrijving: String = "fakeOmschrijving",
     volgnummer: Int? = 1
 ) = StatusType(
     uri,

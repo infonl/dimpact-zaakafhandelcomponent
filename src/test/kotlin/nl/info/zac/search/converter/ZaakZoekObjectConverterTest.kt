@@ -71,7 +71,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val zaak = createZaak(
             resultaat = resultaat.url,
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
@@ -149,7 +149,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             besluittypen = listOf(URI("decision1"), URI("decision2"))
         )
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             status = URI("status")
         )
         val rolInitiator = createRolNatuurlijkPersoon(
