@@ -58,12 +58,12 @@ fun createDigitaalAdresForeignKey(
     this.uuid = uuid
 }
 
-fun createBetrokkene(
+fun createExpandBetrokkene(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("https://example.com/fakeUri"),
     digitalAddresses: List<DigitaalAdresForeignKey> = listOf(createDigitaalAdresForeignKey()),
     fullName: String = "fakeFullName"
-) = Betrokkene(uuid, uri, digitalAddresses, fullName)
+) = ExpandBetrokkene(uuid, uri, digitalAddresses, fullName)
 
 @Suppress("LongParameterList")
 fun createExpandPartij(
@@ -90,7 +90,7 @@ fun createExpandPartij(
 }
 
 fun createExpandPartijAllOfExpand(
-    betrokkenen: List<Betrokkene>? = null,
+    betrokkenen: List<ExpandBetrokkene>? = null,
     categorieRelaties: List<CategorieRelatie>? = null,
     digitaleAdressen: List<DigitaalAdres> = listOf(createDigitalAddress())
 ) = ExpandPartijAllOfExpand(betrokkenen, categorieRelaties).apply {

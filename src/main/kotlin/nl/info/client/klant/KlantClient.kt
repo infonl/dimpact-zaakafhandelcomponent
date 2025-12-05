@@ -7,7 +7,6 @@ package nl.info.client.klant
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
@@ -21,11 +20,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
 /**
- * Klanten API
- *
- *
- * Een API om zowel klanten te registreren als op te vragen.
- * Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens.
+ * Klantinteracties API-client.
  */
 @RegisterRestClient(configKey = "Klantinteracties-API-Client")
 @RegisterClientHeaders(KlantClientHeadersFactory::class)
@@ -37,7 +32,6 @@ interface KlantClient {
     @GET
     @Path("/partijen")
     @Produces(MediaType.APPLICATION_JSON)
-    @Throws(ProcessingException::class)
     fun partijenList(
         @QueryParam("bezoekadresAdresregel1") bezoekadresAdresregel1: String? = null,
         @QueryParam("bezoekadresAdresregel2") bezoekadresAdresregel2: String? = null,
@@ -68,6 +62,5 @@ interface KlantClient {
     @GET
     @Path("/partij-identificatoren/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Throws(ProcessingException::class)
     fun getPartijIdentificator(@PathParam("uuid") uuid: UUID): PartijIdentificator
 }

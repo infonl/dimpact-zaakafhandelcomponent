@@ -214,12 +214,12 @@ class KlantClientServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing betrokkenen") {
+    Context("Listing expand betrokkenen") {
         Given("A number for which betrokkenen exist") {
             val number = "12345"
-            val betrokkenen = listOf(
-                createBetrokkene(fullName = "fakeFullName1"),
-                createBetrokkene(fullName = "fakeFullName2")
+            val expandBetrokkenen = listOf(
+                createExpandBetrokkene(fullName = "fakeFullName1"),
+                createExpandBetrokkene(fullName = "fakeFullName2")
             )
             every {
                 klantClient.partijenList(
@@ -231,16 +231,16 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns mockk {
                 every { getResults() } returns listOf(
                     mockk {
-                        every { getExpand()?.betrokkenen } returns betrokkenen
+                        every { getExpand()?.betrokkenen } returns expandBetrokkenen
                     }
                 )
             }
 
-            When("betrokkenen are listed") {
-                val result = klantClientService.listBetrokkenen(number, 1)
+            When("expand betrokkenen are listed") {
+                val result = klantClientService.listExpandBetrokkenen(number, 1)
 
-                Then("it should return the digital addresses") {
-                    result shouldContainExactly betrokkenen
+                Then("it should return the expanded betrokkenen") {
+                    result shouldContainExactly expandBetrokkenen
                 }
             }
         }
@@ -262,8 +262,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             }
 
-            When("betrokkenen are listed") {
-                val result = klantClientService.listBetrokkenen(number, 1)
+            When("expand betrokkenen are listed") {
+                val result = klantClientService.listExpandBetrokkenen(number, 1)
 
                 Then("it should return an empty list") {
                     result.shouldBeEmpty()

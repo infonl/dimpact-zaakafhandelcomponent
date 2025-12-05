@@ -3593,8 +3593,7 @@ components:
           description: Betrokkene bij klantcontact die een partij was.
         hadKlantcontact:
           allOf:
-         # TODO: INFO.nl TEST
-          - $ref: '#/components/schemas/Klantcontact'
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
           description: Het klantcontact waar deze persoon of organisatie bij betrokken
             was.
         digitaleAdressen:
@@ -4264,13 +4263,22 @@ components:
             description: Display details of the linked resources requested in the
               `expand` parameter
             properties:
-              # TODO INFO.nl test
+              # INFO.nl: manual change. Renamed digitale_adressen to digitaleAdressen or generated code does not work
+              # also see: https://github.com/maykinmedia/open-klant/issues/396
               digitaleAdressen:
                 type: array
                 items:
                   $ref: '#/components/schemas/DigitaalAdres'
                 readOnly: true
                 description: Digitale adressen van de betrokkene bij klantcontact.
+              # INFO.nl: we expand on hadKlantcontact in our `KlantClientService`, so we need to include it here
+              # or else it will not be accessible
+              # Also see: https://github.com/maykinmedia/open-klant/issues/216
+              hadKlantcontact:
+                allOf:
+                  - $ref: '#/components/schemas/Klantcontact'
+                description: Het klantcontact waar deze persoon of organisatie bij betrokken
+                  was.
     ExpandDigitaalAdres:
       allOf:
       - $ref: '#/components/schemas/DigitaalAdres'
@@ -4333,7 +4341,8 @@ components:
             description: Display details of the linked resources requested in the
               `expand` parameter
             properties:
-              # TODO: INFO.nl test
+              # INFO.nl: manual change. Renamed digitale_adressen to digitaleAdressen or generated code does not work
+              # also see: https://github.com/maykinmedia/open-klant/issues/396
               digitaleAdressen:
                 type: array
                 items:
@@ -4344,7 +4353,10 @@ components:
               betrokkenen:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Betrokkene'
+                  # INFO.nl: renamed `Betrokkene` to `ExpandBetrokkene` or else the generated code
+                  # cannot access the expanded betrokkene fields
+                  # Also see: https://github.com/maykinmedia/open-klant/issues/216
+                  $ref: '#/components/schemas/ExpandBetrokkene'
                 readOnly: true
                 description: Betrokkene bij klantcontact die een partij was.
               categorie_relaties:

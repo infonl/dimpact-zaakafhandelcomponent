@@ -6,7 +6,6 @@ package nl.info.client.klant
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.klanten.model.generated.Betrokkene
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
@@ -14,6 +13,7 @@ import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.BSN
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.KVK_NUMMER
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.VESTIGINGSNUMMER
 import nl.info.client.klanten.model.generated.DigitaalAdres
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -96,7 +96,7 @@ class KlantClientService @Inject constructor(
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
-    fun listBetrokkenen(number: String, page: Int): List<Betrokkene> =
+    fun listExpandBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =
         klantClient.partijenList(
             expand = "betrokkenen,betrokkenen.hadKlantcontact",
             page = page,
