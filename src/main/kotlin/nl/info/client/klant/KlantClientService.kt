@@ -6,8 +6,8 @@ package nl.info.client.klant
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.BSN
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.KVK_NUMMER

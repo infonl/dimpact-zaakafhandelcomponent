@@ -4,7 +4,6 @@
  */
 package nl.info.client.klant
 
-import nl.info.client.klanten.model.generated.Betrokkene
 import nl.info.client.klanten.model.generated.BetrokkeneForeignKey
 import nl.info.client.klanten.model.generated.CategorieRelatie
 import nl.info.client.klanten.model.generated.CategorieRelatieForeignKey
@@ -92,7 +91,7 @@ fun createExpandPartij(
 fun createExpandPartijAllOfExpand(
     betrokkenen: List<ExpandBetrokkene>? = null,
     categorieRelaties: List<CategorieRelatie>? = null,
-    digitaleAdressen: List<DigitaalAdres> = listOf(createDigitalAddress())
+    digitaleAdressen: List<DigitaalAdres>? = listOf(createDigitalAddress())
 ) = ExpandPartijAllOfExpand(betrokkenen, categorieRelaties).apply {
     this.digitaleAdressen = digitaleAdressen
 }

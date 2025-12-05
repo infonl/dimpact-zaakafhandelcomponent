@@ -23,7 +23,7 @@ class KlantClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Finding digital addresses") {
+    Context("Finding digital addresses for natural persons") {
         Given("A BSN for which digital addresses exist") {
             val number = "12345"
             val digitalAddresses = createDigitalAddresses()
@@ -36,13 +36,15 @@ class KlantClientServiceTest : BehaviorSpec({
                     partijIdentificatorCodeSoortObjectId = "bsn",
                     partijIdentificatorObjectId = number
                 )
-            } returns mockk {
-                every { getResults() } returns listOf(
-                    mockk {
-                        every { getExpand()?.getDigitaleAdressen() } returns digitalAddresses
-                    }
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            digitaleAdressen = digitalAddresses
+                        )
+                    )
                 )
-            }
+            )
 
             When("digital addresses are retrieved for natuurlijk persoon type with the provided BSN") {
                 val result = klantClientService.findDigitalAddressesForNaturalPerson(number)
@@ -53,6 +55,101 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
+        Given("A BSN for which no digital addresses exist") {
+            val number = "12345"
+            every {
+                klantClient.partijenList(
+                    expand = "digitaleAdressen",
+                    page = 1,
+                    pageSize = 100,
+                    partijIdentificatorCodeObjecttype = "natuurlijk_persoon",
+                    partijIdentificatorCodeSoortObjectId = "bsn",
+                    partijIdentificatorObjectId = number
+                )
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            digitaleAdressen = null
+                        )
+                    )
+                )
+            )
+
+            When("digital addresses are retrieved for natuurlijk persoon type with the provided BSN") {
+                val result = klantClientService.findDigitalAddressesForNaturalPerson(number)
+
+                Then("it should return an empty list") {
+                    result.shouldBeEmpty()
+                }
+            }
+        }
+    }
+
+    Context("Finding digital addresses for non-natural persons") {
+        Given("A KVK number for which digital addresses exist") {
+            val kvkNumber = "54321"
+            val digitalAddresses = createDigitalAddresses()
+            every {
+                klantClient.partijenList(
+                    expand = "digitaleAdressen",
+                    page = 1,
+                    pageSize = 100,
+                    partijIdentificatorCodeObjecttype = "niet_natuurlijk_persoon",
+                    partijIdentificatorCodeSoortObjectId = "kvk_nummer",
+                    partijIdentificatorObjectId = kvkNumber
+                )
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            digitaleAdressen = digitalAddresses
+                        )
+                    )
+                )
+            )
+
+            When("digital addresses are retrieved for niet natuurlijk persoon type with the provided KVK number") {
+                val result = klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNumber)
+
+                Then("it should return the digital addresses") {
+                    result shouldContainExactly digitalAddresses
+                }
+            }
+        }
+
+        Given("A KVK number for which no digital addresses exist") {
+            val number = "54321"
+            every {
+                klantClient.partijenList(
+                    expand = "digitaleAdressen",
+                    page = 1,
+                    pageSize = 100,
+                    partijIdentificatorCodeObjecttype = "niet_natuurlijk_persoon",
+                    partijIdentificatorCodeSoortObjectId = "kvk_nummer",
+                    partijIdentificatorObjectId = number
+                )
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            digitaleAdressen = null
+                        )
+                    )
+                )
+            )
+
+            When("digital addresses are retrieved for niet natuurlijk persoon type with the provided KVK number") {
+                val result = klantClientService.findDigitalAddressesForNonNaturalPerson(number)
+
+                Then("it should return an empty list") {
+                    result.shouldBeEmpty()
+                }
+            }
+        }
+    }
+
+    Context("Finding digital addresses for vestigingen") {
         Given(
             """
                 A vestigingsnummer and KVK nummer combination for which digital addresses exist,
@@ -228,13 +325,15 @@ class KlantClientServiceTest : BehaviorSpec({
                     pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
-            } returns mockk {
-                every { getResults() } returns listOf(
-                    mockk {
-                        every { getExpand()?.betrokkenen } returns expandBetrokkenen
-                    }
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            betrokkenen = expandBetrokkenen
+                        )
+                    )
                 )
-            }
+            )
 
             When("expand betrokkenen are listed") {
                 val result = klantClientService.listExpandBetrokkenen(number, 1)
@@ -254,13 +353,15 @@ class KlantClientServiceTest : BehaviorSpec({
                     pageSize = 100,
                     partijIdentificatorObjectId = number
                 )
-            } returns mockk {
-                every { getResults() } returns listOf(
-                    mockk {
-                        every { getExpand()?.betrokkenen } returns null
-                    }
+            } returns createPaginatedExpandPartijList(
+                listOf(
+                    createExpandPartij(
+                        expand = createExpandPartijAllOfExpand(
+                            betrokkenen = null
+                        )
+                    )
                 )
-            }
+            )
 
             When("expand betrokkenen are listed") {
                 val result = klantClientService.listExpandBetrokkenen(number, 1)
