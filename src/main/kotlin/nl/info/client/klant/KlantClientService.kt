@@ -6,10 +6,14 @@ package nl.info.client.klant
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.klant.model.CodeObjecttypeEnum
-import nl.info.client.klant.model.CodeSoortObjectIdEnum
-import nl.info.client.klant.model.DigitaalAdres
-import nl.info.client.klant.model.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
+import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.BSN
+import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.KVK_NUMMER
+import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.VESTIGINGSNUMMER
+import nl.info.client.klanten.model.generated.DigitaalAdres
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -43,8 +47,8 @@ class KlantClientService @Inject constructor(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,
-            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.VESTIGING.toString(),
-            partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.VESTIGINGSNUMMER.toString(),
+            partijIdentificatorCodeObjecttype = VESTIGING.toString(),
+            partijIdentificatorCodeSoortObjectId = VESTIGINGSNUMMER.toString(),
             partijIdentificatorObjectId = vestigingsnummer
         ).getResults() ?: return emptyList()
         val expandPartijWithCorrectKvkNumber = expandPartijen.firstOrNull { expandPartij ->
@@ -56,8 +60,8 @@ class KlantClientService @Inject constructor(
                 ?.uuid
                 ?.let { klantClient.getPartijIdentificator(it) }
             subIdentificatorVan?.partijIdentificator?.let {
-                it.codeObjecttype == CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON.toString() &&
-                    it.codeSoortObjectId == CodeSoortObjectIdEnum.KVK_NUMMER.toString() &&
+                it.codeObjecttype == NIET_NATUURLIJK_PERSOON &&
+                    it.codeSoortObjectId == KVK_NUMMER &&
                     it.objectId == kvkNummer
             } == true
         } ?: run {
@@ -77,8 +81,8 @@ class KlantClientService @Inject constructor(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,
-            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON.toString(),
-            partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.KVK_NUMMER.toString(),
+            partijIdentificatorCodeObjecttype = NIET_NATUURLIJK_PERSOON.toString(),
+            partijIdentificatorCodeSoortObjectId = KVK_NUMMER.toString(),
             partijIdentificatorObjectId = kvkNummer
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
@@ -87,12 +91,12 @@ class KlantClientService @Inject constructor(
             expand = "digitaleAdressen",
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,
-            partijIdentificatorCodeObjecttype = CodeObjecttypeEnum.NATUURLIJK_PERSOON.toString(),
-            partijIdentificatorCodeSoortObjectId = CodeSoortObjectIdEnum.BSN.toString(),
+            partijIdentificatorCodeObjecttype = NATUURLIJK_PERSOON.toString(),
+            partijIdentificatorCodeSoortObjectId = BSN.toString(),
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.getDigitaleAdressen() ?: emptyList()
 
-    fun listBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =
+    fun listExpandBetrokkenen(number: String, page: Int): List<ExpandBetrokkene> =
         klantClient.partijenList(
             expand = "betrokkenen,betrokkenen.hadKlantcontact",
             page = page,

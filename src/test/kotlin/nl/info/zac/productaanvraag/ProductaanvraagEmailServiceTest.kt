@@ -16,7 +16,7 @@ import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddress
-import nl.info.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
