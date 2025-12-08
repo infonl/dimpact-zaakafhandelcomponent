@@ -2742,10 +2742,7 @@
       "enabled": true,
       "serviceAccountClientId": "pabc-admin-client",
       "clientRoles": {
-        "realm-management": [
-          "view-users",
-          "view-realm"
-        ],
+        "realm-management": ["view-users", "view-realm"],
         "account": ["view-groups"]
       }
     },
