@@ -737,6 +737,8 @@ services:
       Oidc__FunctioneelBeheerderRole: "administrator"
       # in our Docker Compose setup we run Keycloak on HTTP
       Oidc__RequireHttps: "false"
+      KeycloakAdmin__ClientId: "pabc-admin-client"
+      KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
     ports:
       - "8006:8000"
     depends_on:
