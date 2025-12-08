@@ -3,8 +3,8 @@
 
 > **Colofon** <br>
 > Datum : 27-10-2025 <br>
-> Versie :   1.5 <br>
-> Verandering : ZAC v3.17.67 Inrichting Zaakafhandelcomponent <br>
+> Versie :   1.6 <br>
+> Verandering : ZAC v3.20.53 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -21,6 +21,7 @@ Versiegeschiedenis:
 | 1.3 | ZAC versie 3.11 |
 | 1.4 | ZAC versie 3.12 |
 | 1.5 | ZAC versie 3.17.67 |
+| 1.6 | ZAC versie 3.20.53 |
 
 # Inhoud
 
@@ -175,7 +176,10 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   -- Basisregistratie personen (persoonsgegevens) koppelen
   -- KvK (bedrijfsgegevens) koppelen
 
-Met de dropdown keuzes Zoekwaarde, Raapleegwaarde en Verwerkingregisterwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+Afhankelijk van je proxy is er aanvullende informatie nodig.
+Voor BRP via Iconnect geld het volgende:
+
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
 
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
 - BRP_DOELBINDING_ZOEK_WAARDE
