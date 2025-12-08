@@ -164,6 +164,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                      "RT_ReferenceTable_Values": "Post",
                      "ZK_Result": "Verleend",
                      "ZK_Status": "Afgerond",
+                     "ZK_Suspend_Days": 10,
                      "ZK_Resume_Date": "${ZonedDateTime.now()}" 
                    }
                 """.trimIndent()
