@@ -8,9 +8,7 @@
   "paths": {
     "/api/v1/application-roles-per-entity-type": {
       "post": {
-        "tags": [
-          "GetApplicationRolesPerEntityType"
-        ],
+        "tags": ["GetApplicationRolesPerEntityType"],
         "operationId": "Get application roles per entity type",
         "requestBody": {
           "content": {
@@ -55,16 +53,14 @@
         },
         "security": [
           {
-            "ApiKey": [ ]
+            "ApiKey": []
           }
         ]
       }
     },
     "/api/v1/groups": {
       "get": {
-        "tags": [
-          "GetGroupsByApplicationRoleAndEntityType"
-        ],
+        "tags": ["GetGroupsByApplicationRoleAndEntityType"],
         "operationId": "Get groups by application role and entity type",
         "parameters": [
           {
@@ -135,7 +131,7 @@
         },
         "security": [
           {
-            "ApiKey": [ ]
+            "ApiKey": []
           }
         ]
       }
@@ -144,10 +140,7 @@
   "components": {
     "schemas": {
       "ApplicationRoleModel": {
-        "required": [
-          "applicationId",
-          "name"
-        ],
+        "required": ["applicationId", "name"],
         "type": "object",
         "properties": {
           "name": {
@@ -165,11 +158,7 @@
         "additionalProperties": false
       },
       "EntityTypeModel": {
-        "required": [
-          "id",
-          "name",
-          "type"
-        ],
+        "required": ["id", "name", "type"],
         "type": "object",
         "properties": {
           "id": {
@@ -191,9 +180,7 @@
         "additionalProperties": false
       },
       "GetApplicationRolesRequest": {
-        "required": [
-          "functionalRoleNames"
-        ],
+        "required": ["functionalRoleNames"],
         "type": "object",
         "properties": {
           "functionalRoleNames": {
@@ -202,18 +189,13 @@
               "type": "string"
             },
             "description": "The functional roles of the logged in user",
-            "example": [
-              "GemeenteRol1",
-              "GemeenteRol2"
-            ]
+            "example": ["GemeenteRol1", "GemeenteRol2"]
           }
         },
         "additionalProperties": false
       },
       "GetApplicationRolesResponse": {
-        "required": [
-          "results"
-        ],
+        "required": ["results"],
         "type": "object",
         "properties": {
           "results": {
@@ -226,9 +208,7 @@
         "additionalProperties": false
       },
       "GetApplicationRolesResponseModel": {
-        "required": [
-          "applicationRoles"
-        ],
+        "required": ["applicationRoles"],
         "type": "object",
         "properties": {
           "entityType": {
@@ -245,9 +225,7 @@
         "additionalProperties": false
       },
       "GetGroupsByApplicationRoleAndEntityTypeResponse": {
-        "required": [
-          "groups"
-        ],
+        "required": ["groups"],
         "type": "object",
         "properties": {
           "groups": {
