@@ -17,6 +17,7 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 @Component({
   selector: "zac-human-task-do",
@@ -34,6 +35,9 @@ export class HumanTaskDoComponent implements OnInit {
     ...this.planItemsService.doHumanTaskPlanItem(),
     onSuccess: () => {
       this.done.emit();
+    },
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
     },
   }));
 
@@ -53,6 +57,7 @@ export class HumanTaskDoComponent implements OnInit {
   constructor(
     private readonly planItemsService: PlanItemsService,
     private readonly identityService: IdentityService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly taakFormulierenService: TaakFormulierenService,
     private readonly formBuilder: FormBuilder,
   ) {}
