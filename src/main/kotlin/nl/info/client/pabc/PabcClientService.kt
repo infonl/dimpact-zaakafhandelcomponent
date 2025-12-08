@@ -18,7 +18,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 class PabcClientService @Inject constructor(
     @RestClient private val pabcClient: PabcClient
 ) {
-
     fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse {
         val applicationRolesRequest = GetApplicationRolesRequest().apply {
             functionalRoleNames = functionalRoles

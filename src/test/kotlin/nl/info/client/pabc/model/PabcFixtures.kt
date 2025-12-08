@@ -8,8 +8,11 @@ import nl.info.client.pabc.model.generated.ApplicationRoleModel
 import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
+import java.util.UUID
 
-fun createApplicationRolesResponse(): GetApplicationRolesResponse {
+fun createApplicationRolesResponse(
+    applicationId: UUID = UUID.randomUUID(),
+): GetApplicationRolesResponse {
     val entityType = EntityTypeModel().apply {
         id = "zaaktype_test_1"
         name = "Test zaaktype 1"
@@ -19,23 +22,23 @@ fun createApplicationRolesResponse(): GetApplicationRolesResponse {
     val applicationRoles = listOf(
         ApplicationRoleModel().apply {
             name = "raadpleger"
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         },
         ApplicationRoleModel().apply {
             name = "behandelaar"
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         },
         ApplicationRoleModel().apply {
             name = "coordinator"
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         },
         ApplicationRoleModel().apply {
             name = "beheerder"
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         },
         ApplicationRoleModel().apply {
             name = "recordmanager"
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         }
     )
 
@@ -64,7 +67,7 @@ fun createApplicationRolesResponseModel(
     val applicationRoles = roleNames.map { role ->
         ApplicationRoleModel().apply {
             name = role
-            application = "zaakafhandelcomponent"
+            this.applicationId = applicationId
         }
     }
 
