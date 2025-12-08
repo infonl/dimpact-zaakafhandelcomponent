@@ -18,7 +18,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **grafana/grafana**: 12.3.0
 - **greenmail/standalone**: 2.1.7
 - **rabbitmq**: 4.2.1-alpine
-- **nginxinc/nginx-unprivileged**: 1.29.2
+- **nginxinc/nginx-unprivileged**: 1.29.3
 
 ## Common Ground components
 
