@@ -5,7 +5,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2025-09-02T14:21:57.393Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2025-12-01T10:50:44.482Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2025-12-08T09:00:52.101Z]]></design:modificationdate>
     </extensionElements>
     <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
       <extensionElements>
@@ -48,7 +48,7 @@
     <serviceTask id="ServiceTask_360" name="Suspend" flowable:class="net.atos.zac.flowable.delegate.SuspendZaakDelegate">
       <extensionElements>
         <flowable:field name="aantalDagen">
-          <flowable:expression><![CDATA[10]]></flowable:expression>
+          <flowable:expression><![CDATA[${ZK_Suspend_Days}]]></flowable:expression>
         </flowable:field>
         <flowable:field name="opschortingReden">
           <flowable:expression><![CDATA[suspend test]]></flowable:expression>
