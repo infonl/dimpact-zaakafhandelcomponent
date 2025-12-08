@@ -684,7 +684,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: docker.io/nginxinc/nginx-unprivileged:1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9
     ports:
       - "8005:8080"
     volumes:
@@ -712,7 +712,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.5@sha256:92ba9e71a712ad899dec7dac479aec7457def983499b5cd16325101cca057bd1
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.6@sha256:da47968b371a91bbef163c100da5558803da2fc9cba633af1a983cad24768ccd
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -724,7 +724,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-f926d1d@sha256:503faf4218f31f8ce91091e096a0d0714e5bdfb1b0415f26d007e998dc47d04f
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.6@sha256:6d75eccc45a51a0233381ce8a5ebc2afd330e6202b0db173f0a72f6b0738fb33
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
