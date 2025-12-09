@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
@@ -17,7 +18,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 @Component({
   selector: "zac-human-task-do",
