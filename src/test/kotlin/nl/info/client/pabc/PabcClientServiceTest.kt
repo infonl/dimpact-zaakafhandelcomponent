@@ -12,7 +12,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
-import java.util.UUID
 
 class PabcClientServiceTest : BehaviorSpec({
     val pabcClient = mockk<PabcClient>()
@@ -24,9 +23,9 @@ class PabcClientServiceTest : BehaviorSpec({
 
     Context("Getting application roles") {
         Given("A PABC application roles response for a certain PABC request") {
-            val applicationId = UUID.randomUUID()
+            val applicationName = "fakeApplicationName"
             val applicationRolesResponse = createApplicationRolesResponse(
-                applicationId = applicationId,
+                applicationName = applicationName,
             )
             val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
             every {
@@ -56,7 +55,7 @@ class PabcClientServiceTest : BehaviorSpec({
                     responseModel.entityType.name shouldBe "Test zaaktype 1"
                     responseModel.entityType.type shouldBe "zaaktype"
                     responseModel.applicationRoles.forEach {
-                        it.applicationId shouldBe applicationId
+                        it.application shouldBe applicationName
                     }
                 }
             }
