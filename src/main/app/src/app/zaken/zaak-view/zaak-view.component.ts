@@ -1553,7 +1553,6 @@ export class ZaakViewComponent
   }
 
   protected allowBedrijf() {
-    console.log(this.zaak.rechten, this.zaak.zaaktype.zaakafhandelparameters);
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
