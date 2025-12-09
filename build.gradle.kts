@@ -704,6 +704,12 @@ tasks {
         modelPackage.set("nl.info.client.or.objects.model.generated")
     }
 
+    /**
+     * Generates Java client code for the Platform Autorisatie Beheer Component (PABC) API.
+     * When upgrading the PABC OpenAPI spec, you need to manually fix the following issues in the `pabc-openapi.json` file:
+     * - Replace all occurrences of `"additionalProperties": { }` with: `"additionalProperties": false`.
+     *   Also see: https://github.com/Platform-Autorisatie-Beheer-Component/PABC-API/issues/59
+     */
     register<GenerateTask>("generatePabcClient") {
         description = "Generates Java client code for the Platform Autorisatie Beheer Component API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/pabc/pabc-openapi.json")
