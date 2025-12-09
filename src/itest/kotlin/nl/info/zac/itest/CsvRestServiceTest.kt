@@ -82,7 +82,7 @@ class CsvRestServiceTest : BehaviorSpec({
                 zaaktypeUuid = ZAAKTYPE_TEST_1_UUID
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createAndIndexZaak(
-                zaakDescription = "fakeZaak1Description",
+                zaakDescription = "fakeZaak2Description",
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
 
