@@ -684,7 +684,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: docker.io/nginxinc/nginx-unprivileged:1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9
     ports:
       - "8005:8080"
     volumes:
