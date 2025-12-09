@@ -247,7 +247,7 @@ class PlanItemsRestService @Inject constructor(
 
         if (userEventListenerData.zaakOntvankelijk) return
 
-        zaakService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
@@ -261,7 +261,7 @@ class PlanItemsRestService @Inject constructor(
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
-        zaakService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
 
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zaakService.processBrondatumProcedure(

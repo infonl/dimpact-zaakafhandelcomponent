@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -289,7 +289,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -466,7 +466,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.1-alpine@sha256:b7a2c6c5ec91f426865fea8548ed4413ddfb7e2873b1d2083e7da15517758a55
+    image: rabbitmq:4.2.1-alpine@sha256:2ed5394838c8062947c0b0f298f9fe0f623c8337c6e400dce91ef93c5c1f6c11
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -695,7 +695,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -748,7 +748,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54320:5432"

@@ -642,7 +642,7 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
-        zaakService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
@@ -701,6 +701,8 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
 
         zaakService.processBrondatumProcedure(
             zaak,

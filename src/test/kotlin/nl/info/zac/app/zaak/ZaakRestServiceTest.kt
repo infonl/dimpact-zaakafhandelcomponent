@@ -62,6 +62,7 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -81,6 +82,7 @@ import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -130,6 +132,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
@@ -1415,7 +1418,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -1497,7 +1500,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -2024,6 +2027,67 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
+                }
+            }
+        }
+    }
+
+    Context("Closing a zaak") {
+        Given("open zaak without locked informatieobjecten") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
+            every {
+                zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any<BrondatumArchiefprocedure>())
+            } just runs
+            every { zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden) } just runs
+            every { zgwApiService.closeZaak(zaak, reden) } just runs
+
+            When("zaak is closed") {
+                zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+
+                Then("result and status are correctly set") {
+                    verify(exactly = 1) {
+                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
+                        zgwApiService.closeZaak(zaak, reden)
+                    }
+                }
+            }
+        }
+
+        Given("open zaak with locked informatieobjecten") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every {
+                zaakService.checkZaakHasLockedInformationObjects(zaak)
+            } throws CaseHasLockedInformationObjectsException("fake message")
+
+            When("zaak is closed") {
+                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
+                    zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+                }
+
+                Then("result and status are not changed") {
+                    verify(exactly = 0) {
+                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
+                        zgwApiService.closeZaak(zaak, reden)
+                    }
+                }
+
+                And("correct exception is thrown") {
+                    exception.message shouldBe "fake message"
                 }
             }
         }

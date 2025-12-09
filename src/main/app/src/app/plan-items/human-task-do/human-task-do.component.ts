@@ -6,7 +6,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
@@ -29,6 +31,16 @@ export class HumanTaskDoComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
+  protected readonly doHumanTaskPlanItemMutation = injectMutation(() => ({
+    ...this.planItemsService.doHumanTaskPlanItem(),
+    onSuccess: () => {
+      this.done.emit();
+    },
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+    },
+  }));
+
   protected formItems: Array<AbstractFormField[]> = [];
   protected formConfig = new FormConfigBuilder()
     .saveText("actie.starten")
@@ -37,7 +49,6 @@ export class HumanTaskDoComponent implements OnInit {
 
   protected form = this.formBuilder.group({});
   protected formFields: FormField[] = [];
-  protected loading = false;
 
   protected _formConfig: NewFormConfig = {
     submitLabel: "actie.starten",
@@ -46,6 +57,7 @@ export class HumanTaskDoComponent implements OnInit {
   constructor(
     private readonly planItemsService: PlanItemsService,
     private readonly identityService: IdentityService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly taakFormulierenService: TaakFormulierenService,
     private readonly formBuilder: FormBuilder,
   ) {}
@@ -146,39 +158,25 @@ export class HumanTaskDoComponent implements OnInit {
       this.done.emit();
       return;
     }
-    this.loading = true;
-
     try {
       if (!this.formulier) throw new Error("Handling form in Angular way");
       const taakData = this.formulier.getHumanTaskData(formGroup);
-      this.planItemsService.doHumanTaskPlanItem(taakData).subscribe(() => {
-        this.done.emit();
-      });
+      this.doHumanTaskPlanItemMutation.mutate(taakData);
     } catch {
       // Handling form in Angular way
-      this.planItemsService
-        .doHumanTaskPlanItem({
-          planItemInstanceId: this.planItem!.id!,
-          groep: this.form.get("group")!.value!,
-          medewerker: this.form.get("user")!.value!,
-          taakStuurGegevens: {
-            sendMail:
-              this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
-            mail: this.form.get("taakStuurGegevens.mail")?.value,
-          },
-          taakdata: mapFormGroupToTaskData(formGroup, {
-            ignoreKeys: ["group", "user"],
-          }),
-        })
-        .subscribe({
-          next: () => {
-            this.done.emit();
-            this.loading = false;
-          },
-          error: () => {
-            this.loading = false;
-          },
-        });
+      this.doHumanTaskPlanItemMutation.mutate({
+        planItemInstanceId: this.planItem!.id!,
+        groep: this.form.get("group")!.value!,
+        medewerker: this.form.get("user")!.value!,
+        fataledatum: this.form.get("taakFataledatum")?.value,
+        taakStuurGegevens: {
+          sendMail: this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
+          mail: this.form.get("taakStuurGegevens.mail")?.value,
+        },
+        taakdata: mapFormGroupToTaskData(formGroup, {
+          ignoreKeys: ["group", "user"],
+        }),
+      });
     }
   }
 }
