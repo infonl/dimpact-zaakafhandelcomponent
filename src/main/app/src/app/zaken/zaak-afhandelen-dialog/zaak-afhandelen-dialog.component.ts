@@ -19,6 +19,7 @@ import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",
@@ -37,6 +38,7 @@ export class ZaakAfhandelenDialogComponent {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly klantenService = inject(KlantenService);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private sendMailDefault: boolean;
 
@@ -95,13 +97,19 @@ export class ZaakAfhandelenDialogComponent {
       path: { uuid: this.data.zaak.uuid },
     }),
     onSuccess: () => this.dialogRef.close(true),
-    onError: () => this.dialogRef.close(false),
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+      this.dialogRef.close(false);
+    },
   }));
 
   protected readonly planItemAfhandelenMutation = injectMutation(() => ({
     ...this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
     onSuccess: () => this.dialogRef.close(true),
-    onError: () => this.dialogRef.close(false),
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+      this.dialogRef.close(false);
+    },
   }));
 
   constructor() {
