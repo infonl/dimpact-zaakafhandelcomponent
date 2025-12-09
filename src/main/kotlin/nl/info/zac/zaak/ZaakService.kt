@@ -302,7 +302,7 @@ class ZaakService @Inject constructor(
         }
     }
 
-    fun checkZaakAfsluitbaar(zaak: Zaak) {
+    fun checkZaakHasLockedInformationObjects(zaak: Zaak) {
         if (lockService.hasLockedInformatieobjecten(zaak)) {
             throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
         }

@@ -978,7 +978,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { lockService.hasLockedInformatieobjecten(zaak) } returns false
 
             When("the zaak is checked if it is closeable") {
-                shouldNotThrowAny { zaakService.checkZaakAfsluitbaar(zaak) }
+                shouldNotThrowAny { zaakService.checkZaakHasLockedInformationObjects(zaak) }
 
                 Then("it should not throw any exceptions") {
                     verify(exactly = 1) {
@@ -995,8 +995,9 @@ class ZaakServiceTest : BehaviorSpec({
             every { lockService.hasLockedInformatieobjecten(zaak) } returns true
 
             When("the zaak is checked if it is closeable") {
-                val exception =
-                    shouldThrow<CaseHasLockedInformationObjectsException> { zaakService.checkZaakAfsluitbaar(zaak) }
+                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
+                    zaakService.checkZaakHasLockedInformationObjects(zaak)
+                }
 
                 Then("it should throw an exception") {
                     exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
