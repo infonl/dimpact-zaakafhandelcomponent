@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {Component, EventEmitter, Input, OnDestroy, Output} from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -13,6 +19,7 @@ import {
 } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute } from "@angular/router";
+import { forkJoin, Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
 import {
@@ -20,14 +27,13 @@ import {
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
+import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import {forkJoin, Subject, takeUntil} from "rxjs";
-import {ConfiguratieService} from "../../configuratie/configuratie.service";
-import {ReferentieTabelService} from "../referentie-tabel.service";
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -143,22 +149,24 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         data.parameters.bpmnProcessDefinitions || [];
 
       forkJoin(
-          referentieTabelService.listBrpSearchValues(),
-          referentieTabelService.listBrpViewValues(),
-          referentieTabelService.listBrpProcessingValues(),
-          configuratieService.readBrpProtocollering(),
-      ).subscribe(async([
-                                brpSearchValues,
-                                brpViewValues,
-                                brpProcessingValues,
-                                brpProtocollering,
-                              ]) => {
-        this.brpSearchValues = brpSearchValues;
-        this.brpConsultingValues = brpViewValues;
-        this.brpProcessingValues = brpProcessingValues;
-        this.brpProtocollering = brpProtocollering;
-        await this.createForm();
-      })
+        referentieTabelService.listBrpSearchValues(),
+        referentieTabelService.listBrpViewValues(),
+        referentieTabelService.listBrpProcessingValues(),
+        configuratieService.readBrpProtocollering(),
+      ).subscribe(
+        async ([
+          brpSearchValues,
+          brpViewValues,
+          brpProcessingValues,
+          brpProtocollering,
+        ]) => {
+          this.brpSearchValues = brpSearchValues;
+          this.brpConsultingValues = brpViewValues;
+          this.brpProcessingValues = brpProcessingValues;
+          this.brpProtocollering = brpProtocollering;
+          await this.createForm();
+        },
+      );
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
@@ -208,33 +216,35 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private createBetrokkeneKoppelingenForm() {
     this.betrokkeneKoppelingen = this.formBuilder.group({
       kvkKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.kvkKoppelen ?? false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.kvkKoppelen ??
+          false,
       ],
       brpKoppelen: [
-        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.brpKoppelen ?? false,
+        this.bpmnZaakafhandelParameters.betrokkeneKoppelingen?.brpKoppelen ??
+          false,
       ],
     });
 
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((value) => {
-          this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
-              value ? [Validators.required] : [],
-          );
-          this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
-              value ? [Validators.required] : [],
-          );
-          this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
-              value ? [Validators.required] : [],
-          );
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
+        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
+          value ? [Validators.required] : [],
+        );
 
-          this.brpProtocoleringFormGroup.updateValueAndValidity({
-            emitEvent: false,
-          });
-          if (value) return;
-
-          this.brpProtocoleringFormGroup.reset();
+        this.brpProtocoleringFormGroup.updateValueAndValidity({
+          emitEvent: false,
         });
+        if (value) return;
+
+        this.brpProtocoleringFormGroup.reset();
+      });
   }
 
   private getProtocolering(protocolering: string) {
@@ -246,20 +256,21 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       raadpleegWaarde: [
         this.bpmnZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
-            ? [Validators.required]
-            : [],
+          ? [Validators.required]
+          : [],
       ],
       zoekWaarde: [
         this.bpmnZaakafhandelParameters.brpDoelbindingen.zoekWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
-            ? [Validators.required]
-            : [],
+          ? [Validators.required]
+          : [],
       ],
       verwerkingregisterWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen.verwerkingregisterWaarde ?? "",
+        this.bpmnZaakafhandelParameters.brpDoelbindingen
+          .verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
-            ? [Validators.required]
-            : [],
+          ? [Validators.required]
+          : [],
       ],
     });
   }
@@ -274,14 +285,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
     this.bpmnZaakafhandelParameters.betrokkeneKoppelingen = {
       kvkKoppelen: Boolean(
-          this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
+        this.betrokkeneKoppelingen.controls.kvkKoppelen.value,
       ),
       brpKoppelen: Boolean(
-          this.betrokkeneKoppelingen.controls.brpKoppelen.value,
+        this.betrokkeneKoppelingen.controls.brpKoppelen.value,
       ),
     };
-    this.bpmnZaakafhandelParameters.brpDoelbindingen = this.brpProtocoleringFormGroup.value;
-
+    this.bpmnZaakafhandelParameters.brpDoelbindingen =
+      this.brpProtocoleringFormGroup.value;
 
     this.isLoading = true;
     this.zaakafhandelParametersService
