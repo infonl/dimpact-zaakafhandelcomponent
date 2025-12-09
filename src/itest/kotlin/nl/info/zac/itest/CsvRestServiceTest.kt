@@ -129,7 +129,7 @@ class CsvRestServiceTest : BehaviorSpec({
                         insufficientFieldsRowBehaviour = EMPTY_STRING
                     }
                     val csvRows = csvReader.readAll(responseBody)
-                    csvRows.size shouldBe 3
+                    csvRows.size shouldBe 1 + 2 // header row + 2 zaak rows
                     csvRows[0] shouldContainExactly headerRowFields
                     with(csvRows[1]) {
                         this[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe zaak1Identification
