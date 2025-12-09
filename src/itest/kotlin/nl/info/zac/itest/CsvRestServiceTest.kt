@@ -78,11 +78,11 @@ class CsvRestServiceTest : BehaviorSpec({
         Given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
             authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
-                zaakDescription = "fakeZaak1Descrption",
+                zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_TEST_1_UUID
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createAndIndexZaak(
-                zaakDescription = "fakeZaak1Descrption",
+                zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
 
