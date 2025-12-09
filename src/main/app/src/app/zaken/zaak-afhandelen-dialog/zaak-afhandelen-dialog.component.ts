@@ -13,13 +13,13 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",
