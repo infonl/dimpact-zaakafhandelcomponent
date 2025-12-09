@@ -9,15 +9,22 @@
       @if (!field.hidden) {
         @switch (field.type) {
           @case ("plain-text") {
-            <section style="word-break: break-word">
-              @if (field.label) {
-                <mat-label style="font-weight: bold">{{
-                  field.label | translate
-                }}</mat-label>
+            <section class="flex flex-row items-center gap-5">
+              @if (field.icon) {
+                <mat-icon>
+                  {{ field.icon }}
+                </mat-icon>
               }
-              <div
-                [innerHTML]="form().controls[field.key]?.value | translate"
-              ></div>
+              <section style="word-break: break-word">
+                @if (field.label) {
+                  <mat-label style="font-weight: bold">{{
+                    field.label | translate
+                  }}</mat-label>
+                }
+                <div
+                  [innerHTML]="form().controls[field.key]?.value | translate"
+                ></div>
+              </section>
             </section>
           }
           @case ("input") {
@@ -70,6 +77,7 @@
               [key]="field.key"
               [label]="field.label"
               [options]="field.options"
+              [optionDisplayValue]="field.optionDisplayValue"
             />
           }
           @case ("checkbox") {
@@ -84,7 +92,7 @@
               [form]="form()"
               [key]="field.key"
               [label]="field.label"
-              [variables]="field.control.value.variabelen"
+              [variables]="field.variables"
             />
           }
         }
