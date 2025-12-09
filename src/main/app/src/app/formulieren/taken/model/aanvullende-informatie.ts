@@ -187,7 +187,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
           } else {
             taakFataleDatumControl.removeValidators([Validators.required]);
           }
-
+          taakFataleDatumControl.markAsTouched();
           taakFataleDatumControl.updateValueAndValidity();
         });
 
