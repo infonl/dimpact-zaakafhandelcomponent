@@ -13,6 +13,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
@@ -37,6 +38,7 @@ export class ZaakAfhandelenDialogComponent {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly klantenService = inject(KlantenService);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private sendMailDefault: boolean;
 
@@ -95,13 +97,19 @@ export class ZaakAfhandelenDialogComponent {
       path: { uuid: this.data.zaak.uuid },
     }),
     onSuccess: () => this.dialogRef.close(true),
-    onError: () => this.dialogRef.close(false),
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+      this.dialogRef.close(false);
+    },
   }));
 
   protected readonly planItemAfhandelenMutation = injectMutation(() => ({
     ...this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
     onSuccess: () => this.dialogRef.close(true),
-    onError: () => this.dialogRef.close(false),
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+      this.dialogRef.close(false);
+    },
   }));
 
   constructor() {
