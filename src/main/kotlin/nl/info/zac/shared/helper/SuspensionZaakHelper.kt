@@ -52,13 +52,13 @@ class SuspensionZaakHelper @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak).hervatten)
         assertPolicy(zaak.isOpgeschort())
 
-        val zaakUUID = zaak.uuid
-        val dateSuspended = zaakVariabelenService.findDatumtijdOpgeschort(zaak.uuid)?.also {
+        val zaakUuid = zaak.uuid
+        val dateSuspended = zaakVariabelenService.findDatumtijdOpgeschort(zaakUuid)?.also {
             require(resumeDate.isAfter(it)) {
                 "Resume date $resumeDate cannot be before suspension date $it"
             }
         } ?: ZonedDateTime.now()
-        val expectedDaysSuspended = zaakVariabelenService.findVerwachteDagenOpgeschort(zaak.uuid) ?: 0
+        val expectedDaysSuspended = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUuid) ?: 0
         val daysSinceSuspended = ChronoUnit.DAYS.between(dateSuspended, resumeDate)
         val offset = daysSinceSuspended - expectedDaysSuspended
         val plannedEndDate = zaak.einddatumGepland?.plusDays(offset)
@@ -71,9 +71,9 @@ class SuspensionZaakHelper @Inject constructor(
             false
         )
 
-        val updatedZaak = zrcClientService.patchZaak(zaakUUID, patchZaak, toelichting)
-        zaakVariabelenService.removeDatumtijdOpgeschort(zaakUUID)
-        zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUUID)
+        val updatedZaak = zrcClientService.patchZaak(zaakUuid, patchZaak, toelichting)
+        zaakVariabelenService.removeDatumtijdOpgeschort(zaakUuid)
+        zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUuid)
         return updatedZaak
     }
 
