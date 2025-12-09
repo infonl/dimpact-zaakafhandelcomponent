@@ -175,4 +175,8 @@
         <error-code>403</error-code>
         <location>/static/error-403.html</location>
     </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/static/error-500.html</location>
+    </error-page>
 </web-app>
