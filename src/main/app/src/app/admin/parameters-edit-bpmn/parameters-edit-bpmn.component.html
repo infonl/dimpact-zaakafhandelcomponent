@@ -4,7 +4,6 @@
   -->
 
 <mat-stepper
-  *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
   [selectedIndex]="selectedIndexStart"
@@ -12,7 +11,7 @@
   <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
+  <mat-step [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie.BPMN" | translate
     }}</ng-template>
@@ -56,7 +55,11 @@
     </div>
   </mat-step>
 
-  <mat-step *ngIf="algemeenFormGroup">
+  <mat-step
+    *ngIf="algemeenFormGroup"
+    [stepControl]="algemeenFormGroup"
+    [hasError]="algemeenFormGroup.invalid"
+  >
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
     }}</ng-template>
@@ -149,8 +152,8 @@
     </form>
   </mat-step>
   <mat-step
-    [stepControl]="smartDocumentsEnabledForm"
-    [hasError]="!brpProtocoleringFormGroup.valid"
+    [stepControl]="brpDoelbindingenFormGroup"
+    [hasError]="!brpDoelbindingenFormGroup.valid"
   >
     <ng-template matStepLabel>{{
       "gegevens.koppelingen" | translate
@@ -179,7 +182,7 @@
                 betrokkeneKoppelingen.controls.brpKoppelen.value
               "
             >
-              <form [formGroup]="brpProtocoleringFormGroup">
+              <form [formGroup]="brpDoelbindingenFormGroup">
                 <p>
                   {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
                 </p>
@@ -194,7 +197,7 @@
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"
                       [formControl]="
-                        brpProtocoleringFormGroup.controls.zoekWaarde
+                        brpDoelbindingenFormGroup.controls.zoekWaarde
                       "
                     >
                       <mat-option
@@ -214,7 +217,7 @@
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"
                       [formControl]="
-                        brpProtocoleringFormGroup.controls.raadpleegWaarde
+                        brpDoelbindingenFormGroup.controls.raadpleegWaarde
                       "
                     >
                       <mat-option
@@ -234,7 +237,7 @@
                     <mat-select
                       placeholder="{{ 'resultaat.-kies-' | translate }}"
                       [formControl]="
-                        brpProtocoleringFormGroup.controls
+                        brpDoelbindingenFormGroup.controls
                           .verwerkingregisterWaarde
                       "
                     >

@@ -1538,10 +1538,6 @@ export class ZaakViewComponent
   }
 
   protected allowedToAddBetrokkene() {
-    console.log(
-      this.zaak.zaaktype.zaakafhandelparameters,
-      this.zaak.rechten.toevoegenInitiatorPersoon,
-    );
     const brpAllowed =
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.brpKoppelen && this.zaak.rechten.toevoegenInitiatorPersoon;
@@ -1553,7 +1549,6 @@ export class ZaakViewComponent
   }
 
   protected allowBedrijf() {
-    console.log(this.zaak.rechten, this.zaak.zaaktype.zaakafhandelparameters);
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen

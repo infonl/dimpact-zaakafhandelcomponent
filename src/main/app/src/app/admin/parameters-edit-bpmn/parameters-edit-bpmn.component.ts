@@ -92,14 +92,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       label: string;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
-  protected brpProtocoleringFormGroup = new FormGroup({
+  protected brpDoelbindingenFormGroup = new FormGroup({
     zoekWaarde: new FormControl(""),
     raadpleegWaarde: new FormControl(""),
     verwerkingregisterWaarde: new FormControl(""),
-  });
-
-  protected smartDocumentsEnabledForm = new FormGroup({
-    enabledForZaaktype: new FormControl<boolean | undefined>(false),
   });
 
   protected betrokkeneKoppelingen = new FormGroup({
@@ -228,22 +224,22 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
+        this.brpDoelbindingenFormGroup.controls.raadpleegWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
+        this.brpDoelbindingenFormGroup.controls.zoekWaarde.setValidators(
           value ? [Validators.required] : [],
         );
-        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
+        this.brpDoelbindingenFormGroup.controls.verwerkingregisterWaarde.setValidators(
           value ? [Validators.required] : [],
         );
 
-        this.brpProtocoleringFormGroup.updateValueAndValidity({
+        this.brpDoelbindingenFormGroup.updateValueAndValidity({
           emitEvent: false,
         });
         if (value) return;
 
-        this.brpProtocoleringFormGroup.reset();
+        this.brpDoelbindingenFormGroup.reset();
       });
   }
 
@@ -252,7 +248,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private createBrpDoelbindingForm() {
-    this.brpProtocoleringFormGroup = this.formBuilder.group({
+    this.brpDoelbindingenFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
         this.bpmnZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
@@ -292,7 +288,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       ),
     };
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
-      this.brpProtocoleringFormGroup.value;
+      this.brpDoelbindingenFormGroup.value;
 
     this.isLoading = true;
     this.zaakafhandelParametersService
