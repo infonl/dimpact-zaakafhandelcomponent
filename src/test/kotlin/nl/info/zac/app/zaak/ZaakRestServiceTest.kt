@@ -62,6 +62,7 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -81,6 +82,7 @@ import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -2024,6 +2026,36 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
+                }
+            }
+        }
+    }
+
+    Context("Closing a zaak") {
+        Given("open zaak") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every {
+                zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any<BrondatumArchiefprocedure>())
+            } just runs
+            every { zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden) } just runs
+            every { zgwApiService.closeZaak(zaak, reden) } just runs
+
+            When("zaak is closed") {
+                zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+
+                Then("result and status are correctly set") {
+                    verify(exactly = 1) {
+                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
+                        zgwApiService.closeZaak(zaak, reden)
+                    }
                 }
             }
         }
