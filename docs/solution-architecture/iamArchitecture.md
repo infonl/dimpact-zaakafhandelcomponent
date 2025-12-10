@@ -155,7 +155,7 @@ block-beta
     end
 
     ZAC -- "Users and groups \n(Keycloak API)" -.-> Keycloak
-    ZAC -- "Authorisation mappings\n and authorised groups \n(PABC API)" -.-> PABC
+    ZAC -- "Authorisation mappings\nand authorised groups \n(PABC API)" -.-> PABC
     PABC -- "Groups \n(Keycloak API)" -.-> Keycloak 
 
 %% workaround to make sure titles of sub-blocks are vertically aligned
