@@ -183,7 +183,7 @@ The following table summarises the main IAM concepts used in the new ZAC IAM arc
 | Domain             | PABC        | A grouping of entity types (e.g. zaaktypes) in the PABC. Domains are a PABC-internal concept only.                                                                                                             |
 | Entity type        | PABC        | A data type on which you can assign authorisation. Currently only the 'zaaktype' entity type is supported in ZAC. Authorisation mappings are defined per entity type.                                            |
 | Authorisation mapping | PABC        | A mapping from a functional role to a set of entity types and application-specific application roles.                                                                                                          |
-| Application | PABC       | An application for which authorisation mappings can be defined. In this case: ZAC.                                                                                                                             |
+| Application         | PABC       | An application for which authorisation mappings can be defined. In this case: ZAC.                                                                                                                             |
 
 ### Scenarios
 
