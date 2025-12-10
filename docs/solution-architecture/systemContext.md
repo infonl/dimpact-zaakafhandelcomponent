@@ -84,6 +84,84 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="5", $c4BoundaryInRow="5")
 ```
 
+TODO: test using PlantUML instead of Mermaid.
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+TITLE ZAC System Context diagram
+
+Person(citizen, "Citizen", "A citizen within a municipality")
+Person(employee, "Employee", "An employee of a municipality")
+
+Enterprise_Boundary(commonGround, "Common Ground") {
+    System_Boundary(components, "Used Common Ground applications") {
+        System_Ext(openForms, "Open Formulieren")
+        System_Ext(openArchief, "Open Archiefbeheer")
+    }
+
+    System_Ext(openNotificaties, "Open Notificaties")
+
+    System_Boundary(registries, "Used Common Ground registries") {
+        System_Ext(objecten, "Objecten")
+        System_Ext(openZaak, "Open Zaak")
+        System_Ext(openKlant, "Open Klant")
+    }
+}
+
+System_Boundary(zacRuntime, "ZAC runtime components") {
+    System(zac, "ZAC")
+    System(officeConverter, "OfficeConverter")
+    System(opa, "OPA")
+    System(solr, "Solr")
+}
+
+Enterprise_Boundary(external, "External services") {
+    System_Ext(bag, "BAG")
+    System_Ext(brp, "BRP")
+    System_Ext(kvk, "KVK")
+    System_Ext(smtpServer, "SMTP Mail Server")
+    System_Ext(smartDocs, "SmartDocuments")
+    System_Ext(msOffice, "Microsoft Office Desktop Apps")
+}
+
+Rel(citizen, openForms, "Submits case forms")
+Rel(employee, zac, "Handles cases")
+
+Rel(openForms, objecten, "Uses", "Objecten API")
+Rel(openKlant, openNotificaties, "Uses", "ZGW Notificaties API")
+Rel(objecten, openNotificaties, "Uses", "ZGW Notificaties API")
+Rel(openZaak, openNotificaties, "Uses", "ZGW Notificaties API")
+
+Rel(openArchief, openZaak, "Uses", "ZGW Documenten en Zaken API")
+
+Rel(openNotificaties, zac, "Uses", "ZGW Notificatie API for consumers")
+
+Rel(zac, officeConverter, "Uses", "OfficeConverter API")
+Rel(zac, opa, "Uses", "OPA API")
+Rel(zac, solr, "Uses", "Solr API")
+
+Rel(zac, objecten, "Uses", "Objecten API")
+Rel(zac, openZaak, "Uses", "ZGW Besluiten, Catalogi, Documenten, en Zaken API")
+Rel(zac, openKlant, "Uses", "Klantinteracties API")
+Rel(zac, openKlant, "Uses", "Contactgegevens API")
+
+Rel(zac, bag, "Uses", "HaalCentraal BAG Bevragen API")
+Rel(zac, brp, "Uses", "HaalCentraal BRP Bevragen API")
+Rel(zac, kvk, "Uses", "KVK Zoeken en Vestigingsprofielen API")
+Rel(zac, smtpServer, "Uses", "SMTP Mail Server")
+Rel(zac, smartDocs, "Uses", "SmartDocuments API")
+Rel(zac, msOffice, "Uses", "WebDAV API")
+Rel(smartDocs, zac, "Uses", "ZAC SmartDocuments Callback API")
+
+Lay_Down(bag, brp)
+Lay_Down(brp, kvk)
+Lay_Down(kvk, smtpServer)
+Lay_Down(smtpServer, smartDocs)
+Lay_Down(smartDocs, msOffice)
+@enduml
+```
+
 ## ZAC runtime components
 
 The following runtime components are part of the 'ZAC subsystem':
