@@ -13,6 +13,7 @@ import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.configuratie.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 import java.util.Optional
+import java.util.logging.Logger
 
 class BrpClientHeadersFactory @Inject constructor(
     private val brpConfiguration: BrpConfiguration,
@@ -39,6 +40,8 @@ class BrpClientHeadersFactory @Inject constructor(
         // User headers are limited to 40 characters as this is the maximum length of the DB column:
         // https://github.com/VNG-Realisatie/gemma-verwerkingenlogging/blob/002df5b01bf7d10142c9ae042a041b096989ced9/docs/api-write/oas-specification/logging-verwerkingen-api/openapi.yaml#L1224-L1229
         const val MAX_USER_HEADER_SIZE = 40
+
+        private val LOG = Logger.getLogger(BrpClientHeadersFactory::class.java.name)
     }
 
     override fun update(
@@ -64,6 +67,8 @@ class BrpClientHeadersFactory @Inject constructor(
     private fun MultivaluedMap<String, String>.createHeader(name: String, value: String) {
         if (!containsKey(name)) {
             add(name, value)
+        } else {
+            LOG.fine("Header '$name' with value ${this[name]} already exists. Will not overwrite it with '$value'.")
         }
     }
 

@@ -65,7 +65,7 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null, user: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 personenApi.personen(
@@ -79,7 +79,8 @@ class BrpClientService @Inject constructor(
                     verwerking = resoleVerwerkingregister(
                         zaakIdentificatie,
                         brpConfiguration.verwerkingregisterDefault.getOrNull()
-                    )
+                    ),
+                    gebruikersnaam = user
                 )
             } else {
                 personenApi.personen(updatedQuery)
@@ -94,7 +95,11 @@ class BrpClientService @Inject constructor(
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? =
+    fun retrievePersoon(
+        burgerservicenummer: String,
+        zaakIdentificatie: String? = null,
+        user: String? = null
+    ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
             (
                 if (brpConfiguration.isBrpProtocolleringEnabled()) {
@@ -109,7 +114,8 @@ class BrpClientService @Inject constructor(
                         verwerking = resoleVerwerkingregister(
                             zaakIdentificatie,
                             brpConfiguration.verwerkingregisterDefault.getOrNull()
-                        )
+                        ),
+                        gebruikersnaam = user
                     )
                 } else {
                     personenApi.personen(personenQuery)
