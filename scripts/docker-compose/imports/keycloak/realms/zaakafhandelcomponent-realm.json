@@ -154,7 +154,7 @@
       {
         "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
         "name": "recordmanager_domein_test_1_en_domein_test_2",
-        "description": "Recordmanager functional role for domains 'domain_test_1- and 'domein_test_2' - new IAM",
+        "description": "Recordmanager functional role for domains 'domein_test_1' and 'domein_test_2' - new IAM",
         "composite": false,
         "clientRole": false,
         "containerId": "zaakafhandelcomponent",
