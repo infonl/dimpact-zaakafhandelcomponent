@@ -235,9 +235,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       {
         type: "date",
         key: "datumGeleverd",
-        control: this.formBuilder.control(taak.taakdata?.["datumGeleverd"], [
-          Validators.required,
-        ]),
+        control: this.formBuilder.control(taak.taakdata?.["datumGeleverd"]),
       },
       {
         type: "radio",
