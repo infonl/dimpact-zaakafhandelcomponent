@@ -16,7 +16,7 @@ data:
     <html lang="nl">
       <!--
         This HTML file is designed to be served directly by nginx.
-        It has no external dependencies or peer dependencies - all resources (CSS, JavaScript, etc.) are inlined within this single file.
+        It has no external dependencies or peer dependencies - all resources are inlined within this single file.
         This approach ensures the file is self-contained and can be deployed without managing separate asset files.
         -->
       <head>
