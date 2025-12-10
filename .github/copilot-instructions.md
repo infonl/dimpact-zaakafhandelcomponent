@@ -8,7 +8,7 @@ This is the Dimpact Zaakafhandelcomponent (ZAC), a Dutch case management system 
 ### Backend (Kotlin/Java)
 - Use Kotlin for new code; Java is legacy only
 - Follow Kotlin coding conventions
-- Use dependency injection in constructor
+- Use constructor-based dependency injection
 - Write unit tests with Kotest
 - Ensure code passes Detekt static analysis
 - Do not update Java code, convert it to Kotlin instead
