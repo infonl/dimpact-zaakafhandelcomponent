@@ -29,7 +29,7 @@ This is the Dimpact Zaakafhandelcomponent (ZAC), a Dutch case management system 
 ### Documentation
 - Document public APIs with KDoc (Kotlin) or JSDoc (TypeScript)
 - Update relevant documentation in `docs/` when changing behavior
-- Reference Jira tickets in commit messages: "Solves PZ-####"
+- Reference Jira tickets in commit messages: "Solves PZ-XXX"
 
 ## Development Workflow
 - All commits must reference a Jira ticket
