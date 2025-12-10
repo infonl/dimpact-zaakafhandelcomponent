@@ -73,7 +73,7 @@ class KlantRestService @Inject constructor(
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null,
+        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: UUID? = null,
     ) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
@@ -81,7 +81,7 @@ class KlantRestService @Inject constructor(
             val klantPersoonDigitalAddresses =
                 async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
             val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, zaakIdentification)
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid)
             }
             klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
@@ -146,16 +146,16 @@ class KlantRestService @Inject constructor(
     @Path("personen")
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
-        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null
+        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, zaakIdentification))
+                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
                     .map { it.toRestPersoon() }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaakIdentification)
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
                 .toRestPersonen()
                 .toRestResultaat()
 
