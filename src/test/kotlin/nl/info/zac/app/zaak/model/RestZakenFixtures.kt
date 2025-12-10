@@ -384,7 +384,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaaktypeCmmnConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
+    zaaktypeConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",
@@ -402,7 +402,7 @@ fun createRestZaaktype(
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),
-    zaakafhandelparameters = zaaktypeCmmnConfiguration
+    zaakafhandelparameters = zaaktypeConfiguration
 )
 
 private fun createZaakData() = mapOf(
