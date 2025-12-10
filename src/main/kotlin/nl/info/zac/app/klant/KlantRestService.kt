@@ -144,15 +144,18 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
+    fun listPersonen(
+        restListPersonenParameters: RestListPersonenParameters,
+        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null
+    ): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn))
+                listOfNotNull(brpClientService.retrievePersoon(bsn, zaakIdentification))
                     .map { it.toRestPersoon() }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaakIdentification)
                 .toRestPersonen()
                 .toRestResultaat()
 
