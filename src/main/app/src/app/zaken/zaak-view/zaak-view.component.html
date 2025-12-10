@@ -159,7 +159,7 @@
           [bsn]="zaak.initiatorIdentificatie?.bsnNummer"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
-          [xaaktypeUUID]="zaak.zaaktype?.uuid"
+          [zaaktypeUuid]="zaak.zaaktype.uuid"
           (edit)="addOrEditZaakInitiator()"
           (delete)="deleteInitiator()"
         >

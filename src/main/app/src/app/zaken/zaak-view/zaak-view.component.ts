@@ -1512,6 +1512,8 @@ export class ZaakViewComponent
   }
 
   protected showPersoonsgegevens() {
+    if (!this.zaak.zaaktype?.uuid) return false;
+
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
