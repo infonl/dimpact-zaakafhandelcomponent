@@ -94,6 +94,7 @@ describe(PersoonZoekComponent.name, () => {
 
     fixture.componentRef.setInput("action", "test-action");
     fixture.componentRef.setInput("context", "test-context");
+    fixture.componentRef.setInput("zaaktypeUUID", "test-zaaktype-uuid");
 
     loader = TestbedHarnessEnvironment.loader(fixture);
 
@@ -105,7 +106,10 @@ describe(PersoonZoekComponent.name, () => {
       const spy = jest.spyOn(klantenService, "listPersonen");
       component.zoekPersonen();
 
-      expect(spy).toHaveBeenCalledWith(expect.any(Object));
+      expect(spy).toHaveBeenCalledWith(
+        expect.any(Object),
+        "test-zaaktype-uuid",
+      );
     });
 
     it("should pass the fields in the request when the form is valid", async () => {
@@ -121,6 +125,7 @@ describe(PersoonZoekComponent.name, () => {
         expect.objectContaining({
           bsn: "999990408",
         }),
+        "test-zaaktype-uuid",
       );
     });
 
