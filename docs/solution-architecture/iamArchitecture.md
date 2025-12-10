@@ -28,7 +28,7 @@ C4Context
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
     UpdateElementStyle(Keycloak, $bgColor="darkgrey", $borderColor="darkgrey")
 
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
+    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="2")
 ```
 
 The following components are part of the current ZAC IAM architecture:
@@ -87,7 +87,7 @@ C4Context
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
     UpdateElementStyle(Keycloak, $bgColor="darkgrey", $borderColor="darkgrey")
 
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
+    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="2")
 ```
 
 The following components are part of the new ZAC IAM architecture:
