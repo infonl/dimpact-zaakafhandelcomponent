@@ -110,7 +110,10 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  listPersonen(body: PutBody<"/rest/klanten/personen">, zaaktypeUuid?: string) {
+  listPersonen(
+    body: PutBody<"/rest/klanten/personen">,
+    zaaktypeUuid?: string | null,
+  ) {
     return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
       ...(zaaktypeUuid && {
         header: { "X-ZAAKTYPE-UUID": zaaktypeUuid },

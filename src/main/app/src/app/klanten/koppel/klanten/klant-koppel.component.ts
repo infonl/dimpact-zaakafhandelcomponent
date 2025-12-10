@@ -46,6 +46,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
           </ng-template>
           <zac-klant-koppel-initiator-persoon
             type="persoon"
+            [zaaktypeUUID]="zaaktypeUUID"
             (klantGegevens)="klantGegevens.emit($event)"
           />
         </mat-tab>
