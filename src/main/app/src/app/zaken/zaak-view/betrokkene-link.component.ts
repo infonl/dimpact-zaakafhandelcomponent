@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, Input, input } from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
@@ -28,7 +28,10 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    return this.klantenService.readPersoon(betrokkene.identificatie);
+    return this.klantenService.readPersoon(
+      betrokkene.identificatie,
+      this.zaaktypeUuid(),
+    );
   });
 
   protected readonly bedrijfQuery = injectQuery(() => {
@@ -48,6 +51,8 @@ export class BetrokkeneLinkComponent {
 
   protected readonly betrokkene =
     input.required<GeneratedType<"RestZaakBetrokkene">>();
+
+  protected readonly zaaktypeUuid = input.required<string>();
 
   protected readonly bedrijfRouteLink = computed(() =>
     buildBedrijfRouteLink(this.betrokkene()),
