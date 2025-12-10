@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.148](https://img.shields.io/badge/Version-1.0.148-informational?style=flat-square) ![AppVersion: 3.20](https://img.shields.io/badge/AppVersion-3.20-informational?style=flat-square)
+![Version: 1.0.152](https://img.shields.io/badge/Version-1.0.152-informational?style=flat-square) ![AppVersion: 3.20](https://img.shields.io/badge/AppVersion-3.20-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.140.0 |
+| @opentelemetry | opentelemetry-collector | 0.140.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -168,7 +168,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d"` |  |
+| nginx.image.tag | string | `"1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -318,6 +318,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
 | solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
+| solr-operator.solr.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"solr-cloud"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for solr in solrcloud |
 | solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
 | solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
@@ -343,9 +344,11 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
+| topologySpreadConstraints | list | `[]` | set topologySpreadConstraints parameters |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |

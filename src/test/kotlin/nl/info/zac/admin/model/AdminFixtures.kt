@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.admin.model
 
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
@@ -14,12 +13,12 @@ import java.util.UUID
 fun createBetrokkeneKoppelingen(
     id: Long? = 1234L,
     // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
-    zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
+    zaaktypeConfiguration: ZaaktypeConfiguration? = null,
     brpKoppelen: Boolean = true,
     kvkKoppelen: Boolean = true
-) = ZaaktypeCmmnBetrokkeneParameters().apply {
+) = ZaaktypeBetrokkeneParameters().apply {
     this.id = id
-    this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+    this.zaaktypeConfiguration = zaaktypeConfiguration
     this.brpKoppelen = brpKoppelen
     this.kvkKoppelen = kvkKoppelen
 }
@@ -97,8 +96,8 @@ fun createZaaktypeCmmnConfiguration(
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     gebruikersnaamMedewerker: String? = null,
-    zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters = createBetrokkeneKoppelingen(),
-    zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = ZaaktypeCmmnBrpParameters().apply {
+    zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
+    zaaktypeBrpParameters: ZaaktypeBrpParameters? = ZaaktypeBrpParameters().apply {
         zoekWaarde = ""
         raadpleegWaarde = ""
         verwerkingregisterWaarde = ""
@@ -128,11 +127,11 @@ fun createZaaktypeCmmnConfiguration(
         setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
         setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
         val parameters = this
-        this.zaaktypeCmmnBetrokkeneParameters = zaaktypeCmmnBetrokkeneParameters.apply {
-            this.zaaktypeCmmnConfiguration = parameters
+        this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
+            this.zaaktypeConfiguration = parameters
         }
-        this.zaaktypeCmmnBrpParameters = zaaktypeCmmnBrpParameters.apply {
-            this?.zaaktypeCmmnConfiguration = parameters
+        this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
+            this?.zaaktypeConfiguration = parameters
         }
         this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
             this.zaaktypeCmmnConfiguration = parameters
@@ -156,7 +155,7 @@ fun createAutomaticEmailConfirmation(
     templateName: String? = "fakeTemplateName",
     emailSender: String? = "sender@example.com",
     emailReply: String? = "reply@example.com",
-    // Do not add default `= createZaakafhandelParameters()` as it will cause infinite loop
+    // Do not add default `= createZaakafhandelParameters()` as it will cause an infinite loop
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration? = null,
 ) = ZaaktypeCmmnEmailParameters().apply {
     this.id = id
@@ -182,7 +181,7 @@ fun createZaakAfzender(
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
     defaultMail: Boolean = false,
     mail: String = "mail@example.com",
-    replyTo: String? = "replyTo@example.com",
+    replyTo: String = "replyTo@example.com",
 ) = ZaaktypeCmmnZaakafzenderParameters().apply {
     this.id = id
     this.zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration

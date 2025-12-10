@@ -38,7 +38,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -61,6 +60,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
+    val today = LocalDate.now()
     lateinit var enkelvoudigInformatieObject2UUID: String
 
     Given(
@@ -179,7 +179,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "auteur" : "$FAKE_AUTHOR_NAME",
                       "beschrijving" : "",
                       "bestandsomvang" : $TEST_TXT_FILE_SIZE,
-                      "creatiedatum" : "${LocalDate.now()}",
+                      "creatiedatum" : "$today",
                       "formaat" : "$TEXT_MIME_TYPE",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
@@ -222,6 +222,56 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ) {
                 logger.info { "$endpointUrl status code: ${response.code}" }
                 response.code shouldBe HTTP_OK
+            }
+        }
+
+        When("the get enkelvoudiginformatieobject endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/"
+            )
+            Then(
+                """
+                the response should be OK and should contain an `ONDERTEKEND` indicatie
+                and data about the ondertekening and the status should be 'definitief'
+                """
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "bestandsnaam" : "$TEST_TXT_FILE_NAME",
+                      "auteur" : "$FAKE_AUTHOR_NAME",
+                      "beschrijving" : "",
+                      "bestandsomvang" : $TEST_TXT_FILE_SIZE,
+                      "creatiedatum" : "$today",
+                      "formaat" : "$TEXT_MIME_TYPE",
+                      "indicatieGebruiksrecht" : false,
+                      "indicaties" : [ "ONDERTEKEND" ],
+                      "informatieobjectTypeOmschrijving" : "factuur",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID",
+                      "isBesluitDocument" : false,
+                      "ondertekening" : {
+                        "datum" : "$today",
+                        "soort" : "digitaal"
+                      },
+                      "rechten" : {
+                        "converteren" : true,
+                        "lezen" : true,
+                        "ondertekenen" : false,
+                        "ontgrendelen" : false,
+                        "toevoegenNieuweVersie" : false,
+                        "vergrendelen" : false,
+                        "verwijderen" : false,
+                        "wijzigen" : false
+                      },
+                      "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                      "taal" : "Nederlands",
+                      "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
+                      "versie" : 3,
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                    }
+                """.trimIndent()
             }
         }
 
@@ -348,8 +398,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("An enkelvoudig informatie object of type TXT exists and a recordmanager is logged in") {
-        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
+
+    Given(
+        """
+        An enkelvoudig informatie object of type TXT exists, has the status DEFINITIEF
+        and a behandelaar is logged in
+        """
+    ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("the convert endpoint is called") {
             val response = itestHttpClient.performPostRequest(
@@ -368,11 +424,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
             }
         }
+
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
             )
-            Then("the response should be OK and should contain information about the document converted to PDF") {
+            Then(
+                """
+                the response should be OK and should contain information about the document converted to PDF
+                and the permissions should be those for a document with status 'definitief' and a behandelaar user
+                """
+            ) {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -389,14 +451,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                   "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
                   "isBesluitDocument" : false,
-                  "rechten" : {
-                    "lezen" : true,
-                    "ondertekenen" : false,
-                    "ontgrendelen" : true,
-                    "toevoegenNieuweVersie" : true,
-                    "vergrendelen" : false,
-                    "verwijderen" : true,
-                    "wijzigen" : true
+                  "rechten": {
+                    "converteren": true,
+                    "lezen": true,
+                    "ondertekenen": false,
+                    "ontgrendelen": false,
+                    "toevoegenNieuweVersie": false,
+                    "vergrendelen": false,
+                    "verwijderen": false,
+                    "wijzigen": false
                   },
                   "status" : "$DOCUMENT_STATUS_DEFINITIEF",
                   "taal" : "Engels",

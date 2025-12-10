@@ -42,7 +42,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
-import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",
@@ -289,9 +288,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.zaak &&
-      this.infoObject.status ===
-        (InformatieobjectStatus.DEFINITIEF as string) &&
-      this.laatsteVersieInfoObject?.rechten?.wijzigen &&
+      this.laatsteVersieInfoObject?.rechten?.converteren &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(

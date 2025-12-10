@@ -100,7 +100,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         Given("A zaak without an initiator") {
             val zaakType = createZaakType()
             val zaak = createZaak(
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -158,7 +158,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             val zaakIdentificatie = "fakeZaakIdentificatie"
             val zaak = createZaak(
                 identificatie = zaakIdentificatie,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -225,7 +225,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             val zaakIdentificatie = "fakeZaakIdentificatie"
             val zaak = createZaak(
                 identificatie = zaakIdentificatie,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -268,7 +268,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         Given("A zaak with an initiator of role niet-natuurlijk persoon with a vestigingnummer") {
             val zaakType = createZaakType()
             val zaak = createZaak(
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )

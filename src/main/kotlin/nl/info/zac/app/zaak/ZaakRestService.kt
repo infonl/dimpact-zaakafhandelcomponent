@@ -37,6 +37,7 @@ import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -349,6 +350,7 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
+        changeCommunicationChannel(zaakType, zaak, restZaakEditMetRedenGegevens, zaakUUID)
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
@@ -640,7 +642,7 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
-        zaakService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
@@ -699,6 +701,8 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+
+        zaakService.checkZaakHasLockedInformationObjects(zaak)
 
         zaakService.processBrondatumProcedure(
             zaak,
@@ -1084,6 +1088,7 @@ class ZaakRestService @Inject constructor(
                 zaakData = buildMap {
                     restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
                     restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
+                    restZaak.communicatiekanaal?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
                 }
             )
         } else {
@@ -1350,6 +1355,28 @@ class ZaakRestService @Inject constructor(
             betrokkeneParameters.brpKoppelen?.let { enabled ->
                 if (initiator.type.isBsn && !enabled) {
                     throw BetrokkeneNotAllowedException()
+                }
+            }
+        }
+    }
+
+    private fun changeCommunicationChannel(
+        zaakType: ZaakType,
+        zaak: Zaak,
+        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens,
+        zaakUUID: UUID
+    ) {
+        if (zaakType.hasBPMNProcessDefinition()) {
+            val statustype = zaak.status?.let {
+                ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
+            }
+            // reopened zaak does not have active execution, so no need to change communicatiekanaal
+            if (!statustype.isHeropend()) {
+                restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
+                    zaakVariabelenService.setCommunicatiekanaal(
+                        zaakUUID,
+                        it
+                    )
                 }
             }
         }

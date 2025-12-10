@@ -18,17 +18,17 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **grafana/grafana**: 12.3.0
 - **greenmail/standalone**: 2.1.7
 - **rabbitmq**: 4.2.1-alpine
-- **nginxinc/nginx-unprivileged**: 1.29.2
+- **nginxinc/nginx-unprivileged**: 1.29.3
 
 ## Common Ground components
 
-- **open-zaak**: 1.25.0
+- **open-zaak**: 1.26.0
 - **objects-api**: 3.3.1
-- **open-klant**: 2.9.0
+- **open-klant**: 2.13.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 0.0.1-rc.5
-- **pabc-api**: 0.0.1-rc.5
+- **pabc-migrations**: 0.0.1-rc.8
+- **pabc-api**: 0.0.1-rc.8
 
 ## Update Process
 

@@ -117,7 +117,10 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "fakeZaakTypeOmschrijving",
-    informatieObjectTypen: List<URI>? = listOf(URI("fakeInformatieObjectType1"), URI("fakeInformatieObjectType2")),
+    informatieObjectTypen: List<URI>? = listOf(
+        URI("fakeInformatieObjectType/${UUID.randomUUID()}"),
+        URI("fakeInformatieObjectType/${UUID.randomUUID()}")
+    ),
     identification: String = "fakeIdentificatie",
     besluittypen: List<URI>? = null,
     resultTypes: List<URI>? = listOf(URI("fakeResultaatType1"), URI("fakeResultaatType2")),
@@ -213,15 +216,15 @@ fun createResultaatType(
 
 @Suppress("LongParameterList")
 fun createStatusType(
-    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     zaaktypeIdentificatie: String? = null,
     isEindstatus: Boolean = false,
-    catalogus: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    eigenschappen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
-    zaakobjecttypen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
+    catalogus: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    eigenschappen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
+    zaakobjecttypen: List<URI> = listOf(URI("https://example.com/catalogus/${UUID.randomUUID()}")),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now(),
-    omschrijving: String? = null,
+    omschrijving: String = "fakeOmschrijving",
     volgnummer: Int? = 1
 ) = StatusType(
     uri,

@@ -120,13 +120,15 @@
             [options]="caseDefinitions"
           >
           </zac-select>
-          <zac-select
-            class="col-12 col-lg-6"
-            key="domein"
-            [form]="algemeenFormGroup"
-            [options]="domeinen"
-          >
-          </zac-select>
+          @if (!featureFlagPabcIntegration) {
+            <zac-select
+              class="col-12 col-lg-6"
+              key="domein"
+              [form]="algemeenFormGroup"
+              [options]="domeinen"
+            >
+            </zac-select>
+          }
         </section>
         <section class="row">
           <zac-select
@@ -554,6 +556,9 @@
                 ></tr>
               </table>
             </div>
+            <mat-error *ngIf="mailFormGroup.hasError('noDefaultAfzender')">
+              {{ "validators.required" | translate }}
+            </mat-error>
           </mat-card-content>
         </mat-card>
         <mat-card>

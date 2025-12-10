@@ -97,7 +97,10 @@ class ZacClient(
         zaakTypeDescription: String,
         bpmnProcessDefinitionKey: String,
         productaanvraagType: String,
-        defaultGroupName: String
+        defaultGroupName: String,
+        brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
+        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpVerwerkingWaarde: String = "Algemeen",
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
@@ -106,11 +109,20 @@ class ZacClient(
         return itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
             requestBodyAsString = """{ 
-                  "zaaktypeUuid": "$zaakTypeUuid",
-                  "zaaktypeOmschrijving": "$zaakTypeDescription",
-                  "productaanvraagtype": "$productaanvraagType",
-                  "groepNaam": "$defaultGroupName"
-                }
+              "zaaktypeUuid": "$zaakTypeUuid",
+              "zaaktypeOmschrijving": "$zaakTypeDescription",
+              "productaanvraagtype": "$productaanvraagType",
+              "groepNaam": "$defaultGroupName",
+              "betrokkeneKoppelingen": {
+                "brpKoppelen": true,
+                "kvkKoppelen": true
+              },
+              "brpDoelbindingen": {
+                "zoekWaarde": "$brpDoelbindingenZoekWaarde",
+                "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
+                "verwerkingWaarde": "$brpVerwerkingWaarde"
+              }
+            }
             """.trimIndent()
         )
     }

@@ -16,7 +16,7 @@ global:
     # -- curl docker repository used throughout the chart
     repository: curlimages/curl
     # -- curl docker tag to pull
-    tag: 8.17.0@sha256:0f3b048f5b1454b60a5c1bb337c1203df4295430ba047da15b4308133eac96d6
+    tag: 8.17.0@sha256:935d9100e9ba842cdb060de42472c7ca90cfe9a7c96e4dacb55e79e560b3ff40
     pullPolicy: IfNotPresent
 
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
@@ -288,6 +288,9 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
+# -- set topologySpreadConstraints parameters
+topologySpreadConstraints: []
+
 # set initContainer parameters
 initContainer:
   enabled: true
@@ -420,6 +423,16 @@ solr-operator:
       size: 1Gi
     # -- tolerations for solr in solrcloud
     tolerations: []
+    # -- topologySpreadConstraints for solr in solrcloud
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            technology: solr-cloud
+        matchLabelKeys:
+          - controller-revision-hash
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -484,7 +497,16 @@ solr-operator:
         size: 1Gi
       # -- tolerations for zookeeper
       tolerations: []
-
+      # -- topologySpreadConstraints for zookeeper
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              technology: zookeeper
+          matchLabelKeys:
+            - controller-revision-hash
 # office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
@@ -563,7 +585,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
+    tag: 1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9
   service:
     type: ClusterIP
     port: 80

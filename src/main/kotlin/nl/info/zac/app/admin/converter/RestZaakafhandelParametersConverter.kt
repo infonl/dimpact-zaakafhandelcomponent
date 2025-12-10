@@ -16,6 +16,7 @@ import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.conve
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestSmartDocuments
@@ -176,11 +177,33 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             )
             it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
-            it.zaaktypeCmmnBetrokkeneParameters =
+            it.zaaktypeBetrokkeneParameters =
                 restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
-            it.zaaktypeCmmnBrpParameters =
+            it.zaaktypeBrpParameters =
                 restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
             it.zaaktypeCmmnEmailParameters =
                 restZaakafhandelParameters.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }
+
+    @Suppress("LongMethod")
+    fun toRestZaaktypeBpmnConfiguration(
+        zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
+    ): RestZaakafhandelParameters {
+        val restZaakafhandelParameters = RestZaakafhandelParameters(
+            id = zaaktypeBpmnConfiguration.id,
+            zaaktype = ztcClientService.readZaaktype(
+                zaaktypeBpmnConfiguration.zaaktypeUuid
+            ).toRestZaaktypeOverzicht(),
+            defaultGroepId = zaaktypeBpmnConfiguration.groepID,
+            creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
+            productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
+            domein = zaaktypeBpmnConfiguration.domein,
+            smartDocuments = RestSmartDocuments(true, true),
+            betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
+                .toRestBetrokkeneKoppelingen(),
+            brpDoelbindingen = zaaktypeBpmnConfiguration.getBrpParameters()
+                .toRestBrpDoelbindingen()
+        )
+        return restZaakafhandelParameters
+    }
 }

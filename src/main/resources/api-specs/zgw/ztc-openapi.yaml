@@ -1,9 +1,8 @@
-# INFO.nl: made manual changes to this specification to make it work with the OpenAPI generator.
-# Search for "INFO.nl" to find the changes.
+# INFO.nl: made manual changes to this specification to make it work with the OpenAPI generator; search for "INFO.nl" to find the changes
 openapi: 3.0.3
 info:
   title: Catalogi API
-  version: 1.3.1
+  version: 1.3.1 (1)
   description: |
     Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
@@ -121,6 +120,7 @@ info:
   contact:
     email: support@maykinmedia.nl
     url: https://www.maykinmedia.nl
+    name: Maykin Media
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
@@ -131,65 +131,68 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle BESLUITTYPEn opvragen.
       parameters:
-        - in: query
-          name: catalogus
-          schema:
-            type: integer
-          description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - in: query
-          name: informatieobjecttypen
-          schema:
-            type: string
-          description: Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten
-            van dit BESLUITTYPE worden vastgelegd.
-        - in: query
-          name: omschrijving
-          schema:
-            type: string
-          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: informatieobjecttypen
+        schema:
+          type: string
+        description: Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten
+          van dit BESLUITTYPE worden vastgelegd.
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
-        - in: query
-          name: zaaktypen
-          schema:
-            type: string
-          description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
+      - in: query
+        name: zaaktypen
+        schema:
+          type: string
+        description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
       tags:
-        - besluittypen
+      - besluittypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -316,16 +319,16 @@ paths:
       description: Maak een BESLUITTYPE aan.
       summary: Maak een BESLUITTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       requestBody:
         content:
           application/json:
@@ -333,8 +336,8 @@ paths:
               $ref: '#/components/schemas/BesluitTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '201':
           headers:
@@ -467,34 +470,34 @@ paths:
       description: Een specifieke BESLUITTYPE opvragen.
       summary: Een specifieke BESLUITTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -628,23 +631,23 @@ paths:
         een concept betreft.
       summary: Werk een BESLUITTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       requestBody:
         content:
           application/json:
@@ -652,8 +655,8 @@ paths:
               $ref: '#/components/schemas/BesluitTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -793,31 +796,31 @@ paths:
         betreft.
       summary: Werk een BESLUITTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedBesluitTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -956,18 +959,18 @@ paths:
       description: Verwijder een BESLUITTYPE. Dit kan alleen als het een concept betreft.
       summary: Verwijder een BESLUITTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -1090,34 +1093,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) BESLUITTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -1142,26 +1145,26 @@ paths:
         worden, dan moet je een nieuwe versie aanmaken.
       summary: Publiceer het concept BESLUITTYPE.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - besluittypen
+      - besluittypen
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '200':
           headers:
@@ -1289,53 +1292,53 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle CATALOGUSsen opvragen.
       parameters:
-        - in: query
-          name: domein
-          schema:
+      - in: query
+        name: domein
+        schema:
+          type: string
+        description: Een afkorting waarmee wordt aangegeven voor welk domein in een
+          CATALOGUS ZAAKTYPEn zijn uitgewerkt.
+      - in: query
+        name: domein__in
+        schema:
+          type: array
+          items:
             type: string
-          description: Een afkorting waarmee wordt aangegeven voor welk domein in een
-            CATALOGUS ZAAKTYPEn zijn uitgewerkt.
-        - in: query
-          name: domein__in
-          schema:
-            type: array
-            items:
-              type: string
-          description: Meerdere waarden kunnen gescheiden worden door komma's.
-          explode: false
-          style: form
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: rsin
-          schema:
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
+        explode: false
+        style: form
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: rsin
+        schema:
+          type: string
+        description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+          NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
+      - in: query
+        name: rsin__in
+        schema:
+          type: array
+          items:
             type: string
-          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-            NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
-        - in: query
-          name: rsin__in
-          schema:
-            type: array
-            items:
-              type: string
-          description: Meerdere waarden kunnen gescheiden worden door komma's.
-          explode: false
-          style: form
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
+        explode: false
+        style: form
       tags:
-        - catalogussen
+      - catalogussen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -1462,16 +1465,16 @@ paths:
       description: Maak een CATALOGUS aan.
       summary: Maak een CATALOGUS aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - catalogussen
+      - catalogussen
       requestBody:
         content:
           application/json:
@@ -1479,8 +1482,8 @@ paths:
               $ref: '#/components/schemas/CatalogusRequest'
         required: true
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '201':
           headers:
@@ -1613,34 +1616,34 @@ paths:
       description: Een specifieke CATALOGUS opvragen.
       summary: Een specifieke CATALOGUS opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - catalogussen
+      - catalogussen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -1773,34 +1776,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) CATALOGUS opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - catalogussen
+      - catalogussen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -1822,56 +1825,56 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle EIGENSCHAPpen opvragen.
       parameters:
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
 
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
-            EIGENSCHAP van belang is.
-        - in: query
-          name: zaaktypeIdentificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
+          EIGENSCHAP van belang is.
+      - in: query
+        name: zaaktypeIdentificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
       tags:
-        - eigenschappen
+      - eigenschappen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -1999,16 +2002,16 @@ paths:
         een concept betreft.
       summary: Maak een EIGENSCHAP aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       requestBody:
         content:
           application/json:
@@ -2016,8 +2019,8 @@ paths:
               $ref: '#/components/schemas/EigenschapRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -2150,34 +2153,34 @@ paths:
       description: Een specifieke EIGENSCHAP opvragen.
       summary: Een specifieke EIGENSCHAP opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -2311,23 +2314,23 @@ paths:
         bijbehorende ZAAKTYPE een concept betreft.
       summary: Werk een EIGENSCHAP in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       requestBody:
         content:
           application/json:
@@ -2335,8 +2338,8 @@ paths:
               $ref: '#/components/schemas/EigenschapRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -2476,31 +2479,31 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Werk een EIGENSCHAP deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedEigenschapRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -2640,18 +2643,18 @@ paths:
         een concept betreft.
       summary: Verwijder een EIGENSCHAP.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -2774,34 +2777,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) EIGENSCHAP opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - eigenschappen
+      - eigenschappen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -2823,61 +2826,70 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle INFORMATIEOBJECTTYPEn opvragen.
       parameters:
-        - in: query
-          name: catalogus
-          schema:
-            type: integer
-          description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
-            behoort.
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - in: query
-          name: omschrijving
-          schema:
-            type: string
-          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+          behoort.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+      - in: query
+        name: omschrijving__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van informatieobjecten
+          van dit INFORMATIEOBJECTTYPE. Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
-        - in: query
-          name: zaaktype
-          schema:
-            type: string
-            format: uri
-          description: '**EXPERIMENTEEL** URL-referentie naar het ZAAKTYPE.'
+      - in: query
+        name: zaaktype
+        schema:
+          type: string
+          format: uri
+        description: '**EXPERIMENTEEL** URL-referentie naar het ZAAKTYPE.'
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -3004,16 +3016,16 @@ paths:
       description: Maak een INFORMATIEOBJECTTYPE aan.
       summary: Maak een INFORMATIEOBJECTTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       requestBody:
         content:
           application/json:
@@ -3021,8 +3033,8 @@ paths:
               $ref: '#/components/schemas/InformatieObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '201':
           headers:
@@ -3155,34 +3167,34 @@ paths:
       description: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       summary: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -3316,23 +3328,23 @@ paths:
         als het een concept betreft.
       summary: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       requestBody:
         content:
           application/json:
@@ -3340,8 +3352,8 @@ paths:
               $ref: '#/components/schemas/InformatieObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -3481,31 +3493,31 @@ paths:
         een concept betreft.
       summary: Werk een INFORMATIEOBJECTTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedInformatieObjectTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -3645,18 +3657,18 @@ paths:
         concept betreft.
       summary: Verwijder een INFORMATIEOBJECTTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -3779,34 +3791,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) INFORMATIEOBJECTTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -3831,26 +3843,26 @@ paths:
         nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
       summary: Publiceer het concept INFORMATIEOBJECTTYPE.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - informatieobjecttypen
+      - informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '200':
           headers:
@@ -3978,56 +3990,56 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle RESULTAATTYPEn opvragen.
       parameters:
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
 
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
-            van dit RESULTAATTYPE bereikt kunnen worden.
-        - in: query
-          name: zaaktypeIdentificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten
+          van dit RESULTAATTYPE bereikt kunnen worden.
+      - in: query
+        name: zaaktypeIdentificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
       tags:
-        - resultaattypen
+      - resultaattypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -4155,16 +4167,16 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Maak een RESULTAATTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       requestBody:
         content:
           application/json:
@@ -4172,8 +4184,8 @@ paths:
               $ref: '#/components/schemas/ResultaatTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -4306,34 +4318,34 @@ paths:
       description: Een specifieke RESULTAATTYPE opvragen.
       summary: Een specifieke RESULTAATTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -4467,23 +4479,23 @@ paths:
         bijbehorende ZAAKTYPE een concept betreft.
       summary: Werk een RESULTAATTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       requestBody:
         content:
           application/json:
@@ -4491,8 +4503,8 @@ paths:
               $ref: '#/components/schemas/ResultaatTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -4632,31 +4644,31 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Werk een RESULTAATTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedResultaatTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -4796,18 +4808,18 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Verwijder een RESULTAATTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -4930,34 +4942,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) RESULTAATTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - resultaattypen
+      - resultaattypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -4979,77 +4991,77 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle ROLTYPEn opvragen.
       parameters:
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - in: query
-          name: omschrijving
-          schema:
-            type: string
-          description: '**EXPERIMENTEEL** Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
-        - in: query
-          name: omschrijvingGeneriek
-          schema:
-            type: string
-            enum:
-              - adviseur
-              - behandelaar
-              - belanghebbende
-              - beslisser
-              - initiator
-              - klantcontacter
-              - mede_initiator
-              - zaakcoordinator
-          description: |+
-            Algemeen gehanteerde omschrijving van de aard van de ROL.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
+      - in: query
+        name: omschrijvingGeneriek
+        schema:
+          type: string
+          enum:
+          - adviseur
+          - behandelaar
+          - belanghebbende
+          - beslisser
+          - initiator
+          - klantcontacter
+          - mede_initiator
+          - zaakcoordinator
+        description: |+
+          Algemeen gehanteerde omschrijving van de aard van de ROL.
 
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
 
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
-            kunnen zijn.
-        - in: query
-          name: zaaktypeIdentificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
+          kunnen zijn.
+      - in: query
+        name: zaaktypeIdentificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
       tags:
-        - roltypen
+      - roltypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -5177,16 +5189,16 @@ paths:
         een concept betreft.
       summary: Maak een ROLTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - roltypen
+      - roltypen
       requestBody:
         content:
           application/json:
@@ -5194,8 +5206,8 @@ paths:
               $ref: '#/components/schemas/RolTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -5328,33 +5340,33 @@ paths:
       description: Een specifieke ROLTYPE opvragen.
       summary: Een specifieke ROLTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
       tags:
-        - roltypen
+      - roltypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -5488,22 +5500,22 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Werk een ROLTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
       tags:
-        - roltypen
+      - roltypen
       requestBody:
         content:
           application/json:
@@ -5511,8 +5523,8 @@ paths:
               $ref: '#/components/schemas/RolTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -5652,30 +5664,30 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Werk een ROLTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
       tags:
-        - roltypen
+      - roltypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedRolTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -5815,17 +5827,17 @@ paths:
         een concept betreft.
       summary: Verwijder een ROLTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
       tags:
-        - roltypen
+      - roltypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -5948,33 +5960,33 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) ROLTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
       tags:
-        - roltypen
+      - roltypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -5996,56 +6008,56 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle STATUSTYPEn opvragen.
       parameters:
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
 
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
-            van dit STATUSTYPE bereikt kunnen worden.
-        - in: query
-          name: zaaktypeIdentificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
+          van dit STATUSTYPE bereikt kunnen worden.
+      - in: query
+        name: zaaktypeIdentificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
       tags:
-        - statustypen
+      - statustypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -6173,16 +6185,16 @@ paths:
         een concept betreft.
       summary: Maak een STATUSTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - statustypen
+      - statustypen
       requestBody:
         content:
           application/json:
@@ -6190,8 +6202,8 @@ paths:
               $ref: '#/components/schemas/StatusTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -6324,34 +6336,34 @@ paths:
       description: Een specifieke STATUSTYPE opvragen.
       summary: Een specifieke STATUSTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - statustypen
+      - statustypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -6485,23 +6497,23 @@ paths:
         bijbehorende ZAAKTYPE een concept betreft.
       summary: Werk een STATUSTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - statustypen
+      - statustypen
       requestBody:
         content:
           application/json:
@@ -6509,8 +6521,8 @@ paths:
               $ref: '#/components/schemas/StatusTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -6650,31 +6662,31 @@ paths:
         ZAAKTYPE een concept betreft.
       summary: Werk een STATUSTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - statustypen
+      - statustypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedStatusTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -6814,18 +6826,18 @@ paths:
         een concept betreft.
       summary: Verwijder een STATUSTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - statustypen
+      - statustypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -6948,34 +6960,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) STATUSTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - statustypen
+      - statustypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -6997,75 +7009,90 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle ZAAKOBJECTTYPEn opvragen.
       parameters:
-        - in: query
-          name: anderObjecttype
-          schema:
-            type: boolean
-          description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
-            ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
-        - in: query
-          name: catalogus
-          schema:
-            type: integer
-          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-        - in: query
-          name: datumBeginGeldigheid
-          schema:
-            type: string
-            format: date
-          description: De datum waarop het is ontstaan.
-        - in: query
-          name: datumEindeGeldigheid
-          schema:
-            type: string
-            format: date
-          description: De datum waarop het is opgeheven.
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - in: query
-          name: objecttype
-          schema:
-            type: string
-          description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
-            behoort.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: relatieOmschrijving
-          schema:
-            type: string
-          description: Omschrijving van de betrekking van het Objecttype op zaken van
-            het gerelateerde ZAAKTYPE.
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
-        - in: query
-          name: zaaktypeIdentificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
+      - in: query
+        name: anderObjecttype
+        schema:
+          type: boolean
+        description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
+          ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+      - in: query
+        name: datumBeginGeldigheid
+        schema:
+          type: string
+          format: date
+        description: De datum waarop het is ontstaan.
+      - in: query
+        name: datumEindeGeldigheid
+        schema:
+          type: string
+          format: date
+        description: De datum waarop het is opgeheven.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: objecttype
+        schema:
+          type: string
+        description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
+          behoort.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: relatieOmschrijving
+        schema:
+          type: string
+        description: Omschrijving van de betrekking van het Objecttype op zaken van
+          het gerelateerde ZAAKTYPE.
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          **EXPERIMENTEEL** filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
+      - in: query
+        name: zaaktypeIdentificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -7192,16 +7219,16 @@ paths:
       description: Maak een ZAAKOBJECTTYPE aan.
       summary: Maak een ZAAKOBJECTTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       requestBody:
         content:
           application/json:
@@ -7209,8 +7236,8 @@ paths:
               $ref: '#/components/schemas/ZaakObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -7343,34 +7370,34 @@ paths:
       description: Een specifieke ZAAKOBJECTTYPE opvragen.
       summary: Een specifieke ZAAKOBJECTTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -7503,23 +7530,23 @@ paths:
       description: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
       summary: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       requestBody:
         content:
           application/json:
@@ -7527,8 +7554,8 @@ paths:
               $ref: '#/components/schemas/ZaakObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -7667,31 +7694,31 @@ paths:
       description: Werk een ZAAKOBJECTTYPE deels bij.
       summary: Werk een ZAAKOBJECTTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakObjectTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -7830,18 +7857,18 @@ paths:
       description: Verwijder een ZAAKOBJECTTYPE.
       summary: Verwijder een ZAAKOBJECTTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -7964,34 +7991,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) ZAAKOBJECTTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaakobjecttypen
+      - zaakobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -8013,53 +8040,53 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle ZAAKTYPE-INFORMATIEOBJECTTYPE relaties opvragen.
       parameters:
-        - in: query
-          name: informatieobjecttype
-          schema:
-            type: integer
-          description: URL-referentie naar het INFORMATIEOBJECTTYPE.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: richting
-          schema:
-            type: string
-            enum:
-              - inkomend
-              - intern
-              - uitgaand
-          description: |+
-            Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
+      - in: query
+        name: informatieobjecttype
+        schema:
+          type: integer
+        description: URL-referentie naar het INFORMATIEOBJECTTYPE.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: richting
+        schema:
+          type: string
+          enum:
+          - inkomend
+          - intern
+          - uitgaand
+        description: |+
+          Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
 
-        - in: query
-          name: status
-          schema:
-            type: string
-          description: |
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-        - in: query
-          name: zaaktype
-          schema:
-            type: integer
-          description: URL-referentie naar het ZAAKTYPE.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: |
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: zaaktype
+        schema:
+          type: integer
+        description: URL-referentie naar het ZAAKTYPE.
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -8190,16 +8217,16 @@ paths:
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
       summary: Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       requestBody:
         content:
           application/json:
@@ -8207,8 +8234,8 @@ paths:
               $ref: '#/components/schemas/ZaakTypeInformatieObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '201':
           headers:
@@ -8341,34 +8368,34 @@ paths:
       description: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       summary: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -8505,23 +8532,23 @@ paths:
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       requestBody:
         content:
           application/json:
@@ -8529,8 +8556,8 @@ paths:
               $ref: '#/components/schemas/ZaakTypeInformatieObjectTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -8673,31 +8700,31 @@ paths:
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakTypeInformatieObjectTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -8840,18 +8867,18 @@ paths:
         - `zaaktype` of `informatieobjecttype` is nog niet gepubliceerd
       summary: Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -8974,34 +9001,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) ZAAK-INFORMATIEOBJECT-TYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktype-informatieobjecttypen
+      - zaaktype-informatieobjecttypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -9023,64 +9050,80 @@ paths:
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       summary: Alle ZAAKTYPEn opvragen.
       parameters:
-        - in: query
-          name: catalogus
-          schema:
-            type: integer
-          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-        - in: query
-          name: datumGeldigheid
-          schema:
-            type: string
-            format: date
-          description: filter objecten op hun geldigheids datum.
-        - in: query
-          name: identificatie
-          schema:
-            type: string
-          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
-            het ZAAKTYPE voorkomt.
-        - name: page
-          required: false
-          in: query
-          description: Een pagina binnen de gepagineerde set resultaten.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Het aantal resultaten terug te geven per pagina.
-          schema:
-            type: integer
-        - in: query
-          name: status
-          schema:
-            type: string
-            enum:
-              - alles
-              - concept
-              - definitief
-          description: |+
-            filter objects depending on their concept status:
-            * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-            * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-            * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: identificatie
+        schema:
+          type: string
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
+      - in: query
+        name: identificatie__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Unieke identificatie van het ZAAKTYPE binnen
+          de CATALOGUS waarin het ZAAKTYPE voorkomt. Filter op (een deel van de) identificatie
+          (hoofdletterongevoelig).'
+      - in: query
+        name: omschrijving__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen van het
+          ZAAKTYPE. Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+          Object versies zijn gebaseerd op het veld `identificatie`, dit betekent dat objecten met hetzelfde
+          `identificatie` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
-        - in: query
-          name: trefwoorden
-          schema:
-            type: array
-            items:
-              type: string
-          description: Meerdere waarden kunnen gescheiden worden door komma's.
-          explode: false
-          style: form
+      - in: query
+        name: trefwoorden
+        schema:
+          type: array
+          items:
+            type: string
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
+        explode: false
+        style: form
       tags:
-        - zaaktypen
+      - zaaktypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -9213,16 +9256,16 @@ paths:
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
       summary: Maak een ZAAKTYPE aan.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       requestBody:
         content:
           application/json:
@@ -9230,8 +9273,8 @@ paths:
               $ref: '#/components/schemas/ZaakTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '201':
           headers:
@@ -9364,34 +9407,34 @@ paths:
       description: Een specifieke ZAAKTYPE opvragen.
       summary: Een specifieke ZAAKTYPE opvragen.
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -9528,23 +9571,23 @@ paths:
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
       summary: Werk een ZAAKTYPE in zijn geheel bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       requestBody:
         content:
           application/json:
@@ -9552,8 +9595,8 @@ paths:
               $ref: '#/components/schemas/ZaakTypeRequest'
         required: true
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -9696,31 +9739,31 @@ paths:
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
       summary: Werk een ZAAKTYPE deels bij.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakTypeRequest'
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
       responses:
         '200':
           headers:
@@ -9859,18 +9902,18 @@ paths:
       description: Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
       summary: Verwijder een ZAAKTYPE.
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       security:
-        - JWT-Claims:
-            - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
       responses:
         '204':
           headers:
@@ -9993,34 +10036,34 @@ paths:
       description: Vraag de headers op die je bij een GET request zou krijgen.
       summary: 'De headers voor een specifiek(e) ZAAKTYPE opvragen '
       parameters:
-        - in: header
-          name: If-None-Match
-          schema:
-            type: string
-          description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
-            meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
-            Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
-            dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
-            voor meer informatie.
-          examples:
-            OneValue:
-              value: '"79054025255fb1a26e4bc422aef54eb4"'
-              summary: Eén ETag-waarde
-            MultipleValues:
-              value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-              summary: Meerdere ETag-waardes
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       security:
-        - JWT-Claims:
-            - catalogi.lezen
+      - JWT-Claims:
+        - catalogi.lezen
       responses:
         '200':
           headers:
@@ -10046,26 +10089,26 @@ paths:
         nieuwe versie aanmaken.
       summary: Publiceer het concept ZAAKTYPE.
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type van de verzoekinhoud.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unieke resource identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
       tags:
-        - zaaktypen
+      - zaaktypen
       security:
-        - JWT-Claims:
-            - catalogi.schrijven
+      - JWT-Claims:
+        - catalogi.schrijven
       responses:
         '200':
           headers:
@@ -10191,29 +10234,28 @@ components:
   schemas:
     AardRelatieEnum:
       enum:
-        - vervolg
-        - bijdrage
-        - onderwerp
+      - vervolg
+      - bijdrage
+      - onderwerp
       type: string
     AfleidingswijzeEnum:
       enum:
-        - afgehandeld
-        - ander_datumkenmerk
-        - eigenschap
-        - gerelateerde_zaak
-        - hoofdzaak
-        - ingangsdatum_besluit
-        - termijn
-        - vervaldatum_besluit
-        - zaakobject
+      - afgehandeld
+      - ander_datumkenmerk
+      - eigenschap
+      - gerelateerde_zaak
+      - hoofdzaak
+      - ingangsdatum_besluit
+      - termijn
+      - vervaldatum_besluit
+      - zaakobject
       type: string
     ArchiefnominatieEnum:
       enum:
-        - blijvend_bewaren
-        - vernietigen
-        # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-        # OpenAPI Generator does not support the 'oneOf' construct fully yet
-        - ''
+      - blijvend_bewaren
+      - vernietigen
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     BesluitType:
       type: object
@@ -10328,10 +10370,18 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - beginGeldigheid
-        - catalogus
-        - informatieobjecttypen
-        - publicatieIndicatie
+      - beginGeldigheid
+      - beginObject
+      - catalogus
+      - concept
+      - eindeObject
+      - informatieobjecttypen
+      - publicatieIndicatie
+      - resultaattypen
+      - resultaattypenOmschrijving
+      - url
+      - vastgelegdIn
+      - zaaktypen
     BesluitTypeRequest:
       type: object
       properties:
@@ -10394,13 +10444,13 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - beginGeldigheid
-        - catalogus
-        - informatieobjecttypen
-        - publicatieIndicatie
+      - beginGeldigheid
+      - catalogus
+      - informatieobjecttypen
+      - publicatieIndicatie
     BlankEnum:
       enum:
-        - ''
+      - ''
     BronCatalogus:
       type: object
       properties:
@@ -10418,9 +10468,11 @@ components:
           description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
             is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           maxLength: 9
+          minLength: 9
       required:
-        - domein
-        - rsin
+      - domein
+      - rsin
+      - url
     BronCatalogusRequest:
       type: object
       properties:
@@ -10438,9 +10490,11 @@ components:
           description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
             is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           maxLength: 9
+          minLength: 9
       required:
-        - domein
-        - rsin
+      - domein
+      - rsin
+      - url
     BronZaaktype:
       type: object
       properties:
@@ -10459,8 +10513,9 @@ components:
             in de Broncatalogus.
           maxLength: 80
       required:
-        - identificatie
-        - omschrijving
+      - identificatie
+      - omschrijving
+      - url
     BronZaaktypeRequest:
       type: object
       properties:
@@ -10479,14 +10534,15 @@ components:
             in de Broncatalogus.
           maxLength: 80
       required:
-        - identificatie
-        - omschrijving
+      - identificatie
+      - omschrijving
+      - url
     BrondatumArchiefprocedure:
       type: object
       properties:
         afleidingswijze:
           allOf:
-            - $ref: '#/components/schemas/AfleidingswijzeEnum'
+          - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
           description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
             \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
@@ -10567,11 +10623,11 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the 'oneOf' construct fully yet
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
-            - $ref: '#/components/schemas/ObjecttypeEnum'
-            #- $ref: '#/components/schemas/BlankEnum'
+          #oneOf:
+          - $ref: '#/components/schemas/ObjecttypeEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
           description: De naam van de registratie waarvan het procesobject deel uit
@@ -10585,13 +10641,13 @@ components:
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
             is.
       required:
-        - afleidingswijze
+      - afleidingswijze
     BrondatumArchiefprocedureRequest:
       type: object
       properties:
         afleidingswijze:
           allOf:
-            - $ref: '#/components/schemas/AfleidingswijzeEnum'
+          - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
           description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
             \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
@@ -10672,11 +10728,11 @@ components:
             * `woz_waarde` - Woz waarde
             * `zakelijk_recht` - Zakelijk recht
             * `overige` - Overige
-          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the 'oneOf' construct fully yet
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
-            - $ref: '#/components/schemas/ObjecttypeEnum'
-            #- $ref: '#/components/schemas/BlankEnum'
+          #oneOf:
+          - $ref: '#/components/schemas/ObjecttypeEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
           description: De naam van de registratie waarvan het procesobject deel uit
@@ -10690,7 +10746,7 @@ components:
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
             is.
       required:
-        - afleidingswijze
+      - afleidingswijze
     Catalogus:
       type: object
       properties:
@@ -10712,6 +10768,7 @@ components:
           description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
             NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
           maxLength: 9
+          minLength: 9
         contactpersoonBeheerNaam:
           type: string
           title: Naam
@@ -10770,9 +10827,13 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
-        - contactpersoonBeheerNaam
-        - domein
-        - rsin
+      - besluittypen
+      - contactpersoonBeheerNaam
+      - domein
+      - informatieobjecttypen
+      - rsin
+      - url
+      - zaaktypen
     CatalogusRequest:
       type: object
       properties:
@@ -10784,7 +10845,7 @@ components:
           maxLength: 5
         rsin:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
             NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
           maxLength: 9
@@ -10823,9 +10884,9 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
-        - contactpersoonBeheerNaam
-        - domein
-        - rsin
+      - contactpersoonBeheerNaam
+      - domein
+      - rsin
     CheckListItem:
       type: object
       properties:
@@ -10848,8 +10909,8 @@ components:
           description: Het al dan niet verplicht zijn van controle van het aandachtspunt
             voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.
       required:
-        - itemnaam
-        - vraagstelling
+      - itemnaam
+      - vraagstelling
     CheckListItemRequest:
       type: object
       properties:
@@ -10874,8 +10935,8 @@ components:
           description: Het al dan niet verplicht zijn van controle van het aandachtspunt
             voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.
       required:
-        - itemnaam
-        - vraagstelling
+      - itemnaam
+      - vraagstelling
     Eigenschap:
       type: object
       description: Adds nested create feature
@@ -10949,10 +11010,15 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - definitie
-        - naam
-        - specificatie
-        - zaaktype
+      - beginObject
+      - catalogus
+      - definitie
+      - eindeObject
+      - naam
+      - specificatie
+      - url
+      - zaaktype
+      - zaaktypeIdentificatie
     EigenschapRequest:
       type: object
       description: Adds nested create feature
@@ -11000,10 +11066,10 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - definitie
-        - naam
-        - specificatie
-        - zaaktype
+      - definitie
+      - naam
+      - specificatie
+      - zaaktype
     EigenschapSpecificatie:
       type: object
       properties:
@@ -11014,7 +11080,7 @@ components:
           maxLength: 32
         formaat:
           allOf:
-            - $ref: '#/components/schemas/FormaatEnum'
+          - $ref: '#/components/schemas/FormaatEnum'
           description: |-
             Het soort tekens waarmee waarden van de EIGENSCHAP kunnen worden vastgelegd.
 
@@ -11041,9 +11107,9 @@ components:
             maxLength: 100
           description: Waarden die deze EIGENSCHAP kan hebben.
       required:
-        - formaat
-        - kardinaliteit
-        - lengte
+      - formaat
+      - kardinaliteit
+      - lengte
     EigenschapSpecificatieRequest:
       type: object
       properties:
@@ -11054,7 +11120,7 @@ components:
           maxLength: 32
         formaat:
           allOf:
-            - $ref: '#/components/schemas/FormaatEnum'
+          - $ref: '#/components/schemas/FormaatEnum'
           description: |-
             Het soort tekens waarmee waarden van de EIGENSCHAP kunnen worden vastgelegd.
 
@@ -11084,9 +11150,9 @@ components:
             maxLength: 100
           description: Waarden die deze EIGENSCHAP kan hebben.
       required:
-        - formaat
-        - kardinaliteit
-        - lengte
+      - formaat
+      - kardinaliteit
+      - lengte
     FieldValidationError:
       type: object
       description: Formaat van validatiefouten.
@@ -11101,15 +11167,15 @@ components:
           type: string
           description: Uitleg wat er precies fout is met de gegevens
       required:
-        - code
-        - name
-        - reason
+      - code
+      - name
+      - reason
     FormaatEnum:
       enum:
-        - tekst
-        - getal
-        - datum
-        - datum_tijd
+      - tekst
+      - getal
+      - datum
+      - datum_tijd
       type: string
     Fout:
       type: object
@@ -11135,15 +11201,15 @@ components:
           description: URI met referentie naar dit specifiek voorkomen van de fout.
             Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
       required:
-        - code
-        - detail
-        - instance
-        - status
-        - title
+      - code
+      - detail
+      - instance
+      - status
+      - title
     IndicatieInternOfExternEnum:
       enum:
-        - intern
-        - extern
+      - intern
+      - extern
       type: string
     InformatieObjectType:
       type: object
@@ -11169,7 +11235,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
 
@@ -11222,7 +11288,7 @@ components:
             te onderscheiden.)
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriek'
+          - $ref: '#/components/schemas/OmschrijvingGeneriek'
           description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
         zaaktypen:
           type: array
@@ -11244,11 +11310,17 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - beginGeldigheid
-        - catalogus
-        - informatieobjectcategorie
-        - omschrijving
-        - vertrouwelijkheidaanduiding
+      - beginGeldigheid
+      - beginObject
+      - besluittypen
+      - catalogus
+      - concept
+      - eindeObject
+      - informatieobjectcategorie
+      - omschrijving
+      - url
+      - vertrouwelijkheidaanduiding
+      - zaaktypen
     InformatieObjectTypeRequest:
       type: object
       properties:
@@ -11266,7 +11338,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
 
@@ -11306,50 +11378,49 @@ components:
             te onderscheiden.)
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
+          - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
           description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
       required:
-        - beginGeldigheid
-        - catalogus
-        - informatieobjectcategorie
-        - omschrijving
-        - vertrouwelijkheidaanduiding
+      - beginGeldigheid
+      - catalogus
+      - informatieobjectcategorie
+      - omschrijving
+      - vertrouwelijkheidaanduiding
     ObjecttypeEnum:
       enum:
-        - adres
-        - besluit
-        - buurt
-        - enkelvoudig_document
-        - gemeente
-        - gemeentelijke_openbare_ruimte
-        - huishouden
-        - inrichtingselement
-        - kadastrale_onroerende_zaak
-        - kunstwerkdeel
-        - maatschappelijke_activiteit
-        - medewerker
-        - natuurlijk_persoon
-        - niet_natuurlijk_persoon
-        - openbare_ruimte
-        - organisatorische_eenheid
-        - pand
-        - spoorbaandeel
-        - status
-        - terreindeel
-        - terrein_gebouwd_object
-        - vestiging
-        - waterdeel
-        - wegdeel
-        - wijk
-        - woonplaats
-        - woz_deelobject
-        - woz_object
-        - woz_waarde
-        - zakelijk_recht
-        - overige
-      # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-      #  OpenAPI Generator does not support the 'oneOf' construct fully yet
-        - ''
+      - adres
+      - besluit
+      - buurt
+      - enkelvoudig_document
+      - gemeente
+      - gemeentelijke_openbare_ruimte
+      - huishouden
+      - inrichtingselement
+      - kadastrale_onroerende_zaak
+      - kunstwerkdeel
+      - maatschappelijke_activiteit
+      - medewerker
+      - natuurlijk_persoon
+      - niet_natuurlijk_persoon
+      - openbare_ruimte
+      - organisatorische_eenheid
+      - pand
+      - spoorbaandeel
+      - status
+      - terreindeel
+      - terrein_gebouwd_object
+      - vestiging
+      - waterdeel
+      - wegdeel
+      - wijk
+      - woonplaats
+      - woz_deelobject
+      - woz_object
+      - woz_waarde
+      - zakelijk_recht
+      - overige
+      # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
+      - ''
       type: string
     OmschrijvingGeneriek:
       type: object
@@ -11380,20 +11451,20 @@ components:
           description: Zinvolle toelichting bij het informatieobjecttype
           maxLength: 255
       required:
-        - definitieInformatieobjecttypeOmschrijvingGeneriek
-        - herkomstInformatieobjecttypeOmschrijvingGeneriek
-        - hierarchieInformatieobjecttypeOmschrijvingGeneriek
-        - informatieobjecttypeOmschrijvingGeneriek
+      - definitieInformatieobjecttypeOmschrijvingGeneriek
+      - herkomstInformatieobjecttypeOmschrijvingGeneriek
+      - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      - informatieobjecttypeOmschrijvingGeneriek
     OmschrijvingGeneriekEnum:
       enum:
-        - adviseur
-        - behandelaar
-        - belanghebbende
-        - beslisser
-        - initiator
-        - klantcontacter
-        - zaakcoordinator
-        - mede_initiator
+      - adviseur
+      - behandelaar
+      - belanghebbende
+      - beslisser
+      - initiator
+      - klantcontacter
+      - zaakcoordinator
+      - mede_initiator
       type: string
     OmschrijvingGeneriekRequest:
       type: object
@@ -11424,15 +11495,15 @@ components:
           description: Zinvolle toelichting bij het informatieobjecttype
           maxLength: 255
       required:
-        - definitieInformatieobjecttypeOmschrijvingGeneriek
-        - herkomstInformatieobjecttypeOmschrijvingGeneriek
-        - hierarchieInformatieobjecttypeOmschrijvingGeneriek
-        - informatieobjecttypeOmschrijvingGeneriek
+      - definitieInformatieobjecttypeOmschrijvingGeneriek
+      - herkomstInformatieobjecttypeOmschrijvingGeneriek
+      - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      - informatieobjecttypeOmschrijvingGeneriek
     PaginatedBesluitTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11454,8 +11525,8 @@ components:
     PaginatedCatalogusList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11477,8 +11548,8 @@ components:
     PaginatedEigenschapList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11500,8 +11571,8 @@ components:
     PaginatedInformatieObjectTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11523,8 +11594,8 @@ components:
     PaginatedResultaatTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11546,8 +11617,8 @@ components:
     PaginatedRolTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11569,8 +11640,8 @@ components:
     PaginatedStatusTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11592,8 +11663,8 @@ components:
     PaginatedZaakObjectTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11615,8 +11686,8 @@ components:
     PaginatedZaakTypeInformatieObjectTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11638,8 +11709,8 @@ components:
     PaginatedZaakTypeList:
       type: object
       required:
-        - count
-        - results
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11782,7 +11853,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
 
@@ -11822,7 +11893,7 @@ components:
             te onderscheiden.)
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
+          - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
           description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
     PatchedResultaatTypeRequest:
       type: object
@@ -11873,11 +11944,10 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the 'oneOf' construct fully yet
           allOf:
-            - $ref: '#/components/schemas/ArchiefnominatieEnum'
-            #- $ref: '#/components/schemas/BlankEnum'
+          #oneOf:
+          - $ref: '#/components/schemas/ArchiefnominatieEnum'
+          #- $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
           type: string
           nullable: true
@@ -11890,7 +11960,7 @@ components:
             zaak tot overbrenging (de procestermijn is dan nihil).
         brondatumArchiefprocedure:
           allOf:
-            - $ref: '#/components/schemas/BrondatumArchiefprocedureRequest'
+          - $ref: '#/components/schemas/BrondatumArchiefprocedureRequest'
           nullable: true
           description: Specificatie voor het bepalen van de brondatum voor de start
             van de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -11960,7 +12030,7 @@ components:
           maxLength: 100
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
             \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
             \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
@@ -12121,7 +12191,7 @@ components:
             ZAAKTYPE.
         richting:
           allOf:
-            - $ref: '#/components/schemas/RichtingEnum'
+          - $ref: '#/components/schemas/RichtingEnum'
           description: |-
             Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
 
@@ -12163,7 +12233,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.
 
@@ -12193,7 +12263,7 @@ components:
             van het procesverloop op de hoofdlijnen.
         indicatieInternOfExtern:
           allOf:
-            - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
+          - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
           description: |-
             Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.
 
@@ -12292,7 +12362,7 @@ components:
           maxLength: 200
         referentieproces:
           allOf:
-            - $ref: '#/components/schemas/ReferentieProcesRequest'
+          - $ref: '#/components/schemas/ReferentieProcesRequest'
           description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
         verantwoordelijke:
           type: string
@@ -12302,11 +12372,11 @@ components:
           maxLength: 50
         broncatalogus:
           allOf:
-            - $ref: '#/components/schemas/BronCatalogusRequest'
+          - $ref: '#/components/schemas/BronCatalogusRequest'
           description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
         bronzaaktype:
           allOf:
-            - $ref: '#/components/schemas/BronZaaktypeRequest'
+          - $ref: '#/components/schemas/BronZaaktypeRequest'
           description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
         beginGeldigheid:
           type: string
@@ -12369,7 +12439,7 @@ components:
           description: De URL naar de beschrijving van het Referentieproces
           maxLength: 200
       required:
-        - naam
+      - naam
     ReferentieProcesRequest:
       type: object
       properties:
@@ -12387,7 +12457,7 @@ components:
           description: De URL naar de beschrijving van het Referentieproces
           maxLength: 200
       required:
-        - naam
+      - naam
     ResultaatType:
       type: object
       description: |-
@@ -12451,9 +12521,9 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API, and unfortunately,
-          # OpenAPI Generator does not support the 'oneOf' construct fully yet
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
@@ -12468,7 +12538,7 @@ components:
             zaak tot overbrenging (de procestermijn is dan nihil).
         brondatumArchiefprocedure:
           allOf:
-            - $ref: '#/components/schemas/BrondatumArchiefprocedure'
+          - $ref: '#/components/schemas/BrondatumArchiefprocedure'
           nullable: true
           description: Specificatie voor het bepalen van de brondatum voor de start
             van de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -12548,10 +12618,18 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - omschrijving
-        - resultaattypeomschrijving
-        - selectielijstklasse
-        - zaaktype
+      - beginObject
+      - besluittypeOmschrijving
+      - catalogus
+      - eindeObject
+      - informatieobjecttypeOmschrijving
+      - omschrijving
+      - omschrijvingGeneriek
+      - resultaattypeomschrijving
+      - selectielijstklasse
+      - url
+      - zaaktype
+      - zaaktypeIdentificatie
     ResultaatTypeRequest:
       type: object
       description: |-
@@ -12601,9 +12679,9 @@ components:
 
             * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
             * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
-          # manual changed by INFO.nl: need to allow for empty values returned by the API,
-          # and unfortunately, the OpenAPI Generator does not support the 'oneOf' construct fully yet
+          # manual change by INFO.nl: OpenAPI Generator does not support the `oneOf` construct fully yet
           allOf:
+          #oneOf:
           - $ref: '#/components/schemas/ArchiefnominatieEnum'
           #- $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
@@ -12618,7 +12696,7 @@ components:
             zaak tot overbrenging (de procestermijn is dan nihil).
         brondatumArchiefprocedure:
           allOf:
-            - $ref: '#/components/schemas/BrondatumArchiefprocedureRequest'
+          - $ref: '#/components/schemas/BrondatumArchiefprocedureRequest'
           nullable: true
           description: Specificatie voor het bepalen van de brondatum voor de start
             van de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -12671,15 +12749,15 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - omschrijving
-        - resultaattypeomschrijving
-        - selectielijstklasse
-        - zaaktype
+      - omschrijving
+      - resultaattypeomschrijving
+      - selectielijstklasse
+      - zaaktype
     RichtingEnum:
       enum:
-        - inkomend
-        - intern
-        - uitgaand
+      - inkomend
+      - intern
+      - uitgaand
       type: string
     RolType:
       type: object
@@ -12711,7 +12789,7 @@ components:
           maxLength: 100
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
             \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
             \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
@@ -12751,9 +12829,14 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - omschrijving
-        - omschrijvingGeneriek
-        - zaaktype
+      - beginObject
+      - catalogus
+      - eindeObject
+      - omschrijving
+      - omschrijvingGeneriek
+      - url
+      - zaaktype
+      - zaaktypeIdentificatie
     RolTypeRequest:
       type: object
       description: Adds nested create feature
@@ -12772,7 +12855,7 @@ components:
           maxLength: 100
         omschrijvingGeneriek:
           allOf:
-            - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
+          - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
           description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
             \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
             \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
@@ -12797,9 +12880,9 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - omschrijving
-        - omschrijvingGeneriek
-        - zaaktype
+      - omschrijving
+      - omschrijvingGeneriek
+      - zaaktype
     StatusType:
       type: object
       description: Adds nested create feature
@@ -12914,9 +12997,17 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - omschrijving
-        - volgnummer
-        - zaaktype
+      - beginObject
+      - catalogus
+      - eigenschappen
+      - eindeObject
+      - isEindstatus
+      - omschrijving
+      - url
+      - volgnummer
+      - zaakobjecttypen
+      - zaaktype
+      - zaaktypeIdentificatie
     StatusTypeRequest:
       type: object
       description: Adds nested create feature
@@ -12983,9 +13074,9 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - omschrijving
-        - volgnummer
-        - zaaktype
+      - omschrijving
+      - volgnummer
+      - zaaktype
     ValidatieFout:
       type: object
       description: Formaat van HTTP 4xx en 5xx fouten.
@@ -13014,22 +13105,22 @@ components:
           items:
             $ref: '#/components/schemas/FieldValidationError'
       required:
-        - code
-        - detail
-        - instance
-        - invalidParams
-        - status
-        - title
+      - code
+      - detail
+      - instance
+      - invalidParams
+      - status
+      - title
     VertrouwelijkheidaanduidingEnum:
       enum:
-        - openbaar
-        - beperkt_openbaar
-        - intern
-        - zaakvertrouwelijk
-        - vertrouwelijk
-        - confidentieel
-        - geheim
-        - zeer_geheim
+      - openbaar
+      - beperkt_openbaar
+      - intern
+      - zaakvertrouwelijk
+      - vertrouwelijk
+      - confidentieel
+      - geheim
+      - zeer_geheim
       type: string
     ZaakObjectType:
       type: object
@@ -13111,10 +13202,16 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
-        - anderObjecttype
-        - objecttype
-        - relatieOmschrijving
-        - zaaktype
+      - anderObjecttype
+      - beginObject
+      - catalogus
+      - eindeObject
+      - objecttype
+      - relatieOmschrijving
+      - resultaattypen
+      - url
+      - zaaktype
+      - zaaktypeIdentificatie
     ZaakObjectTypeRequest:
       type: object
       properties:
@@ -13160,10 +13257,10 @@ components:
           nullable: true
           description: De datum waarop het is opgeheven.
       required:
-        - anderObjecttype
-        - objecttype
-        - relatieOmschrijving
-        - zaaktype
+      - anderObjecttype
+      - objecttype
+      - relatieOmschrijving
+      - zaaktype
     ZaakType:
       type: object
       description: |-
@@ -13195,7 +13292,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.
 
@@ -13223,7 +13320,7 @@ components:
             van het procesverloop op de hoofdlijnen.
         indicatieInternOfExtern:
           allOf:
-            - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
+          - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
           description: |-
             Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.
 
@@ -13316,7 +13413,7 @@ components:
           maxLength: 200
         referentieproces:
           allOf:
-            - $ref: '#/components/schemas/ReferentieProces'
+          - $ref: '#/components/schemas/ReferentieProces'
           description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
         concept:
           type: boolean
@@ -13331,11 +13428,11 @@ components:
           maxLength: 50
         broncatalogus:
           allOf:
-            - $ref: '#/components/schemas/BronCatalogus'
+          - $ref: '#/components/schemas/BronCatalogus'
           description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
         bronzaaktype:
           allOf:
-            - $ref: '#/components/schemas/BronZaaktype'
+          - $ref: '#/components/schemas/BronZaaktype'
           description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
         beginGeldigheid:
           type: string
@@ -13441,26 +13538,36 @@ components:
           description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen
             dit ZAAKTYPE.
       required:
-        - aanleiding
-        - beginGeldigheid
-        - besluittypen
-        - catalogus
-        - doel
-        - doorlooptijd
-        - gerelateerdeZaaktypen
-        - handelingBehandelaar
-        - handelingInitiator
-        - indicatieInternOfExtern
-        - omschrijving
-        - onderwerp
-        - opschortingEnAanhoudingMogelijk
-        - productenOfDiensten
-        - publicatieIndicatie
-        - referentieproces
-        - verantwoordelijke
-        - verlengingMogelijk
-        - versiedatum
-        - vertrouwelijkheidaanduiding
+      - aanleiding
+      - beginGeldigheid
+      - beginObject
+      - besluittypen
+      - catalogus
+      - concept
+      - doel
+      - doorlooptijd
+      - eigenschappen
+      - eindeObject
+      - gerelateerdeZaaktypen
+      - handelingBehandelaar
+      - handelingInitiator
+      - indicatieInternOfExtern
+      - informatieobjecttypen
+      - omschrijving
+      - onderwerp
+      - opschortingEnAanhoudingMogelijk
+      - productenOfDiensten
+      - publicatieIndicatie
+      - referentieproces
+      - resultaattypen
+      - roltypen
+      - statustypen
+      - url
+      - verantwoordelijke
+      - verlengingMogelijk
+      - versiedatum
+      - vertrouwelijkheidaanduiding
+      - zaakobjecttypen
     ZaakTypeInformatieObjectType:
       type: object
       description: |-
@@ -13502,7 +13609,7 @@ components:
             ZAAKTYPE.
         richting:
           allOf:
-            - $ref: '#/components/schemas/RichtingEnum'
+          - $ref: '#/components/schemas/RichtingEnum'
           description: |-
             Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
 
@@ -13526,10 +13633,13 @@ components:
           readOnly: true
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       required:
-        - informatieobjecttype
-        - richting
-        - volgnummer
-        - zaaktype
+      - catalogus
+      - informatieobjecttype
+      - richting
+      - url
+      - volgnummer
+      - zaaktype
+      - zaaktypeIdentificatie
     ZaakTypeInformatieObjectTypeRequest:
       type: object
       description: |-
@@ -13558,7 +13668,7 @@ components:
             ZAAKTYPE.
         richting:
           allOf:
-            - $ref: '#/components/schemas/RichtingEnum'
+          - $ref: '#/components/schemas/RichtingEnum'
           description: |-
             Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
 
@@ -13577,10 +13687,10 @@ components:
           minLength: 1
           maxLength: 1000
       required:
-        - informatieobjecttype
-        - richting
-        - volgnummer
-        - zaaktype
+      - informatieobjecttype
+      - richting
+      - volgnummer
+      - zaaktype
     ZaakTypeRequest:
       type: object
       description: |-
@@ -13605,7 +13715,7 @@ components:
           maxLength: 80
         vertrouwelijkheidaanduiding:
           allOf:
-            - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           description: |-
             Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.
 
@@ -13635,7 +13745,7 @@ components:
             van het procesverloop op de hoofdlijnen.
         indicatieInternOfExtern:
           allOf:
-            - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
+          - $ref: '#/components/schemas/IndicatieInternOfExternEnum'
           description: |-
             Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.
 
@@ -13734,7 +13844,7 @@ components:
           maxLength: 200
         referentieproces:
           allOf:
-            - $ref: '#/components/schemas/ReferentieProcesRequest'
+          - $ref: '#/components/schemas/ReferentieProcesRequest'
           description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
         verantwoordelijke:
           type: string
@@ -13744,11 +13854,11 @@ components:
           maxLength: 50
         broncatalogus:
           allOf:
-            - $ref: '#/components/schemas/BronCatalogusRequest'
+          - $ref: '#/components/schemas/BronCatalogusRequest'
           description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
         bronzaaktype:
           allOf:
-            - $ref: '#/components/schemas/BronZaaktypeRequest'
+          - $ref: '#/components/schemas/BronZaaktypeRequest'
           description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
         beginGeldigheid:
           type: string
@@ -13796,26 +13906,26 @@ components:
           description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit
             ZAAKTYPE.
       required:
-        - aanleiding
-        - beginGeldigheid
-        - besluittypen
-        - catalogus
-        - doel
-        - doorlooptijd
-        - gerelateerdeZaaktypen
-        - handelingBehandelaar
-        - handelingInitiator
-        - indicatieInternOfExtern
-        - omschrijving
-        - onderwerp
-        - opschortingEnAanhoudingMogelijk
-        - productenOfDiensten
-        - publicatieIndicatie
-        - referentieproces
-        - verantwoordelijke
-        - verlengingMogelijk
-        - versiedatum
-        - vertrouwelijkheidaanduiding
+      - aanleiding
+      - beginGeldigheid
+      - besluittypen
+      - catalogus
+      - doel
+      - doorlooptijd
+      - gerelateerdeZaaktypen
+      - handelingBehandelaar
+      - handelingInitiator
+      - indicatieInternOfExtern
+      - omschrijving
+      - onderwerp
+      - opschortingEnAanhoudingMogelijk
+      - productenOfDiensten
+      - publicatieIndicatie
+      - referentieproces
+      - verantwoordelijke
+      - verlengingMogelijk
+      - versiedatum
+      - vertrouwelijkheidaanduiding
     ZaakTypenRelatie:
       type: object
       properties:
@@ -13827,7 +13937,7 @@ components:
           maxLength: 200
         aardRelatie:
           allOf:
-            - $ref: '#/components/schemas/AardRelatieEnum'
+          - $ref: '#/components/schemas/AardRelatieEnum'
           description: |-
             Omschrijving van de aard van de relatie van zaken van het ZAAKTYPE tot zaken van het andere ZAAKTYPE
 
@@ -13841,8 +13951,8 @@ components:
           description: Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN.
           maxLength: 255
       required:
-        - aardRelatie
-        - zaaktype
+      - aardRelatie
+      - zaaktype
     ZaakTypenRelatieRequest:
       type: object
       properties:
@@ -13855,7 +13965,7 @@ components:
           maxLength: 200
         aardRelatie:
           allOf:
-            - $ref: '#/components/schemas/AardRelatieEnum'
+          - $ref: '#/components/schemas/AardRelatieEnum'
           description: |-
             Omschrijving van de aard van de relatie van zaken van het ZAAKTYPE tot zaken van het andere ZAAKTYPE
 
@@ -13869,23 +13979,23 @@ components:
           description: Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN.
           maxLength: 255
       required:
-        - aardRelatie
-        - zaaktype
+      - aardRelatie
+      - zaaktype
   securitySchemes:
     JWT-Claims:
       type: http
       scheme: bearer
       bearerFormat: JWT
 servers:
-  - url: /catalogi/api/v1
+- url: /catalogi/api/v1
 tags:
-  - name: besluittypen
-  - name: catalogussen
-  - name: eigenschappen
-  - name: informatieobjecttypen
-  - name: resultaattypen
-  - name: roltypen
-  - name: statustypen
-  - name: zaakobjecttypen
-  - name: zaaktype-informatieobjecttypen
-  - name: zaaktypen
+- name: besluittypen
+- name: catalogussen
+- name: eigenschappen
+- name: informatieobjecttypen
+- name: resultaattypen
+- name: roltypen
+- name: statustypen
+- name: zaakobjecttypen
+- name: zaaktype-informatieobjecttypen
+- name: zaaktypen

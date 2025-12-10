@@ -23,8 +23,8 @@ As the group should always be provided when creating a zaak we set the candidate
 
 For example:
 ```xml
-    <userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
-  ... the rest of userTask tags ...
+<userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
+... the rest of userTask tags ...
 </userTask>
 ```
 
@@ -66,7 +66,7 @@ For example, the emails can be validated by specifying `validate` and `type` key
 }
 ```
 
-## ZAC extensions
+### ZAC extensions
 
 ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
 
@@ -79,6 +79,26 @@ Available ZAC types are:
 * `ZAC_resultaat`
 * `ZAC_status`
 * `ZAC_process_data`
+
+
+## Supported functionality
+The following functionality is supported by the BPMN process definition:
+* Zaak
+   * listing status and result types
+   * changing status and result
+   * suspending
+   * resuming
+* Send email
+* User/group
+   * listing groups/users
+   * assigning a group/user
+   * assigning specific task's group/user
+* Documents
+  * listing attached documents
+  * listing available SmartDocuments templates
+  * creating documents
+* Listing reference table data
+* Process data
 
 ### Zaak
 
@@ -239,7 +259,7 @@ For example:
 
 ### User/group
 
-#### Group
+#### Listing groups
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
 
 ```json
@@ -256,7 +276,7 @@ For example:
 }
 ```
 
-#### User
+#### Listing users in a group
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
 * An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
 
@@ -275,7 +295,35 @@ For example:
 }
 ```
 
-#### Setting task group and user
+#### Assigning a group/user to a zaak
+To assign a group or user to a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate`
+* add fields:
+    * `groepId` - group to use for the assignment
+    * `behandelaarGebruikersnaam` - user to use for the assignment (optional)
+    * `reden` - the reason for the assignment
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_362" name="Assign for approval" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate">
+      <extensionElements>
+        <flowable:field name="groepId">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Groep}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="behandelaarGebruikersnaam">
+          <flowable:expression><![CDATA[${AM_TeamBehandelaar_Medewerker}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="reden">
+          <flowable:expression><![CDATA[Please check case ${zaakIdentificatie}]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
+
+#### Assigning specific task's group/user
 The following BPMN-specific variables can be used in expressions in the BPMN process:
 * `zaakGroep` - group assigned to the zaak
 * `zaakBehandelaar` (optional) - user assigned to the zaak
@@ -285,7 +333,7 @@ The above variables can be used in `assignee` and `candidateGroups` attributes f
 <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
 ```
 
-### SmartDocuments
+### Documents
 
 #### Listing available documents
 To display linked documents of a zaak you can use:
@@ -386,6 +434,38 @@ The path to the SmartDocuments group specifies which group of templates to list.
 First, a lookup for the template-specific information object type (informatieobjecttype) UUID is attempted. If a template-specific UUID is not found, the default is used.
 The template name should be snake-case (`Data Test` becomes `Data_Test`).
 
+#### Listing attached documents
+* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
+
+```json
+{
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documents_Select",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "defaultValue": [],
+  "clearOnRefresh": true,
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": true,
+      "searchEnabled": true,
+      "shouldSort": false
+    }
+  },
+  "validate": {
+    "required": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_documenten"
+  }
+}
+```
+
 ### Reference Table values
 To display and use values from a reference table you can use:
 * a fieldset with type `referenceTableFieldset`
@@ -432,34 +512,11 @@ Example:
 }
 ```
 
-### Documenten
-* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
-
-```json
-{
-  "label": "Documents",
-  "type": "select",
-  "key": "ZAAK_Documents_Select",
-  "input": true,
-  "widget": "choicesjs",
-  "multiple": true,
-  "defaultValue": [],
-  "clearOnRefresh": true,
-  "dataSrc": "custom",
-  "placeholder": "Select one or more documents",
-  "customOptions": {
-    "choicesOptions": {
-      "removeItemButton": true,
-      "placeholder": true,
-      "searchEnabled": true,
-      "shouldSort": false
-    }
-  },
-  "validate": {
-    "required": true
-  },
-  "attributes": {
-    "ZAC_TYPE": "ZAC_documenten"
-  }
-}
-```
+#### Supported process data variables
+* `zaakUUID` - zaak UUID
+* `zaakIdentificatie` - zaak id
+* `zaakCommunicatiekanaal` - zaak communication channel
+* `zaakGroep` - zaak group
+* `zaakBehandelaar` - zaak assigned user`
+* `zaaktypeUUID` - zaaktype UUID
+* `zaaktypeOmschrijving` - zaaktype description

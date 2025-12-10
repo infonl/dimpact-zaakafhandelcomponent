@@ -108,7 +108,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -169,7 +169,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(1)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -216,7 +216,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(3)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -249,7 +249,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
 
@@ -304,11 +304,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(numberOfDays)
             )
             val zaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now()
             )
             val extendedZaak = createZaak(
-                zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
@@ -375,7 +375,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -446,7 +446,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val taskDataSlot = slot<Map<String, String>>()
             val zaak = createZaak(
-                zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
@@ -526,7 +526,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 startenTaak = true,
                 versturenEmail = true
             )
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaakService.processBrondatumProcedure(any(), any(), any())
             } just runs
@@ -569,7 +569,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
             every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
 
@@ -602,7 +602,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
             every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
 

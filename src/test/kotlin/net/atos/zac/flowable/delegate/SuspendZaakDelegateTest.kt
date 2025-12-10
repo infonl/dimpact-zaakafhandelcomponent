@@ -2,11 +2,11 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.flowable.delegate
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -18,6 +18,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
+import java.math.BigDecimal
 
 class SuspendZaakDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -45,19 +46,47 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
         every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
 
-        val aantalDagenExpression = mockk<JuelExpression>()
-        every { aantalDagenExpression.getValue(delegateExecution) } returns "$numberOfDays"
         val opschortingRedenExpression = mockk<JuelExpression>()
         every { opschortingRedenExpression.getValue(delegateExecution) } returns reason
 
         every { suspensionZaakHelper.suspendZaak(zaak, numberOfDays, reason) } returns zaak
 
-        val suspendZaakDelegate = SuspendZaakDelegate().apply {
-            aantalDagen = aantalDagenExpression
-            opschortingReden = opschortingRedenExpression
+        When("string expressions are used") {
+            val aantalDagenExpression = mockk<JuelExpression>()
+            every { aantalDagenExpression.getValue(delegateExecution) } returns "$numberOfDays"
+
+            val suspendZaakDelegate = SuspendZaakDelegate().apply {
+                aantalDagen = aantalDagenExpression
+                opschortingReden = opschortingRedenExpression
+            }
+
+            suspendZaakDelegate.execute(delegateExecution)
+
+            Then("expressions are resolved") {
+                verify(exactly = 1) {
+                    aantalDagenExpression.getValue(delegateExecution)
+                    opschortingRedenExpression.getValue(delegateExecution)
+                }
+            }
+
+            And("the zaak suspend is called") {
+                verify(exactly = 1) {
+                    suspensionZaakHelper.suspendZaak(zaak, numberOfDays, reason)
+                }
+            }
         }
 
-        When("execute is called") {
+        When("BigDecimal expression is used for aantalDagen") {
+            clearMocks(opschortingRedenExpression, suspensionZaakHelper, answers = false)
+
+            val aantalDagenExpression = mockk<JuelExpression>()
+            every { aantalDagenExpression.getValue(delegateExecution) } returns BigDecimal(numberOfDays)
+
+            val suspendZaakDelegate = SuspendZaakDelegate().apply {
+                aantalDagen = aantalDagenExpression
+                opschortingReden = opschortingRedenExpression
+            }
+
             suspendZaakDelegate.execute(delegateExecution)
 
             Then("expressions are resolved") {

@@ -57,7 +57,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             val zaakType = createZaakType(doorloopTijd = "P5D")
             val zaak = createZaak(
                 startDate = LocalDate.of(1975, 12, 5),
-                zaakTypeURI = zaakType.url
+                zaaktypeUri = zaakType.url
             )
             val createdZaak = createZaak()
             val zaakSlot = slot<Zaak>()
@@ -88,7 +88,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             )
             val zaak = createZaak(
                 startDate = LocalDate.of(1975, 12, 5),
-                zaakTypeURI = zaakType.url
+                zaaktypeUri = zaakType.url
             )
             val createdZaak = createZaak()
             val zaakSlot = slot<Zaak>()
@@ -120,7 +120,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             )
             val zaak = createZaak(
                 startDate = LocalDate.of(1975, 12, 5),
-                zaakTypeURI = zaakType.url
+                zaaktypeUri = zaakType.url
             )
             val createdZaak = createZaak()
             val zaakSlot = slot<Zaak>()

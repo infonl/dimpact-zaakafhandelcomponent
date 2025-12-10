@@ -78,7 +78,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
             verblijfplaats = createAdres()
         )
         val zaakType = createZaakType()
-        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
         val rolMedewerker = createRolMedewerker()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
 
@@ -130,7 +130,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
             )
         val zaakType = createZaakType()
-        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
         val resultaatItem = createResultaatItem()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolVestiging
@@ -190,7 +190,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
                 )
             )
         val zaakType = createZaakType()
-        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
         val resultaatItem = createResultaatItem()
 
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon

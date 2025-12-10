@@ -62,6 +62,7 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -81,6 +82,7 @@ import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
@@ -130,6 +132,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
@@ -214,7 +217,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Creating a zaak") {
-        Given("Zaak input data is provided") {
+        Given("CMMN zaak input data is provided") {
             val group = createGroup()
             val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
             val objectRegistratieObject = createORObject()
@@ -245,7 +248,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val zaakObjectPand = createZaakobjectPand()
             val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val bronOrganisatie = "fakeBronOrganisatie"
             val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
             val zaakCreatedSlot = slot<Zaak>()
@@ -352,6 +355,158 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
+        Given("BPMN zaak input data is provided") {
+            clearAllMocks()
+            val group = createGroup()
+            val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
+            val objectRegistratieObject = createORObject()
+            val productaanvraagDimpact = createProductaanvraagDimpact()
+            val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now().minusDays(1))
+            val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
+            val zaakTypeUUID = UUID.randomUUID()
+            val zaakType = createZaakType(
+                omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
+                servicenorm = "P10D",
+                uri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+            )
+            val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+                restZaakCreateData = createRestZaakCreateData(
+                    restZaakType = RestZaaktype(
+                        uuid = zaakTypeUUID
+                    ),
+                    restGroup = createRestGroup(
+                        id = group.id
+                    ),
+
+                ),
+                zaakTypeUUID = zaakTypeUUID
+            )
+            val rolMedewerker = createRolMedewerker()
+            val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
+            val user = createLoggedInUser()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val zaakData = mapOf(
+                "zaakGroep" to restZaak.groep!!.naam,
+                "zaakBehandelaar" to restZaak.behandelaar!!.naam,
+                "zaakCommunicatiekanaal" to restZaak.communicatiekanaal!!
+            )
+            val zaakObjectPand = createZaakobjectPand()
+            val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val bronOrganisatie = "fakeBronOrganisatie"
+            val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
+            val zaakCreatedSlot = slot<Zaak>()
+            val updatedRolesSlot = mutableListOf<Rol<*>>()
+
+            every { configuratieService.featureFlagBpmnSupport() } returns true
+            every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
+            every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
+            every {
+                bpmnService.startProcess(zaak, zaakType, zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey, zaakData)
+            } just runs
+            every {
+                inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
+            } just runs
+            every {
+                objectsClientService
+                    .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
+            } returns objectRegistratieObject
+            every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
+            every {
+                productaanvraagService.getProductaanvraag(objectRegistratieObject)
+            } returns productaanvraagDimpact
+            every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
+            every {
+                productaanvraagService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
+            } just runs
+            every {
+                productaanvraagService.pairProductaanvraagWithZaak(
+                    objectRegistratieObject,
+                    zaak.url
+                )
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+            } returns zaaktypeCmmnConfiguration
+            every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
+            every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
+            every {
+                zrcClientService.updateRol(
+                    any(),
+                    capture(updatedRolesSlot),
+                    any()
+                )
+            } just runs
+            every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
+            every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
+            every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
+            every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+            every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
+            every {
+                zaakService.addInitiatorToZaak(
+                    identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
+                    identification = restZaakCreateData.initiatorIdentificatie!!.bsnNummer!!,
+                    zaak = zaak,
+                    explanation = "Aanmaken zaak"
+                )
+            } just runs
+            every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
+
+            When(
+                """
+                a zaak is created for a zaaktype for which the user has permissions and no BPMN process definition is found
+                """.trimMargin()
+            ) {
+                every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
+                every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
+                every {
+                    policyService.readOverigeRechten(zaakType.omschrijving)
+                } returns createOverigeRechtenAllDeny(startenZaak = true)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType)
+                } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
+                every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+
+                val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
+
+                Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
+                    restZaakReturned shouldBe restZaak
+                    verify(exactly = 1) {
+                        zgwApiService.createZaak(any())
+                        bpmnService.startProcess(
+                            zaak,
+                            zaakType,
+                            zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
+                            zaakData
+                        )
+                    }
+                    verify(exactly = 2) {
+                        zrcClientService.createZaakobject(any())
+                        zrcClientService.updateRol(
+                            zaak,
+                            any<Rol<*>>(),
+                            "Aanmaken zaak"
+                        )
+                    }
+                    updatedRolesSlot shouldHaveSize 2
+                    with(updatedRolesSlot[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                        omschrijving shouldBe rolOrganisatorischeEenheid.omschrijving
+                        omschrijvingGeneriek shouldBe rolOrganisatorischeEenheid.omschrijvingGeneriek
+                        roltoelichting shouldBe rolOrganisatorischeEenheid.roltoelichting
+                    }
+                    with(updatedRolesSlot[1]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        omschrijving shouldBe rolMedewerker.omschrijving
+                        omschrijvingGeneriek shouldBe rolMedewerker.omschrijvingGeneriek
+                        roltoelichting shouldBe rolMedewerker.roltoelichting
+                    }
+                }
+            }
+        }
+
         Given("zaak input data has no communication channel") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
@@ -421,10 +576,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("This is not allowed in the zaak afhandel parameters") {
                 val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
                     brpKoppelen = false,
-                    zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+                    zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
                 )
                 val zaaktypeCmmnConfiguration =
-                    createZaaktypeCmmnConfiguration(zaaktypeCmmnBetrokkeneParameters = betrokkeneKoppelingen)
+                    createZaaktypeCmmnConfiguration(zaaktypeBetrokkeneParameters = betrokkeneKoppelingen)
                 val zaakType = createZaakType()
                 val restZaakCreateData = createRestZaakCreateData()
                 val zaakAanmaakGegevens = createRESTZaakAanmaakGegevens(restZaakCreateData = restZaakCreateData)
@@ -736,10 +891,11 @@ class ZaakRestServiceTest : BehaviorSpec({
     Context("Updating a zaak") {
         clearAllMocks()
 
-        Given("a zaak with tasks exists and zaak and tasks have final date set") {
+        Given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType(servicenorm = "P10D")
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten()
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData = createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate).apply {
@@ -750,6 +906,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val patchedZaak = createZaak()
             val patchedRestZaak = createRestZaak()
             val task = mockk<Task>()
+            val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
@@ -767,6 +924,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
+            every { configuratieService.featureFlagBpmnSupport() } returns true
+            every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
+            every {
+                zaakVariabelenService.setCommunicatiekanaal(
+                    zaak.uuid,
+                    restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
+                )
+            } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
             } returns createZaaktypeCmmnConfiguration()
@@ -781,6 +946,15 @@ class ZaakRestServiceTest : BehaviorSpec({
                 And("tasks final date are shifted accordingly") {
                     verify(exactly = 2) {
                         task.dueDate = newZaakFinalDate.toDate()
+                    }
+                }
+
+                And("the communication channel is exposed to zaak data") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setCommunicatiekanaal(
+                            zaak.uuid,
+                            restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
+                        )
                     }
                 }
 
@@ -820,6 +994,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("no verlengenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten(verlengenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
@@ -852,6 +1027,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns null
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
@@ -868,6 +1045,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("no wijzigenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaakRechten = createZaakRechten(wijzigenDoorlooptijd = false)
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
@@ -899,6 +1077,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val zaakRechten = createZaakRechten()
                 every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+                every { configuratieService.featureFlagBpmnSupport() } returns true
+                every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns null
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
 
@@ -1233,12 +1413,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         Given("A zaak and no managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -1278,7 +1458,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(
                 uuid = zaakUuid,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 resultaat = URI("https://example.com/${UUID.randomUUID()}")
             )
 
@@ -1303,7 +1483,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             clearAllMocks()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
-            val zaak = createZaak(zaakTypeURI = zaakType.url)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultTypeUUID = UUID.randomUUID()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeCmmnCompletionParameters = setOf(
@@ -1320,7 +1500,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -1727,7 +1907,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
-                zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
@@ -1804,7 +1984,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
                 uuid = zaakUUID,
-                zaakTypeURI = URI("https://example.com/zaaktypes/$zaakTypeUUID")
+                zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             zaaktypeCmmnConfiguration.setZaakAfzenders(emptyList())
@@ -1847,6 +2027,67 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
+                }
+            }
+        }
+    }
+
+    Context("Closing a zaak") {
+        Given("open zaak without locked informatieobjecten") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
+            every {
+                zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any<BrondatumArchiefprocedure>())
+            } just runs
+            every { zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden) } just runs
+            every { zgwApiService.closeZaak(zaak, reden) } just runs
+
+            When("zaak is closed") {
+                zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+
+                Then("result and status are correctly set") {
+                    verify(exactly = 1) {
+                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
+                        zgwApiService.closeZaak(zaak, reden)
+                    }
+                }
+            }
+        }
+
+        Given("open zaak with locked informatieobjecten") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every {
+                zaakService.checkZaakHasLockedInformationObjects(zaak)
+            } throws CaseHasLockedInformationObjectsException("fake message")
+
+            When("zaak is closed") {
+                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
+                    zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+                }
+
+                Then("result and status are not changed") {
+                    verify(exactly = 0) {
+                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
+                        zgwApiService.closeZaak(zaak, reden)
+                    }
+                }
+
+                And("correct exception is thrown") {
+                    exception.message shouldBe "fake message"
                 }
             }
         }

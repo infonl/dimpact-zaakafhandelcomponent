@@ -25,7 +25,6 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
@@ -34,7 +33,6 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
-import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
@@ -51,6 +49,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
@@ -82,7 +82,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
-    private val zaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
+    private val restZaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
@@ -270,7 +270,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         .let(drcClientService::readEnkelvoudigInformatieobject)
         .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)
-        .map(zaakInformatieobjectConverter::convert)
+        .map(restZaakInformatieobjectConverter::toRestZaakInformatieobject)
 
     @GET
     @Path("informatieobject/{uuid}/edit")
@@ -474,7 +474,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readDocumentRechten(document, zaak).wijzigen)
+        assertPolicy(policyService.readDocumentRechten(document, zaak).converteren)
         enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
             document,
             enkelvoudigInformatieobjectUUID

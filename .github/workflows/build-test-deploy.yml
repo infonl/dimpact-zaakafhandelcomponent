@@ -73,7 +73,7 @@ jobs:
     steps:
       # Checkout the repository including tags
       - name: Checkout
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
 
@@ -166,7 +166,7 @@ jobs:
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -196,7 +196,7 @@ jobs:
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Set branch name
         id: gen_branch_name
@@ -273,7 +273,7 @@ jobs:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup JDK
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
@@ -305,8 +305,13 @@ jobs:
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Run unit tests
+      - name: Run unit tests when in merge queue
+        if: ${{ github.event_name == 'merge_group' }}
         run: ./gradlew -x processResources -x classes test --info --rerun-tasks
+
+      - name: Run unit tests and generate test coverage reports when not in merge queue
+        if: ${{ github.event_name != 'merge_group' }}
+        run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
@@ -318,22 +323,15 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: "test_results"
 
-      - name: Generate unit test code coverage report
-        if: ${{ github.event_name != 'merge_group' }}
-        run: |
-          ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild \
-          npmRunTestCoverage jacocoTestReport \
-          --info 
-
       - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
@@ -341,7 +339,7 @@ jobs:
 
       - name: Upload frontend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
@@ -363,7 +361,7 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: authenticate with docker hub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -413,11 +411,10 @@ jobs:
             itest --info --rerun-tasks
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: integrationtests
           report_type: "test_results"
 
       - name: Publish integration test results
@@ -443,11 +440,10 @@ jobs:
             itest --info --rerun-tasks    
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: integrationtests
           report_type: "test_results"
 
       - name: Publish integration test results
@@ -471,34 +467,11 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           flags: integrationtests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Run Trivy vulnerability scanner
-        if: github.ref == 'refs/heads/main'
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          # limit the severities even when using Sarif
-          # or else all vulnerabilities will be reported
-          limit-severities-for-sarif: true
-          severity: 'CRITICAL,HIGH'
-        env:
-          # skip downloading the Trivy databases since we update the Trivy cache regularly
-          # in another workflow
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: github.ref == 'refs/heads/main'
-        uses: github/codeql-action/upload-sarif@fdbfb4d2750291e159f0156def62b853c2798ca2 # v4.31.5
-        with:
-          sarif_file: 'trivy-results.sarif'
 
       - name: Save Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
@@ -563,7 +536,7 @@ jobs:
       NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Read dependencies
         id: dependencies
         run: |

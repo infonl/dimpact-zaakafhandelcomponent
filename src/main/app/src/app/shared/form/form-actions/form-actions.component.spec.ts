@@ -15,7 +15,12 @@ import {
   injectMutation,
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
-import { sleep, testQueryClient } from "../../../../../setupJest";
+import {
+  mockMutationFn,
+  MUTATION_TIMEOUT,
+  sleep,
+  testQueryClient,
+} from "../../../../../setupJest";
 import { MaterialModule } from "../../material/material.module";
 import { PipesModule } from "../../pipes/pipes.module";
 import { ZacFormActions } from "./form-actions.component";
@@ -26,7 +31,6 @@ describe(ZacFormActions.name, () => {
   let form: FormGroup;
   let mutation: ReturnType<typeof injectMutation>;
   let injector: Injector;
-  const MUTATION_TIMEOUT = 50;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -49,11 +53,7 @@ describe(ZacFormActions.name, () => {
     mutation = runInInjectionContext(injector, () =>
       injectMutation(() => ({
         mutationKey: ["test-mutation"],
-        mutationFn: jest.fn().mockReturnValue(
-          new Promise((resolve) => {
-            setTimeout(() => resolve({ success: true }), MUTATION_TIMEOUT);
-          }),
-        ),
+        mutationFn: () => mockMutationFn(),
       })),
     );
 

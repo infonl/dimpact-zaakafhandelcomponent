@@ -45,9 +45,11 @@ while getopts ':bdcsurh' OPTION; do
       echo "Done"
       ;;
     c)
+      echo "Disabling Docker Compose containers cleanup ..."
       export TESTCONTAINERS_RYUK_DISABLED=true
       ;;
     s)
+      echo "Disabling Docker Compose containers startup ..."
       export DO_NOT_START_DOCKER_COMPOSE=true
       ;;
     u)

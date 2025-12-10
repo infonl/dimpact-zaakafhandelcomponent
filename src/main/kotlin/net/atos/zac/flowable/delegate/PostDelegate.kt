@@ -13,13 +13,13 @@ class PostDelegate : AbstractDelegate() {
     private lateinit var template: FixedValue
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(PostDelegate::class.java.name)
+        private val LOG = Logger.getLogger(PostDelegate::class.java.name)
     }
 
     override fun execute(delegateExecution: DelegateExecution) {
         LOG.info(
-            "Verstuur per post besluit van zaak '${getZaakIdentificatie(delegateExecution)}' via " +
-                "${PostDelegate::class.java.simpleName} met template '${template.expressionText}'."
+            "Send besluit by post for zaak '${getZaakIdentificatie(delegateExecution)}' via " +
+                "${PostDelegate::class.java.simpleName} with template '${template.expressionText}'."
         )
     }
 }

@@ -4,15 +4,18 @@
  */
 package nl.info.zac.admin.model
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.DiscriminatorType
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
+import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
@@ -70,5 +73,27 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "domein")
     var domein: String? = null
 
+    @OneToOne(
+        mappedBy = "zaaktypeConfiguration",
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    var zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters? = null
+
+    @OneToOne(
+        mappedBy = "zaaktypeConfiguration",
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    var zaaktypeBrpParameters: ZaaktypeBrpParameters? = null
+
     abstract fun getConfigurationType(): ZaaktypeConfigurationType
+
+    fun getBetrokkeneParameters(): ZaaktypeBetrokkeneParameters =
+        zaaktypeBetrokkeneParameters ?: ZaaktypeBetrokkeneParameters()
+
+    fun getBrpParameters(): ZaaktypeBrpParameters =
+        zaaktypeBrpParameters ?: ZaaktypeBrpParameters()
 }

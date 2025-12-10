@@ -44,9 +44,12 @@ console.error = jest.fn();
 console.info = jest.fn();
 // console.debug = jest.fn(); // We do want to see debug logs
 
+export const MUTATION_TIMEOUT = 50;
 export const testQueryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 });
+export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
+  new Promise((resolve) => sleep(timeout).then(resolve));
 
 afterEach(() => {
   jest.clearAllMocks();

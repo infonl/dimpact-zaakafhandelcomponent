@@ -173,6 +173,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             null,
             null,
             null,
+            null,
             null
         )
         return signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_VERLOPEND).apply {

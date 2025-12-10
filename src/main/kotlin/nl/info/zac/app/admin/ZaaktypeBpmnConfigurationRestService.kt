@@ -22,6 +22,10 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
+import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -96,6 +100,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -108,6 +114,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
             productaanvraagtype = this.productaanvraagtype,
-            creatiedatum = this.creatiedatum,
-        )
+            creatiedatum = this.creatiedatum
+        ).apply {
+            zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
+            zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
+        }
 }

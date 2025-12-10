@@ -161,7 +161,6 @@ constructor(
         functionalRoles: Set<String>
     ): Map<String, Set<String>> {
         val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
-
         val rolesPerZaaktype: Map<String, Set<String>> =
             applicationRolesResponse.results
                 .filter {

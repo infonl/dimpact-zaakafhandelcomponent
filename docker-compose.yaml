@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -117,7 +117,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -142,6 +142,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
+      - OTEL_SDK_DISABLED=true
     ports:
       - "8001:8000"
     volumes:
@@ -166,7 +167,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.25.0@sha256:79a78bc78419670c8695ac5ba16b0af5e7a6a67d3ecbfe5b9095ded2aba177eb
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -288,7 +289,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -307,7 +308,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:2.9.0@sha256:0a71d5d498fa2bd39edcbaa16af09673a22eb99ca32f4f4cc346ed7bc130a7b3
+    image: docker.io/maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -465,7 +466,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.1-alpine@sha256:b7a2c6c5ec91f426865fea8548ed4413ddfb7e2873b1d2083e7da15517758a55
+    image: rabbitmq:4.2.1-alpine@sha256:2ed5394838c8062947c0b0f298f9fe0f623c8337c6e400dce91ef93c5c1f6c11
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -534,7 +535,7 @@ services:
       - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
     depends_on:
       opennotificaties-init:
-          condition: service_completed_successfully
+        condition: service_completed_successfully
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
@@ -567,8 +568,8 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-        opennotificaties:
-            condition: service_healthy
+      opennotificaties:
+        condition: service_healthy
     profiles: [ "opennotificaties" ]
 
   openarchiefbeheer-database:
@@ -683,7 +684,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: docker.io/nginxinc/nginx-unprivileged:1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9
     ports:
       - "8005:8080"
     volumes:
@@ -694,7 +695,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -711,7 +712,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.5@sha256:92ba9e71a712ad899dec7dac479aec7457def983499b5cd16325101cca057bd1
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.8@sha256:9ed1836cf4bfe60571c832e11a435cd9a84ffe8ba70bb31c7ca4964568a6b6c9
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -723,7 +724,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:sha-f926d1d
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.8@sha256:80d4b6284c09b6b2945be440cf99b28f891a272a0250e5c95022cc753cc77004
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -736,6 +737,8 @@ services:
       Oidc__FunctioneelBeheerderRole: "administrator"
       # in our Docker Compose setup we run Keycloak on HTTP
       Oidc__RequireHttps: "false"
+      KeycloakAdmin__ClientId: "pabc-admin-client"
+      KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
     ports:
       - "8006:8000"
     depends_on:
@@ -745,7 +748,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.7@sha256:5e3334661512bc0783dd748bec4419105ee6aa463d1604d13087c29c4894c83e
+    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
     platform: linux/amd64
     ports:
       - "54320:5432"

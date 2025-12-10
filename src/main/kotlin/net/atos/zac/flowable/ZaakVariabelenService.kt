@@ -14,6 +14,7 @@ import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.HistoryService
 import org.flowable.engine.RuntimeService
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -30,41 +31,43 @@ open class ZaakVariabelenService @Inject constructor(
 ) {
 
     companion object {
-        const val VAR_ZAAK_UUID = "zaakUUID"
-        const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
-        const val VAR_ZAAKTYPE_UUID = "zaaktypeUUID"
-        const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
-        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
         const val VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort"
+        const val VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd"
+        private const val VAR_ONTVANKELIJK = "ontvankelijk"
         const val VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort"
         const val VAR_ZAAK_USER = "zaakBehandelaar"
+        const val VAR_ZAAK_COMMUNICATIEKANAAL = "zaakCommunicatiekanaal"
         const val VAR_ZAAK_GROUP = "zaakGroep"
-        private const val VAR_ONTVANKELIJK = "ontvankelijk"
+        const val VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie"
+        const val VAR_ZAAK_UUID = "zaakUUID"
+        const val VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
+        const val VAR_ZAAKTYPE_UUID = "zaaktypeUUID"
 
         val ALL_ZAAK_VARIABLE_NAMES = listOf(
-            VAR_ZAAK_UUID,
-            VAR_ZAAK_IDENTIFICATIE,
-            VAR_ZAAK_USER,
-            VAR_ZAAK_GROUP,
-            VAR_ZAAKTYPE_UUID,
-            VAR_ZAAKTYPE_OMSCHRIJVING,
-            VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
             VAR_DATUMTIJD_OPGESCHORT,
+            VAR_ONTVANGSTBEVESTIGING_VERSTUURD,
+            VAR_ONTVANKELIJK,
             VAR_VERWACHTE_DAGEN_OPGESCHORT,
-            VAR_ONTVANKELIJK
+            VAR_ZAAK_USER,
+            VAR_ZAAK_COMMUNICATIEKANAAL,
+            VAR_ZAAK_GROUP,
+            VAR_ZAAK_IDENTIFICATIE,
+            VAR_ZAAK_UUID,
+            VAR_ZAAKTYPE_OMSCHRIJVING,
+            VAR_ZAAKTYPE_UUID,
         )
     }
 
     /**
-     * Deletes all CMMN case variables for the given zaakUUID.
+     * Deletes all CMMN case variables for the given zaakUuid.
      * Does not need to be called before deleting the CMMN case itself.
      * Also deletes historical variables.
      *
-     * @param zaakUUID the zaak UUID
+     * @param zaakUuid the zaak UUID
      */
-    fun deleteAllCaseVariables(zaakUUID: UUID) {
+    fun deleteAllCaseVariables(zaakUuid: UUID) {
         cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+            .variableValueEquals(VAR_ZAAK_UUID, zaakUuid)
             .singleResult()?.let {
                 cmmnRuntimeService.removeVariables(it.id, ALL_ZAAK_VARIABLE_NAMES)
             }
@@ -76,56 +79,65 @@ open class ZaakVariabelenService @Inject constructor(
     fun readZaaktypeUUID(planItemInstance: PlanItemInstance) =
         readCaseVariable(planItemInstance, VAR_ZAAKTYPE_UUID) as UUID
 
-    fun findOntvangstbevestigingVerstuurd(zaakUUID: UUID): Boolean? =
-        findCaseVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD)?.let {
+    fun findOntvangstbevestigingVerstuurd(zaakUuid: UUID): Boolean? =
+        findVariables(zaakUuid)?.get(VAR_ONTVANGSTBEVESTIGING_VERSTUURD)?.let {
             it as Boolean
         }
 
-    fun setOntvangstbevestigingVerstuurd(zaakUUID: UUID, ontvangstbevestigingVerstuurd: Boolean) =
-        setVariable(zaakUUID, VAR_ONTVANGSTBEVESTIGING_VERSTUURD, ontvangstbevestigingVerstuurd)
+    fun setOntvangstbevestigingVerstuurd(zaakUuid: UUID, ontvangstbevestigingVerstuurd: Boolean) =
+        setVariable(zaakUuid, VAR_ONTVANGSTBEVESTIGING_VERSTUURD, ontvangstbevestigingVerstuurd)
 
     fun setOntvankelijk(planItemInstance: PlanItemInstance, ontvankelijk: Boolean) =
         cmmnRuntimeService.setVariable(planItemInstance.caseInstanceId, VAR_ONTVANKELIJK, ontvankelijk)
 
-    fun findDatumtijdOpgeschort(zaakUUID: UUID) =
-        findCaseVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT)?.let {
-            it as ZonedDateTime
+    fun findDatumtijdOpgeschort(zaakUuid: UUID) =
+        findVariables(zaakUuid)?.get(VAR_DATUMTIJD_OPGESCHORT)?.let {
+            when (it) {
+                is String -> ZonedDateTime.parse(it)
+                else -> it as ZonedDateTime
+            }
         }
 
-    fun setDatumtijdOpgeschort(zaakUUID: UUID, datumtijOpgeschort: ZonedDateTime) =
-        setVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT, datumtijOpgeschort)
+    fun setDatumtijdOpgeschort(zaakUuid: UUID, datumtijOpgeschort: ZonedDateTime) =
+        setVariable(zaakUuid, VAR_DATUMTIJD_OPGESCHORT, datumtijOpgeschort)
 
-    fun removeDatumtijdOpgeschort(zaakUUID: UUID) =
-        removeVariable(zaakUUID, VAR_DATUMTIJD_OPGESCHORT)
+    fun removeDatumtijdOpgeschort(zaakUuid: UUID) =
+        removeVariable(zaakUuid, VAR_DATUMTIJD_OPGESCHORT)
 
-    fun findVerwachteDagenOpgeschort(zaakUUID: UUID) =
-        findCaseVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT)?.let {
-            it as Int
+    fun findVerwachteDagenOpgeschort(zaakUuid: UUID) =
+        findVariables(zaakUuid)?.get(VAR_VERWACHTE_DAGEN_OPGESCHORT)?.let {
+            when (it) {
+                is BigDecimal -> it.toInt()
+                else -> it as Int
+            }
         }
 
-    fun setVerwachteDagenOpgeschort(zaakUUID: UUID, verwachteDagenOpgeschort: Int) =
-        setVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT, verwachteDagenOpgeschort)
+    fun setVerwachteDagenOpgeschort(zaakUuid: UUID, verwachteDagenOpgeschort: Int) =
+        setVariable(zaakUuid, VAR_VERWACHTE_DAGEN_OPGESCHORT, verwachteDagenOpgeschort)
 
-    fun removeVerwachteDagenOpgeschort(zaakUUID: UUID) =
-        removeVariable(zaakUUID, VAR_VERWACHTE_DAGEN_OPGESCHORT)
+    fun removeVerwachteDagenOpgeschort(zaakUuid: UUID) =
+        removeVariable(zaakUuid, VAR_VERWACHTE_DAGEN_OPGESCHORT)
 
-    fun setGroup(zaakUUID: UUID, group: String) =
-        setVariable(zaakUUID, VAR_ZAAK_GROUP, group)
+    fun setGroup(zaakUuid: UUID, group: String) =
+        setVariable(zaakUuid, VAR_ZAAK_GROUP, group)
 
-    fun setUser(zaakUUID: UUID, user: String) =
-        setVariable(zaakUUID, VAR_ZAAK_USER, user)
+    fun setUser(zaakUuid: UUID, user: String) =
+        setVariable(zaakUuid, VAR_ZAAK_USER, user)
 
-    fun removeUser(zaakUUID: UUID) =
-        removeVariable(zaakUUID, VAR_ZAAK_USER)
+    fun removeUser(zaakUuid: UUID) =
+        removeVariable(zaakUuid, VAR_ZAAK_USER)
 
-    fun readZaakdata(zaakUUID: UUID) =
-        findVariables(zaakUUID) ?: emptyMap()
+    fun setCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) =
+        setVariable(zaakUuid, VAR_ZAAK_COMMUNICATIEKANAAL, communicatiekanaal)
 
-    fun readProcessZaakdata(zaakUUID: UUID) =
-        findProcessVariables(zaakUUID) ?: emptyMap()
+    fun readZaakdata(zaakUuid: UUID) =
+        findVariables(zaakUuid) ?: emptyMap()
 
-    fun setZaakdata(zaakUUID: UUID, zaakdata: Map<String, Any>) =
-        setVariables(zaakUUID, zaakdata)
+    fun readProcessZaakdata(zaakUuid: UUID) =
+        findProcessVariables(zaakUuid) ?: emptyMap()
+
+    fun setZaakdata(zaakUuid: UUID, zaakdata: Map<String, Any>) =
+        setVariables(zaakUuid, zaakdata)
 
     @Suppress("TooGenericExceptionThrown")
     private fun readCaseVariable(planItemInstance: PlanItemInstance, variableName: String) =
@@ -141,68 +153,65 @@ open class ZaakVariabelenService @Inject constructor(
                 "No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'"
             )
 
-    private fun findCaseVariable(zaakUUID: UUID, variableName: String) =
-        findCaseVariables(zaakUUID)?.get(variableName)
-
-    private fun findCaseVariables(zaakUUID: UUID) =
+    private fun findCaseVariables(zaakUuid: UUID) =
         cmmnRuntimeService.createCaseInstanceQuery()
-            .caseInstanceBusinessKey(zaakUUID.toString())
+            .caseInstanceBusinessKey(zaakUuid.toString())
             .includeCaseVariables()
             .singleResult()?.caseVariables
             ?: cmmnHistoryService.createHistoricCaseInstanceQuery()
-                .caseInstanceBusinessKey(zaakUUID.toString())
+                .caseInstanceBusinessKey(zaakUuid.toString())
                 .includeCaseVariables()
                 .singleResult()?.caseVariables
 
-    private fun findProcessVariables(zaakUUID: UUID) =
+    private fun findProcessVariables(zaakUuid: UUID) =
         bpmnRuntimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(zaakUUID.toString())
+            .processInstanceBusinessKey(zaakUuid.toString())
             .includeProcessVariables()
             .singleResult()?.processVariables
             ?: bpmnHistoryService.createHistoricProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
+                .processInstanceBusinessKey(zaakUuid.toString())
                 .includeProcessVariables()
                 .singleResult()?.processVariables
 
-    private fun findVariables(zaakUUID: UUID) =
-        findCaseVariables(zaakUUID) ?: findProcessVariables(zaakUUID)
+    private fun findVariables(zaakUuid: UUID) =
+        findCaseVariables(zaakUuid) ?: findProcessVariables(zaakUuid)
 
     @Suppress("TooGenericExceptionThrown")
-    private fun setVariable(zaakUUID: UUID, variableName: String, value: Any) =
+    private fun setVariable(zaakUuid: UUID, variableName: String, value: Any) =
         cmmnRuntimeService.createCaseInstanceQuery()
-            .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+            .variableValueEquals(VAR_ZAAK_UUID, zaakUuid)
             .singleResult()?.let {
                 cmmnRuntimeService.setVariable(it.id, variableName, value)
             }
             ?: bpmnRuntimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
+                .processInstanceBusinessKey(zaakUuid.toString())
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariable(it.id, variableName, value)
                 }
-            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
     @Suppress("TooGenericExceptionThrown")
-    private fun setVariables(zaakUUID: UUID, variables: Map<String, Any>) =
+    private fun setVariables(zaakUuid: UUID, variables: Map<String, Any>) =
         cmmnRuntimeService.createCaseInstanceQuery()
-            .caseInstanceBusinessKey(zaakUUID.toString())
+            .caseInstanceBusinessKey(zaakUuid.toString())
             .singleResult()?.let {
                 cmmnRuntimeService.setVariables(it.id, variables)
             }
             ?: bpmnRuntimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
+                .processInstanceBusinessKey(zaakUuid.toString())
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariables(it.id, variables)
                 }
-            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUUID'")
+            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
-    private fun removeVariable(zaakUUID: UUID, variableName: String) {
+    private fun removeVariable(zaakUuid: UUID, variableName: String) {
         cmmnRuntimeService.createCaseInstanceQuery()
-            .caseInstanceBusinessKey(zaakUUID.toString())
+            .caseInstanceBusinessKey(zaakUuid.toString())
             .singleResult()?.let {
                 cmmnRuntimeService.removeVariable(it.id, variableName)
             }
             ?: bpmnRuntimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(zaakUUID.toString())
+                .processInstanceBusinessKey(zaakUuid.toString())
                 .singleResult()?.let {
                     bpmnRuntimeService.removeVariable(it.id, variableName)
                 }

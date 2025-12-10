@@ -49,7 +49,12 @@
    variable to `false` (it is set to `true` by default) and set the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable
    to `http://localhost:4317`.
    ![zac-intellij-runtime-wildfly-6.png](./attachments/images/zac-intellij-runtime-wildfly-6.png)
-7. Make sure you configured 1Password startup script for both `Run` and `Debug`
+7. If you wish to enable WildFly datasource metrics (disabled by default) for ZAC, add the VM option:
+   `-Dwildfly.datasources.statistics-enabled=true` to the `VM Options` in the `Runtime Configuration - Server` tab.
+   ![zac-intellij-runtime-wildfly-8.png](./attachments/images/zac-intellij-runtime-wildfly-8.png)
+8. Make sure you configured 1Password startup script for both `Run` and `Debug`
+
+See [observability architecture](../solution-architecture/observabilityArchitecture.md) for more details on Open Telemetry tracing and metrics in ZAC.
 
 #### KVK integration
 The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
