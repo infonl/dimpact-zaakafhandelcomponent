@@ -32,7 +32,7 @@ This is the Dimpact Zaakafhandelcomponent (ZAC), a Dutch case management system 
 - Reference Jira tickets in commit messages: "Solves PZ-XXX"
 
 ## Development Workflow
-- All commits must reference a Jira ticket
+- All pull requests must reference a Jira ticket in the PR footer (format: "Solves PZ-XXX")
 - Follow trunk-based development (merge to `main`)
 - Ensure all CI/CD checks pass before merge
 - Run `./gradlew spotlessApply` for code formatting
