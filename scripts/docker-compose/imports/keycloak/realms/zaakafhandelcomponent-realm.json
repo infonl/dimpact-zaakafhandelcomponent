@@ -103,7 +103,7 @@
         "description": "Behandelaar functional role for domain 'domein_test_1' - new IAM",
         "composite": false,
         "clientRole": false,
-        "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
+        "containerId": "zaakafhandelcomponent",
         "attributes": {}
       },
       {
