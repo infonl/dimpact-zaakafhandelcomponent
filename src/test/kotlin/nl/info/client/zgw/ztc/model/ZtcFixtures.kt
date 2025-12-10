@@ -117,7 +117,10 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "fakeZaakTypeOmschrijving",
-    informatieObjectTypen: List<URI>? = listOf(URI("fakeInformatieObjectType1"), URI("fakeInformatieObjectType2")),
+    informatieObjectTypen: List<URI>? = listOf(
+        URI("fakeInformatieObjectType/${UUID.randomUUID()}"),
+        URI("fakeInformatieObjectType/${UUID.randomUUID()}")
+    ),
     identification: String = "fakeIdentificatie",
     besluittypen: List<URI>? = null,
     resultTypes: List<URI>? = listOf(URI("fakeResultaatType1"), URI("fakeResultaatType2")),

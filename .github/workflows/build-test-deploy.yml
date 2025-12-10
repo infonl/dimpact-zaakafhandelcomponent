@@ -323,7 +323,7 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -331,7 +331,7 @@ jobs:
 
       - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
@@ -339,7 +339,7 @@ jobs:
 
       - name: Upload frontend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
@@ -411,7 +411,7 @@ jobs:
             itest --info --rerun-tasks
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -440,7 +440,7 @@ jobs:
             itest --info --rerun-tasks    
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -467,7 +467,7 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           flags: integrationtests
         env:
