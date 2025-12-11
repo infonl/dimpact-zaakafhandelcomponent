@@ -34,7 +34,7 @@ The 'APIs used' column indicates which APIs offered by the various components is
 Most APIs are defined using [OpenAPI](https://www.openapis.org/) definitions as part of the [Zaakgerichtwerken (ZGW) API specifications](https://vng-realisatie.github.io/gemma-zaken/standaard/).
 
 Notes:
-- ZAC integrates only indirectly with Open Formulieren using the 'productaanvraag-flow'. For details please see: [ZAC integration with Open Formulieren](openFormulierenIntegration.md).
+- ZAC integrates only indirectly with Open Formulieren using the 'productaanvraag-flow'. For details please see: [Product Request support](productRequestSupport.md).
 - Components belonging to the [IAM architecture](iamArchitecture.md) such as Keycloak are not listed here to keep things relatively simple.
 
 ## External services
