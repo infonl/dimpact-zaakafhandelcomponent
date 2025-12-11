@@ -72,11 +72,15 @@ class KlantRestService @Inject constructor(
     val klantClientService: KlantClientService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+    companion object {
+        const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
+    }
+
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: UUID? = null,
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
             // run the two client calls concurrently in a coroutine scope,
@@ -151,7 +155,7 @@ class KlantRestService @Inject constructor(
     @Path("personen")
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
-        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: UUID? = null
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
