@@ -5,21 +5,29 @@
 package nl.info.client.pabc
 
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
+import nl.info.client.pabc.model.generated.GetGroupsByApplicationRoleAndEntityTypeResponse
 import nl.info.client.pabc.util.PabcClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
 /**
- * Constant for PABC entity type 'zaaktype'.
+ * Constant for the PABC entity type 'zaaktype'.
  * In a future version of the PABC this will probably be replaced by an enum in the PABC API.
  */
 const val ENTITY_TYPE_ZAAKTYPE = "zaaktype"
+
+/**
+ * Constant for the PABC application name 'zaakafhandelcomponent'.
+ */
+const val APPLICATION_NAME_ZAC = "zaakafhandelcomponent"
 
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)
@@ -30,4 +38,14 @@ interface PabcClient {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun getApplicationRolesPerEntityType(request: GetApplicationRolesRequest): GetApplicationRolesResponse
+
+    @GET
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getGroupsByApplicationRoleAndEntityType(
+        @QueryParam("application-name") applicationName: String,
+        @QueryParam("application-role-name") applicationRoleName: String,
+        @QueryParam("entity-type-id") entityTypeId: String,
+        @QueryParam("entity-type") entityType: String
+    ): GetGroupsByApplicationRoleAndEntityTypeResponse
 }

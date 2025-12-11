@@ -86,17 +86,18 @@ class ZaakServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakService = ZaakService(
-        bpmnService = bpmnService,
-        configuratieService = configuratieService,
+        zrcClientService = zrcClientService,
+        ztcClientService = ztcClientService,
+        zgwApiService = zgwApiService,
         eventingService = eventingService,
+        zaakVariabelenService = zaakVariabelenService,
+        lockService = lockService,
         identityService = identityService,
         indexingService = indexingService,
-        lockService = lockService,
-        zaakVariabelenService = zaakVariabelenService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        zgwApiService = zgwApiService,
-        zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        bpmnService = bpmnService,
+        configuratieService = configuratieService,
+        pabcClientService = pabcClientService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
