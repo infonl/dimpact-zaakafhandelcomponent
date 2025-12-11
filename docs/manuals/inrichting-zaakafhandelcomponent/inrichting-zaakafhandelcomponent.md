@@ -177,7 +177,7 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
   -- KvK (bedrijfsgegevens) koppelen
 
 Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via Iconnect geld het volgende:
+Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
 
 Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
 
