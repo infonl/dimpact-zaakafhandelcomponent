@@ -92,13 +92,14 @@ class BrpClientService @Inject constructor(
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @param zaakIdentificatie the ID of the zaak the person is requested for, if any
+     * @param userName the username making the request, if any
      * @return the person if found, otherwise null
      *
      */
     fun retrievePersoon(
         burgerservicenummer: String,
         zaakIdentificatie: String? = null,
-        user: String? = null
+        userName: String? = null
     ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
             (
@@ -115,7 +116,7 @@ class BrpClientService @Inject constructor(
                             zaakIdentificatie,
                             brpConfiguration.verwerkingregisterDefault.getOrNull()
                         ),
-                        gebruikersnaam = user
+                        gebruikersnaam = userName
                     )
                 } else {
                     personenApi.personen(personenQuery)
