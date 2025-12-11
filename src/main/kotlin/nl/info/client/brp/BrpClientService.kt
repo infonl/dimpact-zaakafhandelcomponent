@@ -63,7 +63,7 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: String? = null, user: String? = null): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 personenApi.personen(
@@ -89,14 +89,14 @@ class BrpClientService @Inject constructor(
      * Retrieves a person by burgerservicenummer from the BRP Personen API.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
-     * @param zaakIdentificatie the ID of the zaak the person is requested for, if any
+     * @param zaaktypeUuid the ID of the zaak the person is requested for, if any
      * @param userName the username making the request, if any
      * @return the person if found, otherwise null
      *
      */
     fun retrievePersoon(
         burgerservicenummer: String,
-        zaaktypeUuid: String? = null,
+        zaaktypeUuid: UUID? = null,
         userName: String? = null
     ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->

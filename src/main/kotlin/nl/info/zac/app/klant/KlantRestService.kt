@@ -76,7 +76,7 @@ class KlantRestService @Inject constructor(
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: String? = null,
+        @HeaderParam("X-ZAAKTYPE-UUID") zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
             // run the two client calls concurrently in a coroutine scope,
@@ -85,7 +85,7 @@ class KlantRestService @Inject constructor(
                 val klantPersoonDigitalAddresses =
                     async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
                 val brpPersoon = async {
-                    brpClientService.retrievePersoon(bsn, zaakIdentification, userName)
+                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
                 }
                 klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
                     brpPersoon.await()?.toRestPersoon()?.apply {
