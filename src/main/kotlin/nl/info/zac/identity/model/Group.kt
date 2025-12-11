@@ -6,13 +6,24 @@ package nl.info.zac.identity.model
 
 import org.keycloak.representations.idm.GroupRepresentation
 
+/**
+ * Data class representing a group in the identity system.
+ *
+ * @param name The unique name of the group. The group name is treated as the unique group identification.
+ * Therefore, we do not allow group names to be changed.
+ * @param description The description of the group.
+ * @param email The email address associated with the group, if any.
+ * @param zacClientRoles The list of ZAC client roles assigned to the group.
+ */
 data class Group(
-    val id: String,
-
     val name: String,
+
+    val description: String,
 
     val email: String? = null,
 
+    // TODO: should be realm roles in the new IAM situation.
+    // but do we still need this mapping at all then? that's handled by the PABC now?
     val zacClientRoles: List<String> = emptyList()
 ) {
     /**
@@ -21,8 +32,8 @@ data class Group(
      * @param id ID of the group which is unknown
      */
     constructor(id: String) : this(
-        id = id,
-        name = id
+        name = id,
+        description = id
     )
 }
 
@@ -40,8 +51,16 @@ data class Group(
  */
 fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
     Group(
-        id = name,
-        name = description?.takeIf { it.isNotBlank() } ?: name,
+        name = name,
+        description = description?.takeIf { it.isNotBlank() } ?: name,
         email = attributes?.get("email")?.singleOrNull(),
+        // TODO: should be realm roles in the new IAM situation.
+        // but do we still need this mapping at all then? that's handled by the PABC now?
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
+    )
+
+fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
+    Group(
+        name = name,
+        description = description
     )

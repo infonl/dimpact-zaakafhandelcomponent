@@ -156,7 +156,7 @@ class MailTemplateHelper @Inject constructor(
                     .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
                     .map { identityService.readGroup(it) }
-                    .map(Group::name)
+                    .map(Group::description)
                     .firstOrNull()
             )
         }

@@ -247,8 +247,8 @@ class ZaakService @Inject constructor(
             ),
             "Behandelend groep van de zaak",
             OrganisatorischeEenheidIdentificatie().apply {
-                identificatie = group.id
-                naam = group.name
+                identificatie = group.name
+                naam = group.description
             }
         )
 
@@ -398,7 +398,7 @@ class ZaakService @Inject constructor(
         reason: String?
     ): Boolean =
         zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
-            if (currentGroupId == null || currentGroupId != group.id) {
+            if (currentGroupId == null || currentGroupId != group.name) {
                 // if the zaak is not already assigned to the requested group, assign it to this group
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), reason)
                 true
@@ -429,7 +429,7 @@ class ZaakService @Inject constructor(
         user: User?
     ) {
         if (bpmnService.isZaakProcessDriven(zaakUuid)) {
-            zaakVariabelenService.setGroup(zaakUuid, group.name)
+            zaakVariabelenService.setGroup(zaakUuid, group.description)
             user?.let {
                 zaakVariabelenService.setUser(zaakUuid, it.getFullName())
             } ?: zaakVariabelenService.removeUser(zaakUuid)
@@ -472,10 +472,10 @@ class ZaakService @Inject constructor(
         zaakUUIDs: List<UUID>
     ) =
         user?.let {
-            val inGroup = identityService.isUserInGroup(user.id, group.id)
+            val inGroup = identityService.isUserInGroup(user.id, group.name)
             if (!inGroup) {
                 LOG.warning(
-                    "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.name}'. " +
+                    "User '${user.displayName}' (id: {$user.id}) is not in the group '${group.description}'. " +
                         "Skipping all zaken."
                 )
                 zaakUUIDs
@@ -518,7 +518,7 @@ class ZaakService @Inject constructor(
                 applicationRole = zacApplicationRole.value,
                 // we use the generic zaaktype description as the unique identifier for zaaktypes in ZAC
                 zaaktypeDescription = zaaktype.omschrijvingGeneriek
-            ).map { it.name }.contains(this.id)
+            ).map { it.name }.contains(this.name)
         } else {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { params ->
                 val hasAccess = params.domein == DOMEIN_ELK_ZAAKTYPE.value ||
@@ -528,7 +528,7 @@ class ZaakService @Inject constructor(
                     } ?: false
                 if (!hasAccess) {
                     LOG.fine(
-                        "Zaaktype with UUID '$zaaktypeUuid' is skipped and not assigned. Group '${this.name}' " +
+                        "Zaaktype with UUID '$zaaktypeUuid' is skipped and not assigned. Group '${this.description}' " +
                             "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
                     )
                 }

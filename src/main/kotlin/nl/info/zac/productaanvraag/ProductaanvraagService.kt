@@ -486,8 +486,8 @@ class ProductaanvraagService @Inject constructor(
     private fun createRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid =
         identityService.readGroup(groepID).let {
             OrganisatorischeEenheidIdentificatie().apply {
-                identificatie = it.id
-                naam = it.name
+                identificatie = it.name
+                naam = it.description
             }
         }.let { organisatieEenheid ->
             RolOrganisatorischeEenheid(

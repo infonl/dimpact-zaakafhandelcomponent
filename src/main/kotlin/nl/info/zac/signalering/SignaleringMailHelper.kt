@@ -25,7 +25,7 @@ class SignaleringMailHelper @Inject constructor(
             SignaleringTarget.GROUP -> {
                 identityService.readGroup(signalering.target).let { group ->
                     group.email?.let {
-                        SignaleringTarget.Mail(group.name, it)
+                        SignaleringTarget.Mail(group.description, it)
                     }
                 }
             }

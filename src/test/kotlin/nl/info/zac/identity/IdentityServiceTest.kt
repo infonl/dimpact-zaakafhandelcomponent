@@ -321,8 +321,8 @@ class IdentityServiceTest : BehaviorSpec({
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
-                    groups[0].id shouldBe "fakeGroupId1"
-                    groups[1].id shouldBe "fakeGroupId2"
+                    groups[0].name shouldBe "fakeGroupId1"
+                    groups[1].name shouldBe "fakeGroupId2"
                 }
             }
         }
@@ -357,8 +357,8 @@ class IdentityServiceTest : BehaviorSpec({
                 Then("only groups with matching domain roles are returned") {
                     groups.size shouldBe 1
                     with(groups[0]) {
-                        id shouldBe "fakeGroupName1"
-                        name shouldBe "fakeGroupDescription1"
+                        name shouldBe "fakeGroupName1"
+                        description shouldBe "fakeGroupDescription1"
                         zacClientRoles shouldBe listOf(domeinRole)
                     }
                 }
@@ -388,8 +388,8 @@ class IdentityServiceTest : BehaviorSpec({
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
-                    groups[0].id shouldBe "fakeGroupId1"
-                    groups[1].id shouldBe "fakeGroupId2"
+                    groups[0].name shouldBe "fakeGroupId1"
+                    groups[1].name shouldBe "fakeGroupId2"
                 }
             }
         }

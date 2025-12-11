@@ -127,17 +127,17 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns null
-            every { identityService.readGroup(group.id) } returns group
+            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
             When("the zaak is assigned to a user and a group") {
-                every { identityService.validateIfUserIsInGroup(user.id, group.id) } just runs
+                every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
-                zaakService.assignZaak(zaak, group.id, user.id, "fakeReason")
+                zaakService.assignZaak(zaak, group.name, user.id, "fakeReason")
 
                 Then("the zaak is assigned both to the group and the user") {
                     verify(exactly = 2) {
@@ -169,7 +169,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
                         zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
                     }
                 }
@@ -205,17 +205,17 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
-            every { identityService.readGroup(group.id) } returns group
+            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
 
             When("the zaak is assigned to a user and a group") {
-                every { identityService.validateIfUserIsInGroup(user.id, group.id) } just runs
+                every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
-                zaakService.assignZaak(zaak, group.id, user.id, reason)
+                zaakService.assignZaak(zaak, group.name, user.id, reason)
 
                 Then("the zaak is assigned both to the group and the user") {
                     verify(exactly = 2) {
@@ -247,7 +247,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
                         zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
                     }
                 }
@@ -266,15 +266,15 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.updateRol(zaak, capture(updateRolSlot), reason) } just runs
             every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
-            every { identityService.readGroup(group.id) } returns group
+            every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
             every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
 
             When("the zaak is assigned to a group only") {
-                zaakService.assignZaak(zaak, group.id, null, reason)
+                zaakService.assignZaak(zaak, group.name, null, reason)
 
                 Then("the zaak is assigned both to the group and the user") {
                     verify(exactly = 1) {
@@ -298,7 +298,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
                         zaakVariabelenService.removeUser(zaak.uuid)
                     }
                 }
@@ -321,7 +321,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
             every { configuratieService.featureFlagPabcIntegration() } returns true
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
                 zaakService.assignZaken(
@@ -379,7 +379,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
             every { configuratieService.featureFlagPabcIntegration() } returns true
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
 
             When(
                 """the assign zaken function is called with a group, a user
@@ -505,7 +505,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             }
             val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
-            every { identityService.isUserInGroup(user.id, groupWithAllDomains.id) } returns true
+            every { identityService.isUserInGroup(user.id, groupWithAllDomains.name) } returns true
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
@@ -551,7 +551,7 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration()
             }
             val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
-            every { identityService.isUserInGroup(user.id, groupWithDomain.id) } returns true
+            every { identityService.isUserInGroup(user.id, groupWithDomain.name) } returns true
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
@@ -590,7 +590,7 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration(domein = null)
             }
             val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
-            every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
+            every { identityService.isUserInGroup(user.id, groupWithNoDomain.name) } returns true
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
@@ -646,7 +646,7 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration(domein = "another_domein")
             }
             val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
@@ -686,7 +686,7 @@ class ZaakServiceTest : BehaviorSpec({
             zaken.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
-            every { identityService.isUserInGroup(user.id, group.id) } returns false
+            every { identityService.isUserInGroup(user.id, group.name) } returns false
             every { eventingService.send(capture(screenEventSlot)) } just Runs
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
@@ -713,7 +713,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { identityService.isUserInGroup(user.id, group.id) } returns false
+            every { identityService.isUserInGroup(user.id, group.name) } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(

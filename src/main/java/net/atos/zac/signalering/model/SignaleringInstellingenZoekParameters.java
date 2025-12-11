@@ -34,7 +34,7 @@ public class SignaleringInstellingenZoekParameters {
     }
 
     public SignaleringInstellingenZoekParameters(final Group owner) {
-        this(GROUP, owner.getId());
+        this(GROUP, owner.getName());
     }
 
     public SignaleringInstellingenZoekParameters(final User owner) {
