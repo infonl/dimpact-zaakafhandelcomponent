@@ -11,7 +11,7 @@ C4Component
 
     System(zac, "ZAC")
     
-    Enterprise_Boundary(observerability, "Observability services") {         
+    Enterprise_Boundary(observability, "Observability services") {         
         System(grafana, "Grafana")
         System(tempo, "Tempo")
         System(prometheus, "Prometheus")
