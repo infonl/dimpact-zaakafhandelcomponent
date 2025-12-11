@@ -9,11 +9,9 @@ C4Component
     Person(employee, "Employee", "An employee of a municipality")
     Person(operations, "Operations", "An operations employee")
 
-    System_Boundary(zac, "ZAC components") {
-        System(zac, "ZAC")
-    }
+    System(zac, "ZAC")
     
-    System_Boundary(observerability, "Observability services") {         
+    Enterprise_Boundary(observerability, "Observability services") {         
         System(grafana, "Grafana")
         System(tempo, "Tempo")
         System(prometheus, "Prometheus")
@@ -33,7 +31,7 @@ C4Component
     UpdateElementStyle(openTelemetry, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(prometheus, $bgColor="grey", $borderColor="grey")
     
-    UpdateLayoutConfig($c4ShapeInRow="3")
+    UpdateLayoutConfig($c4ShapeInRow="2")
 ```
 
 Note that there are several ways to set up an observability architecture. 
