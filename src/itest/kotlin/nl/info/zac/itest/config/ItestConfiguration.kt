@@ -386,6 +386,7 @@ object ItestConfiguration {
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
+    const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL = "ZAAK_ALGEMEEN"
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME = "Algemene e-mail"

@@ -17,6 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
@@ -50,8 +51,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -68,6 +71,12 @@ private const val HEADER_ZAAK_ID = "X-ZAAK-ID"
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
+
+    beforeSpec {
+        // Delete BRP Wiremock requests journal
+        val response = itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests")
+        response.code shouldBe HTTP_OK
+    }
 
     Given("Klanten en bedrijven data is present in the BRP Personen Mock and the Klanten API database") {
         When("the list roltypen endpoint is called") {
@@ -123,6 +132,32 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
                 }
+                And("BRP search request with zaaktype settings should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
+                }
             }
             When("no zaak information is provided") {
                 val response = itestHttpClient.performGetRequest(
@@ -137,6 +172,32 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
+                }
+                And("BRP request with defaults should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
                 }
             }
         }
