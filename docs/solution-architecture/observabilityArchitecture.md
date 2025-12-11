@@ -46,6 +46,6 @@ The following components are part of the ZAC Observability architecture:
 | [Grafana](https://grafana.com/)                                     | Grafana monitoring dashboards for visualising monitored data.              | Used to visualise and track performance, usage and working of the ZAC application.                                                      |
 | [Tempo](https://grafana.com/docs/tempo/latest/)                     | Tempo object database for traces.                                          | Used to store the trace data coming from the ZAC application.                                                                           |
 | [Prometheus](https://prometheus.io/)                 | Metrics store (and monitoring solution).               | Used to store metrics coming from the ZAC application.                                                                                  |
-| [Open Telemetry Collector](https://opentelemetry.io/docs/collector/) | The Open Telemetry (OTEL) Collector receives and processes telemetry data. | The ZAC application pushes it's telemetry data (metrics and traces) to the OTEL Collector, that then stores it into the Tempo database. | 
+| [Open Telemetry Collector](https://opentelemetry.io/docs/collector/) | The Open Telemetry (OTEL) Collector receives and processes telemetry data. | The ZAC application pushes its telemetry data (metrics and traces) to the OTEL Collector, that then stores it into the Tempo database. | 
 
 
