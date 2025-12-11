@@ -15,7 +15,7 @@ Enterprise_Boundary(commonGround, "Other Common Ground components") {
         System_Ext(openNotificaties, "Open Notificaties")
         System_Ext(pabc, "PABC")
         System_Ext(keycloak, "Keycloak")
-        System_Ext(openTelemetry, "Open Telemetry Collector")
+        System_Ext(openTelemetry, "Open Telemetry (OTEL) Collector")
     }
 
     System_Boundary(registries, "Common Ground registries") {
