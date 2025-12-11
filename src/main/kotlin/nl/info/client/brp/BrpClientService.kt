@@ -65,7 +65,7 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null, user: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 personenApi.personen(
@@ -79,7 +79,8 @@ class BrpClientService @Inject constructor(
                     verwerking = resoleVerwerkingregister(
                         zaakIdentificatie,
                         brpConfiguration.verwerkingregisterDefault.getOrNull()
-                    )
+                    ),
+                    gebruikersnaam = user
                 )
             } else {
                 personenApi.personen(updatedQuery)
@@ -91,10 +92,15 @@ class BrpClientService @Inject constructor(
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @param zaakIdentificatie the ID of the zaak the person is requested for, if any
+     * @param userName the username making the request, if any
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? =
+    fun retrievePersoon(
+        burgerservicenummer: String,
+        zaakIdentificatie: String? = null,
+        userName: String? = null
+    ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
             (
                 if (brpConfiguration.isBrpProtocolleringEnabled()) {
@@ -109,7 +115,8 @@ class BrpClientService @Inject constructor(
                         verwerking = resoleVerwerkingregister(
                             zaakIdentificatie,
                             brpConfiguration.verwerkingregisterDefault.getOrNull()
-                        )
+                        ),
+                        gebruikersnaam = userName
                     )
                 } else {
                     personenApi.personen(personenQuery)
