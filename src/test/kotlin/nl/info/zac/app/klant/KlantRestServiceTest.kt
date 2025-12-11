@@ -312,10 +312,10 @@ class KlantRestServiceTest : BehaviorSpec({
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns digitaalAdresses
             every { loggedInUserInstance.get() } returns null
-            every { brpClientService.retrievePersoon(bsn, ZAAK) } returns persoon
+            every { brpClientService.retrievePersoon(bsn, zaaktypeUuid) } returns persoon
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, ZAAK)
+                val restPersoon = klantRestService.readPersoon(bsn, zaaktypeUuid)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
