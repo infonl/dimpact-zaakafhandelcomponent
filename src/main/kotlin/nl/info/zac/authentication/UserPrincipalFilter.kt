@@ -121,13 +121,21 @@ constructor(
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
-            val functionalRoles = accessToken.rolesClaim.toSet()
-            val applicationRolesPerZaaktype: Map<String, Set<String>> =
-                if (pabcIntegrationEnabled) {
-                    buildApplicationRoleMappingsFromPabc(functionalRoles)
-                } else {
-                    emptyMap()
-                }
+            val functionalRoles = if (pabcIntegrationEnabled) {
+                // In the new IAM architecture functional roles are realm roles.
+                accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
+            } else {
+                // In the old IAM architecture the ZAC application roles are used directly.
+                // The concept functional roles does not exist.
+                // ZAC application roles are client roles, and are part of the standard 'roles' claim.
+                accessToken.rolesClaim.toSet()
+            }
+            val applicationRolesPerZaaktype: Map<String, Set<String>> = when {
+                pabcIntegrationEnabled && functionalRoles.isNotEmpty() -> buildApplicationRoleMappingsFromPabc(
+                    functionalRoles
+                )
+                else -> emptyMap()
+            }
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
