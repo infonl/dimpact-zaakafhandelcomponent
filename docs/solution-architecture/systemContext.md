@@ -25,7 +25,7 @@ C4Context
     }
     
     System_Boundary(ZAC, "ZAC runtime components") {
-        System(ZAC, "ZAC")
+        System(ZAC, "ZAC application")
         System(OfficeConverter, "OfficeConverter")
         System(OpenPolicyAgent, "OPA")
         System(Solr, "Solr")
@@ -69,10 +69,12 @@ C4Context
 
     Rel(SmartDocuments, ZAC, "Uses", "ZAC SmartDocuments Callback API")
 
-    UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
-    UpdateElementStyle(OfficeConverter, $bgColor="red", $borderColor="red")
-    UpdateElementStyle(OpenPolicyAgent, $bgColor="red", $borderColor="red")
-    UpdateElementStyle(Solr, $bgColor="red", $borderColor="red")
+    UpdateElementStyle(OpenFormulieren, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(OpenArchiefbeheer, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(OpenNotificaties, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(Objecten, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(OpenZaak, $bgColor="grey", $borderColor="grey")
+    UpdateElementStyle(OpenKlant, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(BAG, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(BRP, $bgColor="grey", $borderColor="grey")
     UpdateElementStyle(KVK, $bgColor="grey", $borderColor="grey")
@@ -94,15 +96,19 @@ TITLE ZAC System Context diagram
 Person(citizen, "Citizen", "A citizen within a municipality")
 Person(employee, "Employee", "An employee of a municipality")
 
-Enterprise_Boundary(commonGround, "Common Ground") {
-    System_Boundary(components, "Used Common Ground applications") {
+Enterprise_Boundary(commonGround, "Other Common Ground components") {
+    System_Boundary(components, "Common Ground applications") {
         System_Ext(openForms, "Open Formulieren")
         System_Ext(openArchief, "Open Archiefbeheer")
     }
 
-    System_Ext(openNotificaties, "Open Notificaties")
+    System_Boundary(utilities, "Common Ground utilities") {
+        System_Ext(openNotificaties, "Open Notificaties")
+        System_Ext(pabc, "PABC") 
+        System_Ext(keycloak, "Keycloak")             
+    }
 
-    System_Boundary(registries, "Used Common Ground registries") {
+    System_Boundary(registries, "Common Ground registries") {
         System_Ext(objecten, "Objecten")
         System_Ext(openZaak, "Open Zaak")
         System_Ext(openKlant, "Open Klant")
@@ -110,7 +116,7 @@ Enterprise_Boundary(commonGround, "Common Ground") {
 }
 
 System_Boundary(zacRuntime, "ZAC runtime components") {
-    System(zac, "ZAC")
+    System(zac, "ZAC application\n\n\n")
     System(officeConverter, "OfficeConverter")
     System(opa, "OPA")
     System(solr, "Solr")
@@ -128,7 +134,7 @@ Enterprise_Boundary(external, "External services") {
 Rel(citizen, openForms, "Submits case forms")
 Rel(employee, zac, "Handles cases")
 
-Rel(openForms, objecten, "Uses", "Objecten API")
+Rel(openForms, objecten, "Read productaanvraag", "Objecten API")
 Rel(openKlant, openNotificaties, "Uses", "ZGW Notificaties API")
 Rel(objecten, openNotificaties, "Uses", "ZGW Notificaties API")
 Rel(openZaak, openNotificaties, "Uses", "ZGW Notificaties API")
@@ -137,21 +143,23 @@ Rel(openArchief, openZaak, "Uses", "ZGW Documenten en Zaken API")
 
 Rel(openNotificaties, zac, "Uses", "ZGW Notificatie API for consumers")
 
-Rel(zac, officeConverter, "Uses", "OfficeConverter API")
-Rel(zac, opa, "Uses", "OPA API")
-Rel(zac, solr, "Uses", "Solr API")
+Rel(zac, officeConverter, "Convert to PDF", "OfficeConverter API")
+Rel(zac, opa, "Authorisation policies", "OPA API")
+Rel(zac, solr, "Search", "Solr API")
 
 Rel(zac, objecten, "Uses", "Objecten API")
 Rel(zac, openZaak, "Uses", "ZGW Besluiten, Catalogi, Documenten, en Zaken API")
 Rel(zac, openKlant, "Uses", "Klantinteracties API")
 Rel(zac, openKlant, "Uses", "Contactgegevens API")
+Rel(zac, pabc, "Get employee and group authorisation mappings", "PABC authorisations API")
+Rel(zac, keycloak, "Authenticates employees and gets users and groups", "Keycloak API")
 
-Rel(zac, bag, "Uses", "HaalCentraal BAG Bevragen API")
-Rel(zac, brp, "Uses", "HaalCentraal BRP Bevragen API")
-Rel(zac, kvk, "Uses", "KVK Zoeken en Vestigingsprofielen API")
-Rel(zac, smtpServer, "Uses", "SMTP Mail Server")
-Rel(zac, smartDocs, "Uses", "SmartDocuments API")
-Rel(zac, msOffice, "Uses", "WebDAV API")
+Rel(zac, bag, "Get BAG objects", "HaalCentraal BAG Bevragen API")
+Rel(zac, brp, "Get personal data", "HaalCentraal BRP Bevragen API")
+Rel(zac, kvk, "Get KVK registrations", "KVK Zoeken en Vestigingsprofielen API")
+Rel(zac, smtpServer, "Sends mail", "SMTP Mail Server")
+Rel(zac, smartDocs, "Creates Office documents", "SmartDocuments API")
+Rel(zac, msOffice, "Open and edit documents in Office", "WebDAV API")
 Rel(smartDocs, zac, "Uses", "ZAC SmartDocuments Callback API")
 
 Lay_Down(bag, brp)
