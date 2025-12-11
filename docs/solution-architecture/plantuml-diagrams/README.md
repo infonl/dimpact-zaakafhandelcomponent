@@ -7,7 +7,7 @@ This folder contains the PlantUML diagrams used in the ZAC solution architecture
 
 ## Generate image files from PlantUML diagrams
 
-To generate image files (PNG or SVG) from the PlantUML diagrams you can use the PlantUML CLI tool.
+To generate PNG image files from the PlantUML diagrams you can use the PlantUML CLI tool.
 Mac users can use the [PlantUML Homebrew formulae](https://formulae.brew.sh/formula/plantuml).
 
 To generate a PNG image from a PlantUML diagram file (e.g. `diagram.puml`), run:
