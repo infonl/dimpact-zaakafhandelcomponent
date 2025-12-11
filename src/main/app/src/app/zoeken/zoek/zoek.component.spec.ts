@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { EventEmitter, NO_ERRORS_SCHEMA } from "@angular/core";
