@@ -79,7 +79,7 @@
     "jest-extended": "7.0.0",
     "jest-junit": "16.0.0",
     "jest-junit-reporter": "1.1.0",
-    "jest-preset-angular": "14.6.2",
+    "jest-preset-angular": "16.0.0",
     "openapi-typescript": "7.10.1",
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
