@@ -53,8 +53,6 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
-import nl.info.client.zgw.zrc.model.ResultaatSubRequest
-import nl.info.client.zgw.zrc.model.StatusSubRequest
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -63,7 +61,6 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
@@ -137,11 +134,8 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.commons.collections4.CollectionUtils
-import org.apache.james.mime4j.dom.datetime.DateTime
 import java.net.URI
-import java.time.Instant
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Path("zaken")
@@ -666,7 +660,7 @@ class ZaakRestService @Inject constructor(
                 }
             }
         }
-        
+
         // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }

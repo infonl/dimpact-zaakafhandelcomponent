@@ -62,7 +62,6 @@ import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
@@ -1422,7 +1421,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk") } just runs
+            every {
+                zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+            } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
             When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
@@ -1433,7 +1434,11 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("it is ended with result") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                        zgwApiService.closeZaak(
+                            zaak,
+                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
+                            "Zaak is niet ontvankelijk"
+                        )
                         cmmnService.terminateCase(zaak.uuid)
                     }
                 }

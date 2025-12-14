@@ -24,7 +24,7 @@ class UserTaskCompletionListener : FlowableEventListener {
     }
 
     override fun onEvent(event: FlowableEvent) {
-        when(event.type) {
+        when (event.type) {
             FlowableEngineEventType.TASK_COMPLETED ->
                 removeTaak(event as FlowableEntityEvent)
             FlowableEngineEventType.PROCESS_COMPLETED, FlowableEngineEventType.PROCESS_CANCELLED ->
@@ -36,8 +36,8 @@ class UserTaskCompletionListener : FlowableEventListener {
         (entityEvent.entity as TaskEntity).let { task ->
             LOG.fine(
                 "User task with id '${task.id}, name '${task.name}' completed for process id " +
-                        "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
-                        "by user '${task.assignee}'"
+                    "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
+                    "by user '${task.assignee}'"
             )
             FlowableHelper.getInstance().indexeerService.removeTaak(task.id)
         }
@@ -47,12 +47,16 @@ class UserTaskCompletionListener : FlowableEventListener {
         (entityEvent.entity as ProcessInstance).let { processInstance ->
             LOG.fine(
                 "Process with id '${processInstance.processInstanceId}', name '${processInstance.processDefinitionName} " +
-                        "is in state ${entityEvent.type}'"
+                    "is in state ${entityEvent.type}'"
             )
             processInstance.processVariables["ZK_Result"]?.let { resultaatTypeOmschrijving ->
                 val zaakUUID = UUID.fromString(processInstance.businessKey)
                 // endZaak with resultaat below
-                FlowableHelper.getInstance().zgwApiService.endZaak(zaakUUID, resultaatTypeOmschrijving.toString(), EINDSTATUS_TOELICHTING)
+                FlowableHelper.getInstance().zgwApiService.endZaak(
+                    zaakUUID,
+                    resultaatTypeOmschrijving.toString(),
+                    EINDSTATUS_TOELICHTING
+                )
             }
         }
     }

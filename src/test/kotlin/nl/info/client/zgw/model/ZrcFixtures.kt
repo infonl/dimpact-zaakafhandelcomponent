@@ -390,7 +390,7 @@ fun createZaakStatusSub(
     url: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     indicatieLaatstGezetteStatus: Boolean = false,
-   zaakinformatieobjecten : List<URI> = emptyList()
+    zaakinformatieobjecten: List<URI> = emptyList()
 ) = StatusSub(
     url,
     uuid,

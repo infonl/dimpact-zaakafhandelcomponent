@@ -2,16 +2,12 @@ package nl.info.client.zgw.zrc.model
 
 import jakarta.json.bind.annotation.JsonbCreator
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.info.client.zgw.zrc.model.generated.PatchedZaakRequest
-import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.joda.time.DateTime
 import java.net.URI
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-
 
 @NoArgConstructor
 @AllOpen
@@ -20,7 +16,6 @@ data class ZaakAfsluiten @JsonbCreator constructor(
     @param:JsonbProperty("resultaat") val resultaat: ResultaatSubRequest,
     @param:JsonbProperty("status") val status: StatusSubRequest
 )
-
 
 @NoArgConstructor
 @AllOpen
@@ -47,7 +42,9 @@ data class StatusSubRequest @JsonbCreator constructor(
      *
      * <date-time> e.g., "2019-08-24T14:15:22Z"
      */
-    @param:JsonbProperty("datumStatusGezet") val datumStatusGezet: String? = DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+    @param:JsonbProperty(
+        "datumStatusGezet"
+    ) val datumStatusGezet: String? = DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
     /**
      * Een, voor de initiator van de zaak relevante, toelichting op de status van een zaak.
      */
