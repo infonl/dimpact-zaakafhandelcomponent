@@ -206,7 +206,6 @@ class ZGWApiService @Inject constructor(
         val status = StatusSubRequest(
             statustype = statusType.url,
             statustoelichting = toelichting,
-            // TODO: set gezetdoor to the right person URL
         )
 
         val zaakAfsluiten = ZaakAfsluiten(zaak, resultaat, status)
