@@ -365,19 +365,6 @@ class ZGWApiService @Inject constructor(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
 
-    private fun bepaalBrondatum(zaak: Zaak, resultaattype: ResultaatType): LocalDate? {
-        val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure ?: return null
-        return if (brondatumArchiefprocedure.afleidingswijze == AfleidingswijzeEnum.AFGEHANDELD) {
-            zaak.einddatum
-        } else {
-            LOG.warning(
-                "Determining the 'brondatum' for 'afleidingswijze' " +
-                    "'${brondatumArchiefprocedure.afleidingswijze}' is not supported"
-            )
-            null
-        }
-    }
-
     private fun readStatustype(
         statustypes: List<StatusType>,
         omschrijving: String,
