@@ -14,6 +14,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.model.createZaakStatusSub
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.common.engine.impl.el.FixedValue
@@ -27,7 +28,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zaak = createZaak()
     val zaakStatusName = "fakeStatus"
-    val zaakStatus = createZaakStatus()
+    val zaakStatus = createZaakStatusSub()
 
     beforeEach {
         checkUnnecessaryStub()

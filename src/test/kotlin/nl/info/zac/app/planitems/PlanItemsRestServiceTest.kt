@@ -22,6 +22,7 @@ import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -58,6 +59,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val brcClientService = mockk<BrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -74,6 +76,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
+        brcClientService,
         zaaktypeCmmnConfigurationService,
         planItemConverter,
         zgwApiService,
@@ -531,9 +534,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaakService.processBrondatumProcedure(any(), any(), any())
             } just runs
             every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
-            every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+            every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
             every { mailService.sendMail(mailGegevens, any()) } returns ""
+            every { brcClientService.listBesluiten(zaak) } returns emptyList()
 
             When("A user event to settle the zaak and send a corresponding email is planned") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -570,8 +574,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
-            every { zgwApiService.createResultaatForZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
             every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
+            every { brcClientService.listBesluiten(zaak) } returns emptyList()
 
             When("the user event listener plan item is processed") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -603,15 +608,16 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
-            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
-            every { zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null) } just runs
+            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } returns Unit
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every { brcClientService.listBesluiten(zaak) } returns emptyList()
 
             When("doUserEventListenerPlanItem is called to close the zaak") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-                Then("createResultaatForZaak should be called to set the resultaat") {
+                Then("closeZaak should be called to close the zaak") {
                     verify(exactly = 1) {
-                        zgwApiService.createResultaatForZaak(zaak, resultaattypeUuid, null)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
                     }
                 }
             }

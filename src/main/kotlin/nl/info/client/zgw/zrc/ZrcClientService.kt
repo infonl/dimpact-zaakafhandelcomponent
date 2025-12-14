@@ -20,12 +20,15 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
+import nl.info.client.zgw.zrc.model.StatusSubRequest
 import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
@@ -242,9 +245,12 @@ class ZrcClientService @Inject constructor(
         return zrcClient.zaakCreate(zaak)
     }
 
-    fun createStatus(status: Status): Status {
+    fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
         status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.statusCreate(status)
+        val zaakBijwerken = ZaakBijwerken().apply {
+            this.status = status
+        }
+        return zrcClient.zaakBijwerken(zaakUuid, zaakBijwerken).status
     }
 
     fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {

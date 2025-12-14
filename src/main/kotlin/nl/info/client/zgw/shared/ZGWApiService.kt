@@ -26,6 +26,7 @@ import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -86,13 +87,13 @@ class ZGWApiService @Inject constructor(
         zaak: Zaak,
         statusTypeOmschrijving: String,
         statusToelichting: String?
-    ): Status {
+    ): StatusSub {
         val statustype = readStatustype(
             statustypes = ztcClientService.readStatustypen(zaak.zaaktype),
             omschrijving = statusTypeOmschrijving,
             zaaktypeURI = zaak.zaaktype
         )
-        return createStatusForZaak(zaak.url, statustype.url, statusToelichting)
+        return createStatusForZaak(zaak.uuid, statustype.url, statusToelichting)
     }
 
     fun getStatusTypeEind(zaakTypeURI: URI): StatusType {
@@ -101,28 +102,6 @@ class ZGWApiService @Inject constructor(
             statustypes = statustypes,
             zaaktypeURI = zaakTypeURI
         )
-    }
-
-    /**
-     * Create [Resultaat] for a given [Zaak] based on [ResultaatType] .omschrijving and with
-     * [Resultaat].toelichting.
-     *
-     * @param zaak [Zaak]
-     * @param resultaattypeOmschrijving Omschrijving of the [ResultaatType] of the required [Resultaat].
-     * @param resultaatToelichting Toelichting for thew [Resultaat].
-     */
-    fun createResultaatForZaak(
-        zaak: Zaak,
-        resultaattypeOmschrijving: String,
-        resultaatToelichting: String
-    ) {
-        val resultaattypen = ztcClientService.readResultaattypen(zaak.getZaaktype())
-        val resultaattype = filterResultaattype(
-            resultaattypen,
-            resultaattypeOmschrijving,
-            zaak.zaaktype
-        )
-        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
     }
 
     fun getResultaat(zaakTypeURI: URI, resultaatTypeOmschrijving: String): ResultaatType {
@@ -341,14 +320,13 @@ class ZGWApiService @Inject constructor(
         }
     }
 
-    private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
-        val status = Status().apply {
-            zaak = zaakURI
+    private fun createStatusForZaak(zaakUUID: UUID, statustypeURI: URI, toelichting: String?): StatusSub {
+        val status = StatusSub().apply {
             statustype = statustypeURI
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+            statustoelichting = toelichting
         }
-        status.statustoelichting = toelichting
-        return zrcClientService.createStatus(status)
+        return zrcClientService.createStatus(zaakUUID, status)
     }
 
     private fun calculateDoorlooptijden(zaak: Zaak) {

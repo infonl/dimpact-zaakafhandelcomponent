@@ -1428,8 +1428,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                     "Zaak is niet ontvankelijk"
                 )
-            } just runs
-            every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
+            } returns null
+            every { zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
             When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
@@ -1445,7 +1445,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
-                        zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk")
+                        zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
                         cmmnService.terminateCase(zaak.uuid)
                     }
                 }
@@ -1474,7 +1474,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             verify(exactly = 0) {
                 zgwApiService.createResultaatForZaak(any(), any<UUID>(), any())
-                zgwApiService.endZaak(any<Zaak>(), any())
+                zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
                 cmmnService.terminateCase(any())
             }
         }
@@ -1504,8 +1504,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
-            every { zgwApiService.endZaak(zaak, "-2 name") } just runs
+            every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } returns null
+            every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
             When("aborted with managed zaakbeeindigreden") {
@@ -1514,7 +1514,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 Then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name")
-                        zgwApiService.endZaak(zaak, "-2 name")
+                        zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
                         cmmnService.terminateCase(zaak.uuid)
                     }
                 }
@@ -2047,7 +2047,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any<BrondatumArchiefprocedure>())
             } just runs
             every { zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden) } just runs
-            every { zgwApiService.closeZaak(zaak, reden) } just runs
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
 
             When("zaak is closed") {
                 zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
@@ -2055,7 +2055,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 Then("result and status are correctly set") {
                     verify(exactly = 1) {
                         zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
-                        zgwApiService.closeZaak(zaak, reden)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
                 }
             }
@@ -2082,7 +2082,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 Then("result and status are not changed") {
                     verify(exactly = 0) {
                         zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
-                        zgwApiService.closeZaak(zaak, reden)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
                 }
 
