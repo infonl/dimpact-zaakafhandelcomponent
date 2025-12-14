@@ -29,7 +29,6 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.StatusType
@@ -37,7 +36,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
-import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
