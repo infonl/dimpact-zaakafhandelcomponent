@@ -530,9 +530,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 versturenEmail = true
             )
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
-            every {
-                zaakService.processBrondatumProcedure(any(), any(), any())
-            } just runs
             every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
             every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
@@ -575,21 +572,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
-            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } just runs
             every { brcClientService.listBesluiten(zaak) } returns emptyList()
 
             When("the user event listener plan item is processed") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
-                Then("the processing of special brondatum procedure is requested") {
+                Then("the zaak is closed") {
                     verify(exactly = 1) {
-                        zaakService.processBrondatumProcedure(
-                            zaak,
-                            resultaattypeUuid,
-                            match {
-                                it.datumkenmerk == brondatumEigenschap
-                            }
-                        )
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
                     }
                 }
             }
@@ -608,7 +598,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
-            every { zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any()) } returns Unit
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
             every { brcClientService.listBesluiten(zaak) } returns emptyList()
 

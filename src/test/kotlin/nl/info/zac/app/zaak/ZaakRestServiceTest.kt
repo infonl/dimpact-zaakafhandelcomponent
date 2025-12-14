@@ -1422,13 +1422,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every {
-                zgwApiService.createResultaatForZaak(
-                    zaak,
-                    zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
-                    "Zaak is niet ontvankelijk"
-                )
-            } returns null
             every { zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
@@ -1440,11 +1433,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("it is ended with result") {
                     verify(exactly = 1) {
-                        zgwApiService.createResultaatForZaak(
-                            zaak,
-                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
-                            "Zaak is niet ontvankelijk"
-                        )
                         zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
                         cmmnService.terminateCase(zaak.uuid)
                     }
@@ -1504,7 +1492,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } returns null
             every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
@@ -1513,7 +1500,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("it is ended with result") {
                     verify(exactly = 1) {
-                        zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name")
                         zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
                         cmmnService.terminateCase(zaak.uuid)
                     }
@@ -1521,6 +1507,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
 
             When("aborted with invalid zaakbeeindigreden id") {
+                clearMocks(zgwApiService, cmmnService)
                 val exception = shouldThrow<IllegalArgumentException> {
                     zaakRestService.terminateZaak(
                         zaak.uuid,
@@ -2043,10 +2030,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
-            every {
-                zaakService.processBrondatumProcedure(zaak, resultaattypeUuid, any<BrondatumArchiefprocedure>())
-            } just runs
-            every { zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden) } just runs
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
 
             When("zaak is closed") {
@@ -2054,7 +2037,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("result and status are correctly set") {
                     verify(exactly = 1) {
-                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
                 }
@@ -2062,6 +2044,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
 
         Given("open zaak with locked informatieobjecten") {
+            clearAllMocks()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
@@ -2081,7 +2064,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("result and status are not changed") {
                     verify(exactly = 0) {
-                        zgwApiService.updateResultaatForZaak(zaak, resultaattypeUuid, reden)
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
                 }
