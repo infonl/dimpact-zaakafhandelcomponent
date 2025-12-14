@@ -21,7 +21,6 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -70,7 +69,6 @@ class PlanItemsRestService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private var cmmnService: CMMNService,
     private var zrcClientService: ZrcClientService,
-    private var brcClientService: BrcClientService,
     private var zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private var planItemConverter: RESTPlanItemConverter,
     private var zgwApiService: ZGWApiService,

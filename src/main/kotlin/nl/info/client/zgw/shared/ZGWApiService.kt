@@ -365,23 +365,6 @@ class ZGWApiService @Inject constructor(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
 
-    private fun berekenArchiveringsparameters(zaakUUID: UUID) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        // refetch to get the einddatum (the archiefnominatie has also been set)
-        val resultaattype = ztcClientService.readResultaattype(
-            zrcClientService.readResultaat(zaak.resultaat).resultaattype
-        )
-        resultaattype.archiefactietermijn?.let {
-            // no idea what it means when there is no archiefactietermijn
-            bepaalBrondatum(zaak, resultaattype)?.let { brondatum ->
-                val zaakPatch = Zaak().apply {
-                    archiefactiedatum = brondatum.plus(Period.parse(it))
-                }
-                zrcClientService.patchZaak(zaakUUID, zaakPatch)
-            }
-        }
-    }
-
     private fun bepaalBrondatum(zaak: Zaak, resultaattype: ResultaatType): LocalDate? {
         val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure ?: return null
         return if (brondatumArchiefprocedure.afleidingswijze == AfleidingswijzeEnum.AFGEHANDELD) {
