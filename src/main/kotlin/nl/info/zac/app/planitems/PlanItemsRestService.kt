@@ -264,14 +264,6 @@ class PlanItemsRestService @Inject constructor(
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
         zaakService.checkZaakHasLockedInformationObjects(zaak)
 
-        // TODO: this is something we do not need to check anymore, it is the responsibility of open-zaak?
-        if (!brcClientService.listBesluiten(zaak).isEmpty()) {
-            val resultaat = zrcClientService.readResultaat(zaak.resultaat)
-            resultaat.toelichting = userEventListenerData.resultaatToelichting
-            zrcClientService.updateResultaat(resultaat)
-            return
-        }
-
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         } ?: throw InputValidationFailedException(

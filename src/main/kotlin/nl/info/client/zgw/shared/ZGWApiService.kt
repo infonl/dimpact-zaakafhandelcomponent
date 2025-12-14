@@ -20,14 +20,13 @@ import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.ResultaatSubRequest
-import nl.info.client.zgw.zrc.model.StatusSubRequest
-import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.ResultaatSub
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
@@ -180,14 +179,20 @@ class ZGWApiService @Inject constructor(
      */
     fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, toelichting: String?) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
-        val resultaat = ResultaatSubRequest(resultaatType.url, toelichting)
+        val resultaat = ResultaatSub().apply {
+            resultaattype = resultaatType.url
+            this.toelichting = toelichting
+        }
         val statusType = getStatusTypeEind(zaak.zaaktype)
-        val status = StatusSubRequest(
-            statustype = statusType.url,
-            statustoelichting = toelichting,
-        )
+        val status = StatusSub().apply {
+            statustype = statusType.url
+            statustoelichting = toelichting
+        }
 
-        val zaakAfsluiten = ZaakAfsluiten(zaak, resultaat, status)
+        val zaakAfsluiten = ZaakAfsluiten().apply {
+            this.resultaat = resultaat
+            this.status = status
+        }
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 

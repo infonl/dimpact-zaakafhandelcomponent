@@ -20,13 +20,13 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
-import nl.info.client.zgw.zrc.model.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.zac.configuratie.ConfiguratieService
@@ -123,8 +123,6 @@ class ZrcClientService @Inject constructor(
         validateZgwApiUri(resultaatURI, configuratieService.readZgwApiClientMpRestUrl())
         return zrcClient.resultaatRead(resultaatURI.extractUuid())
     }
-
-    fun readResultaat(resultaatUUID: UUID): Resultaat = zrcClient.resultaatRead(resultaatUUID)
 
     fun readStatus(statusURI: URI): Status {
         validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl())
