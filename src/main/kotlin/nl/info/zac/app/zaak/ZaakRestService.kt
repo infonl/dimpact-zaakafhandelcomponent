@@ -696,7 +696,7 @@ class ZaakRestService @Inject constructor(
     fun closeZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afsluitenGegevens: RESTZaakAfsluitenGegevens
-    ) {
+    ): Unit {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).behandelen)
 
