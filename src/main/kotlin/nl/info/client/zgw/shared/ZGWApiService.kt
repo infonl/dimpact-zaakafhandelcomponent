@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -187,7 +188,14 @@ class ZGWApiService @Inject constructor(
             statustoelichting = toelichting
         }
 
+        // Create ZaakSub with url using Java reflection since url is read-only
+        val zaakSub = ZaakSub()
+        val urlField = ZaakSub::class.java.getDeclaredField("url")
+        urlField.isAccessible = true
+        urlField.set(zaakSub, zaak.url)
+
         val zaakAfsluiten = ZaakAfsluiten().apply {
+            this.zaak = zaakSub
             this.resultaat = resultaat
             this.status = status
         }
