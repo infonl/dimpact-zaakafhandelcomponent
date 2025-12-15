@@ -3,25 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
+import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
 import { KlantZakenTabelComponent } from "./klant-zaken-tabel.component";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 
 describe(KlantZakenTabelComponent.name, () => {
   let component: KlantZakenTabelComponent;
