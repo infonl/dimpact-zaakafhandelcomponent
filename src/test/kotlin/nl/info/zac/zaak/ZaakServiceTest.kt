@@ -11,7 +11,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -399,7 +398,6 @@ class ZaakServiceTest : BehaviorSpec({
              and a user and PABC feature flag on
             """
         ) {
-            clearAllMocks()
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(
                 uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
@@ -475,7 +473,6 @@ class ZaakServiceTest : BehaviorSpec({
                 A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
             """
         ) {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -515,7 +512,6 @@ class ZaakServiceTest : BehaviorSpec({
                 and a user and PABC feature flag on
                 """
         ) {
-            clearAllMocks()
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktype = createZaakType(
                 uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
@@ -585,7 +581,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC feature flag off") {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -646,7 +641,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken with no domain and a group with domain and PABC feature flag off") {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -690,7 +684,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken with no domain and a group with no domain and PABC feature flag off") {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -737,7 +730,6 @@ class ZaakServiceTest : BehaviorSpec({
         Given(
             "A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off"
         ) {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -804,7 +796,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken and a group, but user is not in group") {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -836,7 +827,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken and a user not belonging to a group") {
-            clearAllMocks()
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -919,7 +909,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("One open and one closed zaak and a screen event resource id") {
-            clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
@@ -993,7 +982,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
-            clearAllMocks()
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
@@ -1039,7 +1027,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
-            clearAllMocks()
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
