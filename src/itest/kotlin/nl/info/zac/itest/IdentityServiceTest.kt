@@ -143,7 +143,7 @@ class IdentityServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/identity/groups"
             )
             Then(
-                "all groups are returned"
+                "all available groups in the Keycloak ZAC realm are returned"
             ) {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
@@ -153,10 +153,10 @@ class IdentityServiceTest : BehaviorSpec({
 
     Given(
         """
-            A group in the Keycloak ZAC realm and for the old IAM architecture (PABC flag off) a Keycloak old IAM architecture domain role 
-            which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID, 
-            and for the new IAM architecture (PABC flag on) available PABC mappings so that authorised groups can be retrieved, 
-            and a logged-in beheerder
+            New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
+            Old IAM: (PABC feature flag off): a group in the Keycloak ZAC realm and a Keycloak old IAM architecture domain role 
+            which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID, and a logged-in beheerder    
         """
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
@@ -208,8 +208,10 @@ class IdentityServiceTest : BehaviorSpec({
 
     Given(
         """
-            Groups in the Keycloak ZAC realm and, for old IAM (PABC feature flag off) a zaaktype UUID which is not configured in any
-            zaaktypeCmmnConfiguration for a given domain role, and a logged-in beheerder
+              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+              using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
+              Old IAM (PABC feature flag off): groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
+              zaaktype configuration for a given domain role, and a logged-in beheerder
         """.trimIndent()
     ) {
         When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
@@ -257,7 +259,7 @@ class IdentityServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/users"
             )
-            Then("All specific users are returned") {
+            Then("All available users in the Keycloak ZAC realm are returned") {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [
@@ -376,17 +378,19 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Given("the beheerder elk zaaktype is logged in to ZAC and is part one or more groups, and a logged-in beheerder") {
+    Given("A beheerder is logged in to ZAC and is part one or more groups") {
+        val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
+            "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
+        } else {
+            "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
+        }
+
         When("the 'get logged in user' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/loggedInUser"
             )
-            val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
-                "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
-            } else {
-                "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
-            }
-            Then("both groups are returned") {
+
+            Then("the response is OK and the expected group IDs are returned") {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {
