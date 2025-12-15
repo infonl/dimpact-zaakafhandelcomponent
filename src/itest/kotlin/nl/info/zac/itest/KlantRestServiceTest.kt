@@ -117,7 +117,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, ZAAKTYPE_TEST_3_UUID.toString())
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
