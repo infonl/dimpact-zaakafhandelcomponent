@@ -63,6 +63,7 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
@@ -180,6 +181,7 @@ class ZaakRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zgwApiService: ZGWApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -1343,8 +1345,8 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
-        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
-        val betrokkeneParameters = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
+        val betrokkeneParameters = zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID)?.getBetrokkeneParameters()
+            ?: zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).getBetrokkeneParameters()
 
         restZaak.initiatorIdentificatie?.let { initiator ->
             betrokkeneParameters.kvkKoppelen?.let { enabled ->
