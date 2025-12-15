@@ -18,6 +18,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -33,11 +34,13 @@ class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
 
     val suspensionZaakHelper = SuspensionZaakHelper(
         policyService,
         zrcClientService,
-        zaakVariabelenService
+        zaakVariabelenService,
+        flowableTaskService
     )
 
     beforeEach {

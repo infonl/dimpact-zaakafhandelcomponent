@@ -168,7 +168,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
-    val flowableTaskService = mockk<FlowableTaskService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
@@ -186,7 +185,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        flowableTaskService = flowableTaskService,
         healthCheckService = healthCheckService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
@@ -913,11 +911,9 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { flowableTaskService.listOpenTasksForZaak(any()) } returns listOf(task, task, task)
-            every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
-            every { task.name } returnsMany listOf("fakeTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
-            every { task.dueDate = newZaakFinalDate.toDate() } just runs
-            every { flowableTaskService.updateTask(task) } returns task
+            every {
+                opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+            } returns listOf(task, task)
             every { task.id } returns "id"
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten) } returns patchedRestZaak
@@ -941,12 +937,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 Then("zaak is updated with the new data") {
                     updatedRestZaak shouldBe patchedRestZaak
-                }
-
-                And("tasks final date are shifted accordingly") {
-                    verify(exactly = 2) {
-                        task.dueDate = newZaakFinalDate.toDate()
-                    }
                 }
 
                 And("the communication channel is exposed to zaak data") {
@@ -1081,6 +1071,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { bpmnService.findProcessDefinitionForZaaktype(zaaktypeUuid) } returns null
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+                every {
+                    opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+                } returns emptyList()
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
