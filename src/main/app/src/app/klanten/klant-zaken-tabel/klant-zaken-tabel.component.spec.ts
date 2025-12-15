@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  ComponentFixture,
-  fakeAsync,
-  flush,
-  tick,
-  TestBed,
-} from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -119,27 +113,17 @@ describe(KlantZakenTabelComponent.name, () => {
     fixture = TestBed.createComponent(KlantZakenTabelComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("klant", mockPersoon);
+
+    fixture.detectChanges();
   });
 
   it(`should load ${mockCases.length} zaken`, fakeAsync(() => {
-    fixture.detectChanges();
-    flush();
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-
     expect(
       component["dataSource"].data.map((caseItem) => caseItem.identificatie),
     ).toEqual(mockCases.map((mockCase) => mockCase.identificatie));
   }));
 
   it("should return two betrokkenheden for first zaak", fakeAsync(() => {
-    fixture.detectChanges();
-    flush();
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-
     const betrokkenheid = component["getBetrokkenheid"](
       component["dataSource"].data[0],
     );
