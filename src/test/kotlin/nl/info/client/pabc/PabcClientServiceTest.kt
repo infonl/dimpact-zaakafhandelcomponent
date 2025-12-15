@@ -53,7 +53,7 @@ class PabcClientServiceTest : BehaviorSpec({
                     val responseModel = result.results[0]
                     responseModel.entityType.id shouldBe "zaaktype_test_1"
                     responseModel.entityType.name shouldBe "Test zaaktype 1"
-                    responseModel.entityType.type shouldBe "zaaktype"
+                    responseModel.entityType.type shouldBe "ZAAKTYPE"
                     responseModel.applicationRoles.forEach {
                         it.application shouldBe applicationName
                     }

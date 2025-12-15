@@ -16,7 +16,7 @@ fun createApplicationRolesResponse(
     val entityType = EntityTypeModel().apply {
         id = "zaaktype_test_1"
         name = "Test zaaktype 1"
-        type = "zaaktype"
+        type = "ZAAKTYPE"
     }
 
     val applicationRoles = listOf(
@@ -60,7 +60,7 @@ fun createApplicationRolesResponseModel(
         EntityTypeModel().apply {
             id = it
             name = it
-            type = "zaaktype"
+            type = "ZAAKTYPE"
         }
     }
 

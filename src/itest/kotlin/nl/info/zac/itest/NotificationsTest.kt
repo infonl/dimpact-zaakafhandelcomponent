@@ -573,8 +573,8 @@ class NotificationsTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "zaaktypen",
                         "resource" to "zaaktype",
-                        "resourceUrl" to "http://example.com/fakeResourceUrl",
-                        "hoofdObject" to "http://example.com/fakeResourceUrl",
+                        "resourceUrl" to "https://example.com/fakeResourceUrl",
+                        "hoofdObject" to "https://example.com/fakeResourceUrl",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
