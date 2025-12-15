@@ -26,15 +26,15 @@ data class Group(
      */
     val email: String? = null,
 
+    /**
+     * The list of Keycloak ZAC client roles assigned to the group.
+     */
     @Deprecated(
         """
         ZAC client roles are only used in the old IAM architecture (PABC feature flag turned off). 
         Once the PABC feature flag has been removed, this field should be removed.
         """
     )
-    /**
-     * The list of Keycloak ZAC client roles assigned to the group.
-     */
     val zacClientRoles: List<String> = emptyList()
 ) {
     /**
