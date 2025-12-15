@@ -8,18 +8,22 @@ import org.keycloak.representations.idm.GroupRepresentation
 
 /**
  * Data class representing a group in the identity system.
- *
- * @param name The unique name of the group. The group name is treated as the unique group identification.
- * Therefore, we do not allow group names to be changed.
- * @param description The description of the group.
- * @param email The email address associated with the group, if any.
- * @param zacClientRoles The list of ZAC client roles assigned to the group.
  */
 data class Group(
+    /**
+     * The unique name of the group. The group name is treated as the unique group identification.
+     *  Therefore, we do not allow group names to be changed.
+     */
     val name: String,
 
+    /**
+     * The description of the group. If no description exists in the identity system, the name is used as description.
+     */
     val description: String,
 
+    /**
+     * The email address associated with the group, if any.
+     */
     val email: String? = null,
 
     @Deprecated(
@@ -28,6 +32,9 @@ data class Group(
         Once the PABC feature flag has been removed, this field should be removed.
         """
     )
+    /**
+     * The list of Keycloak ZAC client roles assigned to the group.
+     */
     val zacClientRoles: List<String> = emptyList()
 ) {
     /**
