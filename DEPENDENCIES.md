@@ -16,7 +16,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **grafana/tempo**: 2.9.0
 - **prom/prometheus**: v3.8.0
 - **grafana/grafana**: 12.3.0
-- **greenmail/standalone**: 2.1.7
+- **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.1-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.3
 
@@ -27,8 +27,8 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **open-klant**: 2.13.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 0.0.1-rc.8
-- **pabc-api**: 0.0.1-rc.8
+- **pabc-migrations**: 0.0.1-rc.9
+- **pabc-api**: 0.0.1-rc.9
 
 ## Update Process
 

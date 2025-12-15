@@ -15,6 +15,7 @@ Enterprise_Boundary(commonGround, "Other Common Ground components") {
         System_Ext(openNotificaties, "Open Notificaties")
         System_Ext(pabc, "PABC")
         System_Ext(keycloak, "Keycloak")
+        System_Ext(openTelemetry, "Open Telemetry (OTEL) Collector")
     }
 
     System_Boundary(registries, "Common Ground registries") {
@@ -62,6 +63,7 @@ Rel(zac, openKlant, "Uses", "Klantinteracties API")
 Rel(zac, openKlant, "Uses", "Contactgegevens API")
 Rel(zac, pabc, "Get employee and group authorisation mappings", "PABC authorisations API")
 Rel(zac, keycloak, "Authenticates employees and gets users and groups", "Keycloak API")
+Rel(zac, openTelemetry, "Send telemetry data (metrics, traces)", "OpenTelemetry API")
 
 Rel(zac, bag, "Get BAG objects", "HaalCentraal BAG Bevragen API")
 Rel(zac, brp, "Get personal data", "HaalCentraal BRP Bevragen API")
