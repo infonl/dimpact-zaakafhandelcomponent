@@ -196,7 +196,7 @@
             ></zac-taak-zoek-object>
             <zac-document-zoek-object
               *ngSwitchCase="'DOCUMENT'"
-              [sideNav]="zoekenSideNav"
+              [sideNav]="zoekenSideNav()"
               [document]="getDocumentZoekObject(zoekObject)"
             ></zac-document-zoek-object>
           </ng-container>
