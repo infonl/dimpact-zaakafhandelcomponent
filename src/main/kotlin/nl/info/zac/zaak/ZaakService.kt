@@ -168,7 +168,7 @@ class ZaakService @Inject constructor(
                     zrcClientService.updateRol(zaak, bepaalRolMedewerker(it, zaak), explanation)
                 } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
             }
-            .map { it.uuid }
+            .forEach { it.uuid }
 
         LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
 
@@ -516,8 +516,8 @@ class ZaakService @Inject constructor(
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                 applicationRole = zacApplicationRole.value,
-                // we use the generic zaaktype description as the unique identifier for zaaktypes in ZAC
-                zaaktypeDescription = zaaktype.omschrijvingGeneriek
+                // we use the zaaktype description as the unique identifier for zaaktypes in ZAC
+                zaaktypeDescription = zaaktype.omschrijving
             ).map { it.name }.contains(this.name)
         } else {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { params ->

@@ -64,14 +64,14 @@ class IdentityService @Inject constructor(
      */
     fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         return if (configuratieService.featureFlagPabcIntegration()) {
-            // Retrieve the zaaktype just to get the 'omschrijving generiek' because we treat this as the unique
+            // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
             // in future once the PABC feature flag has been removed this should be refactored
-            // so that the zaaktype 'omschrijving generiek' is just passed on here instead of the zaaktype UUID.
+            // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                 applicationRole = ZacApplicationRole.BEHANDELAAR.value,
-                zaaktypeDescription = zaaktype.omschrijvingGeneriek
+                zaaktypeDescription = zaaktype.omschrijving
             ).map { it.toGroup() }
         } else {
             // retrieve groups with 'full representation' or else the group attributes will not be filled

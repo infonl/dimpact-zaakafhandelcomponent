@@ -8,6 +8,7 @@ import nl.info.client.pabc.model.generated.ApplicationRoleModel
 import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
+import nl.info.client.pabc.model.generated.GroupRepresentation
 
 fun createApplicationRolesResponse(
     applicationName: String = "fakeApplicationName",
@@ -74,4 +75,12 @@ fun createApplicationRolesResponseModel(
         this.entityType = entityType
         this.applicationRoles = applicationRoles
     }
+}
+
+fun createPabcGroupRepresentation(
+    name: String = "fakeGroupName",
+    description: String? = null
+) = GroupRepresentation().apply {
+    this.name = name
+    this.description = description
 }
