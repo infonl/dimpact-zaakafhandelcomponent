@@ -54,7 +54,8 @@ class IdentityService @Inject constructor(
         .sortedBy { it.description }
 
     /**
-     * New IAM: TODO
+     * New IAM: With the ZAC PABC feature flag on: returns the list of groups that have access to the given zaaktype UUID
+     * based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      * Old IAM: With the ZAC PABC feature flag off: returns the list of groups that have access to the given zaaktype UUID
      * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
      * for this zaaktype.
@@ -63,7 +64,10 @@ class IdentityService @Inject constructor(
      */
     fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         return if (configuratieService.featureFlagPabcIntegration()) {
-            // TODO: get the frontend to also pass on the zaaktype description in th endpoint?
+            // Retrieve the zaaktype just to get the 'omschrijving generiek' because we treat this as the unique
+            // ID of the zaaktype (not the specific zaaktype 'version').
+            // in future once the PABC feature flag has been removed this should be refactored
+            // so that the zaaktype 'omschrijving generiek' is just passed on here instead of the zaaktype UUID.
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                 applicationRole = ZacApplicationRole.BEHANDELAAR.value,

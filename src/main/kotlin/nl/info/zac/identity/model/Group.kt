@@ -22,8 +22,12 @@ data class Group(
 
     val email: String? = null,
 
-    // TODO: should be realm roles in the new IAM situation.
-    // but do we still need this mapping at all then? that's handled by the PABC now?
+    @Deprecated(
+        """
+        ZAC client roles are only used in the old IAM architecture (PABC feature flag turned off). 
+        Once the PABC feature flag has been removed, this field should be removed.
+        """
+    )
     val zacClientRoles: List<String> = emptyList()
 ) {
     /**
@@ -40,11 +44,8 @@ data class Group(
 /**
  * Converts a [GroupRepresentation] to a [Group], mapping the Keycloak
  * group name, group description, and Keycloak ZAC client roles.
- * Somewhat confusingly, we map the Keycloak group name to our group id,
- * and the Keycloak group description field (if any) to our group name.
- * The Keycloak group id is a UUID and is not of interest to us.
- * The Keycloak group name is the unique group name in the ZAC Keycloak realm,
- * and we treat this as the group id in our system.
+ * We do not map the Keycloak group id (a UUID) as it is not of interest to us.
+ * We treat the Keycloak group name as the unique identifier of the group within Keycloak realm.
  *
  * @param keycloakClientId The client ID of the Keycloak client.
  * @return A [Group] object representing the group.
@@ -54,13 +55,12 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
         name = name,
         description = description?.takeIf { it.isNotBlank() } ?: name,
         email = attributes?.get("email")?.singleOrNull(),
-        // TODO: should be realm roles in the new IAM situation.
-        // but do we still need this mapping at all then? that's handled by the PABC now?
+        // ZAC client roles are only used in the old IAM architecture (PABC feature flag off)
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
 
 fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
-        description = description
+        description = description?.takeIf { it.isNotBlank() } ?: name
     )
