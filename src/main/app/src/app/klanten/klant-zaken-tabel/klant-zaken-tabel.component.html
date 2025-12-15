@@ -19,7 +19,7 @@
         <ng-container matColumnDef="identificatie_filter">
           <th mat-header-cell *matHeaderCellDef>
             <zac-tekst-filter
-              [value]="zoekParameters.zoeken.ZAAK_IDENTIFICATIE"
+              [value]="zoekParameters.zoeken?.ZAAK_IDENTIFICATIE ?? ''"
               (changed)="
                 zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
                 filtersChanged()
@@ -77,7 +77,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="status"
-              [filter]="zoekParameters.filters.ZAAK_STATUS"
+              [filter]="zoekParameters.filters?.ZAAK_STATUS"
               [opties]="this.zoekResultaat.filters.ZAAK_STATUS"
               (changed)="
                 zoekParameters.filters.ZAAK_STATUS = $event; filtersChanged()
@@ -99,7 +99,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="groep"
-              [filter]="zoekParameters.filters.GROEP"
+              [filter]="zoekParameters.filters?.GROEP"
               [opties]="this.zoekResultaat.filters.GROEP"
               (changed)="
                 zoekParameters.filters.GROEP = $event; filtersChanged()
@@ -121,7 +121,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="behandelaar"
-              [filter]="zoekParameters.filters.BEHANDELAAR"
+              [filter]="zoekParameters.filters?.BEHANDELAAR"
               [opties]="this.zoekResultaat.filters.BEHANDELAAR"
               (changed)="
                 zoekParameters.filters.BEHANDELAAR = $event; filtersChanged()
@@ -147,7 +147,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-date-range-filter
               label="startdatum"
-              [range]="zoekParameters.datums.ZAAK_STARTDATUM"
+              [range]="zoekParameters.datums?.ZAAK_STARTDATUM"
               (changed)="
                 zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChanged()
               "
@@ -172,7 +172,7 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-facet-filter
               label="zaaktype"
-              [filter]="zoekParameters.filters.ZAAKTYPE"
+              [filter]="zoekParameters.filters?.ZAAKTYPE"
               [opties]="zoekResultaat.filters.ZAAKTYPE"
               (changed)="
                 zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()
@@ -193,7 +193,7 @@
         <ng-container matColumnDef="omschrijving_filter">
           <th mat-header-cell *matHeaderCellDef id="omschrijving_filter">
             <zac-tekst-filter
-              [value]="zoekParameters.zoeken.ZAAK_OMSCHRIJVING"
+              [value]="zoekParameters.zoeken?.ZAAK_OMSCHRIJVING ?? ''"
               (changed)="
                 zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
                 filtersChanged()
