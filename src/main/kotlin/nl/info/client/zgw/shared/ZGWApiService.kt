@@ -185,6 +185,7 @@ class ZGWApiService @Inject constructor(
         val statusType = getStatusTypeEind(zaak.zaaktype)
         val status = StatusSub().apply {
             statustype = statusType.url
+            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
             statustoelichting = toelichting
         }
 
