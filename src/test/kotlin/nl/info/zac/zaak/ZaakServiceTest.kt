@@ -537,7 +537,8 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                     applicationRole = "behandelaar",
-                    zaaktypeDescription = zaaktype.omschrijving)
+                    zaaktypeDescription = zaaktype.omschrijving
+                )
             } returns listOf(
                 pabcGroupRepresentation
             )
