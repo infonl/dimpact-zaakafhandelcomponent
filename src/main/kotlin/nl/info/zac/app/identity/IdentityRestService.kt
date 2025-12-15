@@ -40,15 +40,15 @@ class IdentityRestService @Inject constructor(
     fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
 
     /**
-     * Once the PABC feature flag has been removed, this should be refactored to take the zaaktype 'omschrijving generiek' field
+     * Once the PABC feature flag has been removed, this should be refactored to take the zaaktype 'omschrijving' field
      * instead of the zaaktype UUID.
      * This is because in the PABC group authorisation is done on zaaktype and not on a
      * specific zaaktype 'version'.
      */
     @GET
     @Path("groups/zaaktype/{zaaktypeUuid}")
-    fun listGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
-        identityService.listGroupsForZaaktypeUuid(zaaktypeUuid).toRestGroups()
+    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
+        identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

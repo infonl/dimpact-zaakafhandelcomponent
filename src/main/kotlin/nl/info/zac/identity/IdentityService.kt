@@ -54,19 +54,18 @@ class IdentityService @Inject constructor(
         .sortedBy { it.description }
 
     /**
-     * New IAM: With the ZAC PABC feature flag on: returns the list of groups that have access to the given zaaktype UUID
-     * based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
-     * Old IAM: With the ZAC PABC feature flag off: returns the list of groups that have access to the given zaaktype UUID
+     * New IAM (PABC feature flag on): returns the list of groups that are authorised for the application role 'behandelaar' and
+     * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
+     *
+     * Old IAM (PABC feature flag off): returns the list of groups that have access to the given zaaktype UUID
      * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
      * for this zaaktype.
-     * With the ZAC PABC feature flag on: returns all available groups, because group authorisation (for zaaktypes) is not yet
-     * supported in the new IAM architecture. This will be implemented in a future release of the PABC and ZAC.
      */
-    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
+    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         return if (configuratieService.featureFlagPabcIntegration()) {
             // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
-            // in future once the PABC feature flag has been removed this should be refactored
+            // In future once the PABC feature flag has been removed this should be refactored
             // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(

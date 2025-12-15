@@ -338,7 +338,7 @@ class IdentityServiceTest : BehaviorSpec({
             } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2)
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
@@ -373,7 +373,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("only groups with matching domain roles are returned") {
                     groups.size shouldBe 1
@@ -405,7 +405,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
@@ -423,7 +423,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("no groups are returned") {
                     groups.size shouldBe 0
