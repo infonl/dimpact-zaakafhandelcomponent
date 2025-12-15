@@ -89,7 +89,7 @@ class BrpClientService @Inject constructor(
      * Retrieves a person by burgerservicenummer from the BRP Personen API.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
-     * @param zaaktypeUuid the ID of the zaak the person is requested for, if any
+     * @param zaaktypeUuid the zaaktype UUID the person is requested for, if any
      * @param userName the username making the request, if any
      * @return the person if found, otherwise null
      *
