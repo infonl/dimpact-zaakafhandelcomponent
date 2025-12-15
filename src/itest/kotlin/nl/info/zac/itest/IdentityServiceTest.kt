@@ -221,7 +221,7 @@ class IdentityServiceTest : BehaviorSpec({
             Then(
                 """
                 new IAM: only the groups authorised for the application role 'behandelaar' and
-                zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned,
+                zaaktype test 3 (via the PABC mappings and the group's functional roles) are returned,
                 old IAM: all available groups are returned because the zaaktype has no domain configured
                 """
             ) {
