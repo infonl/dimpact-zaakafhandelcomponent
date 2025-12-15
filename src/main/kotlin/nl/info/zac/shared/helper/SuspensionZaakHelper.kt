@@ -96,15 +96,15 @@ class SuspensionZaakHelper @Inject constructor(
         return zrcClientService.patchZaak(zaak.uuid, createZaakPatch(endDatePlanned, finalCompletionDate), description)
     }
 
-    fun extendZaak(zaak: Zaak, extendReason: String?) =
-        zrcClientService.patchZaak(zaak.uuid, zaak, "$VERLENGING: $extendReason")
+    fun extendZaak(zaakUuid: UUID, patch: Zaak, extendReason: String?) =
+        zrcClientService.patchZaak(zaakUuid, patch, "$VERLENGING: $extendReason")
 
-    fun extendTasks(zaak: Zaak, durationDays: Long): List<Task> =
+    fun extendTasks(zaak: Zaak, numberOfDays: Long): List<Task> =
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
             .filter { it.dueDate != null }
             .onEach {
                 it.dueDate = DateTimeConverterUtil.convertToDate(
-                    DateTimeConverterUtil.convertToLocalDate(it.dueDate).plusDays(durationDays)
+                    DateTimeConverterUtil.convertToLocalDate(it.dueDate).plusDays(numberOfDays)
                 )
                 flowableTaskService.updateTask(it)
             }

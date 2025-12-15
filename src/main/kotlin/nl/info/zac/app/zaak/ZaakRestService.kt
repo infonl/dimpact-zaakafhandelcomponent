@@ -41,9 +41,7 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICAT
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
@@ -423,11 +421,11 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.verlengen)
 
-        val zaakToExtend = restZaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens)
-        val updatedZaak = opschortenZaakHelper.extendZaak(zaakToExtend, restZaakVerlengGegevens.redenVerlenging)
+        val zaakPatch = restZaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens)
+        val updatedZaak = opschortenZaakHelper.extendZaak(zaakUUID, zaakPatch, restZaakVerlengGegevens.redenVerlenging)
 
         if (restZaakVerlengGegevens.takenVerlengen) {
-            opschortenZaakHelper.extendTasks(zaakToExtend, restZaakVerlengGegevens.duurDagen.toLong())
+            opschortenZaakHelper.extendTasks(zaakPatch, restZaakVerlengGegevens.duurDagen.toLong())
                 .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
                 .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }

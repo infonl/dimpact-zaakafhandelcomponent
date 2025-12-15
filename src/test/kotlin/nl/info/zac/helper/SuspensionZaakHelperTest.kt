@@ -23,10 +23,13 @@ import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.test.date.toDate
+import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -43,11 +46,15 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         flowableTaskService
     )
 
+    val today = LocalDate.now()
+    val tomorrow = today.plusDays(1)
+    val numberOfDays = 2L
+
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Context("suspend/postpone zaak") {
+    Context("Suspend/postpone zaak") {
         Given("a zaak that is open and not yet postponed and does not have an planned end date") {
             val numberOfDaysPostponed = 123L
             val postPonementReason = "fakeReason"
@@ -290,7 +297,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         }
     }
 
-    Context("Extend zaak") {
+    Context("Extend zaak fatal date") {
         Given("a zaak with a final date") {
             val extensionDescription = "extension description"
             val zaak = createZaak(
@@ -330,6 +337,51 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
 
                 Then("it throws exception with no message") { exception.message shouldBe null }
+            }
+        }
+    }
+
+    Context("Extend tasks") {
+        Given("Zaak with tasks") {
+            val zaak = createZaak()
+            val tasks = listOf(
+                createTestTask(dueDate = today.toDate()),
+                createTestTask(dueDate = tomorrow.toDate())
+            )
+
+            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns tasks
+            every { flowableTaskService.updateTask(any<Task>()) } returns tasks[0]
+
+            When("extending tasks") {
+                val listOfUpdatedTasks = suspensionZaakHelper.extendTasks(zaak, numberOfDays)
+
+                Then("tasks should be extended") {
+                    listOfUpdatedTasks.size shouldBe 2
+                    listOfUpdatedTasks[0].dueDate shouldBe today.plusDays(numberOfDays).toDate()
+                    listOfUpdatedTasks[1].dueDate shouldBe tomorrow.plusDays(numberOfDays).toDate()
+                }
+            }
+        }
+    }
+
+    Context("Adjust final date for open tasks") {
+        Given("Zaak with tasks") {
+            val zaak = createZaak()
+            val tasks = listOf(
+                createTestTask(dueDate = today.toDate()),
+                createTestTask(dueDate = tomorrow.toDate())
+            )
+
+            every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns tasks
+            every { flowableTaskService.updateTask(any<Task>()) } returns tasks[0]
+
+            When("adjusting final date of open tasks") {
+                val listOfUpdatedTasks = suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, today)
+
+                Then("tasks should be adjusted") {
+                    listOfUpdatedTasks.size shouldBe 1
+                    listOfUpdatedTasks[0].dueDate shouldBe today.toDate()
+                }
             }
         }
     }
