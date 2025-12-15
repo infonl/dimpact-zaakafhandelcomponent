@@ -11,6 +11,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.PabcClientService
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.configuratie.ConfiguratieService
@@ -26,11 +28,15 @@ class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val configuratieService = mockk<ConfiguratieService>()
+    val pabcClientService = mockk<PabcClientService>()
+    val zaaktypeClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         configuratieService = configuratieService,
-        zacKeycloakClientId = zacKeycloakClientId
+        zacKeycloakClientId = zacKeycloakClientId,
+        pabcClientService = pabcClientService,
+        zaaktypeClientService
     )
 
     beforeEach {

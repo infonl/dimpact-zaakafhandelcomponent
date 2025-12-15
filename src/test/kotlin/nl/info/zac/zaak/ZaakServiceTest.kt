@@ -27,6 +27,7 @@ import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -85,6 +86,7 @@ class ZaakServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val pabcClientService = mockk<PabcClientService>()
     val zaakService = ZaakService(
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
