@@ -28,12 +28,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     Given("Configuration items are available in ZAC and a user with at least one ZAC role is logged in") {
         authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
-        When("the talen are retrieved") {
+        When("the languages are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen"
             )
 
-            Then("the available talen are returned") {
+            Then("the available languages are returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -78,12 +78,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the default taal is retrieved") {
+        When("the default language is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen/default"
             )
 
-            Then("the default taal is returned") {
+            Then("the default language is returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -98,12 +98,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the max file size is retrieved") {
+        When("the max upload file size is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/max-file-size-mb"
             )
 
-            Then("the max file size is returned") {
+            Then("the max upload file size is returned") {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString.toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
             }
@@ -122,24 +122,24 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the gemeente name is retrieved") {
+        When("the council name is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/gemeente"
             )
 
-            Then("the gemeente name is returned") {
+            Then("the council name is returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_NAAM\""
             }
         }
-        When("the gemeente code is retrieved") {
+        When("the council code is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/gemeente/code"
             )
 
-            Then("the gemeente code is returned") {
+            Then("the council code is returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -170,12 +170,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson if (FEATURE_FLAG_PABC_INTEGRATION) "true" else "false"
             }
         }
-        When("the audit log provider is retrieved") {
+        When("the BRP protcollering provider is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/brp/protocollering-provider"
             )
 
-            Then("the configured audit log provider is returned") {
+            Then("the configured BRP protocollering provider is returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

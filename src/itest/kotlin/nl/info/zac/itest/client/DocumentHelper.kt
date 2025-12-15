@@ -6,6 +6,7 @@ package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -27,6 +28,13 @@ class DocumentHelper(
     val logger = KotlinLogging.logger {}
     val itestHttpClient = zacClient.itestHttpClient
 
+    /**
+     * Uploads a document to the specified zaak and triggers indexing of the document.
+     * Waits until the document is indexed by searching for it by its title.
+     * For this reason we assume that the provided document title is unique within the integration test suite scope.
+     *
+     * Returns the UUID and identification of the created document.
+     */
     @Suppress("LongParameterList")
     suspend fun uploadDocumentToZaakAndIndexDocument(
         zaakUuid: UUID,
@@ -78,7 +86,7 @@ class DocumentHelper(
         return Pair(informatieobjectUuid, informatieobjectIdentification)
     }
 
-    private fun sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid: UUID?) {
+    private fun sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid: UUID) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(

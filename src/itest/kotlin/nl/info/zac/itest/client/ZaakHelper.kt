@@ -37,7 +37,7 @@ class ZaakHelper(
      * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
      */
     suspend fun createAndIndexZaak(
-        zaakDescription: String,
+        zaakDescription: String = "fakeZaakDescription",
         zaaktypeUuid: UUID,
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01

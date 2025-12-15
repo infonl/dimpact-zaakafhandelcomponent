@@ -5,21 +5,24 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
+import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZaakHelper
+import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -28,26 +31,36 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLEncoder
 import java.time.LocalDate
 
-/**
- * This test assumes previous tests completed successfully.
- */
-@Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
+    val zaakHelper = ZaakHelper(zacClient)
+    val documentHelper = DocumentHelper(zacClient)
     val urlEncodedFileName = URLEncoder.encode(TEST_TXT_FILE_NAME, Charsets.UTF_8)
+    val now = System.currentTimeMillis()
+    val today = LocalDate.now()
 
-    beforeSpec {
+    Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
+        val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+        )
+        val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaakAndIndexDocument(
+            zaakUuid = zaakUuid,
+            documentTitle = "${MailRestServiceTest::class.simpleName}-1-$now",
+            authorName = "fakeAuthorName",
+            mediaType = TEXT_MIME_TYPE,
+            fileName = TEST_TXT_FILE_NAME
+        )
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
-    Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent with the 'create document from mail' option enabled") {
             val receiverMail = "receiverMailTest@example.com"
             val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
             val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/mail/send/$zaakProductaanvraag1Uuid",
+                url = "$ZAC_API_URI/mail/send/$zaakUuid",
                 headers = Headers.headersOf(
                     "Content-Type",
                     "application/json"
@@ -58,7 +71,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "replyTo": "replyTo@example.com",
                     "onderwerp": "subject",
                     "body": "$body",
-                    "bijlagen": "$enkelvoudigInformatieObjectUUID",
+                    "bijlagen": "$informatieobjectUuid",
                     "createDocumentFromMail": true
                 }
                 """.trimIndent(),
@@ -79,8 +92,12 @@ class MailRestServiceTest : BehaviorSpec({
 
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
-                    length() shouldBe 1
-                    with(getJSONObject(0)) {
+                    // if this same test is run multiple times while Docker Compose is kept running,
+                    // there may be multiple emails, so we check that at least one email was received
+                    val receivedMailsCount = length()
+                    receivedMailsCount shouldBeGreaterThan 0
+                    // we are only interested in the last received email
+                    with(getJSONObject(receivedMailsCount - 1)) {
                         getString("subject") shouldBe "subject"
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
@@ -94,14 +111,15 @@ class MailRestServiceTest : BehaviorSpec({
 
             And(
                 """
-                a PDF document should be added to the zaak as enkelvoudiginformatieobject containing the email details
+                a PDF document should be added to the zaak as enkelvoudiginformatieobject containing the email details,
+                and the return permissions should be those of the logged in behandelaar
                 """
             ) {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
                     requestBodyAsString = """
                         {
-                            "zaakUUID": "$zaakProductaanvraag1Uuid",
+                            "zaakUUID": "$zaakUuid",
                             "gekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent()
@@ -113,10 +131,10 @@ class MailRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "subject.pdf",
-                  "auteur" : "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
+                  "auteur" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                   "beschrijving" : "",
                   "bestandsomvang" : 1851,
-                  "creatiedatum" : "${LocalDate.now()}",
+                  "creatiedatum" : "$today",
                   "formaat" : "application/pdf",
                   "indicatieGebruiksrecht" : false,
                   "indicaties" : [ "VERZONDEN" ],
@@ -126,11 +144,11 @@ class MailRestServiceTest : BehaviorSpec({
                   "rechten" : {
                     "lezen" : true,
                     "ondertekenen" : true,
-                    "ontgrendelen" : true,
-                    "toevoegenNieuweVersie" : true,
+                    "ontgrendelen" : false,
+                    "toevoegenNieuweVersie" : false,
                     "vergrendelen" : true,
-                    "verwijderen" : true,
-                    "wijzigen" : true
+                    "verwijderen" : false,
+                    "wijzigen" : false
                   }
                 }
                 """.trimIndent()
