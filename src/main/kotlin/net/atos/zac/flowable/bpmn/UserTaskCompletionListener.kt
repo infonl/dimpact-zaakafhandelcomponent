@@ -51,7 +51,6 @@ class UserTaskCompletionListener : FlowableEventListener {
             )
             processInstance.processVariables["ZK_Result"]?.let { resultaatTypeOmschrijving ->
                 val zaakUUID = UUID.fromString(processInstance.businessKey)
-                // endZaak with resultaat below
                 FlowableHelper.getInstance().zgwApiService.endZaak(
                     zaakUUID,
                     resultaatTypeOmschrijving.toString(),
