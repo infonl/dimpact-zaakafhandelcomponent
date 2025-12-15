@@ -9,8 +9,6 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.task1ID
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.config.TestGroup
 import org.json.JSONArray
 import org.json.JSONObject
@@ -31,7 +29,7 @@ class TaskHelper(
         zaakIdentificatie: String,
         fatalDate: LocalDate,
         group: TestGroup
-    ) : String {
+    ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
             fatalDate = fatalDate,
