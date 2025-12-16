@@ -71,11 +71,6 @@ ZGW_API_CLIENT_MP_REST_URL=http://host.docker.internal:8001/
 ZGW_API_CLIENTID=zac_client
 ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
 
-# Logging configuration for ZAC, Flowable & Solr
-ZAC_LOG_LEVEL=INFO
-FLOWABLE_LOG_LEVEL=WARN
-SOLR_LOG_LEVEL=WARN
-
 # -----------------------------------------
 # e2e only environment variables
 # -----------------------------------------
