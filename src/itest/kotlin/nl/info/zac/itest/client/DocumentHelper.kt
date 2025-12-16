@@ -59,7 +59,7 @@ class DocumentHelper(
         val informatieobjectUuid = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
         val informatieobjectIdentification = responseBodyAsJsonObject.getString("identificatie")
         // trigger the notification service to index the document
-        sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid)
+        sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid)
         // wait for the indexing to complete by searching for the newly created document until we get the expected result
         // note that this assumes that the document title is unique
         eventually(10.seconds) {
@@ -85,8 +85,8 @@ class DocumentHelper(
         return Pair(informatieobjectUuid, informatieobjectIdentification)
     }
 
-    private fun sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid: UUID) {
     private fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {
+        itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(
                 "Content-Type",
