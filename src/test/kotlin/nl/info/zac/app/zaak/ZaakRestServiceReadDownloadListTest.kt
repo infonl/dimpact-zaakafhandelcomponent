@@ -22,7 +22,6 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
@@ -72,7 +71,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
-@Suppress("LongParameterList", "LargeClass")
+@Suppress("LongParameterList")
 class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
@@ -97,7 +96,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
-    val flowableTaskService = mockk<FlowableTaskService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -116,7 +114,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        flowableTaskService = flowableTaskService,
         healthCheckService = healthCheckService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,

@@ -23,7 +23,6 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
@@ -59,7 +58,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
 import java.util.UUID
 
-@Suppress("LongParameterList", "LargeClass")
+@Suppress("LongParameterList")
 class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
@@ -84,7 +83,6 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
-    val flowableTaskService = mockk<FlowableTaskService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -103,7 +101,6 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        flowableTaskService = flowableTaskService,
         healthCheckService = healthCheckService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
