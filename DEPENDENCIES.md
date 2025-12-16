@@ -17,7 +17,7 @@ This document lists the Docker images and versions that this version of the ZAC 
 - **prom/prometheus**: v3.8.0
 - **grafana/grafana**: 12.3.0
 - **greenmail/standalone**: 2.1.8
-- **rabbitmq**: 4.2.1-alpine
+- **rabbitmq**: 4.2.2-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.3
 
 ## Common Ground components
