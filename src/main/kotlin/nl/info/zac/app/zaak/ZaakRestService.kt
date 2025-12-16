@@ -699,7 +699,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType).behandelen)
 
-        return zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
+        zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
     }
 
     @PATCH
