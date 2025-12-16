@@ -44,7 +44,7 @@ class IdentityRestService @Inject constructor(
      *
      * Once the PABC feature flag has been removed, this should be refactored to take the zaaktype 'omschrijving' field
      * instead of the zaaktype UUID.
-     * This is because in the PABC group authorisation is done on zaaktype and not on a specific zaaktype 'version'.
+     * This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version'.
      * That will be a good time to refactor the URI of this endpoint as well, to reflect that it concerns behandelaar groups only.
      * Or possibly add a second parameter to specify the requested application role.
      */
