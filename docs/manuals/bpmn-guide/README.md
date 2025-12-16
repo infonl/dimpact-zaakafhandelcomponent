@@ -231,10 +231,10 @@ To extend a zaak:
 * set class `net.atos.zac.flowable.delegate.ExtendZaakDelegate`
 * add fields:
   * `aantalDagen` - number of days to extend the zaak for
-  * `einddatumGepland` - the new end date of the zaak
-  * `uiterlijkeEinddatumAfdoening` - the latest settlement date for the zaak
+  * `einddatumGepland` - the new end date of the zaak (optional)
+  * `uiterlijkeEinddatumAfdoening` - the latest settlement date for the zaak (optional)
   * `verlengingReden` - reason for extending
-  * `takenVerlengen` - whether to extend all tasks in the zaak
+  * `takenVerlengen` - whether to extend all tasks in the zaak (optional, default `false`)
 
 For example:
 ```xml
