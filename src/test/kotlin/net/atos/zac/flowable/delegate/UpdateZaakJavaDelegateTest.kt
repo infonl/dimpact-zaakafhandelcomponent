@@ -16,6 +16,8 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatusSub
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createStatusType
 import org.flowable.common.engine.impl.el.FixedValue
 import org.flowable.engine.delegate.DelegateExecution
 import org.flowable.engine.impl.el.JuelExpression
@@ -24,10 +26,12 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
     val parentDelegateExecution = mockk<DelegateExecution>()
     val zrcClientService = mockk<ZrcClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zgwApiService = mockk<ZGWApiService>()
     val zaak = createZaak()
     val zaakStatusName = "fakeStatus"
     val zaakStatus = createZaakStatusSub()
+    val statusType = createStatusType(omschrijving = zaakStatusName, isEindstatus = false)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -38,12 +42,14 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
+        every { flowableHelper.ztcClientService } returns ztcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
         every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
 
         val juelExpression = mockk<JuelExpression>()
         every { juelExpression.getValue(delegateExecution) } returns zaakStatusName
@@ -78,12 +84,14 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
+        every { flowableHelper.ztcClientService } returns ztcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
 
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
         every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
 
         val fixedValueExpression = mockk<FixedValue>()
         every { fixedValueExpression.getValue(delegateExecution) } returns zaakStatusName
