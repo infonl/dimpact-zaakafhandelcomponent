@@ -29,6 +29,13 @@
     [ngSwitch]="activeSideAction"
     (closedStart)="activeSideAction = null"
   >
+    @if (taak) {
+      <taak-edit
+        *ngSwitchCase="'actie.taak.wijzigen'"
+        [sideNav]="actionsSidenav"
+        [task]="taak"
+      />
+    }
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
@@ -127,26 +134,35 @@
                   />
                   <zac-static-text
                     label="taak.status"
-                    [value]="'taak.status.' + taak?.status | translate"
+                    [value]="'taak.status.' + taak?.status"
+                    class="flex-item"
+                  />
+                </div>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
+                  <zac-static-text
+                    label="groep"
+                    [value]="taak?.groep?.naam"
                     class="flex-item"
                   />
 
-                  <div class="flex-double-item">
-                    <zac-edit-groep-behandelaar
-                      [formField]="editFormFields.get('medewerker-groep')"
-                      [readonly]="
-                        this.taak?.status === this.TaakStatusAfgerond ||
-                        !this.taak?.rechten.toekennen
-                      "
-                      (saveField)="editToewijzing($event)"
-                      [reasonField]="editFormFields.get('reden')"
-                    >
-                    </zac-edit-groep-behandelaar>
-                  </div>
-
-                  <div class="mat-divider-wrapper hide-gt-sm">
-                    <mat-divider></mat-divider>
-                  </div>
+                  <zac-static-text
+                    label="behandelaar"
+                    [value]="taak?.behandelaar?.naam"
+                    class="flex-item"
+                  />
+                  <button
+                    mat-icon-button
+                    (click)="editTaak()"
+                    [disabled]="!taak"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
                   <zac-static-text
                     label="creatiedatum"
                     [value]="taak?.creatiedatumTijd | datum"

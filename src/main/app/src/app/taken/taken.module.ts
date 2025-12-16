@@ -13,6 +13,7 @@ import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pip
 import { SharedModule } from "../shared/shared.module";
 import { ZakenModule } from "../zaken/zaken.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
+import { TaakEditComponent } from "./taak-edit/taak-edit.component";
 import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
 import { TakenRoutingModule } from "./taken-routing.module";
@@ -27,6 +28,7 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     TakenMijnComponent,
     TakenVerdelenDialogComponent,
     TakenVrijgevenDialogComponent,
+    TaakEditComponent,
   ],
   imports: [
     SharedModule,

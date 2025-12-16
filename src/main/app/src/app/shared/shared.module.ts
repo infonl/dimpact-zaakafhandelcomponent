@@ -18,7 +18,6 @@ import { OutsideClickDirective } from "./directives/outside-click.directive";
 import { DocumentViewerComponent } from "./document-viewer/document-viewer.component";
 import { ColumnPickerComponent } from "./dynamic-table/column-picker/column-picker.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
-import { EditGroepBehandelaarComponent } from "./edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
 import { EditInputComponent } from "./edit/edit-input/edit-input.component";
 import { ExportButtonComponent } from "./export-button/export-button.component";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
@@ -49,7 +48,6 @@ import { VersionComponent } from "./version/version.component";
     StaticTextComponent,
     ReadMoreComponent,
     OutsideClickDirective,
-    EditGroepBehandelaarComponent,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
@@ -91,7 +89,6 @@ import { VersionComponent } from "./version/version.component";
     PipesModule,
     MaterialModule,
     MaterialFormBuilderModule,
-    EditGroepBehandelaarComponent,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
