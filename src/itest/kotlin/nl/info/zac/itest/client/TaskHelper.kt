@@ -10,8 +10,10 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -27,7 +29,7 @@ class TaskHelper(
         zaakIdentificatie: String,
         fatalDate: LocalDate,
         group: TestGroup
-    ) {
+    ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
             fatalDate = fatalDate,
@@ -57,5 +59,15 @@ class TaskHelper(
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
+        val getTaskResponse = itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/taken/zaak/$zaakUuid"
+        )
+        val responseBody = getTaskResponse.bodyAsString
+        logger.info { "Response: $responseBody" }
+        getTaskResponse.code shouldBe HTTP_OK
+        val taskCount = JSONArray(responseBody).length()
+        logger.info { "Number of tasks for zaak with UUID '$zaakUuid': $taskCount" }
+        // should there be multiple tasks for this zaak, we return the ID of the last one we just created
+        return JSONArray(responseBody).getJSONObject(taskCount - 1).getString("id")
     }
 }
