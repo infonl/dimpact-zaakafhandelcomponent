@@ -236,7 +236,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         uuid = zaakTypeUUID
                     ),
                     restGroup = createRestGroup(
-                        id = group.id
+                        id = group.name
                     ),
 
                 ),
@@ -375,7 +375,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         uuid = zaakTypeUUID
                     ),
                     restGroup = createRestGroup(
-                        id = group.id
+                        id = group.name
                     ),
 
                 ),
@@ -689,13 +689,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             val user = createUser()
             val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
                 uuids = zaakUUIDs,
-                groepId = group.id,
+                groepId = group.name,
                 behandelaarGebruikersnaam = user.id,
                 reden = "fakeReason"
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
-            every { identityService.readGroup(group.id) } returns group
+            every { identityService.readGroup(group.name) } returns group
             every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
 
             When("the assign zaken from a list function is called") {
