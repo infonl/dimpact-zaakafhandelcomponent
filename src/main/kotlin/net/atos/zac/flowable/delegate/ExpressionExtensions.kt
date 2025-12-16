@@ -39,4 +39,4 @@ fun Expression.resolveValueAsZonedDateTime(execution: DelegateExecution): ZonedD
     ZonedDateTime.parse(this.getValue(execution) as String)
 
 fun Expression.resolveValueAsLocalDate(execution: DelegateExecution): LocalDate =
-    LocalDate.parse(this.getValue(execution) as String)
+    this.resolveValueAsZonedDateTime(execution).toLocalDate()

@@ -1,0 +1,126 @@
+{
+  "display": "form",
+  "name": "extendForm",
+  "title": "Extend form",
+  "type": "form",
+  "components": [
+    {
+      "label": "Extend days",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "persistent": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validate": {
+        "min": 0,
+        "max": 90
+      },
+      "validateWhenHidden": false,
+      "key": "extendDays",
+      "type": "number",
+      "input": true,
+      "defaultValue": 10
+    },
+    {
+      "label": "End date",
+      "key": "extendEndDate",
+      "useLocaleSettings": true,
+      "format": "yyyy-MM-dd HH:mm",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": true,
+        "disableWeekdays": false
+      },
+      "timePicker": {
+        "showMeridian": false
+      },
+      "defaultDate": "moment().add(1, 'hour')",
+      "validate": {
+        "required": true
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "validateWhenHidden": false,
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": true,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd HH:mm",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": true,
+        "minDate": null,
+        "disableWeekends": true,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Settlement date",
+      "key": "extendSettlementDate",
+      "useLocaleSettings": true,
+      "format": "yyyy-MM-dd HH:mm",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": true,
+        "disableWeekdays": false
+      },
+      "timePicker": {
+        "showMeridian": false
+      },
+      "defaultDate": "moment().add(2, 'hour')",
+      "validate": {
+        "required": true
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "validateWhenHidden": false,
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": true,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd HH:mm",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": true,
+        "minDate": null,
+        "disableWeekends": true,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Tasks",
+      "tableView": false,
+      "key": "extendTasks",
+      "type": "checkbox",
+      "input": true,
+      "defaultValue": false
+    },
+    {
+      "type": "button",
+      "label": "Suspend",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

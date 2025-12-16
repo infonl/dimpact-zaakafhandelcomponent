@@ -23,6 +23,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 class ExtendZaakDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
@@ -53,12 +54,12 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         every { aantalDagenExpression.getValue(delegateExecution) } returns 2
 
         val einddatumGeplandExpression = mockk<JuelExpression>()
-        every { einddatumGeplandExpression.getValue(delegateExecution) } returns LocalDate.now().toString()
+        every { einddatumGeplandExpression.getValue(delegateExecution) } returns ZonedDateTime.now().toString()
 
         val uiterlijkeEinddatumAfdoeningExpression = mockk<JuelExpression>()
         every {
             uiterlijkeEinddatumAfdoeningExpression.getValue(delegateExecution)
-        } returns LocalDate.now().plusDays(1).toString()
+        } returns ZonedDateTime.now().plusDays(1).toString()
 
         val verlengingRedenExpression = mockk<JuelExpression>()
         every { verlengingRedenExpression.getValue(delegateExecution) } returns "fakeReason"
