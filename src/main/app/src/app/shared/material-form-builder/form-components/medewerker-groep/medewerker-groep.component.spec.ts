@@ -63,7 +63,7 @@ describe(MedewerkerGroepComponent.name, () => {
     component.data = medewerkerGroepFormField;
 
     identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(of([group]));
+    jest.spyOn(identityService, "listBehandelaarGroupsForZaaktype").mockReturnValue(of([group]));
     jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([user]));
   });
 
