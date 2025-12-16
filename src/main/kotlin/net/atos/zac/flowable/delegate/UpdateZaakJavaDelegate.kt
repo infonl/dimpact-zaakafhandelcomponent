@@ -27,7 +27,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
-        
+
         // Check if the status is an end status
         val statustypes = flowableHelper.ztcClientService.readStatustypen(zaak.zaaktype)
         val statustype = statustypes.firstOrNull { statustypeOmschrijving == it.omschrijving }
