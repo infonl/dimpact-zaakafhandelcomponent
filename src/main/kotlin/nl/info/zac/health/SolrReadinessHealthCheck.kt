@@ -34,7 +34,7 @@ class SolrReadinessHealthCheck @Inject constructor(
         if (solrClient == null) {
             solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
         }
-        return solrClient!!
+        return solrClient ?: error("solrClient should have been initialized")
     }
 
     @PreDestroy
