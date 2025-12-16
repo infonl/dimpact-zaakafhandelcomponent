@@ -84,7 +84,6 @@ class ZaakServiceTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         eventingService = eventingService,
         zaakVariabelenService = zaakVariabelenService,
-        lockService = lockService,
         identityService = identityService,
         indexingService = indexingService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
