@@ -55,6 +55,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
+@Suppress("LargeClass")
 class PlanItemsRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
@@ -769,7 +770,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
 
-            When("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk but no resultaattype") {
+            When(
+                "doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk but no resultaattype"
+            ) {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
                 Then("closeZaak should not be called") {
