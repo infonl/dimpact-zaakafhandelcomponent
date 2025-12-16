@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.PabcClientService
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
@@ -37,6 +39,8 @@ class IdentityService @Inject constructor(
 
     @ConfigProperty(name = "AUTH_RESOURCE")
     private val zacKeycloakClientId: String,
+    private val pabcClientService: PabcClientService,
+    private val ztcClientService: ZtcClientService
 ) {
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
@@ -47,31 +51,40 @@ class IdentityService @Inject constructor(
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
         .map { it.toGroup(zacKeycloakClientId) }
-        .sortedBy { it.name }
+        .sortedBy { it.description }
 
     /**
-     * With the ZAC PABC feature flag off: returns the list of groups that have access to the given zaaktype UUID
+     * New IAM (PABC feature flag on): returns the list of groups that are authorised for the application role 'behandelaar' and
+     * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
+     *
+     * Old IAM (PABC feature flag off): returns the list of groups that have access to the given zaaktype UUID
      * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
      * for this zaaktype.
-     * With the ZAC PABC feature flag on: returns all available groups, because group authorisation (for zaaktypes) is not yet
-     * supported in the new IAM architecture. This will be implemented in a future release of the PABC and ZAC.
      */
-    fun listGroupsForZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
-        // retrieve groups with 'full representation' or else the group attributes will not be filled
-        val groups = keycloakZacRealmResource.groups()
-            .groups("", 0, Integer.MAX_VALUE, false)
-            .map { it.toGroup(zacKeycloakClientId) }
-        return if (!configuratieService.featureFlagPabcIntegration()) {
+    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
+        return if (configuratieService.featureFlagPabcIntegration()) {
+            // Retrieve the zaaktype just to get the description field because we treat this as the unique
+            // ID of the zaaktype (not the specific zaaktype 'version').
+            // In future once the PABC feature flag has been removed this should be refactored
+            // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
+            val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
+            pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                applicationRole = ZacApplicationRole.BEHANDELAAR.value,
+                zaaktypeDescription = zaaktype.omschrijving
+            ).map { it.toGroup() }
+        } else {
+            // retrieve groups with 'full representation' or else the group attributes will not be filled
+            val groups = keycloakZacRealmResource.groups()
+                .groups("", 0, Integer.MAX_VALUE, false)
+                .map { it.toGroup(zacKeycloakClientId) }
             // only filter groups on domain authorisation when PABC integration is disabled
             val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
             groups.filter {
                 (domein == null || domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
                     it.zacClientRoles.contains(domein)
             }
-        } else {
-            groups
         }
-            .sortedBy { it.name }
+            .sortedBy { it.description }
     }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
