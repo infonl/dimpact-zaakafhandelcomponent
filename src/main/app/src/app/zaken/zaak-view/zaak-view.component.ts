@@ -7,7 +7,6 @@ import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
-  computed,
   inject,
   OnDestroy,
   ViewChild,
@@ -165,13 +164,6 @@ export class ZaakViewComponent
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
-
-  protected readonly test = computed(async () => {
-    const data = await this.route.data.toPromise();
-    if (!data) return null;
-    const zaak = data["zaak"] as GeneratedType<"RestZaak">;
-    return zaak.uuid;
-  });
 
   constructor(
     private takenService: TakenService,
