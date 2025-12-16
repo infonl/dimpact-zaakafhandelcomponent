@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.154](https://img.shields.io/badge/Version-1.0.154-informational?style=flat-square) ![AppVersion: 3.20](https://img.shields.io/badge/AppVersion-3.20-informational?style=flat-square)
+![Version: 1.0.160](https://img.shields.io/badge/Version-1.0.160-informational?style=flat-square) ![AppVersion: 3.21](https://img.shields.io/badge/AppVersion-3.21-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.140.1 |
+| @opentelemetry | opentelemetry-collector | 0.141.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -168,7 +168,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.3@sha256:9f65d92815e29f3cdf5a3c26050b0bb04d5abe553c91b2bcf49d1fc68843d4a9"` |  |
+| nginx.image.tag | string | `"1.29.3@sha256:74d864843f59c0492fa7ba0eb8ff9b2b6b4797b069e4bfee78df6739873eebd7"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -217,7 +217,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.10.1-static@sha256:e1f196b5316301785d5251543c9d0f3f6c83ce6ac23263b494730427fa80e248"` |  |
+| opa.image.tag | string | `"1.11.0-static@sha256:a044b7e11c09480b56cef5405176a1ddd6cc65d824e1240fb2b1726367a08949"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -242,7 +242,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.140.1@sha256:5901567d6f684547bafee53f02403869b5655e13a4e0af65aa6ae9f6301075d9"` |  |
+| opentelemetry-collector.image.tag | string | `"0.142.0@sha256:38c349c3b7a2fd7ea46700cde8fa13d35b699ef2ce245bdf34dae2a413512f76"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

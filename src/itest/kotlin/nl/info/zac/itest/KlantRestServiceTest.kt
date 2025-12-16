@@ -17,6 +17,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
@@ -50,14 +52,16 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 
-private const val HEADER_ZAAK_ID = "X-ZAAK-ID"
+private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
 /**
  * This test assumes a roltype has been created in a previously run test.
@@ -68,6 +72,12 @@ private const val HEADER_ZAAK_ID = "X-ZAAK-ID"
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
+
+    beforeSpec {
+        // Delete BRP Wiremock requests journal
+        val response = itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests")
+        response.code shouldBe HTTP_OK
+    }
 
     Given("Klanten en bedrijven data is present in the BRP Personen Mock and the Klanten API database") {
         When("the list roltypen endpoint is called") {
@@ -105,38 +115,189 @@ class KlantRestServiceTest : BehaviorSpec({
                     }
             """.trimIndent()
 
-            When("zaak id is provided in the request headers") {
+            When("zaaktype uuid is provided in the request headers") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
                     headers = headers
                 )
                 Then(
-                    """
-                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
-                    """
+                    "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
                 ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
                 }
+                And("BRP search request with zaaktype settings should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
+                }
             }
-            When("no zaak information is provided") {
+            When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
                 )
                 Then(
-                    """
-                    the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
-                    """
+                    "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
                 ) {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
+                }
+                And("BRP request with defaults should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
+                }
+            }
+        }
+
+        Context("a search for persons is performed") {
+            val expectedResponse = """{ 
+                "foutmelding": "",
+                "resultaten": [{
+                   "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                   "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
+                   "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
+                   "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                   "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
+                   "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING"],
+                   "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
+                   "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"
+               }],
+               "totaal":1.0
+            }
+            """.trimIndent()
+
+            When("zaaktype uuid is provided in the request headers") {
+                val headers = Headers.Builder()
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .build()
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    headers = headers,
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }"""
+                )
+                Then(
+                    "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
+                And("BRP search request with zaaktype settings should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 2 }"""
+                }
+            }
+            When("zaaktype uuid is missing in the request") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }"""
+                )
+                Then(
+                    "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson expectedResponse
+                }
+                And("BRP request with defaults should be made") {
+                    val response = itestHttpClient.performJSONPostRequest(
+                        url = "$BRP_WIREMOCK_API/requests/count",
+                        requestBodyAsString = """
+                          {
+                            "method": "POST",
+                            "url": "/haalcentraal/api/brp/personen",
+                            "headers": {
+                              "X-DOELBINDING": {
+                                "matches": "BRPACT-Totaal"
+                              },
+                              "X-VERWERKING": {
+                                "matches": "Algemeen"
+                              },
+                              "X-GEBRUIKER": {
+                                "matches": ".+"
+                              }
+                            }
+                          }
+                        """.trimIndent()
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 2 }"""
                 }
             }
         }
@@ -380,11 +541,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When(
-            """
-                the personen parameters endpoint is called
-                """
-        ) {
+        When("the personen parameters endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/personen/parameters",
             )
@@ -453,11 +610,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When(
-            """
-                the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'
-                """
-        ) {
+        When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
             )
@@ -465,8 +618,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson
-                    """
+                responseBody shouldEqualJson """
                     [
                       {
                         "naam": "Belanghebbende",
@@ -499,7 +651,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
-                    """.trimIndent()
+                """.trimIndent()
             }
         }
     }

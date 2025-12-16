@@ -11,6 +11,10 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.model.createPabcGroupRepresentation
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.configuratie.ConfiguratieService
@@ -19,6 +23,7 @@ import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.getFullName
 import org.keycloak.admin.client.resource.RealmResource
+import java.net.URI
 import java.util.UUID
 
 class IdentityServiceTest : BehaviorSpec({
@@ -26,11 +31,15 @@ class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val configuratieService = mockk<ConfiguratieService>()
+    val pabcClientService = mockk<PabcClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         configuratieService = configuratieService,
-        zacKeycloakClientId = zacKeycloakClientId
+        zacKeycloakClientId = zacKeycloakClientId,
+        pabcClientService = pabcClientService,
+        ztcClientService = ztcClientService
     )
 
     beforeEach {
@@ -301,28 +310,40 @@ class IdentityServiceTest : BehaviorSpec({
     }
 
     Context("Listing groups for a zaaktype") {
-        Given("Available groups in Keycloak client and PABC feature flag on") {
+        Given(
+            """
+            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC 
+            and PABC feature flag on
+            """
+        ) {
             val zaaktypeUuid = UUID.randomUUID()
-            val groupRepresentation1 = createGroupRepresentation(
+            val zaaktype = createZaakType(
+                uri = URI("https://example.com/zaaktypes/$zaaktypeUuid")
+            )
+            val pabcGroupRepresentation1 = createPabcGroupRepresentation(
                 name = "fakeGroupId1",
-                clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole1")),
+                description = "fakeGroupDescription1"
             )
-            val groupRepresentation2 = createGroupRepresentation(
+            val pabcGroupRepresentation2 = createPabcGroupRepresentation(
                 name = "fakeGroupId2",
-                clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole2")),
+                description = null
             )
-            every {
-                realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
-            } returns listOf(groupRepresentation1, groupRepresentation2)
             every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktype.omschrijving
+                )
+            } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2)
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
-                    groups[0].id shouldBe "fakeGroupId1"
-                    groups[1].id shouldBe "fakeGroupId2"
+                    groups[0].name shouldBe "fakeGroupId1"
+                    groups[1].name shouldBe "fakeGroupId2"
                 }
             }
         }
@@ -352,13 +373,13 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("only groups with matching domain roles are returned") {
                     groups.size shouldBe 1
                     with(groups[0]) {
-                        id shouldBe "fakeGroupName1"
-                        name shouldBe "fakeGroupDescription1"
+                        name shouldBe "fakeGroupName1"
+                        description shouldBe "fakeGroupDescription1"
                         zacClientRoles shouldBe listOf(domeinRole)
                     }
                 }
@@ -384,12 +405,12 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
-                    groups[0].id shouldBe "fakeGroupId1"
-                    groups[1].id shouldBe "fakeGroupId2"
+                    groups[0].name shouldBe "fakeGroupId1"
+                    groups[1].name shouldBe "fakeGroupId2"
                 }
             }
         }
@@ -402,7 +423,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("no groups are returned") {
                     groups.size shouldBe 0

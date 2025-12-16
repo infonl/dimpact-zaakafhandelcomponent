@@ -38,6 +38,7 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
     @if (type === "persoon") {
       <zac-persoon-zoek
         [syncEnabled]="true"
+        [zaaktypeUUID]="zaaktypeUUID"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
     }
@@ -51,6 +52,7 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 })
 export class KlantKoppelInitiator {
   @Input() type: "persoon" | "bedrijf" = "persoon";
+  @Input() zaaktypeUUID?: string | null = null;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
 
   klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {

@@ -211,7 +211,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -236,21 +236,21 @@ jobs:
           fi
 
       - name: Cache Gradle build artefacts
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built frontend artefacts
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             src/main/app/dist/zaakafhandelcomponent
@@ -258,7 +258,7 @@ jobs:
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built ZAC JAR
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -276,7 +276,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup JDK
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -285,21 +285,21 @@ jobs:
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore built frontend artefacts
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             build
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore generated Java clients
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             src/generated
@@ -370,7 +370,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup JDK
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -379,7 +379,7 @@ jobs:
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
       - name: Restore built ZAC JAR
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -457,7 +457,7 @@ jobs:
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: |
             build
@@ -479,7 +479,7 @@ jobs:
 
       - name: Cache ZAC Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -502,7 +502,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Docker Image
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}

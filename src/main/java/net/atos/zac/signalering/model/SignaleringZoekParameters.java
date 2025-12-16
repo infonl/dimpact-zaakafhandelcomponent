@@ -57,7 +57,7 @@ public class SignaleringZoekParameters {
     }
 
     public SignaleringZoekParameters(final Group target) {
-        this(GROUP, target.getId());
+        this(GROUP, target.getName());
     }
 
     public SignaleringZoekParameters(final User target) {

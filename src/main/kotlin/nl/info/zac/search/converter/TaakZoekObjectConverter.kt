@@ -62,8 +62,8 @@ class TaakZoekObjectConverter @Inject constructor(
             }
             extractGroupId(taskInfo.identityLinks)?.let {
                 identityService.readGroup(it).let { group ->
-                    groepID = group.id
-                    groepNaam = group.name
+                    groepID = group.name
+                    groepNaam = group.description
                 }
             }
         }

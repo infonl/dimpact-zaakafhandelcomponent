@@ -1,5 +1,5 @@
-{{- if not .Values.nginx.existingConfigmap }}
-{{- if .Values.nginx.enabled }}
+{{- if not .Values.nginx.existingConfigmap -}}
+{{- if .Values.nginx.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -240,7 +240,7 @@ data:
     proxy_set_header X-Scheme $scheme;
     {{- if .Values.nginx.useXForwardedHost }}
     proxy_set_header X-Forwarded-Host $http_host;
-    {{ else }}
+    {{- else }}
     proxy_set_header Host $http_host;
     {{- end }}
     proxy_set_header Upgrade $http_upgrade;
@@ -251,6 +251,7 @@ data:
     proxy_http_version 1.1;  # required if you're using istio, otherwise you get HTTP 426 errors
 
   default.conf: |
+    resolver kube-dns.kube-system.svc.cluster.local valid=10s;
     proxy_cache_path /tmp keys_zone=static_cache:10m;
 
     map $http_upgrade $connection_upgrade {
@@ -295,9 +296,7 @@ data:
       add_header X-XSS-Protection "1; mode=block";
       add_header Strict-Transport-Security max-age=15768000;
 
-      error_page 502 503 /error-503.html;
-      error_page 555 = @longtimeout;
-      error_page 556 = @normal;
+      error_page 502 503 504 /error-503.html;
 
       location = /error-503.html {
         root /etc/nginx/conf.d;
@@ -306,35 +305,26 @@ data:
 
       include conf.d/proxy;
 
-      location / {
+      location /websocket {
         client_max_body_size {{ .Values.nginx.client_max_body_size }};
-        set $first "B";
-        if ($request_uri ~* '^/websocket') {
-          set $first "${first}W";
-        }
-        if ($first = 'BW') {
-          return 555;
-        }
-        return 556;
+        proxy_read_timeout 1d;
+        proxy_send_timeout 1d;
+        proxy_connect_timeout 300s;
+        
+        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
+        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }};
+        proxy_pass http://$zac_url;
       }
 
-      location @normal {
+      location / {
+        client_max_body_size {{ .Values.nginx.client_max_body_size }};
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
         
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start successfully if the upstream endpoint cannot be resolved
-        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
-        proxy_pass http://$zac_url;
-      }
-
-      location @longtimeout {
-        proxy_read_timeout 1d;
-        proxy_send_timeout 1d;
-
-        # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
-        # This way nginx will also start successfully if the upstream endpoint cannot be resolved
-        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
       }
 
@@ -351,7 +341,7 @@ data:
 
         # Defining the proxy_pass via a variable disables DNS lookup validation on nginx startup.
         # This way nginx will also start successfully if the upstream endpoint cannot be resolved
-        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
+        set $zac_url {{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }};
         proxy_pass http://$zac_url;
       }
 
@@ -362,7 +352,7 @@ data:
       }
 
     }
-    {{- if .Values.nginx.api_proxy.enabled }}
+    {{- if .Values.nginx.api_proxy.enabled -}}
     server {
       listen       8081 default_server;
       server_tokens off;
@@ -515,6 +505,6 @@ data:
         proxy_http_version 1.1;
       }
     }
-    {{- end }}
-{{- end }}
-{{- end }}
+    {{- end -}}
+{{- end -}}
+{{- end -}}

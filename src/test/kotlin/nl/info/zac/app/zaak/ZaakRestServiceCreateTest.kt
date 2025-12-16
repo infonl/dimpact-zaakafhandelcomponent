@@ -182,7 +182,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                     uuid = zaakTypeUUID
                 ),
                 restGroup = createRestGroup(
-                    id = group.id
+                    id = group.name
                 ),
 
             ),
@@ -320,7 +320,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                     uuid = zaakTypeUUID
                 ),
                 restGroup = createRestGroup(
-                    id = group.id
+                    id = group.name
                 ),
 
             ),

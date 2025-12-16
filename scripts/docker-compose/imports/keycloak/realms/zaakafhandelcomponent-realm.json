@@ -78,6 +78,96 @@
         "clientRole": false,
         "containerId": "zaakafhandelcomponent",
         "attributes": {}
+      },
+      {
+        "id": "f3e2e2b1-2d0e-4c8e-9f3a-5e1f3c6d1f4e",
+        "name": "raadpleger_domein_test_1",
+        "description": "Raadpleger functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "0815385d-ab08-4f40-b1aa-23a552fb8c5d",
+        "name": "raadpleger_domein_test_2",
+        "description": "Raadpleger functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
+        "name": "behandelaar_domein_test_1",
+        "description": "Behandelaar functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "391a44cb-93ca-40b7-a095-1f78d426e675",
+        "name": "behandelaar_domein_test_2",
+        "description": "Behandelaar functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+        "name": "coordinator_domein_test_1",
+        "description": "Coordinator functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "9ae7d9ec-4d5e-4641-84f6-eef9772112a3",
+        "name": "coordinator_domein_test_2",
+        "description": "Coordinator functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "2ceaa973-17a4-484f-bc0f-859c9f70f5f3",
+        "name": "recordmanager_domein_test_1",
+        "description": "Recordmanager functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "d57a282a-05ad-457d-9527-0b72c0dda5dd",
+        "name": "recordmanager_domein_test_2",
+        "description": "Recordmanager functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
+        "name": "recordmanager_domein_test_1_en_domein_test_2",
+        "description": "Recordmanager functional role for domains 'domein_test_1' and 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "d1f4e2e2-b12d-0e4c-8e9f-3a5e1f3c6d1f",
+        "name": "beheerder_elk_domein",
+        "description": "Beheerder functional role for all domains - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
       }
     ],
     "client": {
@@ -428,87 +518,6 @@
           "attributes": {}
         },
         {
-          "id": "f3e2e2b1-2d0e-4c8e-9f3a-5e1f3c6d1f4e",
-          "name": "raadpleger_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "0815385d-ab08-4f40-b1aa-23a552fb8c5d",
-          "name": "raadpleger_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
-          "name": "behandelaar_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "391a44cb-93ca-40b7-a095-1f78d426e675",
-          "name": "behandelaar_domein_test_2",
-          "description": "",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
-          "name": "coordinator_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "9ae7d9ec-4d5e-4641-84f6-eef9772112a3",
-          "name": "coordinator_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "2ceaa973-17a4-484f-bc0f-859c9f70f5f3",
-          "name": "recordmanager_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "d57a282a-05ad-457d-9527-0b72c0dda5dd",
-          "name": "recordmanager_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
-          "name": "recordmanager_domein_test_1_en_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "d1f4e2e2-b12d-0e4c-8e9f-3a5e1f3c6d1f",
-          "name": "beheerder_elk_domein",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
           "id": "79226e68-19c9-4fce-a407-8e883a75bd25",
           "name": "domein_elk_zaaktype",
           "composite": false,
@@ -683,9 +692,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["raadpleger_domein_test_1"]
-      }
+      "realmRoles": ["raadpleger_domein_test_1"]
     },
     {
       "id": "d9c72935-8825-4d59-8d51-04976edd6880",
@@ -695,9 +702,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["raadpleger_domein_test_2"]
-      }
+      "realmRoles": ["raadpleger_domein_test_2"]
     },
     {
       "id": "e02264af-db24-4265-999e-03ff1cea32cf",
@@ -707,9 +712,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["behandelaar_domein_test_1"]
-      }
+      "realmRoles": ["behandelaar_domein_test_1"]
     },
     {
       "id": "eb7a1785-8c61-4a1d-9318-0688a2c7e02c",
@@ -719,9 +722,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["behandelaar_domein_test_2"]
-      }
+      "realmRoles": ["behandelaar_domein_test_2"]
     },
     {
       "id": "b964fabf-9895-460c-9061-2b5839890d91",
@@ -731,9 +732,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["coordinator_domein_test_1"]
-      }
+      "realmRoles": ["coordinator_domein_test_1"]
     },
     {
       "id": "279d3d57-e71f-41c7-adce-149a78817bbd",
@@ -743,9 +742,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["coordinator_domein_test_2"]
-      }
+      "realmRoles": ["coordinator_domein_test_2"]
     },
     {
       "id": "bbd551b5-e156-4ebb-b8c2-13904819ab41",
@@ -755,9 +752,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["recordmanager_domein_test_1"]
-      }
+      "realmRoles": ["recordmanager_domein_test_1"]
     },
     {
       "id": "500759a1-8da3-4c6e-8f95-e9b6d5d62000",
@@ -767,9 +762,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["recordmanager_domein_test_2"]
-      }
+      "realmRoles": ["recordmanager_domein_test_2"]
     },
     {
       "id": "0d860be6-e27d-47df-bf03-2e574939c4a6",
@@ -779,9 +772,7 @@
       "attributes": {
         "email": ["${ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS}"]
       },
-      "clientRoles": {
-        "zaakafhandelcomponent": ["beheerder_elk_domein"]
-      }
+      "realmRoles": ["beheerder_elk_domein"]
     }
   ],
   "defaultRole": {
@@ -1283,7 +1274,7 @@
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
-      "standardFlowEnabled": true,
+      "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
@@ -1357,7 +1348,7 @@
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
-      "standardFlowEnabled": true,
+      "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,

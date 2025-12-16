@@ -173,14 +173,8 @@ object ItestConfiguration {
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
     const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
-    const val TEXT_MIME_TYPE = "application/text"
+    const val TEXT_MIME_TYPE = "text/plain"
     const val PDF_MIME_TYPE = "application/pdf"
-    val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000001"
-    val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
-    val DOCUMENT_3_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000003"
-    val DOCUMENT_4_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000004"
-    val DOCUMENT_5_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000005"
-    val DOCUMENT_6_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000006"
 
     /**
      * Constants used in the KVK WireMock template response
@@ -386,6 +380,7 @@ object ItestConfiguration {
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
+    const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL = "ZAAK_ALGEMEEN"
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME = "Algemene e-mail"
