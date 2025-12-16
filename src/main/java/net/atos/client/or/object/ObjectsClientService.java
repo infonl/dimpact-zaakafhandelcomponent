@@ -25,8 +25,7 @@ public class ObjectsClientService {
 
     @Inject
     public ObjectsClientService(
-        @RestClient
-        ObjectsClient objectsClient
+            @RestClient ObjectsClient objectsClient
     ) {
         this.objectsClient = objectsClient;
     }
