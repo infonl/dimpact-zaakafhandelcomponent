@@ -173,7 +173,7 @@ object ItestConfiguration {
     const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
     const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
-    const val TEXT_MIME_TYPE = "application/text"
+    const val TEXT_MIME_TYPE = "text/plain"
     const val PDF_MIME_TYPE = "application/pdf"
 
     /**

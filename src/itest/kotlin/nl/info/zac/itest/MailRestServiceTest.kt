@@ -102,7 +102,7 @@ class MailRestServiceTest : BehaviorSpec({
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
                             shouldContain(body)
-                            shouldContain("Content-Type: application/text; name*=UTF-8''$urlEncodedFileName")
+                            shouldContain("Content-Type: text/plain; name*=UTF-8''$urlEncodedFileName")
                             shouldContain("Content-Disposition: attachment; filename*=UTF-8''$urlEncodedFileName")
                         }
                     }
