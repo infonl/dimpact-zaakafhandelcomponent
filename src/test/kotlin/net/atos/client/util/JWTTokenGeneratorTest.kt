@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.util
 
 import com.auth0.jwt.JWT
