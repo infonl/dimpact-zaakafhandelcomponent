@@ -14,7 +14,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import nl.info.client.or.objects.model.generated.ModelObject;
 
 @ApplicationScoped
-public class ObjectsClientService  {
+public class ObjectsClientService {
     private ObjectsClient objectsClient;
 
     /**
