@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.object;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -27,9 +26,6 @@ import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 import nl.info.client.or.objects.model.generated.ModelObject;
 
-/**
- *
- */
 @RegisterRestClient(configKey = "Objects-API-Client")
 @RegisterClientHeaders(ObjectsClientHeadersFactory.class)
 @RegisterProvider(FoutExceptionMapper.class)
@@ -38,30 +34,9 @@ import nl.info.client.or.objects.model.generated.ModelObject;
 @Produces(APPLICATION_JSON)
 @Path("api/v2")
 public interface ObjectsClient {
-
-    String ACCEPT_CRS = "Accept-Crs";
-
     String ACCEPT_CRS_VALUE = "EPSG:4326";
-
-    String CONTENT_CRS = "Content-Crs";
-
-    String CONTENT_CRS_VALUE = ACCEPT_CRS_VALUE;
-
-    @POST
-    @Path("objects")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    ModelObject objectCreate(final ModelObject object);
 
     @GET
     @Path("objects/{object-uuid}")
     ModelObject objectRead(@PathParam("object-uuid") final UUID objectUUID);
-
-    @PUT
-    @Path("objects/{object-uuid}")
-    @ClientHeaderParams({
-                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
-                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    ModelObject objectUpdate(@PathParam("object-uuid") final UUID objectUUID, final ModelObject object);
 }

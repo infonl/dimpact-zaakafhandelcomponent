@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.object;
 
 import java.util.UUID;
@@ -14,22 +13,22 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import nl.info.client.or.objects.model.generated.ModelObject;
 
-
 @ApplicationScoped
-public class ObjectsClientService {
-
-    @Inject
-    @RestClient
+public class ObjectsClientService  {
     private ObjectsClient objectsClient;
 
     /**
-     * Create {@link nl.info.client.or.objects.model.generated.ModelObject}.
-     *
-     * @param object {@link ModelObject}.
-     * @return Created {@link ModelObject}.
+     * Default no-arg constructor, required by Weld.
      */
-    public ModelObject createObject(final ModelObject object) {
-        return objectsClient.objectCreate(object);
+    public ObjectsClientService() {
+    }
+
+    @Inject
+    public ObjectsClientService(
+        @RestClient
+        ObjectsClient objectsClient
+    ) {
+        this.objectsClient = objectsClient;
     }
 
     /**
@@ -41,16 +40,5 @@ public class ObjectsClientService {
      */
     public ModelObject readObject(final UUID object) {
         return objectsClient.objectRead(object);
-    }
-
-    /**
-     * Update {@link ModelObject}.
-     * The given instance completely replaces the existing instance.
-     *
-     * @param object {@link ModelObject}.
-     * @return Updated {@link ModelObject}.
-     */
-    public ModelObject replaceObject(final ModelObject object) {
-        return objectsClient.objectUpdate(object.getUuid(), object);
     }
 }
