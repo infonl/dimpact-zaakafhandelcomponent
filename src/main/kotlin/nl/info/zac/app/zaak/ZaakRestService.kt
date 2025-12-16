@@ -41,9 +41,7 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICAT
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
@@ -163,7 +161,6 @@ class ZaakRestService @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
-    private val flowableTaskService: FlowableTaskService,
     private val healthCheckService: HealthCheckService,
     private val identityService: IdentityService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
@@ -193,7 +190,6 @@ class ZaakRestService @Inject constructor(
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
-        private const val VERLENGING = "Verlenging"
 
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
         const val VESTIGING_IDENTIFICATIE_DELIMITER = "|"
@@ -357,8 +353,10 @@ class ZaakRestService @Inject constructor(
         )
         changeCommunicationChannel(zaakType, zaak, restZaakEditMetRedenGegevens, zaakUUID)
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
-                eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
+            if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
+                opschortenZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
+                    .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
+                    .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
             }
         }
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten)
@@ -427,21 +425,16 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.verlengen)
-        val toelichting = "$VERLENGING: ${restZaakVerlengGegevens.redenVerlenging}"
-        val updatedZaak = zrcClientService.patchZaak(
-            zaakUUID = zaakUUID,
-            zaak = restZaakConverter.convertToPatch(
-                zaakUUID,
-                restZaakVerlengGegevens
-            ),
-            explanation = toelichting
-        )
+
+        val zaakPatch = restZaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens)
+        val updatedZaak = opschortenZaakHelper.extendZaak(zaakUUID, zaakPatch, restZaakVerlengGegevens.redenVerlenging)
+
         if (restZaakVerlengGegevens.takenVerlengen) {
-            val aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen.toLong())
-            if (aantalTakenVerlengd > 0) {
-                eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
-            }
+            opschortenZaakHelper.extendTasks(zaakPatch, restZaakVerlengGegevens.duurDagen.toLong())
+                .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
+                .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }
+
         return restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten)
     }
 
@@ -1289,34 +1282,6 @@ class ZaakRestService @Inject constructor(
             ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
             ZaaktypeCmmnZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
-
-    private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
-        flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .filter { it.dueDate != null }
-            .run {
-                forEach { task ->
-                    task.dueDate = DateTimeConverterUtil.convertToDate(
-                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(durationDays)
-                    )
-                    flowableTaskService.updateTask(task)
-                    eventingService.send(ScreenEventType.TAAK.updated(task))
-                }
-                count()
-            }
-
-    private fun adjustFinalDateForOpenTasks(zaakUUID: UUID, zaakFatalDate: LocalDate): Int =
-        flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
-            .filter { it.dueDate != null }
-            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate).isAfter(zaakFatalDate) }
-            .run {
-                forEach { task ->
-                    task.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
-                    flowableTaskService.updateTask(task)
-                    eventingService.send(ScreenEventType.TAAK.updated(task))
-                }
-                count()
-            }
 
     private fun removeRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,
