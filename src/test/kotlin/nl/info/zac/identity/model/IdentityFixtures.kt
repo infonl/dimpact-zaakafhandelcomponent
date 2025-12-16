@@ -11,8 +11,8 @@ fun createGroup(
     email: String = "fake-group@example.com",
     zacClientRoles: List<String> = listOf("fakeDomein")
 ) = Group(
-    id = id,
-    name = name,
+    name = id,
+    description = name,
     email = email,
     zacClientRoles = zacClientRoles
 )

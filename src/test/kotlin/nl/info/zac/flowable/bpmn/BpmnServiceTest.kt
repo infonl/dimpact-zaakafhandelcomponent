@@ -7,6 +7,7 @@ package nl.info.zac.flowable.bpmn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -142,10 +143,12 @@ class BpmnServiceTest : BehaviorSpec({
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
-            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+                bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+            }
 
             Then("null is returned") {
-                result shouldBe null
+                exception.message shouldContain "$zaaktypeUUID"
             }
         }
     }

@@ -85,8 +85,8 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         addBetrokkenen(zaak, zaakZoekObject)
         findGroup(zaak)?.let {
-            zaakZoekObject.groepID = it.id
-            zaakZoekObject.groepNaam = it.name
+            zaakZoekObject.groepID = it.name
+            zaakZoekObject.groepNaam = it.description
         }
         findBehandelaar(zaak)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()

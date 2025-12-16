@@ -53,6 +53,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
         [blockSearch]="form.invalid"
         [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
+        [zaaktypeUUID]="zaaktypeUUID"
       ></zac-persoon-zoek>
       <zac-bedrijf-zoek
         *ngIf="type === 'bedrijf'"

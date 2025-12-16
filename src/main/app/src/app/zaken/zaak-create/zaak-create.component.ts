@@ -46,6 +46,7 @@ export class ZaakCreateComponent {
   private readonly klantenService = inject(KlantenService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
   private readonly bpmnService = inject(BpmnService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
@@ -74,7 +75,9 @@ export class ZaakCreateComponent {
     onSuccess: ({ identificatie }) => {
       void this.router.navigate(["/zaken/", identificatie]);
     },
-    onError: () => this.form.reset({ startdatum: moment() }),
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
+    },
   }));
 
   protected readonly form = this.formBuilder.group({
@@ -104,7 +107,7 @@ export class ZaakCreateComponent {
     toelichting: this.formBuilder.control("", [Validators.maxLength(1000)]),
   });
 
-  constructor(private readonly foutAfhandelingService: FoutAfhandelingService) {
+  constructor() {
     this.utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;

@@ -89,7 +89,7 @@ public class Signalering {
     }
 
     public void setTarget(final Group group) {
-        setTargetGroup(group.getId());
+        setTargetGroup(group.getName());
     }
 
     public void setTarget(final User user) {

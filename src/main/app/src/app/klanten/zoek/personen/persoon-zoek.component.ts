@@ -37,6 +37,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
+  @Input() zaaktypeUUID?: string | null = null;
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
 
@@ -252,11 +253,14 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.personen.data = [];
     const { value } = this.formGroup;
     this.klantenService
-      .listPersonen({
-        ...value,
-        geboortedatum: value.geboortedatum?.toISOString(),
-        gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
-      })
+      .listPersonen(
+        {
+          ...value,
+          geboortedatum: value.geboortedatum?.toISOString(),
+          gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
+        },
+        this.zaaktypeUUID ?? "",
+      )
       .subscribe({
         next: (personen) => {
           this.personen.data = personen.resultaten ?? [];

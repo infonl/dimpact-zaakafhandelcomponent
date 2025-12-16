@@ -22,7 +22,7 @@ open class UserInput(
                 } else {
                     // No zaaktype is specified so this concerns a policy check that is zaaktype-independent.
                     // In that case the authorized application roles are those for which at least one zaaktype is authorized.
-                    loggedInUser.applicationRolesPerZaaktype.values.flatMap { it }.toSet()
+                    loggedInUser.applicationRolesPerZaaktype.values.flatten().toSet()
                 }
             else -> loggedInUser.roles
         },

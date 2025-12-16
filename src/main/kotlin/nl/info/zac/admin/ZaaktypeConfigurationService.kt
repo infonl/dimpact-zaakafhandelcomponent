@@ -13,6 +13,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.util.AllOpen
@@ -51,6 +52,23 @@ class ZaaktypeConfigurationService @Inject constructor(
                 "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"
             }
         }
+    }
+
+    /**
+     * Reads the ZaaktypeConfiguration for a specific zaaktype UUID.
+     *
+     * @param zaaktypeUUID UUID of the zaaktype (version).
+     * @return ZaaktypeConfiguration for the specified zaaktype UUID or null if no configuration exists.
+     */
+    fun readZaaktypeConfiguration(zaaktypeUUID: UUID): ZaaktypeConfiguration? {
+        val criteriaBuilder = entityManager.criteriaBuilder
+        val query = criteriaBuilder.createQuery(ZaaktypeConfiguration::class.java)
+        val root = query.from(ZaaktypeConfiguration::class.java)
+
+        query.select(root)
+            .where(criteriaBuilder.equal(root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
+
+        return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
     }
 
     private fun getLastCreatedConfiguration(zaaktypeDescription: String): ZaaktypeConfiguration? {
