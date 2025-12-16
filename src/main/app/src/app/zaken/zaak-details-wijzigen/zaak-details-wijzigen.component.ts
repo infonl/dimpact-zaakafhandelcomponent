@@ -93,7 +93,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
-    this.groups = this.identityService.listGroups(this.zaak.zaaktype.uuid);
+    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(this.zaak.zaaktype.uuid);
 
     if (!this.zaak.rechten.wijzigen) {
       this.form.controls.communicatiekanaal.disable();

@@ -82,7 +82,7 @@ describe(CaseDetailsEditComponent.name, () => {
     identityService = TestBed.inject(IdentityService);
 
     // Mock service methods
-    jest.spyOn(identityService, "listGroups").mockReturnValue(of([]));
+    jest.spyOn(identityService, "listBehandelaarGroupsForZaaktype").mockReturnValue(of([]));
     jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listCommunicatiekanalen")

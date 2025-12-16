@@ -30,6 +30,15 @@ export class IdentityService {
     );
   }
 
+  listBehandelaarGroupsForZaaktype(zaaktypeUuid: string): Observable<GeneratedType<"RestGroup">[]> {
+    return this.zacHttpClient.GET(
+        "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
+        {
+          path: { zaaktypeUuid },
+        },
+    );
+  }
+
   listUsersInGroup(groupId: string) {
     return this.zacHttpClient.GET("/rest/identity/groups/{groupId}/users", {
       path: { groupId },
