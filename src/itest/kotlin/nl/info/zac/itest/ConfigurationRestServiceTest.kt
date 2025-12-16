@@ -170,7 +170,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson if (FEATURE_FLAG_PABC_INTEGRATION) "true" else "false"
             }
         }
-        When("the BRP protcollering provider is retrieved") {
+        When("the BRP protocollering provider is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/brp/protocollering-provider"
             )
