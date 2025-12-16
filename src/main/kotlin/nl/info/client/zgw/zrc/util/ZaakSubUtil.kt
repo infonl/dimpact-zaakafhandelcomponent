@@ -68,6 +68,7 @@ fun Zaak.toZaakSub(): ZaakSub {
 /**
  * Helper function to set a read-only field using reflection.
  */
+@Suppress("SwallowedException")
 private fun setReadOnlyField(target: Any, fieldName: String, value: Any?) {
     try {
         val field: Field = target.javaClass.getDeclaredField(fieldName)

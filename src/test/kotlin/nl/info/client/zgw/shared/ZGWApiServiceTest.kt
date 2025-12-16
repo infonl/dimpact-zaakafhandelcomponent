@@ -37,8 +37,6 @@ class ZGWApiServiceTest : BehaviorSpec({
         zrcClientService,
         drcClientService
     )
-    val resultaatTypeUUID = UUID.randomUUID()
-    val reason = "fakeReason"
 
     beforeEach {
         checkUnnecessaryStub()

@@ -36,7 +36,6 @@ class DecisionServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
-    val zgwApiService = mockk<ZGWApiService>()
 
     val decisionService = DecisionService(
         brcClientService,

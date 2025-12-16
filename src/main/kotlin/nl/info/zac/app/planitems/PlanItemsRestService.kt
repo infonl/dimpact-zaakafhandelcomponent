@@ -79,7 +79,6 @@ class PlanItemsRestService @Inject constructor(
     private var policyService: PolicyService,
     private var suspensionZaakHelper: SuspensionZaakHelper,
     private var restMailGegevensConverter: RESTMailGegevensConverter,
-    private var zaakService: ZaakService
 ) {
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
