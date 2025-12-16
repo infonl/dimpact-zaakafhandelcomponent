@@ -74,28 +74,28 @@
     {
       "id": "5b5d4f41-4c9c-4ff3-b59e-2f6a0f7f1d6c",
       "entityTypeId": "Test zaaktype 1",
-      "type": "zaaktype",
+      "type": "ZAAKTYPE",
       "name": "Test zaaktype 1",
       "uri": "https://example.com/zaaktype/8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a"
     },
     {
       "id": "a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1",
       "entityTypeId": "BPMN test zaaktype",
-      "type": "zaaktype",
+      "type": "ZAAKTYPE",
       "name": "BPMN test zaaktype",
       "uri": "https://example.com/zaaktype/26076928-ce07-4d5d-8638-c2d276f6caca"
     },
     {
       "id": "0db3c76a-2911-48c7-a24c-f6e4f3b18c48",
       "entityTypeId": "Test zaaktype 2",
-      "type": "zaaktype",
+      "type": "ZAAKTYPE",
       "name": "Test zaaktype 2",
       "uri": "https://example.com/zaaktype/fd2bf643-c98a-4b00-b2b3-9ae0c41ed425"
     },
     {
       "id": "e9dbe8f7-7b30-41d2-bb0d-187d4a4d6822",
       "entityTypeId": "Test zaaktype 3",
-      "type": "zaaktype",
+      "type": "ZAAKTYPE",
       "name": "Test zaaktype 3",
       "uri": "https://example.com/zaaktype/448356ff-dcfb-4504-9501-7fe929077c4f"
     }

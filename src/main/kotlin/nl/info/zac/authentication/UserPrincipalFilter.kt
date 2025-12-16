@@ -154,7 +154,7 @@ constructor(
 
     /**
      * Builds a map of zaaktype -> set(application role names) from the PABC.
-     * - Only include results where entityType.type == "zaaktype"
+     * - Only include results for 'ZAAKTYPE' entity types
      * - Key uses entityType.name
      */
     private fun buildApplicationRoleMappingsFromPabc(

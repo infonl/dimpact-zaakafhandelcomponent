@@ -48,5 +48,5 @@ export type ZaakZoekObject =
     statusToelichting: string;
     rechten: GeneratedType<"RestZaakRechten">;
     indicaties: GeneratedType<"ZaakIndicatie">[];
-    betrokkenen: Map<GeneratedType<"OmschrijvingGeneriekEnum">, string[]>;
+    betrokkenen: Record<GeneratedType<"OmschrijvingGeneriekEnum">, string[]>;
   };
