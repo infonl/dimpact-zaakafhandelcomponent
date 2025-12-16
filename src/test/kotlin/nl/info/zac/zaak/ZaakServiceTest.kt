@@ -4,7 +4,6 @@
  */
 package nl.info.zac.zaak
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -56,8 +55,6 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -67,7 +64,6 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -79,7 +75,6 @@ class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
-    val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -91,7 +86,6 @@ class ZaakServiceTest : BehaviorSpec({
         eventingService = eventingService,
         identityService = identityService,
         indexingService = indexingService,
-        lockService = lockService,
         zaakVariabelenService = zaakVariabelenService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
@@ -970,38 +964,6 @@ class ZaakServiceTest : BehaviorSpec({
                     betrokkenenRoles.size shouldBe 2
                     betrokkenenRoles[0] shouldBe rolNatuurlijkPersonen[0]
                     betrokkenenRoles[1] shouldBe rolNatuurlijkPersonen[1]
-                }
-            }
-        }
-        Given("A zaak that has no locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns false
-
-            When("the zaak is checked if it is closeable") {
-                shouldNotThrowAny { zaakService.checkZaakHasLockedInformationObjects(zaak) }
-
-                Then("it should not throw any exceptions") {
-                    verify(exactly = 1) {
-                        lockService.hasLockedInformatieobjecten(zaak)
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Check zaak afsluitbaar") {
-        Given("A zaak that has locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns true
-
-            When("the zaak is checked if it is closeable") {
-                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
-                    zaakService.checkZaakHasLockedInformationObjects(zaak)
-                }
-
-                Then("it should throw an exception") {
-                    exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
-                    exception.message shouldBe "Case ${zaak.uuid} has locked information objects"
                 }
             }
         }

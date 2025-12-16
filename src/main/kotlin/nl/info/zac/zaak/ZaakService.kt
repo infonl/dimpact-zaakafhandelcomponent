@@ -38,7 +38,6 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -51,7 +50,6 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import java.net.URI
 import java.util.Locale
@@ -70,7 +68,6 @@ class ZaakService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private var eventingService: EventingService,
     private var zaakVariabelenService: ZaakVariabelenService,
-    private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
@@ -299,12 +296,6 @@ class ZaakService @Inject constructor(
         screenEventResourceId?.let {
             LOG.fine { "Sending 'ZAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
-        }
-    }
-
-    fun checkZaakHasLockedInformationObjects(zaak: Zaak) {
-        if (lockService.hasLockedInformatieobjecten(zaak)) {
-            throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
         }
     }
 

@@ -116,37 +116,6 @@ class ZGWApiService @Inject constructor(
     }
 
     /**
-     * Create [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat].toelichting.
-     *
-     * @param zaak [Zaak]
-     * @param resultaattypeUUID UUID of the [ResultaatType] of the required [Resultaat].
-     * @param resultaatToelichting Toelichting for thew [Resultaat].
-     */
-    fun createResultaatForZaak(
-        zaak: Zaak,
-        resultaattypeUUID: UUID,
-        resultaatToelichting: String?
-    ): Resultaat? {
-        val resultaattype = ztcClientService.readResultaattype(resultaattypeUUID)
-        return createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
-    }
-
-    /**
-     * Update [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat] .toelichting.
-     *
-     * @param zaak [Zaak]
-     * @param resultaatTypeUuid Containing the UUID of the [ResultaatType] of the required [Resultaat].
-     * @param reden Reason of setting the [ResultaatType]
-     */
-    fun updateResultaatForZaak(zaak: Zaak, resultaatTypeUuid: UUID, reden: String?) {
-        zaak.resultaat?.let {
-            val resultaat = zrcClientService.readResultaat(it)
-            zrcClientService.deleteResultaat(resultaat.uuid)
-        }
-        createResultaatForZaak(zaak, resultaatTypeUuid, reden)
-    }
-
-    /**
      * End [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
      * @param zaak [Zaak]

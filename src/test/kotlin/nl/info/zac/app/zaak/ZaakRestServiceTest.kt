@@ -131,7 +131,6 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.test.date.toDate
 import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
@@ -1417,7 +1416,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -1466,7 +1464,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
 
             verify(exactly = 0) {
-                zgwApiService.createResultaatForZaak(any(), any<UUID>(), any())
                 zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
                 cmmnService.terminateCase(any())
             }
@@ -1493,7 +1490,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
@@ -2034,7 +2030,6 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
 
             When("zaak is closed") {
@@ -2044,37 +2039,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
-                }
-            }
-        }
-
-        Given("open zaak with locked informatieobjecten") {
-            clearAllMocks()
-            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-            val zaak = createZaak(zaaktypeUri = zaakType.url)
-            val reden = "Fake reden"
-            val resultaattypeUuid = UUID.randomUUID()
-            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
-
-            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
-            every {
-                zaakService.checkZaakHasLockedInformationObjects(zaak)
-            } throws CaseHasLockedInformationObjectsException("fake message")
-
-            When("zaak is closed") {
-                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
-                    zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
-                }
-
-                Then("result and status are not changed") {
-                    verify(exactly = 0) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
-                    }
-                }
-
-                And("correct exception is thrown") {
-                    exception.message shouldBe "fake message"
                 }
             }
         }

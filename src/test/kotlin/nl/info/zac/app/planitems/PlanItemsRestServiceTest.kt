@@ -526,7 +526,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 startenTaak = true,
                 versturenEmail = true
             )
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
             every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
@@ -566,7 +565,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
 
             When("the user event listener plan item is processed") {
@@ -592,7 +590,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zaakService.checkZaakHasLockedInformationObjects(zaak) } just runs
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
 
             When("doUserEventListenerPlanItem is called to close the zaak") {

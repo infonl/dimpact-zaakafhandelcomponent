@@ -8,31 +8,23 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -140,80 +132,6 @@ class ZGWApiServiceTest : BehaviorSpec({
                         this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
                         // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
                         this.einddatumGepland shouldBe null
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Updating a zaak result") {
-        Given("A zaak with an existing result") {
-            val fakeResultaat = URI("https://example.com/${UUID.randomUUID()}")
-            val zaak = createZaak(
-                resultaat = fakeResultaat
-            )
-            val resultaat = createResultaat()
-            val resultaatSlot = slot<Resultaat>()
-            val updatedResultaat = createResultaat()
-            val resultaattType = createResultaatType()
-            every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-            every { zrcClientService.deleteResultaat(resultaat.uuid) } just Runs
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaattType
-            every { zrcClientService.createResultaat(capture(resultaatSlot)) } returns updatedResultaat
-
-            When("when the result is updated for the zaak") {
-                zgwApiService.updateResultaatForZaak(
-                    zaak,
-                    resultaatTypeUUID,
-                    reason
-                )
-
-                Then("the existing zaak result should be updated") {
-                    verify(exactly = 1) {
-                        zrcClientService.readResultaat(zaak.resultaat)
-                        zrcClientService.deleteResultaat(resultaat.uuid)
-                        ztcClientService.readResultaattype(resultaatTypeUUID)
-                        zrcClientService.createResultaat(any())
-                    }
-                    resultaatSlot.captured.run {
-                        this.uuid shouldBe null
-                        this.zaak shouldBe zaak.url
-                        this.resultaattype shouldBe resultaattType.url
-                        this.toelichting shouldBe reason
-                    }
-                }
-            }
-        }
-        Given("A zaak without an existing result") {
-            val zaak = createZaak(
-                resultaat = null
-            )
-            val resultaatSlot = slot<Resultaat>()
-            val updatedResultaat = createResultaat()
-            val resultaattType = createResultaatType()
-
-            clearMocks(ztcClientService, zrcClientService)
-
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaattType
-            every { zrcClientService.createResultaat(capture(resultaatSlot)) } returns updatedResultaat
-
-            When("when the result is updated for the zaak") {
-                zgwApiService.updateResultaatForZaak(
-                    zaak,
-                    resultaatTypeUUID,
-                    reason
-                )
-
-                Then("the zaak result should be created") {
-                    verify(exactly = 1) {
-                        ztcClientService.readResultaattype(resultaatTypeUUID)
-                        zrcClientService.createResultaat(any())
-                    }
-                    resultaatSlot.captured.run {
-                        this.uuid shouldBe null
-                        this.zaak shouldBe zaak.url
-                        this.resultaattype shouldBe resultaattType.url
-                        this.toelichting shouldBe reason
                     }
                 }
             }

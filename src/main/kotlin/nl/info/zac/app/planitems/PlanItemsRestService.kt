@@ -246,22 +246,15 @@ class PlanItemsRestService @Inject constructor(
 
         if (userEventListenerData.zaakOntvankelijk) return
 
-        zaakService.checkZaakHasLockedInformationObjects(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
         zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
-            zgwApiService.createResultaatForZaak(
-                zaak,
-                resultaattypeUUID,
-                userEventListenerData.resultaatToelichting
-            )
+            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
-        zaakService.checkZaakHasLockedInformationObjects(zaak)
-
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         } ?: throw InputValidationFailedException(
