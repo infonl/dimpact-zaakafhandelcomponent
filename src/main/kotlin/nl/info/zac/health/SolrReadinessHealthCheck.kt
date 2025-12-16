@@ -5,8 +5,10 @@
 package nl.info.zac.health
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -23,17 +25,27 @@ class SolrReadinessHealthCheck @Inject constructor(
 
     companion object {
         private const val SOLR_STATUS_OK = 0
-        private const val SOLR_CORE = "zac"
     }
 
-    private val solrClient: Http2SolrClient by lazy {
-        Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
+    private var solrClient: Http2SolrClient? = null
+
+    @Synchronized
+    private fun getSolrClient(): Http2SolrClient {
+        if (solrClient == null) {
+            solrClient = Http2SolrClient.Builder("$solrUrl/solr/${SOLR_CORE}").build()
+        }
+        return solrClient ?: error("solrClient should have been initialized")
+    }
+
+    @PreDestroy
+    fun cleanup() {
+        solrClient?.close()
     }
 
     @WithSpan(value = "GET SolrReadinessHealthCheck")
     override fun call(): HealthCheckResponse =
         try {
-            val status = SolrPing().setActionPing().process(solrClient).status
+            val status = SolrPing().setActionPing().process(getSolrClient()).status
             if (status == SOLR_STATUS_OK) {
                 HealthCheckResponse
                     .named(SolrReadinessHealthCheck::class.java.name)

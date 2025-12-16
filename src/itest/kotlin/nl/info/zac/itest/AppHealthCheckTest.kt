@@ -36,7 +36,7 @@ class AppHealthCheckTest : BehaviorSpec({
 
                 // Should contain our LivenessHealthCheck
                 val checks = healthResponse.getJSONArray("checks")
-                checks.length() shouldBe LIFELINESS_CHECKS_COUNT
+                checks.length() shouldBe LIVELINESS_CHECKS_COUNT
                 val livenessCheck = checks.getJSONObject(0)
                 livenessCheck.getString("name") shouldBe "nl.info.zac.health.LivenessHealthCheck"
                 livenessCheck.getString("status") shouldBe "UP"
@@ -130,7 +130,7 @@ class AppHealthCheckTest : BehaviorSpec({
                 val checks = healthResponse.getJSONArray("checks")
 
                 // Should have all health checks (liveness + readiness)
-                checks.length() shouldBe LIFELINESS_CHECKS_COUNT + READINESS_CHECKS_COUNT
+                checks.length() shouldBe LIVELINESS_CHECKS_COUNT + READINESS_CHECKS_COUNT
 
                 // Verify all checks are UP
                 for (i in 0 until checks.length()) {
@@ -159,7 +159,7 @@ class AppHealthCheckTest : BehaviorSpec({
         private val logger = KotlinLogging.logger {}
         private val itestHttpClient = ItestHttpClient()
 
-        private const val LIFELINESS_CHECKS_COUNT = 1
+        private const val LIVELINESS_CHECKS_COUNT = 1
         private const val READINESS_CHECKS_COUNT = 2
     }
 }
