@@ -29,6 +29,7 @@ class SolrReadinessHealthCheck @Inject constructor(
 
     private var solrClient: Http2SolrClient? = null
 
+    @Synchronized
     private fun getSolrClient(): Http2SolrClient {
         if (solrClient == null) {
             solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
