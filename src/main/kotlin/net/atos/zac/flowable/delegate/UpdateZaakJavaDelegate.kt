@@ -28,14 +28,14 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
-        val resultaattypeOmschrijvingValue = resultaattypeOmschrijving?.resolveValueAsString(execution)
-        if (resultaattypeOmschrijvingValue != null) {
+        val resultaattypeOmschrijving = resultaattypeOmschrijving?.resolveValueAsString(execution)
+        if (resultaattypeOmschrijving != null) {
             LOG.info(
                 "Zaak '${zaak.getUuid()}': Closing zaak with resultaattype omschrijving " +
-                    "'$resultaattypeOmschrijvingValue'"
+                    "'$resultaattypeOmschrijving'"
             )
             try {
-                flowableHelper.zgwApiService.endZaak(zaak, resultaattypeOmschrijvingValue, TOELICHTING)
+                flowableHelper.zgwApiService.endZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
                 // rethrow as a FlowableException
                 // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
