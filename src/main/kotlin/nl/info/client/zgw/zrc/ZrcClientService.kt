@@ -225,16 +225,6 @@ class ZrcClientService @Inject constructor(
         return zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
     }
 
-    fun createResultaat(resultaat: Resultaat): Resultaat? {
-        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.resultaatCreate(resultaat)
-    }
-
-    fun updateResultaat(resultaat: Resultaat): Resultaat? {
-        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.resultaatUpdate(resultaat.getUuid(), resultaat)
-    }
-
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
 
     fun createZaak(zaak: Zaak): Zaak {

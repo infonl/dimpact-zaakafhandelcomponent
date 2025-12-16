@@ -314,19 +314,6 @@ class ZGWApiService @Inject constructor(
         zaak.uiterlijkeEinddatumAfdoening = zaak.startdatum.plus(Period.parse(zaaktype.doorlooptijd))
     }
 
-    private fun createResultaat(
-        zaakURI: URI,
-        resultaattypeURI: URI,
-        resultaatToelichting: String?
-    ) =
-        zrcClientService.createResultaat(
-            Resultaat().apply {
-                zaak = zaakURI
-                resultaattype = resultaattypeURI
-                toelichting = resultaatToelichting
-            }
-        )
-
     private fun filterResultaattype(
         resultaattypes: List<ResultaatType>,
         description: String,
