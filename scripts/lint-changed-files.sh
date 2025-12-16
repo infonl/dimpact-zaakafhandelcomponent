@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#
+# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
 # Script to lint only changed files in the Angular app
 # Usage: ./scripts/lint-changed-files.sh [base-branch]
 

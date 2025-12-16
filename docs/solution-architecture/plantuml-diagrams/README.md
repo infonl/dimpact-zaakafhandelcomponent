@@ -15,3 +15,5 @@ To generate a PNG image from a PlantUML diagram file (e.g. `diagram.puml`), run:
 ```sh
 plantuml diagram.puml --output-dir ../images
 ```
+
+or to generate all PlantUML diagram images at once, just run the [generate-plantuml-images.sh](generate-plantuml-images.sh) script.
