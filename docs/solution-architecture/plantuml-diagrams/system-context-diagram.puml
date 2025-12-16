@@ -71,7 +71,7 @@ Rel(pabc, keycloak, "Gets groups", "Keycloak API")
 Rel(openTelemetry, tempo, "Sends traces data to", "Tempo API")
 Rel(openTelemetry, prometheus, "Sends metrics data to", "Prometheus API")
 Rel(grafana, prometheus, "Reads metrics data from", "Prometheus API")
-Rel(grafana, tempo, "Displays traces data from", "Grafana API")
+Rel(grafana, tempo, "Displays traces data from", "Tempo API")
 
 Rel(zac, bag, "Get BAG objects", "HaalCentraal BAG Bevragen API")
 Rel(zac, brp, "Get personal data", "HaalCentraal BRP Bevragen API")
