@@ -28,7 +28,10 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    return this.klantenService.readPersoon(betrokkene.identificatie);
+    return this.klantenService.readPersoon(
+      betrokkene.identificatie,
+      this.zaaktypeUuid(),
+    );
   });
 
   protected readonly bedrijfQuery = injectQuery(() => {
@@ -48,6 +51,8 @@ export class BetrokkeneLinkComponent {
 
   protected readonly betrokkene =
     input.required<GeneratedType<"RestZaakBetrokkene">>();
+
+  protected readonly zaaktypeUuid = input.required<string>();
 
   protected readonly bedrijfRouteLink = computed(() =>
     buildBedrijfRouteLink(this.betrokkene()),

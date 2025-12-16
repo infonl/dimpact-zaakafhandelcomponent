@@ -1375,7 +1375,7 @@ export class ZaakViewComponent
         const persoon = await this.queryClient.ensureQueryData(
           this.klantenService.readPersoon(
             betrokkene.identificatie,
-            this.zaak.identificatie,
+            this.zaak.zaaktype.uuid,
           ),
         );
         betrokkene["gegevens"] = persoon.naam;
@@ -1512,6 +1512,8 @@ export class ZaakViewComponent
   }
 
   protected showPersoonsgegevens() {
+    if (!this.zaak.zaaktype?.uuid) return false;
+
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
