@@ -100,6 +100,11 @@ function getToelichtingMapping(
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "aanvullendeInformatie",
       };
+    case "ADVIES":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "advies",
+      };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);
   }
