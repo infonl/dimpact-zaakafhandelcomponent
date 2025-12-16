@@ -12,6 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.RolListParameters
@@ -19,12 +20,17 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -319,6 +325,108 @@ class ZGWApiServiceTest : BehaviorSpec({
 
                 Then("an exception should be thrown") {
                     exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                }
+            }
+        }
+    }
+
+    Context("Closing a zaak") {
+        Given("A zaak with resultaattype and statustype") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID")
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val toelichting = "Test toelichting"
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
+
+            When("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting)
+
+                Then("the zaak is closed with correct resultaat and status") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                    with(zaakAfsluitenSlot.captured) {
+                        this.zaak shouldNotBe null
+                        this.resultaat shouldNotBe null
+                        this.resultaat!!.resultaattype shouldBe resultaatType.url
+                        this.resultaat!!.toelichting shouldBe toelichting
+                        this.status shouldNotBe null
+                        this.status!!.statustype shouldBe statusType.url
+                        this.status!!.statustoelichting shouldBe toelichting
+                        this.status!!.datumStatusGezet shouldNotBe null
+                    }
+                }
+            }
+        }
+
+        Given("A zaak with resultaattype and statustype, but toelichting is null") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID")
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult2 = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult2
+
+            When("closeZaak is called with null toelichting") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null)
+
+                Then("the zaak is closed with null toelichting") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                    with(zaakAfsluitenSlot.captured) {
+                        this.resultaat!!.toelichting shouldBe null
+                        this.status!!.statustoelichting shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("A zaaktype without an end status type") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID")
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = false
+            )
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+
+            When("closeZaak is called") {
+                val exception = shouldThrow<StatusTypeNotFoundException> {
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe
+                        "No status type with 'end state' found for zaaktype with URI: '${zaak.zaaktype}'."
                 }
             }
         }

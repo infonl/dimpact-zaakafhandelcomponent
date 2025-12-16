@@ -24,6 +24,7 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
@@ -36,6 +37,7 @@ import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
@@ -48,7 +50,6 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
-import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
@@ -68,7 +69,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
-    val zaakService = mockk<ZaakService>()
 
     val planItemsRESTService = PlanItemsRestService(
         zaakVariabelenService,
@@ -83,8 +83,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
-        restMailGegevensConverter,
-        zaakService
+        restMailGegevensConverter
     )
 
     val planItemInstanceId = "fakePlanItemInstanceId"
@@ -598,6 +597,184 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 Then("closeZaak should be called to close the zaak") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
+                    }
+                }
+            }
+        }
+
+        Given("Zaak with resultaattypeUuid and toelichting when handling zaak afhandelen") {
+            val zaak = createZaak(resultaat = null)
+            val resultaattypeUuid = UUID.randomUUID()
+            val resultaatToelichting = "Zaak is afgehandeld"
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                resultaattypeUuid = resultaattypeUuid,
+                restMailGegevens = null
+            ).apply {
+                this.resultaatToelichting = resultaatToelichting
+            }
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting) } just runs
+
+            When("doUserEventListenerPlanItem is called to handle zaak afhandelen") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                Then("closeZaak should be called with the correct resultaattypeUuid and toelichting") {
+                    verify(exactly = 1) {
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting)
+                    }
+                }
+            }
+        }
+
+        Given("Zaak without resultaattypeUuid when handling zaak afhandelen") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = null
+            ).apply {
+                this.resultaattypeUuid = null
+            }
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+
+            When("doUserEventListenerPlanItem is called without resultaattypeUuid") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                }
+
+                And("closeZaak should not be called") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        Given("Zaak that is not ontvankelijk during intake afronden") {
+            val zaak = createZaak(resultaat = null)
+            val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
+            val resultaatToelichting = "Zaak is niet ontvankelijk"
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.zaakOntvankelijk = false
+                this.resultaatToelichting = resultaatToelichting
+                this.planItemInstanceId = planItemInstanceId
+            }
+
+            val intakeAfrondenZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaak.zaaktype.extractUuid(),
+                nietOntvankelijkResultaattype = nietOntvankelijkResultaattypeUuid
+            )
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+            } returns intakeAfrondenZaaktypeCmmnConfiguration
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
+            every {
+                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
+            } just runs
+            every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+
+            When("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                Then("closeZaak should be called with niet ontvankelijk resultaattype") {
+                    verify(exactly = 1) {
+                        zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
+                    }
+                }
+
+                And("setOntvankelijk should be called") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setOntvankelijk(planItemInstance, false)
+                    }
+                }
+            }
+        }
+
+        Given("Zaak that is ontvankelijk during intake afronden") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.zaakOntvankelijk = true
+                this.planItemInstanceId = planItemInstanceId
+            }
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, true) } just runs
+            every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+
+            When("doUserEventListenerPlanItem is called for intake afronden with zaak ontvankelijk") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                Then("closeZaak should not be called") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
+                    }
+                }
+
+                And("setOntvankelijk should be called") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setOntvankelijk(planItemInstance, true)
+                    }
+                }
+            }
+        }
+
+        Given("Zaak that is not ontvankelijk but no nietOntvankelijkResultaattype configured") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.INTAKE_AFRONDEN,
+                restMailGegevens = null
+            ).apply {
+                this.zaakOntvankelijk = false
+                this.planItemInstanceId = planItemInstanceId
+            }
+
+            val geenResultaattypeZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+                zaaktypeUUID = zaak.zaaktype.extractUuid()
+            ).apply {
+                this.nietOntvankelijkResultaattype = null
+            }
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+            every {
+                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
+            } returns geenResultaattypeZaaktypeCmmnConfiguration
+            every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
+            every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+
+            When("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk but no resultaattype") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                Then("closeZaak should not be called") {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any())
                     }
                 }
             }

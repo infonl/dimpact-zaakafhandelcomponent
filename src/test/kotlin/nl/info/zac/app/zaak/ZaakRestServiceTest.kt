@@ -2029,7 +2029,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(behandelen = true)
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
 
             When("zaak is closed") {
