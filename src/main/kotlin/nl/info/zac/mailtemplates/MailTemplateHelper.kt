@@ -35,6 +35,7 @@ import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.logging.Logger
 
 @AllOpen
@@ -111,7 +112,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiatorRole ->
                 replaceInitiatorVariables(
                     resolvedText = resolvedTekst,
-                    zaakIdentification = zaak.identificatie,
+                    zaaktypeUuid = zaak.zaaktype.extractUuid(),
                     initiatorRole = initiatorRole
                 )
             } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
@@ -220,18 +221,14 @@ class MailTemplateHelper @Inject constructor(
         )
 
     @Suppress("NestedBlockDepth")
-    private fun replaceInitiatorVariables(
-        resolvedText: String,
-        zaakIdentification: String,
-        initiatorRole: Rol<*>
-    ): String {
+    private fun replaceInitiatorVariables(resolvedText: String, zaaktypeUuid: UUID, initiatorRole: Rol<*>): String {
         val identificatie = initiatorRole.getIdentificatienummer() ?: run {
             LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
             return ""
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                brpClientService.retrievePersoon(identificatie, zaakIdentification)?.let {
+                brpClientService.retrievePersoon(identificatie, zaaktypeUuid)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 
