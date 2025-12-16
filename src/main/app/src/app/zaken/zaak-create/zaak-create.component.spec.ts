@@ -89,12 +89,14 @@ describe(ZaakCreateComponent.name, () => {
     }).compileComponents();
 
     identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listBehandelaarGroupsForZaaktype").mockReturnValue(
-      of([
-        { id: "test-cmmn-group-id", naam: "test group CMMN" },
-        { id: "test-bpmn-group-id", naam: "test group BPMN" },
-      ]),
-    );
+    jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          { id: "test-cmmn-group-id", naam: "test group CMMN" },
+          { id: "test-bpmn-group-id", naam: "test group BPMN" },
+        ]),
+      );
     jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
@@ -259,7 +261,9 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-cmmn-description-1");
-        expect(identityService.listBehandelaarGroupsForZaaktype).toHaveBeenCalled();
+        expect(
+          identityService.listBehandelaarGroupsForZaaktype,
+        ).toHaveBeenCalled();
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -305,7 +309,9 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test-bpmn-description-1");
-        expect(identityService.listBehandelaarGroupsForZaaktype).toHaveBeenCalled();
+        expect(
+          identityService.listBehandelaarGroupsForZaaktype,
+        ).toHaveBeenCalled();
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({

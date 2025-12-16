@@ -30,12 +30,14 @@ export class IdentityService {
     );
   }
 
-  listBehandelaarGroupsForZaaktype(zaaktypeUuid: string): Observable<GeneratedType<"RestGroup">[]> {
+  listBehandelaarGroupsForZaaktype(
+    zaaktypeUuid: string,
+  ): Observable<GeneratedType<"RestGroup">[]> {
     return this.zacHttpClient.GET(
-        "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
-        {
-          path: { zaaktypeUuid },
-        },
+      "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
+      {
+        path: { zaaktypeUuid },
+      },
     );
   }
 
