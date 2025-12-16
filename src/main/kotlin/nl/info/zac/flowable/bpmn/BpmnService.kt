@@ -117,10 +117,14 @@ class BpmnService @Inject constructor(
             .forEach { repositoryService.deleteDeployment(it.id, true) }
 
     /**
-     * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
+     * Returns the BPMN process definition for the given zaaktype UUID
+     *
+     * @param zaaktypeUUID UUID of the zaaktype for which the process definition is requested
+     * @throws ProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
         zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
+            ?: throw ProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
