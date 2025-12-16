@@ -5,7 +5,10 @@
 package net.atos.zac.flowable.bpmn
 
 import jakarta.enterprise.context.ApplicationScoped
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.FlowableHelper
+import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
+import nl.info.client.zgw.zrc.util.isOpen
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType
 import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent
 import org.flowable.common.engine.api.delegate.event.FlowableEvent
@@ -46,16 +49,32 @@ class UserTaskCompletionListener : FlowableEventListener {
     private fun closeZaak(entityEvent: FlowableEntityEvent) {
         (entityEvent.entity as ProcessInstance).let { processInstance ->
             LOG.fine(
-                "Process with id '${processInstance.processInstanceId}', name '${processInstance.processDefinitionName} " +
+                "Process with id '${processInstance.processInstanceId}'," +
+                    " name '${processInstance.processDefinitionName} " +
                     "is in state ${entityEvent.type}'"
             )
             processInstance.processVariables["ZK_Result"]?.let { resultaatTypeOmschrijving ->
                 val zaakUUID = UUID.fromString(processInstance.businessKey)
-                FlowableHelper.getInstance().zgwApiService.endZaak(
-                    zaakUUID,
-                    resultaatTypeOmschrijving.toString(),
-                    EINDSTATUS_TOELICHTING
-                )
+                val flowableHelper = FlowableHelper.getInstance()
+                val zaak = flowableHelper.zrcClientService.readZaak(zaakUUID)
+
+                if (zaak.isOpen()) {
+                    try {
+                        flowableHelper.zgwApiService.endZaak(
+                            zaakUUID,
+                            resultaatTypeOmschrijving.toString(),
+                            EINDSTATUS_TOELICHTING
+                        )
+                    } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+                        // rethrow as a FlowableException
+                        // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
+                        throw FlowableZgwValidationErrorException("Failed to end zaak", zgwValidationErrorException)
+                    }
+                } else {
+                    LOG.fine(
+                        "Zaak '$zaakUUID' is already closed, skipping close operation in process completion listener"
+                    )
+                }
             }
         }
     }

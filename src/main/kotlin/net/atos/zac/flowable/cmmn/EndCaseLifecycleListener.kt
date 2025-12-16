@@ -40,7 +40,8 @@ class EndCaseLifecycleListener(
                     EINDSTATUS_TOELICHTING
                 )
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
-                // rethrow as an FlowableException, just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
+                // rethrow as a FlowableException
+                // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
                 throw FlowableZgwValidationErrorException("Failed to end zaak", zgwValidationErrorException)
             }
         }
