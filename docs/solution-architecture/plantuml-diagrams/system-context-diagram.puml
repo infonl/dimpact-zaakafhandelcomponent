@@ -11,11 +11,14 @@ Enterprise_Boundary(commonGround, "Other Common Ground components") {
         System_Ext(openArchief, "Open Archiefbeheer")
     }
 
-    System_Boundary(utilities, "Common Ground utilities") {
+    System_Boundary(utilities, "Utilities") {
         System_Ext(openNotificaties, "Open Notificaties")
         System_Ext(pabc, "PABC")
         System_Ext(keycloak, "Keycloak")
         System_Ext(openTelemetry, "Open Telemetry (OTEL) Collector")
+        System_Ext(tempo, "Tempo")
+        System_Ext(prometheus, "Prometheus")
+        System_Ext(grafana, "Grafana")
     }
 
     System_Boundary(registries, "Common Ground registries") {
@@ -64,13 +67,18 @@ Rel(zac, openKlant, "Uses", "Contactgegevens API")
 Rel(zac, pabc, "Get employee and group authorisation mappings", "PABC authorisations API")
 Rel(zac, keycloak, "Authenticates employees and gets users and groups", "Keycloak API")
 Rel(zac, openTelemetry, "Send telemetry data (metrics, traces)", "OpenTelemetry API")
+Rel(pabc, keycloak, "Gets groups", "Keycloak API")
+Rel(openTelemetry, tempo, "Sends traces data to", "Tempo API")
+Rel(openTelemetry, prometheus, "Sends metrics data to", "Prometheus API")
+Rel(grafana, prometheus, "Reads metrics data from", "Prometheus API")
+Rel(grafana, tempo, "Reads traces data from", "Tempo API")
 
 Rel(zac, bag, "Get BAG objects", "HaalCentraal BAG Bevragen API")
 Rel(zac, brp, "Get personal data", "HaalCentraal BRP Bevragen API")
 Rel(zac, kvk, "Get KVK registrations", "KVK Zoeken en Vestigingsprofielen API")
 Rel(zac, smtpServer, "Sends mail", "SMTP Mail Server")
 Rel(zac, smartDocs, "Creates Office documents", "SmartDocuments API")
-Rel(zac, msOffice, "Open and edit documents in Office", "WebDAV API")
+Rel(zac, msOffice, "Open and edit documents in Office", "WebDAV Protocol")
 Rel(smartDocs, zac, "Uses", "ZAC SmartDocuments Callback API")
 
 Lay_Down(bag, brp)
@@ -78,4 +86,8 @@ Lay_Down(brp, kvk)
 Lay_Down(kvk, smtpServer)
 Lay_Down(smtpServer, smartDocs)
 Lay_Down(smartDocs, msOffice)
+Lay_Down(pabc, keycloak)
+Lay_Down(tempo, grafana)
+Lay_Left(tempo, prometheus)
+Lay_Down(prometheus, grafana)
 @enduml
