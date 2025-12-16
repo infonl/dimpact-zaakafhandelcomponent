@@ -27,19 +27,24 @@ class SolrReadinessHealthCheck @Inject constructor(
         private const val SOLR_CORE = "zac"
     }
 
-    private val solrClient: Http2SolrClient by lazy {
-        Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
+    private var solrClient: Http2SolrClient? = null
+
+    private fun getSolrClient(): Http2SolrClient {
+        if (solrClient == null) {
+            solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
+        }
+        return solrClient!!
     }
 
     @PreDestroy
     fun cleanup() {
-        solrClient.close()
+        solrClient?.close()
     }
 
     @WithSpan(value = "GET SolrReadinessHealthCheck")
     override fun call(): HealthCheckResponse =
         try {
-            val status = SolrPing().setActionPing().process(solrClient).status
+            val status = SolrPing().setActionPing().process(getSolrClient()).status
             if (status == SOLR_STATUS_OK) {
                 HealthCheckResponse
                     .named(SolrReadinessHealthCheck::class.java.name)
