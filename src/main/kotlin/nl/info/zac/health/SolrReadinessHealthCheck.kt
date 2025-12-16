@@ -5,6 +5,7 @@
 package nl.info.zac.health
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -28,6 +29,11 @@ class SolrReadinessHealthCheck @Inject constructor(
 
     private val solrClient: Http2SolrClient by lazy {
         Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
+    }
+
+    @PreDestroy
+    fun cleanup() {
+        solrClient.close()
     }
 
     @WithSpan(value = "GET SolrReadinessHealthCheck")
