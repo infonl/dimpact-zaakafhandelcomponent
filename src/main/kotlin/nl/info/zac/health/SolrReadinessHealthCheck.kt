@@ -9,6 +9,7 @@ import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
+import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.request.SolrPing
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -19,6 +20,7 @@ import java.time.LocalDateTime
 
 @Readiness
 @ApplicationScoped
+@AllOpen
 class SolrReadinessHealthCheck @Inject constructor(
     @ConfigProperty(name = "SOLR_URL") private val solrUrl: String
 ) : HealthCheck {

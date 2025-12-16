@@ -10,6 +10,7 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
 import org.eclipse.microprofile.health.Readiness
@@ -17,6 +18,7 @@ import java.time.LocalDateTime
 
 @Readiness
 @ApplicationScoped
+@AllOpen
 class OpenZaakReadinessHealthCheck @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService
