@@ -32,12 +32,14 @@ class ZaakHelper(
      * Creates a new zaak with the given description and zaaktype UUID,
      * sends a notification to ZAC to index the newly created zaak,
      * and waits until the zaak is findable via the search API using the
-     * (unique) zaak identification.
+     * zaak identification.
+     * Because of this we assume that the zaak description is unique in the context of
+     * the integration test suite.
      *
      * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
      */
     suspend fun createAndIndexZaak(
-        zaakDescription: String,
+        zaakDescription: String = "itestZaakDescription-${System.currentTimeMillis()}",
         zaaktypeUuid: UUID,
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01
