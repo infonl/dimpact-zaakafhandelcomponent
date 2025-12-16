@@ -22,7 +22,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
     var uiterlijkeEinddatumAfdoening: Expression? = null
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
-    var verlengingReden: Expression? = null
+    lateinit var verlengingReden: Expression
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
     var takenVerlengen: Expression? = null
@@ -46,7 +46,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
             zaak = zaak,
             plannedEndDate = einddatumGepland?.resolveValueAsLocalDate(execution),
             latestSettlementDate = uiterlijkeEinddatumAfdoening?.resolveValueAsLocalDate(execution),
-            extensionReason = verlengingReden?.resolveValueAsString(execution),
+            extensionReason = verlengingReden.resolveValueAsString(execution),
             numberOfDays = numberOfDays
         )
 
