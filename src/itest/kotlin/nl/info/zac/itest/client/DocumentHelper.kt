@@ -27,6 +27,13 @@ class DocumentHelper(
     val logger = KotlinLogging.logger {}
     val itestHttpClient = zacClient.itestHttpClient
 
+    /**
+     * Uploads a document to the specified zaak and triggers indexing of the document.
+     * Waits until the document is indexed by searching for it by its title.
+     * For this reason we assume that the provided document title is unique within the integration test suite scope.
+     *
+     * Returns the UUID and identification of the created document.
+     */
     @Suppress("LongParameterList")
     suspend fun uploadDocumentToZaakAndIndexDocument(
         zaakUuid: UUID,
@@ -52,7 +59,7 @@ class DocumentHelper(
         val informatieobjectUuid = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
         val informatieobjectIdentification = responseBodyAsJsonObject.getString("identificatie")
         // trigger the notification service to index the document
-        sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid)
+        sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid)
         // wait for the indexing to complete by searching for the newly created document until we get the expected result
         // note that this assumes that the document title is unique
         eventually(10.seconds) {
@@ -78,7 +85,7 @@ class DocumentHelper(
         return Pair(informatieobjectUuid, informatieobjectIdentification)
     }
 
-    private fun sendEnkelvoudiginformatieobjectCreateNotification(informatieobjectUuid: UUID?) {
+    private fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(

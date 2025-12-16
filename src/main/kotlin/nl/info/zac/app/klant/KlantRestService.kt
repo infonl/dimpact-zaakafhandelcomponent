@@ -72,11 +72,15 @@ class KlantRestService @Inject constructor(
     val klantClientService: KlantClientService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+    companion object {
+        const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
+    }
+
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null,
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
             // run the two client calls concurrently in a coroutine scope,
@@ -85,7 +89,7 @@ class KlantRestService @Inject constructor(
                 val klantPersoonDigitalAddresses =
                     async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
                 val brpPersoon = async {
-                    brpClientService.retrievePersoon(bsn, zaakIdentification, userName)
+                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
                 }
                 klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
                     brpPersoon.await()?.toRestPersoon()?.apply {
@@ -149,15 +153,18 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
+    fun listPersonen(
+        restListPersonenParameters: RestListPersonenParameters,
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
+    ): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn))
+                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
                     .map { it.toRestPersoon() }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
                 .toRestPersonen()
                 .toRestResultaat()
 

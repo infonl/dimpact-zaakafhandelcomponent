@@ -349,7 +349,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected isValid(): boolean {
     return (
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
-      this.algemeenFormGroup.valid
+      this.algemeenFormGroup.valid &&
+      this.brpDoelbindingenFormGroup.valid
     );
   }
 
