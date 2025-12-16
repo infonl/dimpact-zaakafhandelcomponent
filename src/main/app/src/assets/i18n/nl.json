@@ -841,7 +841,7 @@
   "msg.error.case.cannot.have.due.date": "De zaak kan geen streefdatum hebben.",
   "msg.error.case.has.decision.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",
   "msg.error.case.explanation.required": "Toelichting is verplicht.",
-  "msg.error.case.betrokkene.not.allowed": "Betrokkene is niet toegestaan.",
+  "msg.error.case.betrokkene.not.allowed": "Het toevoegen van een betrokkene is niet toegestaan.",
   "msg.error.convert.not.possible": "Dit document kan niet worden geconverteerd.",
   "msg.error.document.has.already.been.signed": "Dit document is al ondertekend.",
   "msg.error.formio.init": "Fout bij initialiseren van formulieronderdeel '{{context}}': {{error}}",
