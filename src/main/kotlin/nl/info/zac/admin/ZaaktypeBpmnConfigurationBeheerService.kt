@@ -29,7 +29,8 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -144,15 +145,17 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
 
     fun copyConfiguration(zaaktype: ZaakType) {
         // only copy settings if there is a previous configuration
-        findConfiguration(zaaktype.omschrijving)?.let {
+        findConfiguration(zaaktype.omschrijving)?.let { previousConfiguration ->
             ZaaktypeBpmnConfiguration().apply {
-                id = it.id
+                id = previousConfiguration.id
                 this.zaaktypeUuid = zaaktype.url.extractUuid()
                 zaaktypeOmschrijving = zaaktype.omschrijving
-                bpmnProcessDefinitionKey = it.bpmnProcessDefinitionKey
-                productaanvraagtype = it.productaanvraagtype
-                groepID = it.groepID
+                bpmnProcessDefinitionKey = previousConfiguration.bpmnProcessDefinitionKey
+                productaanvraagtype = previousConfiguration.productaanvraagtype
+                groepID = previousConfiguration.groepID
                 creatiedatum = ZonedDateTime.now()
+                zaaktypeConfigurationService.mapBetrokkeneKoppelingen(previousConfiguration, this)
+                zaaktypeConfigurationService.mapBrpDoelbindingen(previousConfiguration, this)
             }.run(::storeConfiguration)
         }
     }
