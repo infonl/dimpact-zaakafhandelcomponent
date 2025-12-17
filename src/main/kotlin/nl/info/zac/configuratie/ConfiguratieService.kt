@@ -52,9 +52,6 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "GEMEENTE_MAIL")
     private val gemeenteMail: String,
 
-    @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
-    private val bpmnSupport: Boolean,
-
     @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION")
     private val pabcIntegration: Boolean,
 
@@ -110,7 +107,6 @@ class ConfiguratieService @Inject constructor(
         bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
         verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
 
-        LOG.info { "BPMN feature flag: $bpmnSupport" }
         LOG.info { "PABC feature flag: $pabcIntegration" }
     }
 
@@ -133,8 +129,6 @@ class ConfiguratieService @Inject constructor(
         val talen = entityManager.createQuery(query).resultList
         return talen.firstOrNull()
     }
-
-    fun featureFlagBpmnSupport(): Boolean = bpmnSupport
 
     fun featureFlagPabcIntegration(): Boolean = pabcIntegration
 

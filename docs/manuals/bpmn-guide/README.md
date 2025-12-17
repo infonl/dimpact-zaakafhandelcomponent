@@ -5,9 +5,6 @@
 ## ZAC and BPMN
 ZAC uses [Flowable](https://www.flowable.com/) to support BPMN processes. Forms that provide input for the BPMN processes are implemented using the [Forms.io](https://forms.io/) framework.
 
-### Feature flag
-By default, BPMN support in ZAC is disabled in K8s and enabled in local Docker Compose environment. This is controlled by the `FEATURE_FLAG_BPMN_SUPPORT` environment variable, that accepts `true` or `false` values.
-
 ## BPMN process definition
 To create a BPMN process definition, you can:
 * use Flowable [web editor](https://trial.flowable.com/design)

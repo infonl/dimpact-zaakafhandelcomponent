@@ -92,7 +92,6 @@ class ProjectConfig : AbstractProjectConfig() {
             "AUTH_SSL_REQUIRED" to "none",
             "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
             "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
-            "FEATURE_FLAG_BPMN_SUPPORT" to "true",
             "FEATURE_FLAG_PABC_INTEGRATION" to FEATURE_FLAG_PABC_INTEGRATION.toString(),
             "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
