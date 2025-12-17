@@ -101,7 +101,7 @@ class SuspensionZaakHelper @Inject constructor(
     fun extendZaak(
         zaak: Zaak,
         dueDate: LocalDate?,
-        fatalDate: LocalDate?,
+        fatalDate: LocalDate,
         extensionReason: String?,
         numberOfDays: Int
     ): Zaak =
@@ -147,14 +147,14 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun convertToPatch(
         zaak: Zaak,
-        plannedEndDate: LocalDate?,
-        latestSettlementDate: LocalDate?,
+        dueDate: LocalDate?,
+        fatalDate: LocalDate,
         extensionReason: String?,
         numberOfDays: Int
     ) =
         Zaak().apply {
-            einddatumGepland = plannedEndDate
-            uiterlijkeEinddatumAfdoening = latestSettlementDate
+            einddatumGepland = dueDate
+            uiterlijkeEinddatumAfdoening = fatalDate
             verlenging = Verlenging().apply {
                 reden = extensionReason
                 // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
