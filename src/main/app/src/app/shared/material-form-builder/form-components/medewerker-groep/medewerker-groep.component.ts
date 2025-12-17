@@ -27,7 +27,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
   private groups: GeneratedType<"RestGroup">[] = [];
   private users: GeneratedType<"RestUser">[] = [];
 
-  public data: MedewerkerGroepFormField;
+  public data!: MedewerkerGroepFormField;
   protected filteredGroups: GeneratedType<"RestGroup">[] = [];
   protected filteredUsers: GeneratedType<"RestUser">[] = [];
 
