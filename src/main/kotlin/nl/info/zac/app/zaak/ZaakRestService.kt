@@ -426,11 +426,16 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.verlengen)
 
-        val zaakPatch = restZaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens)
-        val updatedZaak = opschortenZaakHelper.extendZaak(zaakUUID, zaakPatch, restZaakVerlengGegevens.redenVerlenging)
+        val updatedZaak = opschortenZaakHelper.extendZaak(
+            zaak = zaak,
+            dueDate = restZaakVerlengGegevens.einddatumGepland,
+            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+            extensionReason = restZaakVerlengGegevens.redenVerlenging,
+            numberOfDays = restZaakVerlengGegevens.duurDagen
+        )
 
         if (restZaakVerlengGegevens.takenVerlengen) {
-            opschortenZaakHelper.extendTasks(zaakPatch, restZaakVerlengGegevens.duurDagen.toLong())
+            opschortenZaakHelper.extendTasks(updatedZaak, restZaakVerlengGegevens.duurDagen)
                 .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
                 .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }

@@ -10,6 +10,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
@@ -18,6 +19,7 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.time.LocalDate
+import java.time.Period
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -96,15 +98,23 @@ class SuspensionZaakHelper @Inject constructor(
         return zrcClientService.patchZaak(zaak.uuid, createZaakPatch(endDatePlanned, finalCompletionDate), description)
     }
 
-    fun extendZaak(zaakUuid: UUID, patch: Zaak, extendReason: String?) =
-        zrcClientService.patchZaak(zaakUuid, patch, "$VERLENGING: $extendReason")
+    fun extendZaak(
+        zaak: Zaak,
+        dueDate: LocalDate?,
+        fatalDate: LocalDate?,
+        extensionReason: String?,
+        numberOfDays: Int
+    ): Zaak =
+        convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
+            zrcClientService.patchZaak(zaak.uuid, it, "$VERLENGING: $extensionReason")
+        }
 
-    fun extendTasks(zaak: Zaak, numberOfDays: Long): List<Task> =
+    fun extendTasks(zaak: Zaak, numberOfDays: Int): List<Task> =
         flowableTaskService.listOpenTasksForZaak(zaak.uuid)
             .filter { it.dueDate != null }
             .onEach {
                 it.dueDate = DateTimeConverterUtil.convertToDate(
-                    DateTimeConverterUtil.convertToLocalDate(it.dueDate).plusDays(numberOfDays)
+                    DateTimeConverterUtil.convertToLocalDate(it.dueDate).plusDays(numberOfDays.toLong())
                 )
                 flowableTaskService.updateTask(it)
             }
@@ -132,6 +142,25 @@ class SuspensionZaakHelper @Inject constructor(
             opschorting = Opschorting().apply {
                 reden = reason
                 indicatie = isOpschorting
+            }
+        }
+
+    fun convertToPatch(
+        zaak: Zaak,
+        dueDate: LocalDate?,
+        fatalDate: LocalDate?,
+        extensionReason: String?,
+        numberOfDays: Int
+    ) =
+        Zaak().apply {
+            einddatumGepland = dueDate
+            uiterlijkeEinddatumAfdoening = fatalDate
+            verlenging = Verlenging().apply {
+                reden = extensionReason
+                // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
+                // so we use [Period.toString] to convert the duration to that format
+                duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + numberOfDays).toString() }
+                    ?: Period.ofDays(numberOfDays).toString()
             }
         }
 }
