@@ -7,7 +7,6 @@
 #
 package net.atos.zac.werklijst
 
-import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
