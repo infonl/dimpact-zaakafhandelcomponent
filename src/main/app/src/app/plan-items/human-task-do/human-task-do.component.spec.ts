@@ -78,7 +78,11 @@ describe("HumanTaskDoComponent", () => {
       type: "HUMAN_TASK",
       formulierDefinitie: "ADVIES",
     });
-    component.zaak = fromPartial({});
+    component.zaak = fromPartial({
+      zaaktype: {
+        uuid: "test-zaaktype-uuid",
+      },
+    });
 
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
