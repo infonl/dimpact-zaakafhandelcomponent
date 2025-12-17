@@ -7,6 +7,7 @@ import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
+import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/form";
 import { StaleTimes } from "../../../shared/http/zac-query-client";
@@ -54,11 +55,7 @@ export class AdviesFormulier extends AbstractTaakFormulier {
   }
 
   async handleForm(taak: GeneratedType<"RestTask">): Promise<FormField[]> {
-    const relevanteDocumentenValue = taak.taakdata?.["relevanteDocumenten"] as
-      | string
-      | undefined;
-
-    const relevanteDocumentenUUIDs = relevanteDocumentenValue?.split(";") ?? [];
+    const relevanteDocumentenUUIDs = mapStringToDocumentenStrings(taak.taakdata?.["relevanteDocumenten"]);
 
     const relevanteDocumenten = await this.queryClient.ensureQueryData({
       queryKey: [
