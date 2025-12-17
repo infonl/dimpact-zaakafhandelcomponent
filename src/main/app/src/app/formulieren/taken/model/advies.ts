@@ -55,7 +55,9 @@ export class AdviesFormulier extends AbstractTaakFormulier {
   }
 
   async handleForm(taak: GeneratedType<"RestTask">): Promise<FormField[]> {
-    const relevanteDocumentenUUIDs = mapStringToDocumentenStrings(taak.taakdata?.["relevanteDocumenten"]);
+    const relevanteDocumentenUUIDs = mapStringToDocumentenStrings(
+      taak.taakdata?.["relevanteDocumenten"],
+    );
 
     const relevanteDocumenten = await this.queryClient.ensureQueryData({
       queryKey: [
