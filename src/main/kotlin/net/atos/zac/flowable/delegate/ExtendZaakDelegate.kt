@@ -42,7 +42,7 @@ class ExtendZaakDelegate : AbstractDelegate() {
             if (numberOfDays > it) {
                 throw InvalidExtensionPeriodException(
                     "Zaaktype '${zaaktype.identificatie}' has a maximum extension term of $it days, " +
-                            "but requested extension is for $numberOfDays days"
+                        "but requested extension is for $numberOfDays days"
                 )
             }
         }
