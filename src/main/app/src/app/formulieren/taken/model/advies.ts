@@ -5,12 +5,10 @@
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/form";
-import { StaleTimes } from "../../../shared/http/zac-query-client";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 
@@ -18,23 +16,16 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
   providedIn: "root",
 })
 export class AdviesFormulier extends AbstractTaakFormulier {
-  private readonly queryClient = inject(QueryClient);
-
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
-    const documenten = await this.queryClient.ensureQueryData({
-      queryKey: ["enkelvoudigInformatieobjecten", zaak.uuid],
-      queryFn: () =>
-        lastValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: zaak.uuid,
-          }),
-        ),
-      staleTime: StaleTimes.Short,
-    });
+    const documenten = await lastValueFrom(
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: zaak.uuid,
+      }),
+    );
 
     return [
       {
@@ -59,21 +50,12 @@ export class AdviesFormulier extends AbstractTaakFormulier {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const relevanteDocumenten = await this.queryClient.ensureQueryData({
-      queryKey: [
-        "enkelvoudigInformatieobjecten",
-        taak.zaakUuid,
-        relevanteDocumentenUUIDs.join(";"),
-      ],
-      queryFn: () =>
-        lastValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: taak.zaakUuid,
-            informatieobjectUUIDs: relevanteDocumentenUUIDs,
-          }),
-        ),
-      staleTime: StaleTimes.Short,
-    });
+    const relevanteDocumenten = await lastValueFrom(
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs: relevanteDocumentenUUIDs,
+      }),
+    );
 
     const adviesControl = this.formBuilder.control(taak.taakdata?.["advies"], [
       Validators.required,
