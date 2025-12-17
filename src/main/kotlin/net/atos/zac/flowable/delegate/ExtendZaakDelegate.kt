@@ -6,6 +6,7 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import org.flowable.common.engine.api.delegate.Expression
@@ -39,9 +40,9 @@ class ExtendZaakDelegate : AbstractDelegate() {
         val zaaktype = flowableHelper.ztcClientService.readZaaktype(zaak.zaaktype)
         zaaktype.extensionPeriodDays()?.let {
             if (numberOfDays > it) {
-                throw IllegalStateException(
+                throw InvalidExtensionPeriodException(
                     "Zaaktype '${zaaktype.identificatie}' has a maximum extension term of $it days, " +
-                        "but requested extension is for $numberOfDays days"
+                            "but requested extension is for $numberOfDays days"
                 )
             }
         }

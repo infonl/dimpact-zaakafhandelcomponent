@@ -231,8 +231,6 @@ To extend a zaak:
 * set class `net.atos.zac.flowable.delegate.ExtendZaakDelegate`
 * add fields:
   * `aantalDagen` - number of days to extend the zaak for
-  * `einddatumGepland` - the new end date of the zaak (optional)
-  * `uiterlijkeEinddatumAfdoening` - the latest settlement date for the zaak (optional)
   * `verlengingReden` - reason for extending
   * `takenVerlengen` - whether to extend all tasks in the zaak (optional, default `false`)
 
@@ -242,12 +240,6 @@ For example:
       <extensionElements>
         <flowable:field name="aantalDagen">
           <flowable:expression><![CDATA[${extendDays}]]></flowable:expression>
-        </flowable:field>
-        <flowable:field name="einddatumGepland">
-          <flowable:expression><![CDATA[${extendEndDate}]]></flowable:expression>
-        </flowable:field>
-        <flowable:field name="uiterlijkeEinddatumAfdoening">
-          <flowable:expression><![CDATA[${extendSettlementDate}]]></flowable:expression>
         </flowable:field>
         <flowable:field name="verlengingReden">
           <flowable:string><![CDATA[Extend test]]></flowable:string>

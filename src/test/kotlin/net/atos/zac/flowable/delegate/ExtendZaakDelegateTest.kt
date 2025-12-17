@@ -19,12 +19,14 @@ import io.mockk.verify
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import org.flowable.common.engine.impl.el.JuelExpression
 import org.flowable.engine.delegate.DelegateExecution
@@ -162,12 +164,12 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         }
 
         When("Extending the zaak") {
-            val exception = shouldThrow<IllegalStateException> {
+            val exception = shouldThrow<InvalidExtensionPeriodException> {
                 extendZaakDelegate.execute(delegateExecution)
             }
 
             Then("exception is thrown") {
-                exception.message shouldContain "$extendDays"
+                exception.errorCode shouldBe ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
             }
 
             And("correct expressions resolution is attempted") {

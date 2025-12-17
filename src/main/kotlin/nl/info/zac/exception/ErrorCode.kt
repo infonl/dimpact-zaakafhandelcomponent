@@ -55,4 +55,5 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_ZAAKTYPE_CONFIGURATION_NOT_FOUND("msg.error.zaaktype.configuration.not.found"),
     ERROR_CODE_MULTIPLE_ZAAKTYPE_CONFIGURATIONS_FOUND("msg.error.multiple.zaaktype.configurations.found"),
     ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION("msg.error.bad.brp.protocollering.configuration"),
+    ERROR_CODE_EXTENSION_PERIOD_INVALID("msg.error.extension.period.invalid")
 }
