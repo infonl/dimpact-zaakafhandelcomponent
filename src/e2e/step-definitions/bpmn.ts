@@ -11,9 +11,13 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const TWO_MINUTES_IN_MS = 120_000;
 const FORTY_SECOND_IN_MS = 40_000;
-const FIVE_SECONDS_IN_MS = 5_000;
 const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
+
+const beheerdersGroupId = "beheerders_elk_domein";
+const beheerdersGroupName = "Beheerders elk domein - new IAM";
+const beheerderUserId = "beheerder1newiam";
+const beheerderUser = "Beheerder 1 New IAM";
 
 When(
   "{string} opens the active task",
@@ -123,7 +127,7 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByLabel("Group")).toContainText(
-      "Functioneelbeheerders",
+      beheerdersGroupName,
       { timeout: FORTY_SECOND_IN_MS },
     );
     await this.page.getByLabel("Communication channel").press("ArrowDown");
@@ -138,10 +142,10 @@ When(
   "{string} fills all mandatory form fields",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
+    await this.page.getByLabel("Group").selectOption(beheerdersGroupName);
 
     await this.page.getByLabel("User").click();
-    await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
+    await this.page.getByLabel("User").selectOption(beheerderUser);
     await this.page
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
@@ -214,10 +218,10 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
-      "functioneelbeheerders",
+      beheerdersGroupId,
     );
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
-      "functioneelbeheerder2",
+      beheerderUserId,
     );
     await expect(this.page.getByRole("option", { name: "file A" })).toBeVisible(
       {
@@ -283,7 +287,7 @@ Then(
     user: z.infer<typeof worldUsers>,
     groupName: string,
   ) {
-    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await this.page.getByRole("button", { name: "Zaakdata" }).first().click();
     await expect(
       this.page.getByRole("textbox", { name: "zaakGroep" }),
     ).toHaveValue(groupName);
