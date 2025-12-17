@@ -19,5 +19,5 @@ data class RESTZaakVerlengGegevens(
 
     var einddatumGepland: LocalDate? = null,
 
-    var uiterlijkeEinddatumAfdoening: LocalDate
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null
 )

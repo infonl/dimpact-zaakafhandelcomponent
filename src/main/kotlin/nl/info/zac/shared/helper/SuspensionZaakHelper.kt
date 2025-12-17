@@ -101,7 +101,7 @@ class SuspensionZaakHelper @Inject constructor(
     fun extendZaak(
         zaak: Zaak,
         dueDate: LocalDate?,
-        fatalDate: LocalDate,
+        fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
     ): Zaak =
@@ -148,7 +148,7 @@ class SuspensionZaakHelper @Inject constructor(
     fun convertToPatch(
         zaak: Zaak,
         dueDate: LocalDate?,
-        fatalDate: LocalDate,
+        fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
     ) =
