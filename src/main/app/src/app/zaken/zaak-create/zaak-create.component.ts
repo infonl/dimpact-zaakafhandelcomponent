@@ -204,7 +204,9 @@ export class ZaakCreateComponent {
     const { zaakafhandelparameters, vertrouwelijkheidaanduiding } = caseType;
     this.form.controls.groep.enable();
 
-    this.groups = this.identityService.listGroups(caseType.uuid);
+    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
+      caseType.uuid,
+    );
 
     const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
       ({ zaaktypeUuid }) => zaaktypeUuid === caseType.uuid,
