@@ -26,7 +26,6 @@ plugins {
     alias(libs.plugins.jsonschema2pojo)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.gradle.node)
-    alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)

@@ -5,12 +5,10 @@
 package nl.info.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -26,7 +24,6 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
@@ -43,7 +40,6 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
-import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -74,15 +70,12 @@ import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
-import nl.info.zac.test.date.toDate
-import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.util.UUID
 
-@Suppress("LongParameterList", "LargeClass")
-@Tags(NO_MOCK_CLEANUP)
+@Suppress("LongParameterList")
 class ZaakRestServiceUpdateTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
@@ -107,7 +100,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
-    val flowableTaskService = mockk<FlowableTaskService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -126,7 +118,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
-        flowableTaskService = flowableTaskService,
         healthCheckService = healthCheckService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
@@ -158,7 +149,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     }
 
     Context("Updating a zaak") {
-        clearAllMocks()
 
         Given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
             val changeDescription = "change description"
@@ -181,11 +171,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
-            every { flowableTaskService.listOpenTasksForZaak(any()) } returns listOf(task, task, task)
-            every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
-            every { task.name } returnsMany listOf("fakeTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
-            every { task.dueDate = newZaakFinalDate.toDate() } just runs
-            every { flowableTaskService.updateTask(task) } returns task
             every { task.id } returns "id"
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten) } returns patchedRestZaak
@@ -203,16 +188,14 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             } returns zaaktypeBpmnConfiguration
 
             When("zaak final date is set to a later date") {
+                every {
+                    opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+                } returns listOf(task, task)
+
                 val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
                 Then("zaak is updated with the new data") {
                     updatedRestZaak shouldBe patchedRestZaak
-                }
-
-                And("tasks final date are shifted accordingly") {
-                    verify(exactly = 2) {
-                        task.dueDate = newZaakFinalDate.toDate()
-                    }
                 }
 
                 And("the communication channel is exposed to zaak data") {
@@ -341,6 +324,10 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+                every {
+                    opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+                } returns emptyList()
+                every { eventingService.send(any<ScreenEvent>()) } just runs
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
@@ -609,7 +596,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         }
 
         Given("A zaak without an initiator and an initiator of type rechtspersoon without a KVK nummer") {
-            clearAllMocks()
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
                 betrokkeneIdentificatie = BetrokkeneIdentificatie(
                     type = IdentificatieType.RSIN,

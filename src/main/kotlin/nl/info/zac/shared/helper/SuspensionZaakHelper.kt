@@ -6,26 +6,33 @@ package nl.info.zac.shared.helper
 
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Opschorting
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 @NoArgConstructor
 class SuspensionZaakHelper @Inject constructor(
     private var policyService: PolicyService,
     private var zrcClientService: ZrcClientService,
-    private var zaakVariabelenService: ZaakVariabelenService
+    private var zaakVariabelenService: ZaakVariabelenService,
+    private val flowableTaskService: FlowableTaskService,
 ) {
     companion object {
         private const val SUSPENSION = "Opschorting"
         private const val RESUMING = "Hervatting"
+        private const val VERLENGING = "Verlenging"
     }
 
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
@@ -89,10 +96,30 @@ class SuspensionZaakHelper @Inject constructor(
         return zrcClientService.patchZaak(zaak.uuid, createZaakPatch(endDatePlanned, finalCompletionDate), description)
     }
 
-    private fun createZaakPatch(
-        endDatePlanned: LocalDate?,
-        finalCompletionDate: LocalDate
-    ): Zaak =
+    fun extendZaak(zaakUuid: UUID, patch: Zaak, extendReason: String?) =
+        zrcClientService.patchZaak(zaakUuid, patch, "$VERLENGING: $extendReason")
+
+    fun extendTasks(zaak: Zaak, numberOfDays: Long): List<Task> =
+        flowableTaskService.listOpenTasksForZaak(zaak.uuid)
+            .filter { it.dueDate != null }
+            .onEach {
+                it.dueDate = DateTimeConverterUtil.convertToDate(
+                    DateTimeConverterUtil.convertToLocalDate(it.dueDate).plusDays(numberOfDays)
+                )
+                flowableTaskService.updateTask(it)
+            }
+
+    fun adjustFinalDateForOpenTasks(zaakUUID: UUID, zaakFatalDate: LocalDate): List<Task> =
+        flowableTaskService.listOpenTasksForZaak(zaakUUID)
+            .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
+            .filter { it.dueDate != null }
+            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate).isAfter(zaakFatalDate) }
+            .onEach {
+                it.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
+                flowableTaskService.updateTask(it)
+            }
+
+    private fun createZaakPatch(endDatePlanned: LocalDate?, finalCompletionDate: LocalDate): Zaak =
         Zaak().apply {
             if (endDatePlanned != null) {
                 einddatumGepland = endDatePlanned
@@ -100,11 +127,7 @@ class SuspensionZaakHelper @Inject constructor(
             uiterlijkeEinddatumAfdoening = finalCompletionDate
         }
 
-    private fun addSuspensionToZaakPatch(
-        zaak: Zaak,
-        reason: String?,
-        isOpschorting: Boolean
-    ): Zaak =
+    private fun addSuspensionToZaakPatch(zaak: Zaak, reason: String?, isOpschorting: Boolean): Zaak =
         zaak.apply {
             opschorting = Opschorting().apply {
                 reden = reason
