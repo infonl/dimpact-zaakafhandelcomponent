@@ -7,6 +7,7 @@ package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -14,12 +15,6 @@ import java.util.logging.Logger
 class ExtendZaakDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
     lateinit var aantalDagen: Expression
-
-    // Set by Flowable. Can be either FixedValue or JuelExpression
-    var einddatumGepland: Expression? = null
-
-    // Set by Flowable. Can be either FixedValue or JuelExpression
-    var uiterlijkeEinddatumAfdoening: Expression? = null
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
     lateinit var verlengingReden: Expression
@@ -37,15 +32,24 @@ class ExtendZaakDelegate : AbstractDelegate() {
 
         LOG.fine(
             "Extending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
-                "for $aantalDagen days with reason '$verlengingReden' with planned end date '$einddatumGepland' and " +
-                "latest settlement date '$uiterlijkeEinddatumAfdoening'"
+                "for $aantalDagen days with reason '$verlengingReden'"
         )
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
+        val zaaktype = flowableHelper.ztcClientService.readZaaktype(zaak.zaaktype)
+        zaaktype.extensionPeriodDays()?.let {
+            if (numberOfDays > it) {
+                throw IllegalStateException(
+                    "Zaaktype '${zaaktype.identificatie}' has a maximum extension term of $it days, " +
+                        "but requested extension is for $numberOfDays days"
+                )
+            }
+        }
+
         val updatedZaak = flowableHelper.suspensionZaakHelper.extendZaak(
             zaak = zaak,
-            plannedEndDate = einddatumGepland?.resolveValueAsLocalDate(execution),
-            latestSettlementDate = uiterlijkeEinddatumAfdoening?.resolveValueAsLocalDate(execution),
+            dueDate = zaak.einddatumGepland?.plusDays(numberOfDays.toLong()),
+            fatalDate = zaak.uiterlijkeEinddatumAfdoening?.plusDays(numberOfDays.toLong()),
             extensionReason = verlengingReden.resolveValueAsString(execution),
             numberOfDays = numberOfDays
         )

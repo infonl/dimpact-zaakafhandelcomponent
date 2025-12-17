@@ -100,12 +100,12 @@ class SuspensionZaakHelper @Inject constructor(
 
     fun extendZaak(
         zaak: Zaak,
-        plannedEndDate: LocalDate?,
-        latestSettlementDate: LocalDate?,
+        dueDate: LocalDate?,
+        fatalDate: LocalDate?,
         extensionReason: String?,
         numberOfDays: Int
     ): Zaak =
-        convertToPatch(zaak, plannedEndDate, latestSettlementDate, extensionReason, numberOfDays).let {
+        convertToPatch(zaak, dueDate, fatalDate, extensionReason, numberOfDays).let {
             zrcClientService.patchZaak(zaak.uuid, it, "$VERLENGING: $extensionReason")
         }
 

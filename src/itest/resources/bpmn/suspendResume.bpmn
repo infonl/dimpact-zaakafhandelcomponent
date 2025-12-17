@@ -58,12 +58,6 @@
         <flowable:field name="aantalDagen">
           <flowable:expression><![CDATA[${extendDays}]]></flowable:expression>
         </flowable:field>
-        <flowable:field name="einddatumGepland">
-          <flowable:expression><![CDATA[${extendEndDate}]]></flowable:expression>
-        </flowable:field>
-        <flowable:field name="uiterlijkeEinddatumAfdoening">
-          <flowable:expression><![CDATA[${extendSettlementDate}]]></flowable:expression>
-        </flowable:field>
         <flowable:field name="verlengingReden">
           <flowable:string><![CDATA[Extend test]]></flowable:string>
         </flowable:field>

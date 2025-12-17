@@ -428,8 +428,8 @@ class ZaakRestService @Inject constructor(
 
         val updatedZaak = opschortenZaakHelper.extendZaak(
             zaak = zaak,
-            plannedEndDate = restZaakVerlengGegevens.einddatumGepland,
-            latestSettlementDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+            dueDate = restZaakVerlengGegevens.einddatumGepland,
+            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
             extensionReason = restZaakVerlengGegevens.redenVerlenging,
             numberOfDays = restZaakVerlengGegevens.duurDagen
         )
