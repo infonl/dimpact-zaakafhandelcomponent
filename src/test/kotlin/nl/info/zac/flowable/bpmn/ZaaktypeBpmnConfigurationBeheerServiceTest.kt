@@ -23,7 +23,6 @@ import jakarta.persistence.criteria.Root
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -45,9 +44,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
-    val zaaktypeBpmnConfigurationBeheerService =
-        ZaaktypeBpmnConfigurationBeheerService(entityManager, zaaktypeConfigurationService)
+    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -330,12 +327,6 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every {
                 entityManager.createQuery(criteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull()
             } returns previousConfiguration
-            every {
-                zaaktypeConfigurationService.mapBetrokkeneKoppelingen(any(), any())
-            } answers { callOriginal() }
-            every {
-                zaaktypeConfigurationService.mapBrpDoelbindingen(any(), any())
-            } answers { callOriginal() }
 
             val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
             val newConfiguration = createZaaktypeBpmnConfiguration()

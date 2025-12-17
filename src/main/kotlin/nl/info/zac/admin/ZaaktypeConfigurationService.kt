@@ -10,8 +10,6 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
-import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -71,29 +69,6 @@ class ZaaktypeConfigurationService @Inject constructor(
             .where(criteriaBuilder.equal(root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
 
         return entityManager.createQuery(query).setMaxResults(1).resultList.firstOrNull()
-    }
-
-    fun mapBetrokkeneKoppelingen(
-        previousZaaktypeConfiguration: ZaaktypeConfiguration,
-        newZaaktypeConfiguration: ZaaktypeConfiguration
-    ) = newZaaktypeConfiguration.apply {
-        zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
-            zaaktypeConfiguration = newZaaktypeConfiguration
-            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
-        }
-    }
-
-    fun mapBrpDoelbindingen(
-        previousZaaktypeConfiguration: ZaaktypeConfiguration,
-        newZaaktypeConfiguration: ZaaktypeConfiguration
-    ) = newZaaktypeConfiguration.apply {
-        zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
-            zaaktypeConfiguration = newZaaktypeConfiguration
-            zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
-            raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
-            verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
-        }
     }
 
     private fun getLastCreatedConfiguration(zaaktypeDescription: String): ZaaktypeConfiguration? {

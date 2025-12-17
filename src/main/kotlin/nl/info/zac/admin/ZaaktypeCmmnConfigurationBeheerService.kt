@@ -47,7 +47,6 @@ import kotlin.apply
 class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
 ) {
@@ -246,11 +245,8 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         mapZaakbeeindigGegevens(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration, zaaktype)
         mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        zaaktypeConfigurationService.mapBetrokkeneKoppelingen(
-            previousZaaktypeCmmnConfiguration,
-            zaaktypeCmmnConfiguration
-        )
-        zaaktypeConfigurationService.mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 

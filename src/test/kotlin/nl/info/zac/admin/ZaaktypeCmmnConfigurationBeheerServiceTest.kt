@@ -34,7 +34,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -57,14 +56,12 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
-    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaaktypeCmmnConfigurationBeheerService = ZaaktypeCmmnConfigurationBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
-        zaaktypeConfigurationService = zaaktypeConfigurationService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
     )
@@ -309,12 +306,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     any<UUID>()
                 )
             } returns mockk {}
-            every {
-                zaaktypeConfigurationService.mapBrpDoelbindingen(any<ZaaktypeConfiguration>(), any<ZaaktypeConfiguration>())
-            } answers { callOriginal() }
-            every {
-                zaaktypeConfigurationService.mapBetrokkeneKoppelingen(any<ZaaktypeConfiguration>(), any<ZaaktypeConfiguration>())
-            } answers { callOriginal() }
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 

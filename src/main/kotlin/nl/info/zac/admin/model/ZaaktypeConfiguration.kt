@@ -96,4 +96,27 @@ abstract class ZaaktypeConfiguration {
 
     fun getBrpParameters(): ZaaktypeBrpParameters =
         zaaktypeBrpParameters ?: ZaaktypeBrpParameters()
+
+    fun mapBetrokkeneKoppelingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) = newZaaktypeConfiguration.apply {
+        zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
+            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
+        }
+    }
+
+    fun mapBrpDoelbindingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) = newZaaktypeConfiguration.apply {
+        zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
+            raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
+        }
+    }
 }

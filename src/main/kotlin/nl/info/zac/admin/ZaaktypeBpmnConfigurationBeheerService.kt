@@ -29,8 +29,7 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager,
-    private val zaaktypeConfigurationService: ZaaktypeConfigurationService
+    private val entityManager: EntityManager
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -154,8 +153,8 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 productaanvraagtype = previousConfiguration.productaanvraagtype
                 groepID = previousConfiguration.groepID
                 creatiedatum = ZonedDateTime.now()
-                zaaktypeConfigurationService.mapBetrokkeneKoppelingen(previousConfiguration, this)
-                zaaktypeConfigurationService.mapBrpDoelbindingen(previousConfiguration, this)
+                mapBetrokkeneKoppelingen(previousConfiguration, this)
+                mapBrpDoelbindingen(previousConfiguration, this)
             }.run(::storeConfiguration)
         }
     }
