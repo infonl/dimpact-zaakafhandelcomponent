@@ -14,7 +14,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
 @Component({
-  selector: "taak-edit",
+  selector: "zac-taak-edit",
   templateUrl: "./taak-edit.component.html",
 })
 export class TaakEditComponent {

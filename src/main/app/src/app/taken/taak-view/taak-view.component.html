@@ -30,7 +30,7 @@
     (closedStart)="activeSideAction = null"
   >
     @if (taak) {
-      <taak-edit
+      <zac-taak-edit
         *ngSwitchCase="'actie.taak.wijzigen'"
         [sideNav]="actionsSidenav"
         [task]="taak"
@@ -134,7 +134,7 @@
                   />
                   <zac-static-text
                     label="taak.status"
-                    [value]="'taak.status.' + taak?.status"
+                    [value]="'taak.status.' + taak?.status | translate"
                     class="flex-item"
                   />
                 </div>
@@ -152,13 +152,17 @@
                     [value]="taak?.behandelaar?.naam"
                     class="flex-item"
                   />
-                  <button
-                    mat-icon-button
-                    (click)="editTaak()"
-                    [disabled]="!taak"
-                  >
-                    <mat-icon>edit</mat-icon>
-                  </button>
+                  @if (
+                    taak && taak.rechten.toekennen && taak.status !== "AFGEROND"
+                  ) {
+                    <button
+                      mat-icon-button
+                      (click)="editTaak()"
+                      [disabled]="!taak"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
                 </div>
                 <div
                   class="content flex flex-row flex-wrap justify-start gap-10"
