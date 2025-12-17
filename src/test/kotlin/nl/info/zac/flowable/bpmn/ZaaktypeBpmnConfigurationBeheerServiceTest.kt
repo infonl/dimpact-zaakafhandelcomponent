@@ -27,6 +27,8 @@ import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
+import nl.info.zac.admin.model.createBetrokkeneKoppelingen
+import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
@@ -42,8 +44,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeBpmnConfigurationBeheerService =
-        ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -307,7 +308,10 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val newZaaktypeUuid = zaakType.url.extractUuid()
 
-            val previousConfiguration = createZaaktypeBpmnConfiguration()
+            val previousConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false)
+            )
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
             every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
@@ -336,6 +340,13 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                 Then("correct copy is stored") {
                     with(configurationSlot.captured) {
                         zaaktypeUuid shouldBe newZaaktypeUuid
+                        with(zaaktypeBetrokkeneParameters!!) {
+                            kvkKoppelen shouldBe true
+                            brpKoppelen shouldBe false
+                        }
+                        with(zaaktypeBrpParameters!!) {
+                            raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
+                        }
                     }
                 }
             }

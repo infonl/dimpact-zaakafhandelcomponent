@@ -17,8 +17,6 @@ import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
-import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
@@ -247,8 +245,8 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         mapZaakbeeindigGegevens(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration, zaaktype)
         mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 
@@ -408,29 +406,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setZaakAfzenders)
-
-    private fun mapBetrokkeneKoppelingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
-            zaaktypeConfiguration = newZaaktypeCmmnConfiguration
-            brpKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
-        }
-    }
-
-    private fun mapBrpDoelbindingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
-            zaaktypeConfiguration = newZaaktypeCmmnConfiguration
-            zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.zoekWaarde
-            raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
-            verwerkingregisterWaarde = previousZaaktypeCmmnConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
-        }
-    }
 
     private fun mapAutomaticEmailConfirmation(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
