@@ -30,9 +30,8 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
 
         val resultaattypeOmschrijving = resultaattypeOmschrijving?.resolveValueAsString(execution)
         if (resultaattypeOmschrijving != null) {
-            LOG.info(
-                "Zaak '${zaak.getUuid()}': Closing zaak with resultaattype omschrijving " +
-                    "'$resultaattypeOmschrijving'"
+            LOG.fine(
+                "Zaak '${zaak.getUuid()}': Closing zaak with resultaattype omschrijving '$resultaattypeOmschrijving'"
             )
             try {
                 flowableHelper.zgwApiService.endZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
