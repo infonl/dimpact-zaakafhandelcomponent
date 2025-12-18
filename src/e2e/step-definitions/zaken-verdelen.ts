@@ -37,17 +37,17 @@ When(
 When(
   "{string} assigns the zaken to 'Test groep A' and the first user in this group",
   async function (this: CustomWorld, s: string) {
-    await this.page.getByRole("button", { name: /verdelen/i }).click();
-    const group = this.page.getByRole("combobox", {
-      name: " Groep ",
-    });
-    // TODO: do not select the first group because that group is not authorised for the e2e test zaaktype
-    // instead select 'Test groep A' directly
-    await group.fill("Test groep A");
-    await group.focus();
-    await this.page.getByRole("listbox").first().click();
-    //await this.page.getByLabel(/groep/i).click();
-    //await this.page.getByRole("option").first().click();
+   await this.page.getByRole("button", { name: /verdelen/i }).click();
+   await this.page.getByLabel(/groep/i).click()
+
+      // TODO: select "Test groep A" from the group dropdown list
+      // does not work yet..
+    await this.page.getByRole("combobox", { name: " Test groep A " }).click();
+
+    // TODO: test
+    await this.page.waitForTimeout(10000);
+
+
     await this.page.getByLabel(/medewerker/i).isEnabled();
     await this.page.getByLabel(/medewerker/i).click();
     await this.page.getByRole("option").first().click();

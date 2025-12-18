@@ -10,7 +10,7 @@ Feature: Zaken verdelen / vrijgeven
     And the page is done searching
     And there are at least 3 zaken
     When "Bob" selects that number of zaken
-    And "Bob" assigns the zaken to the first group and user available
+    And "Bob" assigns the zaken to 'Test groep A' and the first user in this group
     Then "Bob" gets a message confirming that the assigning of zaken is starting
     And after a while the snackbar disappears
 
