@@ -4,7 +4,7 @@
  */
 
 import { Given, When } from "@cucumber/cucumber";
-import { profiles } from "../support/worlds/userProfiles";
+import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
 
@@ -40,12 +40,12 @@ async function logout(world: CustomWorld) {
   await world.page.getByText("Uitloggen").first().click();
 }
 
-async function isLoggedIn(world: CustomWorld, user: keyof typeof profiles) {
+async function isLoggedIn(world: CustomWorld, user: keyof typeof users) {
   await waitForPage(world);
   const account_circle = world.page.getByText("account_circle");
   if (!(await account_circle.isVisible())) return false;
   await account_circle.click();
-  const { username } = profiles[user];
+  const { username } = users[user];
   const profileText = world.page.getByRole("menu").filter({
     hasText: username,
   });
@@ -81,7 +81,7 @@ When(
 Given(
   "{string} is logged in to zac",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user: keyof typeof profiles) {
+  async function (this: CustomWorld, user: keyof typeof users) {
     const expectedUrl = this.worldParameters.urls["zac"];
     await this.openUrl(expectedUrl);
     let tries = 0;

@@ -3,17 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { groups } from "./groups";
+
 const Oscar = {
   username: "E2etest User2",
-  group: "Test Groep B",
+  group: groups.TestGroupB.name,
 };
 
 const Bob = {
   username: "E2etest User1",
-  group: "Test Groep A",
+  group: groups.TestGroupA.name,
 };
 
-export const profiles = {
+export const users = {
   Bob,
   Oscar,
 };
