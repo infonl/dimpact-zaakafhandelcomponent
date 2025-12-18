@@ -217,7 +217,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.11.1-static@sha256:81f591a7d2173fd8db7bbdcc266f3410c725eb5e8954662dc07df7c6181d3df6"` |  |
+| opa.image.tag | string | `"1.12.0-static@sha256:93279016f05f592957333b9428e256a667858df570f4e5ed64a06cb3f33feae7"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
