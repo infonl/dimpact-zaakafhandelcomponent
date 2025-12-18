@@ -849,6 +849,7 @@
   "msg.error.zaaktype.configuration.not.found": "Zaaktype configuration not found.",
   "msg.error.multiple.zaaktype.configurations.found": "Multiple configurations for the same zaaktype found.",
   "msg.error.bad.brp.protocollering.configuration": "Invalid BRP Protocollering configuration.",
+  "msg.error.extension.period.invalid": "Invalid extension period.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",

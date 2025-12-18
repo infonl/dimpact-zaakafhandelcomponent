@@ -43,7 +43,7 @@ To create a Form.io form:
 1. Open ZAC
 2. Go to the "Beheer-instellingen"
 3. Open "Form.io formulieren"
-4. Click on the plus sign to open a file selection dialog
+4. Click on the plus sign to open a file selection dialogue
 5. Select the Form.io form
 
 ### Validation
@@ -85,6 +85,7 @@ The following functionality is supported by the BPMN process definition:
    * changing status and result
    * suspending
    * resuming
+   * extending
 * Send email
 * User/group
    * listing groups/users
@@ -221,6 +222,33 @@ For example:
 
 The `hervattenDatum` is a date-time string with a time-zone in the ISO-8601 calendar system: `2025-11-14T17:38:21.929149+01:00[Europe/Amsterdam]`. 
 
+#### Extending
+To extend a zaak:
+* create a service task
+* set class `net.atos.zac.flowable.delegate.ExtendZaakDelegate`
+* add fields:
+  * `aantalDagen` - number of days to extend the zaak for
+  * `verlengingReden` - reason for extending
+  * `takenVerlengen` - whether to extend all tasks in the zaak (optional, default `false`)
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_378" name="Extend" flowable:class="net.atos.zac.flowable.delegate.ExtendZaakDelegate">
+      <extensionElements>
+        <flowable:field name="aantalDagen">
+          <flowable:expression><![CDATA[${extendDays}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="verlengingReden">
+          <flowable:string><![CDATA[Extend test]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="takenVerlengen">
+          <flowable:expression><![CDATA[${extendTasks}]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+```
 
 ### Send email
 To send email:

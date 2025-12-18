@@ -23,10 +23,14 @@ fun createBetrokkeneKoppelingen(
     this.kvkKoppelen = kvkKoppelen
 }
 
-fun createZaaktypeBrpParameters() = ZaaktypeBrpParameters().apply {
-    zoekWaarde = ""
-    raadpleegWaarde = ""
-    verwerkingregisterWaarde = ""
+fun createZaaktypeBrpParameters(
+    zoekWaarde: String = "",
+    raadpleegWaarde: String = "",
+    verwerkingregisterWaarde: String = ""
+) = ZaaktypeBrpParameters().apply {
+    this.zoekWaarde = zoekWaarde
+    this.raadpleegWaarde = raadpleegWaarde
+    this.verwerkingregisterWaarde = verwerkingregisterWaarde
 }
 
 @Suppress("LongParameterList")
