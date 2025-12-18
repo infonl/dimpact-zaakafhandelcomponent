@@ -23,6 +23,16 @@ fun createBetrokkeneKoppelingen(
     this.kvkKoppelen = kvkKoppelen
 }
 
+fun createZaaktypeBrpParameters(
+    zoekWaarde: String = "",
+    raadpleegWaarde: String = "",
+    verwerkingregisterWaarde: String = ""
+) = ZaaktypeBrpParameters().apply {
+    this.zoekWaarde = zoekWaarde
+    this.raadpleegWaarde = raadpleegWaarde
+    this.verwerkingregisterWaarde = verwerkingregisterWaarde
+}
+
 @Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
@@ -97,11 +107,7 @@ fun createZaaktypeCmmnConfiguration(
     caseDefinitionId: String = "fakeCaseDefinitionId",
     gebruikersnaamMedewerker: String? = null,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
-    zaaktypeBrpParameters: ZaaktypeBrpParameters? = ZaaktypeBrpParameters().apply {
-        zoekWaarde = ""
-        raadpleegWaarde = ""
-        verwerkingregisterWaarde = ""
-    },
+    zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
     zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
 ) =
     ZaaktypeCmmnConfiguration().apply {

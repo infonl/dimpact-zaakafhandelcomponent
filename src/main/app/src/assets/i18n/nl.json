@@ -849,6 +849,7 @@
   "msg.error.zaaktype.configuration.not.found": "Zaaktypeconfiguratie niet gevonden.",
   "msg.error.multiple.zaaktype.configurations.found": "Er zijn meerdere configuraties voor hetzelfde zaaktype gevonden.",
   "msg.error.bad.brp.protocollering.configuration": "Ongeldige BRP Protocollering-configuratie.",
+  "msg.error.extension.period.invalid": "Ongeldige verlengingsperiode.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",
