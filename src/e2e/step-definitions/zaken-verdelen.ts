@@ -37,7 +37,7 @@ When(
 );
 
 When(
-  "{string} assigns the zaken to 'Test groep A' and the first user in this group",
+  "{string} assigns the zaken to 'Test groep A' and Bob",
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: /verdelen/i }).click();
     await this.page.getByLabel(/groep/i).click();

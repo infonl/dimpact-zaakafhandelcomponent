@@ -7,7 +7,7 @@ import { groups } from "./groups";
 
 const Oscar = {
   username: "E2etest User2",
-  group: groups.TestGroupA.name,
+  group: groups.TestGroupB.name,
 };
 
 const Bob = {
