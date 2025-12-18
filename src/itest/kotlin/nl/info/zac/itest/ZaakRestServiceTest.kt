@@ -65,7 +65,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2020_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -96,21 +95,14 @@ class ZaakRestServiceTest : BehaviorSpec({
     val fatalDateNew = startDateNew.plusDays(1)
     lateinit var zaak2UUID: UUID
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
-    afterSpec {
-        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Context("Listing zaaktypes for creating zaken") {
         Given(
             """
-            zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
+            Zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
             """.trimIndent()
         ) {
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
+
             When("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest("$ZAC_API_URI/zaken/zaaktypes-for-creation")
                 lateinit var responseBody: String
@@ -647,7 +639,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                         getString("identificatieType") shouldBe "BSN"
-                        zaakProductaanvraag1Betrokkene1Uuid = getString("rolid").let(UUID::fromString)
                     }
                 }
             }

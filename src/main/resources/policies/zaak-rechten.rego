@@ -105,7 +105,6 @@ heropenen if {
 default bekijken_zaakdata := false
 bekijken_zaakdata if {
     beheerder.rol in user.rollen
-    zaaktype_allowed
 }
 
 default wijzigen_doorlooptijd := false
