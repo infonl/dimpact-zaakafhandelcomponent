@@ -6,7 +6,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
 import { groups } from "../support/worlds/groups";
-import { profiles } from "../support/worlds/userProfiles";
+import { users } from "../support/worlds/users";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
@@ -46,9 +46,7 @@ When(
       .click();
     await this.page.getByLabel(/medewerker/i).isEnabled();
     await this.page.getByLabel(/medewerker/i).click();
-    await this.page
-      .getByRole("option", { name: profiles.Bob.username })
-      .click();
+    await this.page.getByRole("option", { name: users.Bob.username }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
   },

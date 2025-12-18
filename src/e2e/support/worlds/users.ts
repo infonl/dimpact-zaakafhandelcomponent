@@ -15,7 +15,7 @@ const Bob = {
   group: groups.TestGroupA.name,
 };
 
-export const profiles = {
+export const users = {
   Bob,
   Oscar,
 };
