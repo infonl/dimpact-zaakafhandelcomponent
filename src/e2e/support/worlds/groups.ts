@@ -4,14 +4,14 @@
  */
 
 const TestGroupA = {
-    name: "Test Groep A",
+  name: "Test Groep A",
 };
 
 const TestGroupB = {
-    name: "Test Groep B",
+  name: "Test Groep B",
 };
 
 export const groups = {
-    TestGroupA,
-    TestGroupB,
+  TestGroupA,
+  TestGroupB,
 };
