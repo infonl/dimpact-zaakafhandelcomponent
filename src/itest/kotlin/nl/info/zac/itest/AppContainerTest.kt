@@ -37,7 +37,7 @@ class AppContainerTest : BehaviorSpec({
                 |Response:
                 | Code: ${response.code}
                 | Body: ${response.bodyAsString}
-            """.trimMargin()
+                """.trimMargin()
             }
             Then("it should return 200 OK with UP status") {
                 response.code shouldBe HTTP_OK
@@ -65,7 +65,7 @@ class AppContainerTest : BehaviorSpec({
                 |Response:
                 | Code: ${response.code}
                 | Body: ${response.bodyAsString}
-            """.trimMargin()
+                """.trimMargin()
             }
             Then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
             val healthResponse = JSONObject(response.bodyAsString)
@@ -131,7 +131,7 @@ class AppContainerTest : BehaviorSpec({
                 |Response:
                 | Code: ${response.code}
                 | Body: ${response.bodyAsString}
-            """.trimMargin()
+                """.trimMargin()
             }
             Then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
 
