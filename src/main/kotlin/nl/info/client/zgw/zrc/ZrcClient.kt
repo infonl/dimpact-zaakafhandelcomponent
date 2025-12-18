@@ -32,6 +32,8 @@ import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
@@ -160,6 +162,14 @@ interface ZrcClient {
         @PathParam("uuid") uuid: UUID,
         zaakeigenschap: ZaakEigenschap
     ): ZaakEigenschap
+
+    @POST
+    @Path("zaak_afsluiten/{uuid}")
+    fun zaakAfsluiten(@PathParam("uuid") uuid: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten
+
+    @POST
+    @Path("zaak_bijwerken/{uuid}")
+    fun zaakBijwerken(@PathParam("uuid") uuid: UUID, zaakBijwerken: ZaakBijwerken): ZaakBijwerken
 
     @POST
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")

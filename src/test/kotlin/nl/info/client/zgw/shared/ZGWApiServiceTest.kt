@@ -8,29 +8,31 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 import java.time.LocalDate
@@ -45,8 +47,6 @@ class ZGWApiServiceTest : BehaviorSpec({
         zrcClientService,
         drcClientService
     )
-    val resultaatTypeUUID = UUID.randomUUID()
-    val reason = "fakeReason"
 
     beforeEach {
         checkUnnecessaryStub()
@@ -140,80 +140,6 @@ class ZGWApiServiceTest : BehaviorSpec({
                         this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
                         // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
                         this.einddatumGepland shouldBe null
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Updating a zaak result") {
-        Given("A zaak with an existing result") {
-            val fakeResultaat = URI("https://example.com/${UUID.randomUUID()}")
-            val zaak = createZaak(
-                resultaat = fakeResultaat
-            )
-            val resultaat = createResultaat()
-            val resultaatSlot = slot<Resultaat>()
-            val updatedResultaat = createResultaat()
-            val resultaattType = createResultaatType()
-            every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-            every { zrcClientService.deleteResultaat(resultaat.uuid) } just Runs
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaattType
-            every { zrcClientService.createResultaat(capture(resultaatSlot)) } returns updatedResultaat
-
-            When("when the result is updated for the zaak") {
-                zgwApiService.updateResultaatForZaak(
-                    zaak,
-                    resultaatTypeUUID,
-                    reason
-                )
-
-                Then("the existing zaak result should be updated") {
-                    verify(exactly = 1) {
-                        zrcClientService.readResultaat(zaak.resultaat)
-                        zrcClientService.deleteResultaat(resultaat.uuid)
-                        ztcClientService.readResultaattype(resultaatTypeUUID)
-                        zrcClientService.createResultaat(any())
-                    }
-                    resultaatSlot.captured.run {
-                        this.uuid shouldBe null
-                        this.zaak shouldBe zaak.url
-                        this.resultaattype shouldBe resultaattType.url
-                        this.toelichting shouldBe reason
-                    }
-                }
-            }
-        }
-        Given("A zaak without an existing result") {
-            val zaak = createZaak(
-                resultaat = null
-            )
-            val resultaatSlot = slot<Resultaat>()
-            val updatedResultaat = createResultaat()
-            val resultaattType = createResultaatType()
-
-            clearMocks(ztcClientService, zrcClientService)
-
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaattType
-            every { zrcClientService.createResultaat(capture(resultaatSlot)) } returns updatedResultaat
-
-            When("when the result is updated for the zaak") {
-                zgwApiService.updateResultaatForZaak(
-                    zaak,
-                    resultaatTypeUUID,
-                    reason
-                )
-
-                Then("the zaak result should be created") {
-                    verify(exactly = 1) {
-                        ztcClientService.readResultaattype(resultaatTypeUUID)
-                        zrcClientService.createResultaat(any())
-                    }
-                    resultaatSlot.captured.run {
-                        this.uuid shouldBe null
-                        this.zaak shouldBe zaak.url
-                        this.resultaattype shouldBe resultaattType.url
-                        this.toelichting shouldBe reason
                     }
                 }
             }
@@ -403,6 +329,256 @@ class ZGWApiServiceTest : BehaviorSpec({
 
                 Then("an exception should be thrown") {
                     exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                }
+            }
+        }
+    }
+
+    Context("Closing a zaak") {
+        Given("A zaak with resultaattype and statustype") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val toelichting = "Test toelichting"
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
+
+            When("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting)
+
+                Then("the zaak is closed with correct resultaat and status") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                    with(zaakAfsluitenSlot.captured) {
+                        this.zaak shouldNotBe null
+                        this.resultaat shouldNotBe null
+                        this.resultaat!!.resultaattype shouldBe resultaatType.url
+                        this.resultaat!!.toelichting shouldBe toelichting
+                        this.status shouldNotBe null
+                        this.status!!.statustype shouldBe statusType.url
+                        this.status!!.statustoelichting shouldBe toelichting
+                        this.status!!.datumStatusGezet shouldNotBe null
+                    }
+                }
+            }
+        }
+
+        Given("A zaak with resultaattype and statustype, but toelichting is null") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult2 = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult2
+
+            When("closeZaak is called with null toelichting") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null)
+
+                Then("the zaak is closed with null toelichting") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                    with(zaakAfsluitenSlot.captured) {
+                        this.resultaat!!.toelichting shouldBe null
+                        this.status!!.statustoelichting shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("A zaaktype without an end status type") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = false
+            )
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+
+            When("closeZaak is called") {
+                val exception = shouldThrow<StatusTypeNotFoundException> {
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                }
+
+                Then("an exception should be thrown") {
+                    exception.message shouldBe
+                        "No status type with 'end state' found for zaaktype with URI: '${zaak.zaaktype}'."
+                }
+            }
+        }
+
+        Given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val datumkenmerk = "testDatumkenmerk"
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = datumkenmerk
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val existingZaakEigenschapUUID = UUID.randomUUID()
+            val existingZaakEigenschap = mockk<ZaakEigenschap>(relaxed = true)
+            every { existingZaakEigenschap.uuid } returns existingZaakEigenschapUUID
+            every { existingZaakEigenschap.naam } returns datumkenmerk
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(existingZaakEigenschap)
+            every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
+
+            When("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+
+                Then("it should update the existing zaakeigenschap") {
+                    verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschapUUID, any()) }
+                }
+
+                And("it should not create a new zaakeigenschap") {
+                    verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
+                }
+
+                And("the zaak is closed") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                }
+            }
+        }
+
+        Given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val datumkenmerk = "testDatumkenmerk"
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = datumkenmerk
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val eigenschap = mockk<Eigenschap>(relaxed = true)
+            every { eigenschap.url } returns URI("https://example.com/eigenschappen/${UUID.randomUUID()}")
+            val zaakEigenschapSlot = slot<ZaakEigenschap>()
+            val createdZaakEigenschap = mockk<ZaakEigenschap>()
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { ztcClientService.readEigenschap(zaak.zaaktype, datumkenmerk) } returns eigenschap
+            every { zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot)) } returns createdZaakEigenschap
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
+
+            When("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+
+                Then("it should create a new zaakeigenschap") {
+                    verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
+                    with(zaakEigenschapSlot.captured) {
+                        this.eigenschap shouldBe eigenschap.url
+                        this.zaak shouldBe zaak.url
+                        this.waarde shouldBe datumkenmerk
+                    }
+                }
+
+                And("it should not update any existing zaakeigenschap") {
+                    verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
+                }
+
+                And("the zaak is closed") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                }
+            }
+        }
+
+        Given("A zaak with resultaattype that does not have EIGENSCHAP afleidingswijze") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
+
+            When("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+
+                Then("it should not create or update any zaakeigenschap") {
+                    verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
+                    verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
+                }
+
+                And("the zaak is closed") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
                 }
             }
         }

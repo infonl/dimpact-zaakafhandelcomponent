@@ -49,7 +49,7 @@ In such way you can run the integration tests in a more controlled environment a
 
 ### Debugging integration tests
 
-Debugging integration tests can be difficult, because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
+Debugging integration tests can be challenging because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
 The following steps can help you debug failing integration tests:
 
 1. Build the ZAC Docker Image. See instructions above.
