@@ -5,6 +5,8 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
+import { profiles } from "../support/worlds/userProfiles";
+import {groups} from "../support/worlds/groups";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
@@ -37,20 +39,12 @@ When(
 When(
   "{string} assigns the zaken to 'Test groep A' and the first user in this group",
   async function (this: CustomWorld, s: string) {
-   await this.page.getByRole("button", { name: /verdelen/i }).click();
-   await this.page.getByLabel(/groep/i).click()
-
-      // TODO: select "Test groep A" from the group dropdown list
-      // does not work yet..
-    await this.page.getByRole("combobox", { name: " Test groep A " }).click();
-
-    // TODO: test
-    await this.page.waitForTimeout(10000);
-
-
+    await this.page.getByRole("button", { name: /verdelen/i }).click();
+    await this.page.getByLabel(/groep/i).click()
+    await this.page.getByRole("option", { name: groups.TestGroupA.name }).click();
     await this.page.getByLabel(/medewerker/i).isEnabled();
     await this.page.getByLabel(/medewerker/i).click();
-    await this.page.getByRole("option").first().click();
+    await this.page.getByRole("option", { name: profiles.Bob.username }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
   },
@@ -66,7 +60,6 @@ When(
       .click();
 
     await this.page.getByLabel("Reden").fill("Fake reason");
-
     await this.page.getByRole("button", { name: "Vrijgeven" }).click();
 
     await this.page.waitForTimeout(3000);
