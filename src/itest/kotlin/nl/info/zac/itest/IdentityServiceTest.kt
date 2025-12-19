@@ -159,9 +159,9 @@ class IdentityServiceTest : BehaviorSpec({
             which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID, and a logged-in beheerder    
         """
     ) {
-        When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
+        When("the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_2_UUID"
+                url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID"
             )
             Then(
                 """
@@ -214,9 +214,9 @@ class IdentityServiceTest : BehaviorSpec({
               zaaktype configuration for a given domain role, and a logged-in beheerder
         """.trimIndent()
     ) {
-        When("the 'list groups for a zaaktype' endpoint is called for this zaaktype") {
+        When("the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/zaaktype/$ZAAKTYPE_TEST_3_UUID"
+                url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID"
             )
             Then(
                 """

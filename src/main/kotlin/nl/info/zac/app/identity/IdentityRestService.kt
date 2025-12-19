@@ -49,7 +49,7 @@ class IdentityRestService @Inject constructor(
      * Or possibly add a second parameter to specify the requested application role.
      */
     @GET
-    @Path("groups/zaaktype/{zaaktypeUuid}")
+    @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
     fun listBehandelaarGroupsForZaaktype(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
         identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
 
