@@ -214,7 +214,7 @@ class IdentityServiceTest : BehaviorSpec({
               zaaktype configuration for a given domain role, and a logged-in beheerder
         """.trimIndent()
     ) {
-        When("the 'list behandelaargroups for a zaaktype' endpoint is called for this zaaktype") {
+        When("the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID"
             )
