@@ -7,7 +7,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -17,7 +16,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
@@ -31,7 +29,6 @@ import java.util.UUID
 /**
  * This test creates a zaak, adds a task to complete the intake phase, then adds, updates, and withdraws a besluit to the zaak.
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 @Suppress("MagicNumber")
 class ZaakRestServiceBesluitTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
