@@ -314,7 +314,7 @@ jobs:
         run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
@@ -418,7 +418,7 @@ jobs:
           report_type: "test_results"
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
@@ -447,7 +447,7 @@ jobs:
           report_type: "test_results"
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
