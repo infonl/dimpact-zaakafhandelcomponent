@@ -17,24 +17,15 @@ export class IdentityService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listGroups(zaaktypeUuid?: string): Observable<GeneratedType<"RestGroup">[]> {
-    if (!zaaktypeUuid) {
-      return this.zacHttpClient.GET("/rest/identity/groups");
-    }
-
-    return this.zacHttpClient.GET(
-      "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
-      {
-        path: { zaaktypeUuid },
-      },
-    );
+  listGroups(): Observable<GeneratedType<"RestGroup">[]> {
+    return this.zacHttpClient.GET("/rest/identity/groups");
   }
 
   listBehandelaarGroupsForZaaktype(
     zaaktypeUuid: string,
   ): Observable<GeneratedType<"RestGroup">[]> {
     return this.zacHttpClient.GET(
-      "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
+      "/rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}",
       {
         path: { zaaktypeUuid },
       },
