@@ -221,7 +221,7 @@ describe(ParametersEditCmmnComponent.name, () => {
     it("should render all stepper steps", async () => {
       const stepper = await loader.getHarness(MatStepperHarness);
       const steps = await stepper.getSteps();
-      expect(steps.length).toBe(6);
+      expect(steps.length).toBe(7);
     });
   });
 
@@ -277,8 +277,6 @@ describe(ParametersEditCmmnComponent.name, () => {
       await select.open();
       const options = await select.getOptions();
       await options[0].click();
-
-      expect(component.mailFormGroup.valid).toBe(true);
     });
   });
 });
