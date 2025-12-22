@@ -72,6 +72,23 @@ export class SingleInputFormField<
           this.controlErrors.set(control.errors);
         });
 
+        control.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((value) => {
+            switch (typeof value) {
+              case "string":
+                if (value) break;
+                control.setValue(null); // Set empty strings to null to sent to backend
+                break;
+              case "number":
+                if (!isNaN(value)) break;
+                control.setValue(null); // Set NaN to null to sent to backend
+                break;
+              default:
+              // No action needed
+            }
+          });
+
         // Set initial errors
         this.controlErrors.set(control.errors);
       },

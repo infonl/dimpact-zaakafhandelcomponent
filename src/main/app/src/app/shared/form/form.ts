@@ -80,6 +80,7 @@ type DocumentFormField<
     GeneratedType<"RestEnkelvoudigInformatieobject"> = GeneratedType<"RestEnkelvoudigInformatieobject">,
 > = MultipleInputFormField<Form, Key, Option> & {
   type: "documents";
+  viewDocumentInNewTab?: boolean;
 };
 
 type PlainTextField<Form extends _Form> = SingleInputFormField<Form> & {

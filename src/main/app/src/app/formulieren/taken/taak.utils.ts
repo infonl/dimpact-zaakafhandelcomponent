@@ -5,6 +5,10 @@
 
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { isMoment } from "moment";
+import {
+  DOCUMENT_STRING_SPLITTER,
+  mapDocumentenToString,
+} from "../../documenten/document-utils";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 type ControlMapOptions = {
@@ -21,7 +25,7 @@ function mapControlToTaskDataValue(
   control: AbstractControl,
   options: ControlMapOptions = {
     documentKey: "uuid",
-    documentSeparator: ";",
+    documentSeparator: DOCUMENT_STRING_SPLITTER,
   },
 ): string {
   const { value } = control;
@@ -37,9 +41,10 @@ function mapControlToTaskDataValue(
     case "object":
       if (Array.isArray(value)) {
         // For now, we can assume it is an array of documents
-        return value
-          .map((document) => document[options.documentKey])
-          .join(options.documentSeparator);
+        const documents = value.map(
+          (document) => document[options.documentKey],
+        );
+        return mapDocumentenToString(documents);
       }
 
       // Options which have a `key` and `value` property
@@ -99,6 +104,11 @@ function getToelichtingMapping(
       return {
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "aanvullendeInformatie",
+      };
+    case "ADVIES":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "advies",
       };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);

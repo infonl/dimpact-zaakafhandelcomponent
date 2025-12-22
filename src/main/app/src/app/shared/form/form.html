@@ -69,6 +69,7 @@
               [label]="field.label"
               [options]="field.options"
               [readonly]="field.readonly || readonly()"
+              [viewDocumentInNewTab]="field.viewDocumentInNewTab ?? false"
             />
           }
           @case ("radio") {
