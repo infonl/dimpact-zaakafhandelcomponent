@@ -50,19 +50,17 @@ export class TaakEditComponent {
 
   constructor() {
     effect(() => {
-      this.identityService
-        .listGroups(this.task().zaaktypeUUID ?? undefined)
-        .subscribe((groups) => {
-          const taskGroup = this.task().groep;
-          if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {
-            groups.unshift(taskGroup);
-          }
-          this.groups = groups;
-          this.form.patchValue({
-            groep: taskGroup,
-            behandelaar: this.task().behandelaar,
-          });
+      this.identityService.listGroups().subscribe((groups) => {
+        const taskGroup = this.task().groep;
+        if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {
+          groups.unshift(taskGroup);
+        }
+        this.groups = groups;
+        this.form.patchValue({
+          groep: taskGroup,
+          behandelaar: this.task().behandelaar,
         });
+      });
 
       if (this.task().status === "AFGEROND" || !this.task().rechten.toekennen) {
         this.form.disable();

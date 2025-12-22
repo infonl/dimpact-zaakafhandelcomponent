@@ -142,6 +142,24 @@
                   class="content flex flex-row flex-wrap justify-start gap-10"
                 >
                   <zac-static-text
+                    label="creatiedatum"
+                    [value]="taak?.creatiedatumTijd | datum"
+                    class="flex-item"
+                  />
+                  <zac-static-text
+                    label="fataledatum"
+                    [value]="taak?.fataledatum | datum"
+                    [icon]="fataledatumIcon"
+                    class="flex-item"
+                  />
+                </div>
+                <mat-divider
+                  class="mat-divider-wrapper full-width"
+                ></mat-divider>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
+                  <zac-static-text
                     label="groep"
                     [value]="taak?.groep?.naam"
                     class="flex-item"
@@ -163,21 +181,6 @@
                       <mat-icon>edit</mat-icon>
                     </button>
                   }
-                </div>
-                <div
-                  class="content flex flex-row flex-wrap justify-start gap-10"
-                >
-                  <zac-static-text
-                    label="creatiedatum"
-                    [value]="taak?.creatiedatumTijd | datum"
-                    class="flex-item"
-                  />
-                  <zac-static-text
-                    label="fataledatum"
-                    [value]="taak?.fataledatum | datum"
-                    [icon]="fataledatumIcon"
-                    class="flex-item"
-                  />
                 </div>
               </mat-tab>
               <mat-tab label="{{ 'historie' | translate }}">

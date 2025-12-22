@@ -97,9 +97,7 @@ export class HumanTaskDoComponent implements OnInit {
         ]);
       this.form.addControl("group", groupControl);
 
-      const groups = await lastValueFrom(
-        this.identityService.listGroups(this.zaak.zaaktype.uuid),
-      );
+      const groups = await lastValueFrom(this.identityService.listGroups());
       this.formFields.push({
         type: "auto-complete",
         key: "group",
