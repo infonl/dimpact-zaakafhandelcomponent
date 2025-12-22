@@ -65,8 +65,8 @@ class IdentityService @Inject constructor(
         """Once the PABC feature flag has been removed, this function should be deleted and the
         [listGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
     )
-    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
-        return if (configuratieService.featureFlagPabcIntegration()) {
+    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
+        if (configuratieService.featureFlagPabcIntegration()) {
             // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
             // In future once the PABC feature flag has been removed this should be refactored
@@ -86,7 +86,6 @@ class IdentityService @Inject constructor(
             }
         }
             .sortedBy { it.description }
-    }
 
     /**
      * Returns the list of groups that are authorised for the application role 'behandelaar' and
