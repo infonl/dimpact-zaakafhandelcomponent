@@ -50,7 +50,7 @@ jobs:
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
-      - name: Extract metrics from playwright report
+      - name: Extract metrics from Cucumber report
         if: always()
         run: "cd src/e2e && npm run e2e:extract:metrics"
       - name: copy report to separate folder
