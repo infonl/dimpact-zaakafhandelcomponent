@@ -10,8 +10,8 @@ const REPORT_PATH = 'reports/e2e-report.json';
 const METRICS_OUTPUT = 'reports/e2e-metrics.json';
 
 /**
- * Extracts metrics from the Cucumber JSON report generated during e2e test runs.
- * This script does not impact the e2e test execution itself.
+ * Extracts metrics from the Cucumber JSON report (reports/e2e-report.json) generated during e2e test runs.
+ * This script only reads the generated Cucumber report and does not impact the e2e test execution itself.
  */
 async function extractMetrics() {
   if (!existsSync(REPORT_PATH)) {
