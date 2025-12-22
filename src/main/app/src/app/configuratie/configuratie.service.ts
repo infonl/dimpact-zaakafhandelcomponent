@@ -101,18 +101,6 @@ export class ConfiguratieService {
     return this.gemeenteNaam$;
   }
 
-  readFeatureFlagBpmnSupport(): Observable<boolean> {
-    if (!this.bpmnSupport$) {
-      this.bpmnSupport$ = this.http
-        .get<boolean>(`${this.basepath}/feature-flags/bpmn-support`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.bpmnSupport$;
-  }
-
   readFeatureFlagPabcIntegration(): Observable<boolean> {
     if (!this.pabcIntegration$) {
       this.pabcIntegration$ = this.http
