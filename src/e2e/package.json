@@ -9,6 +9,7 @@
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
     "e2e:generate:report": "node generate-report.mjs",
+    "e2e:extract:metrics": "node extract-metrics.mjs",
     "bdd:ci": "npx bddgen && npx playwright test",
     "bdd": "npx bddgen && npx playwright test --ui"
   },
