@@ -19,7 +19,6 @@ import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
@@ -36,7 +35,6 @@ class DecisionServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
-    val zgwApiService = mockk<ZGWApiService>()
 
     val decisionService = DecisionService(
         brcClientService,
@@ -363,34 +361,6 @@ class DecisionServiceTest : BehaviorSpec({
                 exception.message shouldBe "Response date ${restBesluitWijzigenGegevens.lastResponseDate}" +
                     " is before calculated response date " +
                     "${restBesluitWijzigenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
-            }
-        }
-    }
-
-    Given("Zaak without resultaat, when a decision is made") {
-        val zaakWithoutResultaat = createZaak(resultaat = null)
-        val besluitToevoegenGegevens = createRestDecisionCreateData()
-        val besluit = createBesluit()
-
-        every { ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid) } returns besluitType
-        every { restDecisionConverter.convertToBesluit(zaakWithoutResultaat, besluitToevoegenGegevens) } returns besluit
-        every { brcClientService.createBesluit(besluit) } returns besluit
-        every {
-            drcClientService.readEnkelvoudigInformatieobject(
-                besluitToevoegenGegevens.informatieobjecten!!.first()
-            )
-        } returns enkelvoudigInformatieObject
-        every {
-            brcClientService.createBesluitInformatieobject(any<BesluitInformatieObject>(), "Aanmaken besluit")
-        } returns besluitInformatieObject
-
-        When("createDecision is called") {
-            decisionService.createDecision(zaakWithoutResultaat, besluitToevoegenGegevens)
-
-            Then("zaak.resultaat should still be null") {
-                verify(exactly = 0) {
-                    zgwApiService.createResultaatForZaak(zaakWithoutResultaat, any<UUID>(), any<String>())
-                }
             }
         }
     }

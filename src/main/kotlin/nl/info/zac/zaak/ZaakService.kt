@@ -26,12 +26,9 @@ import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
-import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -39,9 +36,6 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.exception.ErrorCode
-import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -54,7 +48,6 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import java.net.URI
 import java.util.Locale
@@ -73,7 +66,6 @@ class ZaakService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private var eventingService: EventingService,
     private var zaakVariabelenService: ZaakVariabelenService,
-    private val lockService: EnkelvoudigInformatieObjectLockService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
@@ -311,12 +303,6 @@ class ZaakService @Inject constructor(
         }
     }
 
-    fun checkZaakHasLockedInformationObjects(zaak: Zaak) {
-        if (lockService.hasLockedInformatieobjecten(zaak)) {
-            throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
-        }
-    }
-
     fun setOntvangstbevestigingVerstuurdIfNotHeropend(zaak: Zaak) {
         val statusType = zaak.status?.let { statusUuid ->
             val status = zrcClientService.readStatus(statusUuid)
@@ -367,30 +353,6 @@ class ZaakService @Inject constructor(
         zrcClientService.createRol(role, explanation)
     }
 
-    fun processBrondatumProcedure(zaak: Zaak, resultaatTypeUUID: UUID, brondatumArchiefprocedure: BrondatumArchiefprocedure) {
-        val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
-
-        when (resultaattype.brondatumArchiefprocedure.afleidingswijze) {
-            AfleidingswijzeEnum.EIGENSCHAP -> {
-                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank()) {
-                    throw InputValidationFailedException(
-                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                        message = """
-                    'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
-                    een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
-                        """.trimIndent()
-                    )
-                }
-                this.upsertEigenschapToZaak(
-                    resultaattype.brondatumArchiefprocedure.datumkenmerk,
-                    brondatumArchiefprocedure.datumkenmerk,
-                    zaak
-                )
-            }
-            else -> null
-        }
-    }
-
     private fun assignGroup(
         zaak: Zaak,
         group: Group,
@@ -432,26 +394,6 @@ class ZaakService @Inject constructor(
             user?.let {
                 zaakVariabelenService.setUser(zaakUuid, it.getFullName())
             } ?: zaakVariabelenService.removeUser(zaakUuid)
-        }
-    }
-
-    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
-        zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
-            zrcClientService.updateZaakeigenschap(
-                zaak.uuid, it.uuid,
-                it.apply {
-                    this.waarde = waarde
-                }
-            )
-        } ?: run {
-            ztcClientService.readEigenschap(zaak.zaaktype, eigenschap).let {
-                val zaakEigenschap = ZaakEigenschap().apply {
-                    this.eigenschap = it.url
-                    this.zaak = zaak.url
-                    this.waarde = waarde
-                }
-                zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
-            }
         }
     }
 

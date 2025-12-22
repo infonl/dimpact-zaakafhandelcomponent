@@ -12,7 +12,7 @@ import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.model.createZaakStatusSub
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
@@ -36,7 +36,7 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
         """
     ) {
         val zaak = createZaak()
-        val zaakStatus = createZaakStatus()
+        val zaakStatus = createZaakStatusSub()
         every { expression.getValue(delegatePlanItemInstance) } returns "fakeStatus"
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService

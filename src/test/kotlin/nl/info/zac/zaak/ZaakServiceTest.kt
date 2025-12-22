@@ -4,7 +4,6 @@
  */
 package nl.info.zac.zaak
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -43,22 +42,16 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
-import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -68,7 +61,6 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -80,7 +72,6 @@ class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
-    val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -93,7 +84,6 @@ class ZaakServiceTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         eventingService = eventingService,
         zaakVariabelenService = zaakVariabelenService,
-        lockService = lockService,
         identityService = identityService,
         indexingService = indexingService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
@@ -1101,38 +1091,6 @@ class ZaakServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("A zaak that has no locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns false
-
-            When("the zaak is checked if it is closeable") {
-                shouldNotThrowAny { zaakService.checkZaakHasLockedInformationObjects(zaak) }
-
-                Then("it should not throw any exceptions") {
-                    verify(exactly = 1) {
-                        lockService.hasLockedInformatieobjecten(zaak)
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Check zaak afsluitbaar") {
-        Given("A zaak that has locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns true
-
-            When("the zaak is checked if it is closeable") {
-                val exception = shouldThrow<CaseHasLockedInformationObjectsException> {
-                    zaakService.checkZaakHasLockedInformationObjects(zaak)
-                }
-
-                Then("it should throw an exception") {
-                    exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
-                    exception.message shouldBe "Case ${zaak.uuid} has locked information objects"
-                }
-            }
-        }
     }
 
     Context("Set ontvangstbevestiging verstuurd") {
@@ -1344,75 +1302,6 @@ class ZaakServiceTest : BehaviorSpec({
 
                 Then("it should return the correct zaaktype") {
                     result shouldBe zaakType
-                }
-            }
-        }
-    }
-
-    Context("Process special brondatum procedure") {
-        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
-            val zaak = createZaak()
-            val resultaatTypeUUID = UUID.randomUUID()
-            val resultaatType = createResultaatType(
-                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-                )
-            )
-            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
-            )
-
-            val existingZaakEigenschap = ZaakEigenschap(
-                URI(""),
-                UUID.randomUUID(),
-                brondatumArchiefprocedure.datumkenmerk
-            ).apply {
-                waarde = "testWaarde"
-            }
-
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(existingZaakEigenschap)
-            every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
-
-            When("processBrondatumProcedure is called with existing zaakeigenschap") {
-                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
-
-                Then("it should update the existing zaakeigenschap") {
-                    verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschap.uuid, any()) }
-                }
-
-                And("it should not create a new zaakeigenschap") {
-                    verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
-                }
-            }
-        }
-
-        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
-            val zaak = createZaak()
-            val resultaatTypeUUID = UUID.randomUUID()
-            val resultaatType = createResultaatType(
-                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-                )
-            )
-            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-            )
-            val eigenschap = Eigenschap()
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
-            every { ztcClientService.readEigenschap(zaak.zaaktype, brondatumArchiefprocedure.datumkenmerk) } returns eigenschap
-            every { zrcClientService.createEigenschap(any(), any()) } returns mockk()
-
-            When("processBrondatumProcedure is called with non-existing zaakeigenschap") {
-                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
-
-                Then("it should create a new zaakeigenschap") {
-                    verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
-                }
-
-                And("it should not update any existing zaakeigenschap") {
-                    verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
             }
         }

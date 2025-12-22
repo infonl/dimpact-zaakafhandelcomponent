@@ -314,7 +314,7 @@ jobs:
         run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
@@ -386,7 +386,7 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build Docker image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -418,7 +418,7 @@ jobs:
           report_type: "test_results"
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
@@ -447,7 +447,7 @@ jobs:
           report_type: "test_results"
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2.21.0
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results

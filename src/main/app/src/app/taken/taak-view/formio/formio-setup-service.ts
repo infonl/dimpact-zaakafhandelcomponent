@@ -152,7 +152,7 @@ export class FormioSetupService {
       custom: async () => {
         const data = await this.queryClient.ensureQueryData(
           this.zacQueryClient.GET(
-            "/rest/identity/groups/zaaktype/{zaaktypeUuid}",
+            "/rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}",
             {
               path: { zaaktypeUuid: this.taak!.zaaktypeUUID! },
             },

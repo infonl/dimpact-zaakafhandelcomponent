@@ -264,7 +264,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.12.0-static@sha256:93279016f05f592957333b9428e256a667858df570f4e5ed64a06cb3f33feae7
+    image: docker.io/openpolicyagent/opa:1.12.1-static@sha256:278deb6ffc725ca7e1939d56e9fded1f938c85a9a598def6d791598af57af61f
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -369,7 +369,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.12.0@sha256:39f093354fe6234844498673d1d9d1ac5b62e298d5627ffc6d2f0a277812d921
+    image: docker.io/openpolicyagent/opa:1.12.1@sha256:4d2d23a3f4c8c979aefab3b774e24326cf8543e672fd072612d5cc585341ddd6
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -712,7 +712,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.9@sha256:ed10313e20a255c5f1adb27b922dc66774070b8d99935858114b5e7f1d45970a
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -724,7 +724,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.9@sha256:7adfbce30289d8372ec16812b6702a9844a05f19847720640dd735f332f22e72
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.0.0@sha256:68749474713f7a9614e4ec10c046e70f160c1d93e19eb89e9e786fc06c7ce3cd
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"

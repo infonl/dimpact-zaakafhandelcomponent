@@ -9,7 +9,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -22,7 +21,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
@@ -36,7 +34,6 @@ import java.util.UUID
 /**
  * This test creates a zaak, adds a task to complete the intake phase, closes the zaak, then re-opens and again closes the zaak.
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class ZaakRestServiceCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
