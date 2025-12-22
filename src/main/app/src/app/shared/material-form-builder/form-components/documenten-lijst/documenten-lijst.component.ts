@@ -8,7 +8,8 @@ import { Component, DoCheck, OnInit } from "@angular/core";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
+import { mapDocumentenToString } from "../../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { IndicatiesLayout } from "../../../indicaties/indicaties.component";
 import { DatumPipe } from "../../../pipes/datum.pipe";
@@ -25,8 +26,9 @@ export class DocumentenLijstComponent
   implements OnInit, DoCheck
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  data: DocumentenLijstFormField;
-  documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>;
+  data!: DocumentenLijstFormField;
+  documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> =
+    of([]);
   selection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
@@ -61,17 +63,20 @@ export class DocumentenLijstComponent
           document.creatiedatum = this.datumPipe
             .transform(document.creatiedatum)
             ?.toString(); // nodig voor zoeken
-          document["viewLink"] = `/informatie-objecten/${document.uuid}`;
-          document["downloadLink"] =
-            this.informatieObjectenService.getDownloadURL(document.uuid);
-          if (this.data.documentenChecked?.includes(document.uuid)) {
+          (document as unknown as { viewLink: string })["viewLink"] =
+            `/informatie-objecten/${document.uuid}`;
+          (document as unknown as { downloadLink: string })["downloadLink"] =
+            this.informatieObjectenService.getDownloadURL(document.uuid!);
+          if (this.data.documentenChecked?.includes(document.uuid!)) {
             this.selection.toggle(document);
           }
         }
         this.dataSource.data = documenten;
         if (this.selection.selected.length > 0) {
           this.data.formControl.setValue(
-            this.selection.selected.map((value) => value.uuid).join(";"),
+            mapDocumentenToString(
+              this.selection.selected.map((value) => value.uuid),
+            ),
           );
         }
         this.loading = false;
@@ -86,7 +91,9 @@ export class DocumentenLijstComponent
     if ($event) {
       this.selection.toggle(document);
       this.data.formControl.setValue(
-        this.selection.selected.map((value) => value.uuid).join(";"),
+        mapDocumentenToString(
+          this.selection.selected.map((value) => value.uuid),
+        ),
       );
     }
   }

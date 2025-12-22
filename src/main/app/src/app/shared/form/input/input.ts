@@ -60,19 +60,4 @@ export class ZacInput<
         return String(option[displayValue as unknown as keyof Option]);
     }
   };
-
-  protected onInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-    switch (this.type()) {
-      case "text":
-      case "number":
-        if (value !== "") break;
-        this.control()?.setValue(null); // Ensure we send over `null` instead of an empty string
-        break;
-      default:
-        // Nothing to do...
-        break;
-    }
-  }
 }

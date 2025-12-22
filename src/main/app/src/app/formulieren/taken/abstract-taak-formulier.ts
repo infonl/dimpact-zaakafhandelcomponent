@@ -5,6 +5,7 @@
 
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
@@ -19,10 +20,10 @@ export abstract class AbstractTaakFormulier {
   protected static TOELICHTING_FIELD = "toelichting";
   protected static TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER = ";";
 
-  zaak: GeneratedType<"RestZaak">;
-  taakNaam: string;
-  humanTaskData: Partial<GeneratedType<"RESTHumanTaskData">>;
-  taak: GeneratedType<"RestTask">;
+  zaak!: GeneratedType<"RestZaak">;
+  taakNaam!: string;
+  humanTaskData!: Partial<GeneratedType<"RESTHumanTaskData">>;
+  taak!: GeneratedType<"RestTask">;
 
   tabellen: Record<string, string[]> = {};
   abstract taakinformatieMapping: {
@@ -131,7 +132,7 @@ export abstract class AbstractTaakFormulier {
 
   private getTaakdocumentenEnBijlagen(bijlagen?: string) {
     const taakDocumenten = this.taak?.taakdocumenten ?? [];
-    const bijlagenArray = bijlagen?.split(";") ?? [];
+    const bijlagenArray = mapStringToDocumentenStrings(bijlagen);
 
     return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaak.uuid,

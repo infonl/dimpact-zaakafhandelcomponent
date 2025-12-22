@@ -20,6 +20,7 @@ import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
+import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -190,9 +191,9 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       toelichting: formGroup.controls["toelichting"].value,
       ingangsdatum: formGroup.controls["ingangsdatum"].value,
       vervaldatum: formGroup.controls["vervaldatum"].value,
-      informatieobjecten: formGroup.controls["documenten"].value
-        ? formGroup.controls["documenten"].value.split(";")
-        : [],
+      informatieobjecten: mapStringToDocumentenStrings(
+        formGroup.controls["documenten"].value,
+      ),
       ...(this.besluit.besluittype?.publication.enabled
         ? {
             publicationDate: formGroup.controls["publicationDate"].value,

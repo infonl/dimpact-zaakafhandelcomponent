@@ -5,14 +5,12 @@
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/form";
-import { StaleTimes } from "../../../shared/http/zac-query-client";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
@@ -22,8 +20,6 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
   providedIn: "root",
 })
 export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
-  private readonly queryClient = inject(QueryClient);
-
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(
@@ -35,12 +31,9 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
 
-    const afzendersVoorZaak = await this.queryClient.ensureQueryData({
-      queryKey: ["afzender", zaak.uuid],
-      queryFn: () =>
-        lastValueFrom(this.zakenService.listAfzendersVoorZaak(zaak.uuid)),
-      staleTime: StaleTimes.Short,
-    });
+    const afzendersVoorZaak = await lastValueFrom(
+      this.zakenService.listAfzendersVoorZaak(zaak.uuid),
+    );
     const afzendersVoorZaakOptions = afzendersVoorZaak.map(
       (afzender) =>
         ({
@@ -64,17 +57,12 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
 
     verzenderControl.setValue(defaultAfzender ?? null);
 
-    const mailTemplate = await this.queryClient.ensureQueryData({
-      queryKey: ["mailtemplate", "TAAK_AANVULLENDE_INFORMATIE", zaak.uuid],
-      queryFn: () =>
-        lastValueFrom(
-          this.mailtemplateService.findMailtemplate(
-            "TAAK_AANVULLENDE_INFORMATIE",
-            zaak.uuid,
-          ),
-        ),
-      staleTime: StaleTimes.Short,
-    });
+    const mailTemplate = await lastValueFrom(
+      this.mailtemplateService.findMailtemplate(
+        "TAAK_AANVULLENDE_INFORMATIE",
+        zaak.uuid,
+      ),
+    );
     const htmlEditorControl = this.formBuilder.control<string>(
       mailTemplate.body,
       [Validators.required],

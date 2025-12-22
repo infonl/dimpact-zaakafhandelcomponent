@@ -29,6 +29,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
@@ -290,9 +291,7 @@ export class TaakViewComponent
 
       const allAttachments = [
         ...(taak.taakdocumenten ?? []),
-        ...((taak.taakdata?.bijlagen as string | undefined)
-          ?.split(";")
-          ?.filter(Boolean) ?? []),
+        ...mapStringToDocumentenStrings(taak.taakdata?.bijlagen),
       ];
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
