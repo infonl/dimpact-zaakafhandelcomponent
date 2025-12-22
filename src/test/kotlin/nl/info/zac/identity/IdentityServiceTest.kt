@@ -317,8 +317,10 @@ class IdentityServiceTest : BehaviorSpec({
             """
         ) {
             val zaaktypeUuid = UUID.randomUUID()
+            val zaaktypeDescription = "fakeZaaktypeDescription"
             val zaaktype = createZaakType(
-                uri = URI("https://example.com/zaaktypes/$zaaktypeUuid")
+                uri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
+                omschrijving = zaaktypeDescription
             )
             val pabcGroupRepresentation1 = createPabcGroupRepresentation(
                 name = "fakeGroupId1",
@@ -339,6 +341,16 @@ class IdentityServiceTest : BehaviorSpec({
 
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+
+                Then("all groups are returned, sorted by name") {
+                    groups.size shouldBe 2
+                    groups[0].name shouldBe "fakeGroupId1"
+                    groups[1].name shouldBe "fakeGroupId2"
+                }
+            }
+
+            When("groups for the zaaktype are listed") {
+                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
