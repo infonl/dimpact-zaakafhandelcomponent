@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: <YYYY> INFO.nl
+# SPDX-FileCopyrightText: 2023 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
