@@ -315,7 +315,6 @@
   "besluit.publicatie.indicatie.koptitel": "Publication",
   "besluit.publicatie.indicatie.onderschrift": "Publication term: {{publicationTermDays}} day",
   "besluit.publicatie.indicatie.onderschrift.meervoud": "Publication term: {{publicationTermDays}} days",
-  "zaps.step.proces-definitie.bpmn-feature-flag-off.hint": "The BPMN functionality is disabled in this environment",
   "zaps.step.proces-definitie.intro": "Indicate which CMMN model or BPMN process definition is linked to this case type. You can only link one of the two.",
   "zaps.step.proces-definitie.label": "Which connection would you like to make?",
   "zaps.step.proces-definitie.bevestig-switch.msg": "Changing the process definition type will remove all unsaved {{ process }} changes. Are you sure you want to continue?",

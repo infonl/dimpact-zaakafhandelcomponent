@@ -38,13 +38,6 @@ export class ParametersEditWrapperComponent
 
     this.route.data.subscribe(({ parameters }) => {
       this.isLoading = false;
-      this.featureFlagBpmnSupport =
-        parameters.featureFlagBpmnSupport as boolean;
-
-      if (!this.featureFlagBpmnSupport) {
-        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
-        return;
-      }
 
       if (parameters.isBpmn) {
         this.processDefinitionType = { type: "BPMN", selectedIndexStart: 1 };

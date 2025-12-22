@@ -12,10 +12,7 @@
   <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step
-    *ngIf="showFirstStep && cmmnBpmnFormGroup"
-    [stepControl]="cmmnBpmnFormGroup"
-  >
+  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie.CMMN" | translate
     }}</ng-template>
@@ -35,9 +32,6 @@
         [options]="zaakProcessDefinitionOptions"
         optionDisplayValue="label"
       ></zac-radio>
-      <mat-hint *ngIf="!featureFlagBpmnSupport">{{
-        "zaps.step.proces-definitie.bpmn-feature-flag-off.hint" | translate
-      }}</mat-hint>
 
       <div class="flex-row items-center gap-10 ml-1 my-3">
         <mat-icon color="warn" class="pr-3">warning</mat-icon>
@@ -188,7 +182,7 @@
         }}</small>
       </div>
       <div class="button-group flex-row flex-wrap">
-        <button *ngIf="showFirstStep" mat-raised-button matStepperPrevious>
+        <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}
         </button>
         <button mat-raised-button matStepperNext>
