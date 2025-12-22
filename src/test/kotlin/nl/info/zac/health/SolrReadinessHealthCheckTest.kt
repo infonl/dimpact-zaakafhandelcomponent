@@ -81,26 +81,26 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         }
     }
 
-        Given("Solr is not available and throws an exception") {
-            listOf<Throwable>(
-                SolrServerException("Connection refused to Solr server"),
-                RuntimeException("Network timeout")
-                ).forEach { err ->
-                When("the health check is called and error ${err.javaClass.simpleName} is thrown") {
-                    every { solrPingResponse.status } throws err
-                    val response = SolrReadinessHealthCheck(solrUrl).call()
+    Given("Solr is not available and throws an exception") {
+        listOf<Throwable>(
+            SolrServerException("Connection refused to Solr server"),
+            RuntimeException("Network timeout")
+        ).forEach { err ->
+            When("the health check is called and error ${err.javaClass.simpleName} is thrown") {
+                every { solrPingResponse.status } throws err
+                val response = SolrReadinessHealthCheck(solrUrl).call()
 
-                    Then("the health check should return DOWN status with error") {
-                        response.status shouldBe HealthCheckResponse.Status.DOWN
+                Then("the health check should return DOWN status with error") {
+                    response.status shouldBe HealthCheckResponse.Status.DOWN
 
-                        with(response.data.get()) {
-                            get("core") shouldBe SOLR_CORE
-                            get("error") shouldBe err.message
-                            containsKey("time") shouldBe true
-                            containsKey("status") shouldBe false
-                        }
+                    with(response.data.get()) {
+                        get("core") shouldBe SOLR_CORE
+                        get("error") shouldBe err.message
+                        containsKey("time") shouldBe true
+                        containsKey("status") shouldBe false
                     }
                 }
             }
         }
+    }
 })
