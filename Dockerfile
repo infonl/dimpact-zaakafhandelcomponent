@@ -7,6 +7,8 @@ FROM docker.io/eclipse-temurin:21.0.9_10-jre-ubi10-minimal@sha256:300e6d1b9b2925
 ARG branchName
 ARG commitHash
 ARG versionNumber
+ARG TRUSTSTORE_PASSWORD=changeit
+ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber
 
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
@@ -28,11 +30,13 @@ LABEL vcs-ref=""
 LABEL version=""
 
 # Import certificates into Java truststore
-ADD certificates /certificates
-RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer -storepass changeit -noprompt && \
-    keytool -importcert -cacerts -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt  -storepass changeit -noprompt && \
-    keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt -storepass changeit -noprompt && \
-    keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
+COPY certificates /certificates
+ENV KEYTOOL_OPTS="-cacerts -storepass ${TRUSTSTORE_PASSWORD} -noprompt"
+RUN keytool -importcert $KEYTOOL_OPTS -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer && \
+    keytool -importcert $KEYTOOL_OPTS -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt && \
+    keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt && \
+    keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt
+ENV KEYTOOL_OPTS=
 
 # Add user to run our application
 RUN useradd -u 1001 -g users --no-log-init -s /sbin/nologin -c "Default Application User" default
@@ -52,5 +56,3 @@ ENV WILDFLY_OVERRIDING_ENV_VARS=1
 # make sure that the WildFly management port is accessible from outside the container
 ENTRYPOINT ["java", "-Djboss.bind.address.management=0.0.0.0", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
-
-ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber
