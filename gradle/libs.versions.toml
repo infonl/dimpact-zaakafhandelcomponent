@@ -52,6 +52,7 @@ eclipse-microprofile-rest-client-api = "4.0"
 openapi-generator-eclipse-microprofile-rest-client-api = "3.0"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
+smallrye-health = "4.3.0"
 eclipse-microprofile-fault-tolerance-api = "4.1.2"
 hibernate-validator = "8.0.3.Final"
 jakarta-jakartaee = "10.0.0"
@@ -133,6 +134,7 @@ keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client"
 eclipse-microprofile-rest-client-api = { group = "org.eclipse.microprofile.rest.client", name = "microprofile-rest-client-api", version.ref = "eclipse-microprofile-rest-client-api" }
 eclipse-microprofile-config-api = { group = "org.eclipse.microprofile.config", name = "microprofile-config-api", version.ref = "eclipse-microprofile-config-api" }
 eclipse-microprofile-health-api = { group = "org.eclipse.microprofile.health", name = "microprofile-health-api", version.ref = "eclipse-microprofile-health-api" }
+smallrye-health = { group = "io.smallrye", name = "smallrye-health", version.ref = "smallrye-health" }
 eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.fault-tolerance", name = "microprofile-fault-tolerance-api", version.ref = "eclipse-microprofile-fault-tolerance-api" }
 hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
 jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }

@@ -10,7 +10,6 @@ import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
-import org.gradle.api.tasks.testing.Test
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
@@ -189,6 +188,8 @@ dependencies {
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
     testImplementation(libs.json)
+    // SmallRye Health implementation for MicroProfile Health tests
+    testImplementation(libs.smallrye.health)
     // Hibernate Validator requires an implementation of the Jakarta Expression Language
     // runtime this is provided for by the WildFly runtime environment
     // for our unit tests we use the reference implementation
