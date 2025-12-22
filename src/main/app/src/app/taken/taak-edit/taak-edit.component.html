@@ -1,0 +1,43 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>edit</mat-icon>
+  <span class="flex-grow-1">{{ "actie.taak.wijzigen" | translate }}</span>
+  <button mat-icon-button (click)="sideNav().close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider />
+
+<form
+  [formGroup]="form"
+  (submit)="formSubmit()"
+  (cancel)="sideNav().close()"
+  class="mt-2"
+>
+  <fieldset>
+    <zac-select
+      [form]="form"
+      key="groep"
+      [options]="groups"
+      optionDisplayValue="naam"
+    />
+    <zac-select
+      [form]="form"
+      key="behandelaar"
+      [options]="users"
+      optionDisplayValue="naam"
+    />
+    <zac-textarea [form]="form" key="reden" />
+  </fieldset>
+  <fieldset>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      submitLabel="actie.wijzigen"
+    />
+  </fieldset>
+</form>

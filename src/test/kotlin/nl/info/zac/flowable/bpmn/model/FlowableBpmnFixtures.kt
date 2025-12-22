@@ -32,13 +32,6 @@ fun createZaaktypeBpmnConfiguration(
     this.productaanvraagtype = productaanvraagtype
     this.groepID = groupName
     this.creatiedatum = ZonedDateTime.now()
-    this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters
-    this.zaaktypeBrpParameters = zaaktypeBrpParameters
-    val parameters = this
-    this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
-        this.zaaktypeConfiguration = parameters
-    }
-    this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
-        this.zaaktypeConfiguration = parameters
-    }
+    this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.also { it.zaaktypeConfiguration = this }
+    this.zaaktypeBrpParameters = zaaktypeBrpParameters.also { it.zaaktypeConfiguration = this }
 }

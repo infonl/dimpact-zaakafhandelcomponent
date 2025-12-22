@@ -5,6 +5,8 @@ This is the Dimpact Zaakafhandelcomponent (ZAC), a Dutch case management system 
 
 ## Code Style and Standards
 
+Please follow our coding conventions described in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ### Backend (Kotlin/Java)
 - Use Kotlin for new code; Java is legacy only
 - Follow Kotlin coding conventions

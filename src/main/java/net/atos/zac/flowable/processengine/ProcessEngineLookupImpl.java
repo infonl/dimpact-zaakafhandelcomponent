@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flowable.cdi.spi.ProcessEngineLookup;
-import org.flowable.cmmn.api.runtime.CaseInstanceState;
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
 import org.flowable.cmmn.engine.configurator.CmmnEngineConfigurator;
 import org.flowable.cmmn.engine.impl.cfg.DelegateExpressionFieldInjectionMode;
@@ -25,7 +24,6 @@ import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
 
@@ -100,10 +98,6 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         cmmnEngineConfiguration.setEnableSafeCmmnXml(true);
         cmmnEngineConfiguration.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.DISABLED);
         cmmnEngineConfiguration.setEnableHistoricTaskLogging(true);
-        CaseInstanceState.END_STATES.forEach(
-                endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
-                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState))
-        );
         cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new ZacCreateHumanTaskInterceptor());
         cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);

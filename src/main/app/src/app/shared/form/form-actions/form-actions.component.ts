@@ -37,7 +37,7 @@ export class ZacFormActions {
   protected readonly wrapper = input<"dialog" | "form">("form");
 
   protected readonly form =
-    input.required<Pick<FormGroup, "valid" | "disabled">>();
+    input.required<Pick<FormGroup, "valid" | "disabled" | "dirty">>();
   protected readonly mutation =
     input.required<Pick<CreateMutationResult, "isPending">>();
 

@@ -17,7 +17,6 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Status
-import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
@@ -36,7 +35,6 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTZaakKenmerk
-import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
@@ -53,7 +51,6 @@ import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.Period
 import java.util.EnumSet.noneOf
-import java.util.UUID
 import java.util.logging.Logger
 
 @Suppress("LongParameterList")
@@ -165,22 +162,6 @@ class RestZaakConverter @Inject constructor(
             }
         )
     }
-
-    @Suppress("NestedBlockDepth")
-    fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
-        zrcClientService.readZaak(zaakUUID).let { zaak ->
-            Zaak().apply {
-                einddatumGepland = verlengGegevens.einddatumGepland
-                uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-                verlenging = Verlenging().apply {
-                    reden = verlengGegevens.redenVerlenging
-                    // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
-                    // so we use [Period.toString] to convert the duration to that format
-                    duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
-                        ?: Period.ofDays(verlengGegevens.duurDagen).toString()
-                }
-            }
-        }
 
     private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()

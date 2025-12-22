@@ -28,6 +28,9 @@ scripts/python/.venv/*
 *.iml
 .idea
 
+### VSCode ###
+.vscode
+
 ### DIRENV ###
 .envrc
 

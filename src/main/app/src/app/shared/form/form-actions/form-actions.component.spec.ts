@@ -94,6 +94,7 @@ describe(ZacFormActions.name, () => {
     ])("with the form errors '%o'", (errors, expected) => {
       beforeEach(() => {
         form.setErrors(errors);
+        form.markAsDirty();
       });
       it("should set the submit button state", async () => {
         const submitButton = await loader.getHarness(
@@ -115,6 +116,7 @@ describe(ZacFormActions.name, () => {
     });
 
     it("should disable the submit button when the form is disabled", async () => {
+      form.markAsDirty();
       form.disable();
       await fixture.whenStable();
       const submitButton = await loader.getHarness(
@@ -126,6 +128,7 @@ describe(ZacFormActions.name, () => {
 
     describe("when mutating", () => {
       beforeEach(async () => {
+        form.markAsDirty();
         await mutation.mutateAsync({});
       });
 

@@ -1,0 +1,44 @@
+{
+  "display": "form",
+  "name": "extendForm",
+  "title": "Extend form",
+  "type": "form",
+  "components": [
+    {
+      "label": "Extend days",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "persistent": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validate": {
+        "min": 0,
+        "max": 90
+      },
+      "validateWhenHidden": false,
+      "key": "extendDays",
+      "type": "number",
+      "input": true,
+      "defaultValue": 10
+    },
+    {
+      "label": "Tasks",
+      "tableView": false,
+      "key": "extendTasks",
+      "type": "checkbox",
+      "input": true,
+      "defaultValue": false
+    },
+    {
+      "type": "button",
+      "label": "Suspend",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

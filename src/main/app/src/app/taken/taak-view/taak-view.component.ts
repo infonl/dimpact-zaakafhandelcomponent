@@ -420,6 +420,11 @@ export class TaakViewComponent
       });
   }
 
+  editTaak() {
+    this.activeSideAction = "actie.taak.wijzigen";
+    this.actionsSidenav.open();
+  }
+
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     let taskBody:
       | PutBody<"/rest/taken/taakdata">
@@ -541,59 +546,6 @@ export class TaakViewComponent
         normalizedTemplateName,
       );
     void this.actionsSidenav.open();
-  }
-
-  // TODO add the correct type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editToewijzing(event: any) {
-    if (
-      event["medewerker-groep"].medewerker &&
-      event["medewerker-groep"].medewerker.id ===
-        this.loggedInUserQuery.data()?.id &&
-      this.taak?.groep === event["medewerker-groep"].groep
-    ) {
-      this.assignToMe();
-      return;
-    }
-
-    if (!this.taak) return;
-
-    this.taak.groep = event["medewerker-groep"].groep;
-    this.taak.behandelaar = event["medewerker-groep"].medewerker;
-
-    this.takenService
-      .toekennen({
-        taakId: this.taak.id!,
-        zaakUuid: this.taak.zaakUuid,
-        groepId: this.taak.groep!.id!,
-        behandelaarId: this.taak.behandelaar?.id,
-        reden: event["reden"],
-      })
-      .subscribe(() => {
-        if (this.taak?.behandelaar) {
-          this.utilService.openSnackbar("msg.taak.toegekend", {
-            behandelaar: this.taak?.behandelaar?.naam,
-          });
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.taak");
-        }
-      });
-  }
-
-  private assignToMe() {
-    if (!this.taak) return;
-
-    this.takenService
-      .toekennenAanIngelogdeMedewerker({
-        taakId: this.taak.id!,
-        zaakUuid: this.taak.zaakUuid,
-        groepId: null as unknown as string,
-      })
-      .subscribe((taak) => {
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar?.naam,
-        });
-      });
   }
 
   updateTaakdocumenten(

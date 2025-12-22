@@ -113,6 +113,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       medewerker: mockUser,
       reden: "test-reden",
     });
+    component["form"].markAsDirty();
 
     const button = await loader.getHarness(
       MatButtonHarness.with({ text: /actie.verdelen/i }),
@@ -142,6 +143,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
     };
 
     component["form"].patchValue(formData);
+    component["form"].markAsDirty();
 
     const button = await loader.getHarness(
       MatButtonHarness.with({ text: /actie.verdelen/i }),

@@ -9,6 +9,7 @@
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
     "e2e:start": "npm ci && npm run e2e:run",
     "e2e:generate:report": "node generate-report.mjs",
+    "e2e:extract:metrics": "node extract-metrics.mjs",
     "bdd:ci": "npx bddgen && npx playwright test",
     "bdd": "npx bddgen && npx playwright test --ui"
   },
@@ -17,7 +18,7 @@
     "@cucumber/cucumber": "12.4.0",
     "pdf-parse": "2.4.5",
     "uniqid": "5.4.0",
-    "zod": "4.1.13"
+    "zod": "4.2.1"
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",

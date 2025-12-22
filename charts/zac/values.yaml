@@ -87,8 +87,6 @@ klantinteractiesApi:
 
 # Supported feature flags
 featureFlags:
-  # -- turns BPMN support on or off; defaults to false
-  bpmnSupport: false
   # -- turns PABC integration on or off; defaults to false
   pabcIntegration: false
 
@@ -309,7 +307,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.11.1-static@sha256:81f591a7d2173fd8db7bbdcc266f3410c725eb5e8954662dc07df7c6181d3df6"
+    tag: "1.12.1-static@sha256:278deb6ffc725ca7e1939d56e9fded1f938c85a9a598def6d791598af57af61f"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:

@@ -11,9 +11,6 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -26,7 +23,6 @@ import java.util.UUID
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private val entityManager: EntityManager,
     private val drcClientService: DrcClientService,
-    private val zrcClientService: ZrcClientService
 ) {
     @Transactional(REQUIRED)
     fun createLock(informationObjectUUID: UUID, userID: String): EnkelvoudigInformatieObjectLock {
@@ -63,17 +59,4 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
             entityManager.remove(lock)
             entityManager.flush()
         }
-
-    fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
-        val informationObjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak)
-            .map { it.informatieobject.extractUuid() }
-        if (informationObjectUUIDs.isEmpty()) {
-            return false
-        }
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(EnkelvoudigInformatieObjectLock::class.java)
-        val root = query.from(EnkelvoudigInformatieObjectLock::class.java)
-        query.select(root).where(root.get<Any>("enkelvoudiginformatieobjectUUID").`in`(informationObjectUUIDs))
-        return entityManager.createQuery(query).resultList.isNotEmpty()
-    }
 }

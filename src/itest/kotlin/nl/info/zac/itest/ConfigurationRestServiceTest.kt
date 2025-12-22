@@ -146,18 +146,6 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_CODE\""
             }
         }
-        When("the feature flag 'BPMN support' is retrieved") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/feature-flags/bpmn-support"
-            )
-
-            Then("'true' is returned because BPMN support is enabled for the integration tests") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson "true"
-            }
-        }
         When("the feature flag 'PABC integration' is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/feature-flags/pabc-integration"

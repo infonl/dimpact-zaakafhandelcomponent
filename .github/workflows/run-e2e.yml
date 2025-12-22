@@ -50,7 +50,10 @@ jobs:
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
-      - name: copy report to seperate folder
+      - name: Extract metrics from Cucumber report
+        if: always()
+        run: "cd src/e2e && npm run e2e:extract:metrics"
+      - name: copy report to separate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

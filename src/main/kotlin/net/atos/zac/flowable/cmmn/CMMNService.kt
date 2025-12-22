@@ -106,7 +106,6 @@ class CMMNService @Inject constructor(
     /**
      * Terminate the case for a zaak.
      * This also terminates all open tasks related to the case,
-     * This will also call {@Link EndCaseLifecycleListener}
      *
      * @param zaakUUID UUID of the zaak, for which the case should be terminated.
      */

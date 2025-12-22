@@ -183,6 +183,7 @@ describe(InformatieObjectAddComponent.name, () => {
   describe("Submit adding document to a Zaak", () => {
     beforeEach(() => {
       component["form"].patchValue(mockFormInput);
+      component["form"].markAsDirty();
       fixture.detectChanges();
     });
 
@@ -263,6 +264,7 @@ describe(InformatieObjectAddComponent.name, () => {
         ...mockFormInput,
         addOtherInfoObject: true,
       });
+      component["form"].markAsDirty();
       fixture.detectChanges();
     });
 

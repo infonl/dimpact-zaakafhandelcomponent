@@ -238,7 +238,6 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_1_START_DATE = "1970-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
     const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "fakeZaakOmschrijving"
     const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "fakeZaakToelichting"
@@ -249,9 +248,6 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE = "2023-10-30"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL = "Fake test document"
-    const val ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME = "fake-test-document.pdf"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
@@ -265,10 +261,6 @@ object ItestConfiguration {
      * Zaak created from productaanvraag with both kvkNummer and vestigingsNummer.
      */
     const val ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION = "ZAAK-1996-0000000001"
-
-    const val ZAAK_MANUAL_2000_03_IDENTIFICATION = "ZAAK-2000-0000000003"
-    const val ZAAK_MANUAL_2020_01_IDENTIFICATION = "ZAAK-2020-0000000001"
-    const val ZAAK_MANUAL_2024_01_IDENTIFICATION = "ZAAK-2024-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 

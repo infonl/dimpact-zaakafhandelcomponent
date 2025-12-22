@@ -87,7 +87,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 in reverse chronological order (most recent change first): 
                 1. zaak created
                 2. zaak assigned to raadplegers group
-                3. zaak status changed to 'Intake'
+                3. zaak status changed to 'Intake' (with additional metadata changes)
                 4. zaak assigned to behandelaar (= currently logged-in user)
                 5. zaak unassigned from raadplegers group
                 6. zaak assigned to behandelaars group
@@ -117,10 +117,26 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                           "nieuweWaarde" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
+                          "actie" : "ONTKOPPELD",
+                          "attribuutLabel" : "Behandelaar",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "oudeWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "toelichting" : "Status gewijzigd"
+                        }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "status",
                           "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "nieuweWaarde" : "Intake",
+                          "toelichting" : "Status gewijzigd"
+                        }, {
+                          "actie" : "GEWIJZIGD",
+                          "attribuutLabel" : "laatstGemuteerd",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "toelichting" : "Status gewijzigd"
+                        }, {
+                          "actie" : "GEWIJZIGD",
+                          "attribuutLabel" : "status",
+                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEKOPPELD",

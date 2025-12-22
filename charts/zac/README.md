@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.161](https://img.shields.io/badge/Version-1.0.161-informational?style=flat-square) ![AppVersion: 3.21](https://img.shields.io/badge/AppVersion-3.21-informational?style=flat-square)
+![Version: 1.0.164](https://img.shields.io/badge/Version-1.0.164-informational?style=flat-square) ![AppVersion: 3.21](https://img.shields.io/badge/AppVersion-3.21-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.141.1 |
+| @opentelemetry | opentelemetry-collector | 0.142.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -74,7 +74,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off; defaults to false |
 | featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
@@ -217,7 +216,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.11.1-static@sha256:81f591a7d2173fd8db7bbdcc266f3410c725eb5e8954662dc07df7c6181d3df6"` |  |
+| opa.image.tag | string | `"1.12.1-static@sha256:278deb6ffc725ca7e1939d56e9fded1f938c85a9a598def6d791598af57af61f"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
