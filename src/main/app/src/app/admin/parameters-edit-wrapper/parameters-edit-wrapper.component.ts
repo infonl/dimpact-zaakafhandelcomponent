@@ -22,7 +22,6 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   protected isLoading: boolean = true; // wait for data since mat-stepper cannot load its steps dynamically
-  protected featureFlagBpmnSupport: boolean = false;
   protected processDefinitionType!: ZaakProcessDefinition;
 
   constructor(

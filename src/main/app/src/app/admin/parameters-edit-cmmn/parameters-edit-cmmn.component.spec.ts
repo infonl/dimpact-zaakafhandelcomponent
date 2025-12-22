@@ -266,7 +266,6 @@ describe(ParametersEditCmmnComponent.name, () => {
     });
 
     it("should have valid mailFormGroup after selecting afzender", async () => {
-      const component = fixture.componentInstance;
       await selectStepperStep(3);
 
       const radioButtons = await loader.getAllHarnesses(MatRadioButtonHarness);
