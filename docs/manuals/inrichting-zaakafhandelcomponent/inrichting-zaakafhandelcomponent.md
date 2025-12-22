@@ -105,9 +105,9 @@ Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 
 
 #### Gegevens
-Na de keuze van een BPMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
-- BPMN procesdeifinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
+- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
 - Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 
@@ -140,7 +140,7 @@ Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de v
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 ![image](images/zaps_advies_intern.png)
 #### Actiegegevens
-Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
 ![image](images/zaps_actiegegevens.png)
 #### Mailgegevens
 1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
@@ -168,13 +168,13 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
 
 #### Koppelingen
 
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk Smartocuments  sjabloon moet worden verwerkt.
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
 
 ##### Landelijke registratie koppelingen
 
 - Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
-  -- Basisregistratie personen (persoonsgegevens) koppelen
-  -- KvK (bedrijfsgegevens) koppelen
+  - Basisregistratie personen (persoonsgegevens) koppelen
+  - KvK (bedrijfsgegevens) koppelen
 
 Afhankelijk van je proxy is er aanvullende informatie nodig.
 Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
@@ -207,13 +207,13 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 Voor het inrichten van BPMN zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
 ![image](images/zaps_BPMN_definities.png)
 
-- BPMN proces definities - hier kunnen de met bijvoorbeeld Fowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- BPMN proces definities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
 - Formulier definities - zal worden verwijderd en is al niet meer in gebruik.
-- Form.io formulieren - hier kunnen de met bijvoorbeeld Fowable aangemaakte formulieren worden toegevoegd. Deze worden dan gebruikt in de BPMN proces definities.
+- Form.io formulieren - hier kunnen de met bijvoorbeeld Flowable aangemaakte formulieren worden toegevoegd. Deze worden dan gebruikt in de BPMN proces definities.
 
 ## Referentietabellen
 
-Referentietabellen worden in de ZAC ondermeer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
+Referentietabellen worden in de ZAC onder meer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
 ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde referentietabellen. De systeemreferentietabellen zijn standaard beschikbaar en kunnen niet verwijderd worden. De zelf toegevoegde referentietabellen kunnen wel verwijderd worden.
 ZAC kent de volgende systeemreferentietabellen:
 
@@ -369,15 +369,15 @@ Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je 
 ## Domeinen inrichten en zaaktype / behandelaars toewijzen
 
 Om het domein in te richten en toe te wijzen neem je de volgende stappen:
-1. In keyckloak:
-- selecteer het zaakafhandelcomponent realm
-- in clients selecteer het zaakafhandelcomponent
-- maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
+1. In Keycloak:
+- selecteer de zaakafhandelcomponent realm
+- in clients, selecteer de zaakafhandelcomponent client
+- maak een rol aan met een naam die begint met domein_ en een korte omschrijving van het domein, bijvoorbeeld "domein_vergunningen"
 - maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
 - plaats de gebruikers die bij dit domein horen aan de groep toe
 2. In ZAC
-- maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
+- maak in de referentietabel `Domein` een domein aan met exact dezelfde naam, in dit geval "domein_vergunningen"
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
 
-> Let op! De domeinnamen mogen niet langer zijn dan 24 lettertekens. Langer dan 24 lettertekens kan wel maar zullen niet werken zonder verdere foutmelding.
+> Let op! De domeinnamen mogen niet langer zijn dan 24 lettertekens. Langer dan 24 lettertekens kan wel, maar zullen niet werken zonder verdere foutmelding.
