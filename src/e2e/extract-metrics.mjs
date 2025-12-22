@@ -139,13 +139,18 @@ async function extractMetrics() {
 
   // Calculate summary statistics
   metrics.summary.totalDurationFormatted = formatDuration(metrics.summary.totalDuration);
-  metrics.summary.averageScenarioDuration = formatDuration(
-    metrics.summary.totalDuration / metrics.summary.totalScenarios
-  );
-  metrics.summary.passRate = (
-    (metrics.summary.passedScenarios / metrics.summary.totalScenarios) * 100
-  ).toFixed(2) + '%';
 
+  if (metrics.summary.totalScenarios > 0) {
+    metrics.summary.averageScenarioDuration = formatDuration(
+      metrics.summary.totalDuration / metrics.summary.totalScenarios
+    );
+    metrics.summary.passRate = (
+      (metrics.summary.passedScenarios / metrics.summary.totalScenarios) * 100
+    ).toFixed(2) + '%';
+  } else {
+    metrics.summary.averageScenarioDuration = formatDuration(0);
+    metrics.summary.passRate = '0.00%';
+  }
   // Add timestamp
   metrics.timestamp = new Date().toISOString();
 
