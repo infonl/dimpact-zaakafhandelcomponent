@@ -341,6 +341,48 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         }
     }
 
+    Context("Extend zaak") {
+        Given("Zaak") {
+            val zaak = createZaak()
+            val description = "fakeDescription"
+
+            val zaakSlot = slot<Zaak>()
+            val descriptionSlot = slot<String>()
+            every {
+                zrcClientService.patchZaak(zaak.uuid, capture(zaakSlot), capture(descriptionSlot))
+            } returns zaak
+
+            When("it is extended") {
+                val updatedZaak = suspensionZaakHelper.extendZaak(
+                    zaak,
+                    today,
+                    tomorrow,
+                    description,
+                    numberOfDays.toInt()
+                )
+
+                Then("it returns an updated zaak") {
+                    updatedZaak shouldBe zaak
+                }
+
+                And("uses the extend description") {
+                    descriptionSlot.captured shouldBe "Verlenging: $description"
+                }
+
+                And("zaak update is triggered") {
+                    with(zaakSlot.captured) {
+                        einddatumGepland shouldBe today
+                        uiterlijkeEinddatumAfdoening shouldBe tomorrow
+                        with(verlenging) {
+                            duur shouldBe "P2D"
+                            reden shouldBe description
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Context("Extend tasks") {
         Given("Zaak with tasks") {
             val zaak = createZaak()
@@ -353,7 +395,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             every { flowableTaskService.updateTask(any<Task>()) } returns tasks[0]
 
             When("extending tasks") {
-                val listOfUpdatedTasks = suspensionZaakHelper.extendTasks(zaak, numberOfDays)
+                val listOfUpdatedTasks = suspensionZaakHelper.extendTasks(zaak, numberOfDays.toInt())
 
                 Then("tasks should be extended") {
                     listOfUpdatedTasks.size shouldBe 2

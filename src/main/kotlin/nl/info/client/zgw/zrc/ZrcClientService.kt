@@ -24,7 +24,10 @@ import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
@@ -218,14 +221,8 @@ class ZrcClientService @Inject constructor(
     fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =
         zrcClient.listAuditTrail(zaakUUID)
 
-    fun createResultaat(resultaat: Resultaat): Resultaat? {
-        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.resultaatCreate(resultaat)
-    }
-
-    fun updateResultaat(resultaat: Resultaat): Resultaat? {
-        resultaat.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.resultaatUpdate(resultaat.getUuid(), resultaat)
+    fun closeCase(zaakUUID: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten {
+        return zrcClient.zaakAfsluiten(zaakUUID, zaakAfsluiten)
     }
 
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
@@ -235,9 +232,12 @@ class ZrcClientService @Inject constructor(
         return zrcClient.zaakCreate(zaak)
     }
 
-    fun createStatus(status: Status): Status {
+    fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
         status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return zrcClient.statusCreate(status)
+        val zaakBijwerken = ZaakBijwerken().apply {
+            this.status = status
+        }
+        return zrcClient.zaakBijwerken(zaakUuid, zaakBijwerken).status
     }
 
     fun createEigenschap(zaakUUID: UUID, zaakEigenschap: ZaakEigenschap): ZaakEigenschap {

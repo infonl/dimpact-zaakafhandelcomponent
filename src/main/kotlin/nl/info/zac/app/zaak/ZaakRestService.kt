@@ -59,7 +59,6 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
@@ -426,11 +425,16 @@ class ZaakRestService @Inject constructor(
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
         assertPolicy(zaakRechten.verlengen)
 
-        val zaakPatch = restZaakConverter.convertToPatch(zaakUUID, restZaakVerlengGegevens)
-        val updatedZaak = opschortenZaakHelper.extendZaak(zaakUUID, zaakPatch, restZaakVerlengGegevens.redenVerlenging)
+        val updatedZaak = opschortenZaakHelper.extendZaak(
+            zaak = zaak,
+            dueDate = restZaakVerlengGegevens.einddatumGepland,
+            fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
+            extensionReason = restZaakVerlengGegevens.redenVerlenging,
+            numberOfDays = restZaakVerlengGegevens.duurDagen
+        )
 
         if (restZaakVerlengGegevens.takenVerlengen) {
-            opschortenZaakHelper.extendTasks(zaakPatch, restZaakVerlengGegevens.duurDagen.toLong())
+            opschortenZaakHelper.extendTasks(updatedZaak, restZaakVerlengGegevens.duurDagen)
                 .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
                 .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }
@@ -637,7 +641,6 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
-        zaakService.checkZaakHasLockedInformationObjects(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaakType.url.extractUuid()
         )
@@ -657,17 +660,16 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-        // Terminate case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
+        // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
     }
 
     private fun terminateZaak(
         zaak: Zaak,
-        resultaattype: UUID,
+        resultaattypeUUID: UUID,
         zaakbeeindigRedenNaam: String
     ) {
-        zgwApiService.createResultaatForZaak(zaak, resultaattype, zaakbeeindigRedenNaam)
-        zgwApiService.endZaak(zaak, zaakbeeindigRedenNaam)
+        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
     }
 
     @PATCH
@@ -695,25 +697,9 @@ class ZaakRestService @Inject constructor(
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).behandelen)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType).behandelen)
 
-        zaakService.checkZaakHasLockedInformationObjects(zaak)
-
-        zaakService.processBrondatumProcedure(
-            zaak,
-            afsluitenGegevens.resultaattypeUuid,
-            BrondatumArchiefprocedure().apply {
-                datumkenmerk = afsluitenGegevens.brondatumEigenschap
-            }
-        )
-
-        zgwApiService.updateResultaatForZaak(
-            zaak,
-            afsluitenGegevens.resultaattypeUuid,
-            afsluitenGegevens.reden
-        )
-
-        zgwApiService.closeZaak(zaak, afsluitenGegevens.reden)
+        zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
     }
 
     @PATCH

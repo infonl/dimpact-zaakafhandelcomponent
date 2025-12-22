@@ -22,19 +22,26 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.Resultaat
+import nl.info.client.zgw.zrc.model.generated.ResultaatSub
 import nl.info.client.zgw.zrc.model.generated.Status
+import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.generated.ZaakSub
+import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
-import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -83,102 +90,138 @@ class ZGWApiService @Inject constructor(
         zaak: Zaak,
         statusTypeOmschrijving: String,
         statusToelichting: String?
-    ): Status {
+    ): StatusSub {
         val statustype = readStatustype(
             statustypes = ztcClientService.readStatustypen(zaak.zaaktype),
             omschrijving = statusTypeOmschrijving,
             zaaktypeURI = zaak.zaaktype
         )
-        return createStatusForZaak(zaak.url, statustype.url, statusToelichting)
+        return createStatusForZaak(zaak.uuid, statustype.url, statusToelichting)
     }
 
-    /**
-     * Create [Resultaat] for a given [Zaak] based on [ResultaatType] .omschrijving and with
-     * [Resultaat].toelichting.
-     *
-     * @param zaak [Zaak]
-     * @param resultaattypeOmschrijving Omschrijving of the [ResultaatType] of the required [Resultaat].
-     * @param resultaatToelichting Toelichting for thew [Resultaat].
-     */
-    fun createResultaatForZaak(
-        zaak: Zaak,
-        resultaattypeOmschrijving: String,
-        resultaatToelichting: String
-    ) {
-        val resultaattypen = ztcClientService.readResultaattypen(zaak.getZaaktype())
-        val resultaattype = filterResultaattype(
-            resultaattypen,
-            resultaattypeOmschrijving,
-            zaak.zaaktype
+    fun getStatusTypeEind(zaakTypeURI: URI): StatusType {
+        val statustypes = ztcClientService.readStatustypen(zaakTypeURI)
+        return readStatustypeEind(
+            statustypes = statustypes,
+            zaaktypeURI = zaakTypeURI
         )
-        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
+    }
+
+    fun getResultaat(zaakTypeURI: URI, resultaatTypeOmschrijving: String): ResultaatType {
+        val resultaattypen = ztcClientService.readResultaattypen(zaakTypeURI)
+        return filterResultaattype(
+            resultaattypen,
+            resultaatTypeOmschrijving,
+            zaakTypeURI
+        )
+    }
+
+    fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType {
+        return ztcClientService.readResultaattype(resultaatTypeUUID)
     }
 
     /**
-     * Create [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat].toelichting.
+     * End [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
      * @param zaak [Zaak]
-     * @param resultaattypeUUID UUID of the [ResultaatType] of the required [Resultaat].
-     * @param resultaatToelichting Toelichting for thew [Resultaat].
+     * @param eindstatusToelichting Toelichting for the Eind [Status].
      */
-    fun createResultaatForZaak(
-        zaak: Zaak,
-        resultaattypeUUID: UUID,
-        resultaatToelichting: String?
-    ) {
-        val resultaattype = ztcClientService.readResultaattype(resultaattypeUUID)
-        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
+    fun endZaak(zaak: Zaak, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
+        val resultaattype = getResultaat(zaak.zaaktype, resultaatTypeOmschrijving)
+
+        closeZaak(zaak, resultaattype.url.extractUuid(), eindstatusToelichting)
     }
 
     /**
-     * Update [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat] .toelichting.
-     *
-     * @param zaak [Zaak]
-     * @param resultaatTypeUuid Containing the UUID of the [ResultaatType] of the required [Resultaat].
-     * @param reden Reason of setting the [ResultaatType]
-     */
-    fun updateResultaatForZaak(zaak: Zaak, resultaatTypeUuid: UUID, reden: String?) {
-        zaak.resultaat?.let {
-            val resultaat = zrcClientService.readResultaat(it)
-            zrcClientService.deleteResultaat(resultaat.uuid)
-        }
-        createResultaatForZaak(zaak, resultaatTypeUuid, reden)
-    }
-
-    /**
-     * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
-     *
-     * @param zaak [Zaak]
-     * @param eindstatusToelichting Toelichting for thew Eind [Status].
-     */
-    fun endZaak(zaak: Zaak, eindstatusToelichting: String) {
-        closeZaak(zaak, eindstatusToelichting)
-        berekenArchiveringsparameters(zaak.uuid)
-    }
-
-    /**
-     * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
+     * End [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
      * @param zaakUUID UUID of the [Zaak]
-     * @param eindstatusToelichting Toelichting for thew Eind [Status].
+     * @param eindstatusToelichting Toelichting for the Eind [Status].
      */
-    fun endZaak(zaakUUID: UUID, eindstatusToelichting: String) {
+    fun endZaak(zaakUUID: UUID, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        endZaak(zaak, eindstatusToelichting)
+        endZaak(zaak, resultaatTypeOmschrijving, eindstatusToelichting)
     }
 
     /**
-     * Close [Zaak]. Creating a new Eind [Status] for the [Zaak].
+     * Close [Zaak].
      *
-     * @param zaak [Zaak] to be closed
-     * @param eindstatusToelichting Toelichting for thew Eind [Status].
+     * This method will also process the brondatum procedure when needed for
+     * the given `Zaak.resultaattype.brondatumArchiefprocedure.afleidingswijze`.
+     *
+     * @param zaak [Zaak] to be closed.
+     * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
+     * @param toelichting [String] of the [Resultaat] and [Status].
      */
-    fun closeZaak(zaak: Zaak, eindstatusToelichting: String?) {
-        val eindStatustype = readStatustypeEind(
-            ztcClientService.readStatustypen(zaak.zaaktype),
-            zaak.zaaktype
-        )
-        createStatusForZaak(zaak.url, eindStatustype.url, eindstatusToelichting)
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, toelichting: String?) {
+        val resultaatType = getResultaatType(resultaatTypeUUID)
+        val resultaat = ResultaatSub().apply {
+            resultaattype = resultaatType.url
+            this.toelichting = toelichting
+        }
+        val statusType = getStatusTypeEind(zaak.zaaktype)
+        val status = StatusSub().apply {
+            statustype = statusType.url
+            datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+            statustoelichting = toelichting
+        }
+
+        val zaakSub = zaak.toZaakSub()
+
+        val zaakAfsluiten = ZaakAfsluiten().apply {
+            this.zaak = zaakSub
+            this.resultaat = resultaat
+            this.status = status
+        }
+        this.processBrondatumProcedure(zaakAfsluiten)
+        zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
+    }
+
+    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten) {
+        val resultaatTypeUUID = zaakAfsluiten.resultaat.resultaattype.extractUuid()
+        val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
+
+        val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure
+
+        when (brondatumArchiefprocedure.afleidingswijze) {
+            AfleidingswijzeEnum.EIGENSCHAP -> {
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank()) {
+                    throw InputValidationFailedException(
+                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                        message = """
+                    'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
+                    een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
+                        """.trimIndent()
+                    )
+                }
+                this.upsertEigenschapToZaak(
+                    brondatumArchiefprocedure.datumkenmerk,
+                    brondatumArchiefprocedure.datumkenmerk,
+                    zaakAfsluiten.zaak
+                )
+            }
+            else -> null
+        }
+    }
+
+    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: ZaakSub) {
+        zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
+            zrcClientService.updateZaakeigenschap(
+                zaak.uuid, it.uuid,
+                it.apply {
+                    this.waarde = waarde
+                }
+            )
+        } ?: run {
+            ztcClientService.readEigenschap(zaak.zaaktype, eigenschap).let {
+                val zaakEigenschap = ZaakEigenschap().apply {
+                    this.eigenschap = it.url
+                    this.zaak = zaak.url
+                    this.waarde = waarde
+                }
+                zrcClientService.createEigenschap(zaak.uuid, zaakEigenschap)
+            }
+        }
     }
 
     /**
@@ -310,14 +353,13 @@ class ZGWApiService @Inject constructor(
         }
     }
 
-    private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
-        val status = Status().apply {
-            zaak = zaakURI
+    private fun createStatusForZaak(zaakUUID: UUID, statustypeURI: URI, toelichting: String?): StatusSub {
+        val status = StatusSub().apply {
             statustype = statustypeURI
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
+            statustoelichting = toelichting
         }
-        status.statustoelichting = toelichting
-        return zrcClientService.createStatus(status)
+        return zrcClientService.createStatus(zaakUUID, status)
     }
 
     private fun calculateDoorlooptijden(zaak: Zaak) {
@@ -328,19 +370,6 @@ class ZGWApiService @Inject constructor(
         zaak.uiterlijkeEinddatumAfdoening = zaak.startdatum.plus(Period.parse(zaaktype.doorlooptijd))
     }
 
-    private fun createResultaat(
-        zaakURI: URI,
-        resultaattypeURI: URI,
-        resultaatToelichting: String?
-    ) =
-        zrcClientService.createResultaat(
-            Resultaat().apply {
-                zaak = zaakURI
-                resultaattype = resultaattypeURI
-                toelichting = resultaatToelichting
-            }
-        )
-
     private fun filterResultaattype(
         resultaattypes: List<ResultaatType>,
         description: String,
@@ -350,36 +379,6 @@ class ZGWApiService @Inject constructor(
         ?: throw ResultTypeNotFoundException(
             "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
         )
-
-    private fun berekenArchiveringsparameters(zaakUUID: UUID) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        // refetch to get the einddatum (the archiefnominatie has also been set)
-        val resultaattype = ztcClientService.readResultaattype(
-            zrcClientService.readResultaat(zaak.resultaat).resultaattype
-        )
-        resultaattype.archiefactietermijn?.let {
-            // no idea what it means when there is no archiefactietermijn
-            bepaalBrondatum(zaak, resultaattype)?.let { brondatum ->
-                val zaakPatch = Zaak().apply {
-                    archiefactiedatum = brondatum.plus(Period.parse(it))
-                }
-                zrcClientService.patchZaak(zaakUUID, zaakPatch)
-            }
-        }
-    }
-
-    private fun bepaalBrondatum(zaak: Zaak, resultaattype: ResultaatType): LocalDate? {
-        val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure ?: return null
-        return if (brondatumArchiefprocedure.afleidingswijze == AfleidingswijzeEnum.AFGEHANDELD) {
-            zaak.einddatum
-        } else {
-            LOG.warning(
-                "Determining the 'brondatum' for 'afleidingswijze' " +
-                    "'${brondatumArchiefprocedure.afleidingswijze}' is not supported"
-            )
-            null
-        }
-    }
 
     private fun readStatustype(
         statustypes: List<StatusType>,

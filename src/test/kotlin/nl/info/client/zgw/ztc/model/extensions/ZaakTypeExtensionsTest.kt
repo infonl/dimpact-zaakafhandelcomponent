@@ -13,7 +13,7 @@ import java.time.DateTimeException
 
 class ZaakTypeExtensionsTest : BehaviorSpec({
 
-    Context("isServicenormBeschikbaar") {
+    Context("Service norm") {
         Given("servicenorm was never set") {
             val zaakType = createZaakType(servicenorm = null)
 
@@ -60,6 +60,53 @@ class ZaakTypeExtensionsTest : BehaviorSpec({
 
                 Then("it should error") {
                     result.message shouldBe "Text cannot be parsed to a Period"
+                }
+            }
+        }
+    }
+
+    Context("Extension period") {
+        Given("zaaktype with no extension allowed") {
+            val zaakType = createZaakType()
+
+            When("extension term days are calculated") {
+                val result = zaakType.extensionPeriodDays()
+
+                Then("it should be null") {
+                    result shouldBe null
+                }
+            }
+        }
+
+        Given("zaaktype has extension allowed, but no extension period set") {
+            val zaakType = createZaakType(verlengingMogelijk = true)
+            When("extension term days are calculated") {
+                val result = zaakType.extensionPeriodDays()
+
+                Then("it should be null") {
+                    result shouldBe null
+                }
+            }
+        }
+
+        Given("zaaktype has extension allowed, and extension period set") {
+            val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "P10D")
+            When("extension term days are calculated") {
+                val result = zaakType.extensionPeriodDays()
+
+                Then("it should be calculated correctly") {
+                    result shouldBe 10
+                }
+            }
+        }
+
+        Given("zaaktype has extension allowed, and extension period set blank") {
+            val zaakType = createZaakType(verlengingMogelijk = true, verlengingstermijn = "  ")
+            When("extension term days are calculated") {
+                val result = zaakType.extensionPeriodDays()
+
+                Then("it should be calculated as null") {
+                    result shouldBe null
                 }
             }
         }

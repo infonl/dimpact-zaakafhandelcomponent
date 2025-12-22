@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: <YYYY> INFO.nl
+# SPDX-FileCopyrightText: 2023 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
@@ -32,7 +32,6 @@ DB_HOST=localhost:54320
 DB_NAME=zac
 DB_PASSWORD=password
 DB_USER=zac
-FEATURE_FLAG_BPMN_SUPPORT=true
 FEATURE_FLAG_PABC_INTEGRATION=true
 GEMEENTE_CODE=0001
 GEMEENTE_MAIL=op://Dimpact/ZAC-.env-$APP_ENV/GEMEENTE/MAIL

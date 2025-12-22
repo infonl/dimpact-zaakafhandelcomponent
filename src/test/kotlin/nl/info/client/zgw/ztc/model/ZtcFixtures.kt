@@ -132,7 +132,9 @@ fun createZaakType(
     referentieProces: ReferentieProces? = null,
     doel: String = "fakeDoel",
     versieDatum: LocalDate = LocalDate.now(),
-    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    verlengingMogelijk: Boolean? = null,
+    verlengingstermijn: String? = null
 ) = ZaakType(
     uri,
     concept,
@@ -155,6 +157,8 @@ fun createZaakType(
     this.doel = doel
     this.versiedatum = versieDatum
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+    this.verlengingMogelijk = verlengingMogelijk
+    this.verlengingstermijn = verlengingstermijn
 }
 
 fun createInformatieObjectType(

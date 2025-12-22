@@ -34,7 +34,7 @@ When(
 );
 
 When(
-  "{string} distributes the taken to the first group and user available",
+  "{string} assigns the taken to the first group and user available",
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: "Verdelen" }).click();
     await this.page.getByLabel(/groep/i).click();
@@ -57,7 +57,7 @@ When(
 );
 
 Then(
-  "{string} gets a message confirming that the distribution of taken is starting",
+  "{string} gets a message confirming that the assigning of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page
@@ -67,7 +67,7 @@ Then(
 );
 
 Then(
-  "{string} gets a message confirming that the release of taken is starting",
+  "{string} gets a message confirming that the releasing of taken is starting",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page

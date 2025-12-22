@@ -53,7 +53,6 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   styleUrls: ["./parameters-edit-cmmn.component.less"],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
-  @Input({ required: true }) showFirstStep: boolean = false;
   @Input({ required: false }) selectedIndexStart: number = 0;
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
@@ -63,7 +62,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private readonly destroy$ = new Subject<void>();
 
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected featureFlagBpmnSupport: boolean = false;
   protected featureFlagPabcIntegration: boolean = false;
   protected showDoelbindingen: boolean = false;
 
@@ -235,7 +233,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
-      this.featureFlagBpmnSupport = data.parameters.featureFlagBpmnSupport;
       this.featureFlagPabcIntegration =
         data.parameters.featureFlagPabcIntegration;
 
@@ -363,7 +360,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   async createForm() {
-    if (!this.featureFlagBpmnSupport || this.isSavedZaakafhandelParameters) {
+    if (this.isSavedZaakafhandelParameters) {
       this.cmmnBpmnFormGroup.disable({ emitEvent: false });
     }
 
