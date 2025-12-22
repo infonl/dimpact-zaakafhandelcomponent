@@ -36,6 +36,7 @@ RUN keytool -importcert $KEYTOOL_OPTS -alias SmartDocuments -file /certificates/
     keytool -importcert $KEYTOOL_OPTS -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt
+ENV KEYTOOL_OPTS=
 
 # Add user to run our application
 RUN useradd -u 1001 -g users --no-log-init -s /sbin/nologin -c "Default Application User" default
