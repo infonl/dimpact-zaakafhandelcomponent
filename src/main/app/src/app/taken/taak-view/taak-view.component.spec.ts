@@ -29,7 +29,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
-import { EditGroepBehandelaarComponent } from "../../shared/edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -106,7 +105,6 @@ describe(TaakViewComponent.name, () => {
         ZaakVerkortComponent,
         SideNavComponent,
         StaticTextComponent,
-        EditGroepBehandelaarComponent,
       ],
       imports: [
         MatSidenav,

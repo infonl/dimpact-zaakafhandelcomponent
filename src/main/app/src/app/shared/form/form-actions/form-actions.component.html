@@ -24,7 +24,12 @@
     type="submit"
     color="primary"
     class="flex-row gap-8"
-    [disabled]="!form().valid || form().disabled || mutation().isPending()"
+    [disabled]="
+      form().disabled ||
+      !form().valid ||
+      !form().dirty ||
+      mutation().isPending()
+    "
   >
     @if (mutation().isPending()) {
       <mat-icon>

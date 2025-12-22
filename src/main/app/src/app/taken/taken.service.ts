@@ -33,8 +33,8 @@ export class TakenService {
     });
   }
 
-  toekennen(body: PatchBody<"/rest/taken/toekennen">) {
-    return this.zacHttpClient.PATCH("/rest/taken/toekennen", body);
+  toekennen() {
+    return this.zacQueryClient.PATCH("/rest/taken/toekennen");
   }
 
   toekennenAanIngelogdeMedewerker(
