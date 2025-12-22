@@ -22,14 +22,14 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
 export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestZaakOverzicht">
 > {
-  columns: string[] = [
+  columns = [
     "identificatie",
     "streefdatum",
     "dagenTotStreefdatum",
     "fataledatum",
     "dagenTotFataledatum",
     "url",
-  ];
+  ] as const;
 
   constructor(
     private zakenService: ZakenService,
@@ -39,11 +39,14 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     super(identityService, websocketService);
   }
 
-  isAfterDate(datum, actual): boolean {
-    return DateConditionals.isExceeded(datum, actual);
+  isAfterDate(
+    datum: GeneratedType<"RestZaakOverzicht">["einddatumGepland"],
+    actual: GeneratedType<"RestZaakOverzicht">["einddatum"],
+  ) {
+    return DateConditionals.isExceeded(datum ?? null, actual);
   }
 
-  protected onLoad(afterLoad: () => void): void {
+  protected onLoad(afterLoad: () => void) {
     this.zakenService.listZaakWaarschuwingen().subscribe((zaken) => {
       this.dataSource.data = zaken;
       afterLoad();
