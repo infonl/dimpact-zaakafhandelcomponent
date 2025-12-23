@@ -889,7 +889,9 @@ tasks {
 dependencyCheck {
     // Skip scanning test configurations to speed up the check
     skipConfigurations = listOf(
+        "testCompileClasspath",
         "testImplementation",
+        "itestCompileClasspath",
         "itestImplementation",
         "detektPlugins"
     )
@@ -910,7 +912,7 @@ dependencyCheck {
     analyzers {
         // Disable OSS Index analyzer to avoid rate limiting issues
         // NVD database provides comprehensive vulnerability coverage
-        ossIndexEnabled = false
+        ossIndex { enabled = false }
 
         // Enable/disable specific analyzers
         assemblyEnabled = false // .NET assemblies
@@ -922,7 +924,7 @@ dependencyCheck {
         pyPackageEnabled = false // Python packages
         composerEnabled = false // PHP Composer
         // Node.js analyzers - enabled for defense-in-depth alongside npm audit
-        nodeEnabled = true // Node.js dependency analyzer
+        nodePackage { enabled = true } // Node.js dependency analyzer
         nodeAudit {
             enabled = true // Node Audit analyzer for package-lock.json/yarn.lock
             useCache = true // Cache audit results for performance
