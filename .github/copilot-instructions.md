@@ -24,7 +24,8 @@ Please follow our coding conventions described in [CONTRIBUTING.md](../CONTRIBUT
 
 ### Testing
 - Write unit tests for all new functionality
-- Use Kotest for Kotlin tests
+- Use Kotest for Kotlin tests. 
+  - We use BDD style Kotest unit tests using `Context`, `Given`, `When`, `Then` blocks.
 - Use Jest for frontend tests
 - Integration tests use TestContainers
 
