@@ -887,19 +887,13 @@ tasks {
 // OWASP Dependency Check configuration
 // This plugin scans all dependencies for known vulnerabilities
 dependencyCheck {
-    // Skip scanning test configurations to speed up the check
-    skipConfigurations = listOf(
-        "testCompileClasspath",
-        "testImplementation",
-        "itestCompileOnly",
-        "itestApi",
-        "itestApiDependenciesMetadata",
-        "itestAnnotationProcessor",
-        "itestCompileClasspath",
-        "itestRuntimeClasspath",
-        "itestRuntimeOnly",
-        "itestImplementation",
-        "detektPlugins"
+    // Set explicit scan configurations because by default it will scan all configurations, including all test configurations
+    scanConfigurations = listOf(
+        "compileClasspath",
+        "providedCompile",
+        "providedRuntime",
+        "runtimeClasspath",
+        "warLib"
     )
 
     // Configure output formats - generates HTML, JSON, and SARIF reports
