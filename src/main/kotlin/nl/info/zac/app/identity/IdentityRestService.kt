@@ -39,19 +39,28 @@ class IdentityRestService @Inject constructor(
     @Path("groups")
     fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
 
-    /**
-     * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
-     *
-     * Once the PABC feature flag has been removed, this should be refactored to take the zaaktype 'omschrijving' field
-     * instead of the zaaktype UUID.
-     * This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version'.
-     * That will be a good time to refactor the URI of this endpoint as well, to reflect that it concerns behandelaar groups only.
-     * Or possibly add a second parameter to specify the requested application role.
-     */
+    @Deprecated(
+        """Once the PABC feature flag has been removed, this endpoint should be deleted and the
+            [listBehandelaarGroupsForZaaktype] endpoint should be used instead.
+            This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version' like it is
+            done in the old IAM architecture.
+            """
+    )
     @GET
     @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
-    fun listBehandelaarGroupsForZaaktype(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
+    fun listBehandelaarGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
         identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
+
+    /**
+     * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
+     * This endpoint requires that the PABC integration feature flag is enabled and cannot be used when this
+     * feature flag is disabled.
+     */
+    @GET
+    @Path("zaaktype/{zaaktypeDescription}/behandelaar-groups")
+    fun listBehandelaarGroupsForZaaktype(
+        @PathParam("zaaktypeDescription") zaaktypeDescription: String
+    ): List<RestGroup> = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

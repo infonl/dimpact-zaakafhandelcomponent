@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -27,6 +28,7 @@ import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -137,42 +139,45 @@ class IdentityServiceTest : BehaviorSpec({
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
     }
 
-    Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
-        When("the 'list groups' endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups"
-            )
-            Then(
-                "all available groups in the Keycloak ZAC realm are returned"
-            ) {
-                response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+    Context("Getting all available groups") {
+        Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
+            When("the 'list groups' endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/groups"
+                )
+                Then(
+                    "all available groups in the Keycloak ZAC realm are returned"
+                ) {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                }
             }
         }
     }
 
-    Given(
-        """
+    Context("Getting authorised behandelaar groups for a zaaktype") {
+        Given(
+            """
             New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
             using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
             Old IAM: (PABC feature flag off): a group in the Keycloak ZAC realm and a Keycloak old IAM architecture domain role 
             which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID, and a logged-in beheerder    
         """
-    ) {
-        When("the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID"
-            )
-            Then(
-                """
+        ) {
+            When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID"
+                )
+                Then(
+                    """
                 new IAM: only the groups authorised for the application role 'behandelaar' and
                 zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned,
                 old IAM: only those groups which have the old IAM architecture domain role are returned
                 """
-            ) {
-                response.code shouldBe HTTP_OK
-                if (FEATURE_FLAG_PABC_INTEGRATION) {
-                    response.bodyAsString shouldEqualSpecifiedJson """
+                ) {
+                    response.code shouldBe HTTP_OK
+                    if (FEATURE_FLAG_PABC_INTEGRATION) {
+                        response.bodyAsString shouldEqualSpecifiedJson """
                             [                                                   
                                 {
                                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
@@ -191,43 +196,43 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
                                 }                              
                             ]
-                    """.trimIndent()
-                } else {
-                    response.bodyAsString shouldEqualSpecifiedJson """
+                        """.trimIndent()
+                    } else {
+                        response.bodyAsString shouldEqualSpecifiedJson """
                             [                               
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
                                     "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
                                 }
                             ]
-                    """.trimIndent()
+                        """.trimIndent()
+                    }
                 }
             }
         }
-    }
 
-    Given(
-        """
+        Given(
+            """
               New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
               using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
               Old IAM (PABC feature flag off): groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
               zaaktype configuration for a given domain role, and a logged-in beheerder
-        """.trimIndent()
-    ) {
-        When("the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID"
-            )
-            Then(
-                """
+            """.trimIndent()
+        ) {
+            When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID"
+                )
+                Then(
+                    """
                 new IAM: only the groups authorised for the application role 'behandelaar' and
                 zaaktype test 3 (via the PABC mappings and the group's functional roles) are returned,
                 old IAM: all available groups are returned because the zaaktype has no domain configured
                 """
-            ) {
-                response.code shouldBe HTTP_OK
-                if (FEATURE_FLAG_PABC_INTEGRATION) {
-                    response.bodyAsString shouldEqualSpecifiedJson """
+                ) {
+                    response.code shouldBe HTTP_OK
+                    if (FEATURE_FLAG_PABC_INTEGRATION) {
+                        response.bodyAsString shouldEqualSpecifiedJson """
                     [
                         {
                             "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
@@ -246,22 +251,69 @@ class IdentityServiceTest : BehaviorSpec({
                             "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
                         }
                     ]
-                    """.trimIndent()
-                } else {
-                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                        """.trimIndent()
+                    } else {
+                        response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                    }
+                }
+            }
+        }
+
+        if (FEATURE_FLAG_PABC_INTEGRATION) {
+            Given(
+                """
+            New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder.
+        """
+            ) {
+                When(
+                    "the PABC feature flag is on and the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
+                ) {
+                    val response = itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups"
+                    )
+                    Then(
+                        """
+                only the groups authorised for the application role 'behandelaar' and
+                zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned                
+                """
+                    ) {
+                        response.code shouldBe HTTP_OK
+                        response.bodyAsString shouldEqualSpecifiedJson """
+                            [                                                   
+                                {
+                                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                                },
+                                {
+                                    "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
+                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                                },
+                                {
+                                    "id": "${GROUP_COORDINATORS_TEST_1.name}",
+                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                                },
+                                {
+                                    "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
+                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
+                                }                              
+                            ]
+                        """.trimIndent()
+                    }
                 }
             }
         }
     }
 
-    Given("Keycloak contains all provisioned test users, and a logged-in beheerder") {
-        When("the 'list users' endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/users"
-            )
-            Then("All available users in the Keycloak ZAC realm are returned") {
-                response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
+    Context("Getting all available users") {
+        Given("Keycloak contains all provisioned test users, and a logged-in beheerder") {
+            When("the 'list users' endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/users"
+                )
+                Then("All available users in the Keycloak ZAC realm are returned") {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [
                                 {
                                     "id": "${OLD_IAM_FUNCTIONAL_ADMIN_1.username}",
@@ -348,21 +400,23 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${PABC_ADMIN.displayName}"
                                 }
                             ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }
 
-    Given(
-        "Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members, and a logged-in beheerder"
-    ) {
-        When("the 'list users in group' endpoint is called for 'test group a'") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
-            )
-            Then("'testuser 1' and 'testuser 2' are returned") {
-                response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualJson """
+    Context("Getting users in a group") {
+        Given(
+            "Keycloak contains 'test group a' with 'test user 1' and 'test user 2' as members, and a logged-in beheerder"
+        ) {
+            When("the 'list users in group' endpoint is called for 'test group a'") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
+                )
+                Then("'testuser 1' and 'testuser 2' are returned") {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJson """
                         [
                             {
                                 "id": "${OLD_IAM_TEST_USER_1.username}",
@@ -373,26 +427,28 @@ class IdentityServiceTest : BehaviorSpec({
                                 "naam": "${OLD_IAM_TEST_USER_2.displayName}"
                             }
                         ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }
 
-    Given("A beheerder is logged in to ZAC and is part one or more groups") {
-        val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
-            "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
-        } else {
-            "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
-        }
+    Context("Getting the logged-in user") {
+        Given("A beheerder is logged in to ZAC and is part one or more groups") {
+            val expectedGroupsString = if (FEATURE_FLAG_PABC_INTEGRATION) {
+                "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
+            } else {
+                "\"${OLD_IAM_TEST_GROUP_A.name}\", \"${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}\""
+            }
 
-        When("the 'get logged in user' endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/identity/loggedInUser"
-            )
+            When("the 'get logged in user' endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/loggedInUser"
+                )
 
-            Then("the response is OK and the expected group IDs are returned") {
-                response.code shouldBe HTTP_OK
-                response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
+                Then("the response is OK and the expected group IDs are returned") {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {
                                 "id": "${BEHEERDER_ELK_ZAAKTYPE.username}",
                                 "naam": "${BEHEERDER_ELK_ZAAKTYPE.displayName}",
@@ -400,7 +456,8 @@ class IdentityServiceTest : BehaviorSpec({
                                     $expectedGroupsString
                                 ]
                             }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }

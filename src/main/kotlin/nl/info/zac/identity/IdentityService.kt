@@ -61,17 +61,18 @@ class IdentityService @Inject constructor(
      * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
      * for this zaaktype.
      */
-    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
-        return if (configuratieService.featureFlagPabcIntegration()) {
+    @Deprecated(
+        """Once the PABC feature flag has been removed, this function should be deleted and the
+        [listGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
+    )
+    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
+        if (configuratieService.featureFlagPabcIntegration()) {
             // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
             // In future once the PABC feature flag has been removed this should be refactored
             // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-            pabcClientService.getGroupsByApplicationRoleAndZaaktype(
-                applicationRole = ZacApplicationRole.BEHANDELAAR.value,
-                zaaktypeDescription = zaaktype.omschrijving
-            ).map { it.toGroup() }
+            listGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
         } else {
             // retrieve groups with 'full representation' or else the group attributes will not be filled
             val groups = keycloakZacRealmResource.groups()
@@ -85,7 +86,17 @@ class IdentityService @Inject constructor(
             }
         }
             .sortedBy { it.description }
-    }
+
+    /**
+     * Returns the list of groups that are authorised for the application role 'behandelaar' and
+     * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
+     * This function requires that the PABC integration feature flag is enabled.
+     */
+    fun listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
+        pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+            applicationRole = ZacApplicationRole.BEHANDELAAR.value,
+            zaaktypeDescription = zaaktypeDescription
+        ).map { it.toGroup() }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
