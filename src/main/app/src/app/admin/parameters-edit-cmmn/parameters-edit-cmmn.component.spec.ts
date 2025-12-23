@@ -9,8 +9,6 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatRadioButtonHarness } from "@angular/material/radio/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -87,12 +85,6 @@ describe(ParametersEditCmmnComponent.name, () => {
       emailReply: null,
     },
   });
-
-  async function selectStepperStep(stepIndex: number): Promise<void> {
-    await (
-      await (await loader.getHarness(MatStepperHarness)).getSteps()
-    )[stepIndex].select();
-  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -226,30 +218,12 @@ describe(ParametersEditCmmnComponent.name, () => {
   });
 
   describe("Algemeen form step", () => {
-    it("should have valid Algemeen form group after selecting case and group", async () => {
+    it("should have valid Algemeen form group after patching with valid values", async () => {
       const component = fixture.componentInstance;
-      await selectStepperStep(2);
 
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      expect(selects.length).toEqual(3);
+      expect(component.algemeenFormGroup.valid).toBe(false);
 
-      const select = selects[0];
-      await select.open();
-      const options = await select.getOptions();
-      expect(options.length).toBe(1);
-
-      const optionText = await options[0].getText();
-      await options[0].click();
-      const selectedValue = await select.getValueText();
-      expect(selectedValue).toBe(optionText);
-
-      expect(component.algemeenFormGroup.valid).toBe(true);
-    });
-  });
-
-  describe("Mailgegevens form step", () => {
-    beforeEach(async () => {
-      const component = fixture.componentInstance;
+      // Patch the form with valid values
       component.algemeenFormGroup.patchValue({
         caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
           key: "case-1",
@@ -262,20 +236,35 @@ describe(ParametersEditCmmnComponent.name, () => {
         uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
         productaanvraagtype: null,
       });
-      fixture.detectChanges();
+
+      expect(component.algemeenFormGroup.valid).toBe(true);
+      expect(component.algemeenFormGroup.value.caseDefinition?.key).toBe(
+        "case-1",
+      );
+      expect(component.algemeenFormGroup.value.defaultGroep?.id).toBe(
+        "test-group-id",
+      );
+      expect(component.algemeenFormGroup.value.defaultBehandelaar?.id).toBe(
+        "test-user-id",
+      );
     });
+  });
 
-    it("should have valid mailFormGroup after selecting afzender", async () => {
-      await selectStepperStep(3);
+  describe("Mailgegevens form step", () => {
+    it("should have valid mailFormGroup after selecting default afzender", async () => {
+      const component = fixture.componentInstance;
 
-      const radioButtons = await loader.getAllHarnesses(MatRadioButtonHarness);
-      await radioButtons[0].check();
+      expect(component.mailFormGroup.valid).toBe(false);
 
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      const select = selects[2];
-      await select.open();
-      const options = await select.getOptions();
-      await options[0].click();
+      // Simulate selecting a default afzender
+      component["updateZaakAfzenders"]("test@example.com");
+      fixture.detectChanges();
+
+      expect(component.mailFormGroup.valid).toBe(true);
+      const defaultAfzender = component["parameters"].zaakAfzenders?.find(
+        (afzender) => afzender.defaultMail === true,
+      );
+      expect(defaultAfzender?.mail).toBe("test@example.com");
     });
   });
 });

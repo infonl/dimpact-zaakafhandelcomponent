@@ -4,6 +4,7 @@
   -->
 
 <mat-stepper
+  *ngIf="algemeenFormGroup"
   orientation="horizontal"
   [linear]="!algemeenFormGroup.valid"
   [selectedIndex]="selectedIndexStart"
@@ -55,11 +56,7 @@
     </div>
   </mat-step>
 
-  <mat-step
-    *ngIf="algemeenFormGroup"
-    [stepControl]="algemeenFormGroup"
-    [hasError]="algemeenFormGroup.invalid"
-  >
+  <mat-step [stepControl]="algemeenFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
     }}</ng-template>
