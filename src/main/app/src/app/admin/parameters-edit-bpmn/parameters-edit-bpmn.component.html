@@ -56,7 +56,7 @@
     </div>
   </mat-step>
 
-  <mat-step *ngIf="algemeenFormGroup" [stepControl]="algemeenFormGroup">
+  <mat-step [stepControl]="algemeenFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
     }}</ng-template>
