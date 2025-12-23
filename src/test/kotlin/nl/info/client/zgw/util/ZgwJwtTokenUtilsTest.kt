@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.util
+package nl.info.client.zgw.util
 
 import com.auth0.jwt.JWT
 import io.kotest.core.spec.style.BehaviorSpec
@@ -11,7 +11,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import nl.info.client.zgw.util.generateZgwJwtToken
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.getFullName
 
