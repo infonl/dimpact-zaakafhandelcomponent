@@ -1365,4 +1365,3 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 })
-
