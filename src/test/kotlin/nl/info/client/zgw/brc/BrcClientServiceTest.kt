@@ -13,7 +13,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
 import java.net.URI
@@ -21,7 +21,7 @@ import java.util.UUID
 
 class BrcClientServiceTest : BehaviorSpec({
     val brcClient: BrcClient = mockk<BrcClient>()
-    val zgwClientHeadersFactory: ZGWClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
+    val zgwClientHeadersFactory: ZgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
     val brcClientService = BrcClientService(
         brcClient = brcClient,
         zgwClientHeadersFactory = zgwClientHeadersFactory

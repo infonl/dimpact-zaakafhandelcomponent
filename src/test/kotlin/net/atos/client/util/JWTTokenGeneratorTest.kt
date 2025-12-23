@@ -11,6 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import nl.info.client.zgw.util.generateZgwJwtToken
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.getFullName
 
