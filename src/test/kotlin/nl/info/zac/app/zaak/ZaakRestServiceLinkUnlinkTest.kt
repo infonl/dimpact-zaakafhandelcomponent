@@ -27,7 +27,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -87,7 +87,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()

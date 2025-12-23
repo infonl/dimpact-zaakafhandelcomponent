@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# check=skip=SecretsUsedInArgOrEnv
+
 #
 # SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
@@ -36,6 +39,7 @@ RUN keytool -importcert $KEYTOOL_OPTS -alias SmartDocuments -file /certificates/
     keytool -importcert $KEYTOOL_OPTS -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt
+# Unset KEYTOOL_OPTS for security reasons
 ENV KEYTOOL_OPTS=
 
 # Add user to run our application

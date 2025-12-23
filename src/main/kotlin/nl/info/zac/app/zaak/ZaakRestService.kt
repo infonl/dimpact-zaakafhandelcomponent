@@ -45,7 +45,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
@@ -181,7 +181,7 @@ class ZaakRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
 ) {

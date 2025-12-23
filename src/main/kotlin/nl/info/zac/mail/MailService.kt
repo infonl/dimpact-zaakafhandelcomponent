@@ -28,7 +28,7 @@ import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
@@ -67,7 +67,7 @@ import kotlin.takeIf
 @Suppress("LongParameterList")
 class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
-    private var zgwApiService: ZGWApiService,
+    private var zgwApiService: ZgwApiService,
     private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,

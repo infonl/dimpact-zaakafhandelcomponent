@@ -9,7 +9,7 @@ import jakarta.enterprise.inject.spi.CDI
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
@@ -38,7 +38,7 @@ class FlowableHelper @Inject constructor(
     val taakVariabelenService: TaakVariabelenService,
     val zaakService: ZaakService,
     val zaakVariabelenService: ZaakVariabelenService,
-    val zgwApiService: ZGWApiService,
+    val zgwApiService: ZgwApiService,
     val zrcClientService: ZrcClientService,
     val ztcClientService: ZtcClientService
 ) {

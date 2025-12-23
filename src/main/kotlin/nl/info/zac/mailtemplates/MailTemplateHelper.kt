@@ -16,7 +16,7 @@ import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.util.toAddressString
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -46,7 +46,7 @@ class MailTemplateHelper @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private val identityService: IdentityService,
     private val kvkClientService: KvkClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
 ) {

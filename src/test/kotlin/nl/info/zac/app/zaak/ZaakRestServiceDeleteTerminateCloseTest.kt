@@ -34,7 +34,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -102,7 +102,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService = mockk<ZaakService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()

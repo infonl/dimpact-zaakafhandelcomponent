@@ -28,7 +28,7 @@ import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
@@ -55,7 +55,7 @@ import java.util.UUID
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class DocumentCreationDataConverter @Inject constructor(
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val brpClientService: BrpClientService,

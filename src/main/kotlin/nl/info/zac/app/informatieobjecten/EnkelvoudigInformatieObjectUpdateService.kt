@@ -21,7 +21,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.OndertekeningRequest
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
@@ -47,7 +47,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val policyService: PolicyService,
     private val taakVariabelenService: TaakVariabelenService,
-    private val zgwApiService: ZGWApiService
+    private val zgwApiService: ZgwApiService
 ) {
 
     companion object {
@@ -64,11 +64,11 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         taskId: String? = null,
         skipPolicyCheck: Boolean = false,
     ) = zgwApiService.createZaakInformatieobjectForZaak(
-        zaak,
-        enkelvoudigInformatieObjectCreateLockRequest,
-        enkelvoudigInformatieObjectCreateLockRequest.titel,
-        enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-        ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        zaak = zaak,
+        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+        titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
+        beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+        omschrijvingVoorwaardenGebruiksrechten = ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
     ).also {
         taskId?.let { taskId ->
             addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
