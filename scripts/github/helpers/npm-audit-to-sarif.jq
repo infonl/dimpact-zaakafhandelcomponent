@@ -1,3 +1,19 @@
+def severity_to_level:
+  if .severity == "critical" then "error"
+  elif .severity == "high" then "error"
+  elif .severity == "moderate" then "warning"
+  elif .severity == "low" then "note"
+  else "none"
+  end;
+
+def severity_to_numeric:
+  if .severity == "critical" then "9.0"
+  elif .severity == "high" then "7.0"
+  elif .severity == "moderate" then "5.0"
+  elif .severity == "low" then "3.0"
+  else "0.0"
+  end;
+
 {
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
   "version": "2.1.0",
@@ -24,26 +40,16 @@
               "helpUri": .url,
               "defaultConfiguration": {
                 "level": (
-                  if .severity == "critical" then "error"
-                  elif .severity == "high" then "error"
-                  elif .severity == "moderate" then "warning"
-                  elif .severity == "low" then "note"
-                  else "none"
-                  end
+                  severity_to_level
                 )
               },
               "properties": {
                 "security-severity": (
-                  if .severity == "critical" then "9.0"
-                  elif .severity == "high" then "7.0"
-                  elif .severity == "moderate" then "5.0"
-                  elif .severity == "low" then "3.0"
-                  else "0.0"
-                  end
+                  severity_to_numeric
                 )
               }
             })
-          ] | flatten
+          ]
         }
       },
       "results": 
@@ -55,12 +61,7 @@
           (.data.via // []) | map(select(type == "object")) | map({
             "ruleId": (.source | tostring),
             "level": (
-              if .severity == "critical" then "error"
-              elif .severity == "high" then "error"
-              elif .severity == "moderate" then "warning"
-              elif .severity == "low" then "note"
-              else "none"
-              end
+              severity_to_level
             ),
             "message": {
               "text": "\(.title) - Affects package: \(.dependency) (via \(.name))"
@@ -81,7 +82,7 @@
               }
             ]
           })
-        ) | flatten | flatten
+        ) | flatten
     }
   ]
 }
