@@ -5,7 +5,7 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -20,7 +20,7 @@ import nl.info.zac.policy.PolicyService
 @Suppress("LongParameterList")
 class RestZaakOverzichtConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zaakResultaatConverter: RestZaakResultaatConverter,
     private val groupConverter: RestGroupConverter,
     private val userConverter: RestUserConverter,

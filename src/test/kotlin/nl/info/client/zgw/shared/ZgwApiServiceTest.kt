@@ -8,18 +8,25 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.model.RolListParameters
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -36,13 +43,14 @@ import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.UUID
 
-class ZGWApiServiceTest : BehaviorSpec({
+class ZgwApiServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
-    val zgwApiService = ZGWApiService(
+    val zgwApiService = ZgwApiService(
         ztcClientService,
         zrcClientService,
         drcClientService
@@ -578,6 +586,65 @@ class ZGWApiServiceTest : BehaviorSpec({
                 And("the zaak is closed") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Creating a ZaakInformatieobject for zaak") {
+        Given("Valid input data for creating a ZaakInformatieobject") {
+            val today = LocalDate.now()
+            val todayAtStartOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime()
+            val zaak = createZaak()
+            val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+                creatiedatum = today
+            )
+            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val gebruiksrechtenSlot = slot<Gebruiksrechten>()
+            val zaakInformatieObjectSlot = slot<ZaakInformatieobject>()
+            every {
+                drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
+            } returns enkelvoudigInformatieObject
+            every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } just Runs
+            every { zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectSlot)) } returns zaakInformatieobject
+
+            When("a ZaakInformatieobject is created") {
+                val returnedZaakInformatieobjectForZaak = zgwApiService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    titel = "fakeTitle",
+                    beschrijving = "fakeDescription",
+                    omschrijvingVoorwaardenGebruiksrechten = "fakeConditions"
+                )
+
+                Then("a ZaakInformatieobject is created and returned") {
+                    returnedZaakInformatieobjectForZaak shouldBe zaakInformatieobject
+                }
+
+                And("the DRC and ZRC clients are called with correct parameters") {
+                    verify(exactly = 1) {
+                        drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
+                        drcClientService.createGebruiksrechten(any())
+                        zrcClientService.createZaakInformatieobject(any())
+                    }
+                }
+
+                And("the created Gebruiksrechten has expected values") {
+                    with(gebruiksrechtenSlot.captured) {
+                        this.informatieobject shouldBe enkelvoudigInformatieObject.url
+                        this.startdatum shouldBe todayAtStartOfDay
+                        this.omschrijvingVoorwaarden shouldBe "fakeConditions"
+                    }
+                }
+
+                And("the created ZaakInformatieobject has expected values") {
+                    with(zaakInformatieObjectSlot.captured) {
+                        this.zaak shouldBe zaak.url
+                        this.informatieobject shouldBe enkelvoudigInformatieObject.url
+                        this.titel shouldBe "fakeTitle"
+                        this.beschrijving shouldBe "fakeDescription"
                     }
                 }
             }

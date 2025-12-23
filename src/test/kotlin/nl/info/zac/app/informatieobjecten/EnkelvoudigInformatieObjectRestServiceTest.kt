@@ -31,7 +31,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockReq
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -79,7 +79,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RestZaakInformatieobjectConverter>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val enkelvoudigInformatieObjectRestService = EnkelvoudigInformatieObjectRestService(

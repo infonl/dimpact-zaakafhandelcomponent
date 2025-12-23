@@ -40,7 +40,6 @@ import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.Period
 import java.time.ZonedDateTime
@@ -54,13 +53,13 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 @AllOpen
 @NoArgConstructor
-class ZGWApiService @Inject constructor(
+class ZgwApiService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val zrcClientService: ZrcClientService,
     val drcClientService: DrcClientService
 ) {
     companion object {
-        private val LOG: Logger = Logger.getLogger(ZGWApiService::class.java.getName())
+        private val LOG: Logger = Logger.getLogger(ZgwApiService::class.java.getName())
 
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
@@ -260,7 +259,7 @@ class ZGWApiService @Inject constructor(
             this.titel = titel
             this.beschrijving = beschrijving
         }
-        return zrcClientService.createZaakInformatieobject(zaakInformatieObject, StringUtils.EMPTY)
+        return zrcClientService.createZaakInformatieobject(zaakInformatieObject)
     }
 
     /**

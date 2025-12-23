@@ -44,7 +44,7 @@ import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.model.generated.SoortEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -100,7 +100,7 @@ class TaskRestService @Inject constructor(
     @ActiveSession
     private val httpSession: Instance<HttpSession>,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val signaleringService: SignaleringService,

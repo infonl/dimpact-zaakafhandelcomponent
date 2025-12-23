@@ -72,7 +72,7 @@ class ZrcClientService @Inject constructor(
 
     fun createZaakInformatieobject(
         zaakInformatieobject: ZaakInformatieobject,
-        toelichting: String?
+        toelichting: String? = null
     ): ZaakInformatieobject {
         toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
         return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject)

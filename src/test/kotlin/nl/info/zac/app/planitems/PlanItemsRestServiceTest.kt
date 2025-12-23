@@ -23,7 +23,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
@@ -62,7 +62,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()
     val configuratieService = mockk<ConfiguratieService>()

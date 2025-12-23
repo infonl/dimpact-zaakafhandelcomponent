@@ -30,7 +30,7 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
 import nl.info.client.or.objects.model.generated.ModelObject
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
@@ -71,7 +71,7 @@ const val TOELICHTING_MAX_LENGTH = 1000
 @Suppress("TooManyFunctions", "LongParameterList")
 class ProductaanvraagService @Inject constructor(
     private val objectsClientService: ObjectsClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,

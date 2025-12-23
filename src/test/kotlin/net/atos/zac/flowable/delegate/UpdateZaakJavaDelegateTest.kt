@@ -14,7 +14,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatusSub
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.common.engine.impl.el.FixedValue
 import org.flowable.engine.delegate.DelegateExecution
@@ -24,7 +24,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
     val parentDelegateExecution = mockk<DelegateExecution>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zaak = createZaak()
     val zaakStatusName = "fakeStatus"
     val zaakStatus = createZaakStatusSub()

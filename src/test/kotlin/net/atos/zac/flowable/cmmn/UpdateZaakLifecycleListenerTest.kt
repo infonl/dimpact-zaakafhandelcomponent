@@ -13,7 +13,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatusSub
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
@@ -25,7 +25,7 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
     val delegatePlanItemInstance = mockk<DelegatePlanItemInstance>()
     val expression = mockk<Expression>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
 
     val updateZaakLifecycleListener = UpdateZaakLifecycleListener()
 
