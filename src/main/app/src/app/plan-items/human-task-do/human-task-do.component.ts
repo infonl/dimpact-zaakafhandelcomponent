@@ -99,7 +99,7 @@ export class HumanTaskDoComponent implements OnInit {
 
       const groups = await lastValueFrom(
         this.identityService.listBehandelaarGroupsForZaaktype(
-          this.zaak.zaaktype!.uuid!,
+          this.zaak.zaaktype.uuid,
         ),
       );
       this.formFields.push({
