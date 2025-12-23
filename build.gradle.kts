@@ -891,7 +891,13 @@ dependencyCheck {
     skipConfigurations = listOf(
         "testCompileClasspath",
         "testImplementation",
+        "itestCompileOnly",
+        "itestApi",
+        "itestApiDependenciesMetadata",
+        "itestAnnotationProcessor",
         "itestCompileClasspath",
+        "itestRuntimeClasspath",
+        "itestRuntimeOnly",
         "itestImplementation",
         "detektPlugins"
     )
