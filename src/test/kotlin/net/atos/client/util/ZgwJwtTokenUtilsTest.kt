@@ -15,7 +15,7 @@ import nl.info.client.zgw.util.generateZgwJwtToken
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.getFullName
 
-class JWTTokenGeneratorTest : BehaviorSpec({
+class ZgwJwtTokenUtilsTest : BehaviorSpec({
     beforeEach {
         checkUnnecessaryStub()
     }
