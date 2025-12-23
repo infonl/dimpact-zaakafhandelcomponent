@@ -20,12 +20,12 @@ class JWTTokenGeneratorTest : BehaviorSpec({
     }
 
     Context("Generating a JWT token") {
-        Given("client id and secret and no logged-in user") {
+        Given("Client id and secret and no logged-in user") {
             val clientId = "clientId"
             val clientSecret = "clientSecret"
 
             When("token is generated") {
-                val token = JWTTokenGenerator.generate(clientId, clientSecret, null)
+                val token = generateZgwJwtToken(clientId, clientSecret, null)
 
                 Then("it should be a valid JWT token") {
                     val tokenParts = token.split(" ")
@@ -39,7 +39,7 @@ class JWTTokenGeneratorTest : BehaviorSpec({
             }
         }
 
-        Given("client credentials and logged-in user") {
+        Given("Client id and secret and a logged-in user") {
             val clientId = "clientId"
             val clientSecret = "clientSecret"
             val loggedInUser = mockk<LoggedInUser>()
@@ -49,7 +49,7 @@ class JWTTokenGeneratorTest : BehaviorSpec({
             every { loggedInUser.getFullName() } returns "fullName"
 
             When("token is generated") {
-                val token = JWTTokenGenerator.generate(clientId, clientSecret, loggedInUser)
+                val token = generateZgwJwtToken(clientId, clientSecret, loggedInUser)
 
                 Then("it should be a valid JWT token") {
                     val tokenParts = token.split(" ")
