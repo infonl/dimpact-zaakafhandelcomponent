@@ -62,14 +62,16 @@ describe("HumanTaskDoComponent", () => {
     taakFormulierenService = TestBed.inject(TaakFormulierenService);
 
     identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        fromPartial<GeneratedType<"RestGroup">>({
-          id: "1",
-          naam: "groep1",
-        }),
-      ]),
-    );
+    jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RestGroup">>({
+            id: "1",
+            naam: "groep1",
+          }),
+        ]),
+      );
 
     fixture = TestBed.createComponent(HumanTaskDoComponent);
 
