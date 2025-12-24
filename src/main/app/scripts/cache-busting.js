@@ -119,7 +119,7 @@ function replaceBuildHash() {
 
         if (fileUpdated) {
           // Re-read the file content after updates
-          content = fs.readFileSync(filePath, "utf8");
+          fs.readFileSync(filePath, "utf8");
         }
       }
     });

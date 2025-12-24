@@ -29,7 +29,7 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
      * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory and is never null.
      */
     @Column(name = "id_case_definition")
-    var caseDefinitionID: String? = null
+    lateinit var caseDefinitionID: String
 
     @Column(name = "gebruikersnaam_behandelaar")
     var gebruikersnaamMedewerker: String? = null

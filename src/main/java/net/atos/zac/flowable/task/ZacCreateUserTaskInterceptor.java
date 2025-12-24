@@ -15,8 +15,9 @@ import org.flowable.engine.interceptor.CreateUserTaskBeforeContext;
 
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
+import org.flowable.engine.interceptor.CreateUserTaskInterceptor;
 
-public class CreateUserTaskInterceptor implements org.flowable.engine.interceptor.CreateUserTaskInterceptor {
+public class ZacCreateUserTaskInterceptor implements CreateUserTaskInterceptor {
 
     public static final String VAR_PROCESS_OWNER = "owner";
 
