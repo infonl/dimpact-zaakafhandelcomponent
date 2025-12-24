@@ -186,7 +186,7 @@ class ZaakServiceTest : BehaviorSpec({
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
             val existingRolGroup = createRolOrganisatorischeEenheid()
-            val reason = "fakeReson"
+            val reason = "fakeReason"
 
             every { zrcClientService.updateRol(zaak, capture(rolSlot), reason) } just runs
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
@@ -1026,7 +1026,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val identification = "fakeBSN"
             val roleAdviseur = createRolNatuurlijkPersoon(
-                zaakURI = zaak.zaaktype,
+                zaakURI = zaak.url,
                 rolType = roleTypeAdviseur,
                 natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = identification)
             )
@@ -1063,19 +1063,19 @@ class ZaakServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val rolNatuurlijkPersonen = listOf(
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)
                 ),
                 createRolOrganisatorischeEenheid(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER)
                 ),
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
                 ),
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
                 )
             )
