@@ -41,7 +41,7 @@ jakarta-mail = "2.1.5"
 caffeine = "3.2.3"
 jackson = "2.20.1"
 jackson-annotations = "2.20"
-jacobras-human-readable = "1.12.2"
+jacobras-human-readable = "1.12.3"
 
 # Versions of dependencies provided by Wildfly.
 # These need to be updated manually when upgrading WildFly.
