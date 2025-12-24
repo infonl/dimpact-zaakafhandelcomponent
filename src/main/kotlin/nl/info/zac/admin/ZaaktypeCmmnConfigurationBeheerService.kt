@@ -197,7 +197,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
             LOG.warning(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.caseDefinitionID } + "'. " +
+                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.zaaktypeUuid.toString() } + "'. " +
                     "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
                     "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
             )
