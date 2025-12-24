@@ -17,10 +17,11 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
-import net.atos.client.util.JWTTokenGenerator;
+import nl.info.client.zgw.util.ZgwJwtTokenUtilsKt;
 import nl.info.zac.authentication.LoggedInUser;
 
-public class ZGWClientHeadersFactory implements ClientHeadersFactory {
+
+public class ZgwClientHeadersFactory implements ClientHeadersFactory {
     public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
 
     @Inject
@@ -68,7 +69,7 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
             final MultivaluedMap<String, String> outgoingHeaders,
             final LoggedInUser loggedInUser
     ) {
-        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret, loggedInUser));
+        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, ZgwJwtTokenUtilsKt.generateZgwJwtToken(clientId, secret, loggedInUser));
     }
 
     private void addXAuditToelichtingHeader(
