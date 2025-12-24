@@ -60,7 +60,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected isLoadingResults = true;
   protected filterChange = new EventEmitter<void>();
   protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
-    ...DEFAULT_ZOEK_PARAMETERS,
+    ...structuredClone(DEFAULT_ZOEK_PARAMETERS),
     type: "ZAAK",
   };
   protected actieveFilters = true;

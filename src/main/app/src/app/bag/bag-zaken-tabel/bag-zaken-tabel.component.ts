@@ -52,7 +52,7 @@ export class BagZakenTabelComponent
   filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
   filterChange = new EventEmitter<void>();
-  zoekParameters = DEFAULT_ZOEK_PARAMETERS;
+  zoekParameters = structuredClone(DEFAULT_ZOEK_PARAMETERS);
   zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   init = false;
   inclusiefAfgerondeZaken = new FormControl(false);

@@ -51,7 +51,9 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   zoekResultaat = new ZoekResultaat<
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
   >();
-  zoekParameters: GeneratedType<"RestZoekParameters"> = DEFAULT_ZOEK_PARAMETERS;
+  zoekParameters: GeneratedType<"RestZoekParameters"> = structuredClone(
+    DEFAULT_ZOEK_PARAMETERS,
+  );
   isLoadingResults = true;
   slow = false;
   zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
@@ -231,7 +233,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.trefwoordenControl.setValue("");
     this.zoekveldControl.setValue(ZoekVeld.ALLE);
     this.zoekResultaat = new ZoekResultaat();
-    this.zoekParameters = DEFAULT_ZOEK_PARAMETERS;
+    this.zoekParameters = structuredClone(DEFAULT_ZOEK_PARAMETERS);
     this.hasSearched = false;
     this.hasTaken = false;
     this.hasZaken = false;
