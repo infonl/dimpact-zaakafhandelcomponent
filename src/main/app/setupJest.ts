@@ -32,11 +32,6 @@ const cryptoPolyfill = {
   getRandomValues: jest.fn(),
 } as Crypto;
 
-// Polyfill for structuredClone
-if (typeof globalThis.structuredClone === "undefined") {
-  globalThis.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
-}
-
 Object.defineProperty(globalThis, "crypto", {
   value: cryptoPolyfill,
   writable: false,

@@ -24,8 +24,8 @@ import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificat
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
-  DEFAULT_ZOEK_PARAMETERS,
-  heeftActieveZoekFilters,
+  createDefaultZoekParameters,
+  hasActiveSearchFilters,
 } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -60,7 +60,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected isLoadingResults = true;
   protected filterChange = new EventEmitter<void>();
   protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
-    ...structuredClone(DEFAULT_ZOEK_PARAMETERS),
+    ...createDefaultZoekParameters(),
     type: "ZAAK",
   };
   protected actieveFilters = true;
@@ -117,7 +117,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private updateActieveFilters() {
     this.actieveFilters =
       this.zoekParameters &&
-      heeftActieveZoekFilters({
+      hasActiveSearchFilters({
         ...this.zoekParameters,
         filtersType: "ZoekParameters",
         zoeken: this.zoekParameters.zoeken ?? {},
