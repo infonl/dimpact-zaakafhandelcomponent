@@ -67,7 +67,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
      * Voeg een informatieobject toe aan het zip-bestand
      *
      * @param informatieobject het toe te voegen informatieobject
-     * @param zipOutputStream de output stream van het te updaten zip-bestand
+     * @param zipOutputStream  de output stream van het te updaten zip-bestand
      * @return pad naar het aangepaste zip-bestand
      */
     private String addInformatieObjectToZip(
