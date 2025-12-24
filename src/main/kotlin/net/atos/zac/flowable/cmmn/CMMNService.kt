@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
-import net.atos.zac.flowable.task.CreateUserTaskInterceptor
+import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -149,7 +149,7 @@ class CMMNService @Inject constructor(
                 cmmnRuntimeService.getVariables(readOpenPlanItem(planItemInstanceId).caseInstanceId)
             )
             .childTaskVariables(processData)
-            .childTaskVariable(CreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
+            .childTaskVariable(ZacCreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
             .start()
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {

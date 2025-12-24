@@ -25,7 +25,7 @@ import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
-import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
+import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor;
 
 /**
  * Looks up the ZAC Flowable process engine.
@@ -75,7 +75,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         processEngineConfiguration.setEnableHistoricTaskLogging(true);
         processEngineConfiguration.setDisableIdmEngine(true);
         processEngineConfiguration.setAsyncExecutorActivate(true);
-        processEngineConfiguration.setCreateUserTaskInterceptor(new CreateUserTaskInterceptor());
+        processEngineConfiguration.setCreateUserTaskInterceptor(new ZacCreateUserTaskInterceptor());
         var eventListeners = processEngineConfiguration.getEventListeners();
         if (eventListeners == null) {
             eventListeners = new ArrayList<>();

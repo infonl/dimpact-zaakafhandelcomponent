@@ -53,6 +53,7 @@ public class RolMedewerker extends Rol<MedewerkerIdentificatie> {
         super(zaak, roltype, BetrokkeneTypeEnum.MEDEWERKER, medewerkerIdentificatie, roltoelichting);
     }
 
+    @Override
     public String getNaam() {
         if (getBetrokkeneIdentificatie() == null) {
             return null;

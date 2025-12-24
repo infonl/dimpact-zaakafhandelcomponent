@@ -26,6 +26,7 @@ public class JobEvent extends AbstractEvent<String, JobId> {
         super(Opcode.CREATED, jobId);
     }
 
+    @Override
     public String getObjectType() {
         return "cron job";
     }

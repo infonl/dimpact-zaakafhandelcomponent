@@ -288,7 +288,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val roleToBeCreated = slot<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -426,7 +426,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -561,7 +561,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -676,7 +676,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -772,7 +772,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -871,7 +871,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -952,7 +952,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -1116,7 +1116,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -1159,7 +1159,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
                 every { configuratieService.readBronOrganisatie() } returns "123443210"
                 every {
-                    zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                    zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                         productAanvraagType
                     )
                 } returns listOf(zaaktypeCmmnConfiguration)
@@ -1279,7 +1279,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)
@@ -1402,7 +1402,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             // no zaaktypeCmmnConfiguration are configured for the zaaktype
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns emptyList()
@@ -1520,7 +1520,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakDataSlot = slot<Map<String, Any>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns emptyList()
@@ -1611,7 +1611,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every {
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
                 )
             } returns listOf(zaaktypeCmmnConfiguration)

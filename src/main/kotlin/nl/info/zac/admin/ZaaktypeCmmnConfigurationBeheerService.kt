@@ -117,7 +117,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
      *
      * @return the list of found [ZaaktypeCmmnConfiguration] or an empty list if none are found
      */
-    fun findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+    fun findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
         productaanvraagType: String
     ): List<ZaaktypeCmmnConfiguration> {
         val builder = entityManager.criteriaBuilder
@@ -193,11 +193,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktypeOmschrijving: String
     ) {
         val activeZaaktypeCmmnConfigurationForProductaanvraagtype =
-            findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraagtype)
+            findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraagtype)
         if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
             LOG.warning(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
+                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.zaaktypeUuid.toString() } + "'. " +
                     "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
                     "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
             )

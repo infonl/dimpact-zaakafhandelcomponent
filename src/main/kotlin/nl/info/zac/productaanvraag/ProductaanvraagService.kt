@@ -532,7 +532,7 @@ class ProductaanvraagService @Inject constructor(
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
-            .findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraag.type)
+            .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraag.type)
         val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
             productaanvraag.type
         )

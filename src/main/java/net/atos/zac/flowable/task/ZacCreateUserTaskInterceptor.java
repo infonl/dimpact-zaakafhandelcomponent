@@ -12,11 +12,12 @@ import java.util.UUID;
 
 import org.flowable.engine.interceptor.CreateUserTaskAfterContext;
 import org.flowable.engine.interceptor.CreateUserTaskBeforeContext;
+import org.flowable.engine.interceptor.CreateUserTaskInterceptor;
 
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
 
-public class CreateUserTaskInterceptor implements org.flowable.engine.interceptor.CreateUserTaskInterceptor {
+public class ZacCreateUserTaskInterceptor implements CreateUserTaskInterceptor {
 
     public static final String VAR_PROCESS_OWNER = "owner";
 

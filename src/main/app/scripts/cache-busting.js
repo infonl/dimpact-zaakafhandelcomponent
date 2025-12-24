@@ -99,14 +99,12 @@ function replaceBuildHash() {
         processDirectory(filePath);
       } else if (file.endsWith(".js") || file.endsWith(".html")) {
         let content = fs.readFileSync(filePath, "utf8");
-        let fileUpdated = false;
 
         // Replace TRANSLATION_HASH with actual hash (only in JS files)
         if (file.endsWith(".js") && content.includes("TRANSLATION_HASH")) {
           content = content.replace(/TRANSLATION_HASH/g, translationHash);
           fs.writeFileSync(filePath, content, "utf8");
           console.log(`Updated translation hash in: ${filePath}`);
-          fileUpdated = true;
         }
 
         // Replace FONT_HASH with actual font hash
@@ -114,12 +112,6 @@ function replaceBuildHash() {
           content = content.replace(/FONT_HASH/g, fontHash);
           fs.writeFileSync(filePath, content, "utf8");
           console.log(`Updated font hash in: ${filePath}`);
-          fileUpdated = true;
-        }
-
-        if (fileUpdated) {
-          // Re-read the file content after updates
-          content = fs.readFileSync(filePath, "utf8");
         }
       }
     });

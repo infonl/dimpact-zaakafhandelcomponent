@@ -180,7 +180,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         When("the active zaaktypeCmmnConfiguration are retrieved for the given productaanvraagType") {
             val returnedZaaktypeCmmnConfiguration =
-                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productaanvraagType
                 )
 
