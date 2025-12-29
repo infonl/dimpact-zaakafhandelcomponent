@@ -6,6 +6,7 @@ This is the Dimpact Zaakafhandelcomponent (ZAC), a Dutch case management system 
 ## Code Style and Standards
 
 Please follow our coding conventions described in [CONTRIBUTING.md](../CONTRIBUTING.md).
+Pull request titles and descriptions must comply with the Conventional Commits standard.
 
 ### Backend (Kotlin/Java)
 - Use Kotlin for new code; Java is legacy only
@@ -24,7 +25,8 @@ Please follow our coding conventions described in [CONTRIBUTING.md](../CONTRIBUT
 
 ### Testing
 - Write unit tests for all new functionality
-- Use Kotest for Kotlin tests
+- Use Kotest for Kotlin tests. 
+  - We use BDD style Kotest unit tests using `Context`, `Given`, `When`, `Then` blocks.
 - Use Jest for frontend tests
 - Integration tests use TestContainers
 

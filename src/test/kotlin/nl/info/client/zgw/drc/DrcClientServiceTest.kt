@@ -13,7 +13,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import net.atos.client.zgw.drc.DrcClient
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.zac.configuratie.ConfiguratieService
@@ -21,7 +21,7 @@ import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({
     val drcClient = mockk<DrcClient>()
-    val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
+    val zgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
     val configuratieService = mockk<ConfiguratieService>()
     val drcClientService = DrcClientService(
         drcClient,

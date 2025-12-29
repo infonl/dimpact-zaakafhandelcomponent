@@ -14,9 +14,6 @@ import java.util.UUID
  */
 fun URI.extractUuid(): UUID = extractUuid(this.path).let(UUID::fromString)
 
-fun extractedUuidIsEqual(a: URI?, b: URI?): Boolean =
-    a?.let { b?.let { extractUuid(a.path) == extractUuid(b.path) } } ?: (a == null && b == null)
-
 /**
  * For security reasons, validate that the provided ZGW API URI starts with the value of the configured
  * ZGW API clients base URI.

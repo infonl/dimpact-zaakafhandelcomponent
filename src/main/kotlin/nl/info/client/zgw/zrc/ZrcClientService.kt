@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -44,7 +44,7 @@ class ZrcClientService @Inject constructor(
     @RestClient
     private val zrcClient: ZrcClient,
 
-    private val zgwClientHeadersFactory: ZGWClientHeadersFactory,
+    private val zgwClientHeadersFactory: ZgwClientHeadersFactory,
 
     private val configuratieService: ConfiguratieService
 ) {

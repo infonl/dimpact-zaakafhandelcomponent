@@ -13,7 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
@@ -26,7 +26,7 @@ import java.util.UUID
 
 class ZrcClientServiceTest : BehaviorSpec({
     val zrcClient = mockk<ZrcClient>()
-    val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
+    val zgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
     val configuratieService = mockk<ConfiguratieService>()
     val zrcClientService = ZrcClientService(
         zrcClient = zrcClient,
