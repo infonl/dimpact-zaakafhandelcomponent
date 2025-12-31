@@ -35,7 +35,7 @@
     "@angular/platform-browser": "18.2.14",
     "@angular/platform-browser-dynamic": "18.2.14",
     "@angular/router": "18.2.14",
-    "@formio/angular": "8.1.0",
+    "@formio/angular": "10.0.0",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
     "@tanstack/angular-query-experimental": "5.90.16",
