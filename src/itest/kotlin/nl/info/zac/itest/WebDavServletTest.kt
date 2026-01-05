@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * This test creates a zaak and uploads a document and because we do not want this test.
+ * Integration test that creates a zaak, uploads a document, and verifies access via the WebDAV servlet.
  */
 class WebDavServletTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
