@@ -5,15 +5,15 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -27,7 +27,6 @@ import java.util.UUID
 /**
  * Integration test to test the functionality of linking parent and child zaken (hoofd- en deelzaken).
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
@@ -36,9 +35,11 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     Given(
         """
             Two zaken each of a different zaaktype and these two zaaktypes have been configured so
-            that these zaken are allowed to have a parent-child relationship
+            that these zaken are allowed to have a parent-child relationship,
+            and a behandelaar is logged in
         """
     ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaak1UUID: UUID
         lateinit var zaak2UUID: UUID
         lateinit var zaak2Identificatie: String
@@ -66,6 +67,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 zaak2UUID = getString("uuid").run(UUID::fromString)
             }
         }
+
         When("a request is done to link the parent zaak to the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
@@ -77,6 +79,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the parent-child relationship between the two zaken should be established") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -103,6 +106,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 }
             }
         }
+
         When("a request is done to unlink the linked parent zaak from the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/ontkoppel",
@@ -115,6 +119,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the parent-child relationship between the two zaken should be removed") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

@@ -64,7 +64,7 @@ import java.net.HttpURLConnection.HTTP_OK
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
 /**
- * This test assumes a roltype has been created in a previously run test.
+ * This test assumes a rol type has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 @Suppress("LongParameterList")

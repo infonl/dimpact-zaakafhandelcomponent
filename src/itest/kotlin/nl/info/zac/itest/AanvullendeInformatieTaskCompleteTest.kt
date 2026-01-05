@@ -26,13 +26,10 @@ import java.net.HttpURLConnection.HTTP_OK
 class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
-
-    beforeSpec {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-    }
+    val zacClient = ZacClient(itestHttpClient)
 
     Given("A zaak with one Aanvullende informatie task and a logged-in behandelaar") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val tasksResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakProductaanvraag1Uuid"
         )

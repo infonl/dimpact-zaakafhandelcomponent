@@ -34,7 +34,6 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
@@ -64,8 +63,10 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.HttpURLConnection.HTTP_CREATED
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
+import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -422,5 +423,19 @@ class ProjectConfig : AbstractProjectConfig() {
             logger.info { "Response: $responseBody" }
             response.code shouldBe HTTP_OK
         }
+        // beware that the required SmartDocuments template mapping data must be available
+        // in our SmartDocuments WireMock setup for this zaaktype
+        createZaaktypeSmartDocumentsTemplateMappings(ZAAKTYPE_TEST_3_UUID)
+    }
+
+    fun createZaaktypeSmartDocumentsTemplateMappings(zaaktypeUuid: UUID) {
+        val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
+            "$zaaktypeUuid/smartdocuments-templates-mapping"
+        val response = itestHttpClient.performJSONPostRequest(
+            url = smartDocumentsZaakafhandelParametersUrl,
+            requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS
+        )
+        logger.info { "Response: ${response.bodyAsString}" }
+        response.code shouldBe HTTP_NO_CONTENT
     }
 }

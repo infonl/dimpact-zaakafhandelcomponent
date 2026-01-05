@@ -38,32 +38,20 @@
                 }
               },
               "data": {
-                "aanvrager": {
-                  "naam": "Héndrika Janse"
-                },
                 "gebruiker": {
                   "id": "behandelaar1",
                   "naam": "Test Behandelaar1"
                 },
-                "startformulier": {
-                  "data": {
-                    "omschrijving": "Ik heb een vraag over mijn paspoort",
-                    "telefoonnummer": "0612345678",
-                    "naam": "Jan Jansen"
-                  },
-                  "productAanvraagtype": "productaanvraag-type-1"
-                },
                 "zaak": {
-                  "communicatiekanaal": "E-formulier",
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
                   "groep": "test-group-bh",
                   "identificatie": "${json-unit.any-string}",
-                  "omschrijving": "fakeZaakOmschrijving",
+                  "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
-                  "startdatum": "01-01-1970",
-                  "status": "Wacht op aanvullende informatie",
-                  "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
+                  "startdatum": "${json-unit.any-string}",
+                  "status": "${json-unit.any-string}",
+                  "toelichting": "${json-unit.any-string}",
                   "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
-                  "verlengingReden": "fakeReason",
                   "vertrouwelijkheidaanduiding": "openbaar",
                   "zaaktype": "Test zaaktype 3"
                 }

@@ -7,16 +7,16 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_KOPPELEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
@@ -33,20 +33,24 @@ import java.util.UUID
 /**
  * This test creates a zaak, adds a task to complete the intake phase, then adds a document, starts the 'Goedkeuren' task
  * and completes this task by signing the document.
- * Because we do not want this test to impact e.g. [SearchRestServiceTest] we run it afterward.
  */
-@Order(TEST_SPEC_ORDER_AFTER_KOPPELEN)
 @Suppress("MagicNumber")
 class TaskRestServiceGoedkeurenTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
+    Given(
+        """
+        A zaak has been created that has finished the intake phase with the status 'admissible'
+        and a behandelaar is logged in
+        """
+    ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val zaakUUID: UUID
         lateinit var enkelvoudigInformatieObjectUUID: UUID
         lateinit var humanTaskItemGoedkeurenId: String
-        var goedkeurenTaskId: Int = 0
+        var goedkeurenTaskId = 0
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
@@ -54,6 +58,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
+            logger.info { "Response: $bodyAsString" }
+            this.code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
