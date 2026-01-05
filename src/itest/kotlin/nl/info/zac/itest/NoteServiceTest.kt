@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -23,16 +22,8 @@ import java.net.HttpURLConnection.HTTP_OK
 class NoteServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    beforeSpec {
+    Given("An existing zaak and a logged-in behandelaar") {
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-    }
-
-    afterSpec {
-        // re-authenticate as beheerder since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
-    Given("An existing zaak") {
         When(
             """
             a note is created with the provided username equal to the username of the currently logged in user

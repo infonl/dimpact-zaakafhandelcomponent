@@ -5,7 +5,6 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -20,7 +19,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -38,10 +36,8 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * This test creates a zaak and uploads a document and because we do not want this test
- * to impact e.g. [SearchRestServiceTest] we run it afterward.
+ * This test creates a zaak and uploads a document and because we do not want this test.
  */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class WebDavServletTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val zacClient = ZacClient()
