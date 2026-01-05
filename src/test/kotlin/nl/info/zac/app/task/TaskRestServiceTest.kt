@@ -183,9 +183,6 @@ class TaskRestServiceTest : BehaviorSpec({
             ).apply {
                 fataledatum = LocalDate.parse("2024-03-19")
             }
-            val restTaakConverted = createRestTask(
-                behandelaar = restUser
-            )
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
