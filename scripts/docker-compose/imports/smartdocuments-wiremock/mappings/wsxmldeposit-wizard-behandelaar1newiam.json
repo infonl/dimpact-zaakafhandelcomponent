@@ -38,32 +38,20 @@
                 }
               },
               "data": {
-                "aanvrager": {
-                  "naam": "Héndrika Janse"
-                },
                 "gebruiker": {
                   "id": "behandelaar1newiam",
                   "naam": "Test Behandelaar 1 - new IAM"
                 },
-                "startformulier": {
-                  "data": {
-                    "omschrijving": "Ik heb een vraag over mijn paspoort",
-                    "telefoonnummer": "0612345678",
-                    "naam": "Jan Jansen"
-                  },
-                  "productAanvraagtype": "productaanvraag-type-1"
-                },
                 "zaak": {
-                  "communicatiekanaal": "E-formulier",
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
                   "groep": "behandelaars-test-1",
                   "identificatie": "${json-unit.any-string}",
-                  "omschrijving": "fakeZaakOmschrijving",
+                  "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
-                  "startdatum": "01-01-1970",
-                  "status": "Wacht op aanvullende informatie",
-                  "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. fakeZaakToelichting",
+                  "startdatum": "${json-unit.any-string}",
+                  "status": "${json-unit.any-string}",
+                  "toelichting": "${json-unit.any-string}",
                   "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
-                  "verlengingReden": "fakeReason",
                   "vertrouwelijkheidaanduiding": "openbaar",
                   "zaaktype": "Test zaaktype 3"
                 }
@@ -103,9 +91,9 @@
                   "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
-                  "startdatum": "01-01-2000",
-                  "toelichting": "null",
-                  "uiterlijkeEinddatumAfdoening": "31-01-2000",
+                  "startdatum": "${json-unit.any-string}",
+                  "toelichting": "${json-unit.any-string}",
+                  "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
                   "vertrouwelijkheidaanduiding": "openbaar",
                   "zaaktype": "BPMN test zaaktype"
                 }

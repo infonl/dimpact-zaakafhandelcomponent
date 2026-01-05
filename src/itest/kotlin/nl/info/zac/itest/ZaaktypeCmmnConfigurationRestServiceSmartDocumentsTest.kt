@@ -6,50 +6,50 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID
-import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME
+import nl.info.zac.itest.config.SMART_DOCUMENTS_TEMPLATE_MAPPINGS
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
-@Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
 class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
-    Given("ZAC Docker container is running and zaaktypeCmmnConfiguration have been created") {
+    Given(
+        """
+        ZAC Docker container is running and zaaktypeCmmnConfiguration have been created,
+        and a beheerder is logged in
+        """
+    ) {
         When("the list SmartDocuments templates endpoint is called") {
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates"
             )
@@ -134,65 +134,9 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
         When("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
                 "$ZAAKTYPE_TEST_3_UUID/smartdocuments-templates-mapping"
-            val restTemplateGroups = """
-            [
-              {
-                "id": "$SMART_DOCUMENTS_ROOT_GROUP_ID",
-                "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
-                "groups": [
-                  {
-                    "groups": [],
-                    "id": "$SMART_DOCUMENTS_GROUP_1_ID",
-                    "name": "$SMART_DOCUMENTS_GROUP_1_NAME",
-                    "templates": [
-                      {
-                        "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                      },
-                      {
-                        "id": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID",
-                        "name": "$SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                      }
-                    ]
-                  },
-                  {
-                    "groups": [],
-                    "id": "$SMART_DOCUMENTS_GROUP_2_ID",
-                    "name": "$SMART_DOCUMENTS_GROUP_2_NAME",
-                    "templates": [
-                      {
-                        "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID",
-                        "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                      },
-                      {
-                        "id": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID",
-                        "name": "$SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME",
-                        "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                      }
-                    ]
-                  }
-                ],
-                "templates": [
-                  {
-                    "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID",
-                    "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME",
-                    "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                  },
-                  {
-                    "id": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID",
-                    "name": "$SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME",
-                    "informatieObjectTypeUUID": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
-                  }
-                ]
-              }
-            ]
-            """.trimIndent()
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
-                requestBodyAsString = restTemplateGroups
+                requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS
             )
             val storeBody = storeResponse.bodyAsString
             logger.info { "Response: $storeBody" }
@@ -206,7 +150,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                     logger.info { "Response: $fetchResponseBody" }
 
                     fetchResponse.code shouldBe HTTP_OK
-                    fetchResponseBody shouldEqualJsonIgnoringOrder restTemplateGroups
+                    fetchResponseBody shouldEqualJsonIgnoringOrder SMART_DOCUMENTS_TEMPLATE_MAPPINGS
                 }
             }
         }
