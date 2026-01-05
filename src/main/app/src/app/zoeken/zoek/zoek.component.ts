@@ -51,7 +51,8 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   zoekResultaat = new ZoekResultaat<
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
   >();
-  zoekParameters: GeneratedType<"RestZoekParameters"> = createDefaultZoekParameters();
+  zoekParameters: GeneratedType<"RestZoekParameters"> =
+    createDefaultZoekParameters();
   isLoadingResults = true;
   slow = false;
   zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
