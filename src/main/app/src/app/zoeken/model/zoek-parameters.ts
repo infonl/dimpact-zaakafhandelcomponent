@@ -6,7 +6,7 @@
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
-export function createDefaultZoekParameters(): GeneratedType<"RestZoekParameters"> {
+export function getDefaultZoekParameters(): GeneratedType<"RestZoekParameters"> {
   return {
     rows: 25,
     page: 0,

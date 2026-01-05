@@ -9,7 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
-import { createDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -34,7 +34,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
 
   zoekParameters = computed(() => {
     const zoekParameters = TakenMijnDatasource.mijnLopendeTaken(
-      createDefaultZoekParameters(),
+      getDefaultZoekParameters(),
     );
     zoekParameters.sorteerVeld = "TAAK_FATALEDATUM";
     zoekParameters.sorteerRichting = "asc";

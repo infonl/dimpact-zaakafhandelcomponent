@@ -12,7 +12,7 @@ import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
-import { createDefaultZoekParameters } from "../../../zoeken/model/zoek-parameters";
+import { getDefaultZoekParameters } from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
 import {
@@ -55,7 +55,7 @@ export abstract class ZoekenDataSource<
     super();
     this.zoekParameters = SessionStorageUtil.getItem(
       `${werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      createDefaultZoekParameters(),
+      getDefaultZoekParameters(),
     );
   }
 
@@ -196,7 +196,7 @@ export abstract class ZoekenDataSource<
   reset() {
     this.zoekParameters = SessionStorageUtil.setItem(
       `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
-      createDefaultZoekParameters(),
+      getDefaultZoekParameters(),
     );
     if (this.zoekParameters.sorteerVeld)
       this.sort.active = this.zoekParameters.sorteerVeld;
