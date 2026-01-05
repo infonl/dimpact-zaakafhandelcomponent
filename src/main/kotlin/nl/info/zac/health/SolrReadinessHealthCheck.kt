@@ -65,7 +65,7 @@ class SolrReadinessHealthCheck @Inject constructor(
                     .down()
                     .build()
             }
-        } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
+        } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
             HealthCheckResponse
                 .named(SolrReadinessHealthCheck::class.java.name)
                 .withData("time", LocalDateTime.now().toString())
