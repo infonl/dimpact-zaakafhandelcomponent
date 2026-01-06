@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.167](https://img.shields.io/badge/Version-1.0.167-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
+![Version: 1.0.168](https://img.shields.io/badge/Version-1.0.168-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -167,7 +167,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.3@sha256:74d864843f59c0492fa7ba0eb8ff9b2b6b4797b069e4bfee78df6739873eebd7"` |  |
+| nginx.image.tag | string | `"1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -216,7 +216,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.12.1-static@sha256:278deb6ffc725ca7e1939d56e9fded1f938c85a9a598def6d791598af57af61f"` |  |
+| opa.image.tag | string | `"1.12.2-static@sha256:a4a8a67173fd7c8673c20c67c2a8d3611f705518afba932538e911ba7aa72451"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
