@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -289,7 +289,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -695,7 +695,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -748,7 +748,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.7@sha256:929190a12e0833c89276f78c7cf665aaaa62b5930e6f852e9f733f8b737d3f8f
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54320:5432"
