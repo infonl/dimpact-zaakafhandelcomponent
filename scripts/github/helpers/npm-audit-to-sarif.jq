@@ -24,7 +24,7 @@ def severity_to_numeric:
           "name": "npm audit",
           "informationUri": "https://docs.npmjs.com/cli/v10/commands/npm-audit",
           "version": "1.0.0",
-          "rules": [
+          "rules": 
             .vulnerabilities | to_entries | map(
               select(.value.via | type == "array" and (map(type == "object") | any)) |
               .value.via | map(select(type == "object")) | .[]
@@ -49,7 +49,6 @@ def severity_to_numeric:
                 )
               }
             })
-          ]
         }
       },
       "results": 
