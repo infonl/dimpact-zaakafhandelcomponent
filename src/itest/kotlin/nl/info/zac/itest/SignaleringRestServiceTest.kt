@@ -9,6 +9,7 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -338,7 +339,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given(
         """
-        An existing signalering record and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
+        Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
         """
     ) {
         When("signaleringen older than 0 days are deleted") {
@@ -353,11 +354,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("the existing two signaleringen should be deleted") {
+            Then("at least the two existing signaleringen should be deleted") {
                 response.code shouldBe HTTP_OK
 
                 with(JSONObject(responseBody)) {
-                    getInt("deletedSignaleringenCount") shouldBe 2
+                    // there may be more than two signaleringen deleted if other tests have created signaleringen as well
+                    getInt("deletedSignaleringenCount") shouldBeGreaterThan 1
                 }
             }
         }
