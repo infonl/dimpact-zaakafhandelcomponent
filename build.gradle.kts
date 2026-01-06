@@ -458,11 +458,7 @@ configure<SpotlessExtension> {
 
 tasks {
     clean {
-        // Only depend on cleanMaven if explicitly requested or not in CI to
-        // prevent issues with concurrent builds on CI agents.
-        if (System.getenv("CI") == null || System.getenv("GITHUB_ACTIONS") == null) {
-            dependsOn("cleanMaven")
-        }
+        dependsOn("cleanMaven")
 
         delete(".gradle/configuration-cache")
         delete(srcGenerated)
