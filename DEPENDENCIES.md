@@ -14,7 +14,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **kontextwork-converter**: 1.8.1
 - **otel/opentelemetry-collector**: 0.142.0
 - **grafana/tempo**: 2.9.0
-- **prom/prometheus**: v3.8.1
+- **prom/prometheus**: v3.9.0
 - **grafana/grafana**: 12.3.1
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.2-alpine
