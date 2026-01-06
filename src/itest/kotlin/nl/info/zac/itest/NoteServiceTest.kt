@@ -4,26 +4,41 @@
  */
 package nl.info.zac.itest
 
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
+import java.util.UUID
 
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class NoteServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
 
     Given("An existing zaak and a logged-in behandelaar") {
+        lateinit var zaakUuid: UUID
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).run {
+                zaakUuid = getString("uuid").run(UUID::fromString)
+            }
+        }
+
         When(
             """
             a note is created with the provided username equal to the username of the currently logged in user
@@ -33,7 +48,7 @@ class NoteServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/notities",
                 requestBodyAsString = """
                     {
-                        "zaakUUID": "$zaakProductaanvraag1Uuid",
+                        "zaakUUID": "$zaakUuid",
                         "tekst": "fakeNoteText",
                         "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}"
                     }
@@ -46,7 +61,7 @@ class NoteServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
-                        "zaakUUID": "$zaakProductaanvraag1Uuid",
+                        "zaakUUID": "$zaakUuid",
                         "tekst": "fakeNoteText",
                         "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
                         "voornaamAchternaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
@@ -62,7 +77,7 @@ class NoteServiceTest : BehaviorSpec({
 
         When("the 'get notes' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/notities/zaken/$zaakProductaanvraag1Uuid"
+                url = "$ZAC_API_URI/notities/zaken/$zaakUuid"
             )
             Then(
                 "the just created note should be returned"
@@ -72,7 +87,7 @@ class NoteServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [
                         {
-                            "zaakUUID": "$zaakProductaanvraag1Uuid",
+                            "zaakUUID": "$zaakUuid",
                             "tekst": "fakeNoteText",
                             "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
                             "voornaamAchternaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
