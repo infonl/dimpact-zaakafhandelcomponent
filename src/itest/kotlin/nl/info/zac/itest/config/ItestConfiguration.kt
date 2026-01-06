@@ -195,7 +195,6 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
 
     const val SMTP_SERVER_PORT = 25
-    const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
     const val ZAC_INTERNAL_ENDPOINTS_API_KEY = "zacItestInternalEndpointsApiKey"

@@ -17,7 +17,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -48,21 +47,14 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    beforeSpec {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-    }
-
-    afterSpec {
-        // re-authenticate using beheerder user since some subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Given(
         """
             A user who has 'taak verlopen email notificaties' turned on 
-            and a zaak with a task that is assigned and that has a fatal/due date within one day from the zaak start date
+            and a zaak with a task that is assigned and that has a fatal/due date within one day from the zaak start date,
+            and a behandelaar is logged in
             """
     ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val response = itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/signaleringen/instellingen",
             headers = Headers.headersOf(
