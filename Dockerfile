@@ -35,7 +35,7 @@ LABEL version=""
 # Import certificates into Java truststore
 COPY certificates /certificates
 ENV KEYTOOL_OPTS="-cacerts -storepass ${TRUSTSTORE_PASSWORD} -noprompt"
-RUN keytool -importcert $KEYTOOL_OPTS -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer && \
+RUN keytool -importcert $KEYTOOL_OPTS -alias Sectigo_Public_Server_Authentication_Root_R46 -file /certificates/smartdocuments/Sectigo_Public_Server_Authentication_Root_R46.cer && \
     keytool -importcert $KEYTOOL_OPTS -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt && \
     keytool -importcert $KEYTOOL_OPTS -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt
