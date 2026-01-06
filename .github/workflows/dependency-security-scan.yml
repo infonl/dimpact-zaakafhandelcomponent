@@ -26,6 +26,10 @@ jobs:
     name: NPM Security Audit
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    outputs:
+      vuln_total: ${{ steps.audit_main.outputs.vuln_total }}
+      vuln_critical: ${{ steps.audit_main.outputs.vuln_critical }}
+      vuln_high: ${{ steps.audit_main.outputs.vuln_high }}
 
     steps:
       - name: Checkout code
@@ -265,20 +269,12 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Status:* ${{ steps.status.outputs.status }} ${{ steps.status.outputs.emoji }}\\n*Repository:* ${{ github.repository }}\\n*Vulnerabilities:* ${{ needs.gradle-security-audit.outputs.vuln_critical || 0 }} Critical | ${{ needs.gradle-security-audit.outputs.vuln_high || 0 }} High | ${{ needs.gradle-security-audit.outputs.vuln_total || 0 }} Total"
+                        "text": "*Status:* ${{ steps.status.outputs.status }} ${{ steps.status.outputs.emoji }}\n*Repository:* ${{ github.repository }}\n\n*NPM Vulnerabilities:*\n• Critical: ${{ needs.npm-security-audit.outputs.vuln_critical || 0 }}\n• High: ${{ needs.npm-security-audit.outputs.vuln_high || 0 }}\n• Total: ${{ needs.npm-security-audit.outputs.vuln_total || 0 }}\n\n*Gradle Vulnerabilities:*\n• Critical: ${{ needs.gradle-security-audit.outputs.vuln_critical || 0 }}\n• High: ${{ needs.gradle-security-audit.outputs.vuln_high || 0 }}\n• Total: ${{ needs.gradle-security-audit.outputs.vuln_total || 0 }}"
                       }
                     },
                     {
                       "type": "actions",
                       "elements": [
-                        {
-                          "type": "button",
-                          "text": {
-                            "type": "plain_text",
-                            "text": "📄 View Report"
-                          },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/security-scans/${{ needs.gradle-security-audit.outputs.scan_date }}/"
-                        },
                         {
                           "type": "button",
                           "text": {
