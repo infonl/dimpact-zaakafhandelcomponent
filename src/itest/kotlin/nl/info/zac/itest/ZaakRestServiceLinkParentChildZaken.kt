@@ -25,7 +25,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
- * Integration test to test the functionality of linking parent and child zaken (hoofd- en deelzaken).
+ * Tests linking parent and child zaken (hoofd- en deelzaken).
  */
 class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()

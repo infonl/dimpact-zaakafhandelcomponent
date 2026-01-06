@@ -4,7 +4,6 @@
  */
 package nl.info.zac.itest.config
 
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -60,7 +59,6 @@ object ItestConfiguration {
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING = "factuur"
     const val INFORMATIE_OBJECT_TYPE_FACTUUR_UUID = "eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5"
-    const val INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING = "e-mail"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
     const val KEYCLOAK_HEALTH_READY_URL = "http://localhost:9001/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
@@ -125,22 +123,6 @@ object ItestConfiguration {
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
-    const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED = 1
-    const val TEST_SPEC_ORDER_AFTER_INITIALIZATION = 2
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 3
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 5
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 6
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 7
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 8
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 9
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 10
-    const val TEST_SPEC_ORDER_AFTER_KOPPELEN = 11
-
-    const val TOTAL_COUNT_INDEXED_ZAKEN = 14
-    const val TOTAL_COUNT_INDEXED_ZAKEN_AFGEROND = 4
-
     /**
      * Test person that exists in both the BRP and the Klanten API databases
      */
@@ -152,8 +134,6 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
         "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
-    const val TEST_PERSON_2_BSN = "999992958"
-    const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
@@ -329,7 +309,6 @@ object ItestConfiguration {
 
     // BPMN tests constants
     val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
-    const val ZAAK_BPMN_TEST_IDENTIFICATION: String = "ZAAK-2000-0000000004"
     const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
     const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
     const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
@@ -377,52 +356,4 @@ object ItestConfiguration {
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME = "Zaak niet ontvankelijk"
     const val MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_MAIL = "ZAAK_ONTVANKELIJK"
     const val MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME = "Zaak ontvankelijk"
-
-    /**
-     * Global variable to store the id of a task that is created in the integration tests as
-     * part of the zaak with UUID [zaakProductaanvraag1Uuid].
-     */
-    lateinit var task1ID: String
-
-    /**
-     * Second 'manually' created zaak using the ZAC API.
-     */
-    lateinit var zaakManual2Identification: String
-
-    /**
-     * Global variable to store the UUID of a zaak that is created in the integration tests
-     * from a productaanvraag.
-     */
-    lateinit var zaakProductaanvraag1Uuid: UUID
-
-    /**
-     * Global variable to store the UUID of a zaak that is created in the integration tests
-     * from a productaanvraag.
-     */
-    lateinit var zaakProductaanvraag2Uuid: UUID
-
-    /**
-     * Global variable to store the UUID of a BPMN zaak that is created in the integration tests
-     * from a productaanvraag.
-     */
-    lateinit var zaakProductaanvraag3Uuid: UUID
-
-    /**
-     * Global variable to store the UUID of an invalid zaak that should not be created
-     * from a productaanvraag with only vestigingsNummer.
-     */
-    lateinit var zaakProductaanvraagInvalidUuid: UUID
-
-    /**
-     * Global variable to store the UUID of a zaak created from a productaanvraag
-     * with both kvkNummer and vestigingsNummer.
-     */
-    lateinit var zaakProductaanvraagComboUuid: UUID
-
-    /**
-     * Global variable to store the UUID of an uploaded file in the integration tests.
-     */
-    lateinit var enkelvoudigInformatieObjectUUID: String
-
-    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 }

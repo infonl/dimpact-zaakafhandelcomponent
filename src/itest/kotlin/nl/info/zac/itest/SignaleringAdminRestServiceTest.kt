@@ -21,12 +21,10 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
-import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
@@ -38,10 +36,6 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
- */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class SignaleringAdminRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -67,6 +61,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         response.code shouldBe HTTP_OK
 
         lateinit var zaakUuid: UUID
+        lateinit var zaakIdentification: String
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
@@ -75,7 +70,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
         ).run {
             JSONObject(bodyAsString).run {
-                zaakManual2Identification = getString("identificatie")
+                zaakIdentification = getString("identificatie")
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
         }
@@ -144,11 +139,11 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     receivedMails.length() shouldBe 1
                 }
                 with(JSONArray(receivedMails).getJSONObject(0)) {
-                    getString("subject") shouldBe "Actie nodig, handel jouw taak voor zaak $zaakManual2Identification spoedig af"
+                    getString("subject") shouldBe "Actie nodig, handel jouw taak voor zaak $zaakIdentification spoedig af"
                     with(getString("mimeMessage")) {
                         this shouldStartWith "Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>"
                         this shouldContain
-                            "Voor zaak $zaakManual2Identification over $ZAAK_DESCRIPTION_1 staat een belangrijke een taak op jouw naam. " +
+                            "Voor zaak $zaakIdentification over $ZAAK_DESCRIPTION_1 staat een belangrijke een taak op jouw naam. " +
                             "De fatale datum voor het afhandelen is verstreken."
                     }
                 }

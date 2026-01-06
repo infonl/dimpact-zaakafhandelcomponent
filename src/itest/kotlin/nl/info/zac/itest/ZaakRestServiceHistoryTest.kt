@@ -14,7 +14,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -30,16 +29,8 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    beforeSpec {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-    }
-
-    afterSpec {
-        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
