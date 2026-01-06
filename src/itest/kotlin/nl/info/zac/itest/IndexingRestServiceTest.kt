@@ -4,21 +4,13 @@
  */
 package nl.info.zac.itest
 
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 
-/**
- * This test assumes two zaken, one task and one document have been created in previously run tests.
- * Note that the document in question is the form data PDF which was created during the handling of the 'productaanvraag'.
- * @see NotificationsTest
- */
-@Order(TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED)
 class IndexingRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
