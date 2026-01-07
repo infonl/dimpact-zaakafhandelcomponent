@@ -14,7 +14,7 @@ import java.util.Optional;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-public record Results<T>(int count, List<T> results, URI next, URI previous) {
+public record Results<T> (int count, List<T> results, URI next, URI previous) {
 
     // Aantal items wat Open Zaak terug geeft per pagina
     public static final long NUM_ITEMS_PER_PAGE = 100;

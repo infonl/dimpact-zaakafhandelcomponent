@@ -6,7 +6,6 @@
 package net.atos.client.or.shared.model;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
 import jakarta.json.bind.annotation.JsonbProperty;

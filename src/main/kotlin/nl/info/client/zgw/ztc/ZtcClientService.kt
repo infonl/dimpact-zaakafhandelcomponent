@@ -293,7 +293,9 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results()
+            ztcClient.roltypeListGeneriek(
+                RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)
+            ).results()
         }
 
     /**

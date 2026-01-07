@@ -38,11 +38,9 @@ public class ZgwClientHeadersFactory implements ClientHeadersFactory {
     public ZgwClientHeadersFactory(
             final Instance<LoggedInUser> loggedInUserInstance,
 
-            @ConfigProperty(name = "ZGW_API_CLIENTID")
-            final String clientId,
+            @ConfigProperty(name = "ZGW_API_CLIENTID") final String clientId,
 
-            @ConfigProperty(name = "ZGW_API_SECRET")
-            final String secret
+            @ConfigProperty(name = "ZGW_API_SECRET") final String secret
     ) {
         this.loggedInUserInstance = loggedInUserInstance;
         this.clientId = clientId;

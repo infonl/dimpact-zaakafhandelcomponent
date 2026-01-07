@@ -27,8 +27,7 @@ public class OfficeConverterClientService {
 
     @Inject
     public OfficeConverterClientService(
-            @RestClient
-            final OfficeConverterClient officeConverterClient
+            @RestClient final OfficeConverterClient officeConverterClient
     ) {
         this.officeConverterClient = officeConverterClient;
     }
