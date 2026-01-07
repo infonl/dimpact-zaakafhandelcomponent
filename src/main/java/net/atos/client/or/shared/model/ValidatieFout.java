@@ -11,7 +11,7 @@ import java.util.List;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
-public class ValidatieFout extends Fout implements Serializable {
+public class ValidatieFout extends Fout {
     @Serial
     private static final long serialVersionUID = 456455676575665L;
 

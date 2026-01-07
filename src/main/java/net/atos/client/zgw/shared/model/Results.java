@@ -47,7 +47,7 @@ public record Results<T>(int count, List<T> results, URI next, URI previous) {
         } else if (results.size() == 1) {
             return Optional.of(results.getFirst());
         } else {
-            throw new IllegalStateException(String.format("More then one result found (count: %d)", count));
+            throw new IllegalStateException(String.format("More than one result found (count: %d)", count));
         }
     }
 
@@ -55,7 +55,7 @@ public record Results<T>(int count, List<T> results, URI next, URI previous) {
         if (next == null) {
             return results();
         } else {
-            throw new IllegalStateException(String.format("More then one page found (count: %d, results: %d)", count, results.size()));
+            throw new IllegalStateException(String.format("More than one page found (count: %d, results: %d)", count, results.size()));
         }
     }
 }
