@@ -135,7 +135,7 @@ public class OntkoppeldeDocumentenService {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<String> query = builder.createQuery(String.class);
         final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
-        query.select(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR)).distinct(true);
+        query.select(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR_PROPERTY_NAME)).distinct(true);
         query.where(getWhere(listParameters, root));
         return entityManager.createQuery(query).getResultList();
     }
@@ -159,24 +159,24 @@ public class OntkoppeldeDocumentenService {
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
             predicates.add(
-                    builder.like(root.get(OntkoppeldDocument.ZAAK_ID), LIKE.formatted(listParameters.getZaakID())));
+                    builder.like(root.get(OntkoppeldDocument.ZAAK_ID_PROPERTY_NAME), LIKE.formatted(listParameters.getZaakID())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
             String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.TITEL)), titel));
+            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.TITEL_PROPERTY_NAME)), titel));
         }
         if (StringUtils.isNotBlank(listParameters.getReden())) {
             String reden = LIKE.formatted(listParameters.getReden().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.REDEN)), reden));
+            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.REDEN_PROPERTY_NAME)), reden));
         }
 
         if (StringUtils.isNotBlank(listParameters.getOntkoppeldDoor())) {
             predicates.add(
-                    builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR), listParameters.getOntkoppeldDoor()));
+                    builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR_PROPERTY_NAME), listParameters.getOntkoppeldDoor()));
         }
-        addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM, predicates, root,
+        addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM_PROPERTY_NAME, predicates, root,
                 builder);
-        addDatumRangePredicates(listParameters.getOntkoppeldOp(), OntkoppeldDocument.ONTKOPPELD_OP, predicates, root,
+        addDatumRangePredicates(listParameters.getOntkoppeldOp(), OntkoppeldDocument.ONTKOPPELD_OP_PROPERTY_NAME, predicates, root,
                 builder);
 
         return builder.and(predicates.toArray(new Predicate[0]));

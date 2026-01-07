@@ -66,13 +66,13 @@ public abstract class Zaakobject {
     /**
      * Constructor for JSONB deserialization
      */
-    public Zaakobject() {
+    protected Zaakobject() {
     }
 
     /**
      * Constructor with required attributes
      */
-    public Zaakobject(final URI zaakUri, final URI objectUri, final ObjectTypeEnum objectType) {
+    protected Zaakobject(final URI zaakUri, final URI objectUri, final ObjectTypeEnum objectType) {
         this.zaak = zaakUri;
         this.object = objectUri;
         this.objectType = objectType;

@@ -501,7 +501,7 @@ class ZaakRestService @Inject constructor(
             rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
         }
 
-        return zrcClientService.listZaken(zaakListParameters).results
+        return zrcClientService.listZaken(zaakListParameters).results()
             .filter { it.isOpen() }
             .filter {
                 isWaarschuwing(

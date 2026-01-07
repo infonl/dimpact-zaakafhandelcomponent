@@ -128,8 +128,8 @@ public class BagRestService {
         assertPolicy(policyService.readZaakRechten(zaak).getLezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
-        if (zaakobjecten.getCount() > 0) {
-            return zaakobjecten.getResults().stream()
+        if (zaakobjecten.count() > 0) {
+            return zaakobjecten.results().stream()
                     .filter(Zaakobject::isBagObject)
                     .map(RestBagConverter::convertToRESTBAGObjectGegevens)
                     .toList();
@@ -156,6 +156,6 @@ public class BagRestService {
             case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.OPENBARE_RUIMTE);
         }
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
-        return zaakobjecten.getResults().isEmpty();
+        return zaakobjecten.results().isEmpty();
     }
 }

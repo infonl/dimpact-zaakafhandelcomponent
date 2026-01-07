@@ -12,9 +12,8 @@ import java.util.UUID;
 import net.atos.client.zgw.shared.model.Bron;
 
 /**
- * Gegevens mbt een wijziging gedaan op een object
+ * Audit trail data related to a change on an object.
  */
-
 public class AuditTrailRegel {
 
     /**

@@ -2,44 +2,40 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
 import java.net.URI;
 
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 
-/**
- * ZaakobjectMetObjectIdentificatie
- */
-public abstract class ZaakobjectMetObjectIdentificatie<OBJECT> extends Zaakobject {
+public abstract class ZaakobjectMetObjectIdentificatie<T> extends Zaakobject {
 
     /**
      * Het generieke object
      * - Required
      */
-    private OBJECT objectIdentificatie;
+    private T objectIdentificatie;
 
     /**
      * Constructor for JSONB deserialization
      */
-    public ZaakobjectMetObjectIdentificatie() {
+    protected ZaakobjectMetObjectIdentificatie() {
     }
 
     /**
      * Constructor with required attributes
      */
-    public ZaakobjectMetObjectIdentificatie(
+    protected ZaakobjectMetObjectIdentificatie(
             final URI zaak,
             final URI objectUri,
             final ObjectTypeEnum objectType,
-            final OBJECT objectIdentificatie
+            final T objectIdentificatie
     ) {
         super(zaak, objectUri, objectType);
         this.objectIdentificatie = objectIdentificatie;
     }
 
-    public OBJECT getObjectIdentificatie() {
+    public T getObjectIdentificatie() {
         return objectIdentificatie;
     }
 }

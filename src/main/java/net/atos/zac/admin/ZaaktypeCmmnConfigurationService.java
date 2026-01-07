@@ -37,8 +37,18 @@ public class ZaaktypeCmmnConfigurationService implements Caching {
     public static final String INADMISSIBLE_TERMINATION_ID = "ZAAK_NIET_ONTVANKELIJK";
     public static final String INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk";
 
-    @Inject
     private ZaaktypeCmmnConfigurationBeheerService zaaktypeCmmnConfigurationBeheerService;
+
+    /**
+     * No-args constructor for CDI.
+     */
+    public ZaaktypeCmmnConfigurationService() {
+    }
+
+    @Inject
+    ZaaktypeCmmnConfigurationService(ZaaktypeCmmnConfigurationBeheerService zaaktypeCmmnConfigurationBeheerService) {
+        this.zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService;
+    }
 
     private static final Map<String, Cache<?, ?>> CACHES = new HashMap<>();
 

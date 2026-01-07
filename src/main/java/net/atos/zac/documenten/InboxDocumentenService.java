@@ -82,7 +82,7 @@ public class InboxDocumentenService {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<InboxDocument> query = builder.createQuery(InboxDocument.class);
         final Root<InboxDocument> root = query.from(InboxDocument.class);
-        query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID),
+        query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME),
                 enkelvoudiginformatieobjectUUID));
         final List<InboxDocument> resultList = entityManager.createQuery(query).getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
@@ -141,12 +141,12 @@ public class InboxDocumentenService {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getIdentificatie())) {
-            predicates.add(builder.like(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID),
+            predicates.add(builder.like(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME),
                     LIKE.formatted(listParameters.getIdentificatie())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
             String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(InboxDocument.TITEL)), titel));
+            predicates.add(builder.like(builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)), titel));
         }
         addCreatiedatumPredicates(listParameters.getCreatiedatum(), predicates, root, builder);
         return builder.and(predicates.toArray(new Predicate[0]));
@@ -160,11 +160,11 @@ public class InboxDocumentenService {
     ) {
         if (creatiedatum != null) {
             if (creatiedatum.getVan() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
+                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
                         DateTimeUtil.convertToDateTime(creatiedatum.getVan())));
             }
             if (creatiedatum.getTot() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
+                predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
                         DateTimeUtil.convertToDateTime(creatiedatum.getTot()).plusDays(1)
                                 .minusSeconds(1)));
             }

@@ -17,10 +17,21 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 
 @ApplicationScoped
 public class OfficeConverterClientService {
+    private OfficeConverterClient officeConverterClient;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public OfficeConverterClientService() {
+    }
 
     @Inject
-    @RestClient
-    private OfficeConverterClient officeConverterClient;
+    public OfficeConverterClientService(
+            @RestClient
+            final OfficeConverterClient officeConverterClient
+    ) {
+        this.officeConverterClient = officeConverterClient;
+    }
 
     public ByteArrayInputStream convertToPDF(final ByteArrayInputStream document, final String filename) {
         final MultipartFormDataOutput multipartFormDataOutput = new MultipartFormDataOutput();

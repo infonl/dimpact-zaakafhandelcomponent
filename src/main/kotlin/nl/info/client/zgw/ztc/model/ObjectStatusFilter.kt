@@ -6,7 +6,7 @@ package nl.info.client.zgw.ztc.model
 
 import net.atos.client.zgw.shared.model.AbstractEnum
 
-enum class ObjectStatusFilter(private val value: String) : AbstractEnum<ObjectStatusFilter> {
+enum class ObjectStatusFilter(private val value: String) : AbstractEnum {
     /**
      * Toon objecten waarvan het attribuut `concept` true is.
      */

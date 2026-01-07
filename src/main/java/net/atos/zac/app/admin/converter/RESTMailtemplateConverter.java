@@ -10,6 +10,9 @@ import net.atos.zac.app.admin.model.RESTMailtemplate;
 import nl.info.zac.mailtemplates.model.MailTemplate;
 
 public final class RESTMailtemplateConverter {
+    // Private constructor to prevent instantiation
+    private RESTMailtemplateConverter() {
+    }
 
     public static RESTMailtemplate convert(final MailTemplate mailTemplate) {
         final RESTMailtemplate restMailtemplate = new RESTMailtemplate();

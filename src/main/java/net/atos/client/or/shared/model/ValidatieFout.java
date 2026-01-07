@@ -5,14 +5,15 @@
 
 package net.atos.client.or.shared.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
-/**
- *
- */
-public class ValidatieFout extends Fout {
+public class ValidatieFout extends Fout implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 456455676575665L;
 
     @JsonbProperty("invalid_params")
     private List<FieldValidationError> fieldValidationErrors;

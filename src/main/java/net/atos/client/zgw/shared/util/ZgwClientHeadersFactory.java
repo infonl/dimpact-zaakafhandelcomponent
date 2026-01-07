@@ -24,16 +24,30 @@ import nl.info.zac.authentication.LoggedInUser;
 public class ZgwClientHeadersFactory implements ClientHeadersFactory {
     public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
 
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
-    @ConfigProperty(name = "ZGW_API_CLIENTID")
     private String clientId;
+    private String secret;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public ZgwClientHeadersFactory() {
+    }
 
     @Inject
-    @ConfigProperty(name = "ZGW_API_SECRET")
-    private String secret;
+    public ZgwClientHeadersFactory(
+            final Instance<LoggedInUser> loggedInUserInstance,
+
+            @ConfigProperty(name = "ZGW_API_CLIENTID")
+            final String clientId,
+
+            @ConfigProperty(name = "ZGW_API_SECRET")
+            final String secret
+    ) {
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.clientId = clientId;
+        this.secret = secret;
+    }
 
     private static final Map<String, String> AUDIT_TOELICHTINGEN = new ConcurrentHashMap<>();
 

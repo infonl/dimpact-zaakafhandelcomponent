@@ -32,7 +32,7 @@ class BrcClientService @Inject constructor(
 ) {
     fun listBesluiten(zaak: Zaak): List<Besluit> = BesluitenListParameters()
         .apply { this.zaakUri = zaak.url }
-        .let { brcClient.besluitList(it).results }
+        .let { brcClient.besluitList(it).results() }
 
     fun createBesluit(besluit: Besluit): Besluit = brcClient.besluitCreate(besluit)
 
