@@ -41,8 +41,6 @@ import java.time.LocalDate
  * This test creates multiple zaken, tasks and documents, indexes them, and performs searches.
  * It is limited in scope because previously run tests may already have created zaken, tasks and documents.
  * In the future, this test could be improved by first deleting all existing zaken, tasks and documents.
- * This cannot be done currently because some of our integration tests are not yet isolated and rely
- * on existing zaken, tasks and documents created by previous tests.
  */
 @Suppress("LargeClass")
 class SearchRestServiceTest : BehaviorSpec({

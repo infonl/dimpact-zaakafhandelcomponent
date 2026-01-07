@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
-import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -196,8 +195,6 @@ class ProjectConfig : AbstractProjectConfig() {
         // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
         dockerComposeContainer.withOptions("--profile itest").stop()
     }
-
-    override val specExecutionOrder = SpecExecutionOrder.Annotated
 
     @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {

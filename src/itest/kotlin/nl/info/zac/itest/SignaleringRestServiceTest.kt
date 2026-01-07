@@ -8,8 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -18,7 +18,6 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -26,7 +25,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
@@ -48,11 +46,6 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * This test creates and assigns a zaak, to test the signaleringen functionality.
- * Because we do not want this test to impact e.g. [SearchRestServiceTest] we run it afterward.
- */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class SignaleringRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -65,11 +58,6 @@ class SignaleringRestServiceTest : BehaviorSpec({
     lateinit var zaakUUID: UUID
     lateinit var zaakIdentificatie: String
     lateinit var zaakPath: String
-
-    afterSpec {
-        // re-authenticate using beheerder since currently subsequent integration tests rely on this user being logged in
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
 
     Given("A logged-in behandelaar") {
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
@@ -351,7 +339,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given(
         """
-        An existing signalering record and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
+        Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
         """
     ) {
         When("signaleringen older than 0 days are deleted") {
@@ -366,11 +354,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("the existing two signaleringen should be deleted") {
+            Then("at least the two existing signaleringen should be deleted") {
                 response.code shouldBe HTTP_OK
 
                 with(JSONObject(responseBody)) {
-                    getInt("deletedSignaleringenCount") shouldBe 2
+                    // there may be more than two signaleringen deleted if other tests have created signaleringen as well
+                    getInt("deletedSignaleringenCount") shouldBeGreaterThan 1
                 }
             }
         }

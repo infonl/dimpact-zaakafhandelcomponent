@@ -6,7 +6,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
@@ -44,7 +43,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -58,11 +56,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UIT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag3Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraagComboUuid
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -80,14 +73,17 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak and a document (the form data PDF) from a productaanvraag which we use in other tests,
- * and therefore we run this test right after initialization.
+ * This test creates a zaak and a document (the form data PDF) from a productaanvraag.
  */
-@Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    lateinit var zaakProductaanvraag1Uuid: UUID
+    lateinit var zaakProductaanvraag2Uuid: UUID
+    lateinit var zaakProductaanvraag3Uuid: UUID
+    lateinit var zaakProductaanvraagComboUuid: UUID
+    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 
     Given("""ZAC and all related Docker containers are running""") {
         When(""""the notificaties endpoint is called with fake payload without authentication header""") {
