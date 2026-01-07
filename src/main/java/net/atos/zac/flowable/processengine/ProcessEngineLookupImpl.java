@@ -13,6 +13,8 @@ import static org.flowable.engine.impl.cfg.DelegateExpressionFieldInjectionMode.
 import java.util.ArrayList;
 import java.util.List;
 
+import net.atos.zac.flowable.bpmn.function.TasksFunctionDelegate;
+import org.flowable.cdi.CdiStandaloneProcessEngineConfiguration;
 import org.flowable.cdi.spi.ProcessEngineLookup;
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
 import org.flowable.cmmn.engine.configurator.CmmnEngineConfigurator;
@@ -20,7 +22,6 @@ import org.flowable.cmmn.engine.impl.cfg.DelegateExpressionFieldInjectionMode;
 import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
@@ -64,7 +65,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
     }
 
     private static ProcessEngineConfiguration getProcessEngineConfiguration() {
-        var processEngineConfiguration = new StandaloneProcessEngineConfiguration();
+        var processEngineConfiguration = new CdiStandaloneProcessEngineConfiguration();
         processEngineConfiguration.setDataSourceJndiName(DATA_SOURCE_JNDI_NAME);
         processEngineConfiguration.setDatabaseType(DATABASE_TYPE_POSTGRES);
         processEngineConfiguration.setDatabaseSchema(DATABASE_SCHEMA);
@@ -76,16 +77,36 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         processEngineConfiguration.setDisableIdmEngine(true);
         processEngineConfiguration.setAsyncExecutorActivate(true);
         processEngineConfiguration.setCreateUserTaskInterceptor(new ZacCreateUserTaskInterceptor());
+
+        addEventListeners(processEngineConfiguration);
+        addCustomFunctionDelegates(processEngineConfiguration);
+        addConfigurators(processEngineConfiguration);
+
+        return processEngineConfiguration;
+    }
+
+    private static void addEventListeners(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
         var eventListeners = processEngineConfiguration.getEventListeners();
         if (eventListeners == null) {
             eventListeners = new ArrayList<>();
             processEngineConfiguration.setEventListeners(eventListeners);
         }
         eventListeners.add(new UserTaskCompletionListener());
+    }
+
+    private static void addCustomFunctionDelegates(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
+        var customFlowableFunctionDelegates = processEngineConfiguration.getCustomFlowableFunctionDelegates();
+        if (customFlowableFunctionDelegates == null) {
+            customFlowableFunctionDelegates = new ArrayList<>();
+        }
+        customFlowableFunctionDelegates.add(new TasksFunctionDelegate());
+        processEngineConfiguration.setCustomFlowableFunctionDelegates(customFlowableFunctionDelegates);
+    }
+
+    private static void addConfigurators(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
         final var cmmnEngineConfigurator = new CmmnEngineConfigurator();
         cmmnEngineConfigurator.setCmmnEngineConfiguration(getCmmnEngineConfigurationHelper());
         processEngineConfiguration.setConfigurators(List.of(cmmnEngineConfigurator));
-        return processEngineConfiguration;
     }
 
     private static CmmnEngineConfiguration getCmmnEngineConfigurationHelper() {

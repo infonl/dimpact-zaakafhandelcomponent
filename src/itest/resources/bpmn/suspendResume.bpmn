@@ -39,14 +39,15 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="resumeForm" name="Resume parameters" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="resumeForm" flowable:formFieldValidation="false">
+    <userTask id="resumeForm" name="Resume parameters" flowable:assignee="${taken:behandelaar('suspendForm')}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="resumeForm" flowable:formFieldValidation="false">
       <extensionElements>
+        <flowable:static-form-key><![CDATA[resumeForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="extendForm" name="Extend parameters" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="extendForm" flowable:formFieldValidation="false">
+    <userTask id="extendForm" name="Extend parameters" flowable:assignee="${taken:behandelaar('suspendForm')}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="extendForm" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>

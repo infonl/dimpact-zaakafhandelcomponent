@@ -20,6 +20,9 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
+import org.flowable.engine.HistoryService
+import org.flowable.engine.TaskService
+import org.flowable.task.service.HistoricTaskService
 
 /**
  * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.
@@ -40,7 +43,8 @@ class FlowableHelper @Inject constructor(
     val zaakVariabelenService: ZaakVariabelenService,
     val zgwApiService: ZgwApiService,
     val zrcClientService: ZrcClientService,
-    val ztcClientService: ZtcClientService
+    val ztcClientService: ZtcClientService,
+    val flowableHistoryService: HistoryService
 ) {
     companion object FlowableHelperProvider {
         fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()
