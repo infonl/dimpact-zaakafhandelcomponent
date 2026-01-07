@@ -29,7 +29,7 @@ public class ZgwClientHeadersFactory implements ClientHeadersFactory {
     private String secret;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public ZgwClientHeadersFactory() {
     }

@@ -20,7 +20,7 @@ public class RESTHumanTaskParametersConverter {
     private RestHumanTaskReferenceTableConverter restHumanTaskReferenceTableConverter;
 
     /**
-     * No-args constructor for CDI.
+     * No-arg constructor for CDI..
      */
     public RESTHumanTaskParametersConverter() {
     }

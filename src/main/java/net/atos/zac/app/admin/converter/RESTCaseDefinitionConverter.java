@@ -22,7 +22,7 @@ public class RESTCaseDefinitionConverter {
     private CMMNService cmmnService;
 
     /**
-     * No-args constructor for CDI.
+     * No-arg constructor for CDI..
      */
     public RESTCaseDefinitionConverter() {
     }

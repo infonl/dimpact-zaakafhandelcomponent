@@ -38,7 +38,7 @@ public class MailtemplateKoppelingRESTService {
     private PolicyService policyService;
 
     /**
-     * No-args constructor for CDI.
+     * No-arg constructor for CDI..
      */
     public MailtemplateKoppelingRESTService() {
     }

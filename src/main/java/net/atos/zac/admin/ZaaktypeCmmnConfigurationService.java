@@ -40,7 +40,7 @@ public class ZaaktypeCmmnConfigurationService implements Caching {
     private ZaaktypeCmmnConfigurationBeheerService zaaktypeCmmnConfigurationBeheerService;
 
     /**
-     * No-args constructor for CDI.
+     * No-arg constructor for CDI..
      */
     public ZaaktypeCmmnConfigurationService() {
     }
