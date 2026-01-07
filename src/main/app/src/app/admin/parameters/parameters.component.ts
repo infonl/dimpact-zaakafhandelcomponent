@@ -19,8 +19,9 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
 @Component({
-  templateUrl: "./parameters.component.html",
-  styleUrls: ["./parameters.component.less"],
+    templateUrl: "./parameters.component.html",
+    styleUrls: ["./parameters.component.less"],
+    standalone: false
 })
 export class ParametersComponent
   extends AdminComponent

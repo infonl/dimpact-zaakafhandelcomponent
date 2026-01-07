@@ -10,8 +10,9 @@ import { takeUntil } from "rxjs";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
-  selector: "zac-auto-complete",
-  templateUrl: "./auto-complete.html",
+    selector: "zac-auto-complete",
+    templateUrl: "./auto-complete.html",
+    standalone: false
 })
 export class ZacAutoComplete<
   Form extends Record<string, AbstractControl>,

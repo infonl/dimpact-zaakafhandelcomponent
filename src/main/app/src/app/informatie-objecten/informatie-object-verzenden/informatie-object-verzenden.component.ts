@@ -34,9 +34,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 @Component({
-  selector: "zac-informatie-verzenden",
-  templateUrl: "./informatie-object-verzenden.component.html",
-  styleUrls: ["./informatie-object-verzenden.component.less"],
+    selector: "zac-informatie-verzenden",
+    templateUrl: "./informatie-object-verzenden.component.html",
+    styleUrls: ["./informatie-object-verzenden.component.less"],
+    standalone: false
 })
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy

@@ -14,9 +14,10 @@ import { GeneratedType } from "../../utils/generated-types";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
-  selector: "zac-documents",
-  templateUrl: "./documents.html",
-  styleUrls: ["./documents.less"],
+    selector: "zac-documents",
+    templateUrl: "./documents.html",
+    styleUrls: ["./documents.less"],
+    standalone: false
 })
 export class ZacDocuments<
   Form extends Record<string, AbstractControl>,

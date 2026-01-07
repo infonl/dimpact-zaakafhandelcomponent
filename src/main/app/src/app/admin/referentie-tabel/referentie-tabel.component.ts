@@ -21,8 +21,9 @@ import { AdminComponent } from "../admin/admin.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 
 @Component({
-  templateUrl: "./referentie-tabel.component.html",
-  styleUrls: ["./referentie-tabel.component.less"],
+    templateUrl: "./referentie-tabel.component.html",
+    styleUrls: ["./referentie-tabel.component.less"],
+    standalone: false
 })
 export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;

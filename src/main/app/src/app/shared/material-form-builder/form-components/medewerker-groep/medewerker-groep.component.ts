@@ -20,8 +20,9 @@ import { AutocompleteValidators } from "../autocomplete/autocomplete-validators"
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
 
 @Component({
-  templateUrl: "./medewerker-groep.component.html",
-  styleUrls: ["./medewerker-groep.component.less"],
+    templateUrl: "./medewerker-groep.component.html",
+    styleUrls: ["./medewerker-groep.component.less"],
+    standalone: false
 })
 export class MedewerkerGroepComponent extends FormComponent implements OnInit {
   private groups: GeneratedType<"RestGroup">[] = [];

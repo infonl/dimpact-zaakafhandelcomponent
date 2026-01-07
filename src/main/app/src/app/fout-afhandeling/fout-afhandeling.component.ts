@@ -8,9 +8,10 @@ import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 @Component({
-  selector: "zac-fout-afhandeling",
-  templateUrl: "./fout-afhandeling.component.html",
-  styleUrls: ["./fout-afhandeling.component.less"],
+    selector: "zac-fout-afhandeling",
+    templateUrl: "./fout-afhandeling.component.html",
+    styleUrls: ["./fout-afhandeling.component.less"],
+    standalone: false
 })
 export class FoutAfhandelingComponent implements OnInit {
   bericht: string | null = null;

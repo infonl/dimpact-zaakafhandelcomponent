@@ -7,7 +7,10 @@ import { AfterViewInit, Component } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
-@Component({ template: "" })
+@Component({
+    template: "",
+    standalone: false
+})
 export abstract class ActionsViewComponent
   extends ViewComponent
   implements AfterViewInit

@@ -131,8 +131,9 @@ export type FormField<Form extends _Form = _Form> =
   | RadioFormField<Form>;
 
 @Component({
-  selector: "zac-form",
-  templateUrl: "./form.html",
+    selector: "zac-form",
+    templateUrl: "./form.html",
+    standalone: false
 })
 export class ZacForm<Form extends _Form> {
   protected readonly form = input.required<FormGroup<Form>>();

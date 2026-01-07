@@ -18,8 +18,9 @@ import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
 
 @Component({
-  templateUrl: "./formulier-definities.component.html",
-  styleUrls: ["./formulier-definities.component.less"],
+    templateUrl: "./formulier-definities.component.html",
+    styleUrls: ["./formulier-definities.component.less"],
+    standalone: false
 })
 export class FormulierDefinitiesComponent
   extends AdminComponent

@@ -11,7 +11,10 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
-@Component({ template: "" })
+@Component({
+    template: "",
+    standalone: false
+})
 export abstract class AdminComponent extends ViewComponent {
   menu: MenuItem[] = [];
   activeMenu = "";

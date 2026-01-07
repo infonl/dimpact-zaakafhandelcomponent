@@ -14,7 +14,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  templateUrl: "zaak-verlengen-dialog.component.html",
+    templateUrl: "zaak-verlengen-dialog.component.html",
+    standalone: false
 })
 export class ZaakVerlengenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();

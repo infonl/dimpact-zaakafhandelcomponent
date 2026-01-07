@@ -20,9 +20,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
 @Component({
-  selector: "zac-human-task-do",
-  templateUrl: "./human-task-do.component.html",
-  styleUrls: ["./human-task-do.component.less"],
+    selector: "zac-human-task-do",
+    templateUrl: "./human-task-do.component.html",
+    styleUrls: ["./human-task-do.component.less"],
+    standalone: false
 })
 export class HumanTaskDoComponent implements OnInit {
   private formulier?: AbstractTaakFormulier;

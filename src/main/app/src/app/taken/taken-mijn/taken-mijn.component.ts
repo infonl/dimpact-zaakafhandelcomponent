@@ -33,9 +33,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "./taken-mijn-datasource";
 
 @Component({
-  templateUrl: "./taken-mijn.component.html",
-  styleUrls: ["./taken-mijn.component.less"],
-  animations: [detailExpand],
+    templateUrl: "./taken-mijn.component.html",
+    styleUrls: ["./taken-mijn.component.less"],
+    animations: [detailExpand],
+    standalone: false
 })
 export class TakenMijnComponent
   extends WerklijstComponent

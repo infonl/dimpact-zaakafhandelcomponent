@@ -31,9 +31,10 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
 
 @Component({
-  templateUrl: "./zaken-afgehandeld.component.html",
-  styleUrls: ["./zaken-afgehandeld.component.less"],
-  animations: [detailExpand],
+    templateUrl: "./zaken-afgehandeld.component.html",
+    styleUrls: ["./zaken-afgehandeld.component.less"],
+    animations: [detailExpand],
+    standalone: false
 })
 export class ZakenAfgehandeldComponent
   extends WerklijstComponent

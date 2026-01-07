@@ -27,9 +27,10 @@ import { ZakenService } from "../zaken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 
 @Component({
-  templateUrl: "./zaken-mijn.component.html",
-  styleUrls: ["./zaken-mijn.component.less"],
-  animations: [detailExpand],
+    templateUrl: "./zaken-mijn.component.html",
+    styleUrls: ["./zaken-mijn.component.less"],
+    animations: [detailExpand],
+    standalone: false
 })
 export class ZakenMijnComponent
   extends WerklijstComponent

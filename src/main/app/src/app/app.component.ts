@@ -12,9 +12,10 @@ import { FontPreloadInjectorService } from "./core/font-preload-injector.service
 import { IdentityService } from "./identity/identity.service";
 
 @Component({
-  selector: "zac-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.less"],
+    selector: "zac-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["./app.component.less"],
+    standalone: false
 })
 export class AppComponent {
   private readonly queryClient = inject(QueryClient);

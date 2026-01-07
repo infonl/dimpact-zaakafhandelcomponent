@@ -13,9 +13,10 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
-  selector: "zac-formulier",
-  templateUrl: "./formulier.component.html",
-  styleUrls: ["./formulier.component.less"],
+    selector: "zac-formulier",
+    templateUrl: "./formulier.component.html",
+    styleUrls: ["./formulier.component.less"],
+    standalone: false
 })
 export class FormulierComponent implements OnInit {
   @Input({ required: true })

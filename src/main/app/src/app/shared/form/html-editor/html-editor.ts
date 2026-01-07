@@ -36,9 +36,10 @@ const plainTextSchema = new Schema({
 });
 
 @Component({
-  selector: "zac-html-editor",
-  templateUrl: "./html-editor.html",
-  styleUrls: ["./html-editor.less"],
+    selector: "zac-html-editor",
+    templateUrl: "./html-editor.html",
+    styleUrls: ["./html-editor.less"],
+    standalone: false
 })
 export class ZacHtmlEditor<
     Form extends Record<string, AbstractControl>,

@@ -12,8 +12,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  templateUrl: "zaak-opschorten-dialog.component.html",
-  styleUrls: ["./zaak-opschorten-dialog.component.less"],
+    templateUrl: "zaak-opschorten-dialog.component.html",
+    styleUrls: ["./zaak-opschorten-dialog.component.less"],
+    standalone: false
 })
 export class ZaakOpschortenDialogComponent {
   loading = true;

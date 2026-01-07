@@ -18,8 +18,9 @@ import { AdminComponent } from "../admin/admin.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 
 @Component({
-  templateUrl: "./referentie-tabellen.component.html",
-  styleUrls: ["./referentie-tabellen.component.less"],
+    templateUrl: "./referentie-tabellen.component.html",
+    styleUrls: ["./referentie-tabellen.component.less"],
+    standalone: false
 })
 export class ReferentieTabellenComponent
   extends AdminComponent

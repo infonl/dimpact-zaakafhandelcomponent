@@ -43,9 +43,10 @@ import { TakenService } from "../taken.service";
 import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
 
 @Component({
-  templateUrl: "./taken-werkvoorraad.component.html",
-  styleUrls: ["./taken-werkvoorraad.component.less"],
-  animations: [detailExpand],
+    templateUrl: "./taken-werkvoorraad.component.html",
+    styleUrls: ["./taken-werkvoorraad.component.less"],
+    animations: [detailExpand],
+    standalone: false
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent

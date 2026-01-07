@@ -12,7 +12,8 @@ import { AdminComponent } from "../admin/admin.component";
 import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definition-type";
 
 @Component({
-  templateUrl: "./parameters-edit-wrapper.component.html",
+    templateUrl: "./parameters-edit-wrapper.component.html",
+    standalone: false
 })
 export class ParametersEditWrapperComponent
   extends AdminComponent

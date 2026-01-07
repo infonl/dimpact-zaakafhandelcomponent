@@ -9,8 +9,9 @@ import { FormComponent } from "../../model/form-component";
 import { CheckboxFormField } from "./checkbox-form-field";
 
 @Component({
-  templateUrl: "./checkbox.component.html",
-  styleUrls: ["./checkbox.component.less"],
+    templateUrl: "./checkbox.component.html",
+    styleUrls: ["./checkbox.component.less"],
+    standalone: false
 })
 export class CheckboxComponent extends FormComponent {
   data!: CheckboxFormField;

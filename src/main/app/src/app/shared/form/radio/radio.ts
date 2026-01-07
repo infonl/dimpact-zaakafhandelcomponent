@@ -8,8 +8,9 @@ import { AbstractControl } from "@angular/forms";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
-  selector: "zac-radio",
-  templateUrl: "./radio.html",
+    selector: "zac-radio",
+    templateUrl: "./radio.html",
+    standalone: false
 })
 export class ZacRadio<
   Form extends Record<string, AbstractControl>,

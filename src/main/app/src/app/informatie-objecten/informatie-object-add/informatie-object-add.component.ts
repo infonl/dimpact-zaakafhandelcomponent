@@ -22,8 +22,9 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
-  selector: "zac-informatie-object-add",
-  templateUrl: "./informatie-object-add.component.html",
+    selector: "zac-informatie-object-add",
+    templateUrl: "./informatie-object-add.component.html",
+    standalone: false
 })
 export class InformatieObjectAddComponent {
   private readonly informatieObjectenService = inject(

@@ -24,10 +24,9 @@ import { FileFormField } from "../file/file-form-field";
 import { MatFileInput } from "./file-input-control";
 
 @Component({
-  standalone: true,
-  selector: "zac-file",
-  styles: [
-    `
+    selector: "zac-file",
+    styles: [
+        `
       ::ng-deep .file-field .mat-mdc-form-field-subscript-wrapper {
         margin-top: -16px;
       }
@@ -51,8 +50,8 @@ import { MatFileInput } from "./file-input-control";
         display: none;
       }
     `,
-  ],
-  template: `
+    ],
+    template: `
     <div DropZone (fileDropped)="handleDrop($event)">
       <mat-form-field
         appearance="fill"
@@ -106,17 +105,17 @@ import { MatFileInput } from "./file-input-control";
       </mat-form-field>
     </div>
   `,
-  imports: [
-    MatInputModule,
-    MatIconModule,
-    MatMiniFabButton,
-    FormsModule,
-    FileDragAndDropDirective,
-    ReactiveFormsModule,
-    TranslateModule,
-    AsyncPipe,
-    MatFileInput,
-  ],
+    imports: [
+        MatInputModule,
+        MatIconModule,
+        MatMiniFabButton,
+        FormsModule,
+        FileDragAndDropDirective,
+        ReactiveFormsModule,
+        TranslateModule,
+        AsyncPipe,
+        MatFileInput,
+    ]
 })
 export class FileInputComponent extends FormComponent implements OnInit {
   fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");

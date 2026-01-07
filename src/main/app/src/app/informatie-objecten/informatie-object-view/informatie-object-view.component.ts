@@ -44,8 +44,9 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 
 @Component({
-  templateUrl: "./informatie-object-view.component.html",
-  styleUrls: ["./informatie-object-view.component.less"],
+    templateUrl: "./informatie-object-view.component.html",
+    styleUrls: ["./informatie-object-view.component.less"],
+    standalone: false
 })
 export class InformatieObjectViewComponent
   extends ActionsViewComponent

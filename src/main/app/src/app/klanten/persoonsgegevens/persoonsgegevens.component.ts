@@ -10,9 +10,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
 @Component({
-  selector: "zac-persoongegevens",
-  styleUrls: ["./persoonsgegevens.component.less"],
-  templateUrl: "./persoonsgegevens.component.html",
+    selector: "zac-persoongegevens",
+    styleUrls: ["./persoonsgegevens.component.less"],
+    templateUrl: "./persoonsgegevens.component.html",
+    standalone: false
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);

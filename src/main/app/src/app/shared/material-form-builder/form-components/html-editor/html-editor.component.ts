@@ -10,8 +10,9 @@ import { FormComponent } from "../../model/form-component";
 import { HtmlEditorFormField } from "./html-editor-form-field";
 
 @Component({
-  templateUrl: "./html-editor.component.html",
-  styleUrls: ["./html-editor.component.less"],
+    templateUrl: "./html-editor.component.html",
+    styleUrls: ["./html-editor.component.less"],
+    standalone: false
 })
 export class HtmlEditorComponent
   extends FormComponent

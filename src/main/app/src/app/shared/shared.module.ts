@@ -4,7 +4,7 @@
  */
 
 import { DragDropModule } from "@angular/cdk/drag-drop";
-import { APP_INITIALIZER, Injector, NgModule } from "@angular/core";
+import { Injector, NgModule, inject, provideAppInitializer } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { Title } from "@angular/platform-browser";
@@ -116,12 +116,10 @@ import { VersionComponent } from "./version/version.component";
       useFactory: (translateService: TranslateService) =>
         new PaginatorTranslator(translateService).getTranslatedPaginator(),
     },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: paginatorLanguageInitializerFactory,
-      deps: [TranslateService, Injector],
-      multi: true,
-    },
+    provideAppInitializer(() => {
+        const initializerFn = (paginatorLanguageInitializerFactory)(inject(TranslateService), inject(Injector));
+        return initializerFn();
+      }),
     {
       provide: VertrouwelijkaanduidingToTranslationKeyPipe,
       useClass: VertrouwelijkaanduidingToTranslationKeyPipe,

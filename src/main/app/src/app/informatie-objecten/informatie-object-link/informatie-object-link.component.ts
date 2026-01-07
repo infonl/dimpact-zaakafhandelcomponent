@@ -24,9 +24,10 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
 type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
 
 @Component({
-  selector: "zac-informatie-object-link",
-  templateUrl: "./informatie-object-link.component.html",
-  styleUrls: ["./informatie-object-link.component.less"],
+    selector: "zac-informatie-object-link",
+    templateUrl: "./informatie-object-link.component.html",
+    styleUrls: ["./informatie-object-link.component.less"],
+    standalone: false
 })
 export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   @Input() infoObject?: GeneratedType<

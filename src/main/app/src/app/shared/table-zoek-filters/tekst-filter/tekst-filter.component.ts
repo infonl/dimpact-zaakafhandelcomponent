@@ -7,9 +7,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
 
 @Component({
-  selector: "zac-tekst-filter",
-  templateUrl: "./tekst-filter.component.html",
-  styleUrls: ["./tekst-filter.component.less"],
+    selector: "zac-tekst-filter",
+    templateUrl: "./tekst-filter.component.html",
+    styleUrls: ["./tekst-filter.component.less"],
+    standalone: false
 })
 export class TekstFilterComponent implements OnInit {
   formControl = new FormControl<string>(undefined);

@@ -16,7 +16,10 @@ type DateFormat =
   | "full"
   | "fullDate";
 
-@Pipe({ name: "datum" })
+@Pipe({
+    name: "datum",
+    standalone: false
+})
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}
 

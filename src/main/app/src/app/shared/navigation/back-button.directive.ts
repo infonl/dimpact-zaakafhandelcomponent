@@ -7,7 +7,8 @@ import { Directive, HostListener } from "@angular/core";
 import { NavigationService } from "./navigation.service";
 
 @Directive({
-  selector: "[zacBackButton]",
+    selector: "[zacBackButton]",
+    standalone: false
 })
 export class BackButtonDirective {
   constructor(private navigation: NavigationService) {}

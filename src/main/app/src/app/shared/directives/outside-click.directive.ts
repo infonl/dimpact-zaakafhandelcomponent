@@ -21,7 +21,8 @@ import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 
 @Directive({
-  selector: "[zacOutsideClick]",
+    selector: "[zacOutsideClick]",
+    standalone: false
 })
 export class OutsideClickDirective implements OnInit, OnDestroy {
   private static inclusions: string[] = [

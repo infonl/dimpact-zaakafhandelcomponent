@@ -8,9 +8,10 @@ import { FormControl } from "@angular/forms";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
-  selector: "zac-date-filter",
-  templateUrl: "./date-filter.component.html",
-  styleUrls: ["./date-filter.component.less"],
+    selector: "zac-date-filter",
+    templateUrl: "./date-filter.component.html",
+    styleUrls: ["./date-filter.component.less"],
+    standalone: false
 })
 export class DateFilterComponent implements OnInit {
   @Input() range?: GeneratedType<"RestDatumRange"> = {};

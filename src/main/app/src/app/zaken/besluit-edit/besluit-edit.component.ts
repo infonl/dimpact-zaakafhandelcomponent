@@ -33,9 +33,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-besluit-edit",
-  templateUrl: "./besluit-edit.component.html",
-  styleUrls: ["./besluit-edit.component.less"],
+    selector: "zac-besluit-edit",
+    templateUrl: "./besluit-edit.component.html",
+    styleUrls: ["./besluit-edit.component.less"],
+    standalone: false
 })
 export class BesluitEditComponent implements OnDestroy, OnInit {
   formConfig = new FormConfigBuilder()

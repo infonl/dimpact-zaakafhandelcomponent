@@ -32,9 +32,10 @@ import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
-  selector: "zac-bedrijf-zoek",
-  templateUrl: "./bedrijf-zoek.component.html",
-  styleUrls: ["./bedrijf-zoek.component.less"],
+    selector: "zac-bedrijf-zoek",
+    templateUrl: "./bedrijf-zoek.component.html",
+    styleUrls: ["./bedrijf-zoek.component.less"],
+    standalone: false
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();

@@ -13,9 +13,10 @@ export enum VersionLayout {
 }
 
 @Component({
-  selector: "zac-version",
-  templateUrl: "./version.component.html",
-  styleUrls: ["./version.component.less"],
+    selector: "zac-version",
+    templateUrl: "./version.component.html",
+    styleUrls: ["./version.component.less"],
+    standalone: false
 })
 export class VersionComponent implements OnInit {
   versionLayout = VersionLayout;

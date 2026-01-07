@@ -14,12 +14,13 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
-  selector: "zac-taak-zoeken-card",
-  templateUrl: "./taak-zoeken-card.component.html",
-  styleUrls: [
-    "../dashboard-card/dashboard-card.component.less",
-    "./taak-zoeken-card.component.less",
-  ],
+    selector: "zac-taak-zoeken-card",
+    templateUrl: "./taak-zoeken-card.component.html",
+    styleUrls: [
+        "../dashboard-card/dashboard-card.component.less",
+        "./taak-zoeken-card.component.less",
+    ],
+    standalone: false
 })
 export class TaakZoekenCardComponent extends DashboardCardComponent {
   columns = [

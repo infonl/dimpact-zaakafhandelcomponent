@@ -11,8 +11,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
 @Component({
-  templateUrl: "./bedrijf-view.component.html",
-  styleUrls: ["./bedrijf-view.component.less"],
+    templateUrl: "./bedrijf-view.component.html",
+    styleUrls: ["./bedrijf-view.component.less"],
+    standalone: false
 })
 export class BedrijfViewComponent {
   protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;

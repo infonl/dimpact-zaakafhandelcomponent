@@ -7,7 +7,8 @@ import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
-  templateUrl: "fout-dialog.component.html",
+    templateUrl: "fout-dialog.component.html",
+    standalone: false
 })
 export class FoutDialogComponent {
   constructor(

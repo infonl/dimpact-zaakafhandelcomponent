@@ -7,9 +7,10 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ToggleSwitchOptions } from "./toggle-switch-options";
 
 @Component({
-  selector: "zac-toggle-filter",
-  templateUrl: "./toggle-filter.component.html",
-  styleUrls: ["./toggle-filter.component.less"],
+    selector: "zac-toggle-filter",
+    templateUrl: "./toggle-filter.component.html",
+    styleUrls: ["./toggle-filter.component.less"],
+    standalone: false
 })
 export class ToggleFilterComponent {
   @Input() selected: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;

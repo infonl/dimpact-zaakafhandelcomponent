@@ -16,8 +16,9 @@ import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { mailSelectList } from "../model/mail-utils";
 
 @Component({
-  templateUrl: "./mailtemplate.component.html",
-  styleUrls: ["./mailtemplate.component.less"],
+    templateUrl: "./mailtemplate.component.html",
+    styleUrls: ["./mailtemplate.component.less"],
+    standalone: false
 })
 export class MailtemplateComponent
   extends AdminComponent

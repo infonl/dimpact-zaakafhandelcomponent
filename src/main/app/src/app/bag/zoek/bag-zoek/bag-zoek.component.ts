@@ -19,9 +19,10 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BAGService } from "../../bag.service";
 
 @Component({
-  selector: "zac-bag-zoek",
-  templateUrl: "./bag-zoek.component.html",
-  styleUrls: ["./bag-zoek.component.less"],
+    selector: "zac-bag-zoek",
+    templateUrl: "./bag-zoek.component.html",
+    styleUrls: ["./bag-zoek.component.less"],
+    standalone: false
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();

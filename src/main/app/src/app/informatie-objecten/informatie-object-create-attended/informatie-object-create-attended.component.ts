@@ -31,9 +31,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 @Component({
-  selector: "zac-informatie-object-create-attended",
-  templateUrl: "./informatie-object-create-attended.component.html",
-  styleUrls: ["./informatie-object-create-attended.component.less"],
+    selector: "zac-informatie-object-create-attended",
+    templateUrl: "./informatie-object-create-attended.component.html",
+    styleUrls: ["./informatie-object-create-attended.component.less"],
+    standalone: false
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy

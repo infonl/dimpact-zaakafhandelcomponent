@@ -36,9 +36,10 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
 @Component({
-  selector: "zac-parameters-edit-bpmn",
-  templateUrl: "./parameters-edit-bpmn.component.html",
-  styleUrls: ["./parameters-edit-bpmn.component.less"],
+    selector: "zac-parameters-edit-bpmn",
+    templateUrl: "./parameters-edit-bpmn.component.html",
+    styleUrls: ["./parameters-edit-bpmn.component.less"],
+    standalone: false
 })
 export class ParametersEditBpmnComponent implements OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;

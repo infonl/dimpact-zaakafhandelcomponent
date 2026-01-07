@@ -15,8 +15,9 @@ import { AdminComponent } from "../admin/admin.component";
 import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
 
 @Component({
-  templateUrl: "./groep-signaleringen.component.html",
-  styleUrls: ["./groep-signaleringen.component.less"],
+    templateUrl: "./groep-signaleringen.component.html",
+    styleUrls: ["./groep-signaleringen.component.less"],
+    standalone: false
 })
 export class GroepSignaleringenComponent
   extends AdminComponent

@@ -9,8 +9,9 @@ import { FormComponent } from "../../model/form-component";
 import { RadioFormField } from "./radio-form-field";
 
 @Component({
-  templateUrl: "./radio.component.html",
-  styleUrls: ["./radio.component.less"],
+    templateUrl: "./radio.component.html",
+    styleUrls: ["./radio.component.less"],
+    standalone: false
 })
 export class RadioComponent extends FormComponent implements OnInit {
   data: RadioFormField<string>;

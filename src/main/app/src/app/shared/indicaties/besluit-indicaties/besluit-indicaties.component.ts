@@ -10,9 +10,10 @@ import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 @Component({
-  selector: "zac-besluit-indicaties",
-  templateUrl: "../indicaties.component.html",
-  styleUrls: ["../indicaties.component.less"],
+    selector: "zac-besluit-indicaties",
+    templateUrl: "../indicaties.component.html",
+    styleUrls: ["../indicaties.component.less"],
+    standalone: false
 })
 export class BesluitIndicatiesComponent
   extends IndicatiesComponent

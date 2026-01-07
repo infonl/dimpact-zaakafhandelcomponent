@@ -10,9 +10,10 @@ import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
-  selector: "zac-zaak-verkort",
-  templateUrl: "./zaak-verkort.component.html",
-  styleUrls: ["./zaak-verkort.component.less"],
+    selector: "zac-zaak-verkort",
+    templateUrl: "./zaak-verkort.component.html",
+    styleUrls: ["./zaak-verkort.component.less"],
+    standalone: false
 })
 export class ZaakVerkortComponent implements OnChanges {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;

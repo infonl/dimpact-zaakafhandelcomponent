@@ -23,15 +23,14 @@ import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.componen
 import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
 
 @Component({
-  selector: "zac-klant-koppel-betrokkene-persoon",
-  standalone: true,
-  imports: [
-    SharedModule,
-    TranslateModule,
-    MaterialFormBuilderModule,
-    KlantenModule,
-  ],
-  template: `
+    selector: "zac-klant-koppel-betrokkene-persoon",
+    imports: [
+        SharedModule,
+        TranslateModule,
+        MaterialFormBuilderModule,
+        KlantenModule,
+    ],
+    template: `
     <div>
       <form [formGroup]="form">
         <fieldset class="pt-3">
@@ -63,7 +62,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     </div>
-  `,
+  `
 })
 export class KlantKoppelBetrokkeneComponent implements OnInit {
   @Input({ required: true }) type!: "persoon" | "bedrijf";

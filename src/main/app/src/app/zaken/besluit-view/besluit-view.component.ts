@@ -37,9 +37,10 @@ import { VervalReden } from "../model/vervalReden";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-besluit-view",
-  templateUrl: "./besluit-view.component.html",
-  styleUrls: ["./besluit-view.component.less"],
+    selector: "zac-besluit-view",
+    templateUrl: "./besluit-view.component.html",
+    styleUrls: ["./besluit-view.component.less"],
+    standalone: false
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];

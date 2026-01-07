@@ -20,9 +20,10 @@ import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-zaak-link",
-  templateUrl: "./zaak-link.component.html",
-  styleUrls: ["./zaak-link.component.less"],
+    selector: "zac-zaak-link",
+    templateUrl: "./zaak-link.component.html",
+    styleUrls: ["./zaak-link.component.less"],
+    standalone: false
 })
 export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;

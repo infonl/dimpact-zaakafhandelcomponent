@@ -16,8 +16,9 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
 
 @Component({
-  selector: "zac-ontvangstbevestiging",
-  templateUrl: "./ontvangstbevestiging.component.html",
+    selector: "zac-ontvangstbevestiging",
+    templateUrl: "./ontvangstbevestiging.component.html",
+    standalone: false
 })
 export class OntvangstbevestigingComponent implements OnInit {
   private readonly zakenService = inject(ZakenService);

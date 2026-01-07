@@ -24,8 +24,9 @@ import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
-  selector: "zac-file",
-  templateUrl: "./file.html",
+    selector: "zac-file",
+    templateUrl: "./file.html",
+    standalone: false
 })
 export class ZacFile<
     Form extends Record<string, AbstractControl>,

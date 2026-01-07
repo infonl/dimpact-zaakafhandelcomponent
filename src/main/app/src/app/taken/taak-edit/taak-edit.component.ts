@@ -14,8 +14,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
 @Component({
-  selector: "zac-taak-edit",
-  templateUrl: "./taak-edit.component.html",
+    selector: "zac-taak-edit",
+    templateUrl: "./taak-edit.component.html",
+    standalone: false
 })
 export class TaakEditComponent {
   private readonly formBuilder = inject(FormBuilder);

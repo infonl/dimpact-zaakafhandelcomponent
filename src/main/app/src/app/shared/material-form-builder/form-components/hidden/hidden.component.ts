@@ -9,8 +9,9 @@ import { FormComponent } from "../../model/form-component";
 import { HiddenFormField } from "./hidden-form-field";
 
 @Component({
-  templateUrl: "./hidden.component.html",
-  styleUrls: ["./hidden.component.less"],
+    templateUrl: "./hidden.component.html",
+    styleUrls: ["./hidden.component.less"],
+    standalone: false
 })
 export class HiddenComponent extends FormComponent {
   data!: HiddenFormField;

@@ -18,8 +18,9 @@ import { FormComponent } from "../../model/form-component";
 import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 
 @Component({
-  templateUrl: "./documenten-lijst.component.html",
-  styleUrls: ["./documenten-lijst.component.less"],
+    templateUrl: "./documenten-lijst.component.html",
+    styleUrls: ["./documenten-lijst.component.less"],
+    standalone: false
 })
 export class DocumentenLijstComponent
   extends FormComponent

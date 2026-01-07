@@ -16,9 +16,10 @@ import { FormControl } from "@angular/forms";
 import { TextIcon } from "../edit/text-icon";
 
 @Component({
-  selector: "zac-static-text",
-  templateUrl: "./static-text.component.html",
-  styleUrls: ["./static-text.component.less"],
+    selector: "zac-static-text",
+    templateUrl: "./static-text.component.html",
+    styleUrls: ["./static-text.component.less"],
+    standalone: false
 })
 export class StaticTextComponent<
     T extends string | number | null | undefined = string,

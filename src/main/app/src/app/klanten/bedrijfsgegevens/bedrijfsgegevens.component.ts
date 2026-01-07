@@ -12,9 +12,10 @@ import { buildBedrijfRouteLink } from "../klanten-routing.module";
 import { KlantenService } from "../klanten.service";
 
 @Component({
-  selector: "zac-bedrijfsgegevens",
-  templateUrl: "./bedrijfsgegevens.component.html",
-  styleUrls: ["./bedrijfsgegevens.component.less"],
+    selector: "zac-bedrijfsgegevens",
+    templateUrl: "./bedrijfsgegevens.component.html",
+    styleUrls: ["./bedrijfsgegevens.component.less"],
+    standalone: false
 })
 export class BedrijfsgegevensComponent {
   protected isVerwijderbaar = input<boolean | null>(false);

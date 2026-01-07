@@ -19,10 +19,11 @@ import {
 } from "@formio/angular";
 
 @Component({
-  selector: "zac-formio-wrapper",
-  templateUrl: "./formio-wrapper.component.html",
-  styleUrl: "./formio-wrapper.component.less",
-  encapsulation: ViewEncapsulation.ShadowDom,
+    selector: "zac-formio-wrapper",
+    templateUrl: "./formio-wrapper.component.html",
+    styleUrl: "./formio-wrapper.component.less",
+    encapsulation: ViewEncapsulation.ShadowDom,
+    standalone: false
 })
 export class FormioWrapperComponent {
   @Input() form: unknown;

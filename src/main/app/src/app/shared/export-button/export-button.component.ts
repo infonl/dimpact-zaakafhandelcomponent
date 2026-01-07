@@ -9,9 +9,10 @@ import { CsvService } from "../../csv/csv.service";
 import { GeneratedType } from "../utils/generated-types";
 
 @Component({
-  selector: "zac-export-button[zoekParameters][filename]",
-  templateUrl: "./export-button.component.html",
-  styleUrls: ["./export-button.component.less"],
+    selector: "zac-export-button[zoekParameters][filename]",
+    templateUrl: "./export-button.component.html",
+    styleUrls: ["./export-button.component.less"],
+    standalone: false
 })
 export class ExportButtonComponent {
   @Input() zoekParameters: GeneratedType<"RestZoekParameters">;

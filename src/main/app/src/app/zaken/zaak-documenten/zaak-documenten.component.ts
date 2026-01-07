@@ -46,10 +46,11 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-zaak-documenten",
-  templateUrl: "./zaak-documenten.component.html",
-  styleUrls: ["./zaak-documenten.component.less"],
-  animations: [detailExpand],
+    selector: "zac-zaak-documenten",
+    templateUrl: "./zaak-documenten.component.html",
+    styleUrls: ["./zaak-documenten.component.less"],
+    animations: [detailExpand],
+    standalone: false
 })
 export class ZaakDocumentenComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges

@@ -61,8 +61,9 @@ import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
 
 @Component({
-  templateUrl: "./taak-view.component.html",
-  styleUrls: ["./taak-view.component.less"],
+    templateUrl: "./taak-view.component.html",
+    styleUrls: ["./taak-view.component.less"],
+    standalone: false
 })
 export class TaakViewComponent
   extends ActionsViewComponent

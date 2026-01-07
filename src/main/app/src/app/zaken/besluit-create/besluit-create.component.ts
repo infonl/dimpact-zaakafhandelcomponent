@@ -14,9 +14,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-  selector: "zac-besluit-create",
-  templateUrl: "./besluit-create.component.html",
-  styleUrls: ["./besluit-create.component.less"],
+    selector: "zac-besluit-create",
+    templateUrl: "./besluit-create.component.html",
+    styleUrls: ["./besluit-create.component.less"],
+    standalone: false
 })
 export class BesluitCreateComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;

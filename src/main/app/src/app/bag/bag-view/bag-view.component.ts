@@ -9,8 +9,9 @@ import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
-  templateUrl: "./bag-view.component.html",
-  styleUrls: ["./bag-view.component.less"],
+    templateUrl: "./bag-view.component.html",
+    styleUrls: ["./bag-view.component.less"],
+    standalone: false
 })
 export class BAGViewComponent implements OnInit {
   protected bagIdentificatie!: string;

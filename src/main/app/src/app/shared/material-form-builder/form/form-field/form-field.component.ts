@@ -21,9 +21,10 @@ import { FormItem } from "../../model/form-item";
 import { FormFieldDirective } from "./form-field.directive";
 
 @Component({
-  selector: "mfb-form-field",
-  templateUrl: "./form-field.component.html",
-  styleUrls: ["./form-field.component.less"],
+    selector: "mfb-form-field",
+    templateUrl: "./form-field.component.html",
+    styleUrls: ["./form-field.component.less"],
+    standalone: false
 })
 export class FormFieldComponent<T = unknown> implements OnInit, AfterViewInit {
   @Input({ required: true }) field!: AbstractFormField<T>;
