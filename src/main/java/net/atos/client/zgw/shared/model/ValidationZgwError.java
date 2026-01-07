@@ -5,7 +5,6 @@
 package net.atos.client.zgw.shared.model;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
