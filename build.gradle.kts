@@ -804,7 +804,6 @@ tasks {
 
         inputs.file("Dockerfile")
         inputs.file("target/zaakafhandelcomponent.jar")
-        inputs.files(fileTree("certificates"))
 
         workingDir(".")
         commandLine(
