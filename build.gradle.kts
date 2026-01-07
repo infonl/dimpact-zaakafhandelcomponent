@@ -31,8 +31,6 @@ plugins {
     alias(libs.plugins.owasp.dependencycheck)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
-
-    id("org.sonarqube") version "7.2.2.6593"
 }
 
 repositories {
