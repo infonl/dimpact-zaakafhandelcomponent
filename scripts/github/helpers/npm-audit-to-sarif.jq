@@ -21,9 +21,9 @@ def severity_to_numeric:
     {
       "tool": {
         "driver": {
-          "name": "npm audit",
+          "name": "NPM Audit",
           "informationUri": "https://docs.npmjs.com/cli/v10/commands/npm-audit",
-          "version": "1.0.0",
+          "version": "10.0.0",
           "rules": 
             .vulnerabilities | to_entries | map(
               select(.value.via | type == "array" and (map(type == "object") | any)) |
@@ -69,7 +69,8 @@ def severity_to_numeric:
               {
                 "physicalLocation": {
                   "artifactLocation": {
-                    "uri": "package.json"
+                    "uri": "src/main/app/package.json",
+                    "uriBaseId": "%SRCROOT%"
                   }
                 },
                 "logicalLocations": [
@@ -79,7 +80,10 @@ def severity_to_numeric:
                   }
                 ]
               }
-            ]
+            ],
+            "partialFingerprints": {
+              "primaryLocationLineHash": ("npm-audit/" + (.source | tostring) + "/" + .dependency)
+            }
           })
         ) | flatten
     }

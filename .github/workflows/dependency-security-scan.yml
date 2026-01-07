@@ -165,6 +165,12 @@ jobs:
           if [ -f "build/reports/dependency-check-report.sarif" ]; then
             echo "✅ SARIF report generated for GitHub Security upload"
             wc -l build/reports/dependency-check-report.sarif
+            
+            # Post-process SARIF to normalize tool name for consistency with NPM Audit
+            jq '.runs[0].tool.driver.name = "OWASP Dependency Check"' \
+              build/reports/dependency-check-report.sarif > build/reports/dependency-check-report-processed.sarif
+            mv build/reports/dependency-check-report-processed.sarif build/reports/dependency-check-report.sarif
+            echo "✅ SARIF post-processing complete"
           else
             echo "❌ SARIF report not found"
           fi
