@@ -24,38 +24,29 @@ class PabcClientServiceTest : BehaviorSpec({
     Context("Getting application roles") {
         Given("A PABC application roles response for a certain PABC request") {
             val applicationName = "fakeApplicationName"
+            val entityTypeId = "fakeEntityTypeId"
             val applicationRolesResponse = createApplicationRolesResponse(
+                id = entityTypeId,
                 applicationName = applicationName,
             )
             val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
+            val functionalRoles = listOf("fakeRole1", "fakeRole2")
             every {
                 pabcClient.getApplicationRolesPerEntityType(capture(getApplicationRolesRequestSlot))
             } returns applicationRolesResponse
 
             When("getApplicationRoles is called for a list of functional roles") {
-                val result = pabcClientService.getApplicationRoles(
-                    listOf(
-                        "fakeRole1",
-                        "fakeRole2",
-                        "fakeRole3"
-                    )
-                )
+                val result = pabcClientService.getApplicationRoles(functionalRoles)
 
                 Then("it should invoke the client with the given roles") {
                     result shouldBe applicationRolesResponse
-                    getApplicationRolesRequestSlot.isCaptured shouldBe true
-                    getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe listOf(
-                        "fakeRole1",
-                        "fakeRole2",
-                        "fakeRole3"
-                    )
-
-                    val responseModel = result.results[0]
-                    responseModel.entityType.id shouldBe "zaaktype_test_1"
-                    responseModel.entityType.name shouldBe "Test zaaktype 1"
-                    responseModel.entityType.type shouldBe "ZAAKTYPE"
-                    responseModel.applicationRoles.forEach {
-                        it.application shouldBe applicationName
+                    getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe functionalRoles
+                    with(result.results[0]) {
+                        entityType.id shouldBe entityTypeId
+                        entityType.type shouldBe entityTypeId
+                        applicationRoles.forEach {
+                            it.application shouldBe applicationName
+                        }
                     }
                 }
             }

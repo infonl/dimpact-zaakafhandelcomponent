@@ -73,7 +73,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When(" doFilter is called") {
+            When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
                 Then("filterChain is invoked; no invalidate; no PABC call triggered by this branch") {
@@ -120,7 +120,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every {
                 pabcClientService.getApplicationRoles(functionalRoles)
             } returns GetApplicationRolesResponse().apply {
-                results = listOf(createApplicationRolesResponseModel(entityTypeId, pabcRoleNames))
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = entityTypeId,
+                        roleNames = pabcRoleNames
+                    )
+                )
             }
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
             every {
@@ -196,7 +201,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every {
                 pabcClientService.getApplicationRoles(any())
             } returns GetApplicationRolesResponse().apply {
-                results = listOf(createApplicationRolesResponseModel(zaaktypeId, pabcRoleNames))
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = zaaktypeId,
+                        roleNames = pabcRoleNames
+                    )
+                )
             }
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
             every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
@@ -255,7 +265,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.setAttribute(any(), any()) } just runs
             every { filterChain.doFilter(any(), any()) } just runs
             every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
-                results = listOf(createApplicationRolesResponseModel(null, listOf("fakeApplicationRole")))
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf("fakeApplicationRole")
+                    )
+                )
             }
             every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
                 createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
@@ -289,12 +304,19 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 val loggedInUserSlot2 = slot<LoggedInUser>()
                 val applicationRolesResponse = GetApplicationRolesResponse().apply {
                     results = listOf(
-                        createApplicationRolesResponseModel("fakeZaaktype1", listOf("raadpleger", "behandelaar")),
-                        createApplicationRolesResponseModel(null, listOf("recordmanager"))
+                        createApplicationRolesResponseModel(
+                            entityTypeId = "fakeZaaktype1",
+                            roleNames = listOf("fakeApplicationRole1", "fakeApplicationRole2"),
+                            entityType = "ZAAKTYPE"
+                        ),
+                        createApplicationRolesResponseModel(
+                            entityTypeId = null,
+                            roleNames = listOf("fakeApplicationRole3"),
+                            entityType = "ZAAKTYPE"
+                        )
                     )
                 }
                 every { pabcClientService.getApplicationRoles(any()) } returns applicationRolesResponse
-
                 every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
                     createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2"),
@@ -307,11 +329,15 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 Then("stores loggedInUser and merges roles per-zaaktype and for all zaaktypes into the session") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot2)) }
                     with(loggedInUserSlot2.captured) {
-                        this.applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
-                            setOf("raadpleger", "behandelaar", "recordmanager")
+                        applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
+                            setOf("fakeApplicationRole1", "fakeApplicationRole2", "fakeApplicationRole3")
                         )
-                        this.applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(setOf("recordmanager"))
-                        this.applicationRolesPerZaaktype["fakeZaaktype3"]?.shouldContainAll(setOf("recordmanager"))
+                        applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(
+                            setOf("fakeApplicationRole3")
+                        )
+                        applicationRolesPerZaaktype["fakeZaaktype3"]?.shouldContainAll(
+                            setOf("fakeApplicationRole3")
+                        )
                     }
                 }
             }
