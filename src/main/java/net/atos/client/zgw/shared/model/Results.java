@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -15,24 +14,13 @@ import java.util.Optional;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-public class Results<T> {
+public record Results<T> (int count, List<T> results, URI next, URI previous) {
 
     // Aantal items wat Open Zaak terug geeft per pagina
-    public final static long NUM_ITEMS_PER_PAGE = 100;
-
-    private final int count;
-
-    private final List<T> results;
-
-    private final URI next;
-
-    private final URI previous;
+    public static final long NUM_ITEMS_PER_PAGE = 100;
 
     public Results(final List<T> results, final int count) {
-        this.results = results;
-        this.count = count;
-        previous = null;
-        next = null;
+        this(count, results, null, null);
     }
 
     @JsonbCreator
@@ -48,19 +36,8 @@ public class Results<T> {
         this.previous = previous;
     }
 
-    public int getCount() {
-        return count;
-    }
-
-    public URI getNext() {
-        return next;
-    }
-
-    public URI getPrevious() {
-        return previous;
-    }
-
-    public List<T> getResults() {
+    @Override
+    public List<T> results() {
         return results != null ? results : Collections.emptyList();
     }
 
@@ -70,15 +47,15 @@ public class Results<T> {
         } else if (results.size() == 1) {
             return Optional.of(results.getFirst());
         } else {
-            throw new IllegalStateException(String.format("More then one result found (count: %d)", count));
+            throw new IllegalStateException(String.format("More than one result found (count: %d)", count));
         }
     }
 
     public List<T> getSinglePageResults() {
         if (next == null) {
-            return getResults();
+            return results();
         } else {
-            throw new IllegalStateException(String.format("More then one page found (count: %d, results: %d)", count, results.size()));
+            throw new IllegalStateException(String.format("More than one page found (count: %d, results: %d)", count, results.size()));
         }
     }
 }

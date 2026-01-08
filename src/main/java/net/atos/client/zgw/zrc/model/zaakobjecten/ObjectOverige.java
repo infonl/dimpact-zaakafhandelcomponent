@@ -4,9 +4,8 @@
  */
 package net.atos.client.zgw.zrc.model.zaakobjecten;
 
-public class ObjectOverige<OVERIGE> {
-
-    public OVERIGE overigeData;
+public class ObjectOverige<T> {
+    private T overigeData;
 
     /**
      * Constructor for JSONB deserialization
@@ -17,15 +16,15 @@ public class ObjectOverige<OVERIGE> {
     /**
      * Constructor with required attributes
      */
-    public ObjectOverige(final OVERIGE overigeData) {
+    public ObjectOverige(final T overigeData) {
         this.overigeData = overigeData;
     }
 
-    public OVERIGE getOverigeData() {
+    public T getOverigeData() {
         return overigeData;
     }
 
-    public void setOverigeData(final OVERIGE overigeData) {
+    public void setOverigeData(final T overigeData) {
         this.overigeData = overigeData;
     }
 }

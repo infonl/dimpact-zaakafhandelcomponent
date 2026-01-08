@@ -219,7 +219,7 @@ class IndexingService @Inject constructor(
                     ordering = "-identificatie"
                     page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
                 }
-            ).count
+            ).count()
         }
         if (numberOfZaken == null) {
             LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
@@ -241,7 +241,7 @@ class IndexingService @Inject constructor(
                 page = pageNumber
             }
         )
-        val ids = zaakResults.results.map { it.uuid.toString() }
+        val ids = zaakResults.results().map { it.uuid.toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.ZAAK,
@@ -257,7 +257,7 @@ class IndexingService @Inject constructor(
                 EnkelvoudigInformatieobjectListParameters().apply {
                     page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
                 }
-            ).count
+            ).count()
         }
         if (numberOfInformatieobjecten == null) {
             LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
@@ -278,7 +278,7 @@ class IndexingService @Inject constructor(
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
         )
-        val ids = informationObjectsResults.results.map { it.url.extractUuid().toString() }
+        val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.DOCUMENT,

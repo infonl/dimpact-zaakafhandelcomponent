@@ -2,13 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared.model;
 
-/**
- *
- */
-public class FieldValidationError {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class FieldValidationError implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 7808093454353L;
 
     private String name;
 

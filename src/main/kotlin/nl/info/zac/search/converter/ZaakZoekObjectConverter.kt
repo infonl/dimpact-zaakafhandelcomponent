@@ -144,7 +144,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     private fun getBagObjectIDs(zaak: Zaak): List<String> {
         val zaakobjectListParameters = ZaakobjectListParameters().apply { this.zaak = zaak.url }
         return zrcClientService.listZaakobjecten(zaakobjectListParameters)
-            .results
+            .results()
             .filter { it.isBagObject }
             .map { it.waarde }
             .let { it.ifEmpty { emptyList() } }

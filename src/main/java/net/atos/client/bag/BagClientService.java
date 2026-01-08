@@ -39,7 +39,7 @@ public class BagClientService {
     private OpenbareRuimteApi openbareRuimteApi;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public BagClientService() {
     }

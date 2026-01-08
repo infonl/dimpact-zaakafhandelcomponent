@@ -177,7 +177,8 @@ class DocumentCreationDataConverter @Inject constructor(
         ZaakobjectListParameters().apply {
             zaak = zaakUri
             objectType = ObjectTypeEnum.OVERIGE
-        }.let { zrcClientService.listZaakobjecten(it) }.results
+        }.let(zrcClientService::listZaakobjecten)
+            .results()
             .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
             .map { convertToStartformulierData(it) }
             .singleOrNull()

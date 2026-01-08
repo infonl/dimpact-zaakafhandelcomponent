@@ -113,10 +113,7 @@ public interface AdresApi {
      * Een adres kan worden gevonden door de zoekresultaatidentificatie uit het antwoord als parameter mee te geven in get /adressen.
      * Voor paginering, zie: [functionele specificatie
      * paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
-     *
-     * @deprecated
      */
-    @Deprecated
     @GET
     @Path("/zoek")
     @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})

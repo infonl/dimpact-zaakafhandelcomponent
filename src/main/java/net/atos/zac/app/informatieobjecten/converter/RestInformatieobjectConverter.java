@@ -65,7 +65,7 @@ public class RestInformatieobjectConverter {
     private ZtcClientService ztcClientService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public RestInformatieobjectConverter() {
     }

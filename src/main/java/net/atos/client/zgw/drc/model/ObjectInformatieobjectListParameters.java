@@ -23,10 +23,6 @@ public class ObjectInformatieobjectListParameters {
     @QueryParam("informatieobject")
     private URI informatieobject;
 
-
-    public ObjectInformatieobjectListParameters() {
-    }
-
     public URI getObject() {
         return object;
     }

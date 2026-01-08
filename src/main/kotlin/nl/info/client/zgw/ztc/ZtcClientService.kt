@@ -149,7 +149,7 @@ class ZtcClientService @Inject constructor(
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results
+        ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results()
     }
 
     /**
@@ -276,7 +276,7 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
         uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results.filter {
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results().filter {
                 // No query parameter is available for roltypeOmschrijving, so we filter here. See:
                 // https://github.com/open-zaak/open-zaak/issues/1933
                 it.omschrijving == roltypeOmschrijving
@@ -293,7 +293,9 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(
+                RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)
+            ).results()
         }
 
     /**
@@ -303,7 +305,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [RolType]s
      */
     fun listRoltypen(zaaktypeURI: URI): List<RolType> = uriToRolTypeListCache.get(zaaktypeURI) {
-        ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results
+        ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results()
     }
 
     /**
@@ -312,7 +314,7 @@ class ZtcClientService @Inject constructor(
      * @return list of [RolType]s.
      */
     fun listRoltypen(): List<RolType> = rolTypeListCache.get(Caching.ZTC_ROLTYPE) {
-        ztcClient.roltypeList().results
+        ztcClient.roltypeList().results()
     }
 
     /**
@@ -339,7 +341,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results()
         }.firstOrNull() ?: throw
             RoltypeNotFoundException(
                 "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
@@ -378,7 +380,7 @@ class ZtcClientService @Inject constructor(
                     this.status = status
                 }
             )
-            response.results
+            response.results()
         }
 
     fun readEigenschap(zaaktype: URI, eigenschap: String) =

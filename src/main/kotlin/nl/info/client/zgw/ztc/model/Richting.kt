@@ -11,7 +11,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum
  * Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
  */
 @JsonbTypeAdapter(Richting.Adapter::class)
-enum class Richting(private val value: String) : AbstractEnum<Richting> {
+enum class Richting(private val value: String) : AbstractEnum {
     INKOMEND("inkomend"),
 
     INTERN("intern"),

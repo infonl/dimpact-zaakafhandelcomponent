@@ -19,9 +19,18 @@ import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.flowable.cmmn.CMMNService;
 
 public class RESTCaseDefinitionConverter {
+    private CMMNService cmmnService;
+
+    /**
+     * No-arg constructor for CDI.
+     */
+    public RESTCaseDefinitionConverter() {
+    }
 
     @Inject
-    private CMMNService cmmnService;
+    public RESTCaseDefinitionConverter(final CMMNService cmmnService) {
+        this.cmmnService = cmmnService;
+    }
 
     public RESTCaseDefinition convertToRESTCaseDefinition(final String caseDefinitionKey, final boolean inclusiefRelaties) {
         final CaseDefinition caseDefinition = cmmnService.readCaseDefinition(caseDefinitionKey);

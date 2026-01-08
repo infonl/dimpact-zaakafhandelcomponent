@@ -163,14 +163,14 @@ class ZrcClientService @Inject constructor(
     fun listRollen(filter: RolListParameters): Results<Rol<*>> = zrcClient.rolList(filter)
 
     fun listRollen(zaak: Zaak): List<Rol<*>> =
-        zrcClient.rolList(RolListParameters(zaak.url)).getResults()
+        zrcClient.rolList(RolListParameters(zaak.url)).results()
 
     fun readZaakByID(identificatie: String): Zaak {
         val zaakResults = listZaken(ZaakListParameters().apply { this.identificatie = identificatie })
-        require(zaakResults.count <= 1) {
+        require(zaakResults.count() <= 1) {
             "Meerdere zaken met identificatie '$identificatie' gevonden"
         }
-        return zaakResults.getResults().firstOrNull()
+        return zaakResults.results().firstOrNull()
             ?: throw NotFoundException("Zaak met identificatie '$identificatie' niet gevonden")
     }
 

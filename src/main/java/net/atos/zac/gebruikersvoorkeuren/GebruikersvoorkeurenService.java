@@ -37,7 +37,7 @@ public class GebruikersvoorkeurenService {
     private SignaleringService signaleringService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public GebruikersvoorkeurenService() {
     }

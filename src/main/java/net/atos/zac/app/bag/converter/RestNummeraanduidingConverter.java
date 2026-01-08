@@ -46,7 +46,7 @@ public class RestNummeraanduidingConverter {
         if (zaakobjectNummeraanduiding == null || zaakobjectNummeraanduiding.getObjectIdentificatie() == null) {
             return null;
         }
-        final ObjectNummeraanduiding nummeraanduiding = zaakobjectNummeraanduiding.getObjectIdentificatie().overigeData;
+        final ObjectNummeraanduiding nummeraanduiding = zaakobjectNummeraanduiding.getObjectIdentificatie().getOverigeData();
         final RESTNummeraanduiding restNummeraanduiding = new RESTNummeraanduiding();
         restNummeraanduiding.url = zaakobjectNummeraanduiding.getObject();
         restNummeraanduiding.identificatie = nummeraanduiding.getIdentificatie();
