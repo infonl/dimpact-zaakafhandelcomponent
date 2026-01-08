@@ -23,7 +23,7 @@ import nl.info.zac.zaak.ZaakService
 import org.flowable.engine.HistoryService
 
 /**
- * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.
+ * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. to get access to CDI resources.
  */
 @ApplicationScoped
 @NoArgConstructor

@@ -5,14 +5,25 @@
 package net.atos.zac.flowable.bpmn.function
 
 import net.atos.zac.flowable.FlowableHelper
+import org.flowable.common.engine.impl.context.Context
+import org.flowable.engine.impl.util.CommandContextUtil
+import org.flowable.task.api.TaskInfo
 
-/**
- * Needs to be package level as [Method:invoke] checks for `Modifier.isStatic(modifiers)`
- * @JVMStatic does *NOT* generate static modifier @ 2026-01-07, but only `public final`
- */
-fun behandelaar(taskId: String): String? =
+fun behandelaar(taskDefinitionKey: String): String? =
+    taskByDefinitionKey(taskDefinitionKey)?.assignee
+
+fun groep(taskDefinitionKey: String): String? =
+    taskByDefinitionKey(taskDefinitionKey)?.identityLinks?.firstOrNull { it.type == "candidate" }?.groupId
+
+private fun taskByDefinitionKey(taskDefinitionKey: String): TaskInfo? =
     FlowableHelper.getInstance().flowableHistoryService
         .createHistoricTaskInstanceQuery()
-        .taskDefinitionKey(taskId)
-        .orderByHistoricTaskInstanceEndTime().desc()
-        .list().firstOrNull()?.assignee
+        .processInstanceId(getProcessInstanceId())
+        .taskDefinitionKey(taskDefinitionKey)
+        .orderByTaskCreateTime().desc()
+        .list().firstOrNull()
+
+private fun getProcessInstanceId(): String =
+    Context.getCommandContext()?.let {
+        CommandContextUtil.getInvolvedExecutions(it).values.lastOrNull()?.processInstanceId
+    } ?: error("No active Flowable BPMN execution found")
