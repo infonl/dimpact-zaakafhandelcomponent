@@ -28,22 +28,22 @@ public class InboxDocument {
     /**
      * Naam van property: {@link InboxDocument#enkelvoudiginformatieobjectID}
      */
-    public static final String ENKELVOUDIGINFORMATIEOBJECT_ID = "enkelvoudiginformatieobjectID";
+    public static final String ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME = "enkelvoudiginformatieobjectID";
 
     /**
      * Naam van property: {@link InboxDocument#enkelvoudiginformatieobjectUUID}
      */
-    public static final String ENKELVOUDIGINFORMATIEOBJECT_UUID = "enkelvoudiginformatieobjectUUID";
+    public static final String ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME = "enkelvoudiginformatieobjectUUID";
 
     /**
      * Naam van property: {@link InboxDocument#titel}
      */
-    public static final String TITEL = "titel";
+    public static final String TITEL_PROPERTY_NAME = "titel";
 
     /**
      * Naam van property: {@link InboxDocument#creatiedatum}
      */
-    public static final String CREATIEDATUM = "creatiedatum";
+    public static final String CREATIE_DATUM_PROPERTY_NAME = "creatiedatum";
 
     @Id
     @GeneratedValue(generator = "sq_inbox_document", strategy = GenerationType.SEQUENCE)

@@ -1,5 +1,5 @@
 #
-# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 
 #
@@ -8,7 +8,7 @@
 header:
   license:
     content: |      
-       SPDX-FileCopyrightText: 2025 INFO.nl
+       SPDX-FileCopyrightText: 2026 INFO.nl
        SPDX-License-Identifier: EUPL-1.2+
     pattern: |
        SPDX-FileCopyrightText: .*
@@ -17,7 +17,6 @@ header:
     - '**'
   paths-ignore:
     - 'build'
-    - 'certificates'
     - 'config'
     - 'docs'
     - 'gradle'

@@ -6,11 +6,12 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_NAME
@@ -28,7 +29,6 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
@@ -36,7 +36,6 @@ import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 
 @Suppress("MagicNumber")
-@Order(TEST_SPEC_ORDER_INITIAL)
 class ReferenceTableRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -46,12 +45,15 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
     Given(
         """Default reference table data is provisioned on startup
-            and general test data reference table data is added in test setup"""
+            and general test data reference table data is added in test setup,
+            and a beheerder is logged in"""
     ) {
         When("the reference tables are listed") {
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen"
             )
+
             Then(
                 """the provisioned default reference tables are returned"""
             ) {
@@ -121,10 +123,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the get afzenders endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/afzender"
             )
+
             Then(
                 """an empty list should be returned since we do not provision any default afzenders"""
             ) {
@@ -134,10 +138,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
+
         When("the communication channels reference table is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/$communicationChannelReferenceTableId"
             )
+
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
@@ -169,10 +175,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the get communication channels endpoint is called with 'true' as parameter") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/communicatiekanaal/true"
             )
+
             Then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
@@ -196,10 +204,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the domein reference table is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId"
             )
+
             Then(
                 """the domein created in the test setup is returned"""
             ) {
@@ -232,6 +242,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/server-error-text"
             )
+
             Then(
                 """an empty list should be returned since we do not provision any default server error texts"""
             ) {
@@ -241,6 +252,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
+
         When("a reference value is added to the server error texts reference table and the name is updated") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/referentietabellen/$serverErrorTextErrorReferenceTableId",
@@ -251,6 +263,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the response should be 'ok'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -271,10 +284,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the get server error texts endpoint is called again") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/server-error-text"
             )
+
             Then(
                 """the provisioned default server error texts are returned including the added 'test'"""
             ) {
@@ -301,6 +316,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

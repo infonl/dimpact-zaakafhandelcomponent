@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-public interface AbstractEnum<T extends AbstractEnum> {
+public interface AbstractEnum {
 
     String toValue();
 

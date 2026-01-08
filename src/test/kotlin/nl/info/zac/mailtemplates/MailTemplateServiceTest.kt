@@ -5,7 +5,6 @@
 package nl.info.zac.mailtemplates
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -25,9 +24,7 @@ import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.mailtemplates.model.createMailTemplate
-import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 
-@Tags(NO_MOCK_CLEANUP)
 class MailTemplateServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val criteriaBuilder = mockk<CriteriaBuilder>()
@@ -66,17 +63,16 @@ class MailTemplateServiceTest : BehaviorSpec({
         val mail = Mail.ZAAK_ONTVANKELIJK
         val mailTemplate = createMailTemplate()
 
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(MailTemplate::class.java) } returns root
-        every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
-        every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
-        every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
-        every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
-        every { criteriaBuilder.and(predicate, predicate) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-
         Given("a default MailTemplate exists for the given mail type") {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
+            every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
+            every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
+            every { criteriaBuilder.and(predicate, predicate) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
             When("findDefaultMailtemplate is called with the mail type") {
@@ -89,6 +85,15 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
 
         Given("no default mail template exists for the given mail type") {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
+            every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
+            every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
+            every { criteriaBuilder.and(predicate, predicate) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
             When("findDefaultMailtemplate is called with the mail type") {
@@ -104,16 +109,14 @@ class MailTemplateServiceTest : BehaviorSpec({
     Context("Mail templates can be found by name") {
         val mailTemplateName = "fakeTemplateName"
 
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(MailTemplate::class.java) } returns root
-        every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
-        every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-
         Given("a mail template exists for the given name") {
             val mailTemplate = createMailTemplate()
-
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
             When("findMailtemplateByName is called") {
@@ -126,6 +129,12 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
 
         Given("no mail template exists for the given name") {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>("mailTemplateNaam") } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mailTemplateName) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
             When("findMailtemplateByName is called") {
@@ -139,15 +148,14 @@ class MailTemplateServiceTest : BehaviorSpec({
     }
 
     Context("All mail templates can be listed") {
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(MailTemplate::class.java) } returns root
-        every { criteriaQuery.orderBy(criteriaBuilder.asc(root.get<String>("mailTemplateNaam"))) } returns criteriaQuery
-        every { criteriaQuery.select(root) } returns criteriaQuery
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-
         Given("multiple mail templates exist") {
             val mailTemplates = listOf(createMailTemplate(), createMailTemplate())
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { criteriaQuery.orderBy(criteriaBuilder.asc(root.get<String>("mailTemplateNaam"))) } returns criteriaQuery
+            every { criteriaQuery.select(root) } returns criteriaQuery
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns mailTemplates
 
             When("listMailtemplates is called") {
@@ -164,17 +172,16 @@ class MailTemplateServiceTest : BehaviorSpec({
         val mail = Mail.ZAAK_ONTVANKELIJK
         val mailTemplate = createMailTemplate()
 
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(MailTemplate::class.java) } returns root
-        every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
-        every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
-        every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
-        every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
-        every { criteriaBuilder.and(predicate, predicate) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
-
         Given("a mail template exists for the given mail type") {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
+            every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
+            every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
+            every { criteriaBuilder.and(predicate, predicate) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
             When("readMailtemplate is called with the mail type") {
@@ -187,6 +194,15 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
 
         Given("no mail template exists for the given mail type") {
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(MailTemplate::class.java) } returns root
+            every { root.get<String>(MailTemplate.MAIL) } returns mailTemplateNamePath
+            every { root.get<String>(MailTemplate.DEFAULT_MAILTEMPLATE) } returns mailTemplateNamePath
+            every { criteriaBuilder.equal(mailTemplateNamePath, mail) } returns predicate
+            every { criteriaBuilder.equal(mailTemplateNamePath, true) } returns predicate
+            every { criteriaBuilder.and(predicate, predicate) } returns predicate
+            every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
             When("readMailtemplate is called with the mail type") {
@@ -204,9 +220,9 @@ class MailTemplateServiceTest : BehaviorSpec({
         val mailTemplateId = 1234L
         val mailTemplate = createMailTemplate()
 
-        every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
-
         Given("a mail template exists for the given ID") {
+            every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
+
             When("readMailtemplate is called with the ID") {
                 val result = mailTemplateService.readMailtemplate(mailTemplateId)
 

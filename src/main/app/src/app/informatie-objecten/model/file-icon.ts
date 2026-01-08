@@ -22,6 +22,7 @@ export class FileIcon {
   private static readonly vsd = new FileIcon("vsd", "architecture", "orange");
   private static readonly xls = new FileIcon("xls", "table", "green");
   private static readonly xlsx = new FileIcon("xlsx", "table", "green");
+  private static readonly eml = new FileIcon("eml", "mail", "goldenrod");
   // Image files
   private static readonly bmp = new FileIcon("bmp", "image");
   private static readonly gif = new FileIcon("gif", "image");
@@ -53,6 +54,7 @@ export class FileIcon {
     FileIcon.vsd,
     FileIcon.xls,
     FileIcon.xlsx,
+    FileIcon.eml,
     FileIcon.bmp,
     FileIcon.gif,
     FileIcon.jpeg,

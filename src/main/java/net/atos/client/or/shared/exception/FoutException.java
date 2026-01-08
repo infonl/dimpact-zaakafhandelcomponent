@@ -2,16 +2,12 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared.exception;
 
 import java.net.URI;
 
 import net.atos.client.or.shared.model.Fout;
 
-/**
- *
- */
 public class FoutException extends RuntimeException {
 
     private final Fout fout;

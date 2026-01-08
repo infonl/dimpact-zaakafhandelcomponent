@@ -33,7 +33,7 @@ public class DrcClientService {
     private ConfiguratieService configuratieService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public DrcClientService() {
     }

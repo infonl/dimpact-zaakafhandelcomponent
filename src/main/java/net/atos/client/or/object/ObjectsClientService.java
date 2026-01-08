@@ -18,7 +18,7 @@ public class ObjectsClientService {
     private ObjectsClient objectsClient;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public ObjectsClientService() {
     }

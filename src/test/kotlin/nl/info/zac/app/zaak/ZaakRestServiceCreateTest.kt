@@ -5,13 +5,11 @@
 package nl.info.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -73,6 +71,7 @@ import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -80,14 +79,12 @@ import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
-import nl.info.zac.test.listener.MockkClearingTestListener.Companion.NO_MOCK_CLEANUP
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList")
-@Tags(NO_MOCK_CLEANUP)
 class ZaakRestServiceCreateTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
@@ -298,7 +295,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     }
 
     Given("BPMN zaak input data is provided") {
-        clearAllMocks()
         val group = createGroup()
         val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
         val objectRegistratieObject = createORObject()
@@ -454,6 +450,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
         } returns createZaaktypeBpmnConfiguration()
+        every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
+        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -472,6 +470,11 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             restZaakCreateData = createRestZaakCreateData(communicatiekanaal = "      ")
         )
         every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+        } returns createZaaktypeBpmnConfiguration()
+        every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
+        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -490,6 +493,11 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
         )
         every { zaakService.readZaakTypeByUUID(any<UUID>()) } returns zaakType
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+        } returns createZaaktypeBpmnConfiguration()
+        every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
+        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<DueDateNotAllowed> {

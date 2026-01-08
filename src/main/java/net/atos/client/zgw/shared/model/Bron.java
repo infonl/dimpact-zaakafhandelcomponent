@@ -11,7 +11,7 @@ import jakarta.json.bind.annotation.JsonbTypeAdapter;
  * Bron API
  */
 @JsonbTypeAdapter(Bron.Adapter.class)
-public enum Bron implements AbstractEnum<Bron> {
+public enum Bron implements AbstractEnum {
 
     /**
      * Autorisaties API.

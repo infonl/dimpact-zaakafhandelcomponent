@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 
 import net.atos.client.or.shared.model.ValidatieFout;
 
-/**
- *
- */
 public class ValidatieFoutException extends RuntimeException {
 
     private final ValidatieFout validatieFout;

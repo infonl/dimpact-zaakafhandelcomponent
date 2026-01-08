@@ -183,6 +183,7 @@ dependencies {
     providedCompile(libs.hibernate.validator)
     // ~dependencies provided by Wildfly
 
+    testImplementation(libs.kotlinx.coroutines.test)
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
     testImplementation(libs.eclipse.yasson)
@@ -804,7 +805,6 @@ tasks {
 
         inputs.file("Dockerfile")
         inputs.file("target/zaakafhandelcomponent.jar")
-        inputs.files(fileTree("certificates"))
 
         workingDir(".")
         commandLine(

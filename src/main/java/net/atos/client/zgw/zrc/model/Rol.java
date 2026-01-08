@@ -101,13 +101,13 @@ public abstract class Rol<T> {
 
     private IndicatieMachtigingEnum indicatieMachtiging;
 
-    public Rol() {
+    protected Rol() {
     }
 
     /**
      * For testing purposes only where a rol with a UUID is needed.
      */
-    public Rol(
+    protected Rol(
             final UUID uuid,
             final RolType roltype,
             final BetrokkeneTypeEnum betrokkeneType,
@@ -126,7 +126,7 @@ public abstract class Rol<T> {
     /**
      * Constructor with required attributes for POST and PUT requests
      */
-    public Rol(
+    protected Rol(
             final URI zaak,
             final RolType roltype,
             final BetrokkeneTypeEnum betrokkeneType,

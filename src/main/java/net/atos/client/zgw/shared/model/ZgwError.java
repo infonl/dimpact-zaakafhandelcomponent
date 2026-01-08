@@ -6,6 +6,8 @@ package net.atos.client.zgw.shared.model;
 
 import static java.lang.String.format;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.net.URI;
 
 import jakarta.json.bind.annotation.JsonbCreator;
@@ -14,9 +16,11 @@ import jakarta.json.bind.annotation.JsonbProperty;
 /**
  * An error that occurred in one of the ZGW APIs.
  */
-public class ZgwError {
+public class ZgwError implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 67354364654464L;
 
-    // URI referentie naar het type fout, bedoeld voor developers
+    // URI-referentie naar het type fout, bedoeld voor developers
     private final URI type;
 
     // Systeemcode die het type fout aangeeft

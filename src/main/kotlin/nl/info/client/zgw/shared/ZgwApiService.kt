@@ -320,7 +320,7 @@ class ZgwApiService @Inject constructor(
             }
         }
         return roleTypes.firstOrNull()?.let { rolType ->
-            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results.also {
+            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results().also {
                 check(it.size <= 1) {
                     "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
@@ -343,7 +343,7 @@ class ZgwApiService @Inject constructor(
         return roleTypes.firstOrNull()?.let { roleType ->
             val roles = zrcClientService.listRollen(
                 RolListParameters(zaak.url, roleType.url, betrokkeneType)
-            ).results.also {
+            ).results().also {
                 check(it.size <= 1) {
                     "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }

@@ -28,8 +28,8 @@ slf4j = "2.0.17"
 auth0-java-jwt = "4.5.0"
 javax-cache = "1.1.1"
 google-guava = "33.5.0-jre"
-itextpdf = "9.4.0"
-itextpdf-html2pdf = "6.3.0"
+itextpdf = "9.5.0"
+itextpdf-html2pdf = "6.3.1"
 flyway = "11.20.0"
 apache-solr = "9.10.0"
 webdav-servlet = "1.2.228"
@@ -62,7 +62,7 @@ wildfly-security-elytron-http-oidc = "2.7.0.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "5.9.1"
+kotest = "6.0.7"
 mockk = "1.14.7"
 
 testcontainers = "2.0.3"
@@ -146,10 +146,12 @@ wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "w
 # where we do not have the WildFly runtime environment available
 eclipse-yasson = { group = "org.eclipse", name = "yasson", version.ref = "eclipse-yasson" }
 
+# unit test dependencies
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-json = { group = "io.kotest", name = "kotest-assertions-json", version.ref = "kotest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
 # integration test dependencies
 testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }

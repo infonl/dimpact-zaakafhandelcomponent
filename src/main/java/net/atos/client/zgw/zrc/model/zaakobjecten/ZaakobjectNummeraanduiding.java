@@ -31,6 +31,6 @@ public class ZaakobjectNummeraanduiding extends ZaakobjectMetObjectIdentificatie
 
     @Override
     public String getWaarde() {
-        return getObjectIdentificatie().overigeData.getIdentificatie();
+        return getObjectIdentificatie().getOverigeData().getIdentificatie();
     }
 }

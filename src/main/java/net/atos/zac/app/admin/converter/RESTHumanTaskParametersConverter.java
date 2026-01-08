@@ -17,9 +17,20 @@ import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters;
 import nl.info.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 public class RESTHumanTaskParametersConverter {
+    private RestHumanTaskReferenceTableConverter restHumanTaskReferenceTableConverter;
+
+    /**
+     * No-arg constructor for CDI.
+     */
+    public RESTHumanTaskParametersConverter() {
+    }
 
     @Inject
-    private RestHumanTaskReferenceTableConverter restHumanTaskReferenceTableConverter;
+    public RESTHumanTaskParametersConverter(
+            final RestHumanTaskReferenceTableConverter restHumanTaskReferenceTableConverter
+    ) {
+        this.restHumanTaskReferenceTableConverter = restHumanTaskReferenceTableConverter;
+    }
 
     public List<RESTHumanTaskParameters> convertHumanTaskParametersCollection(
             final Collection<ZaaktypeCmmnHumantaskParameters> zaaktypeCmmnHumantaskParametersCollection,
