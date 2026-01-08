@@ -253,7 +253,6 @@ export class InformatieObjectAddComponent {
     };
     const formData = this.toInformatieobjectFormData(payload);
 
-    console.log("FORMDATA: ", payload);
     this.createDocumentMutation.mutate(
       formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
     );
