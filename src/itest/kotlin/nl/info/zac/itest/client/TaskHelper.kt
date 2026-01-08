@@ -33,6 +33,7 @@ class TaskHelper(
      * @param zaakIdentificatie the identification of the zaak for search purposes.
      * @param fatalDate the fatal date for the task.
      * @param group the group under which to start the task.
+     * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable before retrieving its ID.
      * @return the ID of the created 'Aanvullende informatie' task.
      */
     suspend fun startAanvullendeInformatieTaskForZaak(
