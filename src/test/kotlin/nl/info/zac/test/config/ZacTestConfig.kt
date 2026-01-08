@@ -9,5 +9,5 @@ import io.kotest.core.extensions.Extension
 import nl.info.zac.test.listener.MockkClearingTestListener
 
 object ZacTestConfig : AbstractProjectConfig() {
-    override fun extensions(): List<Extension> = listOf(MockkClearingTestListener())
+    override val extensions: List<Extension> = listOf(MockkClearingTestListener())
 }

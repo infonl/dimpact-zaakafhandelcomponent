@@ -146,10 +146,12 @@ wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "w
 # where we do not have the WildFly runtime environment available
 eclipse-yasson = { group = "org.eclipse", name = "yasson", version.ref = "eclipse-yasson" }
 
+# unit test dependencies
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-json = { group = "io.kotest", name = "kotest-assertions-json", version.ref = "kotest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 json = { group = "org.json", name = "json", version.ref = "json-json" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
 # integration test dependencies
 testcontainers-testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
