@@ -217,7 +217,14 @@ export class InformatieObjectAddComponent {
           );
           break;
         case "bestand":
-          formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          if (infoObject.bestandsnaam?.toLowerCase().endsWith(".eml")) {
+            const emlBlob = new Blob([value as Blob], {
+              type: "application/octet-stream",
+            });
+            formData.append("file", emlBlob, infoObject.bestandsnaam);
+          } else {
+            formData.append("file", value as Blob, infoObject.bestandsnaam!);
+          }
           break;
         default:
           formData.append(key, value.toString());
@@ -246,6 +253,7 @@ export class InformatieObjectAddComponent {
     };
     const formData = this.toInformatieobjectFormData(payload);
 
+    console.log("FORMDATA: ", payload);
     this.createDocumentMutation.mutate(
       formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
     );
