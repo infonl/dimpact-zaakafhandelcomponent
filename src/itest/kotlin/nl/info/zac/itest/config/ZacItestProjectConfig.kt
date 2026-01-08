@@ -74,7 +74,7 @@ import kotlin.time.toJavaDuration
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
 
-class ProjectConfig : AbstractProjectConfig() {
+class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
