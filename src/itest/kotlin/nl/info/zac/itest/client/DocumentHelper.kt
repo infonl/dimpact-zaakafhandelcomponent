@@ -28,9 +28,10 @@ class DocumentHelper(
     val itestHttpClient = zacClient.itestHttpClient
 
     /**
-     * Uploads a document to the specified zaak and then optionally triggers the indexing of the document,
-     * and waits until the document is indexed by searching for it by its title.
-     * For this reason we assume that the provided document title is unique within the integration test suite scope.
+     * Uploads a document to the specified zaak and then optionally triggers the indexing of the document.
+     * When {@code indexDocument} is {@code true}, this function waits until the document is indexed by
+     * searching for it by its title. For this reason we assume that the provided document title is unique
+     * within the integration test suite scope.
      *
      * Returns the UUID and identification of the created document.
      */
