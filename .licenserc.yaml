@@ -1,8 +1,8 @@
 #
-# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
-#
 
+#
 # Configuration file for https://github.com/apache/skywalking-eyes
 # to perform checks (and optionally fixes) on SPDX copyright headers in source files
 header:
