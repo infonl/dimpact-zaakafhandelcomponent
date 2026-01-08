@@ -68,7 +68,7 @@ class ZaakHelper(
     }
 
     /**
-     * The zaak identification must unique in the context of the integration test suite,
+     * The zaak identification must be unique in the context of the integration test suite,
      * or else zaken indexed by previously run tests may interfere with the indexing check.
      */
     private suspend fun indexZaak(zaakUuid: UUID, zaakIdentification: String) {
