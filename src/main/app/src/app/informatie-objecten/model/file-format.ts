@@ -31,7 +31,7 @@ export const FileFormatExtensionMapping = {
   [FileFormat["TEXT"]]: ".txt",
   [FileFormat["XLSX"]]: ".xlsx",
   [FileFormat["XLS"]]: ".xls",
-[FileFormat["PEM"]]: ".pem",
+  [FileFormat["PEM"]]: ".pem",
   [FileFormat["PPTX"]]: ".pptx",
   [FileFormat["PPT"]]: ".ppt",
   [FileFormat["DOCX"]]: ".docx",
