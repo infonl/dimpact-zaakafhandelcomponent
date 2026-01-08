@@ -62,7 +62,6 @@ export class ZacFile<
           this.allowedFormats.set(this.allowedFileTypes());
           return;
         }
-
         const additionalFileTypes = await lastValueFrom(
           this.configuratieService.readAdditionalAllowedFileTypes(),
         );

@@ -12,6 +12,7 @@ export enum FileFormat {
   TEXT = "text/plain",
   XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   XLS = "application/vnd.ms-excel",
+  PEM = "application/x-pem-file",
   PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   PPT = "application/vnd.ms-powerpoint",
   DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -30,6 +31,7 @@ export const FileFormatExtensionMapping = {
   [FileFormat["TEXT"]]: ".txt",
   [FileFormat["XLSX"]]: ".xlsx",
   [FileFormat["XLS"]]: ".xls",
+[FileFormat["PEM"]]: ".pem",
   [FileFormat["PPTX"]]: ".pptx",
   [FileFormat["PPT"]]: ".ppt",
   [FileFormat["DOCX"]]: ".docx",
@@ -65,7 +67,8 @@ export class FileFormatUtil {
       format === FileFormat.PPTX ||
       format === FileFormat.PPT ||
       format === FileFormat.XLS ||
-      format === FileFormat.XLSX
+      format === FileFormat.XLSX ||
+      format === FileFormat.PEM
     );
   }
 }
