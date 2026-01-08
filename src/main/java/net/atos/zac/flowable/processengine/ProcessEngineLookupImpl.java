@@ -13,7 +13,6 @@ import static org.flowable.engine.impl.cfg.DelegateExpressionFieldInjectionMode.
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.zac.flowable.bpmn.function.TasksFunctionDelegate;
 import org.flowable.cdi.CdiStandaloneProcessEngineConfiguration;
 import org.flowable.cdi.spi.ProcessEngineLookup;
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
@@ -24,6 +23,7 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 
 import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
+import net.atos.zac.flowable.bpmn.function.TaskFunctionsDelegate;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor;
@@ -99,7 +99,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         if (customFlowableFunctionDelegates == null) {
             customFlowableFunctionDelegates = new ArrayList<>();
         }
-        customFlowableFunctionDelegates.add(new TasksFunctionDelegate());
+        customFlowableFunctionDelegates.add(new TaskFunctionsDelegate());
         processEngineConfiguration.setCustomFlowableFunctionDelegates(customFlowableFunctionDelegates);
     }
 

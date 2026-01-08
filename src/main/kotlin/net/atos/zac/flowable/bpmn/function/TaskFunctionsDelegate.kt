@@ -8,7 +8,7 @@ import org.flowable.common.engine.api.delegate.FlowableMultiFunctionDelegate
 import java.lang.reflect.Method
 import kotlin.reflect.jvm.javaMethod
 
-class TasksFunctionDelegate: FlowableMultiFunctionDelegate {
+class TaskFunctionsDelegate : FlowableMultiFunctionDelegate {
     companion object {
         private const val PREFIX = "taken"
     }
@@ -17,14 +17,10 @@ class TasksFunctionDelegate: FlowableMultiFunctionDelegate {
 
     override fun localNames(): Collection<String?> = listOf(::behandelaar.name)
 
-    override fun functionMethod(prefix: String?, localName: String?): Method? {
-        if (prefix != PREFIX) return null
-
-        return when(localName) {
-            ::behandelaar.name -> ::behandelaar.javaMethod
+    override fun functionMethod(prefix: String?, localName: String?): Method? =
+        when {
+            prefix != PREFIX -> null
+            localName == ::behandelaar.name -> ::behandelaar.javaMethod
             else -> null
         }
-    }
 }
-
-

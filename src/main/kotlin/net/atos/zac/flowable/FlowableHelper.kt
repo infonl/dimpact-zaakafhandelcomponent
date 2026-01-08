@@ -21,8 +21,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import org.flowable.engine.HistoryService
-import org.flowable.engine.TaskService
-import org.flowable.task.service.HistoricTaskService
 
 /**
  * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.
