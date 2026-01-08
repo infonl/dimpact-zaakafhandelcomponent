@@ -33,9 +33,7 @@
               "base": "dist/zaakafhandelcomponent"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -114,8 +112,8 @@
           "builder": "@angular-builders/jest:run",
           "options": {
             "polyfills": ["src/polyfills.ts"],
-            "tsConfig": "./tsconfig.spec.json",
-            "configPath": "./jest.config.js",
+            "tsConfig": "../tsconfig.spec.json",
+            "configPath": "../jest.config.js",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
