@@ -25,9 +25,11 @@ class PabcClientServiceTest : BehaviorSpec({
         Given("A PABC application roles response for a certain PABC request") {
             val applicationName = "fakeApplicationName"
             val entityTypeId = "fakeEntityTypeId"
+            val entityTypeType = "fakeEntityTypeType"
             val applicationRolesResponse = createApplicationRolesResponse(
                 id = entityTypeId,
                 applicationName = applicationName,
+                type = entityTypeType,
             )
             val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
             val functionalRoles = listOf("fakeRole1", "fakeRole2")
@@ -43,7 +45,7 @@ class PabcClientServiceTest : BehaviorSpec({
                     getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe functionalRoles
                     with(result.results[0]) {
                         entityType.id shouldBe entityTypeId
-                        entityType.type shouldBe entityTypeId
+                        entityType.type shouldBe entityTypeType
                         applicationRoles.forEach {
                             it.application shouldBe applicationName
                         }

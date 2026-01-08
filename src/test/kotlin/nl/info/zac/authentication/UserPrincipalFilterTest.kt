@@ -306,13 +306,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     results = listOf(
                         createApplicationRolesResponseModel(
                             entityTypeId = "fakeZaaktype1",
-                            roleNames = listOf("fakeApplicationRole1", "fakeApplicationRole2"),
-                            entityType = "ZAAKTYPE"
+                            entityTypeType = "ZAAKTYPE",
+                            roleNames = listOf("fakeApplicationRole1", "fakeApplicationRole2")
                         ),
                         createApplicationRolesResponseModel(
                             entityTypeId = null,
-                            roleNames = listOf("fakeApplicationRole3"),
-                            entityType = "ZAAKTYPE"
+                            entityTypeType = "ZAAKTYPE",
+                            roleNames = listOf("fakeApplicationRole3")
                         )
                     )
                 }

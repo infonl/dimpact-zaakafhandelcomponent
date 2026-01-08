@@ -21,7 +21,7 @@ fun createApplicationRoleModel(
 fun createApplicationRolesResponse(
     id: String = "fakeEntityTypeId",
     name: String = "fakeEntityTypeName",
-    type: String = "fakeEntityTypeId",
+    type: String = "fakeEntityTypeType",
     applicationName: String = "fakeApplicationName"
 ): GetApplicationRolesResponse {
     val entityType = EntityTypeModel().apply {
@@ -50,7 +50,7 @@ fun createApplicationRolesResponse(
 
 fun createApplicationRolesResponseModel(
     entityTypeId: String?,
-    entityType: String = "fakeEntityTypeId",
+    entityTypeType: String = "fakeEntityTypeType",
     roleNames: List<String>,
     applicationName: String = "fakeApplicationName"
 ): GetApplicationRolesResponseModel {
@@ -58,7 +58,7 @@ fun createApplicationRolesResponseModel(
         createEntityTypeModel(
             id = it,
             name = it,
-            type = entityType
+            type = entityTypeType
         )
     }
     val applicationRoles = roleNames.map { role ->
@@ -76,7 +76,7 @@ fun createApplicationRolesResponseModel(
 fun createEntityTypeModel(
     id: String = "fakeEntityTypeId",
     name: String = "fakeEntityTypeName",
-    type: String = "fakeEntityTypeId"
+    type: String = "fakeEntityTypeType"
 ) = EntityTypeModel().apply {
     this.id = id
     this.name = name
