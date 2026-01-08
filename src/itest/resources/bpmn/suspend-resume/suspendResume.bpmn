@@ -37,8 +37,12 @@
                 <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
             </extensionElements>
         </serviceTask>
-        <userTask id="suspendForm" name="Suspend parameters" flowable:assignee="${var:get(zaakBehandelaar)}"
-                  flowable:candidateGroups="${zaakGroep}" flowable:formKey="suspendForm" flowable:formFieldValidation="false">
+        <userTask id="suspendForm"
+                  name="Suspend parameters"
+                  flowable:assignee="${var:get(zaakBehandelaar)}"
+                  flowable:candidateGroups="${zaakGroep}"
+                  flowable:formKey="suspendForm"
+                  flowable:formFieldValidation="false">
             <extensionElements>
                 <flowable:static-form-key><![CDATA[suspendForm]]></flowable:static-form-key>
                 <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -46,8 +50,12 @@
                 <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
             </extensionElements>
         </userTask>
-        <userTask id="resumeForm" name="Resume parameters" flowable:assignee="${var:get(zaakBehandelaar)}"
-                  flowable:candidateGroups="${zaakGroep}" flowable:formKey="resumeForm" flowable:formFieldValidation="false">
+        <userTask id="resumeForm"
+                  name="Resume parameters"
+                  flowable:assignee="${var:get(zaakBehandelaar)}"
+                  flowable:candidateGroups="${zaakGroep}"
+                  flowable:formKey="resumeForm"
+                  flowable:formFieldValidation="false">
             <extensionElements>
                 <flowable:static-form-key><![CDATA[resumeForm]]></flowable:static-form-key>
                 <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -56,8 +64,8 @@
             </extensionElements>
         </userTask>
         <userTask id="extendForm" name="Extend parameters"
-                  flowable:assignee="${taken:behandelaar('suspendForm')}"
-                  flowable:candidateGroups="${taken:groep('suspendForm')}"
+                  flowable:assignee="${var:get(zaakBehandelaar)}"
+                  flowable:candidateGroups="${zaakGroep}"
                   flowable:formKey="extendForm"
                   flowable:formFieldValidation="false">
             <extensionElements>

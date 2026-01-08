@@ -1,0 +1,41 @@
+{
+  "display": "form",
+  "name": "hardCoded",
+  "title": "Hard-coded",
+  "type": "form",
+  "components": [
+    {
+      "title": "Hard-coded",
+      "label": "Hard-coded",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "defaultValue": "Superheroes",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "User",
+          "labelPosition": "left-left",
+          "type": "textfield",
+          "defaultValue": "Invisible Man",
+          "input": false,
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Next",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}
