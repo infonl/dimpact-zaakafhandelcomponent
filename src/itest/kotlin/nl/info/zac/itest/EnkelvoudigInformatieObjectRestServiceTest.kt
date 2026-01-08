@@ -66,7 +66,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         // log in as a beheerder authorised in all domains
         // and create the zaken, tasks and documents and index them
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
-        val (_, zaakUuid) = zaakHelper.createAndIndexZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        val (_, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
         lateinit var enkelvoudigInformatieObjectUuid: String
         lateinit var enkelvoudigInformatieObject2Uuid: String
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
@@ -468,7 +468,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
-        val (zaakIdentification, zaakUuid) = zaakHelper.createAndIndexZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,

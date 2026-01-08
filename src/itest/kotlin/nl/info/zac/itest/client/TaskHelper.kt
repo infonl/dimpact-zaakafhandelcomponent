@@ -24,11 +24,23 @@ class TaskHelper(
     val itestHttpClient = zacClient.itestHttpClient
     val logger = KotlinLogging.logger {}
 
+    /**
+     * Starts an 'Aanvullende informatie' human task for the given zaak UUID,
+     * and then optionally performs a search to ensure the task is indexed and findable,
+     * and finally retrieves and returns the ID of the created task.
+     *
+     * @param zaakUuid the UUID of the zaak for which to start the task.
+     * @param zaakIdentificatie the identification of the zaak for search purposes.
+     * @param fatalDate the fatal date for the task.
+     * @param group the group under which to start the task.
+     * @return the ID of the created 'Aanvullende informatie' task.
+     */
     suspend fun startAanvullendeInformatieTaskForZaak(
         zaakUuid: UUID,
         zaakIdentificatie: String,
         fatalDate: LocalDate,
-        group: TestGroup
+        group: TestGroup,
+        waitForTaskToBeIndexed: Boolean = false
     ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
@@ -36,6 +48,22 @@ class TaskHelper(
             group = group
         )
         response.code shouldBe HTTP_NO_CONTENT
+        if (waitForTaskToBeIndexed) {
+           waitForTaskToBeIndexed(zaakIdentificatie)
+        }
+        val getTaskResponse = itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/taken/zaak/$zaakUuid"
+        )
+        val responseBody = getTaskResponse.bodyAsString
+        logger.info { "Response: $responseBody" }
+        getTaskResponse.code shouldBe HTTP_OK
+        val taskCount = JSONArray(responseBody).length()
+        logger.info { "Number of tasks for zaak with UUID '$zaakUuid': $taskCount" }
+        // should there be multiple tasks for this zaak, we return the ID of the last one we just created
+        return JSONArray(responseBody).getJSONObject(taskCount - 1).getString("id")
+    }
+
+    private suspend fun waitForTaskToBeIndexed(zaakIdentificatie: String) {
         // The task is automatically indexed, so no need to (re)index here.
         // However, the indexing may still take some time to complete, so we perform a search
         // here to ensure the task is findable.
@@ -59,15 +87,5 @@ class TaskHelper(
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
-        val getTaskResponse = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$zaakUuid"
-        )
-        val responseBody = getTaskResponse.bodyAsString
-        logger.info { "Response: $responseBody" }
-        getTaskResponse.code shouldBe HTTP_OK
-        val taskCount = JSONArray(responseBody).length()
-        logger.info { "Number of tasks for zaak with UUID '$zaakUuid': $taskCount" }
-        // should there be multiple tasks for this zaak, we return the ID of the last one we just created
-        return JSONArray(responseBody).getJSONObject(taskCount - 1).getString("id")
     }
 }

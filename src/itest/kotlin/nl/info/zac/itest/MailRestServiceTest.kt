@@ -43,10 +43,10 @@ class MailRestServiceTest : BehaviorSpec({
 
     Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
-        val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+        val (_, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
         )
-        val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaakAndIndexDocument(
+        val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaak(
             zaakUuid = zaakUuid,
             documentTitle = "${MailRestServiceTest::class.simpleName}-1-$now",
             authorName = "fakeAuthorName",

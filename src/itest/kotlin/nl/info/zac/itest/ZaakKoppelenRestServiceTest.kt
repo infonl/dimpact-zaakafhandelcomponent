@@ -31,21 +31,23 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val now = System.currentTimeMillis()
 
-    Given("Two zaken have been created and the behandelaar for domain test 1 is logged in") {
+    Given("Two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
         val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
-        val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+        val (_, zaakUuid) = zaakHelper.createZaak(
             zaakDescription = zaakDescription,
             zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
             group = BEHANDELAARS_DOMAIN_TEST_1,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true
         )
-        val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createAndIndexZaak(
+        val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createZaak(
             zaakDescription = toBeLinkedZaakDescription,
             zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
             group = BEHANDELAARS_DOMAIN_TEST_1,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true
         )
 
         When(

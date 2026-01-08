@@ -28,20 +28,21 @@ class DocumentHelper(
     val itestHttpClient = zacClient.itestHttpClient
 
     /**
-     * Uploads a document to the specified zaak and triggers indexing of the document.
-     * Waits until the document is indexed by searching for it by its title.
+     * Uploads a document to the specified zaak and then optionally triggers the indexing of the document,
+     * and waits until the document is indexed by searching for it by its title.
      * For this reason we assume that the provided document title is unique within the integration test suite scope.
      *
      * Returns the UUID and identification of the created document.
      */
     @Suppress("LongParameterList")
-    suspend fun uploadDocumentToZaakAndIndexDocument(
+    suspend fun uploadDocumentToZaak(
         zaakUuid: UUID,
         fileName: String,
         documentTitle: String,
         authorName: String,
         mediaType: String = PDF_MIME_TYPE,
         vertrouwelijkheidsaanduiding: String = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+        indexDocument: Boolean = false
     ): Pair<UUID, String> {
         val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
@@ -58,10 +59,23 @@ class DocumentHelper(
         responseBodyAsJsonObject.getString("bestandsnaam") shouldBe fileName
         val informatieobjectUuid = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
         val informatieobjectIdentification = responseBodyAsJsonObject.getString("identificatie")
+        if (indexDocument) {
+            indexDocument(informatieobjectUuid, documentTitle)
+        }
+        return Pair(informatieobjectUuid, informatieobjectIdentification)
+    }
+
+    /**
+     * Triggers the indexing of the document with the given UUID by sending a notification,
+     * then waits until the document is indexed by searching for it by its title.
+     * The document title must be unique within the integration test suite scope,
+     * or else documents indexed by previously run tests may interfere with the indexing check.
+     */
+    private suspend fun indexDocument(informatieobjectUuid: UUID, documentTitle: String) {
         // trigger the notification service to index the document
         sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid)
-        // wait for the indexing to complete by searching for the newly created document until we get the expected result
-        // note that this assumes that the document title is unique
+        // wait for the indexing to complete by searching for the newly created document
+        // until we get the expected result
         eventually(10.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
@@ -82,7 +96,6 @@ class DocumentHelper(
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
-        return Pair(informatieobjectUuid, informatieobjectIdentification)
     }
 
     private fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {

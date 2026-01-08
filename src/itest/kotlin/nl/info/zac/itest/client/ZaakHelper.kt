@@ -30,19 +30,20 @@ class ZaakHelper(
 
     /**
      * Creates a new zaak with the given description and zaaktype UUID,
-     * sends a notification to ZAC to index the newly created zaak,
+     * then optionally sends a notification to ZAC to index the newly created zaak,
      * and waits until the zaak is findable via the search API using the
      * zaak identification.
-     * Because of this we assume that the zaak description is unique in the context of
+     * Because of this we assume that the zaak identification is unique in the context of
      * the integration test suite.
      *
      * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
      */
-    suspend fun createAndIndexZaak(
+    suspend fun createZaak(
         zaakDescription: String = "itestZaakDescription-${System.currentTimeMillis()}",
         zaaktypeUuid: UUID,
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
-        startDate: ZonedDateTime = DATE_TIME_2024_01_01
+        startDate: ZonedDateTime = DATE_TIME_2024_01_01,
+        indexZaak: Boolean = false
     ): Pair<String, UUID> {
         var zaakIdentification: String
         var zaakUuid: UUID
@@ -60,9 +61,21 @@ class ZaakHelper(
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
         }
+        if (indexZaak) {
+            indexZaak(zaakUuid, zaakIdentification)
+        }
+        return Pair(zaakIdentification, zaakUuid)
+    }
+
+    /**
+     * The zaak identification must unique in the context of the integration test suite,
+     * or else zaken indexed by previously run tests may interfere with the indexing check.
+     */
+    private suspend fun indexZaak(zaakUuid: UUID, zaakIdentification: String) {
         sendZaakCreateNotification(zaakUuid)
-        // wait for the indexing to complete by searching for the newly created zaak until we get the expected result
-        eventually(10.seconds) {
+        // wait for the indexing to complete by searching for the newly created zaak
+        // until we get the expected result
+        eventually(30.seconds) {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
@@ -82,7 +95,6 @@ class ZaakHelper(
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }
-        return Pair(zaakIdentification, zaakUuid)
     }
 
     /**
