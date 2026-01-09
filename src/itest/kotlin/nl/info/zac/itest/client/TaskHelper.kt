@@ -50,7 +50,7 @@ class TaskHelper(
         )
         response.code shouldBe HTTP_NO_CONTENT
         if (waitForTaskToBeIndexed) {
-           waitForTaskToBeIndexed(zaakIdentificatie)
+            waitForTaskToBeIndexed(zaakIdentificatie)
         }
         val getTaskResponse = itestHttpClient.performGetRequest(
             "$ZAC_API_URI/taken/zaak/$zaakUuid"
