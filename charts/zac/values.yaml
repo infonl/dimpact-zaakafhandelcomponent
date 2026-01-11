@@ -286,8 +286,11 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
-# -- set topologySpreadConstraints parameters
-topologySpreadConstraints: []
+# -- set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
 
 # set initContainer parameters
 initContainer:
@@ -331,6 +334,7 @@ opa:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  topologySpreadConstraints: []
 
 # If an external solr instance is used, configure the URL here
 solr:
@@ -539,6 +543,7 @@ office_converter:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  topologySpreadConstraints: []
 
 
 # -- Extra objects to deploy (value evaluated as a template)
@@ -617,6 +622,7 @@ nginx:
   useXForwardedHost: false
   allowedHosts: ""
   client_max_body_size: 120M
+  topologySpreadConstraints: []
   api_proxy:
     enabled: false
     certificate_secret: nginx-certs
