@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.170](https://img.shields.io/badge/Version-1.0.170-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
+![Version: 1.0.171](https://img.shields.io/badge/Version-1.0.171-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -188,6 +188,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.service.annotations | object | `{}` |  |
 | nginx.service.port | int | `80` |  |
 | nginx.service.type | string | `"ClusterIP"` |  |
+| nginx.topologySpreadConstraints | list | `[]` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
 | notificationsSecretKey | string | `""` | API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties |
@@ -211,6 +212,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
 | office_converter.tolerations | list | `[]` |  |
+| office_converter.topologySpreadConstraints | list | `[]` |  |
 | opa.affinity | object | `{}` |  |
 | opa.autoscaling.enabled | bool | `false` |  |
 | opa.enabled | bool | `true` |  |
@@ -231,6 +233,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.service.type | string | `"ClusterIP"` |  |
 | opa.sidecar | bool | `true` | set sidecar to true to run the opa service as a sidecar container within the ZAC pod (set to false to run as a standalone pod and service) |
 | opa.tolerations | list | `[]` |  |
+| opa.topologySpreadConstraints | list | `[]` |  |
 | openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
 | opentelemetry-collector.config.receivers.prometheus | object | `{}` |  |
@@ -347,7 +350,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
-| topologySpreadConstraints | list | `[]` | set topologySpreadConstraints parameters |
+| topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |
