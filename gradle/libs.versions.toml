@@ -16,7 +16,7 @@ spotless-prettier-organize-imports = "4.1.0"
 jacoco = "0.8.14"
 owasp-dependencycheck = "12.2.0"
 glassfish-expressly = "6.0.0"
-keycloak = "26.0.7"
+keycloak = "26.0.8"
 
 apache-commons-lang = "3.20.0"
 apache-commons-text = "1.15.0"
