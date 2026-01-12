@@ -730,7 +730,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             authenticate(COORDINATOR_DOMAIN_TEST_1)
-            zaak1UUID = zaakHelper.createAndIndexZaak(
+            zaak1UUID = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_TEST_3_UUID
             ).second
             val uniqueResourceId = UUID.randomUUID()
@@ -807,7 +807,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given("A zaak exists and a websocket subscription has been created and a logged-in coordinator") {
             authenticate(COORDINATOR_DOMAIN_TEST_1)
-            val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+            val (_, zaakUuid) = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
             val uniqueResourceId = UUID.randomUUID()
@@ -880,7 +880,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-            val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+            val (_, zaakUuid) = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
 

@@ -45,12 +45,12 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                 "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-listing-$now"
             val documentTitle = "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-documenttitle-$now"
             val documentAuthorName = "fakeAuthorName"
-            val (_, zaakUuid) = zaakHelper.createAndIndexZaak(
+            val (_, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
             val (enkelvoudiginformatieobjectUuid, enkelvoudiginformatieobjectIdentification) =
-                documentHelper.uploadDocumentToZaakAndIndexDocument(
+                documentHelper.uploadDocumentToZaak(
                     zaakUuid = zaakUuid,
                     documentTitle = documentTitle,
                     authorName = documentAuthorName,
