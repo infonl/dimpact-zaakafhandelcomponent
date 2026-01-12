@@ -29,8 +29,8 @@ When a ZAC developer needs to edit the CMMN model, they can use the online Flowa
 
 ZAC provides BPMN for more complex zaaktypes that cannot be handled by the generic CMMN model.
 
-BPMN support in ZAC uses the open source [form.io](https://form.io) web form framework to model user task forms.
+BPMN support in ZAC uses the open source [Form.io](https://form.io) web form framework to model user task forms.
 
-BPMN process definitions, as well as the corresponding form.io forms, need to be created outside of ZAC before they can be used.
+BPMN process definitions, as well as the corresponding Form.io forms, need to be created outside of ZAC before they can be used.
 They can then be imported into ZAC using the ZAC admin interface.
 See: [BPMN guide](../manuals/bpmn-guide/README.md) for details.
