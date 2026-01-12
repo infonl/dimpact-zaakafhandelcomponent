@@ -5,10 +5,10 @@
 package net.atos.zac.flowable.bpmn.function
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 
 class TaskFunctionsDelegateTest : BehaviorSpec({
     val delegate = TaskFunctionsDelegate()

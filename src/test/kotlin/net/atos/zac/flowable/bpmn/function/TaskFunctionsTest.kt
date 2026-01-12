@@ -39,7 +39,14 @@ class TaskFunctionsTest : BehaviorSpec({
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
             val mockTask = mockk<HistoricTaskInstance>()
-            every { flowableHelper.flowableHistoryService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId).taskDefinitionKey(taskDefinitionKey).orderByTaskCreateTime().desc().list() } returns listOf(mockTask)
+            every {
+                flowableHelper.flowableHistoryService
+                    .createHistoricTaskInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .taskDefinitionKey(taskDefinitionKey)
+                    .orderByTaskCreateTime().desc()
+                    .list()
+            } returns listOf(mockTask)
             every { mockTask.assignee } returns assignee
 
             mockkStatic(Context::class)
@@ -48,7 +55,9 @@ class TaskFunctionsTest : BehaviorSpec({
             val executionEntityMock = mockk<ExecutionEntity>()
             every { executionEntityMock.processInstanceId } returns processInstanceId
             mockkStatic(CommandContextUtil::class)
-            every { CommandContextUtil.getInvolvedExecutions(any<CommandContext>()) } returns mapOf("123" to executionEntityMock)
+            every {
+                CommandContextUtil.getInvolvedExecutions(any<CommandContext>())
+            } returns mapOf("123" to executionEntityMock)
 
             val user = behandelaar(taskDefinitionKey)
             Then("it should return the correct assignee") {
@@ -61,7 +70,13 @@ class TaskFunctionsTest : BehaviorSpec({
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
             val mockTask = mockk<HistoricTaskInstance>()
-            every { flowableHelper.flowableHistoryService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId).taskDefinitionKey(taskDefinitionKey).orderByTaskCreateTime().desc().list() } returns listOf(mockTask)
+            every {
+                flowableHelper.flowableHistoryService.createHistoricTaskInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .taskDefinitionKey(taskDefinitionKey)
+                    .orderByTaskCreateTime().desc()
+                    .list()
+            } returns listOf(mockTask)
 
             mockkStatic(Context::class)
             val commandContext = mockk<CommandContext>()
@@ -69,7 +84,9 @@ class TaskFunctionsTest : BehaviorSpec({
             val executionEntityMock = mockk<ExecutionEntity>()
             every { executionEntityMock.processInstanceId } returns processInstanceId
             mockkStatic(CommandContextUtil::class)
-            every { CommandContextUtil.getInvolvedExecutions(any<CommandContext>()) } returns mapOf("123" to executionEntityMock)
+            every {
+                CommandContextUtil.getInvolvedExecutions(any<CommandContext>())
+            } returns mapOf("123" to executionEntityMock)
 
             val identityLink = mockk<HistoricIdentityLink>()
             every { identityLink.type } returns candidateType
@@ -87,7 +104,14 @@ class TaskFunctionsTest : BehaviorSpec({
             mockkObject(FlowableHelper)
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
-            every { flowableHelper.flowableHistoryService.createHistoricTaskInstanceQuery().processInstanceId(processInstanceId).taskDefinitionKey(taskDefinitionKey).orderByTaskCreateTime().desc().list() } returns emptyList()
+            every {
+                flowableHelper.flowableHistoryService
+                    .createHistoricTaskInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .taskDefinitionKey(taskDefinitionKey)
+                    .orderByTaskCreateTime().desc()
+                    .list()
+            } returns emptyList()
 
             mockkStatic(Context::class)
             val commandContext = mockk<CommandContext>()
@@ -95,7 +119,9 @@ class TaskFunctionsTest : BehaviorSpec({
             val executionEntityMock = mockk<ExecutionEntity>()
             every { executionEntityMock.processInstanceId } returns processInstanceId
             mockkStatic(CommandContextUtil::class)
-            every { CommandContextUtil.getInvolvedExecutions(any<CommandContext>()) } returns mapOf("123" to executionEntityMock)
+            every {
+                CommandContextUtil.getInvolvedExecutions(any<CommandContext>())
+            } returns mapOf("123" to executionEntityMock)
 
             val user = behandelaar(taskDefinitionKey)
             val group = groep(taskDefinitionKey)
