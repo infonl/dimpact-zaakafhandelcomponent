@@ -55,9 +55,9 @@ class SearchRestServiceTest : BehaviorSpec({
     Context("Listing search results") {
         Given(
             """
-            A logged-in raadpleger and a zaak has been created and is indexed and an 'aanvullende informatie' 
-            task has been added to the zaak           
-            
+            A logged-in raadpleger and a zaak has been created and is indexed, 
+            an 'aanvullende informatie' task has been added to the zaak and is indexed,
+            and a document has been uploaded to the zaak and is indexed           
             """.trimIndent()
         ) {
             // log in as a beheerder authorised in all domains
@@ -70,21 +70,24 @@ class SearchRestServiceTest : BehaviorSpec({
             val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
             val today = LocalDate.now()
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
-            val (zaakIdentification, zaakUuid) = zaakHelper.createAndIndexZaak(
+            val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                indexZaak = true
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakUuid,
                 zaakIdentificatie = zaakIdentification,
                 fatalDate = aanvullendeInformatieTaskFatalDate,
-                group = BEHANDELAARS_DOMAIN_TEST_1
+                group = BEHANDELAARS_DOMAIN_TEST_1,
+                waitForTaskToBeIndexed = true
             )
-            documentHelper.uploadDocumentToZaakAndIndexDocument(
+            documentHelper.uploadDocumentToZaak(
                 zaakUuid = zaakUuid,
                 documentTitle = documentTitle,
                 authorName = documentAuthorName,
-                fileName = TEST_PDF_FILE_NAME
+                fileName = TEST_PDF_FILE_NAME,
+                indexDocument = true
             )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
@@ -401,13 +404,15 @@ class SearchRestServiceTest : BehaviorSpec({
             // because we use it later on to search on these zaken
             val zaak1Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype1-$now"
             val zaak2Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype2-$now"
-            val (zaak1Identification, zaak1Uuid) = zaakHelper.createAndIndexZaak(
+            val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak1Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                indexZaak = true
             )
-            val (zaak2Identification, zaak2Uuid) = zaakHelper.createAndIndexZaak(
+            val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak2Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID
+                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
+                indexZaak = true
             )
             authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When(
