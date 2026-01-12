@@ -3,7 +3,8 @@
 :fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases. :fire:
 
 ## ZAC and BPMN
-ZAC uses [Flowable](https://www.flowable.com/) to support BPMN processes. Forms that provide input for the BPMN processes are implemented using the [Forms.io](https://forms.io/) framework.
+ZAC uses [Flowable](https://www.flowable.com/) as embedded process automation engine to support BPMN processes. 
+Forms that provide input for user tasks in BPMN processes are implemented using the open source [Form.io](https://form.io/) web form library.
 
 ## BPMN process definition
 To create a BPMN process definition, you can:
