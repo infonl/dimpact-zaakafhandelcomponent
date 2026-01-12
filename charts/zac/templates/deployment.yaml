@@ -147,5 +147,16 @@ spec:
       {{- end }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-        {{- toYaml . | nindent 8 }}
+        {{- range . }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "zaakafhandelcomponent.selectorLabels" $ | nindent 14 }}
+          {{- if .matchLabelKeys }}
+          matchLabelKeys:
+            {{- toYaml .matchLabelKeys | nindent 12 }}
+          {{- end }}
+        {{- end }}
       {{- end }}

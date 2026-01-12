@@ -68,5 +68,20 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.opa.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- range . }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "zaakafhandelcomponent.opa.selectorLabels" $ | nindent 14 }}
+          {{- if .matchLabelKeys }}
+          matchLabelKeys:
+            {{- toYaml .matchLabelKeys | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
 {{- end }}
 {{- end }}
