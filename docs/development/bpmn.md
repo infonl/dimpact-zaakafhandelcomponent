@@ -10,7 +10,7 @@ Also see:
 
 BPMN process flows make use of the open source [Flowable](https://www.flowable.com/open-source)
 process automation engine which is embedded within the ZAC application.
-Business processes data is stored in ZAC Flowable database. 
+Business process data is stored in the ZAC Flowable database. 
 
 ## BPMN form.io forms
 
