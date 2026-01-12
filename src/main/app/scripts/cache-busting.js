@@ -133,6 +133,5 @@ if (require.main === module) {
 
 module.exports = {
   generateTranslationHash,
-  generateFontHash,
-  replaceBuildHash,
+  generateFontHash
 };
