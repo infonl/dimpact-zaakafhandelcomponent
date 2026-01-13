@@ -38,7 +38,7 @@ The following data is stored in memory in ZAC:
 | Session data      | Data related to a logged-in user session. When a user logs in (using OIDC (OpenID Connect)) a session is created and session data is stored in memory for performance reasons. Should session data get lost, for whatever reason, it is automatically recreated.|
 | Cached data       | Certain data, mostly specific external ZGW data, is cached for performance optimization. Caching this data is needed in order to achieve an acceptable level of user experience in ZAC. |
 
-Caching is implemented using the Infinispan caching framework as provided by the WildFly application server used by ZAC. 
+Caching in ZAC is implemented using the [Caffeine caching library](https://github.com/ben-manes/caffeine). 
 When this cache is empty, the first user using related functionality in ZAC will have a slower user experience.
 There is currently no way to automatically fill the cache.
 
