@@ -28,6 +28,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 
 describe(TakenVerdelenDialogComponent.name, () => {
   let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
@@ -79,6 +80,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
         IdentityService,
         FormBuilder,
         TakenService,
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
@@ -119,6 +121,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
+    await new Promise(requestAnimationFrame);
 
     const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
 
@@ -149,6 +152,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
+    await new Promise(requestAnimationFrame);
 
     const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
     req.flush({});

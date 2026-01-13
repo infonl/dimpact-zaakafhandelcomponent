@@ -10,7 +10,10 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import {
+  NO_ERRORS_SCHEMA,
+  provideExperimentalZonelessChangeDetection,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -59,6 +62,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
@@ -97,12 +101,10 @@ describe("ZaakVerlengenDialogComponent", () => {
       const submitButton: HTMLButtonElement =
         fixture.nativeElement.querySelector('button[type="submit"]');
       submitButton.click();
-
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       expect(component.verlengen).toHaveBeenCalled();
 
-      await fixture.whenStable();
       const req = httpTestingController.expectOne(
         `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
       );
@@ -122,9 +124,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         MatButtonHarness.with({ text: /annuleren/i }),
       );
       await cancelButton.click();
-
-      fixture.detectChanges();
-      fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       expect(component.close).toHaveBeenCalled();
       expect(dialogRefSpy).toHaveBeenCalled();
@@ -142,11 +142,10 @@ describe("ZaakVerlengenDialogComponent", () => {
       const submitButton: HTMLButtonElement =
         fixture.nativeElement.querySelector('button[type="submit"]');
       submitButton.click();
-
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
       const errorHarness = await loader.getHarness(MatErrorHarness);
-
       const errorText = await errorHarness.getText();
+
       expect(errorText).toContain("validators.max");
     });
   });
