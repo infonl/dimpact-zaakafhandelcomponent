@@ -63,11 +63,11 @@ constructor(
 
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
-                    LOG.info(
+                    LOG.info {
                         "Invalidating HTTP session of user '${loggedInUser.id}' " +
                             "on context path '${servletRequest.servletContext.contextPath}'. " +
                             "Creating new session for user with user principal name '${userPrincipal.name}'."
-                    )
+                    }
                     httpSession.invalidate()
                     setLoggedInUserOnHttpSession(
                         userPrincipal as OidcPrincipal<*>,
@@ -91,7 +91,7 @@ constructor(
         createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
             setLoggedInUser(httpSession, loggedInUser)
             if (!pabcIntegrationEnabled) {
-                LOG.info(
+                LOG.info {
                     "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
                         "groups: ${loggedInUser.groupIds} and zaaktypen: ${
                             if (loggedInUser.isAuthorisedForAllZaaktypen()) {
@@ -100,7 +100,7 @@ constructor(
                                 loggedInUser.geautoriseerdeZaaktypen.toString()
                             }
                         }"
-                )
+                }
             } else {
                 LOG.info {
                     "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
@@ -115,7 +115,7 @@ constructor(
         if (oidcPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
             val refreshToken = (oidcPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
             httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-            LOG.fine("Added $REFRESH_TOKEN_ATTRIBUTE to the user session")
+            LOG.fine { "Added $REFRESH_TOKEN_ATTRIBUTE to the user session" }
         }
     }
 
