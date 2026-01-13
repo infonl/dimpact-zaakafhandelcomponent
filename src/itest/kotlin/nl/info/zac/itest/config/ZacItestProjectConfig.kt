@@ -294,7 +294,21 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         arrayOf(
             BPMN_TEST_PROCESS_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
-        ).forEach { uploadBpmnProcessDefinition(it) }
+        ).forEach {
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions",
+                requestBodyAsString = """
+                    {
+                        "filename": "$it",
+                        "content": "${readResourceFile(it)}"
+                    }
+                """.trimIndent()
+            ).let { response ->
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_CREATED
+            }
+        }
     }
 
     private fun createBpmnProcessTaskForms() {
@@ -302,38 +316,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_TEST_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
-        ).forEach { uploadFormioForm(it) }
-    }
-
-    private fun uploadBpmnProcessDefinition(resourcePath: String) {
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/bpmn-process-definitions",
-            requestBodyAsString = """
-                {
-                    "filename": "$resourcePath",
-                    "content": "${readResourceFile(resourcePath)}"
-                }
-            """.trimIndent()
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_CREATED
-        }
-    }
-
-    private fun uploadFormioForm(resourcePath: String) {
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/formio-formulieren",
-            requestBodyAsString = """
-                {
-                    "filename": "$resourcePath",
-                    "content": "${readResourceFile(resourcePath)}"
-                }
-            """.trimIndent()
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_CREATED
+        ).forEach {
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/formio-formulieren",
+                requestBodyAsString = """
+                    {
+                        "filename": "$it",
+                        "content": "${readResourceFile(it)}"
+                    }
+                """.trimIndent()
+            ).let { response ->
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_CREATED
+            }
         }
     }
 
