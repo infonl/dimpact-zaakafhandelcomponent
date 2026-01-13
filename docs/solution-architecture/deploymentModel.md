@@ -18,7 +18,7 @@ ZAC is cloud-agnostic and can be deployed on any Kubernetes cluster, regardless 
 
 ZAC currently cannot scale horizontally. This means that there can only be one instance of ZAC running on any given environment.
 
-Should the need arise for horizontal scalability for ZAC in future, some things that will need to be tackled in order to achieve this are:
+Should the need arise for horizontal scalability for ZAC in the future, some things that will need to be tackled in order to achieve this are:
 - Integration with the `Open Notificaties` component. 
 Care must be taken that a specific notification event for ZAC is only handled once within a ZAC cluster.
 - Session management. ZAC uses HTTP sessions to keep track of logged-in users. 
