@@ -83,7 +83,9 @@ describe("ZaakVerlengenDialogComponent", () => {
 
     jest.spyOn(component, "close");
     jest.spyOn(component, "verlengen");
+
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   describe("Buttons and form submission", () => {

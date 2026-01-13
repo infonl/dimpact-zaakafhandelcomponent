@@ -24,14 +24,14 @@ import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
-    selector: "zac-file",
-    templateUrl: "./file.html",
-    standalone: false
+  selector: "zac-file",
+  templateUrl: "./file.html",
+  standalone: false,
 })
 export class ZacFile<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+>
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {

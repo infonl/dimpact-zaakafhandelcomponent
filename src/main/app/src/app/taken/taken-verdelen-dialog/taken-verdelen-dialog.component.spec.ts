@@ -105,6 +105,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it("should send the form data on request", async () => {
