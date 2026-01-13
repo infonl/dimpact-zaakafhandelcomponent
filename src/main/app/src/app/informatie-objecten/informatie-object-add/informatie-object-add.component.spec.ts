@@ -308,4 +308,35 @@ describe(InformatieObjectAddComponent.name, () => {
       );
     });
   });
+
+  describe("EML file upload handling", () => {
+    it("should convert .eml file to Blob with application/octet-stream and append to FormData", async () => {
+      const emlFile = new File(
+        ["Return-Path: <test@example.com>\r\nSubject: Test EML"],
+        "test-email.eml",
+        { type: "message/rfc822" },
+      );
+
+      type PayloadType = GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+        bestand: File;
+        bestandsnaam: string;
+      };
+
+      const payload: PayloadType = {
+        ...mockFormInput,
+        bestand: emlFile,
+        bestandsnaam: emlFile.name,
+      } as unknown as PayloadType;
+
+      const formData = component["toInformatieobjectFormData"](payload);
+
+      const fileEntry = formData.get("file") as Blob;
+      expect(fileEntry).toBeInstanceOf(Blob);
+      expect(fileEntry.size).toBe(emlFile.size);
+      expect(fileEntry.type).toBe("application/octet-stream");
+
+      const formDataEntries = Object.fromEntries(formData.entries());
+      expect(formDataEntries.bestandsnaam).toBe(emlFile.name);
+    });
+  });
 });
