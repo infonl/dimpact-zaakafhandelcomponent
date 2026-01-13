@@ -24,8 +24,7 @@ These two database schemas are [configured as data sources in the WildFly applic
 ## File system
 
 - ZAC itself does not use a persistent file system.
-- [The ZAC Solr search engine](solrArchitecture.md), which is part of the overall ZAC application but is a separate runtime, 
-however stores its search index on the file system. 
+- [The ZAC Solr search engine](solrArchitecture.md) (part of the overall ZAC application but a separate runtime) stores its search index on the file system.
 
 ZAC provides an internal endpoint to recreate the Solr index from the source data (both external ZGW data and
 internal ZAC) when needed. Be aware that this will take considerable time depending on the amount of data to be indexed.
