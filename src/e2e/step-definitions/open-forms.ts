@@ -57,8 +57,9 @@ Given(
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
     await this.page
-      .getByRole("textbox", { name: "dd-MM-yyyy HH:mm" })
-      .fill(profile.incidentDetails.date);
+      .getByPlaceholder("dd-mm-jjjj HH:mm").nth(1)
+
+
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
 
