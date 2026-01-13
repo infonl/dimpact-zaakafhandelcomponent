@@ -80,9 +80,9 @@
     },
     {
       "id": "a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1",
-      "entityTypeId": "BPMN test zaaktype",
+      "entityTypeId": "BPMN test zaaktype 1",
       "type": "ZAAKTYPE",
-      "name": "BPMN test zaaktype",
+      "name": "BPMN test zaaktype 1",
       "uri": "https://example.com/zaaktype/26076928-ce07-4d5d-8638-c2d276f6caca"
     },
     {
@@ -98,6 +98,13 @@
       "type": "ZAAKTYPE",
       "name": "Test zaaktype 3",
       "uri": "https://example.com/zaaktype/448356ff-dcfb-4504-9501-7fe929077c4f"
+    },
+    {
+      "id": "60985cc4-6c14-43ae-a924-9a10d18f910f",
+      "entityTypeId": "BPMN test zaaktype 2",
+      "type": "ZAAKTYPE",
+      "name": "BPMN test zaaktype 2",
+      "uri": "https://example.com/zaaktype/7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e"
     }
   ],
   "domains": [
@@ -107,6 +114,7 @@
       "description": "Test domein 1",
       "entityTypeIds": [
         "a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1",
+        "60985cc4-6c14-43ae-a924-9a10d18f910f",
         "0db3c76a-2911-48c7-a24c-f6e4f3b18c48",
         "e9dbe8f7-7b30-41d2-bb0d-187d4a4d6822"
       ]
@@ -298,6 +306,10 @@
     {
       "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
       "entityTypeId": "a6c7f182-0e7d-4f0f-9067-fd8a4ec7f3f1"
+    },
+    {
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "entityTypeId": "60985cc4-6c14-43ae-a924-9a10d18f910f"
     },
     {
       "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",

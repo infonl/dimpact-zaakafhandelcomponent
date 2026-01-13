@@ -99,7 +99,7 @@ class ZacClient(
         productaanvraagType: String,
         defaultGroupName: String,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
-        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
     ): ResponseContent {
         logger.info {
@@ -135,7 +135,7 @@ class ZacClient(
         productaanvraagType: String,
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
-        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-Totaal",
+        brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@example.com",
         automaticEmailConfirmationReply: String = "reply@example.com"

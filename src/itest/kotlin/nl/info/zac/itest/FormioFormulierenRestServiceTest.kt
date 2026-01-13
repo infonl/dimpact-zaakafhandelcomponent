@@ -10,11 +10,9 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import java.io.File
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_OK
@@ -60,17 +58,23 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 [
                     {
-                        "id": 2,
-                        "name": "summaryForm",
-                        "title": "$BPMN_SUMMARY_FORM_NAME"
+                        "name": "testForm",
+                        "title": "Test form"
                     },
                     {
-                        "id": 1,
-                        "name": "testForm",
-                        "title": "$BPMN_TEST_FORM_NAME"
+                        "name": "summaryForm",
+                        "title": "Summary form"
+                    },
+                    {
+                        "name": "zaakDefaults",
+                        "title": "Zaak defaults"
+                    },
+                    {
+                        "name": "hardCoded",
+                        "title": "Hard-coded"
                     }
                 ]
                 """.trimIndent()

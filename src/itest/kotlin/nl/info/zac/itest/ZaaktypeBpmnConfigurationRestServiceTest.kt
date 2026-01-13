@@ -12,9 +12,13 @@ import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
@@ -22,13 +26,23 @@ import java.net.HttpURLConnection.HTTP_OK
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val bpmnZaakType = """
+    val bpmnZaakType1 = """
         {
             "id": 1,
-            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_UUID",
-            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_1_UUID",
+            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
             "bpmnProcessDefinitionKey": "$BPMN_TEST_PROCESS_DEFINITION_KEY",
-            "productaanvraagtype": "$ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE",
+            "productaanvraagtype": "$ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE",
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+        }
+    """.trimIndent()
+    val bpmnZaakType2 = """
+        {
+            "id": 2,
+            "zaaktypeUuid": "$ZAAKTYPE_BPMN_TEST_2_UUID",
+            "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
+            "bpmnProcessDefinitionKey": "$BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY",
+            "productaanvraagtype": "$ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE",
             "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
         }
     """.trimIndent()
@@ -50,7 +64,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields bpmnZaakType
+                responseBody shouldEqualJsonIgnoringExtraneousFields bpmnZaakType1
             }
         }
 
@@ -66,7 +80,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2]"
             }
         }
     }

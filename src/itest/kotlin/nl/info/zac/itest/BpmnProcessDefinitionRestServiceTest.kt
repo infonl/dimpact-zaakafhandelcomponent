@@ -37,6 +37,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1
+                  },
+                  {
+                    "key": "userManagement",
+                    "name": "User Management",
+                    "version": 1
                   }
                 ]  
                 """.trimIndent()

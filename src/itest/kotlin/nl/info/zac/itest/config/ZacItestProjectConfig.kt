@@ -19,6 +19,10 @@ import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
@@ -34,9 +38,12 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -278,23 +285,33 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      */
     private fun createTestSetupData() {
         createDomainReferenceTableData()
-        createBpmnProcessDefinition()
+        createBpmnProcessDefinitions()
         createBpmnProcessTaskForms()
         createZaaktypeConfigurations()
     }
 
-    private fun createBpmnProcessDefinition() {
-        val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
-            BPMN_TEST_PROCESS_RESOURCE_PATH
-        )?.let {
-            File(it.path)
-        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
+    private fun createBpmnProcessDefinitions() {
+        arrayOf(
+            BPMN_TEST_PROCESS_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+        ).forEach { uploadBpmnProcessDefinition(it) }
+    }
+
+    private fun createBpmnProcessTaskForms() {
+        arrayOf(
+            BPMN_TEST_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+        ).forEach { uploadFormioForm(it) }
+    }
+
+    private fun uploadBpmnProcessDefinition(resourcePath: String) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/bpmn-process-definitions",
             requestBodyAsString = """
                 {
-                    "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
-                    "content": "$bpmnTestProcessFileContent"
+                    "filename": "$resourcePath",
+                    "content": "${readResourceFile(resourcePath)}"
                 }
             """.trimIndent()
         ).let { response ->
@@ -304,18 +321,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
-    private fun createBpmnProcessTaskForms() {
-        val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
-            BPMN_TEST_FORM_RESOURCE_PATH
-        )?.let {
-            File(it.path)
-        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
+    private fun uploadFormioForm(resourcePath: String) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/formio-formulieren",
             requestBodyAsString = """
                 {
-                    "filename": "$BPMN_TEST_FORM_RESOURCE_PATH",
-                    "content": "$formIoFileContent"
+                    "filename": "$resourcePath",
+                    "content": "${readResourceFile(resourcePath)}"
                 }
             """.trimIndent()
         ).let { response ->
@@ -324,6 +336,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             response.code shouldBe HTTP_CREATED
         }
     }
+
+    private fun readResourceFile(resourcePath: String): String =
+        Thread.currentThread().contextClassLoader.getResource(
+            resourcePath
+        )?.let {
+            File(it.path)
+        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
 
     private fun createDomainReferenceTableData() {
         val domeinReferenceTableId = itestHttpClient.performGetRequest(
@@ -375,10 +394,21 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     private fun createZaaktypeConfigurations() {
         zacClient.createZaaktypeBpmnConfiguration(
-            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_UUID,
-            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_DESCRIPTION,
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_1_DESCRIPTION,
             bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
-            productaanvraagType = ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_2_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_2_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
         ).let { response ->
             val responseBody = response.bodyAsString

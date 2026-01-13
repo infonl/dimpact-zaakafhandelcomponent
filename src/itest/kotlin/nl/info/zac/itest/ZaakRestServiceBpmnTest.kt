@@ -25,8 +25,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
@@ -107,7 +107,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
@@ -154,7 +154,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                    "taakdata":{
                      "zaakIdentificatie":"$zaakIdentificatie",
                      "initiator":null,
-                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
                      "firstName":"Name",
                      "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
                      "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
@@ -207,7 +207,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                   "taakdata":{
                     "zaakIdentificatie":"$zaakIdentificatie",
                     "initiator":null,
-                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
                     "firstName":"Name",
                     "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
                     "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",

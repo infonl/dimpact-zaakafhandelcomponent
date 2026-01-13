@@ -112,7 +112,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 32
+    const val ROLTYPE_COUNT = 40
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -308,15 +308,27 @@ object ItestConfiguration {
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     // BPMN tests constants
-    val ZAAKTYPE_BPMN_TEST_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
-    const val ZAAKTYPE_BPMN_TEST_IDENTIFICATIE = "bpmn-test-zaaktype"
-    const val ZAAKTYPE_BPMN_TEST_DESCRIPTION = "BPMN test zaaktype"
-    const val ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE = "bpmn-test-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_1_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
+    const val ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE = "bpmn-test-zaaktype-1"
+    const val ZAAKTYPE_BPMN_TEST_1_DESCRIPTION = "BPMN test zaaktype 1"
+    const val ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE = "bpmn-test-1-productaanvraagtype"
+
+    val ZAAKTYPE_BPMN_TEST_2_UUID: UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
+    const val ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE = "bpmn-test-zaaktype-2"
+    const val ZAAKTYPE_BPMN_TEST_2_DESCRIPTION = "BPMN test zaaktype 2"
+    const val ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE = "bpmn-test-2-productaanvraagtype"
 
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
     const val BPMN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/summaryForm.json"
+
+    const val BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY = "userManagement"
+    const val BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH =
+        "bpmn/user-management/$BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY.bpmn"
+    const val BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH = "bpmn/user-management/zaakDefaults.json"
+    const val BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH = "bpmn/user-management/hardCoded.json"
+
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
     const val BPMN_TEST_FORM_NAME = "Test form"
@@ -325,6 +337,7 @@ object ItestConfiguration {
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
     const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 
+    // Mail template constants
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL = "ZAAK_ALGEMEEN"
     const val MAIL_TEMPLATE_ZAAK_ALGEMEEN_NAME = "Algemene e-mail"
     const val MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_MAIL = "TAAK_ONTVANGSTBEVESTIGING"
