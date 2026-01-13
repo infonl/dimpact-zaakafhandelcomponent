@@ -1,8 +1,9 @@
-# zaakafhandelcomponent
+# ZAC Helm Chart
 
 ![Version: 1.0.171](https://img.shields.io/badge/Version-1.0.171-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
 
-A Helm chart for installing Zaakafhandelcomponent
+This folder contains the Helm chart for deploying ZAC.
+For more information, please see the [ZAC deployment model](../../docs/solution-architecture/deploymentModel.md) documentation.
 
 ## Maintainers
 
