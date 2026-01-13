@@ -43,9 +43,9 @@ class ZgwClientHeadersFactory @Inject constructor(
         }
     }
 
-    fun setAuditExplanation(toelichting: String) =
+    fun setAuditExplanation(auditExplanation: String) =
         loggedInUserInstance.get().let {
-            auditExplanations[it.id] = toelichting
+            auditExplanations[it.id] = auditExplanation
         }
 
     private fun clearAuditExplanation(loggedInUser: LoggedInUser) =

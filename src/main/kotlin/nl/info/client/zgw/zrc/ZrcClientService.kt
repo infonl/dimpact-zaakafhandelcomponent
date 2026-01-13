@@ -50,13 +50,13 @@ class ZrcClientService @Inject constructor(
 ) {
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
-    fun createRol(rol: Rol<*>, toelichting: String?): Rol<*> {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return zrcClient.rolCreate(rol)
     }
 
-    fun deleteRol(rol: Rol<*>, toelichting: String?) {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+    fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         zrcClient.rolDelete(rol.uuid)
     }
 

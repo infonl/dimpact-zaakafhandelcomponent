@@ -100,10 +100,10 @@ public class DrcClientService {
     public EnkelvoudigInformatieObject updateEnkelvoudigInformatieobject(
             final UUID uuid,
             final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest,
-            final String toelichting
+            final String auditExplanation
     ) {
-        if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditExplanation(toelichting);
+        if (auditExplanation != null) {
+            zgwClientHeadersFactory.setAuditExplanation(auditExplanation);
         }
         return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieObjectWithLockRequest);
     }

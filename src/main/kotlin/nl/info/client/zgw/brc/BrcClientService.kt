@@ -36,8 +36,8 @@ class BrcClientService @Inject constructor(
 
     fun createBesluit(besluit: Besluit): Besluit = brcClient.besluitCreate(besluit)
 
-    fun updateBesluit(besluit: Besluit, toelichting: String?): Besluit {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+    fun updateBesluit(besluit: Besluit, auditExplanation: String?): Besluit {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
     }
 
@@ -47,9 +47,9 @@ class BrcClientService @Inject constructor(
 
     fun createBesluitInformatieobject(
         besluitInformatieobject: BesluitInformatieObject,
-        toelichting: String?
+        auditExplanation: String?
     ): BesluitInformatieObject {
-        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject)
     }
 

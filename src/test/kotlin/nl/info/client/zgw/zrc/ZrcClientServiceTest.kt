@@ -59,17 +59,17 @@ class ZrcClientServiceTest : BehaviorSpec({
         val newRole = createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
         )
-        val description = "fakeDescription"
+        val auditExplanation = "fakeExplanation"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
-        every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
+        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
         every { zrcClient.rolCreate(any()) } returns newRole
 
         When("updateRol is called") {
-            zrcClientService.updateRol(zaak, newRole, description)
+            zrcClientService.updateRol(zaak, newRole, auditExplanation)
 
             Then("it should create the new role and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditExplanation(description)
+                    zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
                     zrcClient.rolCreate(newRole)
                 }
             }
