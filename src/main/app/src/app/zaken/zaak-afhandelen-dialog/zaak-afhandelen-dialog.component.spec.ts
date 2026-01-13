@@ -34,13 +34,11 @@ import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.componen
 import { ZakenService } from "../zaken.service";
 import { of } from "rxjs";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
-import { PlanItemsService } from "src/app/plan-items/plan-items.service";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
   let loader: HarnessLoader;
 
-  let planItemService: PlanItemsService;
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
   let queryClient: QueryClient;
   let httpTestingController: HttpTestingController;
@@ -115,10 +113,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     getMailTemplate: jest.fn().mockReturnValue(of(mockMailtemplate)),
   };
 
-  const mockPlanItemService = {
-    doUserEventListenerPlanItem: jest.fn().mockReturnValue(of({})),
-  };
-
   const createTestBed = async (
     zaakMock: GeneratedType<"RestZaak">,
     planItemMock?: GeneratedType<"RESTPlanItem"> | null,
@@ -152,12 +146,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           },
         },
         { provide: ZakenService, useValue: mockZakenService },
-        PlanItemsService,
         CustomValidators,
       ],
     }).compileComponents();
-
-    planItemService = TestBed.inject(PlanItemsService);
 
     dialogRef = TestBed.inject(MatDialogRef);
     queryClient = TestBed.inject(QueryClient);
@@ -279,8 +270,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   describe("form submission", () => {
     it("should call planItem mutation on submit", async () => {
-      const spy = jest.spyOn(planItemService, "doUserEventListenerPlanItem");
-
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
