@@ -15,6 +15,7 @@ Pull request titles and descriptions must comply with the Conventional Commits s
 - Write unit tests with Kotest
 - Ensure code passes Detekt static analysis
 - Do not update Java code, convert it to Kotlin instead
+- For logging use the lambda syntax to avoid unnecessary string interpolation, e.g. `logger.debug { "Value: $value" }`
 
 ### Frontend (TypeScript/Angular)
 - Use Angular 18 best practices
