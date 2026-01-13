@@ -18,7 +18,7 @@ ZAC uses the following database schemas:
 Both schemas need to exist before ZAC can start up.
 The database tables for both schemas are created automatically by ZAC when it starts up for the first time, 
 and are updated automatically when ZAC is updated to a new version.
-ZAC uses [Liquibase](https://www.liquibase.org/) for database schema versioning and updates.
+ZAC uses [Flyway](https://flywaydb.org/) for database schema versioning and updates.
 These two database schemas are [configured as data sources in the WildFly application server](../../src/main/resources/wildfly/configure-wildfly.cli) used by ZAC.
 
 ## File system
