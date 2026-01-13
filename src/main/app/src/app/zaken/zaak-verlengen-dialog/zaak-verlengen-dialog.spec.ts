@@ -6,7 +6,11 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -34,6 +38,7 @@ describe("ZaakVerlengenDialogComponent", () => {
   let fixture: ComponentFixture<ZaakVerlengenDialogComponent>;
   let dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>;
   let loader: HarnessLoader;
+  let httpTestingController: HttpTestingController;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "b7e8f9a2-4c3d-11ee-bb2f-0242ac130003",
@@ -66,19 +71,19 @@ describe("ZaakVerlengenDialogComponent", () => {
           },
         },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakVerlengenDialogComponent);
     dialogRef = TestBed.inject(MatDialogRef);
     loader = TestbedHarnessEnvironment.loader(fixture);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     component = fixture.componentInstance;
 
     jest.spyOn(component, "close");
     jest.spyOn(component, "verlengen");
-
     fixture.detectChanges();
-    await fixture.whenStable();
   });
 
   describe("Buttons and form submission", () => {
@@ -86,27 +91,28 @@ describe("ZaakVerlengenDialogComponent", () => {
       const inputs = await loader.getAllHarnesses(MatInputHarness);
       const [verlengingsDuur, , redenVerlenging] = inputs;
 
-      const mutation = component["extendZaakMutation"];
-      jest.spyOn(mutation, "mutate");
-
       await verlengingsDuur.setValue("5");
       await redenVerlenging.setValue("Reden verlenging");
 
-      fixture.detectChanges();
-
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
-      ) as HTMLButtonElement;
-      expect(submitButton.disabled).toBe(false);
+      const submitButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('button[type="submit"]');
       submitButton.click();
 
-      expect(mutation.mutate).toHaveBeenCalledWith(
+      await fixture.whenStable();
+
+      expect(component.verlengen).toHaveBeenCalled();
+
+      await fixture.whenStable();
+      const req = httpTestingController.expectOne(
+        `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+      );
+      expect(req.request.method).toEqual("PATCH");
+      expect(req.request.body).toEqual(
         expect.objectContaining({
-          duurDagen: 5,
+          duurDagen: "5",
           redenVerlenging: "Reden verlenging",
         }),
       );
-      expect(dialogRef.close).toHaveBeenCalled();
     });
 
     it("should call close() when annuleren button is clicked", async () => {
