@@ -35,7 +35,7 @@ class ZgwClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> {
         val loggedInUser = loggedInUserInstance.get()
         try {
-            addAutorizationHeader(outgoingHeaders, loggedInUser)
+            addAuthorizationHeader(outgoingHeaders, loggedInUser)
             addXAuditToelichtingHeader(outgoingHeaders, loggedInUser)
             return outgoingHeaders
         } finally {
@@ -51,7 +51,7 @@ class ZgwClientHeadersFactory @Inject constructor(
     private fun clearAuditExplanation(loggedInUser: LoggedInUser) =
         auditExplanations.remove(loggedInUser.id)
 
-    private fun addAutorizationHeader(
+    private fun addAuthorizationHeader(
         outgoingHeaders: MultivaluedMap<String, String>,
         loggedInUser: LoggedInUser
     ) = outgoingHeaders.add(HttpHeaders.AUTHORIZATION, generateZgwJwtToken(clientId, secret, loggedInUser))
