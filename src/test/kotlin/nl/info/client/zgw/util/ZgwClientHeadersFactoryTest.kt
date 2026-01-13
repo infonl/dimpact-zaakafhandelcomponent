@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.shared.util
+package nl.info.client.zgw.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.MultivaluedHashMap
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 
-class ZgwClientHeadersFactoryTest: BehaviorSpec ({
+class ZgwClientHeadersFactoryTest : BehaviorSpec({
     val zgwClientId = "fakeZgwClientId"
     val zgwApiSecret = "fakeZgwApiSecret"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()

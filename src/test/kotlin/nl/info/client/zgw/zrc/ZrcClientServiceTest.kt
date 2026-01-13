@@ -13,13 +13,13 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.zac.configuratie.ConfiguratieService
 import java.util.UUID

@@ -2,13 +2,12 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.shared.util
+package nl.info.client.zgw.util
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedMap
-import nl.info.client.zgw.util.generateZgwJwtToken
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
