@@ -32,7 +32,7 @@ describe(ZacFormActions.name, () => {
     fixture = TestBed.createComponent(ZacFormActions);
     loader = TestbedHarnessEnvironment.loader(fixture);
 
-    isPendingSignal = signal(true);
+    isPendingSignal = signal(false);
     fixture.componentRef.setInput("form", form);
     fixture.componentRef.setInput("mutation", {
       isPending: () => isPendingSignal(),
@@ -42,8 +42,74 @@ describe(ZacFormActions.name, () => {
     await Promise.resolve();
   });
 
+  describe("action buttons", () => {
+    it("should have two buttons", async () => {
+      const buttons = await loader.getAllHarnesses(
+        MatButtonHarness.with({
+          text: /actie./,
+        }),
+      );
+
+      expect(buttons.length).toBe(2);
+    });
+
+    it.each(["actie.verstuur", "actie.annuleren"])(
+      "should have button the %s button",
+      async (label) => {
+        const button = await loader.getHarness(
+          MatButtonHarness.with({ text: label }),
+        );
+
+        expect(button).toBeDefined();
+      },
+    );
+  });
+
+  describe("disabling", () => {
+    describe.each([
+      [{ required: true }, true],
+      [null, false],
+    ])("with the form errors '%o'", (errors, expected) => {
+      beforeEach(() => {
+        form.setErrors(errors);
+        form.markAsDirty();
+      });
+      it("should set the submit button state", async () => {
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.verstuur" }),
+        );
+
+        const isSubmitDisabled = await submitButton.isDisabled();
+        expect(isSubmitDisabled).toBe(expected);
+      });
+
+      it("should not disable the cancel button", async () => {
+        const cancelButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.annuleren" }),
+        );
+
+        const isCancelDisabled = await cancelButton.isDisabled();
+        expect(isCancelDisabled).toBe(false);
+      });
+    });
+
+    it("should disable the submit button when the form is disabled", async () => {
+      form.markAsDirty();
+      form.disable();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      const isSubmitDisabled = await submitButton.isDisabled();
+      expect(isSubmitDisabled).toBe(true);
+    });
+  });
+
   describe("when mutation is pending", () => {
-    beforeEach(() => form.markAsDirty());
+    beforeEach(() => {
+      isPendingSignal = signal(true);
+      form.markAsDirty();
+    });
 
     it("should disable the submit button", async () => {
       const submitButton = await loader.getHarness(
