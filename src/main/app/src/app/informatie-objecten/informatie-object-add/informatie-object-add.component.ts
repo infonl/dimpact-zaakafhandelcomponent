@@ -217,6 +217,8 @@ export class InformatieObjectAddComponent {
           );
           break;
         case "bestand":
+          // .eml files are sent as "message/rfc822", which RESTEasy does not bind to byte[].
+          // Force "application/octet-stream" so the backend receives the file as raw bytes.
           if (infoObject.bestandsnaam?.toLowerCase().endsWith(".eml")) {
             const emlBlob = new Blob([value as Blob], {
               type: "application/octet-stream",
