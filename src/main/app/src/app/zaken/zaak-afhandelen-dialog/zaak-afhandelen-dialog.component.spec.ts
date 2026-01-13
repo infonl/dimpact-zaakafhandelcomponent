@@ -31,11 +31,16 @@ import { StaticTextComponent } from "../../shared/static-text/static-text.compon
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
+import { ZakenService } from "../zaken.service";
+import { of } from "rxjs";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { PlanItemsService } from "src/app/plan-items/plan-items.service";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
   let loader: HarnessLoader;
 
+  let planItemService: PlanItemsService;
   let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
   let queryClient: QueryClient;
   let httpTestingController: HttpTestingController;
@@ -104,6 +109,16 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     body: "Test Body",
   });
 
+  const mockZakenService = {
+    listResultaattypes: jest.fn().mockReturnValue(of(mockResultaattypes)),
+    listAfzenders: jest.fn().mockReturnValue(of(mockAfzenders)),
+    getMailTemplate: jest.fn().mockReturnValue(of(mockMailtemplate)),
+  };
+
+  const mockPlanItemService = {
+    doUserEventListenerPlanItem: jest.fn().mockReturnValue(of({})),
+  };
+
   const createTestBed = async (
     zaakMock: GeneratedType<"RestZaak">,
     planItemMock?: GeneratedType<"RESTPlanItem"> | null,
@@ -121,6 +136,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
@@ -135,9 +151,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
             planItem: planItemMock,
           },
         },
+        { provide: ZakenService, useValue: mockZakenService },
+        PlanItemsService,
         CustomValidators,
       ],
     }).compileComponents();
+
+    planItemService = TestBed.inject(PlanItemsService);
 
     dialogRef = TestBed.inject(MatDialogRef);
     queryClient = TestBed.inject(QueryClient);
@@ -157,7 +177,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
-    await fixture.whenStable();
   };
 
   beforeEach(async () => {
@@ -192,7 +211,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
+      await options[1]?.click();
+      fixture.detectChanges();
 
       const besluitButton = await loader.getHarnessOrNull(
         MatButtonHarness.with({ text: /actie\.besluit\.vastleggen/ }),
@@ -206,17 +226,17 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-
       await options[1]?.click();
+      fixture.detectChanges();
 
-      const button = await loader.getHarness(
+      const besluitButton = await loader.getHarness(
         MatButtonHarness.with({
           text: /actie\.besluit\.vastleggen/,
         }),
       );
-      await button.click();
+      await besluitButton.click();
 
-      expect(dialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
+      expect(mockDialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
     });
   });
 
@@ -248,12 +268,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const options = await resultaattypeSelect.getOptions();
       await options[2]?.click();
 
-      await fixture.whenStable();
-
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       const isDisabled = await submitButton.isDisabled();
 
       expect(isDisabled).toBe(false);
@@ -262,6 +279,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
   describe("form submission", () => {
     it("should call planItem mutation on submit", async () => {
+      const spy = jest.spyOn(planItemService, "doUserEventListenerPlanItem");
+
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
@@ -271,9 +290,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/planitems/doUserEventListenerPlanItem`,
@@ -304,9 +322,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/planitems/doUserEventListenerPlanItem`,
@@ -440,7 +457,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         component.formGroup.patchValue({ resultaattype: state.resultaatType });
 
         fixture.detectChanges();
-        await fixture.whenStable();
 
         const submitButton = await loader.getHarnessOrNull(
           MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
@@ -539,9 +555,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`,

@@ -11,7 +11,6 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -36,11 +35,15 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
+import {
+  ComponentRef,
+  provideExperimentalZonelessChangeDetection,
+} from "@angular/core";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;
   let componentRef: ComponentRef<InformatieObjectAddComponent>;
-  let fixture: ComponentFixture<typeof component>;
+  let fixture: ComponentFixture<InformatieObjectAddComponent>;
   let loader: HarnessLoader;
   let identityService: IdentityService;
   let informatieObjectenService: InformatieObjectenService;
@@ -103,11 +106,12 @@ describe(InformatieObjectAddComponent.name, () => {
         MatIconModule,
         MaterialModule,
         TranslateModule.forRoot(),
-        VertrouwelijkaanduidingToTranslationKeyPipe,
         MaterialFormBuilderModule,
         NoopAnimationsModule,
+        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
@@ -116,7 +120,6 @@ describe(InformatieObjectAddComponent.name, () => {
           provide: MatDrawer,
           useValue: mockSideNav,
         },
-        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
 
@@ -192,10 +195,12 @@ describe(InformatieObjectAddComponent.name, () => {
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
       );
+
       expect(req.request.method).toEqual("POST");
 
       const data = req.request.body as FormData;
@@ -214,8 +219,9 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
       httpTestingController
         .expectOne(
           `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
@@ -232,8 +238,9 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
       httpTestingController
         .expectOne(
           `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
@@ -272,8 +279,9 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
       httpTestingController
         .expectOne(
           `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
@@ -288,8 +296,9 @@ describe(InformatieObjectAddComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
-
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
       httpTestingController
         .expectOne(
           `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
