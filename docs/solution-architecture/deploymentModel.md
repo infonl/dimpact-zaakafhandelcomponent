@@ -10,6 +10,15 @@ Besides these pods ZAC also uses the following Kubernetes cron jobs, which are a
 | Send signaleringen | Calls the ZAC 'send signaleringen' endpoint, so that ZAC will send out 'signaleringen' for zaken that have almost reached their due date (e.g. “Graag actie, op DD-MM-YYY moet zaak ZAAK-XXX afgehandeld zijn”). | Daily |
 | Delete old signaleringen | Calls the ZAC 'delete old signaleringen' endpoint, so that ZAC will delete any 'signaleringen' that are older than a certain configured amount of days.                                                     | Daily |
 
+## Dependencies
+
+ZAC requires an existing PostgreSQL database to store its data.
+This database is not provisioned by the ZAC Helm Chart and must be created separately before deploying ZAC.
+
+Also, ZAC has a number of external dependencies that are not part of the ZAC Helm Chart and must be provided separately.
+The connection configuration for these dependencies must be provided to the ZAC Helm chart during deployment.
+Please see the [ZAC system context](systemContext.md) for an overview of these dependencies.
+
 ## Cloud-agnostic deployment
 
 ZAC is cloud-agnostic and can be deployed on any Kubernetes cluster, regardless of the cloud provider or on-premises setup.
