@@ -10,9 +10,9 @@ import { takeUntil } from "rxjs";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
-    selector: "zac-auto-complete",
-    templateUrl: "./auto-complete.html",
-    standalone: false
+  selector: "zac-auto-complete",
+  templateUrl: "./auto-complete.html",
+  standalone: false,
 })
 export class ZacAutoComplete<
   Form extends Record<string, AbstractControl>,
@@ -25,48 +25,38 @@ export class ZacAutoComplete<
   constructor() {
     super();
 
-    effect(
-      () => {
-        const control = this.control();
-        if (!control) return;
+    effect(() => {
+      const control = this.control();
+      if (!control) return;
 
-        control.valueChanges
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((value) => {
-            if (!value) {
-              this.filteredOptions.set(this.availableOptions());
-              return;
-            }
+      control.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+        if (!value) {
+          this.filteredOptions.set(this.availableOptions());
+          return;
+        }
 
-            const valueToFilter =
-              typeof value === "string" ? value : this.displayWith(value);
+        const valueToFilter =
+          typeof value === "string" ? value : this.displayWith(value);
 
-            if (!valueToFilter) {
-              this.filteredOptions.set(this.availableOptions());
-              return;
-            }
+        if (!valueToFilter) {
+          this.filteredOptions.set(this.availableOptions());
+          return;
+        }
 
-            const options = this.availableOptions();
-            this.filteredOptions.set(
-              options.filter((option) =>
-                this.displayWith(option)
-                  ?.toLowerCase()
-                  .includes(valueToFilter.toLowerCase()),
-              ),
-            );
-          });
-      },
-      {
-        allowSignalWrites: true,
-      },
-    );
+        const options = this.availableOptions();
+        this.filteredOptions.set(
+          options.filter((option) =>
+            this.displayWith(option)
+              ?.toLowerCase()
+              .includes(valueToFilter.toLowerCase()),
+          ),
+        );
+      });
+    });
 
-    effect(
-      () => {
-        this.filteredOptions.set(this.availableOptions());
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.filteredOptions.set(this.availableOptions());
+    });
   }
 
   reset() {

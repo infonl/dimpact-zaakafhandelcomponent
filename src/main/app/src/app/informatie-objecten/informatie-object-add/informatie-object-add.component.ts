@@ -22,9 +22,9 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
-    selector: "zac-informatie-object-add",
-    templateUrl: "./informatie-object-add.component.html",
-    standalone: false
+  selector: "zac-informatie-object-add",
+  templateUrl: "./informatie-object-add.component.html",
+  standalone: false,
 })
 export class InformatieObjectAddComponent {
   private readonly informatieObjectenService = inject(
@@ -131,21 +131,15 @@ export class InformatieObjectAddComponent {
   );
 
   constructor() {
-    effect(
-      () => {
-        this.form.controls.auteur.setValue(
-          this.loggedInUserQuery.data()?.naam ?? null,
-        );
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.form.controls.auteur.setValue(
+        this.loggedInUserQuery.data()?.naam ?? null,
+      );
+    });
 
-    effect(
-      () => {
-        this.form.controls.taal.setValue(this.defaultTaalQuery.data() ?? null);
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.form.controls.taal.setValue(this.defaultTaalQuery.data() ?? null);
+    });
 
     effect(() => {
       this.informatieObjectenService

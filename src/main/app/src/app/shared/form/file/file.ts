@@ -57,23 +57,20 @@ export class ZacFile<
   ) {
     super();
 
-    effect(
-      async () => {
-        if (this.allowedFileTypes().length) {
-          this.allowedFormats.set(this.allowedFileTypes());
-          return;
-        }
-        const additionalFileTypes = await lastValueFrom(
-          this.configuratieService.readAdditionalAllowedFileTypes(),
-        );
-        const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-          icon.getBestandsextensie(),
-        );
+    effect(async () => {
+      if (this.allowedFileTypes().length) {
+        this.allowedFormats.set(this.allowedFileTypes());
+        return;
+      }
+      const additionalFileTypes = await lastValueFrom(
+        this.configuratieService.readAdditionalAllowedFileTypes(),
+      );
+      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
+        icon.getBestandsextensie(),
+      );
 
-        this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
-      },
-      { allowSignalWrites: true },
-    );
+      this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
+    });
   }
 
   ngOnInit() {
