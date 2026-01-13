@@ -9,10 +9,11 @@ import { TranslateService } from "@ngx-translate/core";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 
 @Component({
-    selector: "zac-document-icon",
-    templateUrl: "./document-icon.component.html",
-    imports: [MatIcon],
-    styleUrls: ["./document-icon.component.less"]
+  selector: "zac-document-icon",
+  templateUrl: "./document-icon.component.html",
+  styleUrls: ["./document-icon.component.less"],
+  standalone: true,
+  imports: [MatIcon],
 })
 export class DocumentIconComponent {
   @Input() bestandsnaam?: string;

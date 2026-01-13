@@ -12,14 +12,15 @@ import { KlantenModule } from "../../klanten.module";
 import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 
 @Component({
-    selector: "zac-klant-koppel-initiator-persoon",
-    imports: [
-        SharedModule,
-        TranslateModule,
-        MaterialFormBuilderModule,
-        KlantenModule,
-    ],
-    template: `
+  selector: "zac-klant-koppel-initiator-persoon",
+  standalone: true,
+  imports: [
+    SharedModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+    KlantenModule,
+  ],
+  template: `
     <ng-template mat-tab-label>
       @if (type === "bedrijf") {
         <mat-icon>business</mat-icon>
@@ -47,7 +48,7 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     }
-  `
+  `,
 })
 export class KlantKoppelInitiator {
   @Input() type: "persoon" | "bedrijf" = "persoon";

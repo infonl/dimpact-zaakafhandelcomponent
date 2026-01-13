@@ -12,14 +12,15 @@ import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.compon
 import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
 @Component({
-    selector: "zac-klant-koppel",
-    imports: [
-        KlantKoppelBetrokkeneComponent,
-        KlantKoppelInitiator,
-        SharedModule,
-        TranslateModule,
-    ],
-    template: `
+  selector: "zac-klant-koppel",
+  standalone: true,
+  imports: [
+    KlantKoppelBetrokkeneComponent,
+    KlantKoppelInitiator,
+    SharedModule,
+    TranslateModule,
+  ],
+  template: `
     <div class="side-nav-container">
       <mat-toolbar role="heading" class="gap-16">
         <mat-icon>person_add_alt_1</mat-icon>
@@ -94,7 +95,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
         </button>
       </mat-action-row>
     </div>
-  `
+  `,
 })
 export class KlantKoppelComponent {
   @Input() initiator = false;
