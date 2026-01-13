@@ -102,11 +102,11 @@ constructor(
                         }"
                 )
             } else {
-                LOG.info(
+                LOG.info {
                     "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
                         "functional roles: '${loggedInUser.roles}' " +
                         "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
-                )
+                }
             }
             this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
         }
@@ -115,7 +115,7 @@ constructor(
         if (oidcPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
             val refreshToken = (oidcPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
             httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-            LOG.info("Added $REFRESH_TOKEN_ATTRIBUTE to the user session")
+            LOG.fine("Added $REFRESH_TOKEN_ATTRIBUTE to the user session")
         }
     }
 
