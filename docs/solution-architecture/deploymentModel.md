@@ -7,7 +7,7 @@ Besides these pods ZAC also uses the following Kubernetes cron jobs, which are a
 
 | Cron job name | Description                                                                                                                                                                                                 | Frequency |
 |---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| Send signaleringen | Calls the ZAC 'send signaleringen' endpoint, so that ZAC will send out 'signaleringen' for zaken that have almost reached their due date (e.g. “Graag actie, op DD-MM-YYY moet zaak ZAAK-XXX afgehandeld zijn”). | Daily |
+| Send signaleringen | Calls the ZAC 'send signaleringen' endpoint, so that ZAC will send out 'signaleringen' for zaken that have almost reached their due date (e.g. “Graag actie, op DD-MM-YYYY moet zaak ZAAK-XXX afgehandeld zijn”). | Daily |
 | Delete old signaleringen | Calls the ZAC 'delete old signaleringen' endpoint, so that ZAC will delete any 'signaleringen' that are older than a certain configured amount of days.                                                     | Daily |
 
 ## Dependencies
