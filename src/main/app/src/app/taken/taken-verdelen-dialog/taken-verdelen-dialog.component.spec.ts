@@ -9,7 +9,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -18,7 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -30,6 +33,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
   let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
   let component: TakenVerdelenDialogComponent;
   let loader: HarnessLoader;
+  let httpTestingController: HttpTestingController;
   let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
 
   const dialogData: {
@@ -98,9 +102,9 @@ describe(TakenVerdelenDialogComponent.name, () => {
     fixture = TestBed.createComponent(TakenVerdelenDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     fixture.detectChanges();
-    await fixture.whenStable();
   });
 
   it("should send the form data on request", async () => {
@@ -111,26 +115,24 @@ describe(TakenVerdelenDialogComponent.name, () => {
     });
     component["form"].markAsDirty();
 
-    const mutation = component["mutation"];
-    jest.spyOn(mutation, "mutate");
-
     const button = await loader.getHarness(
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
 
-    expect(mutation.mutate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        taken: dialogData.taken.map((taak) => ({
-          zaakUuid: taak.zaakUuid,
-          taakId: taak.id!,
-        })),
-        groepId: mockGroup.id,
-        behandelaarGebruikersnaam: mockUser.id,
-        reden: "test-reden",
-        screenEventResourceId: dialogData.screenEventResourceId,
-      }),
-    );
+    const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
+
+    expect(req.request.method).toBe("PUT");
+    expect(req.request.body).toEqual({
+      taken: dialogData.taken.map((taak) => ({
+        zaakUuid: taak.zaakUuid,
+        taakId: taak.id!,
+      })),
+      groepId: mockGroup.id,
+      behandelaarGebruikersnaam: mockUser.id,
+      reden: "test-reden",
+      screenEventResourceId: dialogData.screenEventResourceId,
+    });
   });
 
   it("should close the dialog with form data after successful mutation", async () => {
@@ -147,6 +149,11 @@ describe(TakenVerdelenDialogComponent.name, () => {
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
+
+    const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
+    req.flush({});
+
+    await sleep();
 
     expect(dialogRef.close).toHaveBeenCalledWith(formData);
   });
