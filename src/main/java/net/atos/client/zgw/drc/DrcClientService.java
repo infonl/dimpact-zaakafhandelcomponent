@@ -103,7 +103,7 @@ public class DrcClientService {
             final String toelichting
     ) {
         if (toelichting != null) {
-            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+            zgwClientHeadersFactory.setAuditExplanation(toelichting);
         }
         return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieObjectWithLockRequest);
     }

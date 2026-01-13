@@ -52,7 +52,7 @@ class BrcClientServiceTest : BehaviorSpec({
         )
         val updateReason = "fakeReason"
         val returnedBesluit = createBesluit()
-        every { zgwClientHeadersFactory.setAuditToelichting(updateReason) } just Runs
+        every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
         every { brcClient.besluitUpdate(besluitUuid, besluit) } returns returnedBesluit
 
         When("update besluit is called with a reason string") {

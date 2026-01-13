@@ -58,7 +58,7 @@ class ZgwClientHeadersFactoryTest: BehaviorSpec ({
                 val auditExplanation = "fakeAuditExplanation"
                 val outgoingHeadersFirst = MultivaluedHashMap<String, String>()
 
-                zgwClientHeadersFactory.setAuditToelichting(auditExplanation)
+                zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
                 zgwClientHeadersFactory.update(incomingHeaders, outgoingHeadersFirst)
 
                 Then("the first update should include the X-Audit-Toelichting header") {
@@ -76,26 +76,6 @@ class ZgwClientHeadersFactoryTest: BehaviorSpec ({
 
                     Then("the second update should not include the X-Audit-Toelichting header because it was cleared") {
                         outgoingHeadersSecond.containsKey("X-Audit-Toelichting") shouldBe false
-                    }
-                }
-            }
-        }
-
-        Given("No logged in user is available") {
-            val incomingHeaders = MultivaluedHashMap<String, String>()
-            val outgoingHeaders = MultivaluedHashMap<String, String>()
-            every { loggedInUserInstance.get() } returns null
-
-            When("setAuditToelichting is called and update is invoked") {
-                zgwClientHeadersFactory.setAuditToelichting("fakeuditExplanation")
-                zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
-
-                Then("no X-Audit-Toelichting header should be present and Authorization should still be added") {
-                    outgoingHeaders.containsKey("X-Audit-Toelichting") shouldBe false
-                    val authorizationHeader = outgoingHeaders.getFirst(HttpHeaders.AUTHORIZATION)
-                    with(authorizationHeader) {
-                        this shouldNotBe null
-                        startsWith("Bearer ") shouldBe true
                     }
                 }
             }

@@ -15,18 +15,17 @@ import java.util.Date
  *
  * @param clientId The client identifier.
  * @param secret The secret used to sign the token.
- * @param loggedInUser The logged-in user, if any. If a logged-in user is available, it should always be provided. It is used for
- * auditing purposes by the ZGW APIs.
+ * @param loggedInUser The logged-in user. The user id and full name are used for auditing purposes by the ZGW APIs.
  * @return The generated JWT token as a Bearer token string.
  */
-fun generateZgwJwtToken(clientId: String, secret: String, loggedInUser: LoggedInUser?): String {
+fun generateZgwJwtToken(clientId: String, secret: String, loggedInUser: LoggedInUser): String {
     val jwtToken = JWT.create()
         .withIssuer(clientId)
         .withIssuedAt(Date())
         .withHeader(mapOf("client_identifier" to clientId))
         .withClaim("client_id", clientId)
         .apply {
-            loggedInUser?.let {
+            loggedInUser.let {
                 withClaim("user_id", it.id)
                 withClaim("user_representation", it.getFullName())
             }

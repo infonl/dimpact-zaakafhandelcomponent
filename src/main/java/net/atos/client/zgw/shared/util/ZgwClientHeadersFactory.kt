@@ -2,97 +2,65 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.shared.util
 
-package net.atos.client.zgw.shared.util;
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.MultivaluedMap
+import nl.info.client.zgw.util.generateZgwJwtToken
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
+import java.util.concurrent.ConcurrentHashMap
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+@NoArgConstructor
+class ZgwClientHeadersFactory @Inject constructor(
+    private val loggedInUserInstance: Instance<LoggedInUser>,
 
-import jakarta.annotation.Nullable;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MultivaluedMap;
+    @ConfigProperty(name = "ZGW_API_CLIENTID")
+    private val clientId: String,
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
-
-import nl.info.client.zgw.util.ZgwJwtTokenUtilsKt;
-import nl.info.zac.authentication.LoggedInUser;
-
-
-public class ZgwClientHeadersFactory implements ClientHeadersFactory {
-    public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
-
-    private Instance<LoggedInUser> loggedInUserInstance;
-    private String clientId;
-    private String secret;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public ZgwClientHeadersFactory() {
+    @ConfigProperty(name = "ZGW_API_SECRET")
+    private val secret: String
+) : ClientHeadersFactory {
+    companion object {
+        private const val X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting"
+        private val auditExplanations = ConcurrentHashMap<String, String>()
     }
 
-    @Inject
-    public ZgwClientHeadersFactory(
-            final Instance<LoggedInUser> loggedInUserInstance,
-
-            @ConfigProperty(name = "ZGW_API_CLIENTID") final String clientId,
-
-            @ConfigProperty(name = "ZGW_API_SECRET") final String secret
-    ) {
-        this.loggedInUserInstance = loggedInUserInstance;
-        this.clientId = clientId;
-        this.secret = secret;
-    }
-
-    private static final Map<String, String> AUDIT_TOELICHTINGEN = new ConcurrentHashMap<>();
-
-    @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> outgoingHeaders
-    ) {
-        final LoggedInUser loggedInUser = loggedInUserInstance.get();
+    override fun update(
+        incomingHeaders: MultivaluedMap<String, String>,
+        outgoingHeaders: MultivaluedMap<String, String>
+    ): MultivaluedMap<String, String> {
+        val loggedInUser = loggedInUserInstance.get()
         try {
-            addAutorizationHeader(outgoingHeaders, loggedInUser);
-            addXAuditToelichtingHeader(outgoingHeaders, loggedInUser);
-            return outgoingHeaders;
+            addAutorizationHeader(outgoingHeaders, loggedInUser)
+            addXAuditToelichtingHeader(outgoingHeaders, loggedInUser)
+            return outgoingHeaders
         } finally {
-            clearAuditToelichting(loggedInUser);
+            clearAuditExplanation(loggedInUser)
         }
     }
 
-    public void setAuditToelichting(final String toelichting) {
-        final LoggedInUser loggedInUser = loggedInUserInstance.get();
-        if (loggedInUser != null) {
-            AUDIT_TOELICHTINGEN.put(loggedInUser.getId(), toelichting);
+    fun setAuditExplanation(toelichting: String) =
+        loggedInUserInstance.get().let {
+            auditExplanations[it.id] = toelichting
         }
-    }
 
-    private void clearAuditToelichting(@Nullable final LoggedInUser loggedInUser) {
-        if (loggedInUser != null) {
-            AUDIT_TOELICHTINGEN.remove(loggedInUser.getId());
-        }
-    }
+    private fun clearAuditExplanation(loggedInUser: LoggedInUser) =
+        auditExplanations.remove(loggedInUser.id)
 
-    private void addAutorizationHeader(
-            final MultivaluedMap<String, String> outgoingHeaders,
-            final LoggedInUser loggedInUser
-    ) {
-        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, ZgwJwtTokenUtilsKt.generateZgwJwtToken(clientId, secret, loggedInUser));
-    }
+    private fun addAutorizationHeader(
+        outgoingHeaders: MultivaluedMap<String, String>,
+        loggedInUser: LoggedInUser
+    ) = outgoingHeaders.add(HttpHeaders.AUTHORIZATION, generateZgwJwtToken(clientId, secret, loggedInUser))
 
-    private void addXAuditToelichtingHeader(
-            final MultivaluedMap<String, String> outgoingHeaders,
-            final @Nullable LoggedInUser loggedInUser
-    ) {
-        if (loggedInUser != null) {
-            final String toelichting = AUDIT_TOELICHTINGEN.get(loggedInUser.getId());
-            if (toelichting != null) {
-                outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, toelichting);
-            }
-        }
+    private fun addXAuditToelichtingHeader(
+        outgoingHeaders: MultivaluedMap<String, String>,
+        loggedInUser: LoggedInUser
+    ) = auditExplanations[loggedInUser.id]?.let {
+        outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, it)
     }
 }
