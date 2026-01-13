@@ -36,7 +36,7 @@ describe(ZacFormActions.name, () => {
     fixture.componentRef.setInput("form", form);
     fixture.componentRef.setInput("mutation", {
       isPending: () => isPendingSignal(),
-    } as any);
+    });
 
     fixture.detectChanges();
     await Promise.resolve();

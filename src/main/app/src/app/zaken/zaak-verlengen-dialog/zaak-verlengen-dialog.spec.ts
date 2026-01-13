@@ -93,28 +93,27 @@ describe("ZaakVerlengenDialogComponent", () => {
       const inputs = await loader.getAllHarnesses(MatInputHarness);
       const [verlengingsDuur, , redenVerlenging] = inputs;
 
+      const mutation = component["extendZaakMutation"];
+      jest.spyOn(mutation, "mutate");
+
       await verlengingsDuur.setValue("5");
       await redenVerlenging.setValue("Reden verlenging");
 
-      const submitButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
+      fixture.detectChanges();
+
+      const submitButton = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement;
+      expect(submitButton.disabled).toBe(false);
       submitButton.click();
 
-      await fixture.whenStable();
-
-      expect(component.verlengen).toHaveBeenCalled();
-
-      await fixture.whenStable();
-      const req = httpTestingController.expectOne(
-        `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
-      );
-      expect(req.request.method).toEqual("PATCH");
-      expect(req.request.body).toEqual(
+      expect(mutation.mutate).toHaveBeenCalledWith(
         expect.objectContaining({
-          duurDagen: "5",
+          duurDagen: 5,
           redenVerlenging: "Reden verlenging",
         }),
       );
+      expect(dialogRef.close).toHaveBeenCalled();
     });
 
     it("should call close() when annuleren button is clicked", async () => {
