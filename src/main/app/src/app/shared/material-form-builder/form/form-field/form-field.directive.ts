@@ -6,8 +6,8 @@
 import { Directive, ViewContainerRef } from "@angular/core";
 
 @Directive({
-    selector: "[mfb-form-field]",
-    standalone: false
+  selector: "[mfb-form-field]",
+  standalone: false,
 })
 export class FormFieldDirective {
   constructor(public viewContainerRef: ViewContainerRef) {}

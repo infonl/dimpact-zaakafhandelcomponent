@@ -23,16 +23,19 @@ import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
 
 @Component({
-    templateUrl: "./inrichtingscheck.component.html",
-    styleUrls: ["./inrichtingscheck.component.less"],
-    animations: [
-        trigger("detailExpand", [
-            state("collapsed", style({ height: "0px", minHeight: "0" })),
-            state("expanded", style({ height: "*" })),
-            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
-        ]),
-    ],
-    standalone: false
+  templateUrl: "./inrichtingscheck.component.html",
+  styleUrls: ["./inrichtingscheck.component.less"],
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition(
+        "expanded <=> collapsed",
+        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"),
+      ),
+    ]),
+  ],
+  standalone: false,
 })
 export class InrichtingscheckComponent
   extends AdminComponent

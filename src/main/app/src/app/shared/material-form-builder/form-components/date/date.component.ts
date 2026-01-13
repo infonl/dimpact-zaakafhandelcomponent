@@ -10,9 +10,9 @@ import { FormComponent } from "../../model/form-component";
 import { DateFormField } from "./date-form-field";
 
 @Component({
-    templateUrl: "./date.component.html",
-    styleUrls: ["./date.component.less"],
-    standalone: false
+  templateUrl: "./date.component.html",
+  styleUrls: ["./date.component.less"],
+  standalone: false,
 })
 export class DateComponent extends FormComponent {
   data!: DateFormField;

@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { HarnessLoader } from "@angular/cdk/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { signal } from "@angular/core";
 
 import { ZacFormActions } from "./form-actions.component";
 

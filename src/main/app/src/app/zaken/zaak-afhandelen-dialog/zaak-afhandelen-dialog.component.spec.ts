@@ -10,6 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -23,6 +24,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -30,10 +32,8 @@ import { PipesModule } from "../../shared/pipes/pipes.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 import { ZakenService } from "../zaken.service";
-import { of } from "rxjs";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;

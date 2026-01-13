@@ -9,10 +9,10 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DialogData } from "../../../shared/dialog/dialog-data";
 
 @Component({
-    selector: "zac-tekstvlak-edit-dialog",
-    templateUrl: "./tekstvlak-edit-dialog.component.html",
-    styleUrls: ["./tekstvlak-edit-dialog.component.less"],
-    standalone: false
+  selector: "zac-tekstvlak-edit-dialog",
+  templateUrl: "./tekstvlak-edit-dialog.component.html",
+  styleUrls: ["./tekstvlak-edit-dialog.component.less"],
+  standalone: false,
 })
 export class TekstvlakEditDialogComponent {
   formControl: FormControl<string>;

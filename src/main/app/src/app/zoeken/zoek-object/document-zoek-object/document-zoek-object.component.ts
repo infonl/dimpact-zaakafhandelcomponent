@@ -9,10 +9,10 @@ import { DocumentZoekObject } from "../../model/documenten/document-zoek-object"
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({
-    selector: "zac-document-zoek-object",
-    styleUrls: ["../zoek-object/zoek-object.component.less"],
-    templateUrl: "./document-zoek-object.component.html",
-    standalone: false
+  selector: "zac-document-zoek-object",
+  styleUrls: ["../zoek-object/zoek-object.component.less"],
+  templateUrl: "./document-zoek-object.component.html",
+  standalone: false,
 })
 export class DocumentZoekObjectComponent extends ZoekObjectComponent {
   @Input() document: DocumentZoekObject;

@@ -14,9 +14,9 @@ import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
 @Component({
-    selector: "zac-taken-verdelen-dialog",
-    templateUrl: "./taken-verdelen-dialog.component.html",
-    standalone: false
+  selector: "zac-taken-verdelen-dialog",
+  templateUrl: "./taken-verdelen-dialog.component.html",
+  standalone: false,
 })
 export class TakenVerdelenDialogComponent {
   private readonly dialogRef = inject(MatDialogRef);

@@ -11,9 +11,9 @@ import { DocumentenLijstComponent } from "../documenten-lijst/documenten-lijst.c
 import { DocumentenOndertekenenFormField } from "./documenten-ondertekenen-form-field";
 
 @Component({
-    templateUrl: "../documenten-lijst/documenten-lijst.component.html",
-    styleUrls: ["../documenten-lijst/documenten-lijst.component.less"],
-    standalone: false
+  templateUrl: "../documenten-lijst/documenten-lijst.component.html",
+  styleUrls: ["../documenten-lijst/documenten-lijst.component.less"],
+  standalone: false,
 })
 export class DocumentenOndertekenenComponent
   extends DocumentenLijstComponent

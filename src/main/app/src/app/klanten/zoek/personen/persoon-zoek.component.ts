@@ -31,10 +31,10 @@ import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
-    selector: "zac-persoon-zoek",
-    templateUrl: "./persoon-zoek.component.html",
-    styleUrls: ["./persoon-zoek.component.less"],
-    standalone: false
+  selector: "zac-persoon-zoek",
+  templateUrl: "./persoon-zoek.component.html",
+  styleUrls: ["./persoon-zoek.component.less"],
+  standalone: false,
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();

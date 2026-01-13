@@ -10,8 +10,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-    templateUrl: "zaak-ontkoppelen-dialog.component.html",
-    standalone: false
+  templateUrl: "zaak-ontkoppelen-dialog.component.html",
+  standalone: false,
 })
 export class ZaakOntkoppelenDialogComponent {
   protected loading = false;

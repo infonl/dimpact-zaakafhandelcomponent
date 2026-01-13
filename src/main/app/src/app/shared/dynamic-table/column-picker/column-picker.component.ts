@@ -9,10 +9,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { ColumnPickerValue } from "./column-picker-value";
 
 @Component({
-    selector: "zac-column-picker",
-    templateUrl: "./column-picker.component.html",
-    styleUrls: ["./column-picker.component.less"],
-    standalone: false
+  selector: "zac-column-picker",
+  templateUrl: "./column-picker.component.html",
+  styleUrls: ["./column-picker.component.less"],
+  standalone: false,
 })
 export class ColumnPickerComponent {
   @Input() set columnSrc(columns: Map<string, ColumnPickerValue>) {

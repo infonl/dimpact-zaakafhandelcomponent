@@ -11,13 +11,13 @@ import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
-    selector: "zac-taken-card",
-    templateUrl: "./taken-card.component.html",
-    styleUrls: [
-        "../dashboard-card/dashboard-card.component.less",
-        "./taken-card.component.less",
-    ],
-    standalone: false
+  selector: "zac-taken-card",
+  templateUrl: "./taken-card.component.html",
+  styleUrls: [
+    "../dashboard-card/dashboard-card.component.less",
+    "./taken-card.component.less",
+  ],
+  standalone: false,
 })
 export class TakenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestSignaleringTaskSummary">

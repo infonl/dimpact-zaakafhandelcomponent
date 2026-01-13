@@ -12,8 +12,8 @@ import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
 @Component({
-    template: "",
-    standalone: false
+  template: "",
+  standalone: false,
 })
 export abstract class AdminComponent extends ViewComponent {
   menu: MenuItem[] = [];

@@ -11,10 +11,10 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 
 @Component({
-    selector: "betrokkene-link",
-    templateUrl: "./betrokkene-link.component.html",
-    styleUrls: [],
-    standalone: false
+  selector: "betrokkene-link",
+  templateUrl: "./betrokkene-link.component.html",
+  styleUrls: [],
+  standalone: false,
 })
 export class BetrokkeneLinkComponent {
   constructor(private readonly klantenService: KlantenService) {}

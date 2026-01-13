@@ -47,10 +47,10 @@ import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-v
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
 
 @Component({
-    templateUrl: "./zaken-werkvoorraad.component.html",
-    styleUrls: ["./zaken-werkvoorraad.component.less"],
-    animations: [detailExpand],
-    standalone: false
+  templateUrl: "./zaken-werkvoorraad.component.html",
+  styleUrls: ["./zaken-werkvoorraad.component.less"],
+  animations: [detailExpand],
+  standalone: false,
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent

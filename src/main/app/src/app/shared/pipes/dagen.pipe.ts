@@ -8,8 +8,8 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 
 @Pipe({
-    name: "dagen",
-    standalone: false
+  name: "dagen",
+  standalone: false,
 })
 export class DagenPipe implements PipeTransform {
   constructor(private translate: TranslateService) {}

@@ -9,9 +9,9 @@ import { FormComponent } from "../../model/form-component";
 import { TextareaFormField } from "./textarea-form-field";
 
 @Component({
-    templateUrl: "./textarea.component.html",
-    styleUrls: ["./textarea.component.less"],
-    standalone: false
+  templateUrl: "./textarea.component.html",
+  styleUrls: ["./textarea.component.less"],
+  standalone: false,
 })
 export class TextareaComponent extends FormComponent {
   data: TextareaFormField;

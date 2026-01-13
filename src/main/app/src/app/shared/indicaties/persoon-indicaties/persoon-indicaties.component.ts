@@ -11,10 +11,10 @@ import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
-    selector: "zac-persoon-indicaties",
-    templateUrl: "../indicaties.component.html",
-    styleUrls: ["../indicaties.component.less"],
-    standalone: false
+  selector: "zac-persoon-indicaties",
+  templateUrl: "../indicaties.component.html",
+  styleUrls: ["../indicaties.component.less"],
+  standalone: false,
 })
 export class PersoonIndicatiesComponent
   extends IndicatiesComponent

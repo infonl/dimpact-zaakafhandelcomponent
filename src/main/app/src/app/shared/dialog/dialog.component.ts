@@ -9,8 +9,8 @@ import { FieldType } from "../material-form-builder/model/field-type.enum";
 import { DialogData } from "./dialog-data";
 
 @Component({
-    templateUrl: "dialog.component.html",
-    standalone: false
+  templateUrl: "dialog.component.html",
+  standalone: false,
 })
 export class DialogComponent implements OnInit {
   loading = true;

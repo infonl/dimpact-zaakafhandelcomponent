@@ -27,9 +27,9 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { TekstvlakEditDialogComponent } from "./tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
 
 @Component({
-    templateUrl: "./formulier-definitie-edit.component.html",
-    styleUrls: ["./formulier-definitie-edit.component.less"],
-    standalone: false
+  templateUrl: "./formulier-definitie-edit.component.html",
+  styleUrls: ["./formulier-definitie-edit.component.less"],
+  standalone: false,
 })
 export class FormulierDefinitieEditComponent
   extends AdminComponent

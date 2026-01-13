@@ -48,10 +48,10 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 @Component({
-    selector: "zac-parameters-edit-cmmn",
-    templateUrl: "./parameters-edit-cmmn.component.html",
-    styleUrls: ["./parameters-edit-cmmn.component.less"],
-    standalone: false
+  selector: "zac-parameters-edit-cmmn",
+  templateUrl: "./parameters-edit-cmmn.component.html",
+  styleUrls: ["./parameters-edit-cmmn.component.less"],
+  standalone: false,
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;

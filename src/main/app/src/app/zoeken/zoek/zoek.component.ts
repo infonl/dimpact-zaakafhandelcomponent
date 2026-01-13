@@ -32,10 +32,10 @@ import { ZoekVeld } from "../model/zoek-veld";
 import { ZoekenService } from "../zoeken.service";
 
 @Component({
-    selector: "zac-zoeken",
-    templateUrl: "./zoek.component.html",
-    styleUrls: ["./zoek.component.less"],
-    standalone: false
+  selector: "zac-zoeken",
+  templateUrl: "./zoek.component.html",
+  styleUrls: ["./zoek.component.less"],
+  standalone: false,
 })
 export class ZoekComponent implements AfterViewInit, OnDestroy {
   private readonly zoekenService = inject(ZoekenService);

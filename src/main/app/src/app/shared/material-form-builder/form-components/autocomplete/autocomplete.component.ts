@@ -12,10 +12,10 @@ import { AutocompleteFormField } from "./autocomplete-form-field";
 import { AutocompleteValidators } from "./autocomplete-validators";
 
 @Component({
-    selector: "zac-autocomplete",
-    templateUrl: "./autocomplete.component.html",
-    styleUrls: ["./autocomplete.component.less"],
-    standalone: false
+  selector: "zac-autocomplete",
+  templateUrl: "./autocomplete.component.html",
+  styleUrls: ["./autocomplete.component.less"],
+  standalone: false,
 })
 export class AutocompleteComponent
   extends FormComponent

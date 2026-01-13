@@ -8,8 +8,8 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { ViewComponent } from "./view-component";
 
 @Component({
-    template: "",
-    standalone: false
+  template: "",
+  standalone: false,
 })
 export abstract class ActionsViewComponent
   extends ViewComponent

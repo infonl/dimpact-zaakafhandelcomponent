@@ -9,9 +9,9 @@ import { FormComponent } from "../../model/form-component";
 import { ParagraphFormField } from "./paragraph-form-field";
 
 @Component({
-    templateUrl: "./paragraph.component.html",
-    styleUrls: ["./paragraph.component.less"],
-    standalone: false
+  templateUrl: "./paragraph.component.html",
+  styleUrls: ["./paragraph.component.less"],
+  standalone: false,
 })
 export class ParagraphComponent extends FormComponent {
   data!: ParagraphFormField;

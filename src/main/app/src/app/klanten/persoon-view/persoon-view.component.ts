@@ -9,9 +9,9 @@ import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
-    templateUrl: "./persoon-view.component.html",
-    styleUrls: ["./persoon-view.component.less"],
-    standalone: false
+  templateUrl: "./persoon-view.component.html",
+  styleUrls: ["./persoon-view.component.less"],
+  standalone: false,
 })
 export class PersoonViewComponent {
   protected persoon: GeneratedType<"RestPersoon"> | null = null;

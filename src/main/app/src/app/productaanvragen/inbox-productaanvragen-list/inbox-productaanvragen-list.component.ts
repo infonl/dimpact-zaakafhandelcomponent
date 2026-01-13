@@ -38,10 +38,10 @@ import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 
 @Component({
-    templateUrl: "./inbox-productaanvragen-list.component.html",
-    styleUrls: ["./inbox-productaanvragen-list.component.less"],
-    animations: [detailExpand],
-    standalone: false
+  templateUrl: "./inbox-productaanvragen-list.component.html",
+  styleUrls: ["./inbox-productaanvragen-list.component.less"],
+  animations: [detailExpand],
+  standalone: false,
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent

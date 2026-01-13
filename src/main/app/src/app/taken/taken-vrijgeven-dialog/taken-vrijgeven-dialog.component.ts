@@ -10,10 +10,10 @@ import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
 @Component({
-    selector: "zac-taken-vrijgeven-dialog",
-    templateUrl: "./taken-vrijgeven-dialog.component.html",
-    styleUrls: ["./taken-vrijgeven-dialog.component.less"],
-    standalone: false
+  selector: "zac-taken-vrijgeven-dialog",
+  templateUrl: "./taken-vrijgeven-dialog.component.html",
+  styleUrls: ["./taken-vrijgeven-dialog.component.less"],
+  standalone: false,
 })
 export class TakenVrijgevenDialogComponent {
   loading = false;

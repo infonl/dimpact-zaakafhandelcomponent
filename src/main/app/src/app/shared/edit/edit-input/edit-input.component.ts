@@ -10,13 +10,13 @@ import { MaterialFormBuilderService } from "../../material-form-builder/material
 import { EditComponent } from "../edit.component";
 
 @Component({
-    selector: "zac-edit-input",
-    templateUrl: "./edit-input.component.html",
-    styleUrls: [
-        "../../static-text/static-text.component.less",
-        "../edit.component.less",
-    ],
-    standalone: false
+  selector: "zac-edit-input",
+  templateUrl: "./edit-input.component.html",
+  styleUrls: [
+    "../../static-text/static-text.component.less",
+    "../edit.component.less",
+  ],
+  standalone: false,
 })
 export class EditInputComponent extends EditComponent {
   @Input() formField: InputFormField;

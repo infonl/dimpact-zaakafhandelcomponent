@@ -9,10 +9,10 @@ import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({
-    selector: "zac-taak-zoek-object",
-    styleUrls: ["../zoek-object/zoek-object.component.less"],
-    templateUrl: "./taak-zoek-object.component.html",
-    standalone: false
+  selector: "zac-taak-zoek-object",
+  styleUrls: ["../zoek-object/zoek-object.component.less"],
+  templateUrl: "./taak-zoek-object.component.html",
+  standalone: false,
 })
 export class TaakZoekObjectComponent extends ZoekObjectComponent {
   @Input() taak: TaakZoekObject;

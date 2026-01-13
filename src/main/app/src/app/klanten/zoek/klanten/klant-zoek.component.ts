@@ -7,10 +7,10 @@ import { Component, EventEmitter, Output } from "@angular/core";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
 @Component({
-    selector: "zac-klant-zoek",
-    templateUrl: "./klant-zoek.component.html",
-    styleUrls: ["./klant-zoek.component.less"],
-    standalone: false
+  selector: "zac-klant-zoek",
+  templateUrl: "./klant-zoek.component.html",
+  styleUrls: ["./klant-zoek.component.less"],
+  standalone: false,
 })
 export class KlantZoekComponent {
   @Output() klant = new EventEmitter<

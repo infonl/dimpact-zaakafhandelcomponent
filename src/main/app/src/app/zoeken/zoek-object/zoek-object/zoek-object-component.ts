@@ -7,8 +7,8 @@ import { Component } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 
 @Component({
-    template: "",
-    standalone: false
+  template: "",
+  standalone: false,
 })
 export abstract class ZoekObjectComponent {
   abstract sideNav: MatSidenav;

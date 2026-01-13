@@ -22,8 +22,8 @@ import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
 
 @Component({
-    template: `<zac-notities></zac-notities>`,
-    standalone: false
+  template: `<zac-notities></zac-notities>`,
+  standalone: false,
 })
 class TestHostComponent {}
 

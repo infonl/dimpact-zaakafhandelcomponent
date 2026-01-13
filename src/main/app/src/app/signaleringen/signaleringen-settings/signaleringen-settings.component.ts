@@ -10,9 +10,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
 @Component({
-    templateUrl: "./signaleringen-settings.component.html",
-    styleUrls: ["./signaleringen-settings.component.less"],
-    standalone: false
+  templateUrl: "./signaleringen-settings.component.html",
+  styleUrls: ["./signaleringen-settings.component.less"],
+  standalone: false,
 })
 export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   isLoadingResults = true;

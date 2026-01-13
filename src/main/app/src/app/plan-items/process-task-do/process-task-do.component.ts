@@ -14,10 +14,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
 @Component({
-    selector: "zac-process-task-do",
-    templateUrl: "./process-task-do.component.html",
-    styleUrls: ["./process-task-do.component.less"],
-    standalone: false
+  selector: "zac-process-task-do",
+  templateUrl: "./process-task-do.component.html",
+  styleUrls: ["./process-task-do.component.less"],
+  standalone: false,
 })
 export class ProcessTaskDoComponent implements OnInit {
   formItems: Array<AbstractFormField[]>;

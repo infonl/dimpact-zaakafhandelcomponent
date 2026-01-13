@@ -10,10 +10,10 @@ import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
 
 @Component({
-    selector: "zac-notities",
-    templateUrl: "./notities.component.html",
-    styleUrls: ["./notities.component.less"],
-    standalone: false
+  selector: "zac-notities",
+  templateUrl: "./notities.component.html",
+  styleUrls: ["./notities.component.less"],
+  standalone: false,
 })
 export class NotitiesComponent implements OnInit {
   @Input({ required: true }) zaakUuid!: string;

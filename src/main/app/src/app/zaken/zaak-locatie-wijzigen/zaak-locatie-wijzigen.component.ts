@@ -44,10 +44,10 @@ import { GeometryType } from "../model/geometryType";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-    selector: "zac-case-location-edit",
-    templateUrl: "./zaak-locatie-wijzigen.component.html",
-    styleUrls: ["./zaak-locatie-wijzigen.component.less"],
-    standalone: false
+  selector: "zac-case-location-edit",
+  templateUrl: "./zaak-locatie-wijzigen.component.html",
+  styleUrls: ["./zaak-locatie-wijzigen.component.less"],
+  standalone: false,
 })
 export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy

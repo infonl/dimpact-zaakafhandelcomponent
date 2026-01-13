@@ -9,10 +9,10 @@ import { AbstractFormField } from "../../model/abstract-form-field";
 import { FormConfig } from "../../model/form-config";
 
 @Component({
-    selector: "mfb-form",
-    templateUrl: "./form.component.html",
-    styleUrls: ["./form.component.less"],
-    standalone: false
+  selector: "mfb-form",
+  templateUrl: "./form.component.html",
+  styleUrls: ["./form.component.less"],
+  standalone: false,
 })
 export class FormComponent {
   @Input() set formFields(formfields: Array<AbstractFormField[]>) {

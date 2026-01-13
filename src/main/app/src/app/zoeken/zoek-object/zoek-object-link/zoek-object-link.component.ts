@@ -13,10 +13,10 @@ import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 
 @Component({
-    selector: "zac-zoek-object-link",
-    styleUrls: ["./zoek-object-link.component.less"],
-    templateUrl: "./zoek-object-link.component.html",
-    standalone: false
+  selector: "zac-zoek-object-link",
+  styleUrls: ["./zoek-object-link.component.less"],
+  templateUrl: "./zoek-object-link.component.html",
+  standalone: false,
 })
 export class ZoekObjectLinkComponent {
   @Input({ required: true })

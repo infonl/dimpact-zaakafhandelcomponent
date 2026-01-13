@@ -8,9 +8,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Observable } from "rxjs";
 
 @Component({
-    templateUrl: "confirm-dialog.component.html",
-    styleUrls: ["./confirm-dialog.component.less"],
-    standalone: false
+  templateUrl: "confirm-dialog.component.html",
+  styleUrls: ["./confirm-dialog.component.less"],
+  standalone: false,
 })
 export class ConfirmDialogComponent {
   loading = false;

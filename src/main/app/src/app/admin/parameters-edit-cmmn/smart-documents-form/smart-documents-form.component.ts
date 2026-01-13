@@ -26,10 +26,10 @@ interface FlatNode {
 }
 
 @Component({
-    selector: "smart-documents-form",
-    templateUrl: "./smart-documents-form.component.html",
-    styleUrl: "./smart-documents-form.component.less",
-    standalone: false
+  selector: "smart-documents-form",
+  templateUrl: "./smart-documents-form.component.html",
+  styleUrl: "./smart-documents-form.component.less",
+  standalone: false,
 })
 export class SmartDocumentsFormComponent {
   @Input({ required: true }) zaakTypeUuid!: string;

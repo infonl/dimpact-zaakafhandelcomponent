@@ -10,10 +10,10 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({
-    selector: "zac-zaak-zoek-object",
-    styleUrls: ["../zoek-object/zoek-object.component.less"],
-    templateUrl: "./zaak-zoek-object.component.html",
-    standalone: false
+  selector: "zac-zaak-zoek-object",
+  styleUrls: ["../zoek-object/zoek-object.component.less"],
+  templateUrl: "./zaak-zoek-object.component.html",
+  standalone: false,
 })
 export class ZaakZoekObjectComponent extends ZoekObjectComponent {
   @Input({ required: true }) zaak!: ZaakZoekObject;

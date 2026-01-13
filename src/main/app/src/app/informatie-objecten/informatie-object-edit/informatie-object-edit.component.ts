@@ -28,9 +28,9 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
-    selector: "zac-informatie-object-edit",
-    templateUrl: "./informatie-object-edit.component.html",
-    standalone: false
+  selector: "zac-informatie-object-edit",
+  templateUrl: "./informatie-object-edit.component.html",
+  standalone: false,
 })
 export class InformatieObjectEditComponent implements OnChanges {
   @Input()

@@ -10,10 +10,10 @@ import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
-    selector: "zac-toggle",
-    templateUrl: "./toggle.html",
-    styleUrls: ["./toggle.less"],
-    standalone: false
+  selector: "zac-toggle",
+  templateUrl: "./toggle.html",
+  styleUrls: ["./toggle.less"],
+  standalone: false,
 })
 export class ZacToggle<
   Form extends Record<string, AbstractControl>,

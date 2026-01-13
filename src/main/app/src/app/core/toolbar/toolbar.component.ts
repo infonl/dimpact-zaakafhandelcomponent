@@ -34,10 +34,10 @@ import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
 
 @Component({
-    selector: "zac-toolbar",
-    templateUrl: "./toolbar.component.html",
-    styleUrls: ["./toolbar.component.less"],
-    standalone: false
+  selector: "zac-toolbar",
+  templateUrl: "./toolbar.component.html",
+  styleUrls: ["./toolbar.component.less"],
+  standalone: false,
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly queryClient = inject(QueryClient);

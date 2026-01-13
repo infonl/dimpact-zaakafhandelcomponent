@@ -66,10 +66,10 @@ import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verl
 import { ZakenService } from "../zaken.service";
 
 @Component({
-    templateUrl: "./zaak-view.component.html",
-    styleUrls: ["./zaak-view.component.less"],
-    animations: [detailExpand],
-    standalone: false
+  templateUrl: "./zaak-view.component.html",
+  styleUrls: ["./zaak-view.component.less"],
+  animations: [detailExpand],
+  standalone: false,
 })
 export class ZaakViewComponent
   extends ActionsViewComponent

@@ -20,12 +20,12 @@ import { AbstractFormField } from "../material-form-builder/model/abstract-form-
 import { StaticTextComponent } from "../static-text/static-text.component";
 
 @Component({
-    template: "",
-    styleUrls: [
-        "../static-text/static-text.component.less",
-        "./edit.component.less",
-    ],
-    standalone: false
+  template: "",
+  styleUrls: [
+    "../static-text/static-text.component.less",
+    "./edit.component.less",
+  ],
+  standalone: false,
 })
 export abstract class EditComponent
   extends StaticTextComponent

@@ -37,9 +37,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 
 @Component({
-    templateUrl: "./inbox-documenten-list.component.html",
-    styleUrls: ["./inbox-documenten-list.component.less"],
-    standalone: false
+  templateUrl: "./inbox-documenten-list.component.html",
+  styleUrls: ["./inbox-documenten-list.component.less"],
+  standalone: false,
 })
 export class InboxDocumentenListComponent
   extends WerklijstComponent

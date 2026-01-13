@@ -34,10 +34,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryType } from "../model/geometryType";
 
 @Component({
-    selector: "zac-locatie-tonen",
-    templateUrl: "./zaak-locatie-tonen.component.html",
-    styleUrls: ["./zaak-locatie-tonen.component.less"],
-    standalone: false
+  selector: "zac-locatie-tonen",
+  templateUrl: "./zaak-locatie-tonen.component.html",
+  styleUrls: ["./zaak-locatie-tonen.component.less"],
+  standalone: false,
 })
 export class LocatieTonenComponent implements OnInit, AfterViewInit, OnChanges {
   @Input({ required: true }) currentLocation!: GeneratedType<"RestGeometry">;

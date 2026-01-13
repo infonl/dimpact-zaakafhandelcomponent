@@ -12,8 +12,8 @@ import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
 
 @Component({
-    template: "",
-    standalone: false
+  template: "",
+  standalone: false,
 })
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;

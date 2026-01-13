@@ -11,9 +11,9 @@ import { FormComponent } from "../../model/form-component";
 import { InputFormField } from "./input-form-field";
 
 @Component({
-    templateUrl: "./input.component.html",
-    styleUrls: ["./input.component.less"],
-    standalone: false
+  templateUrl: "./input.component.html",
+  styleUrls: ["./input.component.less"],
+  standalone: false,
 })
 export class InputComponent extends FormComponent implements OnInit, OnDestroy {
   data!: InputFormField;

@@ -28,10 +28,10 @@ import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 @Component({
-    selector: "zac-bag-zaken-tabel",
-    templateUrl: "./bag-zaken-tabel.component.html",
-    styleUrls: ["./bag-zaken-tabel.component.less"],
-    standalone: false
+  selector: "zac-bag-zaken-tabel",
+  templateUrl: "./bag-zaken-tabel.component.html",
+  styleUrls: ["./bag-zaken-tabel.component.less"],
+  standalone: false,
 })
 export class BagZakenTabelComponent
   implements OnInit, AfterViewInit, OnChanges

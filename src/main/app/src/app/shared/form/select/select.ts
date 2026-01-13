@@ -9,9 +9,9 @@ import { AbstractControl } from "@angular/forms";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
-    selector: "zac-select",
-    templateUrl: "./select.html",
-    standalone: false
+  selector: "zac-select",
+  templateUrl: "./select.html",
+  standalone: false,
 })
 export class ZacSelect<
   Form extends Record<string, AbstractControl>,

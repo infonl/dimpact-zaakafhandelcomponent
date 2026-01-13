@@ -32,9 +32,9 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
 
 @Component({
-    selector: "zac-zaak-create",
-    templateUrl: "./zaak-create.component.html",
-    standalone: false
+  selector: "zac-zaak-create",
+  templateUrl: "./zaak-create.component.html",
+  standalone: false,
 })
 export class ZaakCreateComponent {
   private readonly zakenService = inject(ZakenService);

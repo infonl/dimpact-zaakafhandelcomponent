@@ -10,9 +10,9 @@ import { MaterialFormBuilderService } from "../../material-form-builder.service"
 import { FormFieldDirective } from "./form-field.directive";
 
 @Component({
-    selector: "mfb-test-component",
-    template: ` <mfb-form-field [field]="field"></mfb-form-field> `,
-    standalone: false
+  selector: "mfb-test-component",
+  template: ` <mfb-form-field [field]="field"></mfb-form-field> `,
+  standalone: false,
 })
 class TestComponent {}
 

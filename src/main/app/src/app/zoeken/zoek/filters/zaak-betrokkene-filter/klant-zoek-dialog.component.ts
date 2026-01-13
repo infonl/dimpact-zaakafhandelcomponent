@@ -7,10 +7,10 @@ import { Component } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 
 @Component({
-    selector: "zac-klant-zoek-dialog",
-    templateUrl: "klant-zoek-dialog.component.html",
-    styleUrls: ["./klant-zoek-dialog.component.less"],
-    standalone: false
+  selector: "zac-klant-zoek-dialog",
+  templateUrl: "klant-zoek-dialog.component.html",
+  styleUrls: ["./klant-zoek-dialog.component.less"],
+  standalone: false,
 })
 export class KlantZoekDialog {
   constructor(public dialogRef: MatDialogRef<KlantZoekDialog>) {}

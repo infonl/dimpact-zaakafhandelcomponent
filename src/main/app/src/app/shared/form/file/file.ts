@@ -29,9 +29,9 @@ import { SingleInputFormField } from "../BaseFormField";
   standalone: false,
 })
 export class ZacFile<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
->
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+  >
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {

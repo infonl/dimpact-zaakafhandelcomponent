@@ -9,10 +9,10 @@ import { AbstractControl } from "@angular/forms";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
-    selector: "zac-checkbox",
-    templateUrl: "./checkbox.html",
-    styleUrls: ["./checkbox.less"],
-    standalone: false
+  selector: "zac-checkbox",
+  templateUrl: "./checkbox.html",
+  styleUrls: ["./checkbox.less"],
+  standalone: false,
 })
 export class ZacCheckbox<
   Form extends Record<string, AbstractControl>,

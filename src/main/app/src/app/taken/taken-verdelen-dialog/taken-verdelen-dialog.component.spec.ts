@@ -13,6 +13,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -28,7 +29,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 
 describe(TakenVerdelenDialogComponent.name, () => {
   let fixture: ComponentFixture<TakenVerdelenDialogComponent>;

@@ -11,10 +11,10 @@ import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
 @Component({
-    selector: "zac-date",
-    templateUrl: "./date.html",
-    styleUrls: ["./date.less"],
-    standalone: false
+  selector: "zac-date",
+  templateUrl: "./date.html",
+  styleUrls: ["./date.less"],
+  standalone: false,
 })
 export class ZacDate<
   Form extends Record<string, AbstractControl>,

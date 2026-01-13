@@ -10,9 +10,9 @@ import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
 @Component({
-    selector: "zac-textarea",
-    templateUrl: "./textarea.html",
-    standalone: false
+  selector: "zac-textarea",
+  templateUrl: "./textarea.html",
+  standalone: false,
 })
 export class ZacTextarea<
   Form extends Record<string, AbstractControl>,

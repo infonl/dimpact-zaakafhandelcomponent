@@ -14,10 +14,10 @@ import { FormControl } from "@angular/forms";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 
 @Component({
-    selector: "zac-date-range-filter",
-    templateUrl: "./date-range-filter.component.html",
-    styleUrls: ["./date-range-filter.component.less"],
-    standalone: false
+  selector: "zac-date-range-filter",
+  templateUrl: "./date-range-filter.component.html",
+  styleUrls: ["./date-range-filter.component.less"],
+  standalone: false,
 })
 export class DateRangeFilterComponent implements OnChanges {
   @Input() range: DatumRange;

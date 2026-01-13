@@ -11,6 +11,10 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import {
+  ComponentRef,
+  provideExperimentalZonelessChangeDetection,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -35,10 +39,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectAddComponent } from "./informatie-object-add.component";
-import {
-  ComponentRef,
-  provideExperimentalZonelessChangeDetection,
-} from "@angular/core";
 
 describe(InformatieObjectAddComponent.name, () => {
   let component: InformatieObjectAddComponent;

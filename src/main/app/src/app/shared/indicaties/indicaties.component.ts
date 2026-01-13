@@ -13,8 +13,8 @@ export enum IndicatiesLayout {
 }
 
 @Component({
-    template: "",
-    standalone: false
+  template: "",
+  standalone: false,
 })
 export abstract class IndicatiesComponent {
   Layout = IndicatiesLayout;
