@@ -16,6 +16,7 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
@@ -315,6 +316,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     private fun createBpmnProcessTaskForms() {
         arrayOf(
             BPMN_TEST_FORM_RESOURCE_PATH,
+            BPMN_SUMMARY_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
         ).forEach {

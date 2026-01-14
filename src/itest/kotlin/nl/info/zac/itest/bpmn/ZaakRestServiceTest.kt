@@ -1,8 +1,4 @@
-/*
- * SPDX-FileCopyrightText: 2025 INFO.nl
- * SPDX-License-Identifier: EUPL-1.2+
- */
-package nl.info.zac.itest
+package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
@@ -19,18 +15,16 @@ import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_TASK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_OK
+import java.net.HttpURLConnection
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -38,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * This test creates a zaak with a BPMN type.
  */
-class ZaakRestServiceBpmnTest : BehaviorSpec({
+class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
@@ -50,11 +44,11 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
     fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
+            "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid"
         ).let {
             val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
-            it.code shouldBe HTTP_OK
+            it.code shouldBe HttpURLConnection.HTTP_OK
             responseBody
         }
 
@@ -62,12 +56,12 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         logger.info { "Patched request: $patchedTakenData" }
 
         return itestHttpClient.performPatchRequest(
-            url = "$ZAC_API_URI/taken/complete",
+            url = "${ZAC_API_URI}/taken/complete",
             requestBodyAsString = patchedTakenData
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            code shouldBe HTTP_OK
+            code shouldBe HttpURLConnection.HTTP_OK
             responseBody
         }
     }
@@ -77,7 +71,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         zaakIdentificatie: String,
         taskName: String
     ): String = itestHttpClient.performPutRequest(
-        url = "$ZAC_API_URI/zoeken/list",
+        url = "${ZAC_API_URI}/zoeken/list",
         requestBodyAsString = """
             {
               "rows": 10,
@@ -114,7 +108,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            code shouldBe HTTP_OK
+            code shouldBe HttpURLConnection.HTTP_OK
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
                     bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
@@ -125,12 +119,12 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
         When("initiator is added") {
             val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/initiator",
+                url = "${ZAC_API_URI}/zaken/initiator",
                 requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
+                            "bsnNummer": "${TEST_PERSON_HENDRIKA_JANSE_BSN}",
+                            "type": "${BETROKKENE_IDENTIFICATION_TYPE_BSN}"
                         },
                         "zaakUUID": "$bpmnZaakUuid"
                     }
@@ -139,7 +133,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
             Then("the response should be a 200 HTTP response and the initiator should be added") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
+                response.code shouldBe HttpURLConnection.HTTP_OK
                 with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
                     shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
                     shouldContainJsonKeyValue("bsnNummer", TEST_PERSON_HENDRIKA_JANSE_BSN)
@@ -154,7 +148,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                    "taakdata":{
                      "zaakIdentificatie":"$zaakIdentificatie",
                      "initiator":null,
-                     "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
+                     "zaaktypeOmschrijving":"${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
                      "firstName":"Name",
                      "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
                      "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
@@ -177,7 +171,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 zacClient.retrieveZaak(bpmnZaakUuid).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
+                    response.code shouldBe HttpURLConnection.HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", true)
                         shouldNotContainJsonKey("resultaat")
@@ -187,14 +181,16 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_TEST_TASK_NAME)
+                    val searchResponseBody =
+                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_TEST_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
 
             And("summary form task becomes available") {
                 eventually(afterThirtySeconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
+                    val searchResponseBody =
+                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
             }
@@ -207,7 +203,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                   "taakdata":{
                     "zaakIdentificatie":"$zaakIdentificatie",
                     "initiator":null,
-                    "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
+                    "zaaktypeOmschrijving":"${ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
                     "firstName":"Name",
                     "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
                     "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
@@ -231,7 +227,7 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
                 zacClient.retrieveZaak(bpmnZaakUuid).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
+                    response.code shouldBe HttpURLConnection.HTTP_OK
                     responseBody.run {
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKeyValue("$.resultaat.resultaattype.naam", "Verleend")
@@ -241,9 +237,9 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/shared-team-dimpact@info.nl/messages/"
+                    url = "${ItestConfiguration.GREENMAIL_API_URI}/user/shared-team-dimpact@info.nl/messages/"
                 )
-                receivedMailsResponse.code shouldBe HTTP_OK
+                receivedMailsResponse.code shouldBe HttpURLConnection.HTTP_OK
 
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
@@ -256,7 +252,8 @@ class ZaakRestServiceBpmnTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody = getTaskList(itestHttpClient, zaakIdentificatie, BPMN_SUMMARY_TASK_NAME)
+                    val searchResponseBody =
+                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_SUMMARY_TASK_NAME)
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
