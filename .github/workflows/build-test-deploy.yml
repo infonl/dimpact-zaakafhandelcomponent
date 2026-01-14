@@ -408,7 +408,7 @@ jobs:
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
             -PfeatureFlagPabcIntegration=false \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
-            itest --info --rerun-tasks
+            itest --info
 
       - name: Upload integration test results to CodeCov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -437,7 +437,7 @@ jobs:
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
             -PfeatureFlagPabcIntegration=true \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
-            itest --info --rerun-tasks    
+            itest --info
 
       - name: Upload integration test results to CodeCov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
