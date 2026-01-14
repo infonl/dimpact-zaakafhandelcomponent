@@ -6,7 +6,7 @@
       <design:creationdate><![CDATA[2026-01-12T10:24:04.969Z]]></design:creationdate>
       <design:modificationdate><![CDATA[2026-01-12T10:30:39.719Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="zaakDefaults" name="Zaak defaults" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="zaakDefaults" flowable:formFieldValidation="false">
+    <userTask id="zaakDefaults" name="Zaak defaults" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}">
       <extensionElements>
         <flowable:static-form-key><![CDATA[zaakDefaults]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -14,7 +14,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="hardCoded" name="Hard coded" flowable:assignee="Invisible Man" flowable:candidateGroups="Superheroes" flowable:formKey="hardCoded" flowable:formFieldValidation="false">
+    <userTask id="hardCoded" name="Hard coded" flowable:assignee="Invisible Man" flowable:candidateGroups="Superheroes">
       <extensionElements>
         <flowable:static-form-key><![CDATA[hardCoded]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -22,7 +22,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="userGroupSelection" name="User and group selection" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="userGroupSelection" flowable:formFieldValidation="false">
+    <userTask id="userGroupSelection" name="User and group selection" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}">
       <extensionElements>
         <flowable:static-form-key><![CDATA[userGroupSelection]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -30,7 +30,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="displayUserGroup" name="Display selected user and group" flowable:assignee="${selectedUser}" flowable:candidateGroups="${selectedGroup}" flowable:formFieldValidation="false">
+    <userTask id="displayUserGroup" name="Display selected user and group" flowable:assignee="${selectedUser}" flowable:candidateGroups="${selectedGroup}">
       <extensionElements>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
@@ -52,7 +52,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <userTask id="newZaakDefaults" name="New zaak defaults" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="newZaakDefaults" flowable:formFieldValidation="false">
+    <userTask id="newZaakDefaults" name="New zaak defaults" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}">
       <extensionElements>
         <flowable:static-form-key><![CDATA[newZaakDefaults]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
@@ -60,7 +60,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="copyUserGroup" name="Copy user and group" flowable:assignee="${taken:behandelaar('hardCoded')}" flowable:candidateGroups="${taken:groep('hardCoded')}" flowable:formKey="copyUserGroup" flowable:formFieldValidation="false">
+    <userTask id="copyUserGroup" name="Copy user and group" flowable:assignee="${taken:behandelaar('hardCoded')}" flowable:candidateGroups="${taken:groep('hardCoded')}">
       <extensionElements>
         <flowable:static-form-key><![CDATA[copyUserGroup]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
