@@ -251,20 +251,20 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private createBrpDoelbindingForm() {
     this.brpDoelbindingenFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen.raadpleegWaarde ?? "",
+        this.bpmnZaakafhandelParameters.brpDoelbindingen?.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       zoekWaarde: [
-        this.bpmnZaakafhandelParameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.bpmnZaakafhandelParameters.brpDoelbindingen?.zoekWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       verwerkingregisterWaarde: [
         this.bpmnZaakafhandelParameters.brpDoelbindingen
-          .verwerkingregisterWaarde ?? "",
+          ?.verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
