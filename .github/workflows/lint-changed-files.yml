@@ -42,7 +42,6 @@ jobs:
         run: npm ci
 
       - name: Check for ignore-errors directive in PR description
-        if: github.event_name == 'pull_request'
         id: ignore-errors
         run: |
           PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body)
@@ -152,6 +151,7 @@ jobs:
             if [ $TSC_EXIT_CODE -eq 124 ]; then
               echo "⚠️  TypeScript check timed out (60s)"
               rm -f "$TSC_TEMP_FILE"
+              echo "errors-found=false" >> $GITHUB_OUTPUT
               exit 1
             fi
             
@@ -183,6 +183,7 @@ jobs:
               echo "💡 Files with errors:"
               echo "$FAILED_FILES"
               echo "errors-found=true" >> $GITHUB_OUTPUT
+              exit 0
             fi
             
             echo ""
@@ -191,7 +192,7 @@ jobs:
           fi
 
       - name: Comment on PR if linting failed
-        if: steps.type-check.outputs.errors-found == 'true' && github.event_name == 'pull_request'
+        if: steps.type-check.outputs.errors-found == 'true'
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
