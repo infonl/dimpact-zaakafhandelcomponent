@@ -30,7 +30,8 @@
               "earcut"
             ],
             "outputPath": {
-              "base": "dist/zaakafhandelcomponent"
+              "base": "dist/zaakafhandelcomponent",
+              "browser": ""
             },
             "index": "src/index.html",
             "polyfills": ["src/polyfills.ts"],
