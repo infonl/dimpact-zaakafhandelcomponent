@@ -1,12 +1,12 @@
 {
   "display": "form",
-  "name": "hardCoded",
-  "title": "Hard-coded",
+  "name": "newZaakDefaults",
+  "title": "New Zaak Defaults",
   "type": "form",
   "components": [
     {
-      "title": "Hard-coded user and group",
-      "label": "Hard-coded user and group",
+      "title": "New default zaak user and group",
+      "label": "New default zaak user and group",
       "type": "panel",
       "key": "form",
       "input": false,
@@ -14,9 +14,8 @@
         {
           "label": "Group",
           "labelPosition": "left-left",
+          "key": "zaakGroep",
           "type": "textfield",
-          "key": "hardCodedGroup",
-          "defaultValue": "Superheroes",
           "persistent": false,
           "input": false,
           "disabled": true
@@ -24,9 +23,9 @@
         {
           "label": "User",
           "labelPosition": "left-left",
+          "key": "zaakBehandelaar",
           "type": "textfield",
-          "key": "hardCodedUser",
-          "defaultValue": "Invisible Man",
+          "defaultValue": "-- not set --",
           "persistent": false,
           "input": false,
           "disabled": true
