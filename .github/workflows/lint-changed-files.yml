@@ -213,7 +213,7 @@ jobs:
             })
 
       - name: Fail the job if not ignoring errors
-        if: steps.ignore-errors.outputs.ignore-errors == 'false'
+        if: steps.type-check.outputs.errors-found == 'true' && steps.ignore-errors.outputs.ignore-errors == 'false'
         run: |
           echo "❌ Failing the job due to linting errors."
           exit 1
