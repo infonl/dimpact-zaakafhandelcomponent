@@ -41,6 +41,19 @@ jobs:
         working-directory: src/main/app
         run: npm ci
 
+      - name: Check for ignore-errors directive in PR description
+        if: github.event_name == 'pull_request'
+        id: ignore-errors
+        run: |
+          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body)
+          if echo "$PR_BODY" | grep -q '\[@pipeline-typescript-file-changed-checks=ignore-errors\]'; then
+            echo "ignore-errors=true" >> $GITHUB_OUTPUT
+          else
+            echo "ignore-errors=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Get changed files
         id: changed-files
         run: |
@@ -103,6 +116,7 @@ jobs:
           npm run lint
 
       - name: Type check changed TS files
+        id: type-check
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app
         run: |
@@ -168,15 +182,16 @@ jobs:
               echo "💡 Changed files must follow strict TypeScript standards"
               echo "💡 Files with errors:"
               echo "$FAILED_FILES"
-              exit 1
+              echo "errors-found=true" >> $GITHUB_OUTPUT
             fi
             
             echo ""
             echo "✅ All TypeScript files passed strict checking"
+            echo "errors-found=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Comment on PR if linting failed
-        if: failure() && github.event_name == 'pull_request'
+        if: steps.type-check.outputs.errors-found == 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
@@ -195,3 +210,9 @@ jobs:
               
               For TypeScript strict checking, you can temporarily enable strict mode in \`tsconfig.app.json\` to see all issues.`
             })
+
+      - name: Fail the job if not ignoring errors
+        if: steps.ignore-errors.outputs.ignore-errors == 'false'
+        run: |
+          echo "❌ Failing the job due to linting errors."
+          exit 1
