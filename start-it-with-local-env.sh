@@ -10,14 +10,13 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC Docker Image."
    echo
-   echo "Syntax: $0 [-b|d|s|u|r|h]"
+   echo "Syntax: $0 [-b|d|s|u|h]"
    echo "options:"
    echo "-b     Build a local ZAC Docker image"
    echo "-d     Delete local Docker volume data before starting Docker Compose"
    echo "-c     Keep local Docker Compose containers running after test execution"
    echo "-s     Do not start Docker Compose containers before test execution"
    echo "-u     Turn on debug logs"
-   echo "-r     Re-run successful tasks"
    echo "-h     Print this Help"
    echo
 }
@@ -55,10 +54,6 @@ while getopts ':bdcsurh' OPTION; do
     u)
       echo "Turning on debug logs ..."
       args="$args -Si -Dorg.gradle.vfs.watch=true"
-      ;;
-    r)
-      echo "Re-running tasks ..."
-      args="$args --rerun-tasks"
       ;;
     h)
       help
