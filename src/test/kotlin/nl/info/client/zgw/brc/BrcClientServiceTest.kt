@@ -13,15 +13,15 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import java.net.URI
 import java.util.UUID
 
 class BrcClientServiceTest : BehaviorSpec({
     val brcClient: BrcClient = mockk<BrcClient>()
-    val zgwClientHeadersFactory: ZgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
+    val zgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
     val brcClientService = BrcClientService(
         brcClient = brcClient,
         zgwClientHeadersFactory = zgwClientHeadersFactory
@@ -52,7 +52,7 @@ class BrcClientServiceTest : BehaviorSpec({
         )
         val updateReason = "fakeReason"
         val returnedBesluit = createBesluit()
-        every { zgwClientHeadersFactory.setAuditToelichting(updateReason) } just Runs
+        every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
         every { brcClient.besluitUpdate(besluitUuid, besluit) } returns returnedBesluit
 
         When("update besluit is called with a reason string") {
