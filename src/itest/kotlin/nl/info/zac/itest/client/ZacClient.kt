@@ -35,6 +35,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+@Suppress("TooManyFunctions")
 class ZacClient(
     val itestHttpClient: ItestHttpClient = ItestHttpClient()
 ) {
