@@ -13,9 +13,9 @@ import io.mockk.mockk
 import io.mockk.slot
 import net.atos.client.zgw.drc.DrcClient
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.zac.configuratie.ConfiguratieService
 import java.util.UUID
 

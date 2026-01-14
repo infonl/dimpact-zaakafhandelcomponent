@@ -13,13 +13,13 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.zac.configuratie.ConfiguratieService
 import java.util.UUID
@@ -59,17 +59,17 @@ class ZrcClientServiceTest : BehaviorSpec({
         val newRole = createRolMedewerker(
             medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie123")
         )
-        val description = "fakeDescription"
+        val auditExplanation = "fakeExplanation"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
-        every { zgwClientHeadersFactory.setAuditToelichting(description) } just Runs
+        every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
         every { zrcClient.rolCreate(any()) } returns newRole
 
         When("updateRol is called") {
-            zrcClientService.updateRol(zaak, newRole, description)
+            zrcClientService.updateRol(zaak, newRole, auditExplanation)
 
             Then("it should create the new role and set the audit description") {
                 verify(exactly = 1) {
-                    zgwClientHeadersFactory.setAuditToelichting(description)
+                    zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
                     zrcClient.rolCreate(newRole)
                 }
             }
@@ -85,7 +85,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val description = "fakeDescription"
         every { zrcClient.rolList(any()) } returns Results(existingRoles, existingRoles.size)
         every { zrcClient.rolDelete(any()) } just Runs
-        every { zgwClientHeadersFactory.setAuditToelichting(description) } just Runs
+        every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
 
         When("deleteRol is called for betrokkeneType 'Medewerker'") {
             zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)

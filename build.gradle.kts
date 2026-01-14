@@ -197,8 +197,6 @@ dependencies {
     // for our unit tests we use the reference implementation
     testImplementation(libs.glassfish.expressly)
 
-    // integration test dependencies - the jvm-test-suite plugin will create matching configurations like `itestImplementation`
-
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
 }
 

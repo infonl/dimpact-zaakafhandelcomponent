@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.3",
   "engines": {
-    "node": "22.21.1",
+    "node": "22.22.0",
     "npm": "10.9.4"
   },
   "scripts": {
@@ -68,9 +68,9 @@
     "@angular/language-service": "18.2.14",
     "@total-typescript/shoehorn": "0.1.2",
     "@types/jest": "29.5.14",
-    "@types/node": "22.19.3",
-    "@typescript-eslint/eslint-plugin": "8.51.0",
-    "@typescript-eslint/parser": "8.51.0",
+    "@types/node": "22.19.5",
+    "@typescript-eslint/eslint-plugin": "8.52.0",
+    "@typescript-eslint/parser": "8.52.0",
     "codelyzer": "6.0.2",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",

@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.ZgwClientHeadersFactory
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -18,6 +17,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.validateZgwApiUri
 import nl.info.client.zgw.zrc.model.ZaakUuid
@@ -50,13 +50,13 @@ class ZrcClientService @Inject constructor(
 ) {
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
-    fun createRol(rol: Rol<*>, toelichting: String?): Rol<*> {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+    fun createRol(rol: Rol<*>, auditExplanation: String?): Rol<*> {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return zrcClient.rolCreate(rol)
     }
 
-    fun deleteRol(rol: Rol<*>, toelichting: String?) {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+    fun deleteRol(rol: Rol<*>, auditExplanation: String?) {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         zrcClient.rolDelete(rol.uuid)
     }
 
@@ -64,7 +64,7 @@ class ZrcClientService @Inject constructor(
         zrcClient.zaakobjectCreate(zaakobject)
 
     fun deleteZaakobject(zaakobject: Zaakobject, toelichting: String?) {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         zrcClient.zaakobjectDelete(zaakobject.uuid)
     }
 
@@ -74,17 +74,17 @@ class ZrcClientService @Inject constructor(
         zaakInformatieobject: ZaakInformatieobject,
         toelichting: String? = null
     ): ZaakInformatieobject {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject)
     }
 
     fun deleteZaakInformatieobject(
         zaakInformatieobjectUuid: UUID,
         toelichting: String?,
-        toelichtingPrefix: String?
+        toelichtingPrefix: String
     ) {
         val fullToelichting = toelichting?.let { "$toelichtingPrefix: $it" } ?: toelichtingPrefix
-        zgwClientHeadersFactory.setAuditToelichting(fullToelichting)
+        zgwClientHeadersFactory.setAuditExplanation(fullToelichting)
         zrcClient.zaakinformatieobjectDelete(zaakInformatieobjectUuid)
     }
 
@@ -133,7 +133,7 @@ class ZrcClientService @Inject constructor(
         zrcClient.zaakobjectList(zaakobjectListParameters)
 
     fun patchZaak(zaakUUID: UUID, zaak: Zaak, explanation: String?): Zaak {
-        explanation?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        explanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return patchZaak(zaakUUID, zaak)
     }
 
@@ -228,12 +228,12 @@ class ZrcClientService @Inject constructor(
     fun deleteResultaat(resultaatUUID: UUID) = zrcClient.resultaatDelete(resultaatUUID)
 
     fun createZaak(zaak: Zaak): Zaak {
-        zaak.toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        zaak.toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return zrcClient.zaakCreate(zaak)
     }
 
     fun createStatus(zaakUuid: UUID, status: StatusSub): StatusSub {
-        status.statustoelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        status.statustoelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         val zaakBijwerken = ZaakBijwerken().apply {
             this.status = status
         }

@@ -7,6 +7,8 @@ Architecture diagrams are created and rendered using [Mermaid](https://mermaid.j
 
 The architecture is documented in more detail on the following pages:
 - [System Context](systemContext.md) - The system context of ZAC including the surrounding technical landscape.
+- [Deployment Model](deploymentModel.md) - The deployment model of ZAC including its components and dependencies.
+- [Data Model](dataModel.md) - The data model of ZAC.
 - [IAM Architecture](iamArchitecture.md) - The identity and access management (IAM) architecture of ZAC.
 - [Product request ('productaanvraag') support](productRequestSupport.md) - The product request ('productaanvraag') support in ZAC (using e.g. Open Formulieren).
 - [SmartDocuments Integration](smartDocumentsIntegration.md) - The integration of ZAC with SmartDocuments.
