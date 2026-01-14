@@ -5,6 +5,7 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
@@ -27,6 +28,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -492,5 +494,61 @@ class ZacClient(
             groupName = group.description,
             sendMail = sendMail
         )
+    }
+
+    fun searchForTasks(zaakIdentificatie: String, taskName: String): String =
+        itestHttpClient.performPutRequest(
+            url = "${ZAC_API_URI}/zoeken/list",
+            requestBodyAsString = """
+                {
+                  "rows": 10,
+                  "page": 0,
+                  "alleenMijnZaken": false,
+                  "alleenOpenstaandeZaken": false,
+                  "alleenAfgeslotenZaken": false,
+                  "alleenMijnTaken": false,
+                  "datums": {},
+                  "zoeken": {
+                    "TAAK_ZAAK_ID": "$zaakIdentificatie"
+                  },
+                  "filters": {
+                    "TAAK_NAAM": {
+                      "values": [ "$taskName" ],
+                      "inverse": "false"
+                    }
+                  },
+                  "sorteerRichting": "",
+                  "type": "TAAK"
+                }
+            """.trimIndent()
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HttpURLConnection.HTTP_OK
+            responseBody
+        }
+
+    fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
+        val takenCreateResponse = itestHttpClient.performGetRequest(
+            "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid"
+        ).let {
+            val responseBody = it.bodyAsString
+            logger.info { "Response: $responseBody" }
+            it.code shouldBe HttpURLConnection.HTTP_OK
+            responseBody
+        }
+
+        val patchedTakenData = takenCreateResponse.replace(""""taakdata":{}""", """"taakdata": $taakData""")
+        logger.info { "Patched request: $patchedTakenData" }
+
+        return itestHttpClient.performPatchRequest(
+            url = "${ZAC_API_URI}/taken/complete",
+            requestBodyAsString = patchedTakenData
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HttpURLConnection.HTTP_OK
+            responseBody
+        }
     }
 }

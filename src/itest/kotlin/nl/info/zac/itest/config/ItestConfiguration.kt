@@ -334,6 +334,9 @@ object ItestConfiguration {
     const val BPMN_TEST_FORM_NAME = "Test form"
     const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
+    const val BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME = "Zaak defaults"
+    const val BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME = "Hard coded"
+
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
     const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 

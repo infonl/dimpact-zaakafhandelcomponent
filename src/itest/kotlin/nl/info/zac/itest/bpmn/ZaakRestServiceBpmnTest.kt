@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * This test creates a zaak with a BPMN type.
  */
-class ZaakRestServiceTest : BehaviorSpec({
+class ZaakRestServiceBpmnTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
@@ -45,60 +45,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         duration = 30.seconds
         interval = 500.milliseconds
     }
-
-    fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
-        val takenCreateResponse = itestHttpClient.performGetRequest(
-            "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid"
-        ).let {
-            val responseBody = it.bodyAsString
-            logger.info { "Response: $responseBody" }
-            it.code shouldBe HttpURLConnection.HTTP_OK
-            responseBody
-        }
-
-        val patchedTakenData = takenCreateResponse.replace(""""taakdata":{}""", taakData)
-        logger.info { "Patched request: $patchedTakenData" }
-
-        return itestHttpClient.performPatchRequest(
-            url = "${ZAC_API_URI}/taken/complete",
-            requestBodyAsString = patchedTakenData
-        ).run {
-            val responseBody = bodyAsString
-            logger.info { "Response: $responseBody" }
-            code shouldBe HttpURLConnection.HTTP_OK
-            responseBody
-        }
-    }
-
-    fun getTaskList(
-        itestHttpClient: ItestHttpClient,
-        zaakIdentificatie: String,
-        taskName: String
-    ): String = itestHttpClient.performPutRequest(
-        url = "${ZAC_API_URI}/zoeken/list",
-        requestBodyAsString = """
-            {
-              "rows": 10,
-              "page": 0,
-              "alleenMijnZaken": false,
-              "alleenOpenstaandeZaken": false,
-              "alleenAfgeslotenZaken": false,
-              "alleenMijnTaken": false,
-              "datums": {},
-              "zoeken": {
-                "TAAK_ZAAK_ID": "$zaakIdentificatie"
-              },
-              "filters": {
-                "TAAK_NAAM": {
-                  "values": [ "$taskName" ],
-                  "inverse": "false"
-                }
-              },
-              "sorteerRichting": "",
-              "type": "TAAK"
-            }
-        """.trimIndent()
-    ).bodyAsString
 
     Given("A behandelaar is logged in and a BPMN type zaak has been created") {
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
@@ -146,10 +92,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
 
         When("the user data form is submitted") {
-            val takenPatchResponse = submitFormData(
+            val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
-                   "taakdata":{
+                   {
                      "zaakIdentificatie":"$zaakIdentificatie",
                      "initiator":null,
                      "zaaktypeOmschrijving":"${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
@@ -185,26 +131,30 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody =
-                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_TEST_TASK_NAME)
+                    val searchResponseBody = zacClient.searchForTasks(
+                        zaakIdentificatie,
+                        ItestConfiguration.BPMN_TEST_TASK_NAME
+                    )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
 
             And("summary form task becomes available") {
                 eventually(afterThirtySeconds) {
-                    val searchResponseBody =
-                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_SUMMARY_TASK_NAME)
+                    val searchResponseBody = zacClient.searchForTasks(
+                        zaakIdentificatie,
+                        ItestConfiguration.BPMN_SUMMARY_TASK_NAME
+                    )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
             }
         }
 
         When("the summary form is completed") {
-            val takenPatchResponse = submitFormData(
+            val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
-                  "taakdata":{
+                  {
                     "zaakIdentificatie":"$zaakIdentificatie",
                     "initiator":null,
                     "zaaktypeOmschrijving":"${ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
@@ -256,8 +206,10 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             And("the task is removed from the task list") {
                 eventually(10.seconds) {
-                    val searchResponseBody =
-                        getTaskList(itestHttpClient, zaakIdentificatie, ItestConfiguration.BPMN_SUMMARY_TASK_NAME)
+                    val searchResponseBody = zacClient.searchForTasks(
+                        zaakIdentificatie,
+                        ItestConfiguration.BPMN_SUMMARY_TASK_NAME
+                    )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
             }
