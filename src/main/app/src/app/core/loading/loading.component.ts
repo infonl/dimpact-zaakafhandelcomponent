@@ -6,8 +6,8 @@
 import { Component, computed, inject } from "@angular/core";
 import {
   QueryClient,
-  injectIsMutating,
   injectIsFetching,
+  injectIsMutating,
 } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../service/util.service";
 
