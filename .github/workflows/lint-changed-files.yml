@@ -46,7 +46,7 @@ jobs:
         id: ignore-errors
         run: |
           PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body)
-          if echo "$PR_BODY" | grep -q '\[@pipeline-typescript-file-changed-checks=ignore-errors\]'; then
+          if echo "$PR_BODY" | grep -q '@pipeline-typescript-file-changed-checks=ignore-errors'; then
             echo "ignore-errors=true" >> $GITHUB_OUTPUT
           else
             echo "ignore-errors=false" >> $GITHUB_OUTPUT
