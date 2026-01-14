@@ -235,8 +235,8 @@ testing {
                         systemProperty("zacDockerImage", zacDockerImage)
                         systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
                         dependsOn("buildDockerImage")
-                        // do not use the Gradle build cache for this suite's test task
-                        outputs.cacheIf { false }
+                        // always execute the integration tests
+                        outputs.upToDateWhen { false }
                     }
                 }
             }
@@ -939,7 +939,6 @@ dependencyCheck {
         // Keep enabled for Java/Kotlin ecosystem
         jarEnabled = true // JAR files
         centralEnabled = true // Maven Central
-        nexusEnabled = true // Nexus repository analyzer
 
         // Keep OS package analyzers disabled unless needed
         autoconfEnabled = false
