@@ -124,19 +124,19 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION"
-                      },
-                      {
                         "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
-                     },
+                      },
                       {
                         "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
@@ -170,6 +170,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                              "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
                              "identificatie": "$ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE",
                              "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
+                           },
+                           {
+                             "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
+                             "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
+                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION"
                            }
                         """.trimIndent()
                     }
