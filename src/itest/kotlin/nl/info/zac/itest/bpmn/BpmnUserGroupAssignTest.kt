@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * This test creates a zaak with a BPMN type.
  */
-class UserManagementFunctionsTest : BehaviorSpec({
+class BpmnUserGroupAssignTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}

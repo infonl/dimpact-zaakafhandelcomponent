@@ -14,7 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import java.net.HttpURLConnection
 
-class FormioFormulierenRestServiceTest : BehaviorSpec({
+class BpmnFormioFormulierenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 

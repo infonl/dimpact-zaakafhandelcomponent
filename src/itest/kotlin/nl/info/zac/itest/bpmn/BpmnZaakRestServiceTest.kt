@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * This test creates a zaak with a BPMN type.
  */
-class ZaakRestServiceBpmnTest : BehaviorSpec({
+class BpmnZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
