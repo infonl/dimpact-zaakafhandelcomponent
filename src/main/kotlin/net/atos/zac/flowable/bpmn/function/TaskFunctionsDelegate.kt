@@ -13,9 +13,12 @@ class TaskFunctionsDelegate : FlowableMultiFunctionDelegate {
         private const val PREFIX = "taken"
 
         /**
-        * Functions here need to be package level as Flowable uses [Method:invoke] that checks `Modifier.isStatic(modifiers)`
-        * @JVMStatic for companion object functions does *NOT* generate static modifier @ 2026-01-07, but only `public final`
-        */
+         * The functions we register in Flowable are listed below.
+         *
+         * Flowable uses Java reflection - [Method:invoke] that checks `Modifier.isStatic(modifiers)` to invoke these methods, and we need
+         * to ensure they are accessible. To do that, we use package level functions and *NOT* companion object functions marked with
+         * @JVMStatic as they do *NOT* generate static modifier @ 2026-01-07 in the compiled bytecode, but only `public final` modifiers.
+         */
         private val functions = mapOf(
             ::groep.name to ::groep.javaMethod,
             ::behandelaar.name to ::behandelaar.javaMethod
