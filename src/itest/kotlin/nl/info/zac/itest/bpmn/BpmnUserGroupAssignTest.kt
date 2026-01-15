@@ -187,17 +187,13 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             Then("the next task has the copied user and group assigned") {
                 val behandelaar = if (FEATURE_FLAG_PABC_INTEGRATION) {
                     """
-                      "behandelaar" : {
-                        "id" : "behandelaar1newiam",
-                        "naam" : "Test Behandelaar 1 - new IAM"
-                      }
+                      "id" : "behandelaar1newiam",
+                      "naam" : "Test Behandelaar 1 - new IAM"
                     """.trimIndent()
                 } else {
                     """
-                      "behandelaar" : {
-                        "id" : "behandelaar1",
-                        "naam" : "Test Behandelaar1"
-                      }
+                      "id" : "behandelaar1",
+                      "naam" : "Test Behandelaar1"
                     """.trimIndent()
                 }
 
@@ -211,7 +207,9 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "id" : "Superheroes",
                         "naam" : "Superheroes"
                       },
-                      $behandelaar
+                      "behandelaar" : {
+                        $behandelaar
+                      }
                     }                    
                 """.trimIndent()
             }
