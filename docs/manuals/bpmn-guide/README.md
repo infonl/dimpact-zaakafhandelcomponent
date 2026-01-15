@@ -358,7 +358,7 @@ For example:
 </userTask>
 ```
 
-We're using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, so that it won’t throw an exception when the variable doesn’t exist.
+We are using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, so that it will not throw an exception when the variable does not exist.
 As the group should always be provided when creating a zaak we set the candidate group directly to the value of `zaakGroep` variable.
 
 
