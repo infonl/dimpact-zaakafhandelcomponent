@@ -15,9 +15,12 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -90,6 +93,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "valide": true,
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
+                          "beginGeldigheid": "$DATE_2025_01_01",
+                          "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_BPMN_TEST_2_UUID",
+                          "versiedatum": "$DATE_2025_01_01",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },
+                      {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
+                        "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
+                        "informatieobjecttypeEmailAanwezig": true,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolOverigeAanwezig": true,
+                        "statustypeAanvullendeInformatieVereist": true,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
+                        "statustypeHeropendAanwezig": true,
+                        "statustypeInBehandelingAanwezig": true,
+                        "statustypeIntakeAanwezig": true,
+                        "valide": true,
+                        "zaakafhandelParametersValide": true,
+                        "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
                           "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
                           "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
@@ -120,12 +152,12 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_01_01",
-                          "doel": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_BPMN_TEST_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_BPMN_TEST_UUID",
+                          "uuid": "$ZAAKTYPE_BPMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_01_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }

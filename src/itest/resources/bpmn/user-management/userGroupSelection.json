@@ -1,0 +1,56 @@
+{
+  "display": "form",
+  "name": "userGroupSelection",
+  "title": "User and group selection",
+  "type": "form",
+  "components": [
+    {
+      "title": "Select group and user",
+      "label": "Select group and user",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "type": "select",
+          "key": "selectedGroup",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_groep"
+          },
+          "dataSrc": "custom",
+          "clearOnRefresh": true
+        },
+        {
+          "label": "User",
+          "type": "select",
+          "key": "selectedUser",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_medewerker"
+          },
+          "dataSrc": "custom",
+          "refreshOn": "selectedGroup",
+          "clearOnRefresh": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Next",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

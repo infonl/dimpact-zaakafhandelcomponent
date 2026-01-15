@@ -136,7 +136,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             "url": "/haalcentraal/api/brp/personen",
                             "headers": {
                               "X-DOELBINDING": {
-                                "matches": "BRPACT-Totaal"
+                                "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
                                 "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
@@ -243,7 +243,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             "url": "/haalcentraal/api/brp/personen",
                             "headers": {
                               "X-DOELBINDING": {
-                                "matches": "BRPACT-Totaal"
+                                "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
                                 "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"

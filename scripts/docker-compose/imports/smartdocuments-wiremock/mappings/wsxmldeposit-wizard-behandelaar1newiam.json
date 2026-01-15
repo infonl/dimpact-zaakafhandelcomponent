@@ -95,7 +95,7 @@
                   "toelichting": "${json-unit.any-string}",
                   "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
                   "vertrouwelijkheidaanduiding": "openbaar",
-                  "zaaktype": "BPMN test zaaktype"
+                  "zaaktype": "BPMN test zaaktype 1"
                 }
               }
             },
