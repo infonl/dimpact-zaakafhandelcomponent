@@ -6,7 +6,7 @@ We are currently migrating from [**Cucumber**](https://cucumber.io/) to [**Playw
 
 ## Prerequisites
 
-- Node.js 22.21.1
+- Node.js 22.22.0
 - npm 10.9.4
 - A running ZAC instance (either locally or deployed)
 
@@ -137,7 +137,7 @@ When(
   async ({ userToLogin, signIn }, user: string) => {
     userToLogin.value = ENV.users[user]; // <-- user is injected here
     await signIn(); // <-- and made sure to be signed in
-  }
+  },
 );
 ```
 

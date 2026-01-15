@@ -19,7 +19,7 @@ permissions:
 
 env:
   JAVA_VERSION: "21.0.9"
-  SECURITY_SCAN_RETENTION_DAYS: 30  # Maximum age of security scan reports in days
+  SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
 
 jobs:
   npm-security-audit:
@@ -35,13 +35,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          fetch-depth: 2  # Need previous commit to detect changes
+          fetch-depth: 2 # Need previous commit to detect changes
 
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: .nvmrc
+          cache: "npm"
           cache-dependency-path: src/main/app/package-lock.json
 
       - name: Audit main app dependencies
@@ -51,25 +51,25 @@ jobs:
         run: |
           echo "🔍 Running security audit for main application..."
           npm install
-          
+
           npm audit --json > audit-results.json || true
-          
+
           # Convert to SARIF format
           jq -f "${{ github.workspace }}/scripts/github/helpers/npm-audit-to-sarif.jq" audit-results.json > npm-audit-main.sarif
-          
+
           # Extract vulnerability counts from JSON
           TOTAL=$(jq '[.vulnerabilities | to_entries[] | select(.value.via | type == "array" and (map(type == "object") | any))] | length' audit-results.json)
           CRITICAL=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "critical")] | length' audit-results.json)
           HIGH=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "high")] | length' audit-results.json)
           MODERATE=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "moderate")] | length' audit-results.json)
           LOW=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "low")] | length' audit-results.json)
-          
+
           echo "vuln_total=$TOTAL" >> $GITHUB_OUTPUT
           echo "vuln_critical=$CRITICAL" >> $GITHUB_OUTPUT
           echo "vuln_high=$HIGH" >> $GITHUB_OUTPUT
           echo "vuln_moderate=$MODERATE" >> $GITHUB_OUTPUT
           echo "vuln_low=$LOW" >> $GITHUB_OUTPUT
-          
+
           # Display summary
           echo "📊 Vulnerability Summary:"
           echo "  Critical: $CRITICAL"
@@ -77,7 +77,7 @@ jobs:
           echo "  Moderate: $MODERATE"
           echo "  Low: $LOW"
           echo "  Total: $TOTAL"
-          
+
           # Fail if high or critical vulnerabilities found
           if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
             echo "🚨 Found $CRITICAL critical and $HIGH high severity vulnerabilities!"
@@ -132,8 +132,8 @@ jobs:
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: 'gradle'
+          distribution: "temurin"
+          cache: "gradle"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
@@ -145,7 +145,7 @@ jobs:
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
           ./gradlew dependencyCheckUpdate --no-configuration-cache || true
-          
+
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
             echo "📊 OWASP database cache status:"
@@ -160,7 +160,7 @@ jobs:
           # Run OWASP dependency check (now available)
           echo "🛡️ Running OWASP Dependency Check..."
           ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
-          
+
           # Show SARIF file info if generated
           if [ -f "build/reports/dependency-check-report.sarif" ]; then
             echo "✅ SARIF report generated for GitHub Security upload"
@@ -174,7 +174,7 @@ jobs:
           else
             echo "❌ SARIF report not found"
           fi
-          
+
           # Save vulnerability counts for Slack notification
           if [ -f "build/reports/dependency-check-report.json" ]; then
             TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
@@ -188,14 +188,14 @@ jobs:
         if: always()
         run: |
           echo "📊 Generating vulnerability summary..."
-          
+
           # Parse OWASP scan results
           TOTAL_VULNS=0
           CRITICAL_VULNS=0
           HIGH_VULNS=0
           MEDIUM_VULNS=0
           LOW_VULNS=0
-          
+
           if [ -f "build/reports/dependency-check-report.json" ]; then
             # Extract vulnerability counts from JSON report
             TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
@@ -204,13 +204,13 @@ jobs:
             MEDIUM_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
             LOW_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
           fi
-          
+
           # Write summary to GitHub Step Summary
           cat >> $GITHUB_STEP_SUMMARY <<EOF
           ## 🛡️ OWASP Dependency Check Results
-          
+
           ### Vulnerability Summary
-          
+
           | Severity | Count |
           |----------|-------|
           | 🔴 Critical | $CRITICAL_VULNS |
@@ -218,10 +218,10 @@ jobs:
           | 🟡 Medium | $MEDIUM_VULNS |
           | 🟢 Low | $LOW_VULNS |
           | **Total** | **$TOTAL_VULNS** |
-          
+
           📊 [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)
-          
+
           EOF
 
       - name: Upload SARIF results to GitHub Security
@@ -244,7 +244,7 @@ jobs:
           # Determine overall status based on job results
           NPM_STATUS="${{ needs.npm-security-audit.result }}"
           GRADLE_STATUS="${{ needs.gradle-security-audit.result }}"
-          
+
           if [[ "$NPM_STATUS" == "failure" || "$GRADLE_STATUS" == "failure" ]]; then
             echo "status=Failed" >> $GITHUB_OUTPUT
             echo "emoji=❌" >> $GITHUB_OUTPUT
