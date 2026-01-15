@@ -328,6 +328,10 @@ object ItestConfiguration {
         "bpmn/user-management/$BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH = "bpmn/user-management/zaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH = "bpmn/user-management/hardCoded.json"
+    const val BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH = "bpmn/user-management/userGroupSelection.json"
+    const val BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH = "bpmn/user-management/displayUserGroup.json"
+    const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
+    const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
@@ -336,6 +340,9 @@ object ItestConfiguration {
 
     const val BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME = "Zaak defaults"
     const val BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME = "Hard coded"
+    const val BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME = "Display selected user and group"
+    const val BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME = "New zaak defaults"
+    const val BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME = "Copy user and group"
 
     const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
     const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"

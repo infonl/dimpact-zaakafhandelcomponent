@@ -20,10 +20,14 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PA
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
@@ -318,7 +322,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_TEST_FORM_RESOURCE_PATH,
             BPMN_SUMMARY_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/formio-formulieren",

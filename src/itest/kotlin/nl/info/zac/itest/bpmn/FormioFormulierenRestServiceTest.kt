@@ -33,22 +33,38 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                 response.code shouldBe HttpURLConnection.HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 [
-                    {
-                        "name": "testForm",
-                        "title": "Test form"
-                    },
-                    {
-                        "name": "summaryForm",
-                        "title": "Summary form"
-                    },
-                    {
-                        "name": "zaakDefaults",
-                        "title": "Zaak defaults"
-                    },
-                    {
-                        "name": "hardCoded",
-                        "title": "Hard-coded"
-                    }
+                  {
+                    "name": "copyUserGroup",
+                    "title": "Copy user and group"
+                  },
+                  {
+                    "name": "displayUserGroup",
+                    "title": "User and group"
+                  },
+                  {
+                    "name": "hardCoded",
+                    "title": "Hard-coded"
+                  },
+                  {
+                    "name": "newZaakDefaults",
+                    "title": "New Zaak Defaults"
+                  },
+                  {
+                    "name": "summaryForm",
+                    "title": "Summary form"
+                  },
+                  {
+                    "name": "testForm",
+                    "title": "Test form"
+                  },
+                  {
+                    "name": "userGroupSelection",
+                    "title": "User and group selection"
+                  },
+                  {
+                    "name": "zaakDefaults",
+                    "title": "Zaak defaults"
+                  }
                 ]
                 """.trimIndent()
             }

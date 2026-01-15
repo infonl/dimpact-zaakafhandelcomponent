@@ -14,8 +14,11 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -99,7 +102,7 @@ class UserManagementFunctionsTest : BehaviorSpec({
             }
         }
 
-        When("the form is submitted") {
+        When("the 'zaak defaults' form is submitted") {
             zacClient.submitFormData(bpmnZaakUuid!!, "{}")
 
             Then("the next task is assigned a hard-coded user and group") {
@@ -116,6 +119,81 @@ class UserManagementFunctionsTest : BehaviorSpec({
                       "behandelaar" : {
                         "id" : "Invisible Man",
                         "naam" : "Invisible Man"
+                      }
+                    }                    
+                """.trimIndent()
+            }
+        }
+
+        When("the 'hard-coded' and 'select user&group' forms are submitted") {
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+            zacClient.submitFormData(bpmnZaakUuid, """
+                {
+                    "selectedGroup": "recordmanagers-test-1",
+                    "selectedUser": "recordmanager1newiam"
+                }
+            """.trimIndent())
+
+            Then("the next task has the selected user and group assigned") {
+                getTaskData(
+                    zaakIdentificatie!!,
+                    bpmnZaakUuid,
+                    BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
+                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "groep" : {
+                        "id" : "recordmanagers-test-1",
+                        "naam" : "recordmanagers-test-1"
+                      },
+                      "behandelaar" : {
+                        "id" : "recordmanager1newiam",
+                        "naam" : "Test Recordmanager 1 - new IAM"
+                      }
+                    }                    
+                """.trimIndent()
+            }
+        }
+
+        When("the new zaak defaults are set by service task") {
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+
+            Then("the next task has the selected user and group assigned") {
+                getTaskData(
+                    zaakIdentificatie!!,
+                    bpmnZaakUuid,
+                    BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
+                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "groep" : {
+                        "id" : "recordmanagers-test-1",
+                        "naam" : "recordmanagers-test-1"
+                      },
+                      "behandelaar" : {
+                        "id" : "Test Recordmanager 1 - new IAM",
+                        "naam" : "Test Recordmanager 1 - new IAM"
+                      }
+                    }                    
+                """.trimIndent()
+            }
+        }
+
+        When("the copy user & group functions are used ") {
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+
+            Then("the next task has the copied user and group assigned") {
+                getTaskData(
+                    zaakIdentificatie!!,
+                    bpmnZaakUuid,
+                    BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
+                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "groep" : {
+                        "id" : "Superheroes",
+                        "naam" : "Superheroes"
+                      },
+                      "behandelaar" : {
+                        "id" : "behandelaar1newiam",
+                        "naam" : "Test Behandelaar 1 - new IAM"
                       }
                     }                    
                 """.trimIndent()
