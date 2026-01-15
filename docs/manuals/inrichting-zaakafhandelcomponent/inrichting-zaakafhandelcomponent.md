@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 27-10-2025 <br>
-> Versie :   1.6 <br>
-> Verandering : ZAC v3.20.53 Inrichting Zaakafhandelcomponent <br>
+> Datum : 15-01-2026 <br>
+> Versie :   1.7 <br>
+> Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -14,14 +14,15 @@
 
 Versiegeschiedenis:
 
-| 1.0   | Initiële versie     |
-|-------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0 | Initiële versie |
+|-----|-------------------------------------------------------------------------------------------------------------------------------------|
 | 1.1 | ZAC versie 3.7 |
 | 1.2 | ZAC versie 3.9 |
 | 1.3 | ZAC versie 3.11 |
 | 1.4 | ZAC versie 3.12 |
 | 1.5 | ZAC versie 3.17.67 |
 | 1.6 | ZAC versie 3.20.53 |
+| 1.7 | ZAC versie 4.0.54 |
 
 # Inhoud
 
@@ -359,7 +360,9 @@ Stappen:
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
-# Domeinen
+# Domeinen (huidige IAM-architectuur)
+
+Deze sectie beschrijft de werking van domeinen t.b.v. zaaktype autorisaties in ZAC bij gebruik van de huidige ('oude') IAM-architectuur.
 
 ## De functie van Domeinen
 
@@ -380,4 +383,13 @@ Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
 
-> Let op! De domeinnamen mogen niet langer zijn dan 24 lettertekens. Langer dan 24 lettertekens kan wel, maar zullen niet werken zonder verdere foutmelding.
+# Groepen
+
+Groepen van medewerkers worden beheerd in Keycloak. In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Zie eerdere secties in dit document voor details.
+
+> Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
+
+> Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
+> Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
+> Hier wordt geen foutmelding van getoond. 

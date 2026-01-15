@@ -1,9 +1,8 @@
-# ZAC Helm Chart
+# zaakafhandelcomponent
 
-![Version: 1.0.171](https://img.shields.io/badge/Version-1.0.171-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
+![Version: 1.0.173](https://img.shields.io/badge/Version-1.0.173-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
 
-This folder contains the Helm chart for deploying ZAC.
-For more information, please see the [ZAC deployment model](../../docs/solution-architecture/deploymentModel.md) documentation.
+A Helm chart for installing Zaakafhandelcomponent
 
 ## Maintainers
 
@@ -219,7 +218,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.12.2-static@sha256:a4a8a67173fd7c8673c20c67c2a8d3611f705518afba932538e911ba7aa72451"` |  |
+| opa.image.tag | string | `"1.12.3-static@sha256:59a9258e3cf8682020ad9269e201e35ade5253325b30c869621bdeac0ac21076"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
