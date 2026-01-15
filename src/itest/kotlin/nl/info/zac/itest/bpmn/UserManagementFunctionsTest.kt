@@ -127,12 +127,15 @@ class UserManagementFunctionsTest : BehaviorSpec({
 
         When("the 'hard-coded' and 'select user&group' forms are submitted") {
             zacClient.submitFormData(bpmnZaakUuid!!, "{}")
-            zacClient.submitFormData(bpmnZaakUuid, """
+            zacClient.submitFormData(
+                bpmnZaakUuid,
+                """
                 {
                     "selectedGroup": "recordmanagers-test-1",
                     "selectedUser": "recordmanager1newiam"
                 }
-            """.trimIndent())
+                """.trimIndent()
+            )
 
             Then("the next task has the selected user and group assigned") {
                 getTaskData(

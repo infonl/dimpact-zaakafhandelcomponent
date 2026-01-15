@@ -12,7 +12,7 @@
       "input": false,
       "components": [
         {
-          "label": "Group",
+          "label": "Group ID",
           "labelPosition": "left-left",
           "key": "hardCodedGroup",
           "type": "textfield",
@@ -21,7 +21,7 @@
           "disabled": true
         },
         {
-          "label": "User",
+          "label": "User ID",
           "labelPosition": "left-left",
           "key": "actualUser",
           "type": "textfield",
