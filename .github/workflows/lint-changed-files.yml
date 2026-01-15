@@ -156,8 +156,9 @@ jobs:
             if [ $TSC_EXIT_CODE -eq 124 ]; then
               echo "⚠️  TypeScript check timed out (60s)"
               rm -f "$TSC_TEMP_FILE"
-              echo "errors-found=false" >> $GITHUB_OUTPUT
-              exit 1
+              # Treat timeout as an error, but do not fail immediately
+              echo "errors-found=true" >> $GITHUB_OUTPUT
+              exit 0
             fi
             
             FAILED_FILES=""
