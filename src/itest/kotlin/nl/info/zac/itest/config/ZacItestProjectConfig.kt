@@ -68,6 +68,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -119,12 +120,18 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     /**
+     * Set a random order seed so that the tests run is reproducible.
+     */
+    override val randomOrderSeed = Random.nextLong()
+
+    /**
      * Run the integration tests in random order to make sure they remain isolated
      * and do not depend on each other's side effects.
      */
     override val specExecutionOrder = SpecExecutionOrder.Random
 
     override suspend fun beforeProject() {
+        logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
         try {
             if (!skipDockerComposeStart) {
                 deleteLocalDockerVolumeData()
