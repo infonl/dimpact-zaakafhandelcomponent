@@ -1,0 +1,44 @@
+{
+  "display": "form",
+  "name": "copyUserGroup",
+  "title": "Copy user and group",
+  "type": "form",
+  "components": [
+    {
+      "title": "Copied user and group",
+      "label": "Copied user and group",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group ID",
+          "labelPosition": "left-left",
+          "key": "hardCodedGroup",
+          "type": "textfield",
+          "persistent": false,
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "User ID",
+          "labelPosition": "left-left",
+          "key": "actualUser",
+          "type": "textfield",
+          "defaultValue": "-- not set --",
+          "persistent": false,
+          "input": false,
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Next",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

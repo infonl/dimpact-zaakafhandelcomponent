@@ -196,7 +196,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "kvkKoppelen": true
                         },
                         "brpDoelbindingen": {
-                          "raadpleegWaarde": "BRPACT-Totaal",
+                          "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
                         "caseDefinition": {
@@ -264,7 +264,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "kvkKoppelen": true
                         },
                         "brpDoelbindingen": {
-                          "raadpleegWaarde": "BRPACT-Totaal",
+                          "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
                         "caseDefinition": {
@@ -333,7 +333,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "kvkKoppelen": true
                         },
                         "brpDoelbindingen": {
-                          "raadpleegWaarde": "BRPACT-Totaal",
+                          "raadpleegWaarde": "BRPACT-AlgemeneTaken",
                           "zoekWaarde": "BRPACT-ZoekenAlgemeen"
                         },
                         "caseDefinition": {
