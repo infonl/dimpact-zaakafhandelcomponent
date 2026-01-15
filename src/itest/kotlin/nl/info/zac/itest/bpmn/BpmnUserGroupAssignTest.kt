@@ -20,9 +20,10 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGERS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -132,8 +133,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 bpmnZaakUuid,
                 """
                 {
-                    "selectedGroup": "recordmanagers-test-1",
-                    "selectedUser": "recordmanager1newiam"
+                    "selectedGroup": "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
+                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}"
                 }
                 """.trimIndent()
             )
@@ -146,12 +147,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "recordmanagers-test-1",
-                        "naam" : "recordmanagers-test-1"
+                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
+                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
                       },
                       "behandelaar" : {
-                        "id" : "recordmanager1newiam",
-                        "naam" : "Test Recordmanager 1 - new IAM"
+                        "id" : "${RECORDMANAGER_DOMAIN_TEST_1.username}",
+                        "naam" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}"
                       }
                     }                    
                 """.trimIndent()
@@ -169,12 +170,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "recordmanagers-test-1",
-                        "naam" : "recordmanagers-test-1"
+                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
+                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
                       },
                       "behandelaar" : {
-                        "id" : "Test Recordmanager 1 - new IAM",
-                        "naam" : "Test Recordmanager 1 - new IAM"
+                        "id" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}",
+                        "naam" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}"
                       }
                     }                    
                 """.trimIndent()
@@ -185,18 +186,6 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             zacClient.submitFormData(bpmnZaakUuid!!, "{}")
 
             Then("the next task has the copied user and group assigned") {
-                val behandelaar = if (FEATURE_FLAG_PABC_INTEGRATION) {
-                    """
-                      "id" : "behandelaar1newiam",
-                      "naam" : "Test Behandelaar 1 - new IAM"
-                    """.trimIndent()
-                } else {
-                    """
-                      "id" : "behandelaar1",
-                      "naam" : "Test Behandelaar1"
-                    """.trimIndent()
-                }
-
                 getTaskData(
                     zaakIdentificatie!!,
                     bpmnZaakUuid,
@@ -208,7 +197,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "naam" : "Superheroes"
                       },
                       "behandelaar" : {
-                        $behandelaar
+                        "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                        "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                       }
                     }                    
                 """.trimIndent()
