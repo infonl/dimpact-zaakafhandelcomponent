@@ -2,8 +2,8 @@
 
 
 > **Colofon** <br>
-> Datum : 15-01-2026 <br>
-> Versie :   1.7 <br>
+> Datum : 19-01-2026 <br>
+> Versie :   1.8 <br>
 > Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -23,6 +23,7 @@ Versiegeschiedenis:
 | 1.5 | ZAC versie 3.17.67 |
 | 1.6 | ZAC versie 3.20.53 |
 | 1.7 | ZAC versie 4.0.54 |
+| 1.8 | ZAC versie 4.0.54 |
 
 # Inhoud
 
@@ -33,14 +34,6 @@ Versiegeschiedenis:
 [*Zaakafhandel-parameters*](#zaakafhandel-parameters)
 - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
 - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
- [*CMMN*](#cmmn)
- [*Gegevens*](#gegevens)
- [*Taakgegevens*](#taakgegevens)
- [*Actiegegevens*](#actiegegevens)
- [*Mailgegevens*](#mailgegevens)
- [*Zaakbeëindig gegevens*](#zaakbeëindig-gegevens)
- [*Koppelingen*](#koppelingen)
-
 
 [*Referentietabellen*](#referentietabellen)
 - [Referentietabel bewerken](#referentietabel-bewerken)
@@ -64,9 +57,13 @@ Versiegeschiedenis:
 - [Werking van de signaleringen](#werking-van-de-signaleringen)
 - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
 
-[*Domeinen*](#domeinen)
-- [De functie van Domeinen](#de-functie-van-domeinen)
-- [Domeinen inrichten en zaaktype / behandelaars toewijzen](#domeinen-inrichten-en-zaaktype--behandelaars-toewijzen)
+[*Identiteits- en toegangsbeheer*](#identiteits--en-toegangsbeheer)
+- [Oude IAM architectuur](#oude-iam-architectuur)
+- [Nieuwe IAM architectuur](#nieuwe-iam-architectuur)
+
+[*Groepen*](#groepen)
+- [Groep autorisaties](#groep-autorisaties)
+- [Beheer van groepen](#beheer-van-groepen)
 
 ## Inrichting Zaakafhandelcomponent 
 
@@ -304,7 +301,7 @@ Het is ook mogelijk om de naam van de mailtemplate te wijzigen.
 
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
-2. Open het template door op het oog icoon te klikken
+2. Open de template door op het oog icoon te klikken
 3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus icoon te klikken en ze te selecteren uit de lijst
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
@@ -360,33 +357,114 @@ Stappen:
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
-# Domeinen (huidige IAM-architectuur)
+## Identiteits- en toegangsbeheer
 
-Deze sectie beschrijft de werking van domeinen t.b.v. zaaktype autorisaties in ZAC bij gebruik van de huidige ('oude') IAM-architectuur.
+Deze sectie beschrijft de werking van identiteits- en toegangsbeheer (Identity and Access Management, IAM) in ZAC.
+Er wordt onderscheid gemaakt tussen de 'oude' en 'nieuwe' IAM-architectuur.
+* De oude IAM-architectuur maakt met name gebruik van domeinen in ZAC om zaaktype autorisaties te regelen,
+en zal in de toekomst worden vervangen door de nieuwe IAM-architectuur.
+* De nieuwe IAM-architectuur maakt met name gebruik van het PABC (Platform Autorisatie Beheer Component) om zaaktype (en andere) autorisaties te beheren.
 
-## De functie van Domeinen
+### Oude IAM architectuur
+
+Deze sectie beschrijft de werking van de oude IAM-architectuur in ZAC en zal in de toekomst worden vervangen door de nieuwe IAM-architectuur.
+ZAC maakt op dit moment bij een standaard configuratie gebruik van de oude IAM-architectuur.
+
+#### Domeinen
+
+Deze sectie beschrijft de werking van domeinen t.b.v. zaaktype autorisaties in ZAC bij gebruik van de oude IAM-architectuur.
+
+##### De functie van Domeinen
 
 Domeinen kunnen worden gebruikt om zaaktypen en gebruikers aan elkaar te koppelen, waardoor je kunt zorgen dat deze gebruikers alleen deze zaaktypen kunnen behandelen.
 Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je hier alle behandelaars die specifiek aan vergunningen werken in een stap al deze zaaktypen kan toewijzen.
 
-## Domeinen inrichten en zaaktype / behandelaars toewijzen
+##### Domeinen inrichten en zaaktype / behandelaars toewijzen
 
 Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 1. In Keycloak:
-- selecteer de zaakafhandelcomponent realm
-- in clients, selecteer de zaakafhandelcomponent client
-- maak een rol aan met een naam die begint met domein_ en een korte omschrijving van het domein, bijvoorbeeld "domein_vergunningen"
-- maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
+- selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt
+- in clients, selecteer de `zaakafhandelcomponent` client
+- maak een rol aan met een naam die begint met `domein_` en een korte omschrijving van het domein, bijvoorbeeld "domein_vergunningen"
+- maak een groep aan met de ZAC applicatierol(len) die de gebruikers moeten krijgen en ook met de juist aangemaakte domein rol
 - plaats de gebruikers die bij dit domein horen aan de groep toe
 2. In ZAC
 - maak in de referentietabel `Domein` een domein aan met exact dezelfde naam, in dit geval "domein_vergunningen"
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
 
-# Groepen
+### Nieuwe IAM architectuur
 
-Groepen van medewerkers worden beheerd in Keycloak. In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
-Zie eerdere secties in dit document voor details.
+Deze sectie beschrijft de werking van de nieuwe IAM-architectuur in ZAC.
+ZAC moet expliciet worden geconfigureerd om gebruik te maken van de nieuwe IAM-architectuur.
+
+De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
+* Een vereiste is dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
+* Het is generiek ontworpen om in de toekomst meerdere 'entiteitstypes' (op dit moment alleen nog zaaktypes) te kunnen gaan autoriseren.
+* Het biedt meer flexibiliteit in het beheren van autorisaties, en het is bijvoorbeeld mogelijk om een medewerker 
+verschillende applicatierollen toe te kennen per domein (=verzameling entiteitstypes).
+* Het maakt een expliciet onderscheid tussen 'functionele rollen' en 'applicatierollen'. 
+* Het introduceert een nieuwe 'domein' concept, dat niet meer in ZAC (en Keycloak) wordt beheerd maar geheel in de PABC.
+
+#### Zaaktype autorisaties
+
+Om een zaaktype te autoriseren voor een medewerker of groep, moeten de volgende stappen doorlopen worden:
+1. In Keycloak:
+- Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
+- Maak één of meerdere functionele rollen aan op het niveau van het realm ('Ream Roles' in Keycloak). 
+Bijvoorbeeld: 'behandelaar_vergunningen' en 'raadpleger_fysieke_leefomgeving'. 
+- 
+2. In de PABC:
+- TODO
+
+TODO; ook screenshots toevoegen
+
+#### Functionele rollen en applicatierollen
+
+Functionele rollen zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
+Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt worden,
+zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
+Functionele rollen worden beheerd in Keycloak.
+
+Applicatierollen zijn laag-niveau applicatie-specifieke rollen. 
+Ze worden gedefinieerd door de specifieke applicatie (in dit geval ZAC) en kunnen niet worden aangepast.
+Ze moeten (op dit moment) ook geconfigureerd worden in de PABC.
+
+ZAC kent op dit moment de volgende applicatierollen:
+* `raadpleger`
+* `behandelaar`
+* `coordinator`
+* `recordmanager`
+* `beheerder`
+
+De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
+te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
+
+#### Domeinen
+
+Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
+Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
+
+Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
+van entiteitstypes (zoals zaaktypes) te autoriseren.
+
+## Groepen
+
+Groepen van medewerkers worden beheerd in Keycloak. 
+In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Zie eerdere secties in dit document voor specifieke details.
+
+### Groep autorisaties
+
+Zowel in de oude als nieuwe IAM-architectuur worden naast medewerkers ook groepen gebruikt om autorisaties te regelen.
+Dit vindt plaats middels de rol(len) die aan de groep zijn toegekend in Keycloak.
+
+Omdat ZAC voor bepaalde functionaliteit gebruik maakt van autorisaties op groep-niveau (bijvoorbeeld bij het toekennen van een zaak aan een groep)
+is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
+
+### Beheer van groepen
+
+Het beheer van groepen, het toekennen van (functionele) rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
 
 > Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
 
