@@ -24,7 +24,6 @@ class TaskFunctionsTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-        clearAllMocks()
     }
 
     Given("a process instance with historic tasks") {
