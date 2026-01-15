@@ -45,9 +45,14 @@ jobs:
         id: ignore-errors
         run: |
           PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body)
+          echo "PR Body content:"
+          echo "$PR_BODY"
+          echo "---"
           if echo "$PR_BODY" | grep -q '@pipeline-typescript-file-changed-checks=ignore-errors'; then
+            echo "✅ Directive found - ignoring errors"
             echo "ignore-errors=true" >> $GITHUB_OUTPUT
           else
+            echo "❌ Directive not found, not ignoring errors"
             echo "ignore-errors=false" >> $GITHUB_OUTPUT
           fi
         env:
