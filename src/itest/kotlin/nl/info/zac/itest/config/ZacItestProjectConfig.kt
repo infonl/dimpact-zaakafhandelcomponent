@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -116,6 +117,12 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
         )
     }
+
+    /**
+     * Run the integration tests in random order to make sure they remain isolated
+     * and do not depend on each other's side effects.
+     */
+    override val specExecutionOrder = SpecExecutionOrder.Random
 
     override suspend fun beforeProject() {
         try {

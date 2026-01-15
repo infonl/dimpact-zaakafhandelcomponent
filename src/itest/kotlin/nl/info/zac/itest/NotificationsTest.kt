@@ -80,7 +80,6 @@ class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
-    lateinit var zaakProductaanvraag2Uuid: UUID
     lateinit var zaakProductaanvraag3Uuid: UUID
     lateinit var zaakProductaanvraagComboUuid: UUID
     lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
@@ -281,7 +280,7 @@ class NotificationsTest : BehaviorSpec({
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_UUID.toString()
-                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_DESCRIPTION.toString()
+                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
                         getBoolean("isProcesGestuurd") shouldBe true
                         getString("communicatiekanaal") shouldBe "E-formulier"
@@ -376,7 +375,6 @@ class NotificationsTest : BehaviorSpec({
                             getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
                             getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
-                        zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
             }
