@@ -69,6 +69,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-view.component.html",
   styleUrls: ["./zaak-view.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZaakViewComponent
   extends ActionsViewComponent

@@ -5,63 +5,41 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Injector, runInInjectionContext } from "@angular/core";
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  provideQueryClient,
-} from "@tanstack/angular-query-experimental";
-import {
-  mockMutationFn,
-  MUTATION_TIMEOUT,
-  sleep,
-  testQueryClient,
-} from "../../../../../setupJest";
-import { MaterialModule } from "../../material/material.module";
-import { PipesModule } from "../../pipes/pipes.module";
+
 import { ZacFormActions } from "./form-actions.component";
 
 describe(ZacFormActions.name, () => {
   let fixture: ComponentFixture<ZacFormActions>;
   let loader: HarnessLoader;
   let form: FormGroup;
-  let mutation: ReturnType<typeof injectMutation>;
-  let injector: Injector;
+  let isPendingSignal: ReturnType<typeof signal>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [ZacFormActions],
-      imports: [
-        TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        NoopAnimationsModule,
-      ],
-      providers: [provideQueryClient(testQueryClient)],
-    });
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+    }).compileComponents();
 
     const formBuilder = TestBed.inject(FormBuilder);
-    form = formBuilder.group({
-      field: [null],
-    });
-
-    injector = TestBed.inject(Injector);
-    mutation = runInInjectionContext(injector, () =>
-      injectMutation(() => ({
-        mutationKey: ["test-mutation"],
-        mutationFn: () => mockMutationFn(),
-      })),
-    );
+    form = formBuilder.group({ field: [null] });
 
     fixture = TestBed.createComponent(ZacFormActions);
-    fixture.componentRef.setInput("mutation", mutation);
-    fixture.componentRef.setInput("form", form);
-
     loader = TestbedHarnessEnvironment.loader(fixture);
+
+    isPendingSignal = signal(false);
+    fixture.componentRef.setInput("form", form);
+    fixture.componentRef.setInput("mutation", {
+      isPending: () => isPendingSignal(),
+    });
+
+    fixture.detectChanges();
+    await Promise.resolve();
   });
 
   describe("action buttons", () => {
@@ -118,55 +96,54 @@ describe(ZacFormActions.name, () => {
     it("should disable the submit button when the form is disabled", async () => {
       form.markAsDirty();
       form.disable();
-      await fixture.whenStable();
+
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.verstuur" }),
       );
       const isSubmitDisabled = await submitButton.isDisabled();
       expect(isSubmitDisabled).toBe(true);
     });
+  });
 
-    describe("when mutating", () => {
+  describe("when mutation is pending", () => {
+    beforeEach(() => {
+      isPendingSignal = signal(true);
+      form.markAsDirty();
+    });
+
+    it("should disable the submit button", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("should disable the cancel button", async () => {
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.annuleren" }),
+      );
+      expect(await cancelButton.isDisabled()).toBe(true);
+    });
+
+    describe("after mutation resolves", () => {
       beforeEach(async () => {
-        form.markAsDirty();
-        await mutation.mutateAsync({});
+        isPendingSignal.set(false); // resolve mutation
+        fixture.detectChanges();
+        await fixture.whenStable();
       });
 
-      it("should disable the submit button", async () => {
+      it("should enable the submit button again", async () => {
         const submitButton = await loader.getHarness(
           MatButtonHarness.with({ text: "actie.verstuur" }),
         );
-        const isDisabled = await submitButton.isDisabled();
-        expect(isDisabled).toBe(true);
+        expect(await submitButton.isDisabled()).toBe(false);
       });
 
-      it("should disable the cancel button", async () => {
+      it("should enable the cancel button again", async () => {
         const cancelButton = await loader.getHarness(
           MatButtonHarness.with({ text: "actie.annuleren" }),
         );
-        const isDisabled = await cancelButton.isDisabled();
-        expect(isDisabled).toBe(true);
-      });
-
-      describe("on mutation settled", () => {
-        beforeEach(async () => {
-          await sleep(MUTATION_TIMEOUT + 100); // wait for mutation to settle
-        });
-        it("should enable the submit button again", async () => {
-          const submitButton = await loader.getHarness(
-            MatButtonHarness.with({ text: "actie.verstuur" }),
-          );
-          const isDisabled = await submitButton.isDisabled();
-          expect(isDisabled).toBe(false);
-        });
-
-        it("should enable the cancel button", async () => {
-          const cancelButton = await loader.getHarness(
-            MatButtonHarness.with({ text: "actie.annuleren" }),
-          );
-          const isDisabled = await cancelButton.isDisabled();
-          expect(isDisabled).toBe(false);
-        });
+        expect(await cancelButton.isDisabled()).toBe(false);
       });
     });
   });

@@ -26,6 +26,7 @@ import { UploadStatus } from "./upload-status.enum";
 @Component({
   templateUrl: "./file.component.html",
   styleUrls: ["./file.component.less"],
+  standalone: false,
 })
 export class FileComponent extends FormComponent implements OnInit {
   @ViewChild("fileInput") fileInput: ElementRef;

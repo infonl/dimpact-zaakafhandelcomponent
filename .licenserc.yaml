@@ -42,6 +42,7 @@ header:
     - '.mvn/**'
     - 'mvnw.cmd'
     - 'mvnw'
+    - '.nvmrc'
     - 'src/main/resources/api-specs/**'
     - 'src/main/resources/cmmn/**'
     - 'src/main/resources/openapi-generator-templates/**'

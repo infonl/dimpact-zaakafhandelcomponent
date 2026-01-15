@@ -22,6 +22,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaakdata",
   templateUrl: "./zaakdata.component.html",
+  standalone: false,
 })
 export class ZaakdataComponent {
   private readonly formBuilder = inject(FormBuilder);

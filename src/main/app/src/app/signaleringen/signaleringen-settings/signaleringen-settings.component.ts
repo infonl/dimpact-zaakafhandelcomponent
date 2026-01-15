@@ -12,6 +12,7 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
 @Component({
   templateUrl: "./signaleringen-settings.component.html",
   styleUrls: ["./signaleringen-settings.component.less"],
+  standalone: false,
 })
 export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   isLoadingResults = true;

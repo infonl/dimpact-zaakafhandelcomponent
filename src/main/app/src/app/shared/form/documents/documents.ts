@@ -17,6 +17,7 @@ import { MultiInputFormField } from "../BaseFormField";
   selector: "zac-documents",
   templateUrl: "./documents.html",
   styleUrls: ["./documents.less"],
+  standalone: false,
 })
 export class ZacDocuments<
   Form extends Record<string, AbstractControl>,
@@ -48,12 +49,9 @@ export class ZacDocuments<
   ) {
     super();
 
-    effect(
-      () => {
-        this.dataSource.data = this.availableOptions();
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.dataSource.data = this.availableOptions();
+    });
 
     effect(() => {
       this.control()

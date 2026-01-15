@@ -13,6 +13,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaken-vrijgeven-dialog.component.html",
   styleUrls: ["./zaken-vrijgeven-dialog.component.less"],
+  standalone: false,
 })
 export class ZakenVrijgevenDialogComponent {
   private readonly dialogRef = inject(MatDialogRef);

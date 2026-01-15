@@ -26,6 +26,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "intake-afronden-dialog.component.html",
   styleUrls: ["./intake-afronden-dialog.component.less"],
+  standalone: false,
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
   loading = false;

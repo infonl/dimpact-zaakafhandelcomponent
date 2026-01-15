@@ -50,6 +50,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-documenten.component.html",
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZaakDocumentenComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges

@@ -17,6 +17,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./taken-card.component.less",
   ],
+  standalone: false,
 })
 export class TakenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestSignaleringTaskSummary">

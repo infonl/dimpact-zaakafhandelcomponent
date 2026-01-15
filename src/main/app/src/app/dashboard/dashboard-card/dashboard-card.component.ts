@@ -28,6 +28,7 @@ import { DashboardCard } from "../model/dashboard-card";
 @Component({
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
+  standalone: false,
 })
 export abstract class DashboardCardComponent<
     T extends

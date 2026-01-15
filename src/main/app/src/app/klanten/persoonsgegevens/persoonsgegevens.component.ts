@@ -13,6 +13,7 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-persoongegevens",
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
+  standalone: false,
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);

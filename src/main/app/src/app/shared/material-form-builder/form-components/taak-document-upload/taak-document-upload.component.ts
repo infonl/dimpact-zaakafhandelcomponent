@@ -27,6 +27,7 @@ import { TaakDocumentUploadFormField } from "./taak-document-upload-form-field";
 @Component({
   templateUrl: "./taak-document-upload.component.html",
   styleUrls: ["./taak-document-upload.component.less"],
+  standalone: false,
 })
 export class TaakDocumentUploadComponent
   extends FormComponent

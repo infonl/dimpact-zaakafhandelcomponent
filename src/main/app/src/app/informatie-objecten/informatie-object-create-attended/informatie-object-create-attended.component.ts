@@ -34,6 +34,7 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-object-create-attended",
   templateUrl: "./informatie-object-create-attended.component.html",
   styleUrls: ["./informatie-object-create-attended.component.less"],
+  standalone: false,
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy

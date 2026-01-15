@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -24,7 +23,6 @@ import { FileFormField } from "../file/file-form-field";
 import { MatFileInput } from "./file-input-control";
 
 @Component({
-  standalone: true,
   selector: "zac-file",
   styles: [
     `
@@ -106,6 +104,7 @@ import { MatFileInput } from "./file-input-control";
       </mat-form-field>
     </div>
   `,
+  standalone: true,
   imports: [
     MatInputModule,
     MatIconModule,
@@ -114,7 +113,6 @@ import { MatFileInput } from "./file-input-control";
     FileDragAndDropDirective,
     ReactiveFormsModule,
     TranslateModule,
-    AsyncPipe,
     MatFileInput,
   ],
 })

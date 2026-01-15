@@ -21,6 +21,7 @@ import { BpmnService } from "../bpmn.service";
 @Component({
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
+  standalone: false,
 })
 export class ProcessDefinitionsComponent
   extends AdminComponent

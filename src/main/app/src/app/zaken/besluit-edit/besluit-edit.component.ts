@@ -36,6 +36,7 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-besluit-edit",
   templateUrl: "./besluit-edit.component.html",
   styleUrls: ["./besluit-edit.component.less"],
+  standalone: false,
 })
 export class BesluitEditComponent implements OnDestroy, OnInit {
   formConfig = new FormConfigBuilder()

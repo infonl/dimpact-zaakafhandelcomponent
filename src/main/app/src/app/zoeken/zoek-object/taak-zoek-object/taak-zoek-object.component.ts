@@ -12,6 +12,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   selector: "zac-taak-zoek-object",
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./taak-zoek-object.component.html",
+  standalone: false,
 })
 export class TaakZoekObjectComponent extends ZoekObjectComponent {
   @Input() taak: TaakZoekObject;

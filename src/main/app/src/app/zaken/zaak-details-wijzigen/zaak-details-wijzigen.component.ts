@@ -28,6 +28,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
+  standalone: false,
 })
 export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;

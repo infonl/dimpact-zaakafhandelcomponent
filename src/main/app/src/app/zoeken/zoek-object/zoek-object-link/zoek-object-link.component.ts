@@ -16,6 +16,7 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   selector: "zac-zoek-object-link",
   styleUrls: ["./zoek-object-link.component.less"],
   templateUrl: "./zoek-object-link.component.html",
+  standalone: false,
 })
 export class ZoekObjectLinkComponent {
   @Input({ required: true })

@@ -7,6 +7,7 @@ import { Directive, ElementRef, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[zacNarrowMatCheckbox]",
+  standalone: false,
 })
 export class ZacNarrowMatCheckboxDirective implements OnInit {
   constructor(

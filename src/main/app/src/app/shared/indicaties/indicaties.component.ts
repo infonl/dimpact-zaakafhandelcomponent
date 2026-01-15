@@ -12,7 +12,10 @@ export enum IndicatiesLayout {
   EXTENDED = "EXTENDED",
 }
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export abstract class IndicatiesComponent {
   Layout = IndicatiesLayout;
   @Input({ required: true }) layout!: IndicatiesLayout;

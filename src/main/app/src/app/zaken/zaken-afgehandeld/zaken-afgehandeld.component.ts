@@ -34,6 +34,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   templateUrl: "./zaken-afgehandeld.component.html",
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZakenAfgehandeldComponent
   extends WerklijstComponent

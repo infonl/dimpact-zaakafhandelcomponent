@@ -29,6 +29,7 @@ import { TekstvlakEditDialogComponent } from "./tekstvlak-edit-dialog/tekstvlak-
 @Component({
   templateUrl: "./formulier-definitie-edit.component.html",
   styleUrls: ["./formulier-definitie-edit.component.less"],
+  standalone: false,
 })
 export class FormulierDefinitieEditComponent
   extends AdminComponent

@@ -18,6 +18,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./zaak-waarschuwingen-card.component.less",
   ],
+  standalone: false,
 })
 export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestZaakOverzicht">

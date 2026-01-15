@@ -19,6 +19,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./zaken-card.component.less",
   ],
+  standalone: false,
 })
 export class ZakenCardComponent
   extends DashboardCardComponent<GeneratedType<"RestZaakOverzicht">>

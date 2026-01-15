@@ -13,6 +13,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
 @Component({
   selector: "zac-klant-koppel",
+  standalone: true,
   imports: [
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
@@ -95,7 +96,6 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
       </mat-action-row>
     </div>
   `,
-  standalone: true,
 })
 export class KlantKoppelComponent {
   @Input() initiator = false;

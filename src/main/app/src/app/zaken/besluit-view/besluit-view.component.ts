@@ -40,6 +40,7 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-besluit-view",
   templateUrl: "./besluit-view.component.html",
   styleUrls: ["./besluit-view.component.less"],
+  standalone: false,
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];

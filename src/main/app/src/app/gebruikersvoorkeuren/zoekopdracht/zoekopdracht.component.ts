@@ -23,6 +23,7 @@ import { ZoekFilters } from "./zoekfilters.model";
   selector: "zac-zoekopdracht",
   templateUrl: "./zoekopdracht.component.html",
   styleUrls: ["./zoekopdracht.component.less"],
+  standalone: false,
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
