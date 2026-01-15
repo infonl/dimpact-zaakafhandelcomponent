@@ -20,6 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -184,6 +185,22 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             zacClient.submitFormData(bpmnZaakUuid!!, "{}")
 
             Then("the next task has the copied user and group assigned") {
+                val behandelaar = if (FEATURE_FLAG_PABC_INTEGRATION) {
+                    """
+                      "behandelaar" : {
+                        "id" : "behandelaar1newiam",
+                        "naam" : "Test Behandelaar 1 - new IAM"
+                      }
+                    """.trimIndent()
+                } else {
+                    """
+                      "behandelaar" : {
+                        "id" : "behandelaar1",
+                        "naam" : "Test Behandelaar1"
+                      }
+                    """.trimIndent()
+                }
+
                 getTaskData(
                     zaakIdentificatie!!,
                     bpmnZaakUuid,
@@ -194,10 +211,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                         "id" : "Superheroes",
                         "naam" : "Superheroes"
                       },
-                      "behandelaar" : {
-                        "id" : "behandelaar1newiam",
-                        "naam" : "Test Behandelaar 1 - new IAM"
-                      }
+                      $behandelaar
                     }                    
                 """.trimIndent()
             }
