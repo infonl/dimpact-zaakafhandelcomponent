@@ -21,8 +21,6 @@ class BpmnFormioFormulierenRestServiceTest : BehaviorSpec({
     Given("BPMN process definition and Formio forms have been created in ZAC in the integration test setup phase") {
         authenticate(BEHEERDER_ELK_ZAAKTYPE)
 
-        // Upload of forms is already handled by ZacItestProjectConfig
-
         When("the Form.io forms are listed") {
             val response = itestHttpClient.performGetRequest(
                 "${ZAC_API_URI}/formio-formulieren"
