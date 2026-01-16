@@ -17,7 +17,7 @@ class IndexingRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("ZAC is up and running and a raadpleger is logged in") {
-        // thia endpoint requires no explicit authorisation, however to pass the basic authorisation
+        // this endpoint requires no explicit authorisation, however to pass the basic authorisation
         // a user with at least one ZAC role must be logged in
         authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
