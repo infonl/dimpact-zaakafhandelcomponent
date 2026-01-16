@@ -29,7 +29,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * This test creates a zaak, adds a task to complete the intake phase, then adds, updates, and withdraws a besluit to the zaak.
+ * This test creates a zaak, adds a task to complete the intake phase, then adds, updates,
+ * and withdraws a besluit to the zaak.
  */
 @Suppress("MagicNumber")
 class ZaakRestServiceBesluitTest : BehaviorSpec({
@@ -43,7 +44,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         and a logged in behandelaar
         """
     ) {
-        authenticate((BEHANDELAAR_DOMAIN_TEST_1))
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatType1Uuid: UUID
         lateinit var resultaatType2Uuid: UUID
