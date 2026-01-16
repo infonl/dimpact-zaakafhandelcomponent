@@ -22,6 +22,7 @@ import { UtilService } from "../../core/service/util.service";
 
 @Directive({
   selector: "[zacOutsideClick]",
+  standalone: false,
 })
 export class OutsideClickDirective implements OnInit, OnDestroy {
   private static inclusions: string[] = [

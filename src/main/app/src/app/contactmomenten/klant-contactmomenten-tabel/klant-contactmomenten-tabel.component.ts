@@ -24,6 +24,7 @@ import { ContactmomentenService } from "../contactmomenten.service";
   selector: "zac-klant-contactmomenten-tabel",
   templateUrl: "./klant-contactmomenten-tabel.component.html",
   styleUrls: ["./klant-contactmomenten-tabel.component.less"],
+  standalone: false,
 })
 export class KlantContactmomentenTabelComponent
   implements OnInit, AfterViewInit, OnChanges

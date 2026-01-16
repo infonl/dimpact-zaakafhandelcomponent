@@ -14,6 +14,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   selector: "zac-zaak-betrokkene-filter",
   templateUrl: "./zaak-betrokkene-filter.component.html",
   styleUrls: ["./zaak-betrokkene-filter.component.less"],
+  standalone: false,
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
   @Input() zoekparameters!: GeneratedType<"RestZoekParameters">;

@@ -22,6 +22,7 @@ import { GeneratedType } from "../utils/generated-types";
   selector: "zac-document-viewer",
   templateUrl: "./document-viewer.component.html",
   styleUrls: ["./document-viewer.component.less"],
+  standalone: false,
 })
 export class DocumentViewerComponent implements OnInit, OnChanges {
   @Input({ required: true })

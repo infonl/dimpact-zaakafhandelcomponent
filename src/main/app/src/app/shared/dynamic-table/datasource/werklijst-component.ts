@@ -11,7 +11,10 @@ import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebru
 import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;
   abstract route: ActivatedRoute;

@@ -41,6 +41,7 @@ import { InboxProductaanvragenService } from "../inbox-productaanvragen.service"
   templateUrl: "./inbox-productaanvragen-list.component.html",
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent

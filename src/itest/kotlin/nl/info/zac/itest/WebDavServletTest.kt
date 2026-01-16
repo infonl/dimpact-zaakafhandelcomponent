@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -45,7 +46,8 @@ class WebDavServletTest : BehaviorSpec({
     lateinit var enkelvoudigInformatieObjectUUID: String
     lateinit var wordDocumentWebDAVToken: UUID
 
-    Given("A zaak that was created") {
+    Given("A zaak that was created and a logged-in behandelaar") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,

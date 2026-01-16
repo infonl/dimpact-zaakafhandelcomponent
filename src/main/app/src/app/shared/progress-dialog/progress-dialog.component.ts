@@ -5,14 +5,13 @@
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
-import { MatSnackBarLabel } from "@angular/material/snack-bar";
 
 @Component({
-  standalone: true,
   selector: "app-progress-dialog",
   templateUrl: "./progress-dialog.component.html",
   styleUrls: ["./progress-dialog.component.less"],
-  imports: [MatSnackBarLabel, MatProgressBarModule],
+  standalone: true,
+  imports: [MatProgressBarModule],
 })
 export class ProgressDialogComponent {
   constructor(

@@ -11,6 +11,7 @@ import { DividerFormField } from "./divider-form-field";
 @Component({
   templateUrl: "./divider.component.html",
   styleUrls: ["./divider.component.less"],
+  standalone: false,
 })
 export class DividerComponent extends FormComponent {
   data!: DividerFormField;

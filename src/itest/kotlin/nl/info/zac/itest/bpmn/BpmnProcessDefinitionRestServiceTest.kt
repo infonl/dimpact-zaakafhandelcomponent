@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.itest
+package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
@@ -36,6 +36,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                   {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
+                    "version": 1
+                  },
+                  {
+                    "key": "userManagement",
+                    "name": "User Management",
                     "version": 1
                   }
                 ]  

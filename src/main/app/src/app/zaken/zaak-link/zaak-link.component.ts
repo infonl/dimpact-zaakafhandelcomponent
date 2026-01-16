@@ -23,6 +23,7 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-zaak-link",
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
+  standalone: false,
 })
 export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;

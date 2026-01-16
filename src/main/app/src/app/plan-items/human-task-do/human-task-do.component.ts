@@ -23,6 +23,7 @@ import { PlanItemsService } from "../plan-items.service";
   selector: "zac-human-task-do",
   templateUrl: "./human-task-do.component.html",
   styleUrls: ["./human-task-do.component.less"],
+  standalone: false,
 })
 export class HumanTaskDoComponent implements OnInit {
   private formulier?: AbstractTaakFormulier;

@@ -10,6 +10,7 @@ import { Observable } from "rxjs";
 @Component({
   templateUrl: "confirm-dialog.component.html",
   styleUrls: ["./confirm-dialog.component.less"],
+  standalone: false,
 })
 export class ConfirmDialogComponent {
   loading = false;

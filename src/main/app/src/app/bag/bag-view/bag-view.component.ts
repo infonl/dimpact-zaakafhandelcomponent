@@ -11,6 +11,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 @Component({
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
+  standalone: false,
 })
 export class BAGViewComponent implements OnInit {
   protected bagIdentificatie!: string;

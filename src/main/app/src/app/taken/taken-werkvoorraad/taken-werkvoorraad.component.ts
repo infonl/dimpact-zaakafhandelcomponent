@@ -46,6 +46,7 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   templateUrl: "./taken-werkvoorraad.component.html",
   styleUrls: ["./taken-werkvoorraad.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent

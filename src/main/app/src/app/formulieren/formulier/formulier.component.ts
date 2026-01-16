@@ -16,6 +16,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   selector: "zac-formulier",
   templateUrl: "./formulier.component.html",
   styleUrls: ["./formulier.component.less"],
+  standalone: false,
 })
 export class FormulierComponent implements OnInit {
   @Input({ required: true })

@@ -9,6 +9,7 @@ import { IdentityService } from "./identity.service";
 
 @Component({
   templateUrl: "./identity.component.html",
+  standalone: false,
 })
 export class IdentityComponent {
   private readonly identityService = inject(IdentityService);

@@ -13,6 +13,7 @@ import { NotitieService } from "./notities.service";
   selector: "zac-notities",
   templateUrl: "./notities.component.html",
   styleUrls: ["./notities.component.less"],
+  standalone: false,
 })
 export class NotitiesComponent implements OnInit {
   @Input({ required: true }) zaakUuid!: string;

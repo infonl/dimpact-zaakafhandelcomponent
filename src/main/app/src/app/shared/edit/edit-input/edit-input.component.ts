@@ -16,6 +16,7 @@ import { EditComponent } from "../edit.component";
     "../../static-text/static-text.component.less",
     "../edit.component.less",
   ],
+  standalone: false,
 })
 export class EditInputComponent extends EditComponent {
   @Input() formField: InputFormField;

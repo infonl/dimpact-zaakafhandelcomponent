@@ -19,6 +19,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "zac-documenten-formulier-veld",
   templateUrl: "./documenten-formulier-veld.component.html",
   styleUrls: ["./documenten-formulier-veld.component.less"],
+  standalone: false,
 })
 export class DocumentenFormulierVeldComponent implements OnInit {
   @Input({ required: true })

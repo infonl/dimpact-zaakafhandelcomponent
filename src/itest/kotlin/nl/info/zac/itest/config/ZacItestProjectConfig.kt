@@ -10,15 +10,25 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
@@ -34,9 +44,12 @@ import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -67,6 +80,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -74,6 +88,7 @@ import kotlin.time.toJavaDuration
 // global variable so that it can be referenced elsewhere
 lateinit var dockerComposeContainer: ComposeContainer
 
+@Suppress("TooManyFunctions")
 class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
@@ -117,7 +132,19 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         )
     }
 
+    /**
+     * Set a random order seed so that the tests run is reproducible.
+     */
+    override val randomOrderSeed = Random.nextLong()
+
+    /**
+     * Run the integration tests in random order to make sure they remain isolated
+     * and do not depend on each other's side effects.
+     */
+    override val specExecutionOrder = SpecExecutionOrder.Random
+
     override suspend fun beforeProject() {
+        logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
         try {
             if (!skipDockerComposeStart) {
                 deleteLocalDockerVolumeData()
@@ -278,52 +305,65 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      */
     private fun createTestSetupData() {
         createDomainReferenceTableData()
-        createBpmnProcessDefinition()
+        createBpmnProcessDefinitions()
         createBpmnProcessTaskForms()
         createZaaktypeConfigurations()
     }
 
-    private fun createBpmnProcessDefinition() {
-        val bpmnTestProcessFileContent = Thread.currentThread().contextClassLoader.getResource(
-            BPMN_TEST_PROCESS_RESOURCE_PATH
-        )?.let {
-            File(it.path)
-        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/bpmn-process-definitions",
-            requestBodyAsString = """
-                {
-                    "filename": "$BPMN_TEST_PROCESS_RESOURCE_PATH",
-                    "content": "$bpmnTestProcessFileContent"
-                }
-            """.trimIndent()
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_CREATED
+    private fun createBpmnProcessDefinitions() {
+        arrayOf(
+            BPMN_TEST_PROCESS_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+        ).forEach {
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions",
+                requestBodyAsString = """
+                    {
+                        "filename": "$it",
+                        "content": "${readResourceFile(it)}"
+                    }
+                """.trimIndent()
+            ).let { response ->
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_CREATED
+            }
         }
     }
 
     private fun createBpmnProcessTaskForms() {
-        val formIoFileContent = Thread.currentThread().contextClassLoader.getResource(
-            BPMN_TEST_FORM_RESOURCE_PATH
+        arrayOf(
+            BPMN_TEST_FORM_RESOURCE_PATH,
+            BPMN_SUMMARY_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
+            BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+        ).forEach {
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/formio-formulieren",
+                requestBodyAsString = """
+                    {
+                        "filename": "$it",
+                        "content": "${readResourceFile(it)}"
+                    }
+                """.trimIndent()
+            ).let { response ->
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_CREATED
+            }
+        }
+    }
+
+    private fun readResourceFile(resourcePath: String): String =
+        Thread.currentThread().contextClassLoader.getResource(
+            resourcePath
         )?.let {
             File(it.path)
         }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
-        itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/formio-formulieren",
-            requestBodyAsString = """
-                {
-                    "filename": "$BPMN_TEST_FORM_RESOURCE_PATH",
-                    "content": "$formIoFileContent"
-                }
-            """.trimIndent()
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_CREATED
-        }
-    }
 
     private fun createDomainReferenceTableData() {
         val domeinReferenceTableId = itestHttpClient.performGetRequest(
@@ -375,10 +415,21 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     private fun createZaaktypeConfigurations() {
         zacClient.createZaaktypeBpmnConfiguration(
-            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_UUID,
-            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_DESCRIPTION,
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_1_DESCRIPTION,
             bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
-            productaanvraagType = ZAAKTYPE_BPMN_PRODUCTAANVRAAG_TYPE,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_2_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_2_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
         ).let { response ->
             val responseBody = response.bodyAsString

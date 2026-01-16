@@ -41,6 +41,7 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
       ),
     ]),
   ],
+  standalone: false,
 })
 export class MailtemplatesComponent
   extends AdminComponent

@@ -36,6 +36,7 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-klant-zaken-tabel",
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
+  standalone: false,
 })
 export class KlantZakenTabelComponent implements AfterViewInit {
   protected readonly klant =

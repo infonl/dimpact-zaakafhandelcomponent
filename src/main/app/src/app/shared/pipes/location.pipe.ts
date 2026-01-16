@@ -9,6 +9,7 @@ import { GeneratedType } from "../utils/generated-types";
 
 @Pipe({
   name: "location",
+  standalone: false,
 })
 export class LocationPipe implements PipeTransform {
   constructor() {}

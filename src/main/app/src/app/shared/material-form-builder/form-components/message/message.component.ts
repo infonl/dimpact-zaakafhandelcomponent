@@ -11,6 +11,7 @@ import { MessageFormField } from "./message-form-field";
 @Component({
   templateUrl: "./message.component.html",
   styleUrls: ["./message.component.less"],
+  standalone: false,
 })
 export class MessageComponent extends FormComponent {
   data: MessageFormField;

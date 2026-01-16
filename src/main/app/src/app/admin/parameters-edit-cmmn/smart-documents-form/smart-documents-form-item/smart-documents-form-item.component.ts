@@ -13,6 +13,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "smart-documents-form-item",
   templateUrl: "./smart-documents-form-item.component.html",
   styleUrls: ["./smart-documents-form-item.component.less"],
+  standalone: false,
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
   @Input({ required: true })

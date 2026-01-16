@@ -7,6 +7,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
   name: "empty",
+  standalone: false,
 })
 export class EmptyPipe implements PipeTransform {
   private readonly EMPTY_STRING = "-";

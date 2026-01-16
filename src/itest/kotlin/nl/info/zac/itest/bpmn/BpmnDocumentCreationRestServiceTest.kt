@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.itest
+package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_ID
@@ -48,7 +48,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
         authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         bpmnZaakUuid = zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_UUID,
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01

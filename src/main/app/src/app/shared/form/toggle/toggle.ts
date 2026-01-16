@@ -13,6 +13,7 @@ import { SingleInputFormField } from "../BaseFormField";
   selector: "zac-toggle",
   templateUrl: "./toggle.html",
   styleUrls: ["./toggle.less"],
+  standalone: false,
 })
 export class ZacToggle<
   Form extends Record<string, AbstractControl>,

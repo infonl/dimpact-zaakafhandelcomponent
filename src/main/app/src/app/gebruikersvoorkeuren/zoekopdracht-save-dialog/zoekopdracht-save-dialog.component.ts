@@ -15,6 +15,7 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 @Component({
   templateUrl: "./zoekopdracht-save-dialog.component.html",
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
+  standalone: false,
 })
 export class ZoekopdrachtSaveDialogComponent implements OnInit {
   loading = false;

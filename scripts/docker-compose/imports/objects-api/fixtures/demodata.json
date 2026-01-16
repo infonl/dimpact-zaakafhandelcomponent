@@ -1062,7 +1062,7 @@
           "naam": "open-forms",
           "kenmerk": "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
         },
-        "type": "bpmn-test-productaanvraagtype",
+        "type": "bpmn-test-1-productaanvraagtype",
         "aanvraaggegevens": {
           "stap1": {
             "naam": "fakeBpmnApplicantName",

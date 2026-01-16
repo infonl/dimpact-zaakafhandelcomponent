@@ -31,6 +31,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   selector: "zac-bag-zaken-tabel",
   templateUrl: "./bag-zaken-tabel.component.html",
   styleUrls: ["./bag-zaken-tabel.component.less"],
+  standalone: false,
 })
 export class BagZakenTabelComponent
   implements OnInit, AfterViewInit, OnChanges

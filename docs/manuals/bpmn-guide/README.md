@@ -14,17 +14,7 @@ To create a BPMN process definition, you can:
 ### Requirements
 
 #### Candidate group/user
-The "User tasks" should have the candidate group or user set. For example, the XML attributes in the `.bpmn` file might look like this: `flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}"`
-
-We're using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, but it won’t throw an exception when the variable doesn’t exist.
-As the group should always be provided when creating a zaak we set the candidate group directly to the value of `zaakGroep` variable.
-
-For example:
-```xml
-<userTask id="userTask" name="User details" flowable:candidateUsers="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="testForm" flowable:formFieldValidation="false">
-... the rest of userTask tags ...
-</userTask>
-```
+The "User tasks" should have a candidate group or user set. 
 
 ### Upload
 1. Open ZAC
@@ -90,8 +80,9 @@ The following functionality is supported by the BPMN process definition:
 * Send email
 * User/group
    * listing groups/users
-   * assigning a group/user
-   * assigning specific task's group/user
+   * assigning a group/user to a zaak
+   * assigning zaak's default group/user to a task
+   * assigning the group/user of another task
 * Documents
   * listing attached documents
   * listing available SmartDocuments templates
@@ -349,15 +340,42 @@ For example:
     </serviceTask>
 ```
 
-#### Assigning specific task's group/user
+#### Assigning zaak's default group/user to a task
 The following BPMN-specific variables can be used in expressions in the BPMN process:
 * `zaakGroep` - group assigned to the zaak
 * `zaakBehandelaar` (optional) - user assigned to the zaak
 
 The above variables can be used in `assignee` and `candidateGroups` attributes for example:
+For example:
 ```xml
-<userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="summaryForm" flowable:formFieldValidation="false">
+<userTask id="userTask"
+          name="User details"
+          flowable:assignee="${var:get(zaakBehandelaar)}"
+          flowable:candidateGroups="${zaakGroep}"
+          flowable:formKey="testForm"
+          flowable:formFieldValidation="false">
+  ... the rest of userTask tags ...
+</userTask>
 ```
+
+We are using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, so that it will not throw an exception when the variable does not exist.
+As the group should always be provided when creating a zaak we set the candidate group directly to the value of `zaakGroep` variable.
+
+
+#### Assigning the group/user of another task
+To set the asignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
+```xml
+<userTask id="userTask"
+          name="User details"
+          flowable:assignee="${taken:behandelaar('userTaskId')}"
+          flowable:candidateGroups="${taken:groep('userTaskId')}"
+          flowable:formKey="testForm"
+          flowable:formFieldValidation="false">
+  ... the rest of userTask tags ...
+</userTask>
+```
+
+Note: the `userTaskId` should be replaced with the actual id of the user task in the BPMN process.
 
 ### Documents
 

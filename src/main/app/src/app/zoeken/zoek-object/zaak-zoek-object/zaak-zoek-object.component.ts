@@ -13,6 +13,7 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   selector: "zac-zaak-zoek-object",
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./zaak-zoek-object.component.html",
+  standalone: false,
 })
 export class ZaakZoekObjectComponent extends ZoekObjectComponent {
   @Input({ required: true }) zaak!: ZaakZoekObject;

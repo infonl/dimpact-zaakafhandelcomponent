@@ -3,9 +3,9 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-@if (queryClient.isMutating()) {
+@if (isMutating()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-} @else if (utilService.loading() || queryClient.isFetching()) {
+} @else if (isLoading()) {
   <mat-progress-bar mode="query"></mat-progress-bar>
 } @else {
   <mat-progress-bar mode="determinate" value="100"></mat-progress-bar>

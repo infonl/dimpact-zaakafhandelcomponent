@@ -35,6 +35,7 @@ import { ZoekenService } from "../zoeken.service";
   selector: "zac-zoeken",
   templateUrl: "./zoek.component.html",
   styleUrls: ["./zoek.component.less"],
+  standalone: false,
 })
 export class ZoekComponent implements AfterViewInit, OnDestroy {
   private readonly zoekenService = inject(ZoekenService);

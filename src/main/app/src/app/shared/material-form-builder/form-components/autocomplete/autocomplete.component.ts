@@ -15,6 +15,7 @@ import { AutocompleteValidators } from "./autocomplete-validators";
   selector: "zac-autocomplete",
   templateUrl: "./autocomplete.component.html",
   styleUrls: ["./autocomplete.component.less"],
+  standalone: false,
 })
 export class AutocompleteComponent
   extends FormComponent

@@ -11,6 +11,7 @@ import { HeadingFormField, HeadingLevel } from "./heading-form-field";
 @Component({
   templateUrl: "./heading.component.html",
   styleUrls: ["./heading.component.less"],
+  standalone: false,
 })
 export class HeadingComponent extends FormComponent {
   readonly headingLevel = HeadingLevel;

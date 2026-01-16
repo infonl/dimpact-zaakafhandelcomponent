@@ -19,6 +19,7 @@ import { TextIcon } from "../edit/text-icon";
   selector: "zac-static-text",
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
+  standalone: false,
 })
 export class StaticTextComponent<
     T extends string | number | null | undefined = string,
