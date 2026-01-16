@@ -13,7 +13,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -27,7 +29,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * This test creates a zaak, adds a task to complete the intake phase, then adds, updates, and withdraws a besluit to the zaak.
+ * This test creates a zaak, adds a task to complete the intake phase, then adds, updates,
+ * and withdraws a besluit to the zaak.
  */
 @Suppress("MagicNumber")
 class ZaakRestServiceBesluitTest : BehaviorSpec({
@@ -35,7 +38,13 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
+    Given(
+        """
+        A zaak has been created that has finished the intake phase with the status 'admissible',
+        and a logged in behandelaar
+        """
+    ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatType1Uuid: UUID
         lateinit var resultaatType2Uuid: UUID

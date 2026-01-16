@@ -80,7 +80,6 @@ class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
-    lateinit var zaakProductaanvraag2Uuid: UUID
     lateinit var zaakProductaanvraag3Uuid: UUID
     lateinit var zaakProductaanvraagComboUuid: UUID
     lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
@@ -376,7 +375,6 @@ class NotificationsTest : BehaviorSpec({
                             getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
                             getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
-                        zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
             }

@@ -12,7 +12,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -41,9 +43,11 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
     Given(
         """
             A zaak in ZAC which has been started using the ZAC CMMN model 
-            and which has been indexed in the Solr search index
+            and which has been indexed in the Solr search index,
+            and a logged-in behandelaar
         """.trimIndent()
     ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var zaakIdentificatie: String
         lateinit var humanTaskItemAanvullendeInformatieId: String

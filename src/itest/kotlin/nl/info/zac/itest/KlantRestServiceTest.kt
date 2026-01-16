@@ -60,7 +60,7 @@ import java.net.HttpURLConnection.HTTP_OK
 
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LargeClass")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
@@ -71,27 +71,31 @@ class KlantRestServiceTest : BehaviorSpec({
         response.code shouldBe HTTP_OK
     }
 
-    Given("Persons and company data is present in the BRP Personen Mock and the Klanten API database") {
-        When("the list role types endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/roltype"
-            )
-            Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldBeJsonArray()
-                    JSONArray(responseBody).length() shouldBe ROLTYPE_COUNT
-                    with(JSONArray(responseBody)[0].toString()) {
-                        shouldContainJsonKeyValue("naam", "Behandelaar")
-                        shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "behandelaar")
+    Context("Listing role types") {
+        Given("Persons and company data is present in the BRP Personen Mock and the Klanten API database") {
+            When("the list role types endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/roltype"
+                )
+                Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(responseBody) {
+                        shouldBeJsonArray()
+                        JSONArray(responseBody).length() shouldBe ROLTYPE_COUNT
+                        with(JSONArray(responseBody)[0].toString()) {
+                            shouldContainJsonKeyValue("naam", "Behandelaar")
+                            shouldContainJsonKeyValue("omschrijvingGeneriekEnum", "behandelaar")
+                        }
                     }
                 }
             }
         }
+    }
 
-        Context("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+    Context("Retrieving a person") {
+        Given("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
             val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
@@ -107,7 +111,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     }
             """.trimIndent()
 
-            When("zaaktype uuid is provided in the request headers") {
+            When("zaaktype uuid is provided in the request headers and the person is retrieved") {
                 val headers = Headers.Builder()
                     .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
@@ -194,7 +198,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Context("a search for persons is performed") {
+        Given("an existing person") {
             val expectedResponse = """{ 
                 "foutmelding": "",
                 "resultaten": [{
@@ -301,24 +305,27 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
         }
+    }
 
-        When(
-            """
+    Context("Retrieving a vestiging") {
+        Given("An existing vestiging") {
+            When(
+                """
                 A vestiging is requested by vestigingsnummer and KVK number which is present in the KVK test environment
                 and for which contact details are present in Open Klant
             """
-        ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1"
-            )
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1"
+                )
 
-            Then("the vestiging is returned with the expected data including contact details") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                // since there is customer contact data linked to this vestiging in our Open Klant container
-                // the response should contain an email address and telephone number
-                responseBody shouldEqualJson """
+                Then("the vestiging is returned with the expected data including contact details") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    // since there is customer contact data linked to this vestiging in our Open Klant container
+                    // the response should contain an email address and telephone number
+                    responseBody shouldEqualJson """
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "emailadres": "$TEST_VESTIGING_EMAIL",
@@ -330,27 +337,27 @@ class KlantRestServiceTest : BehaviorSpec({
                       "telefoonnummer": "$TEST_VESTIGING_TELEPHONE_NUMBER",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
                     }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
-        }
 
-        When(
-            """
+            When(
+                """
                 A vestiging is requested by vestigingsnummer alone which is present in the KVK test environment     
             """
-        ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
-            )
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
+                )
 
-            Then("the vestiging is returned with the expected data including contact details") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                // even though there is customer contact data linked to this vestiging in our Open Klant container
-                // we do not support retrieving contact details when only the vestigingsnummer is provided,
-                // so the response should not contain an email address and telephone number
-                responseBody shouldEqualJson """
+                Then("the vestiging is returned with the expected data including contact details") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    // even though there is customer contact data linked to this vestiging in our Open Klant container
+                    // we do not support retrieving contact details when only the vestigingsnummer is provided,
+                    // so the response should not contain an email address and telephone number
+                    responseBody shouldEqualJson """
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
@@ -359,125 +366,135 @@ class KlantRestServiceTest : BehaviorSpec({
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
                     }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
-        }
 
-        When("a vestigingsprofiel is requested which is present in the KVK test environment") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"
-            )
-            Then("the vestigingsprofiel is returned with the expected data") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldContainJsonKey("adressen")
-                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
-                    adressen.length() shouldBe 1
-                    with(JSONArray(adressen).get(0).toString()) {
-                        shouldContainJsonKeyValue("type", "bezoekadres")
-                        shouldContainJsonKeyValue("afgeschermd", false)
-                        shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+            When("a vestigingsprofiel is requested which is present in the KVK test environment") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"
+                )
+                Then("the vestigingsprofiel is returned with the expected data") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(responseBody) {
+                        shouldContainJsonKey("adressen")
+                        val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                        adressen.length() shouldBe 1
+                        with(JSONArray(adressen).get(0).toString()) {
+                            shouldContainJsonKeyValue("type", "bezoekadres")
+                            shouldContainJsonKeyValue("afgeschermd", false)
+                            shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                        }
+                        shouldContainJsonKeyValue("commercieleVestiging", true)
+                        shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
+                        shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
+                        shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                        shouldContainJsonKey("sbiActiviteiten")
+                        val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
+                        sbiActiviteiten.length() shouldBe 2
+                        with(JSONArray(sbiActiviteiten).get(0).toString()) {
+                            shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT1)
+                        }
+                        with(JSONArray(sbiActiviteiten).get(1).toString()) {
+                            shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT2)
+                        }
+                        shouldContainJsonKeyValue("sbiHoofdActiviteit", TEST_KVK_VESTIGING1_HOOFDACTIVITEIT)
+                        shouldContainJsonKeyValue(
+                            "totaalWerkzamePersonen",
+                            TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN
+                        )
+                        shouldContainJsonKeyValue("type", TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING)
+                        shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
+                        shouldContainJsonKeyValue(
+                            "voltijdWerkzamePersonen",
+                            TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN
+                        )
                     }
-                    shouldContainJsonKeyValue("commercieleVestiging", true)
-                    shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
-                    shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
-                    shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
-                    shouldContainJsonKey("sbiActiviteiten")
-                    val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
-                    sbiActiviteiten.length() shouldBe 2
-                    with(JSONArray(sbiActiviteiten).get(0).toString()) {
-                        shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT1)
+                }
+            }
+
+            When("a search on companies by name is performed") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/bedrijven",
+                    requestBodyAsString = JSONObject(
+                        mapOf("naam" to TEST_KVK_NAAM_1)
+                    ).toString()
+                )
+
+                Then("the expected companies as defined in the KVK mock are returned") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
+                    { 
+                        "foutmelding" : "",
+                        "resultaten" : [ {
+                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
+                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                            "naam" : "$TEST_KVK_NAAM_1",
+                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
+                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
+                        } ],
+                       "totaal" : 1.0
                     }
-                    with(JSONArray(sbiActiviteiten).get(1).toString()) {
-                        shouldContain(TEST_KVK_VESTIGING1_NEVENACTIVITEIT2)
+                    """.trimIndent()
+                }
+            }
+
+            When("a search on companies by vestigingsnummer is performed") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/bedrijven",
+                    requestBodyAsString = JSONObject(
+                        mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
+                    ).toString()
+                )
+
+                Then("the expected companies as defined in the KVK mock are returned") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
+                    { 
+                        "foutmelding" : "",
+                        "resultaten" : [ {
+                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
+                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
+                            "naam" : "$TEST_KVK_NAAM_1",
+                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
+                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
+                        } ],
+                       "totaal" : 1.0
                     }
-                    shouldContainJsonKeyValue("sbiHoofdActiviteit", TEST_KVK_VESTIGING1_HOOFDACTIVITEIT)
-                    shouldContainJsonKeyValue("totaalWerkzamePersonen", TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN)
-                    shouldContainJsonKeyValue("type", TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING)
-                    shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
-                    shouldContainJsonKeyValue("voltijdWerkzamePersonen", TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN)
+                    """.trimIndent()
                 }
             }
         }
+    }
 
-        When("a search on companies by name is performed") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/klanten/bedrijven",
-                requestBodyAsString = JSONObject(
-                    mapOf("naam" to TEST_KVK_NAAM_1)
-                ).toString()
-            )
-
-            Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
-                    { 
-                        "foutmelding" : "",
-                        "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
-                            "naam" : "$TEST_KVK_NAAM_1",
-                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
-                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
-                        } ],
-                       "totaal" : 1.0
-                    }
-                """.trimIndent()
-            }
-        }
-
-        When("a search on companies by vestigingsnummer is performed") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/klanten/bedrijven",
-                requestBodyAsString = JSONObject(
-                    mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
-                ).toString()
-            )
-
-            Then("the expected companies as defined in the KVK mock are returned") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
-                    { 
-                        "foutmelding" : "",
-                        "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
-                            "kvkNummer" : "$TEST_KVK_NUMMER_1",
-                            "naam" : "$TEST_KVK_NAAM_1",
-                            "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
-                            "vestigingsnummer" : "$TEST_KVK_VESTIGINGSNUMMER_1"
-                        } ],
-                       "totaal" : 1.0
-                    }
-                """.trimIndent()
-            }
-        }
-
-        When("the list contactmomenten endpoint is called with the BSN of this test customer") {
-            val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/klanten/contactmomenten",
-                requestBodyAsString = """
+    Context("Retrieving contactmomenten for a person") {
+        Given("Existing contactmomenten") {
+            When("the list contactmomenten endpoint is called with the BSN of this test customer") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/contactmomenten",
+                    requestBodyAsString = """
                     {
                         "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                         "page": 0
                     }
-                """.trimIndent()
-            )
+                    """.trimIndent()
+                )
 
-            Then("the response should be a 200 HTTP response with the customer contactmomenten") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+                Then("the response should be a 200 HTTP response with the customer contactmomenten") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
                     {
                       "foutmelding": "",
                       "resultaten": [
@@ -497,24 +514,28 @@ class KlantRestServiceTest : BehaviorSpec({
                       ],
                       "totaal": 2
                     }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
+    }
 
-        When(
-            """
+    Context("Retrieving a rechtspersoon") {
+        Given("An existing rechtspersoon") {
+            When(
+                """
                 the read rechtspersoon endpoint is called with the RSIN of a test company available in the KVK mock
                 """
-        ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
-            )
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
+                )
 
-            Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+                Then("the response should be ok and the test company should be returned without contact data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
                     {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie" : "$TEST_KVK_RSIN_1",
@@ -523,24 +544,24 @@ class KlantRestServiceTest : BehaviorSpec({
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
-        }
 
-        When(
-            """
+            When(
+                """
                 the read rechtspersoon endpoint is called with the KVK nummer of a test company available in the KVK mock
                 """
-        ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
-            )
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
+                )
 
-            Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+                Then("the response should be ok and the test company should be returned without contact data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
                    {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie" : "$TEST_KVK_RSIN_1",
@@ -550,20 +571,24 @@ class KlantRestServiceTest : BehaviorSpec({
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
+    }
 
-        When("the personen parameters endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/personen/parameters",
-            )
+    Context("Retrieving personen parameters") {
+        Given("Existing personen parameters") {
+            When("the personen parameters endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/personen/parameters",
+                )
 
-            Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+                Then("the response should be ok and the test company should be returned without contact data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
                   [ 
                     {
                       "bsn" : "REQ",
@@ -621,20 +646,24 @@ class KlantRestServiceTest : BehaviorSpec({
                       "voorvoegsel" : "NON"
                     } 
                   ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
+    }
 
-        When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
-            )
+    Context("Retrieving betrokkenen for a zaaktype") {
+        Given("Existing betrokkenen") {
+            When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
+                )
 
-            Then("the response should be ok and the test company should be returned without contact data") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody shouldEqualJson """
+                Then("the response should be ok and the test company should be returned without contact data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson """
                     [
                       {
                         "naam": "Belanghebbende",
@@ -667,7 +696,8 @@ class KlantRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }
