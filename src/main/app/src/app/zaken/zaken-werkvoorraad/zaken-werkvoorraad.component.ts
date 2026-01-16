@@ -50,6 +50,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   templateUrl: "./zaken-werkvoorraad.component.html",
   styleUrls: ["./zaken-werkvoorraad.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent

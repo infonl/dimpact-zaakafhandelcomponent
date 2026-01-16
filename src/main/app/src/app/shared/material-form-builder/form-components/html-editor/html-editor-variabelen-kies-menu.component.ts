@@ -11,6 +11,7 @@ import { Editor } from "ngx-editor";
   selector: "variabelen-kies-menu",
   templateUrl: "./html-editor-variabelen-kies-menu.component.html",
   styleUrls: ["./html-editor-variabelen-kies-menu.component.less"],
+  standalone: false,
 })
 export class HtmlEditorVariabelenKiesMenuComponent {
   @Input() editor: Editor;

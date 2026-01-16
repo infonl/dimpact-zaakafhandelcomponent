@@ -10,6 +10,7 @@ import { ToggleSwitchOptions } from "./toggle-switch-options";
   selector: "zac-toggle-filter",
   templateUrl: "./toggle-filter.component.html",
   styleUrls: ["./toggle-filter.component.less"],
+  standalone: false,
 })
 export class ToggleFilterComponent {
   @Input() selected: ToggleSwitchOptions = ToggleSwitchOptions.INDETERMINATE;

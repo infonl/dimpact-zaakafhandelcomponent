@@ -365,6 +365,7 @@ describe(ZacInput.name, () => {
       const form = createTestForm();
       form.controls.email.addValidators(Validators.required);
       form.controls.email.markAsTouched();
+      form.controls.email.updateValueAndValidity();
       componentRef.setInput("form", form);
       componentRef.setInput("key", "email");
       fixture.detectChanges();

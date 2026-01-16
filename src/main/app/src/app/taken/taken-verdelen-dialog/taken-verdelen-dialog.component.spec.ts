@@ -13,6 +13,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -79,6 +80,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
         IdentityService,
         FormBuilder,
         TakenService,
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
@@ -119,6 +121,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
+    await new Promise(requestAnimationFrame);
 
     const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
 
@@ -149,6 +152,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       MatButtonHarness.with({ text: /actie.verdelen/i }),
     );
     await button.click();
+    await new Promise(requestAnimationFrame);
 
     const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
     req.flush({});

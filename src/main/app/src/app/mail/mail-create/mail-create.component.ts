@@ -20,6 +20,7 @@ import { MailService } from "../mail.service";
   selector: "zac-mail-create",
   templateUrl: "./mail-create.component.html",
   styleUrls: ["./mail-create.component.less"],
+  standalone: false,
 })
 export class MailCreateComponent implements OnInit {
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();

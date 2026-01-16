@@ -10,6 +10,7 @@ import { DialogData } from "./dialog-data";
 
 @Component({
   templateUrl: "dialog.component.html",
+  standalone: false,
 })
 export class DialogComponent implements OnInit {
   loading = true;

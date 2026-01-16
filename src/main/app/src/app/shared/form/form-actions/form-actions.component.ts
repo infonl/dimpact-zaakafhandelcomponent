@@ -10,6 +10,7 @@ import { CreateMutationResult } from "@tanstack/angular-query-experimental";
 @Component({
   selector: "zac-form-actions",
   templateUrl: "./form-actions.component.html",
+  standalone: false,
 })
 export class ZacFormActions {
   private readonly host = inject(ElementRef<HTMLElement>);

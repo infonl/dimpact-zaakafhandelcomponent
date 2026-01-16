@@ -19,6 +19,7 @@ import { SideNavUtil } from "./side-nav.util";
   templateUrl: "./side-nav.component.html",
   styleUrls: ["./side-nav.component.less"],
   animations: [rotate180, sideNavToggle],
+  standalone: false,
 })
 export class SideNavComponent {
   private readonly utilService = inject(UtilService);

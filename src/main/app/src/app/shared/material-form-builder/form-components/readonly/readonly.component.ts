@@ -11,6 +11,7 @@ import { ReadonlyFormField } from "./readonly-form-field";
 @Component({
   templateUrl: "./readonly.component.html",
   styleUrls: ["./readonly.component.less"],
+  standalone: false,
 })
 export class ReadonlyComponent extends FormComponent {
   data: ReadonlyFormField;

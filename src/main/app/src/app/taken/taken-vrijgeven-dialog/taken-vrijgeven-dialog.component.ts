@@ -13,6 +13,7 @@ import { TakenService } from "../taken.service";
   selector: "zac-taken-vrijgeven-dialog",
   templateUrl: "./taken-vrijgeven-dialog.component.html",
   styleUrls: ["./taken-vrijgeven-dialog.component.less"],
+  standalone: false,
 })
 export class TakenVrijgevenDialogComponent {
   loading = false;

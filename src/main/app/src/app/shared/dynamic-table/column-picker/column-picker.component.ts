@@ -12,6 +12,7 @@ import { ColumnPickerValue } from "./column-picker-value";
   selector: "zac-column-picker",
   templateUrl: "./column-picker.component.html",
   styleUrls: ["./column-picker.component.less"],
+  standalone: false,
 })
 export class ColumnPickerComponent {
   @Input() set columnSrc(columns: Map<string, ColumnPickerValue>) {

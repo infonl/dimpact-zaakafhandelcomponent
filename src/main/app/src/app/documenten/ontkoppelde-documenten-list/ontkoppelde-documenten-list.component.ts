@@ -39,6 +39,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
   styleUrls: ["./ontkoppelde-documenten-list.component.less"],
+  standalone: false,
 })
 export class OntkoppeldeDocumentenListComponent
   extends WerklijstComponent

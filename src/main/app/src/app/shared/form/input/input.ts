@@ -12,6 +12,7 @@ import { FormHelper } from "../helpers";
 @Component({
   selector: "zac-input",
   templateUrl: "./input.html",
+  standalone: false,
 })
 export class ZacInput<
   Form extends Record<string, AbstractControl>,

@@ -15,7 +15,7 @@ import {
 import {
   ExtendedComponentSchema,
   FormioComponent,
-  FormioOptions,
+  FormioHookOptions,
 } from "@formio/angular";
 
 @Component({
@@ -23,11 +23,12 @@ import {
   templateUrl: "./formio-wrapper.component.html",
   styleUrl: "./formio-wrapper.component.less",
   encapsulation: ViewEncapsulation.ShadowDom,
+  standalone: false,
 })
 export class FormioWrapperComponent {
   @Input() form: unknown;
   @Input() submission: unknown;
-  @Input() options?: FormioOptions;
+  @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Output() formSubmit = new EventEmitter<object>();
   @Output() formChange = new EventEmitter<{ data: unknown }>();

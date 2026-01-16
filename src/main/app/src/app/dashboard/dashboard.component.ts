@@ -25,6 +25,7 @@ import { DashboardCardType } from "./model/dashboard-card-type";
 @Component({
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
+  standalone: false,
 })
 export class DashboardComponent implements OnInit {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;

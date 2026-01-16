@@ -15,6 +15,7 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-bedrijfsgegevens",
   templateUrl: "./bedrijfsgegevens.component.html",
   styleUrls: ["./bedrijfsgegevens.component.less"],
+  standalone: false,
 })
 export class BedrijfsgegevensComponent {
   protected isVerwijderbaar = input<boolean | null>(false);

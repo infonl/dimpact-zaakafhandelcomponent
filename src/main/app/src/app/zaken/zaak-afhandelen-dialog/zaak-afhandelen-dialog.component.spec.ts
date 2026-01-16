@@ -10,6 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -23,6 +24,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -30,6 +32,7 @@ import { PipesModule } from "../../shared/pipes/pipes.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
+import { ZakenService } from "../zaken.service";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 
 describe(ZaakAfhandelenDialogComponent.name, () => {
@@ -104,6 +107,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     body: "Test Body",
   });
 
+  const mockZakenService = {
+    listResultaattypes: jest.fn().mockReturnValue(of(mockResultaattypes)),
+    listAfzenders: jest.fn().mockReturnValue(of(mockAfzenders)),
+    getMailTemplate: jest.fn().mockReturnValue(of(mockMailtemplate)),
+  };
+
   const createTestBed = async (
     zaakMock: GeneratedType<"RestZaak">,
     planItemMock?: GeneratedType<"RESTPlanItem"> | null,
@@ -121,6 +130,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
@@ -135,6 +145,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
             planItem: planItemMock,
           },
         },
+        { provide: ZakenService, useValue: mockZakenService },
         CustomValidators,
       ],
     }).compileComponents();
@@ -157,7 +168,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
-    await fixture.whenStable();
   };
 
   beforeEach(async () => {
@@ -192,7 +202,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
+      await options[1]?.click();
+      fixture.detectChanges();
 
       const besluitButton = await loader.getHarnessOrNull(
         MatButtonHarness.with({ text: /actie\.besluit\.vastleggen/ }),
@@ -206,17 +217,17 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-
       await options[1]?.click();
+      fixture.detectChanges();
 
-      const button = await loader.getHarness(
+      const besluitButton = await loader.getHarness(
         MatButtonHarness.with({
           text: /actie\.besluit\.vastleggen/,
         }),
       );
-      await button.click();
+      await besluitButton.click();
 
-      expect(dialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
+      expect(mockDialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
     });
   });
 
@@ -248,12 +259,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const options = await resultaattypeSelect.getOptions();
       await options[2]?.click();
 
-      await fixture.whenStable();
-
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       const isDisabled = await submitButton.isDisabled();
 
       expect(isDisabled).toBe(false);
@@ -271,9 +279,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/planitems/doUserEventListenerPlanItem`,
@@ -304,9 +311,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/planitems/doUserEventListenerPlanItem`,
@@ -440,7 +446,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         component.formGroup.patchValue({ resultaattype: state.resultaatType });
 
         fixture.detectChanges();
-        await fixture.whenStable();
 
         const submitButton = await loader.getHarnessOrNull(
           MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
@@ -539,9 +544,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-
       await submitButton.click();
-      await fixture.whenStable();
+      await new Promise(requestAnimationFrame);
 
       const req = httpTestingController.expectOne(
         `/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`,

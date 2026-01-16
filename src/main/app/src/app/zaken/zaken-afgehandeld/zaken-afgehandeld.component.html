@@ -7,7 +7,7 @@
   <table
     mat-table
     matSort
-    [matSortDirection]="dataSource.zoekParameters.sorteerRichting"
+    [matSortDirection]="dataSource.zoekParameters.sorteerRichting || ''"
     [matSortActive]="dataSource.zoekParameters.sorteerVeld"
     multiTemplateDataRows
     cdkDropList

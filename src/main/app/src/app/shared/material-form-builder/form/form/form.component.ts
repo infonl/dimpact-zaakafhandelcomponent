@@ -12,6 +12,7 @@ import { FormConfig } from "../../model/form-config";
   selector: "mfb-form",
   templateUrl: "./form.component.html",
   styleUrls: ["./form.component.less"],
+  standalone: false,
 })
 export class FormComponent {
   @Input() set formFields(formfields: Array<AbstractFormField[]>) {

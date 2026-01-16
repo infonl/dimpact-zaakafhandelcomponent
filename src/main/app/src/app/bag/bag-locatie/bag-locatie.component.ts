@@ -34,6 +34,7 @@ import { GeometryType } from "../../zaken/model/geometryType";
   selector: "zac-bag-locatie",
   templateUrl: "./bag-locatie.component.html",
   styleUrls: ["./bag-locatie.component.less"],
+  standalone: false,
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() bagGeometrie?: Geometry;

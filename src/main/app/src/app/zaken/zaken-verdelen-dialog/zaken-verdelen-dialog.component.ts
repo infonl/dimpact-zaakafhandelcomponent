@@ -15,6 +15,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
+  standalone: false,
 })
 export class ZakenVerdelenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();

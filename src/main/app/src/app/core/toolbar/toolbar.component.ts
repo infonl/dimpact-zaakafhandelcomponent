@@ -37,6 +37,7 @@ import { WebsocketService } from "../websocket/websocket.service";
   selector: "zac-toolbar",
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
+  standalone: false,
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly queryClient = inject(QueryClient);

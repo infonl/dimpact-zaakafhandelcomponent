@@ -13,6 +13,7 @@ import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definiti
 
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",
+  standalone: false,
 })
 export class ParametersEditWrapperComponent
   extends AdminComponent

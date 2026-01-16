@@ -36,6 +36,7 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   templateUrl: "./taken-mijn.component.html",
   styleUrls: ["./taken-mijn.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class TakenMijnComponent
   extends WerklijstComponent

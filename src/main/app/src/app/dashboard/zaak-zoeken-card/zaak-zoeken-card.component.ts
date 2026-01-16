@@ -20,6 +20,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./zaak-zoeken-card.component.less",
   ],
+  standalone: false,
 })
 export class ZaakZoekenCardComponent extends DashboardCardComponent {
   columns = [

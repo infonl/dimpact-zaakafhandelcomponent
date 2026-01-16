@@ -11,6 +11,7 @@ import { SelectFormField } from "./select-form-field";
 @Component({
   templateUrl: "./select.component.html",
   styleUrl: "./select.component.less",
+  standalone: false,
 })
 export class SelectComponent extends FormComponent {
   data!: SelectFormField;

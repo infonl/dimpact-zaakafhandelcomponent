@@ -30,6 +30,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 @Component({
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
+  standalone: false,
 })
 export class InformatieObjectEditComponent implements OnChanges {
   @Input()

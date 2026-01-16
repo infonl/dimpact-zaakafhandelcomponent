@@ -141,6 +141,11 @@ describe(ZacHtmlEditor.name, () => {
       form.controls.content.addValidators(Validators.required);
       componentRef.setInput("form", form);
       componentRef.setInput("key", "content");
+
+      const control = form.controls.content;
+      control.markAsTouched();
+      control.markAsDirty();
+      control.updateValueAndValidity();
       fixture.detectChanges();
 
       const error = await loader.getHarness(

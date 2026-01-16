@@ -13,6 +13,7 @@ import { KlantenService } from "../klanten.service";
 @Component({
   templateUrl: "./bedrijf-view.component.html",
   styleUrls: ["./bedrijf-view.component.less"],
+  standalone: false,
 })
 export class BedrijfViewComponent {
   protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;

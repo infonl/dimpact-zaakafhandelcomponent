@@ -24,6 +24,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
+  standalone: false,
 })
 export class ZaakAfhandelenDialogComponent {
   private readonly dialogRef = inject(

@@ -43,7 +43,6 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
-import { DocumentIconComponent } from "../document-icon/document-icon.component";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
@@ -57,7 +56,6 @@ import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
-import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { PipesModule } from "../pipes/pipes.module";
@@ -188,8 +186,6 @@ import { FormComponent } from "./form/form/form.component";
     NgxEditorModule,
     MatMenuModule,
     MatListModule,
-    DocumentIconComponent,
-    InformatieObjectIndicatiesComponent,
     MatExpansionPanelActionRow,
   ],
   providers: [

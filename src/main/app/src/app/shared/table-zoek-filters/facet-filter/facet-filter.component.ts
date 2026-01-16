@@ -19,6 +19,7 @@ import { GeneratedType } from "../../utils/generated-types";
   selector: "zac-facet-filter",
   templateUrl: "./facet-filter.component.html",
   styleUrls: ["./facet-filter.component.less"],
+  standalone: false,
 })
 export class FacetFilterComponent implements OnInit, OnChanges {
   selected = new FormControl<string | undefined>(undefined);
