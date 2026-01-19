@@ -399,12 +399,12 @@ Deze sectie beschrijft de werking van de nieuwe IAM-architectuur in ZAC.
 ZAC moet expliciet worden geconfigureerd om gebruik te maken van de nieuwe IAM-architectuur.
 
 De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
-* Een vereiste is dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
-* Het is generiek ontworpen om in de toekomst meerdere 'entiteitstypes' (op dit moment alleen nog zaaktypes) te kunnen gaan autoriseren.
+* Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
+Op dit moment worden alleen nog zaaktypes als entiteitstype ondersteund.
 * Het biedt meer flexibiliteit in het beheren van autorisaties, en het is bijvoorbeeld mogelijk om een medewerker 
-verschillende applicatierollen toe te kennen per domein (=verzameling entiteitstypes).
-* Het maakt een expliciet onderscheid tussen 'functionele rollen' en 'applicatierollen'. 
-* Het introduceert een nieuwe 'domein' concept, dat niet meer in ZAC (en Keycloak) wordt beheerd maar geheel in de PABC.
+verschillende applicatierollen toe te kennen voor verschillende domeinen.
+* Het verlaagt de autorisatiebeheer-last met behulp van hoog-niveau abstracties zoals domeinen en functionele rollen. 
+* Het vereist dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
 
 #### Zaaktype autorisaties
 
@@ -454,20 +454,37 @@ Groepen van medewerkers worden beheerd in Keycloak.
 In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
 Zie eerdere secties in dit document voor specifieke details.
 
-### Groep autorisaties
-
-Zowel in de oude als nieuwe IAM-architectuur worden naast medewerkers ook groepen gebruikt om autorisaties te regelen.
-Dit vindt plaats middels de rol(len) die aan de groep zijn toegekend in Keycloak.
-
-Omdat ZAC voor bepaalde functionaliteit gebruik maakt van autorisaties op groep-niveau (bijvoorbeeld bij het toekennen van een zaak aan een groep)
-is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
-
 ### Beheer van groepen
 
-Het beheer van groepen, het toekennen van (functionele) rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
+Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
 
 > Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
 
 > Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 
+
+### Groep autorisaties
+
+Zowel in de oude als nieuwe IAM-architectuur worden ook groepen gebruikt om autorisaties te beheren.
+Dit vindt plaats middels de rol(len) die aan de groep zijn toegekend in Keycloak.
+
+ZAC maakt gebruik van autorisaties op groep-niveau (bijvoorbeeld bij het toekennen van een zaak aan een groep).
+Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
+
+Het beheer van groepen verschilt tussen de oude en de nieuwe IAM-architectuur:
+
+#### Groep autorisaties in de oude IAM-architectuur
+
+In de oude IAM-architectuur worden de ZAC-applicatierollen direct toegekend aan groepen. 
+Ook worden de 'domein-rollen' toegekend aan groepen t.b.v. zaaktype autorisaties.
+
+  ![Keycloak group old IAM](images/keycloak_group_iam_old.png)
+
+#### Groep autorisaties in de nieuwe IAM-architectuur
+
+In de nieuwe IAM-architectuur worden echter `functionele rollen` toegekend aan groepen.
+De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
+Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
+
+  ![Keycloak group](images/keycloak_group.png)
