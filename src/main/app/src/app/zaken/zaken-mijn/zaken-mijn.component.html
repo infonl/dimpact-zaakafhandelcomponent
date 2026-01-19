@@ -490,10 +490,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div
-          class="row-detail"
-          [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
-        >
+        <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap">
             <ng-container
               *ngFor="let column of dataSource.detailExpandColumns"
