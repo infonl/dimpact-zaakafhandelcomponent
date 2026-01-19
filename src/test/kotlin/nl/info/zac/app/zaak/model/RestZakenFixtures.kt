@@ -176,7 +176,7 @@ fun createRestZaak(
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,
-    isEerderOpgeschort = false,
+    eerdereOpschorting = false,
     redenOpschorting = "Sample Reden Opschorting",
     isVerlengd = true,
     redenVerlenging = "Sample Reden Verlenging",
@@ -199,8 +199,18 @@ fun createRestZaak(
     initiatorIdentificatie = initiatorBetrokkeneIdentificatie
 )
 
+fun createRestZaakDataUpdate(
+    uuid: UUID = UUID.randomUUID(),
+    zaakData: Map<String, Any> = createZaakData()
+) = RestZaakDataUpdate(
+    uuid = uuid,
+    zaakdata = zaakData
+)
+
 @Suppress("LongParameterList")
 fun createRestZaakCreateData(
+    description: String = "fakeDescription",
+    explanation: String = "fakeExplanation",
     behandelaar: RestUser = createRestUser(),
     restGroup: RestGroup = createRestGroup(),
     restZaakType: RestZaaktype = createRestZaaktype(),
@@ -210,8 +220,8 @@ fun createRestZaakCreateData(
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
 ) = RestZaakCreateData(
-    omschrijving = "Sample Zaak",
-    toelichting = "This is a test zaak",
+    omschrijving = description,
+    toelichting = explanation,
     zaaktype = restZaakType,
     bronorganisatie = "Sample Bronorganisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),
@@ -374,7 +384,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaaktypeCmmnConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
+    zaaktypeConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",
@@ -392,7 +402,7 @@ fun createRestZaaktype(
     verlengingstermijn = null,
     zaaktypeRelaties = emptyList(),
     informatieobjecttypes = emptyList(),
-    zaakafhandelparameters = zaaktypeCmmnConfiguration
+    zaakafhandelparameters = zaaktypeConfiguration
 )
 
 private fun createZaakData() = mapOf(

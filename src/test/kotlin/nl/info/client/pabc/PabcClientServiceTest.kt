@@ -14,47 +14,42 @@ import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 
 class PabcClientServiceTest : BehaviorSpec({
-
     val pabcClient = mockk<PabcClient>()
     val pabcClientService = PabcClientService(pabcClient)
-
-    val roles = listOf(
-        "fakeRole1",
-        "fakeRole2",
-        "fakeRole3"
-    )
-
-    val mockResponse = createApplicationRolesResponse()
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("invoke client with list of functional roles") {
-        val requestSlot = slot<GetApplicationRolesRequest>()
-        every {
-            pabcClient.getApplicationRolesPerEntityType(capture(requestSlot))
-        } returns mockResponse
+    Context("Getting application roles") {
+        Given("A PABC application roles response for a certain PABC request") {
+            val applicationName = "fakeApplicationName"
+            val entityTypeId = "fakeEntityTypeId"
+            val entityTypeType = "fakeEntityTypeType"
+            val applicationRolesResponse = createApplicationRolesResponse(
+                id = entityTypeId,
+                applicationName = applicationName,
+                type = entityTypeType,
+            )
+            val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
+            val functionalRoles = listOf("fakeRole1", "fakeRole2")
+            every {
+                pabcClient.getApplicationRolesPerEntityType(capture(getApplicationRolesRequestSlot))
+            } returns applicationRolesResponse
 
-        When("getApplicationRoles is called") {
-            val result = pabcClientService.getApplicationRoles(roles)
+            When("getApplicationRoles is called for a list of functional roles") {
+                val result = pabcClientService.getApplicationRoles(functionalRoles)
 
-            Then("it should invoke the client with the given roles") {
-                result shouldBe mockResponse
-                requestSlot.isCaptured shouldBe true
-                requestSlot.captured.functionalRoleNames shouldBe listOf(
-                    "fakeRole1",
-                    "fakeRole2",
-                    "fakeRole3"
-                )
-
-                val responseModel = result.results[0]
-                responseModel.entityType.id shouldBe "zaaktype_test_1"
-                responseModel.entityType.name shouldBe "Test zaaktype 1"
-                responseModel.entityType.type shouldBe "zaaktype"
-
-                responseModel.applicationRoles.forEach {
-                    it.application shouldBe "zaakafhandelcomponent"
+                Then("it should invoke the client with the given roles") {
+                    result shouldBe applicationRolesResponse
+                    getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe functionalRoles
+                    with(result.results[0]) {
+                        entityType.id shouldBe entityTypeId
+                        entityType.type shouldBe entityTypeType
+                        applicationRoles.forEach {
+                            it.application shouldBe applicationName
+                        }
+                    }
                 }
             }
         }

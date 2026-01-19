@@ -37,8 +37,8 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 22
       - name: Install dependencies
@@ -50,14 +50,32 @@ jobs:
       - name: Make a playwright report
         if: always()
         run: "cd src/e2e && npm run e2e:generate:report"
-      - name: copy report to seperate folder
+      - name: Extract metrics from Cucumber report
+        if: always()
+        run: "cd src/e2e && npm run e2e:extract:metrics"
+      - name: copy report to separate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
-          
           path: src/e2e/reports
+          retention-days: 7
+      - name: Create .env file from secrets
+        if: always()
+        run: |
+          echo "${{ secrets.E2E_ENV_FILE }}" > src/e2e/.env
+      - name: BDD playwright
+        run: cd src/e2e && npm run bdd:ci
+        if: always()
+        continue-on-error: true
+      - name: Upload BDD test artifacts
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: bdd-test-artifacts
+          path: |
+            src/e2e/playwright-report
           retention-days: 7
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}

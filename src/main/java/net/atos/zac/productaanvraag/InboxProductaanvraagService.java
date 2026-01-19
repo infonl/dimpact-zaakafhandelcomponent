@@ -35,7 +35,7 @@ public class InboxProductaanvraagService {
     private EntityManager entityManager;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public InboxProductaanvraagService() {
     }

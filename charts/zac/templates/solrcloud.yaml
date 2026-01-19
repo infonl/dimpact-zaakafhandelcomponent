@@ -23,6 +23,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (index .Values "solr-operator").solr.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   busyBoxImage:
     pullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.busyBoxImage.repository }}
@@ -60,6 +64,10 @@ spec:
         {{- end }}
         {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.tolerations }}
         tolerations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.topologySpreadConstraints }}
+        topologySpreadConstraints:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       image:

@@ -13,21 +13,20 @@ import static org.flowable.engine.impl.cfg.DelegateExpressionFieldInjectionMode.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flowable.cdi.CdiStandaloneProcessEngineConfiguration;
 import org.flowable.cdi.spi.ProcessEngineLookup;
-import org.flowable.cmmn.api.runtime.CaseInstanceState;
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
 import org.flowable.cmmn.engine.configurator.CmmnEngineConfigurator;
 import org.flowable.cmmn.engine.impl.cfg.DelegateExpressionFieldInjectionMode;
 import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.bpmn.UserTaskCompletionListener;
+import net.atos.zac.flowable.bpmn.function.TaskFunctionsDelegate;
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
 import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
-import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
+import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor;
 
 /**
  * Looks up the ZAC Flowable process engine.
@@ -66,7 +65,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
     }
 
     private static ProcessEngineConfiguration getProcessEngineConfiguration() {
-        var processEngineConfiguration = new StandaloneProcessEngineConfiguration();
+        var processEngineConfiguration = new CdiStandaloneProcessEngineConfiguration();
         processEngineConfiguration.setDataSourceJndiName(DATA_SOURCE_JNDI_NAME);
         processEngineConfiguration.setDatabaseType(DATABASE_TYPE_POSTGRES);
         processEngineConfiguration.setDatabaseSchema(DATABASE_SCHEMA);
@@ -77,17 +76,37 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         processEngineConfiguration.setEnableHistoricTaskLogging(true);
         processEngineConfiguration.setDisableIdmEngine(true);
         processEngineConfiguration.setAsyncExecutorActivate(true);
-        processEngineConfiguration.setCreateUserTaskInterceptor(new CreateUserTaskInterceptor());
+        processEngineConfiguration.setCreateUserTaskInterceptor(new ZacCreateUserTaskInterceptor());
+
+        addEventListeners(processEngineConfiguration);
+        addCustomFunctionDelegates(processEngineConfiguration);
+        addConfigurators(processEngineConfiguration);
+
+        return processEngineConfiguration;
+    }
+
+    private static void addEventListeners(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
         var eventListeners = processEngineConfiguration.getEventListeners();
         if (eventListeners == null) {
             eventListeners = new ArrayList<>();
             processEngineConfiguration.setEventListeners(eventListeners);
         }
         eventListeners.add(new UserTaskCompletionListener());
+    }
+
+    private static void addCustomFunctionDelegates(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
+        var customFlowableFunctionDelegates = processEngineConfiguration.getCustomFlowableFunctionDelegates();
+        if (customFlowableFunctionDelegates == null) {
+            customFlowableFunctionDelegates = new ArrayList<>();
+        }
+        customFlowableFunctionDelegates.add(new TaskFunctionsDelegate());
+        processEngineConfiguration.setCustomFlowableFunctionDelegates(customFlowableFunctionDelegates);
+    }
+
+    private static void addConfigurators(CdiStandaloneProcessEngineConfiguration processEngineConfiguration) {
         final var cmmnEngineConfigurator = new CmmnEngineConfigurator();
         cmmnEngineConfigurator.setCmmnEngineConfiguration(getCmmnEngineConfigurationHelper());
         processEngineConfiguration.setConfigurators(List.of(cmmnEngineConfigurator));
-        return processEngineConfiguration;
     }
 
     private static CmmnEngineConfiguration getCmmnEngineConfigurationHelper() {
@@ -100,10 +119,6 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         cmmnEngineConfiguration.setEnableSafeCmmnXml(true);
         cmmnEngineConfiguration.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.DISABLED);
         cmmnEngineConfiguration.setEnableHistoricTaskLogging(true);
-        CaseInstanceState.END_STATES.forEach(
-                endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
-                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState))
-        );
         cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new ZacCreateHumanTaskInterceptor());
         cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);

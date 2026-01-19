@@ -26,7 +26,8 @@ import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
@@ -42,7 +43,7 @@ class MailTemplateHelperTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
     val identityService = mockk<IdentityService>()
     val kvkClientService = mockk<KvkClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val mailTemplateHelper = MailTemplateHelper(
@@ -100,7 +101,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         Given("A zaak without an initiator") {
             val zaakType = createZaakType()
             val zaak = createZaak(
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -155,10 +156,9 @@ class MailTemplateHelperTest : BehaviorSpec({
             """
         ) {
             val zaakType = createZaakType()
-            val zaakIdentificatie = "fakeZaakIdentificatie"
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaak = createZaak(
-                identificatie = zaakIdentificatie,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -196,7 +196,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, zaakIdentificatie)
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid)
             } returns persoon
 
             When(
@@ -222,10 +222,9 @@ class MailTemplateHelperTest : BehaviorSpec({
             """
         ) {
             val zaakType = createZaakType()
-            val zaakIdentificatie = "fakeZaakIdentificatie"
+            val zaaktypeUuid = zaakType.url.extractUuid()
             val zaak = createZaak(
-                identificatie = zaakIdentificatie,
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )
@@ -248,7 +247,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, "fakeZaakIdentificatie")
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid)
             } returns persoon
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
@@ -268,7 +267,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         Given("A zaak with an initiator of role niet-natuurlijk persoon with a vestigingnummer") {
             val zaakType = createZaakType()
             val zaak = createZaak(
-                zaakTypeURI = zaakType.url,
+                zaaktypeUri = zaakType.url,
                 status = URI("https://example.com/fakeStatus"),
                 startDate = LocalDate.of(2021, 10, 12)
             )

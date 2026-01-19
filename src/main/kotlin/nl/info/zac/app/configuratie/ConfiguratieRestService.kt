@@ -32,8 +32,8 @@ class ConfiguratieRestService @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) {
     @GET
-    @Path("feature-flags/bpmn-support")
-    fun featureFlagBpmnSupport(): Boolean = configuratieService.featureFlagBpmnSupport()
+    @Path("feature-flags/pabc-integration")
+    fun featureFlagPabcIntegration(): Boolean = configuratieService.featureFlagPabcIntegration()
 
     @GET
     @Path("talen")

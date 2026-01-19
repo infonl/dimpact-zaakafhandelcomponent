@@ -28,6 +28,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
+  standalone: false,
 })
 export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
@@ -93,7 +94,9 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
-    this.groups = this.identityService.listGroups(this.zaak.zaaktype.uuid);
+    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
+      this.zaak.zaaktype.uuid,
+    );
 
     if (!this.zaak.rechten.wijzigen) {
       this.form.controls.communicatiekanaal.disable();

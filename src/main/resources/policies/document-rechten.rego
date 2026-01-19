@@ -8,8 +8,6 @@
 package net.atos.zac.document
 
 import data.net.atos.zac.rol.behandelaar
-import data.net.atos.zac.rol.beheerder
-import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
 import input.user
@@ -25,7 +23,8 @@ document_rechten := {
     "toevoegen_nieuwe_versie": toevoegen_nieuwe_versie,
     "verplaatsen": verplaatsen,
     "ontkoppelen": ontkoppelen,
-    "downloaden": downloaden
+    "downloaden": downloaden,
+    "converteren": converteren
 }
 
 default zaaktype_allowed := false
@@ -148,5 +147,12 @@ ontkoppelen if {
 default downloaden := false
 downloaden if {
     raadpleger.rol in user.rollen
+    zaaktype_allowed
+}
+
+default converteren := false
+converteren if {
+    behandelaar.rol in user.rollen
+    document.definitief == true
     zaaktype_allowed
 }

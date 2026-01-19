@@ -12,7 +12,10 @@ import {
 import { Subscription } from "rxjs";
 import { SideNavUtil } from "../side-nav/side-nav.util";
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export abstract class ViewComponent implements OnDestroy, AfterViewInit {
   abstract sideNavContainer: MatSidenavContainer;
   abstract menuSidenav: MatSidenav;

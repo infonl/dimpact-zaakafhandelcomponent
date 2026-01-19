@@ -11,7 +11,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum
  *
  */
 @JsonbTypeAdapter(IndicatieInternExtern.Adapter::class)
-enum class IndicatieInternExtern(private val value: String) : AbstractEnum<IndicatieInternExtern> {
+enum class IndicatieInternExtern(private val value: String) : AbstractEnum {
     INTERN("intern"),
 
     EXTERN("extern");

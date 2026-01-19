@@ -9,8 +9,7 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.info.zac.itest.config.TestUser
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -25,8 +24,8 @@ private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
 private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
 fun authenticate(
-    username: String = TEST_USER_1_USERNAME,
-    password: String = TEST_USER_1_PASSWORD
+    username: String,
+    password: String
 ) = okHttpClient.newCall(
     Request.Builder()
         .headers(Headers.headersOf("Content-Type", "application/x-www-form-urlencoded"))
@@ -45,6 +44,11 @@ fun authenticate(
     logger.info { "--- authenticate status code: $code ---" }
     refreshToken = JSONObject(this.body.string()).getString(REFRESH_TOKEN_ATTRIBUTE)
 }
+
+fun authenticate(testUser: TestUser) = authenticate(
+    username = testUser.username,
+    password = testUser.password
+)
 
 /**
  * Always request a new access token using the current refresh token to make sure we remain

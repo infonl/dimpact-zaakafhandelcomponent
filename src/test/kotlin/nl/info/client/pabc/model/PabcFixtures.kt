@@ -8,43 +8,93 @@ import nl.info.client.pabc.model.generated.ApplicationRoleModel
 import nl.info.client.pabc.model.generated.EntityTypeModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
+import nl.info.client.pabc.model.generated.GroupRepresentation
 
-fun createApplicationRolesResponse(): GetApplicationRolesResponse {
+fun createApplicationRoleModel(
+    name: String = "fakeRoleName",
+    application: String = "fakeApplicationName"
+) = ApplicationRoleModel().apply {
+    this.name = name
+    this.application = application
+}
+
+fun createApplicationRolesResponse(
+    id: String = "fakeEntityTypeId",
+    name: String = "fakeEntityTypeName",
+    type: String = "fakeEntityTypeType",
+    applicationName: String = "fakeApplicationName"
+): GetApplicationRolesResponse {
     val entityType = EntityTypeModel().apply {
-        id = "zaaktype_test_1"
-        name = "Test zaaktype 1"
-        type = "zaaktype"
+        this.id = id
+        this.name = name
+        this.type = type
     }
-
     val applicationRoles = listOf(
-        ApplicationRoleModel().apply {
-            name = "raadpleger"
-            application = "zaakafhandelcomponent"
-        },
-        ApplicationRoleModel().apply {
-            name = "behandelaar"
-            application = "zaakafhandelcomponent"
-        },
-        ApplicationRoleModel().apply {
-            name = "coordinator"
-            application = "zaakafhandelcomponent"
-        },
-        ApplicationRoleModel().apply {
-            name = "beheerder"
-            application = "zaakafhandelcomponent"
-        },
-        ApplicationRoleModel().apply {
-            name = "recordmanager"
-            application = "zaakafhandelcomponent"
-        }
+        createApplicationRoleModel(
+            name = "fakeApplicationRole1",
+            application = applicationName
+        ),
+        createApplicationRoleModel(
+            name = "fakeApplicationRole2",
+            application = applicationName
+        )
     )
-
-    val responseModel = GetApplicationRolesResponseModel().apply {
-        this.entityType = entityType
-        this.applicationRoles = applicationRoles
-    }
-
+    val responseModel = createGetApplicationRolesResponseModel(
+        entityType = entityType,
+        applicationRoles = applicationRoles
+    )
     return GetApplicationRolesResponse().apply {
         results = listOf(responseModel)
     }
+}
+
+fun createApplicationRolesResponseModel(
+    entityTypeId: String?,
+    entityTypeType: String = "fakeEntityTypeType",
+    roleNames: List<String>,
+    applicationName: String = "fakeApplicationName"
+): GetApplicationRolesResponseModel {
+    val entityType = entityTypeId?.let {
+        createEntityTypeModel(
+            id = it,
+            name = it,
+            type = entityTypeType
+        )
+    }
+    val applicationRoles = roleNames.map { role ->
+        createApplicationRoleModel(
+            name = role,
+            application = applicationName
+        )
+    }
+    return GetApplicationRolesResponseModel().apply {
+        this.entityType = entityType
+        this.applicationRoles = applicationRoles
+    }
+}
+
+fun createEntityTypeModel(
+    id: String = "fakeEntityTypeId",
+    name: String = "fakeEntityTypeName",
+    type: String = "fakeEntityTypeType"
+) = EntityTypeModel().apply {
+    this.id = id
+    this.name = name
+    this.type = type
+}
+
+fun createGetApplicationRolesResponseModel(
+    entityType: EntityTypeModel,
+    applicationRoles: List<ApplicationRoleModel>
+) = GetApplicationRolesResponseModel().apply {
+    this.entityType = entityType
+    this.applicationRoles = applicationRoles
+}
+
+fun createPabcGroupRepresentation(
+    name: String = "fakeGroupName",
+    description: String? = null
+) = GroupRepresentation().apply {
+    this.name = name
+    this.description = description
 }

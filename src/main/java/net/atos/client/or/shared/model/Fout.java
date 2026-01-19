@@ -2,15 +2,15 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.or.shared.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.net.URI;
 
-/**
- *
- */
-public class Fout {
+public class Fout implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4564564564565456L;
 
     private String code;
 

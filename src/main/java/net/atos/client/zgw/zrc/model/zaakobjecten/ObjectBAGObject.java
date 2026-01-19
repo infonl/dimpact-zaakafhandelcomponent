@@ -20,13 +20,13 @@ public abstract class ObjectBAGObject {
     /**
      * Constructor for JSONB deserialization
      */
-    public ObjectBAGObject() {
+    protected ObjectBAGObject() {
     }
 
     /**
      * Constructor with required attributes
      */
-    public ObjectBAGObject(final String identificatie) {
+    protected ObjectBAGObject(final String identificatie) {
         this.identificatie = identificatie;
     }
 

@@ -9,22 +9,21 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
@@ -35,23 +34,28 @@ import java.util.UUID
 /**
  * This test creates a zaak, adds a task to complete the intake phase, closes the zaak, then re-opens and again closes the zaak.
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class ZaakRestServiceCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
+    Given(
+        """
+        A zaak has been created that has finished the intake phase with the status 'admissible'
+        and a logged-in recordmanager for domain test 1
+        """
+    ) {
+        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
@@ -62,7 +66,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONArray(responseBody).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
@@ -86,7 +90,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONArray(responseBody).getJSONObject(0).run {
                 // we do not care about the specific result type, so we just take the first one
@@ -99,7 +103,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
             ).run {
-                val responseBody = body.string()
+                val responseBody = bodyAsString
                 logger.info { "Response: $responseBody" }
                 JSONArray(responseBody).getJSONObject(0).run {
                     afhandelenId = getString("id").toInt()
@@ -122,8 +126,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID).use { response ->
-                    val responseBody = response.body.string()
+                zacClient.retrieveZaak(zaakUUID).let { response ->
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -147,8 +151,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
 
             Then("the zaak should be open and should no longer have a result") {
-                zacClient.retrieveZaak(zaakUUID).use { response ->
-                    val responseBody = response.body.string()
+                zacClient.retrieveZaak(zaakUUID).let { response ->
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -178,8 +182,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID).use { response ->
-                    val responseBody = response.body.string()
+                zacClient.retrieveZaak(zaakUUID).let { response ->
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody.run {
@@ -191,18 +195,23 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak has been created that has not finished the intake phase") {
+    Given(
+        """
+        A zaak has been created that has not finished the intake phase
+        and a logged-in recordmanager for domain test 1
+        """
+    ) {
+        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val afhandelenId: Int
-
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
@@ -213,7 +222,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONArray(responseBody).getJSONObject(0).run {
                 // we do not care about the specific result type, so we just take the first one
@@ -223,7 +232,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONArray(responseBody).getJSONObject(0).run {
                 afhandelenId = getString("id").toInt()
@@ -265,7 +274,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val responseBody = receivedMailsResponse.body.string()
+                val responseBody = receivedMailsResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(JSONArray(responseBody)) {
                     length() shouldBe 1

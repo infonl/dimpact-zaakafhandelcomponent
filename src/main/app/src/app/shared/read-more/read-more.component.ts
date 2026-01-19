@@ -13,6 +13,7 @@ import { Component, Input, numberAttribute, OnChanges } from "@angular/core";
       [innerHTML]="subText"
     ></div>
     <div *ngIf="!showTooltip" [innerHTML]="text"></div>`,
+  standalone: false,
 })
 export class ReadMoreComponent implements OnChanges {
   @Input() text?: string;

@@ -21,6 +21,7 @@ import { FormioFormulierenService } from "../formio-formulieren.service";
 @Component({
   templateUrl: "./formio-formulieren.component.html",
   styleUrls: ["./formio-formulieren.component.less"],
+  standalone: false,
 })
 export class FormioFormulierenComponent
   extends AdminComponent

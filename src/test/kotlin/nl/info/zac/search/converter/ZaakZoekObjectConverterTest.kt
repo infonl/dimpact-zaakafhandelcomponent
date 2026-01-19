@@ -20,7 +20,7 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -42,7 +42,7 @@ import java.util.Date
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val identityService = mockk<IdentityService>()
     val flowableTaskService = mockk<FlowableTaskService>()
 
@@ -71,7 +71,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         val zaak = createZaak(
             resultaat = resultaat.url,
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
         val rolInitiator = createRolNatuurlijkPersoon(
@@ -149,7 +149,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             besluittypen = listOf(URI("decision1"), URI("decision2"))
         )
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             status = URI("status")
         )
         val rolInitiator = createRolNatuurlijkPersoon(

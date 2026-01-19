@@ -7,25 +7,25 @@ package net.atos.zac.flowable.cmmn
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.model.createZaakStatusSub
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 
 class UpdateZaakLifecycleListenerTest : BehaviorSpec({
-    mockkStatic(FlowableHelper::class)
+    mockkObject(FlowableHelper)
     val flowableHelper = mockk<FlowableHelper>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val delegatePlanItemInstance = mockk<DelegatePlanItemInstance>()
     val expression = mockk<Expression>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
 
     val updateZaakLifecycleListener = UpdateZaakLifecycleListener()
 
@@ -36,7 +36,7 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
         """
     ) {
         val zaak = createZaak()
-        val zaakStatus = createZaakStatus()
+        val zaakStatus = createZaakStatusSub()
         every { expression.getValue(delegatePlanItemInstance) } returns "fakeStatus"
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService

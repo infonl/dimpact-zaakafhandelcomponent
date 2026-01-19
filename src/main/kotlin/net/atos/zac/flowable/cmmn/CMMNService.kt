@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
-import net.atos.zac.flowable.task.CreateUserTaskInterceptor
+import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -92,7 +92,7 @@ class CMMNService @Inject constructor(
                 .businessKey(zaak.uuid.toString())
                 .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
                 .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
+                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUID, zaaktype.url.extractUuid())
                 .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
             zaakData?.let(caseInstanceBuilder::variables)
             caseInstanceBuilder.start()
@@ -106,7 +106,6 @@ class CMMNService @Inject constructor(
     /**
      * Terminate the case for a zaak.
      * This also terminates all open tasks related to the case,
-     * This will also call {@Link EndCaseLifecycleListener}
      *
      * @param zaakUUID UUID of the zaak, for which the case should be terminated.
      */
@@ -150,7 +149,7 @@ class CMMNService @Inject constructor(
                 cmmnRuntimeService.getVariables(readOpenPlanItem(planItemInstanceId).caseInstanceId)
             )
             .childTaskVariables(processData)
-            .childTaskVariable(CreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
+            .childTaskVariable(ZacCreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
             .start()
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {

@@ -5,7 +5,6 @@
 
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../shared/form/form";
@@ -13,9 +12,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
-import { Advies } from "./model/advies";
+import { AdviesFormulier } from "./model/advies";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
-import { AanvullendeInformatieDeprecated } from "./model/deprecated/aanvullende-informatie";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
 import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
@@ -26,20 +24,19 @@ import { TaakFormulierBuilder } from "./taak-formulier-builder";
   providedIn: "root",
 })
 export class TaakFormulierenService {
-  private readonly goedkeurenFormulier = inject(GoedkeurenFormulier);
+  private readonly translateService = inject(TranslateService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly takenService = inject(TakenService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly mailtemplateService = inject(MailtemplateService);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private readonly goedkeurenFormulier = inject(GoedkeurenFormulier);
   private readonly aanvullendeInformatieFormulier = inject(
     AanvullendeInformatieFormulier,
   );
-  constructor(
-    private readonly translate: TranslateService,
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly takenService: TakenService,
-    private readonly zakenService: ZakenService,
-    private readonly klantenService: KlantenService,
-    private readonly mailtemplateService: MailtemplateService,
-  ) {}
+  private readonly adviesFormulier = inject(AdviesFormulier);
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
@@ -48,8 +45,10 @@ export class TaakFormulierenService {
     switch (formulierDefinitie) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.requestForm(zaak);
-      // case "AANVULLENDE_INFORMATIE":
-      //   return this.aanvullendeInformatieFormulier.requestForm(zaak);
+      case "AANVULLENDE_INFORMATIE":
+        return this.aanvullendeInformatieFormulier.requestForm(zaak);
+      case "ADVIES":
+        return this.adviesFormulier.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -59,14 +58,15 @@ export class TaakFormulierenService {
 
   public async getAngularHandleFormBuilder(
     taak: GeneratedType<"RestTask">,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.handleForm(taak);
-      // case "AANVULLENDE_INFORMATIE":
-      //   return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
+      case "AANVULLENDE_INFORMATIE":
+        return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
+      case "ADVIES":
+        return this.adviesFormulier.handleForm(taak);
       default:
         throw new Error(
           `${taak.formulierDefinitie}: Onbekende formulierDefinitie for Angular`,
@@ -81,33 +81,22 @@ export class TaakFormulierenService {
       case "DEFAULT_TAAKFORMULIER":
         return new TaakFormulierBuilder(
           new DefaultTaakformulier(
-            this.translate,
+            this.translateService,
             this.informatieObjectenService,
           ),
         );
       case "AANVULLENDE_INFORMATIE":
-        return new TaakFormulierBuilder(
-          new AanvullendeInformatieDeprecated(
-            this.translate,
-            this.takenService,
-            this.informatieObjectenService,
-            this.mailtemplateService,
-            this.klantenService,
-            this.zakenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "ADVIES":
-        return new TaakFormulierBuilder(
-          new Advies(
-            this.translate,
-            this.takenService,
-            this.informatieObjectenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "EXTERN_ADVIES_VASTLEGGEN":
         return new TaakFormulierBuilder(
           new ExternAdviesVastleggen(
-            this.translate,
+            this.translateService,
             this.takenService,
             this.informatieObjectenService,
           ),
@@ -115,7 +104,7 @@ export class TaakFormulierenService {
       case "EXTERN_ADVIES_MAIL":
         return new TaakFormulierBuilder(
           new ExternAdviesMail(
-            this.translate,
+            this.translateService,
             this.takenService,
             this.informatieObjectenService,
             this.mailtemplateService,
@@ -129,7 +118,7 @@ export class TaakFormulierenService {
       case "DOCUMENT_VERZENDEN_POST":
         return new TaakFormulierBuilder(
           new DocumentVerzendenPost(
-            this.translate,
+            this.translateService,
             this.takenService,
             this.informatieObjectenService,
           ),

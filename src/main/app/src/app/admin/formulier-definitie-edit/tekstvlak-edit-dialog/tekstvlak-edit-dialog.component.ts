@@ -12,6 +12,7 @@ import { DialogData } from "../../../shared/dialog/dialog-data";
   selector: "zac-tekstvlak-edit-dialog",
   templateUrl: "./tekstvlak-edit-dialog.component.html",
   styleUrls: ["./tekstvlak-edit-dialog.component.less"],
+  standalone: false,
 })
 export class TekstvlakEditDialogComponent {
   formControl: FormControl<string>;

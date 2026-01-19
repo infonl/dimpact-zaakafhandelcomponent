@@ -48,7 +48,7 @@ public interface Caching {
         return message;
     }
 
-    default <KEY> void removed(final String cache, final KEY key) {
+    default <K> void removed(final String cache, final K key) {
         LOG.fine(() -> String.format("Removed from %s cache: %s", cache, key.toString()));
     }
 }

@@ -23,14 +23,13 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.configuratie.BrpConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
@@ -41,7 +40,6 @@ import kotlin.jvm.optionals.getOrNull
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
     private val brpConfiguration: BrpConfiguration,
-    private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     companion object {
@@ -65,40 +63,64 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, zaakIdentificatie: String? = null): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
-            personenApi.personen(
-                personenQuery = updatedQuery,
-                purpose = resolvePurpose(zaakIdentificatie, brpConfiguration.queryPersonenDefaultPurpose.getOrNull()) {
-                    it.zaaktypeCmmnBrpParameters?.zoekWaarde
-                },
-                auditEvent = resoleProcessingValue(
-                    zaakIdentificatie,
-                    brpConfiguration.processingRegisterDefault.getOrNull()
+            if (brpConfiguration.isBrpProtocolleringEnabled()) {
+                personenApi.personen(
+                    personenQuery = updatedQuery,
+                    doelbinding = resolveDoelbinding(
+                        zaaktypeUuid,
+                        brpConfiguration.doelbindingZoekMetDefault.getOrNull()
+                    ) {
+                        it.zaaktypeBrpParameters?.zoekWaarde
+                    },
+                    verwerking = resoleVerwerkingregister(
+                        zaaktypeUuid,
+                        brpConfiguration.verwerkingregisterDefault.getOrNull()
+                    ),
+                    gebruikersnaam = user
                 )
-            )
+            } else {
+                personenApi.personen(updatedQuery)
+            }
         }
 
     /**
      * Retrieves a person by burgerservicenummer from the BRP Personen API.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
-     * @param zaakIdentificatie the ID of the zaak the person is requested for, if any
+     * @param zaaktypeUuid the zaaktype UUID the person is requested for, if any
+     * @param userName the username making the request, if any
      * @return the person if found, otherwise null
      *
      */
-    fun retrievePersoon(burgerservicenummer: String, zaakIdentificatie: String? = null): Persoon? = (
-        personenApi.personen(
-            personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer),
-            purpose = resolvePurpose(zaakIdentificatie, brpConfiguration.retrievePersoonDefaultPurpose.getOrNull()) {
-                it.zaaktypeCmmnBrpParameters?.raadpleegWaarde
-            },
-            auditEvent = resoleProcessingValue(
-                zaakIdentificatie,
-                brpConfiguration.processingRegisterDefault.getOrNull()
-            )
-        ) as RaadpleegMetBurgerservicenummerResponse
-        ).personen?.firstOrNull()
+    fun retrievePersoon(
+        burgerservicenummer: String,
+        zaaktypeUuid: UUID? = null,
+        userName: String? = null
+    ): Persoon? =
+        createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
+            (
+                if (brpConfiguration.isBrpProtocolleringEnabled()) {
+                    personenApi.personen(
+                        personenQuery = personenQuery,
+                        doelbinding = resolveDoelbinding(
+                            zaaktypeUuid,
+                            brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
+                        ) {
+                            it.zaaktypeBrpParameters?.raadpleegWaarde
+                        },
+                        verwerking = resoleVerwerkingregister(
+                            zaaktypeUuid,
+                            brpConfiguration.verwerkingregisterDefault.getOrNull()
+                        ),
+                        gebruikersnaam = userName
+                    )
+                } else {
+                    personenApi.personen(personenQuery)
+                } as RaadpleegMetBurgerservicenummerResponse
+                ).personen?.firstOrNull()
+        }
 
     private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
         type = when (personenQuery) {
@@ -120,50 +142,50 @@ class BrpClientService @Inject constructor(
             fields = FIELDS_PERSOON
         }.addBurgerservicenummerItem(burgerservicenummer)
 
-    private fun resolvePurpose(
-        zaakIdentificatie: String?,
-        defaultPurpose: String?,
-        extractPurpose: (ZaaktypeCmmnConfiguration) -> String?
+    private fun resolveDoelbinding(
+        zaaktypeUuid: UUID?,
+        defaultDoelbinding: String?,
+        extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
     ): String? =
         resolveBRPValue(
-            zaakIdentificatie = zaakIdentificatie,
-            defaultValue = defaultPurpose,
-            valueDescription = "purpose",
-            resolveFunction = extractPurpose,
+            zaaktypeUuid = zaaktypeUuid,
+            defaultValue = defaultDoelbinding,
+            valueDescription = "doelbinding",
+            resolveFunction = extractDoelbinding,
             buildFunction = { resolvedValue, _ -> resolvedValue }
         )
 
-    private fun resoleProcessingValue(
-        zaakIdentificatie: String?,
-        defaultProcessingRegisterValue: String?
+    private fun resoleVerwerkingregister(
+        zaaktypeUuid: UUID?,
+        defaultVerwerkingregisterValue: String?
     ): String? =
         resolveBRPValue(
-            zaakIdentificatie = zaakIdentificatie,
-            defaultValue = defaultProcessingRegisterValue,
-            valueDescription = "processing value",
-            resolveFunction = { it.zaaktypeCmmnBrpParameters?.verwerkingregisterWaarde },
-            buildFunction = { resolvedValue, configuration ->
-                "${resolvedValue ?: defaultProcessingRegisterValue}@${configuration.zaaktypeOmschrijving}"
+            zaaktypeUuid = zaaktypeUuid,
+            defaultValue = defaultVerwerkingregisterValue,
+            valueDescription = "verwerkingregister value",
+            resolveFunction = { it.zaaktypeBrpParameters?.verwerkingregisterWaarde },
+            buildFunction = { resolvedValue, zaakTypeConfiguration ->
+                "${resolvedValue ?: defaultVerwerkingregisterValue}@${zaakTypeConfiguration.zaaktypeOmschrijving}"
             }
         )
 
     private fun resolveBRPValue(
-        zaakIdentificatie: String?,
+        zaaktypeUuid: UUID?,
         defaultValue: String?,
         valueDescription: String,
         resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
         buildFunction: (resolvedValue: String?, ZaaktypeCmmnConfiguration) -> String?
     ): String? =
-        zaakIdentificatie?.runCatching {
+        zaaktypeUuid?.runCatching {
             LOG.fine("Resolving purpose for zaak with UUID: $this")
             resolveValueFromZaaktypeCmmnConfiguration(valueDescription, defaultValue, resolveFunction, buildFunction)
         }?.onFailure {
-            LOG.log(Level.WARNING, "Failed to resolve $valueDescription from zaak $zaakIdentificatie", it)
+            LOG.log(Level.WARNING, "Failed to resolve $valueDescription for zaaktype $zaaktypeUuid", it)
         }?.getOrElse {
-            LOG.info("Using default $valueDescription '$defaultValue' for zaak $zaakIdentificatie")
+            LOG.info("Using default $valueDescription '$defaultValue' for zaaktype $zaaktypeUuid")
             null
         } ?: run {
-            val reason = zaakIdentificatie?.let { "No $valueDescription found for zaak $zaakIdentificatie" }
+            val reason = zaaktypeUuid?.let { "No $valueDescription found for zaaktype $zaaktypeUuid" }
                 ?: "No zaak identification provided"
             LOG.info("$reason. Using default $valueDescription '$defaultValue'")
             defaultValue
@@ -180,27 +202,24 @@ class BrpClientService @Inject constructor(
      *
      * @return the resolved value, or null if only whitespace characters are present in the resolved value
      */
-    private fun String.resolveValueFromZaaktypeCmmnConfiguration(
+    private fun UUID.resolveValueFromZaaktypeCmmnConfiguration(
         valueDescription: String,
         defaultValue: String?,
         resolveFunction: (ZaaktypeCmmnConfiguration) -> String?,
         buildFunction: (String?, ZaaktypeCmmnConfiguration) -> String?
     ): String? =
-        zrcClientService.readZaakByID(this)
-            .zaaktype.extractUuid()
-            .let(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-            .let { zaaktypeCmmnConfiguration ->
-                resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
-                    if (resolvedValue.isPureAscii()) {
-                        resolvedValue.trim().takeIf { it.isNotBlank() }
-                    } else {
-                        LOG.warning {
-                            "Resolved $valueDescription '$resolvedValue' contains non-ASCII characters. Using '$defaultValue' instead"
-                        }
-                        defaultValue
+        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(this).let { zaaktypeCmmnConfiguration ->
+            resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
+                if (resolvedValue.isPureAscii()) {
+                    resolvedValue.trim().takeIf { it.isNotBlank() }
+                } else {
+                    LOG.warning {
+                        "Resolved $valueDescription '$resolvedValue' contains non-ASCII characters. Using '$defaultValue' instead"
                     }
-                }.let { buildFunction(it, zaaktypeCmmnConfiguration) }
-            }
+                    defaultValue
+                }
+            }.let { buildFunction(it, zaaktypeCmmnConfiguration) }
+        }
 
     private fun String.isPureAscii(): Boolean = StandardCharsets.US_ASCII.newEncoder().canEncode(this)
 }

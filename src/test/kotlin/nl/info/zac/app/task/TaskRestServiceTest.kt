@@ -34,7 +34,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
@@ -85,7 +85,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
     val formulierRuntimeService = mockk<FormulierRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -183,9 +183,6 @@ class TaskRestServiceTest : BehaviorSpec({
             ).apply {
                 fataledatum = LocalDate.parse("2024-03-19")
             }
-            val restTaakConverted = createRestTask(
-                behandelaar = restUser
-            )
             every { flowableTaskService.readOpenTask(restTaak.id) } returns task
             every { flowableTaskService.updateTask(task) } returns task
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs

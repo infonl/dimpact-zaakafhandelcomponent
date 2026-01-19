@@ -15,8 +15,8 @@ import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
-  standalone: true,
   selector: "zac-informatie-object-indicaties",
+  standalone: true,
   imports: [MaterialModule, TranslateModule, PipesModule, CommonModule],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],

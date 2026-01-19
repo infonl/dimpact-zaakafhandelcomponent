@@ -46,7 +46,11 @@ export class SingleInputFormField<
 
   protected readonly control = computed<AbstractControl<Option | null> | null>(
     () => {
-      return this.form().controls[this.key()];
+      const control = this.form().controls[this.key()];
+
+      if (this.readonly()) control.disable({ emitEvent: false });
+
+      return control;
     },
   );
 
@@ -56,23 +60,35 @@ export class SingleInputFormField<
   public readonly readonly = input(false, { transform: booleanAttribute });
 
   constructor() {
-    effect(
-      () => {
-        const control = this.control();
-        if (!control) {
-          this.controlErrors.set(null);
-          return;
-        }
+    effect(() => {
+      const control = this.control();
+      if (!control) {
+        this.controlErrors.set(null);
+        return;
+      }
 
-        control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          this.controlErrors.set(control.errors);
-        });
-
-        // Set initial errors
+      control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.controlErrors.set(control.errors);
-      },
-      { allowSignalWrites: true },
-    );
+      });
+
+      control.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+        switch (typeof value) {
+          case "string":
+            if (value) break;
+            control.setValue(null); // Set empty strings to null to sent to backend
+            break;
+          case "number":
+            if (!isNaN(value)) break;
+            control.setValue(null); // Set NaN to null to sent to backend
+            break;
+          default:
+          // No action needed
+        }
+      });
+
+      // Set initial errors
+      this.controlErrors.set(control.errors);
+    });
   }
 
   protected readonly formError = computed(() => {
@@ -122,24 +138,21 @@ export class MultiInputFormField<
 
   constructor() {
     super();
-    effect(
-      async () => {
-        const options = this.options();
+    effect(async () => {
+      const options = this.options();
 
-        this.isLoading.set(true);
+      this.isLoading.set(true);
 
-        try {
-          const result =
-            options instanceof Observable
-              ? await lastValueFrom(options.pipe(takeUntil(this.destroy$)))
-              : options;
-          this.availableOptions.set(result);
-        } finally {
-          this.isLoading.set(false);
-        }
-      },
-      { allowSignalWrites: true },
-    );
+      try {
+        const result =
+          options instanceof Observable
+            ? await lastValueFrom(options.pipe(takeUntil(this.destroy$)))
+            : options;
+        this.availableOptions.set(result);
+      } finally {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   // Needs to be an arrow function in order to de-link the reference to `this`

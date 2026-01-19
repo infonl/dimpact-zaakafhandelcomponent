@@ -6,20 +6,22 @@
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
-export const DEFAULT_ZOEK_PARAMETERS: GeneratedType<"RestZoekParameters"> = {
-  rows: 25,
-  page: 0,
-  alleenMijnZaken: false,
-  alleenOpenstaandeZaken: false,
-  alleenAfgeslotenZaken: false,
-  alleenMijnTaken: false,
-  datums: {},
-  zoeken: {},
-  filters: {},
-  sorteerRichting: "",
-};
+export function getDefaultZoekParameters(): GeneratedType<"RestZoekParameters"> {
+  return {
+    rows: 25,
+    page: 0,
+    alleenMijnZaken: false,
+    alleenOpenstaandeZaken: false,
+    alleenAfgeslotenZaken: false,
+    alleenMijnTaken: false,
+    datums: {},
+    zoeken: {},
+    filters: {},
+    sorteerRichting: "",
+  };
+}
 
-export function heeftActieveZoekFilters(zoekFilters: ZoekFilters) {
+export function hasActiveSearchFilters(zoekFilters: ZoekFilters) {
   if (zoekFilters.zoeken) {
     return Object.values(zoekFilters.zoeken).some(Boolean);
   }

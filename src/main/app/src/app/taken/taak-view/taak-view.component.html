@@ -29,6 +29,13 @@
     [ngSwitch]="activeSideAction"
     (closedStart)="activeSideAction = null"
   >
+    @if (taak) {
+      <zac-taak-edit
+        *ngSwitchCase="'actie.taak.wijzigen'"
+        [sideNav]="actionsSidenav"
+        [task]="taak"
+      />
+    }
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
@@ -44,7 +51,8 @@
     <zac-informatie-object-add
       *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
-      [taak]="taak"
+      [zaakUuid]="taak!.zaakUuid"
+      [taakId]="taak!.id"
       (document)="updateTaakdocumenten($event)"
     ></zac-informatie-object-add>
     <zac-informatie-object-link
@@ -65,6 +73,7 @@
             [form]="form"
             [fields]="formFields"
             [readonly]="isReadonly()"
+            [loading]="isPending()"
             [config]="_formConfig"
             (formSubmitted)="onHardCodedFormSubmit($event, false)"
             (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
@@ -128,23 +137,10 @@
                     [value]="'taak.status.' + taak?.status | translate"
                     class="flex-item"
                   />
-
-                  <div class="flex-double-item">
-                    <zac-edit-groep-behandelaar
-                      [formField]="editFormFields.get('medewerker-groep')"
-                      [readonly]="
-                        this.taak?.status === this.TaakStatusAfgerond ||
-                        !this.taak?.rechten.toekennen
-                      "
-                      (saveField)="editToewijzing($event)"
-                      [reasonField]="editFormFields.get('reden')"
-                    >
-                    </zac-edit-groep-behandelaar>
-                  </div>
-
-                  <div class="mat-divider-wrapper hide-gt-sm">
-                    <mat-divider></mat-divider>
-                  </div>
+                </div>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
                   <zac-static-text
                     label="creatiedatum"
                     [value]="taak?.creatiedatumTijd | datum"
@@ -156,6 +152,38 @@
                     [icon]="fataledatumIcon"
                     class="flex-item"
                   />
+                </div>
+                <mat-divider
+                  class="mat-divider-wrapper full-width"
+                ></mat-divider>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
+                  <zac-static-text
+                    label="groep"
+                    [value]="taak?.groep?.naam"
+                    class="flex-item"
+                  />
+
+                  <zac-static-text
+                    label="behandelaar"
+                    [value]="taak?.behandelaar?.naam"
+                    class="flex-item"
+                  />
+                  @if (
+                    taak &&
+                    taak.zaaktypeUUID &&
+                    taak.status !== "AFGEROND" &&
+                    taak.rechten.toekennen
+                  ) {
+                    <button
+                      mat-icon-button
+                      (click)="editTaak()"
+                      [disabled]="!taak"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
                 </div>
               </mat-tab>
               <mat-tab label="{{ 'historie' | translate }}">

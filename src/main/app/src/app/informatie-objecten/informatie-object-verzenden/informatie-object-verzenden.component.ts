@@ -21,6 +21,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
+import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
@@ -36,19 +37,20 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-verzenden",
   templateUrl: "./informatie-object-verzenden.component.html",
   styleUrls: ["./informatie-object-verzenden.component.less"],
+  standalone: false,
 })
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() zaak: GeneratedType<"RestZaak">;
-  @Input() sideNav: MatDrawer;
+  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
+  @Input({ required: true }) sideNav!: MatDrawer;
   @Output() documentSent = new EventEmitter<void>();
 
-  @ViewChild(FormComponent) form: FormComponent;
+  @ViewChild(FormComponent) form!: FormComponent;
 
-  fields: Array<AbstractFormField[]>;
-  formConfig: FormConfig;
-  private documentSelectFormField: DocumentenLijstFormField;
+  fields: Array<AbstractFormField[]> = [];
+  formConfig: FormConfig | null = null;
+  private documentSelectFormField!: DocumentenLijstFormField;
   private destroy$ = new Subject<void>(); // Subject for handling unsubscription
 
   constructor(
@@ -102,8 +104,9 @@ export class InformatieObjectVerzendenComponent
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const informatieobjecten =
-        formGroup.controls["documenten"].value?.split(";") ?? [];
+      const informatieobjecten = mapStringToDocumentenStrings(
+        formGroup.controls["documenten"].value,
+      );
       this.informatieObjectenService
         .verzenden({
           informatieobjecten,

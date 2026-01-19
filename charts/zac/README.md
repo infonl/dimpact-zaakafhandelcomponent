@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.137](https://img.shields.io/badge/Version-1.0.137-informational?style=flat-square) ![AppVersion: 3.6](https://img.shields.io/badge/AppVersion-3.6-informational?style=flat-square)
+![Version: 1.0.173](https://img.shields.io/badge/Version-1.0.173-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.138.0 |
+| @opentelemetry | opentelemetry-collector | 0.143.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -74,7 +74,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.bpmnSupport | bool | `false` | turns BPMN support on or off; defaults to false |
 | featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
@@ -82,7 +81,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.16.0@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.18.0@sha256:2a3ad47a2fb208f20ee041d0c7e9becc00b7ecbe683d1272c6717c71fb1e4808"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -168,7 +167,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d"` |  |
+| nginx.image.tag | string | `"1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -189,6 +188,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.service.annotations | object | `{}` |  |
 | nginx.service.port | int | `80` |  |
 | nginx.service.type | string | `"ClusterIP"` |  |
+| nginx.topologySpreadConstraints | list | `[]` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
 | notificationsSecretKey | string | `""` | API key for the ZGW Notificaties Consumer API integration; also needs to be configured in Open Notificaties |
@@ -212,12 +212,13 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
 | office_converter.tolerations | list | `[]` |  |
+| office_converter.topologySpreadConstraints | list | `[]` |  |
 | opa.affinity | object | `{}` |  |
 | opa.autoscaling.enabled | bool | `false` |  |
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac"` |  |
+| opa.image.tag | string | `"1.12.3-static@sha256:59a9258e3cf8682020ad9269e201e35ade5253325b30c869621bdeac0ac21076"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -232,6 +233,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.service.type | string | `"ClusterIP"` |  |
 | opa.sidecar | bool | `true` | set sidecar to true to run the opa service as a sidecar container within the ZAC pod (set to false to run as a standalone pod and service) |
 | opa.tolerations | list | `[]` |  |
+| opa.topologySpreadConstraints | list | `[]` |  |
 | openForms.url | string | `""` | Not used at the moment. |
 | opentelemetry-collector.config.receivers.jaeger | object | `{}` |  |
 | opentelemetry-collector.config.receivers.prometheus | object | `{}` |  |
@@ -242,7 +244,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.138.0@sha256:4a951ff0a9772f4fa8e9c7a326434370301b98b2b813933468dcb54aa6a6b5e5"` |  |
+| opentelemetry-collector.image.tag | string | `"0.143.1@sha256:f051aff195ad50ed5ad9d95bcdd51d7258200c937def3797cf830366ed62e034"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -301,15 +303,14 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:facb103d02c3e0fcf34e272264b7d7deea98e1b2861075d2c9c4dd329d4c1c0d"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:3bf024f5b91b256d55fcecaa910a7f671bdd2b6bb5bb22ac6b774cc4678f2093"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.9.0@sha256:9f220fd72cb887cd5229ca3a6536fc3c8accc1ed2c53a3b1e1206db8f2e489ae"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.0@sha256:60f3fbc0911eabd3ad0a6efb2f465b6e68d35ed487bda7b6bbf6339b9b5a39e6"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
-| solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
@@ -319,6 +320,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
 | solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
+| solr-operator.solr.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"solr-cloud"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for solr in solrcloud |
 | solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
 | solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
@@ -344,8 +346,11 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
 | solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
-| solr.url | string | `""` | The location of an existing solr instance to be used by zac |
+| solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
+| solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
+| solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
 | tolerations | list | `[]` | set toleration parameters |
+| topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
 | zgwApis.clientId | string | `""` |  |
 | zgwApis.secret | string | `""` |  |

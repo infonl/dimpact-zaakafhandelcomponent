@@ -9,7 +9,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
@@ -17,11 +17,9 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Status
-import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
-import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isIntake
@@ -37,7 +35,6 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTZaakKenmerk
-import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
@@ -54,7 +51,6 @@ import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.Period
 import java.util.EnumSet.noneOf
-import java.util.UUID
 import java.util.logging.Logger
 
 @Suppress("LongParameterList")
@@ -62,7 +58,7 @@ class RestZaakConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val brcClientService: BrcClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val restZaakResultaatConverter: RestZaakResultaatConverter,
     private val restGroupConverter: RestGroupConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
@@ -125,11 +121,11 @@ class RestZaakConverter @Inject constructor(
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaakType),
-            status = status?.let { toRestZaakStatus(it, statustype!!) },
+            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort(),
-            isEerderOpgeschort = zaak.isEerderOpgeschort(),
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
+            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
             isVerlengd = zaak.isVerlengd(),
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
@@ -166,22 +162,6 @@ class RestZaakConverter @Inject constructor(
             }
         )
     }
-
-    @Suppress("NestedBlockDepth")
-    fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
-        zrcClientService.readZaak(zaakUUID).let { zaak ->
-            Zaak().apply {
-                einddatumGepland = verlengGegevens.einddatumGepland
-                uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-                verlenging = Verlenging().apply {
-                    reden = verlengGegevens.redenVerlenging
-                    // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
-                    // so we use [Period.toString] to convert the duration to that format
-                    duur = zaak.verlenging?.duur?.let { Period.ofDays(it.toInt() + verlengGegevens.duurDagen).toString() }
-                        ?: Period.ofDays(verlengGegevens.duurDagen).toString()
-                }
-            }
-        }
 
     private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()

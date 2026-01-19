@@ -8,13 +8,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.model.createZaakStatusSub
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import org.flowable.common.engine.impl.el.FixedValue
 import org.flowable.engine.delegate.DelegateExecution
@@ -24,17 +24,17 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
     val parentDelegateExecution = mockk<DelegateExecution>()
     val zrcClientService = mockk<ZrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zaak = createZaak()
     val zaakStatusName = "fakeStatus"
-    val zaakStatus = createZaakStatus()
+    val zaakStatus = createZaakStatusSub()
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
     Given("JUEL expression in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService
@@ -74,7 +74,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     }
 
     Given("Fixed value in a BPMN service task") {
-        mockkStatic(FlowableHelper::class)
+        mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zrcClientService } returns zrcClientService

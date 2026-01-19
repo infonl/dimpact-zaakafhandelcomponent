@@ -13,6 +13,7 @@ import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definiti
 
 @Component({
   templateUrl: "./parameters-edit-wrapper.component.html",
+  standalone: false,
 })
 export class ParametersEditWrapperComponent
   extends AdminComponent
@@ -22,7 +23,6 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   protected isLoading: boolean = true; // wait for data since mat-stepper cannot load its steps dynamically
-  protected featureFlagBpmnSupport: boolean = false;
   protected processDefinitionType!: ZaakProcessDefinition;
 
   constructor(
@@ -38,13 +38,6 @@ export class ParametersEditWrapperComponent
 
     this.route.data.subscribe(({ parameters }) => {
       this.isLoading = false;
-      this.featureFlagBpmnSupport =
-        parameters.featureFlagBpmnSupport as boolean;
-
-      if (!this.featureFlagBpmnSupport) {
-        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
-        return;
-      }
 
       if (parameters.isBpmn) {
         this.processDefinitionType = { type: "BPMN", selectedIndexStart: 1 };

@@ -11,7 +11,10 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { LinkMenuItem } from "../../shared/side-nav/menu-item/link-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export abstract class AdminComponent extends ViewComponent {
   menu: MenuItem[] = [];
   activeMenu = "";
@@ -47,33 +50,27 @@ export abstract class AdminComponent extends ViewComponent {
     this.menu.push(
       this.getMenuLink("title.parameters", "/admin/parameters", "tune"),
     );
-    this.configuratieService
-      .readFeatureFlagBpmnSupport()
-      .subscribe((bpmSupport) => {
-        if (bpmSupport) {
-          this.menu.push(
-            this.getMenuLink(
-              "title.procesdefinities",
-              "/admin/processdefinitions",
-              "design_services",
-            ),
-          );
-          this.menu.push(
-            this.getMenuLink(
-              "title.formulierdefinities",
-              "/admin/formulierdefinities",
-              "design_services",
-            ),
-          );
-          this.menu.push(
-            this.getMenuLink(
-              "title.formioformulieren",
-              "/admin/formioformulieren",
-              "design_services",
-            ),
-          );
-        }
-      });
+    this.menu.push(
+      this.getMenuLink(
+        "title.procesdefinities",
+        "/admin/processdefinitions",
+        "design_services",
+      ),
+    );
+    this.menu.push(
+      this.getMenuLink(
+        "title.formulierdefinities",
+        "/admin/formulierdefinities",
+        "design_services",
+      ),
+    );
+    this.menu.push(
+      this.getMenuLink(
+        "title.formioformulieren",
+        "/admin/formioformulieren",
+        "design_services",
+      ),
+    );
     this.menu.push(
       this.getMenuLink(
         "title.inrichtingscheck",

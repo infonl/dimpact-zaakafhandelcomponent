@@ -28,7 +28,7 @@ import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
@@ -55,7 +55,7 @@ import java.util.UUID
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class DocumentCreationDataConverter @Inject constructor(
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val brpClientService: BrpClientService,
@@ -116,16 +116,13 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
         zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiator ->
-            convertToAanvragerData(initiator, zaak.identificatie)
+            convertToAanvragerData(initiator, zaak.zaaktype.extractUuid())
         }
 
-    private fun convertToAanvragerData(initiator: Rol<*>, zaakIdentification: String): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaaktypeUuid: UUID): AanvragerData? =
         when (initiator.betrokkeneType) {
             NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
-                createAanvragerDataNatuurlijkPersoon(
-                    bsn = this,
-                    zaakIdentification = zaakIdentification
-                )
+                createAanvragerDataNatuurlijkPersoon(bsn = this, zaaktypeUuid = zaaktypeUuid)
             }
             VESTIGING -> initiator.identificatienummer?.run {
                 createAanvragerDataVestiging(this)
@@ -134,8 +131,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaakIdentification: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, zaakIdentification)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaaktypeUuid: UUID): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, zaaktypeUuid)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
@@ -180,7 +177,8 @@ class DocumentCreationDataConverter @Inject constructor(
         ZaakobjectListParameters().apply {
             zaak = zaakUri
             objectType = ObjectTypeEnum.OVERIGE
-        }.let { zrcClientService.listZaakobjecten(it) }.results
+        }.let(zrcClientService::listZaakobjecten)
+            .results()
             .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
             .map { convertToStartformulierData(it) }
             .singleOrNull()

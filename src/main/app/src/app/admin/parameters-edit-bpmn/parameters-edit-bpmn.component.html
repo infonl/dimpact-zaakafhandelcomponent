@@ -6,55 +6,45 @@
 <mat-stepper
   *ngIf="algemeenFormGroup"
   orientation="horizontal"
-  [linear]="true"
+  [linear]="!algemeenFormGroup.valid"
   [selectedIndex]="selectedIndexStart"
 >
   <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
+  <mat-step [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie.BPMN" | translate
     }}</ng-template>
 
-    <p>
-      {{ "zaps.step.proces-definitie.intro" | translate }}
-    </p>
+    <header>
+      <h2>{{ bpmnZaakafhandelParameters.zaaktype.omschrijving }}</h2>
+      <p>
+        {{ "zaps.step.proces-definitie.intro" | translate }}
+      </p>
+    </header>
 
-    <zac-radio
-      [form]="cmmnBpmnFormGroup"
-      key="options"
-      label="zaps.step.proces-definitie.label"
-      [options]="zaakProcessDefinitionOptions"
-      optionDisplayValue="label"
-    ></zac-radio>
+    <section>
+      <zac-radio
+        [form]="cmmnBpmnFormGroup"
+        key="options"
+        label="zaps.step.proces-definitie.label"
+        [options]="zaakProcessDefinitionOptions"
+        optionDisplayValue="label"
+      ></zac-radio>
 
-    <div class="flex-row items-center gap-10 ml-1 my-3">
-      <mat-icon color="warn" class="pr-3">warning</mat-icon>
-      <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
-    </div>
+      <div class="flex-row items-center gap-10 ml-1 my-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+    </section>
 
     <div class="button-group flex-row flex-wrap">
-      @if (
-        !isSavedZaakafhandelParameters &&
-        cmmnBpmnFormGroup.value.options?.value === "CMMN"
-      ) {
-        <button
-          mat-raised-button
-          (click)="
-            switchProcessDefinition.emit({
-              type: 'CMMN',
-              selectedIndexStart: 1,
-            })
-          "
-        >
-          {{ "actie.volgende" | translate }}
-        </button>
-      } @else {
-        <button mat-raised-button matStepperNext>
-          {{ "actie.volgende" | translate }}
-        </button>
-      }
+      <button mat-raised-button matStepperNext>
+        {{ "actie.volgende" | translate }}
+      </button>
       <button
         mat-raised-button
         color="primary"
@@ -66,7 +56,7 @@
     </div>
   </mat-step>
 
-  <mat-step *ngIf="algemeenFormGroup">
+  <mat-step [stepControl]="algemeenFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.algemeen" | translate
     }}</ng-template>
@@ -105,7 +95,7 @@
             key="bpmnDefinition"
             optionDisplayValue="name"
             [form]="algemeenFormGroup"
-            [options]="bpmnDefinitions"
+            [options]="bpmnProcessDefinitions"
           >
           </zac-select>
         </section>
@@ -144,6 +134,9 @@
         <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}
         </button>
+        <button mat-raised-button matStepperNext>
+          {{ "actie.volgende" | translate }}
+        </button>
         <button
           mat-raised-button
           color="primary"
@@ -154,5 +147,131 @@
         </button>
       </div>
     </form>
+  </mat-step>
+  <mat-step
+    [stepControl]="brpDoelbindingenFormGroup"
+    [hasError]="!brpDoelbindingenFormGroup.valid"
+  >
+    <ng-template matStepLabel>{{
+      "gegevens.koppelingen" | translate
+    }}</ng-template>
+    <ng-template matStepContent>
+      <mat-card>
+        <mat-card-content>
+          <h2>
+            {{ "gegevens.landelijk.koppelingen" | translate }}
+          </h2>
+          <p>
+            {{ "gegevens.landelijk.koppelingen.omschrijving" | translate }}
+          </p>
+          <form class="flex-col gap-12" [formGroup]="betrokkeneKoppelingen">
+            <div class="flex-row items-center gap-8">
+              <mat-slide-toggle
+                formControlName="brpKoppelen"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+              <p>{{ "gegevens.koppelen.brp" | translate }}</p>
+            </div>
+            <ng-container
+              *ngIf="
+                showDoelbindingen &&
+                betrokkeneKoppelingen.controls.brpKoppelen.value
+              "
+            >
+              <form [formGroup]="brpDoelbindingenFormGroup">
+                <p>
+                  {{ "title.admin.parameters.step.brpDoelbinding" | translate }}
+                </p>
+                <section class="flex-col">
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
+                  >
+                    <mat-label>{{
+                      "brpDoelbinding.zoekWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpDoelbindingenFormGroup.controls.zoekWaarde
+                      "
+                    >
+                      <mat-option
+                        *ngFor="let value of brpSearchValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
+                  >
+                    <mat-label>{{
+                      "brpDoelbinding.raadpleegWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpDoelbindingenFormGroup.controls.raadpleegWaarde
+                      "
+                    >
+                      <mat-option
+                        *ngFor="let value of brpConsultingValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field
+                    class="flex-1 w33 w100-md"
+                    floatLabel="always"
+                  >
+                    <mat-label>{{
+                      "brpDoelbinding.verwerkingregisterWaarde" | translate
+                    }}</mat-label>
+                    <mat-select
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        brpDoelbindingenFormGroup.controls
+                          .verwerkingregisterWaarde
+                      "
+                    >
+                      <mat-option
+                        *ngFor="let value of brpProcessingValues"
+                        [value]="value"
+                        >{{ value }}</mat-option
+                      >
+                    </mat-select>
+                  </mat-form-field>
+                </section>
+              </form>
+            </ng-container>
+            <div class="flex-row items-center gap-8">
+              <mat-slide-toggle
+                formControlName="kvkKoppelen"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+              <p>{{ "gegevens.koppelen.kvk" | translate }}</p>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      <div class="button-group flex-row flex-wrap">
+        <button mat-raised-button matStepperPrevious>
+          {{ "actie.terug" | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!isValid() || isLoading"
+          (click)="opslaan()"
+        >
+          {{ "actie.opslaan" | translate }}
+        </button>
+      </div>
+    </ng-template>
   </mat-step>
 </mat-stepper>

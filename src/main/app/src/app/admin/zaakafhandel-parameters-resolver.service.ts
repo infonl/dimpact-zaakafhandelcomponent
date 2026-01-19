@@ -7,7 +7,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { forkJoin, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
-import { ProcessDefinitionsService } from "./process-definitions.service";
+import { BpmnService } from "./bpmn.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
 @Injectable({
@@ -16,7 +16,7 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 export class ZaakafhandelParametersResolver {
   constructor(
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
-    private readonly processDefinitionsService: ProcessDefinitionsService,
+    private readonly bpmnService: BpmnService,
     private readonly configuratieService: ConfiguratieService,
   ) {}
 
@@ -32,40 +32,37 @@ export class ZaakafhandelParametersResolver {
     return forkJoin({
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
-      bpmnZaakafhandelParametersList:
-        this.zaakafhandelParametersService.listBpmnZaakafhandelParameters(),
-      bpmnProcessDefinitionsList:
-        this.processDefinitionsService.listProcessDefinitions(),
-      featureFlagBpmnSupport:
-        this.configuratieService.readFeatureFlagBpmnSupport(),
+      bpmnProcessConfigurations:
+        this.bpmnService.listbpmnProcessConfigurations(),
+      bpmnProcessDefinitions: this.bpmnService.listProcessDefinitions(),
+      featureFlagPabcIntegration:
+        this.configuratieService.readFeatureFlagPabcIntegration(),
     }).pipe(
       map(
         ({
           zaakafhandelParameters,
-          bpmnZaakafhandelParametersList,
-          bpmnProcessDefinitionsList,
-          featureFlagBpmnSupport,
+          bpmnProcessConfigurations,
+          bpmnProcessDefinitions,
+          featureFlagPabcIntegration,
         }) => {
-          const bpmnZaakafhandelParameters =
-            bpmnZaakafhandelParametersList?.find(
-              (item) =>
-                item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
-            );
-          const isBpmn = !!bpmnZaakafhandelParameters; // true if there is a matching BPMN process definition
+          const bpmnZaakafhandelParameters = bpmnProcessConfigurations?.find(
+            (item) =>
+              item.zaaktypeUuid === zaakafhandelParameters.zaaktype.uuid,
+          );
+          const isBpmn = !!bpmnZaakafhandelParameters;
           const isSavedZaakafhandelParameters =
-            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (id is set on save)
+            isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (group id initially null but set on save)
 
           return {
-            zaakafhandelParameters, // CMMN zaakafhandelparameters of this zaaktype
-            bpmnProcessDefinitionsList, // BPMN process definitions
-            bpmnZaakafhandelParametersList, // BPMN zaak afhandelparameters of this zaaktype
+            zaakafhandelParameters,
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
             },
-            featureFlagBpmnSupport,
+            bpmnProcessDefinitions,
             isBpmn,
             isSavedZaakafhandelParameters,
+            featureFlagPabcIntegration,
           };
         },
       ),

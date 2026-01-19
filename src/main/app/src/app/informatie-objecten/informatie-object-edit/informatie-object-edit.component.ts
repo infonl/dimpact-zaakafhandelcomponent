@@ -6,6 +6,7 @@
 import {
   Component,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   Output,
@@ -15,8 +16,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -29,6 +30,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 @Component({
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
+  standalone: false,
 })
 export class InformatieObjectEditComponent implements OnChanges {
   @Input()
@@ -91,6 +93,8 @@ export class InformatieObjectEditComponent implements OnChanges {
       Validators.maxLength(1000),
     ]),
   });
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,
@@ -157,9 +161,13 @@ export class InformatieObjectEditComponent implements OnChanges {
   async initForm(
     infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
-    const ingelogdeMedewerker = await lastValueFrom(
-      this.identityService.readLoggedInUser(),
-    );
+    let auteur = infoObject.auteur;
+    if (!auteur) {
+      const { naam } = await this.queryClient.ensureQueryData(
+        this.identityService.readLoggedInUser(),
+      );
+      auteur = naam;
+    }
 
     this.form.patchValue({
       ...infoObject,
@@ -187,7 +195,7 @@ export class InformatieObjectEditComponent implements OnChanges {
             value: infoObject.vertrouwelijkheidaanduiding,
           }
         : null,
-      auteur: infoObject.auteur ?? ingelogdeMedewerker?.naam,
+      auteur: auteur,
     });
 
     this.informatieObjectenService

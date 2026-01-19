@@ -2,17 +2,14 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.zaak
 
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -28,85 +25,307 @@ import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
+import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
-import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuratie.ConfiguratieService
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.identity.model.ZACRole
+import nl.info.zac.identity.exception.UserNotInGroupException
+import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
+    val bpmnService = mockk<BpmnService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val eventingService = mockk<EventingService>()
+    val identityService = mockk<IdentityService>()
+    val indexingService = mockk<IndexingService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
-    val identityService = mockk<IdentityService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val pabcClientService = mockk<PabcClientService>()
     val zaakService = ZaakService(
-        eventingService = eventingService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
+        zgwApiService = zgwApiService,
+        eventingService = eventingService,
         zaakVariabelenService = zaakVariabelenService,
-        lockService = lockService,
         identityService = identityService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        indexingService = indexingService,
+        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        bpmnService = bpmnService,
+        configuratieService = configuratieService,
+        pabcClientService = pabcClientService
     )
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
-    val zaken = listOf(
-        createZaak(),
-        createZaak()
-    )
-    val group = createGroup()
-    val user = createUser()
-    val rolTypeBehandelaar = createRolType(
-        omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-    )
-    val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
+    Context("Assigning a zaak") {
+        Given("a zaak exists, no user and no group are assigned and zaak assignment data is provided") {
+            val zaak = createZaak()
+            val user = createLoggedInUser()
+            val rolSlot = mutableListOf<Rol<*>>()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val reason = "fakeReason"
+            every { zrcClientService.updateRol(zaak, capture(rolSlot), reason) } just runs
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { identityService.readUser(user.id) } returns user
+            every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { identityService.readGroup(group.name) } returns group
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
+            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
+            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
+
+            When("the zaak is assigned to a user and a group") {
+                zaakService.assignZaak(zaak, group.name, user.id, "fakeReason")
+
+                Then("the zaak is assigned both to the group and the user") {
+                    verify(exactly = 2) {
+                        zrcClientService.updateRol(zaak, any(), reason)
+                    }
+                    with(rolSlot[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                    with(rolSlot[1]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                }
+
+                And("the zaken search index is updated") {
+                    verify(exactly = 1) {
+                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                    }
+                }
+
+                And("the zaak data is updated accordingly") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
+                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
+                    }
+                }
+            }
+        }
+
+        Given("a zaak with no user and group assigned and zaak assignment data is provided") {
+            val zaak = createZaak()
+            val groupId = "unknown"
+            val userId = "fakeUser"
+
+            every { identityService.validateIfUserIsInGroup(userId, groupId) } throws UserNotInGroupException()
+
+            When("the zaak is assigned to an unknown group") {
+                shouldThrow<UserNotInGroupException> {
+                    zaakService.assignZaak(zaak, groupId, userId, "fakeReason")
+                }
+
+                Then("an exception is thrown") {}
+            }
+        }
+
+        Given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
+            val zaak = createZaak()
+            val user = createLoggedInUser()
+            val rolSlot = mutableListOf<Rol<*>>()
+            val existingRolMedewerker = createRolMedewerker()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val existingRolGroup = createRolOrganisatorischeEenheid()
+            val reason = "fakeReason"
+
+            every { zrcClientService.updateRol(zaak, capture(rolSlot), reason) } just runs
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
+            every { identityService.readUser(user.id) } returns user
+            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
+            every { identityService.readGroup(group.name) } returns group
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
+            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
+
+            When("the zaak is assigned to a user and a group") {
+                every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
+
+                zaakService.assignZaak(zaak, group.name, user.id, reason)
+
+                Then("the zaak is assigned both to the group and the user") {
+                    verify(exactly = 2) {
+                        zrcClientService.updateRol(zaak, any(), reason)
+                    }
+                    with(rolSlot[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                    with(rolSlot[1]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                }
+
+                And("the zaken search index is updated") {
+                    verify(exactly = 1) {
+                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                    }
+                }
+
+                And("the zaak data is updated accordingly") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
+                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
+                    }
+                }
+            }
+        }
+
+        Given(
+            "a zaak exists, with a user and group already assigned and zaak assignment for a group only is provided"
+        ) {
+            val zaak = createZaak()
+            val updateRolSlot = mutableListOf<Rol<*>>()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val existingRolGroup = createRolOrganisatorischeEenheid()
+            val reason = "fakeReason"
+            every { zrcClientService.updateRol(zaak, capture(updateRolSlot), reason) } just runs
+            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
+            every { identityService.readGroup(group.name) } returns group
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
+            every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
+
+            When("the zaak is assigned to a group only") {
+                zaakService.assignZaak(zaak, group.name, null, reason)
+
+                Then("the zaak is assigned both to the group and the user") {
+                    verify(exactly = 1) {
+                        zrcClientService.updateRol(zaak, any(), reason)
+                    }
+                    with(updateRolSlot.first()) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                }
+
+                And("the zaken search index is updated") {
+                    verify(exactly = 1) {
+                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                    }
+                }
+
+                And("the zaak data is updated accordingly") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
+                        zaakVariabelenService.removeUser(zaak.uuid)
+                    }
+                }
+            }
+        }
+    }
+
     Context("Assigning zaken") {
-        Given("A list of open zaken and a group and a user") {
+        Given(
+            """
+                A list of open zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
+                and a user and PABC feature flag on
+                """
+        ) {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(
+                uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+            )
+            val zaken = listOf(
+                createZaak(
+                    zaaktypeUri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+                ),
+                createZaak(
+                    zaaktypeUri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+                )
+            )
+            val user = createUser()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val pabcGroupRepresentation = createPabcGroupRepresentation(
+                name = group.name,
+                description = group.description
+            )
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -116,7 +335,15 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktype.omschrijving
+                )
+            } returns listOf(pabcGroupRepresentation)
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
                 zaakService.assignZaken(
@@ -128,7 +355,7 @@ class ZaakServiceTest : BehaviorSpec({
                 )
 
                 Then(
-                    """for both zaken the group and user roles 
+                    """for all zaken the group and user roles 
                 and the search index should be updated and
                 a screen event of type 'zaken verdelen' should be sent"""
                 ) {
@@ -143,22 +370,48 @@ class ZaakServiceTest : BehaviorSpec({
                         objectId.resource shouldBe screenEventResourceId
                     }
                 }
+
+                And(
+                    """the zaaktype CMMN configuration is not requested, because zaaktype - group authorisation using domains
+                    will be implemented differently using the PABC and is not yet supported with the PABC feature flag on"""
+                ) {
+                    verify(exactly = 0) {
+                        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
+                    }
+                }
             }
         }
 
-        Given("One open and one closed zaak and a group and a user") {
-            clearAllMocks()
-            val openZaak = createZaak()
+        Given(
+            """
+            One open and one closed zaak and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaak,
+             and a user and PABC feature flag on
+            """
+        ) {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(
+                uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+            )
+            val openZaak = createZaak(
+                zaaktypeUri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+            )
             val closedZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
             )
             val zakenList = listOf(openZaak, closedZaak)
-            zakenList.map {
+            val group = createGroup()
+            val pabcGroupRepresentation = createPabcGroupRepresentation(
+                name = group.name,
+                description = group.description
+            )
+            val user = createUser()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            zakenList.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
-            every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(openZaak.zaaktype.extractUuid())
-            } returns zaaktypeCmmnConfiguration
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 ztcClientService.readRoltype(
                     openZaak.zaaktype,
@@ -166,8 +419,12 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
+            } returns listOf(pabcGroupRepresentation)
             every { eventingService.send(any<ScreenEvent>()) } just Runs
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
 
             When(
                 """the assign zaken function is called with a group, a user
@@ -203,12 +460,17 @@ class ZaakServiceTest : BehaviorSpec({
 
         Given(
             """
-         A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak 
+                A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
             """
         ) {
-            clearAllMocks()
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val group = createGroup()
             every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
             every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("fakeRuntimeException")
+
             When(
                 """the assign zaken function is called with a group
                 and a screen event resource id"""
@@ -234,14 +496,44 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken") {
-            clearAllMocks()
+        Given(
+            """
+                A list of zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
+                and a user and PABC feature flag on
+                """
+        ) {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(
+                uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+            )
+            val zaken = listOf(
+                createZaak(
+                    zaaktypeUri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+                ),
+                createZaak(
+                    zaaktypeUri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID")
+                )
+            )
+            val group = createGroup()
+            val pabcGroupRepresentation = createPabcGroupRepresentation(
+                name = group.name,
+                description = group.description
+            )
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktype.omschrijving
+                )
+            } returns listOf(
+                pabcGroupRepresentation
+            )
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns zaaktypeCmmnConfiguration
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -251,7 +543,9 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
+                every { configuratieService.featureFlagPabcIntegration() } returns true
             }
+
             When(
                 """the assign zaken function is called with a group, WITHOUT a user
                 and with a screen event resource id"""
@@ -277,10 +571,17 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE") {
-            clearAllMocks()
+        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC feature flag off") {
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val user = createUser()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
@@ -294,8 +595,9 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
             }
-            val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZACRole.DOMEIN_ELK_ZAAKTYPE.value))
-            every { identityService.isUserInGroup(user.id, groupWithAllDomains.id) } returns true
+            val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
+            every { identityService.isUserInGroup(user.id, groupWithAllDomains.name) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -329,10 +631,14 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with domain") {
-            clearAllMocks()
+        Given("A list of zaken with no domain and a group with domain and PABC feature flag off") {
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val user = createUser()
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
@@ -340,7 +646,8 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration()
             }
             val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
-            every { identityService.isUserInGroup(user.id, groupWithDomain.id) } returns true
+            every { identityService.isUserInGroup(user.id, groupWithDomain.name) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -367,10 +674,14 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken with no domain and a group with no domain") {
-            clearAllMocks()
+        Given("A list of zaken with no domain and a group with no domain and PABC feature flag off") {
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val user = createUser()
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
                 every {
@@ -378,7 +689,8 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration(domein = null)
             }
             val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
-            every { identityService.isUserInGroup(user.id, groupWithNoDomain.id) } returns true
+            every { identityService.isUserInGroup(user.id, groupWithNoDomain.name) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -406,10 +718,19 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of two zaken and the second one has a group not matching the requested one") {
-            clearAllMocks()
+        Given(
+            "A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off"
+        ) {
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val user = createUser()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
@@ -431,7 +752,8 @@ class ZaakServiceTest : BehaviorSpec({
                 } returns createZaaktypeCmmnConfiguration(domein = "another_domein")
             }
             val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
-            every { identityService.isUserInGroup(user.id, group.id) } returns true
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { configuratieService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -465,12 +787,17 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken and a group, but user is not in group") {
-            clearAllMocks()
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val group = createGroup()
+            val user = createUser()
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
-            every { identityService.isUserInGroup(user.id, group.id) } returns false
+            every { identityService.isUserInGroup(user.id, group.name) } returns false
             every { eventingService.send(capture(screenEventSlot)) } just Runs
 
             When("the assign zaken function is called with a group, a user and a screen event resource id") {
@@ -491,13 +818,18 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A list of zaken and a user not belonging to a group") {
-            clearAllMocks()
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
+            val group = createGroup()
+            val user = createUser()
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { identityService.isUserInGroup(user.id, group.id) } returns false
+            every { identityService.isUserInGroup(user.id, group.name) } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -528,8 +860,12 @@ class ZaakServiceTest : BehaviorSpec({
 
     Context("Releasing zaken") {
         Given("A list of zaken and a screen event resource id") {
+            val zaken = listOf(
+                createZaak(),
+                createZaak()
+            )
             val screenEventSlot = slot<ScreenEvent>()
-            zaken.map {
+            zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             }
@@ -564,7 +900,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("One open and one closed zaak and a screen event resource id") {
-            clearAllMocks()
             val openZaak = createZaak()
             val closedZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
@@ -638,7 +973,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
-            clearAllMocks()
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
@@ -684,7 +1018,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
 
         Given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
-            clearAllMocks()
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
@@ -693,7 +1026,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val identification = "fakeBSN"
             val roleAdviseur = createRolNatuurlijkPersoon(
-                zaakURI = zaak.zaaktype,
+                zaakURI = zaak.url,
                 rolType = roleTypeAdviseur,
                 natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = identification)
             )
@@ -730,19 +1063,19 @@ class ZaakServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val rolNatuurlijkPersonen = listOf(
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)
                 ),
                 createRolOrganisatorischeEenheid(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER)
                 ),
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
                 ),
                 createRolNatuurlijkPersoon(
-                    zaakURI = zaak.zaaktype,
+                    zaakURI = zaak.url,
                     rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
                 )
             )
@@ -755,37 +1088,6 @@ class ZaakServiceTest : BehaviorSpec({
                     betrokkenenRoles.size shouldBe 2
                     betrokkenenRoles[0] shouldBe rolNatuurlijkPersonen[0]
                     betrokkenenRoles[1] shouldBe rolNatuurlijkPersonen[1]
-                }
-            }
-        }
-        Given("A zaak that has no locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns false
-
-            When("the zaak is checked if it is closeable") {
-                shouldNotThrowAny { zaakService.checkZaakAfsluitbaar(zaak) }
-
-                Then("it should not throw any exceptions") {
-                    verify(exactly = 1) {
-                        lockService.hasLockedInformatieobjecten(zaak)
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Check zaak afsluitbaar") {
-        Given("A zaak that has locked information objects") {
-            val zaak = createZaak()
-            every { lockService.hasLockedInformatieobjecten(zaak) } returns true
-
-            When("the zaak is checked if it is closeable") {
-                val exception =
-                    shouldThrow<CaseHasLockedInformationObjectsException> { zaakService.checkZaakAfsluitbaar(zaak) }
-
-                Then("it should throw an exception") {
-                    exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
-                    exception.message shouldBe "Case ${zaak.uuid} has locked information objects"
                 }
             }
         }
@@ -1000,75 +1302,6 @@ class ZaakServiceTest : BehaviorSpec({
 
                 Then("it should return the correct zaaktype") {
                     result shouldBe zaakType
-                }
-            }
-        }
-    }
-
-    Context("Process special brondatum procedure") {
-        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
-            val zaak = createZaak()
-            val resultaatTypeUUID = UUID.randomUUID()
-            val resultaatType = createResultaatType(
-                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-                )
-            )
-            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
-            )
-
-            val existingZaakEigenschap = ZaakEigenschap(
-                URI(""),
-                UUID.randomUUID(),
-                brondatumArchiefprocedure.datumkenmerk
-            ).apply {
-                waarde = "testWaarde"
-            }
-
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(existingZaakEigenschap)
-            every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
-
-            When("processBrondatumProcedure is called with existing zaakeigenschap") {
-                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
-
-                Then("it should update the existing zaakeigenschap") {
-                    verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschap.uuid, any()) }
-                }
-
-                And("it should not create a new zaakeigenschap") {
-                    verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
-                }
-            }
-        }
-
-        Given("A zaak and resultaattype with EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
-            val zaak = createZaak()
-            val resultaatTypeUUID = UUID.randomUUID()
-            val resultaatType = createResultaatType(
-                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-                )
-            )
-            val brondatumArchiefprocedure = createBrondatumArchiefprocedure(
-                afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
-            )
-            val eigenschap = Eigenschap()
-            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
-            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
-            every { ztcClientService.readEigenschap(zaak.zaaktype, brondatumArchiefprocedure.datumkenmerk) } returns eigenschap
-            every { zrcClientService.createEigenschap(any(), any()) } returns mockk()
-
-            When("processBrondatumProcedure is called with non-existing zaakeigenschap") {
-                zaakService.processBrondatumProcedure(zaak, resultaatTypeUUID, brondatumArchiefprocedure)
-
-                Then("it should create a new zaakeigenschap") {
-                    verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
-                }
-
-                And("it should not update any existing zaakeigenschap") {
-                    verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
             }
         }

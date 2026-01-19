@@ -13,6 +13,9 @@ import nl.info.zac.admin.model.ReferenceTableValue;
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters;
 
 public final class RESTReplyToConverter {
+    // Private constructor to prevent instantiation
+    private RESTReplyToConverter() {
+    }
 
     public static List<RESTReplyTo> convertReplyTos(final List<ReferenceTableValue> waarden) {
         final List<RESTReplyTo> restReplyTos = waarden.stream()

@@ -14,6 +14,7 @@ import { FormHelper } from "../helpers";
   selector: "zac-date",
   templateUrl: "./date.html",
   styleUrls: ["./date.less"],
+  standalone: false,
 })
 export class ZacDate<
   Form extends Record<string, AbstractControl>,

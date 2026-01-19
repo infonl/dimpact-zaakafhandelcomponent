@@ -49,7 +49,7 @@ public class FlowableTaskService {
     private HistoryService historyService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public FlowableTaskService() {
     }

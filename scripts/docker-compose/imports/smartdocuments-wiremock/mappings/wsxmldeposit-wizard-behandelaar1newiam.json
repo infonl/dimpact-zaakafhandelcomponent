@@ -1,0 +1,115 @@
+{
+  "request": {
+    "url": "/wsxmldeposit/deposit/wizard",
+    "method": "POST",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/json"
+      },
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Authorization": {
+        "equalTo": "Basic fakeSmartDocumentsAuthentication"
+      },
+      "Username": {
+        "equalTo": "behandelaar1newiam"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "or": [
+          {
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
+                },
+                "Variables": {
+                  "OutputFormats": [
+                    {
+                      "OutputFormat": "docx"
+                    }
+                  ],
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
+                }
+              },
+              "data": {
+                "gebruiker": {
+                  "id": "behandelaar1newiam",
+                  "naam": "Test Behandelaar 1 - new IAM"
+                },
+                "zaak": {
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
+                  "groep": "behandelaars-test-1",
+                  "identificatie": "${json-unit.any-string}",
+                  "omschrijving": "fakeOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "${json-unit.any-string}",
+                  "status": "${json-unit.any-string}",
+                  "toelichting": "${json-unit.any-string}",
+                  "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "Test zaaktype 3"
+                }
+              }
+            },
+            "ignoreArrayOrder": true
+          },
+          {
+            "equalToJson": {
+              "SmartDocument": {
+                "Selection": {
+                  "TemplateGroup": "root",
+                  "Template": "root template 1",
+                  "FixedValues": ""
+                },
+                "Variables": {
+                  "OutputFormats": [
+                    {
+                      "OutputFormat": "docx"
+                    }
+                  ],
+                  "RedirectMethod": "POST",
+                  "RedirectUrl": "${json-unit.any-string}"
+                }
+              },
+              "data": {
+                "gebruiker": {
+                  "id": "behandelaar1newiam",
+                  "naam": "Test Behandelaar 1 - new IAM"
+                },
+                "taak": {
+                  "naam": "Test"
+                },
+                "zaak": {
+                  "communicatiekanaal": "fakeCommunicatiekanaal1",
+                  "groep": "behandelaars-test-1",
+                  "identificatie": "${json-unit.any-string}",
+                  "omschrijving": "fakeOmschrijving",
+                  "registratiedatum": "${json-unit.any-string}",
+                  "startdatum": "${json-unit.any-string}",
+                  "toelichting": "${json-unit.any-string}",
+                  "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+                  "vertrouwelijkheidaanduiding": "openbaar",
+                  "zaaktype": "BPMN test zaaktype 1"
+                }
+              }
+            },
+            "ignoreArrayOrder": true
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "body": "{\"ticket\": \"fakeSmartDocumentsTicketID\"}",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

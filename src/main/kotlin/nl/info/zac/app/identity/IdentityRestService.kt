@@ -39,10 +39,28 @@ class IdentityRestService @Inject constructor(
     @Path("groups")
     fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
 
+    @Deprecated(
+        """Once the PABC feature flag has been removed, this endpoint should be deleted and the
+            [listBehandelaarGroupsForZaaktype] endpoint should be used instead.
+            This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version' like it is
+            done in the old IAM architecture.
+            """
+    )
     @GET
-    @Path("groups/zaaktype/{zaaktypeUuid}")
-    fun listGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
-        identityService.listGroupsForZaaktypeUuid(zaaktypeUuid).toRestGroups()
+    @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
+    fun listBehandelaarGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
+        identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
+
+    /**
+     * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
+     * This endpoint requires that the PABC integration feature flag is enabled and cannot be used when this
+     * feature flag is disabled.
+     */
+    @GET
+    @Path("zaaktype/{zaaktypeDescription}/behandelaar-groups")
+    fun listBehandelaarGroupsForZaaktype(
+        @PathParam("zaaktypeDescription") zaaktypeDescription: String
+    ): List<RestGroup> = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

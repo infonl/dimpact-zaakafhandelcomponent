@@ -30,6 +30,7 @@ import { ZakenService } from "../zaken.service";
 import { ComponentType } from "@angular/cdk/portal";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
@@ -49,6 +50,7 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
   templateUrl: "./zaken-werkvoorraad.component.html",
   styleUrls: ["./zaken-werkvoorraad.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
@@ -60,7 +62,6 @@ export class ZakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
-  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
@@ -87,6 +88,10 @@ export class ZakenWerkvoorraadComponent
       }
     | undefined;
 
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+
   constructor(
     private zakenService: ZakenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -108,7 +113,6 @@ export class ZakenWerkvoorraadComponent
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.zaken.werkvoorraad");
-    this.getIngelogdeMedewerker();
     this.dataSource.initColumns(this.defaultColumns());
   }
 
@@ -147,12 +151,6 @@ export class ZakenWerkvoorraadComponent
   ngAfterViewInit(): void {
     this.dataSource.setViewChilds(this.paginator, this.sort);
     this.table.dataSource = this.dataSource;
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -234,15 +232,13 @@ export class ZakenWerkvoorraadComponent
       });
   }
 
-  showAssignToMe(zaakZoekObject: ZaakZoekObject): boolean {
-    return (
-      Boolean(zaakZoekObject.rechten.toekennen) &&
-      this.ingelogdeMedewerker?.id !==
-        zaakZoekObject.behandelaarGebruikersnaam &&
-      Boolean(
-        this.ingelogdeMedewerker?.groupIds?.indexOf(zaakZoekObject.groepId),
-      )
-    );
+  showAssignToMe(zaakZoekObject: ZaakZoekObject) {
+    if (!zaakZoekObject.rechten.toekennen) return false;
+    const loggedInUser = this.loggedInUserQuery.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === zaakZoekObject.behandelaarGebruikersnaam)
+      return false;
+    return loggedInUser.groupIds?.includes(zaakZoekObject.groepId) ?? false;
   }
 
   openVerdelenScherm(): void {

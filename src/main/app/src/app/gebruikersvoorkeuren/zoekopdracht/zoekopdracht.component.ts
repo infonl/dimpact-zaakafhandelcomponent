@@ -14,7 +14,7 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { heeftActieveZoekFilters } from "../../zoeken/model/zoek-parameters";
+import { hasActiveSearchFilters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
 import { ZoekFilters } from "./zoekfilters.model";
@@ -23,6 +23,7 @@ import { ZoekFilters } from "./zoekfilters.model";
   selector: "zac-zoekopdracht",
   templateUrl: "./zoekopdracht.component.html",
   styleUrls: ["./zoekopdracht.component.less"],
+  standalone: false,
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
@@ -118,7 +119,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   private heeftActieveFilters(): boolean {
     switch (this.zoekFilters.filtersType) {
       case "ZoekParameters":
-        return heeftActieveZoekFilters(this.zoekFilters);
+        return hasActiveSearchFilters(this.zoekFilters);
       case "OntkoppeldDocumentListParameters":
         if (this.zoekFilters.zaakID) return true;
         if (this.zoekFilters.ontkoppeldDoor) return true;

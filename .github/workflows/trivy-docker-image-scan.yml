@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-name: Scheduled Docker image scan
+name: Trivy Docker image scan
 
 on:
   schedule:
@@ -32,36 +32,9 @@ jobs:
           # or else all vulnerabilities will be reported
           limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
-        env:
-          # skip downloading the Trivy databases since we update the Trivy cache regularly
-          # in another workflow
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@16140ae1a102900babc80a33c44059580f687047 # v4.30.9
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4.31.10
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-docker-image'
-
-  snyk:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          sparse-checkout: .
-
-      - name: Run Snyk to check Docker image for vulnerabilities
-        continue-on-error: true
-        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04 # master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: ${{ env.ZAC_IMAGE_URL }}
-          args: --file=Dockerfile
-
-#      - name: Upload Snyk Scan Results to GitHub Security Tab
-#        uses: github/codeql-action/upload-sarif@51f77329afa6477de8c49fc9c7046c15b9a4e79d # v3.29.5
-#        with:
-#          sarif_file: 'snyk.sarif'

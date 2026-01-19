@@ -6,6 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
+import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -45,12 +46,12 @@ export class GoedkeurenFormulier extends AbstractTaakFormulier {
       [Validators.required],
     );
 
-    const checkedDocuments = (
-      (taak.taakdata?.["ondertekenen"] as string) ?? ""
-    ).split(";");
-    const relevantDocumentUUIDs = taak.taakdata?.["relevanteDocumenten"]
-      ? String(taak.taakdata?.["relevanteDocumenten"]).split(";")
-      : [];
+    const checkedDocuments = mapStringToDocumentenStrings(
+      taak.taakdata?.["ondertekenen"],
+    );
+    const relevantDocumentUUIDs = mapStringToDocumentenStrings(
+      taak.taakdata?.["relevanteDocumenten"],
+    );
 
     const documentsToSign = await lastValueFrom(
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({

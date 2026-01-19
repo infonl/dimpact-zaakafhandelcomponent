@@ -47,6 +47,7 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-case-location-edit",
   templateUrl: "./zaak-locatie-wijzigen.component.html",
   styleUrls: ["./zaak-locatie-wijzigen.component.less"],
+  standalone: false,
 })
 export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy

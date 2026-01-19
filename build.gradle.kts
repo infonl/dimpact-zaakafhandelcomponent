@@ -15,20 +15,20 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.util.Locale
 
-
 plugins {
     java
     war
     jacoco
+    `jvm-test-suite`
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.jsonschema2pojo)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.gradle.node)
-    alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.owasp.dependencycheck)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
 }
@@ -36,6 +36,9 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    // Add the Public JBoss Maven repository.
+    // This is a best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
+    maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
 group = "nl.info.common-ground"
@@ -107,14 +110,6 @@ val srcApp = layout.projectDirectory.dir("src/main/app")
 val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
 val e2ePath = srcE2e.toProjectRelativePath()
-
-sourceSets {
-    // create custom integration test source set
-    create("itest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-    }
-}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -188,32 +183,65 @@ dependencies {
     providedCompile(libs.hibernate.validator)
     // ~dependencies provided by Wildfly
 
+    testImplementation(libs.kotlinx.coroutines.test)
     // yasson is required for using a JSONB context in our unit tests
     // where we do not have the WildFly runtime environment available
     testImplementation(libs.eclipse.yasson)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
     testImplementation(libs.json)
+    // SmallRye Health implementation for MicroProfile Health tests
+    testImplementation(libs.smallrye.health)
     // Hibernate Validator requires an implementation of the Jakarta Expression Language
     // runtime this is provided for by the WildFly runtime environment
     // for our unit tests we use the reference implementation
     testImplementation(libs.glassfish.expressly)
 
-    // integration test dependencies
-    "itestImplementation"(libs.testcontainers.testcontainers)
-    "itestImplementation"(libs.testcontainers.mockserver)
-    "itestImplementation"(libs.testcontainers.postgresql)
-    "itestImplementation"(libs.json)
-    "itestImplementation"(libs.kotest.runner.junit5)
-    "itestImplementation"(libs.kotest.assertions.json)
-    "itestImplementation"(libs.slf4j.simple)
-    "itestImplementation"(libs.okhttp)
-    "itestImplementation"(libs.okhttp.urlconnection)
-    "itestImplementation"(libs.auth0.java.jwt)
-    "itestImplementation"(libs.github.kotlin.logging)
-    "itestImplementation"(libs.kotlin.csv.jvm)
-
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
+}
+
+testing {
+    suites {
+        // configure the default unit test suite to use JUnit Jupiter
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+        }
+
+        // register integration test suite named `itest` to preserve existing task/config names
+        register("itest", JvmTestSuite::class) {
+            useJUnitJupiter()
+
+            dependencies {
+                implementation(libs.testcontainers.testcontainers)
+                implementation(libs.testcontainers.mockserver)
+                implementation(libs.testcontainers.postgresql)
+                implementation(libs.json)
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.kotest.assertions.json)
+                implementation(libs.slf4j.simple)
+                implementation(libs.okhttp)
+                implementation(libs.okhttp.urlconnection)
+                implementation(libs.auth0.java.jwt)
+                implementation(libs.github.kotlin.logging)
+                implementation(libs.kotlin.csv.jvm)
+            }
+
+            targets {
+                all {
+                    // configure the generated test task for this suite
+                    testTask.configure {
+                        // mirror previous behavior
+                        useJUnitPlatform()
+                        systemProperty("zacDockerImage", zacDockerImage)
+                        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
+                        dependsOn("buildDockerImage")
+                        // always execute the integration tests
+                        outputs.upToDateWhen { false }
+                    }
+                }
+            }
+        }
+    }
 }
 
 allOpen {
@@ -495,6 +523,7 @@ tasks {
         autoCorrect = true
         ignoreFailures = true
     }
+
     withType<Detekt>().configureEach {
         config.setFrom("$rootDir/config/detekt.yml")
         setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
@@ -512,6 +541,7 @@ tasks {
     getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
     getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
 
+    // ensure the integration test compilation task depends on the jacoco agent copy and runs after docker image build
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
         mustRunAfter("buildDockerImage")
@@ -634,20 +664,7 @@ tasks {
 
     register<GenerateTask>("generateKlantenClient") {
         description = "Generates Java client code for the Klanten API"
-        // disabled because the generated Java code is not a working OpenKlanten client
-        isEnabled = false
-
-        // To generate a new version of the client:
-        //
-        // 1. Modify OpenAPI definition to add empty enum value where `oneOf` construct is used
-        // 2. Copy the generated client from `src/generated/klanten` to `src/main/java/net/atos/client/klant/model`
-        // 3. Change in `ExpandPartijAllOfExpand`
-        //    a) jsob property name from `digitale_adressen` to `digitaleAdressen`
-        //       (see https://github.com/maykinmedia/open-klant/issues/396)
-        //    b) `Betrokkene` usage to `ExpandBetrokkene`
-        //       (see https://github.com/maykinmedia/open-klant/issues/216)
-
-        inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
+        inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klantinteracties-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
         modelPackage.set("nl.info.client.klanten.model.generated")
     }
@@ -687,6 +704,12 @@ tasks {
         modelPackage.set("nl.info.client.or.objects.model.generated")
     }
 
+    /**
+     * Generates Java client code for the Platform Autorisatie Beheer Component (PABC) API.
+     * When upgrading the PABC OpenAPI spec, you need to manually fix the following issues in the `pabc-openapi.json` file:
+     * - Replace all occurrences of `"additionalProperties": { }` with: `"additionalProperties": false`.
+     *   Also see: https://github.com/Platform-Autorisatie-Beheer-Component/PABC-API/issues/59
+     */
     register<GenerateTask>("generatePabcClient") {
         description = "Generates Java client code for the Platform Autorisatie Beheer Component API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/pabc/pabc-openapi.json")
@@ -780,7 +803,6 @@ tasks {
 
         inputs.file("Dockerfile")
         inputs.file("target/zaakafhandelcomponent.jar")
-        inputs.files(fileTree("certificates"))
 
         workingDir(".")
         commandLine(
@@ -800,19 +822,6 @@ tasks {
             "org.jacoco.agent-runtime.jar"
         }
         into(layout.buildDirectory.dir("jacoco/itest/jacoco-agent"))
-    }
-
-    register<Test>("itest") {
-        description = "Runs the integration test suite"
-        group = "verification"
-        dependsOn("buildDockerImage")
-
-        testClassesDirs = sourceSets["itest"].output.classesDirs
-        classpath = sourceSets["itest"].runtimeClasspath
-        systemProperty("zacDockerImage", zacDockerImage)
-        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
-        // do not use the Gradle build cache for this task
-        outputs.cacheIf { false }
     }
 
     register<JacocoReport>("jacocoIntegrationTestReport") {
@@ -867,6 +876,80 @@ tasks {
         description = "Deletes the Maven build output"
         group = "build"
         execGoal("clean")
+    }
+
+    getByName("dependencyCheckAnalyze") {
+        // Never cache
+    }
+}
+
+// OWASP Dependency Check configuration
+// This plugin scans all dependencies for known vulnerabilities
+dependencyCheck {
+    // Set explicit scan configurations because by default it will scan all configurations, including all test configurations
+    scanConfigurations = listOf(
+        "compileClasspath",
+        "providedCompile",
+        "providedRuntime",
+        "runtimeClasspath",
+        "warLib"
+    )
+
+    // Configure output formats - generates HTML, JSON, and SARIF reports
+    formats = listOf("HTML", "SARIF")
+
+    // Set severity threshold - only report HIGH and CRITICAL vulnerabilities
+    failBuildOnCVSS = 7.0f
+
+    // Configure data directory (for caching in CI)
+    data.directory = "${System.getProperty("user.home")}/.gradle/dependency-check-data"
+
+    // Configure suppression file if we need to suppress false positives
+    // suppressionFile = "config/owasp-suppression.xml"
+
+    // Configure analyzers - disable some that might not be relevant
+    analyzers {
+        // Disable OSS Index analyzer to avoid rate limiting issues
+        // NVD database provides comprehensive vulnerability coverage
+        ossIndex { enabled = false }
+
+        // Enable/disable specific analyzers
+        assemblyEnabled = false // .NET assemblies
+        nuspecEnabled = false // NuGet packages
+        cocoapodsEnabled = false // iOS CocoaPods
+        swiftEnabled = false // Swift packages
+        bundleAuditEnabled = false // Ruby Bundle Audit
+        pyDistributionEnabled = false // Python distributions
+        pyPackageEnabled = false // Python packages
+        composerEnabled = false // PHP Composer
+        // Node.js analyzers - enabled for defense-in-depth alongside npm audit
+        nodePackage { enabled = true } // Node.js dependency analyzer
+        nodeAudit {
+            enabled = true // Node Audit analyzer for package-lock.json/yarn.lock
+            useCache = true // Cache audit results for performance
+            skipDevDependencies = true // Skip devDependencies to focus on production
+            yarnEnabled = true // Enable Yarn audit analyzer
+            pnpmEnabled = true // Enable PNPM audit analyzer
+        }
+        retirejs {
+            enabled = true // RetireJS analyzer for JavaScript vulnerabilities
+            filterNonVulnerable = true // Remove non-vulnerable JS from reports
+        }
+
+        // Keep enabled for Java/Kotlin ecosystem
+        jarEnabled = true // JAR files
+        centralEnabled = true // Maven Central
+
+        // Keep OS package analyzers disabled unless needed
+        autoconfEnabled = false
+        cmakeEnabled = false
+    }
+
+    // Configure NVD API settings (optional - improves performance)
+    nvd {
+        // Read from environment variable (CI/CD) or gradle.properties (local dev)
+        apiKey = System.getenv("NVD_API_KEY") ?: project.findProperty("nvdApiKey")?.toString()
+        delay = 16000 // 16 seconds between API calls (free tier limit)
     }
 }
 

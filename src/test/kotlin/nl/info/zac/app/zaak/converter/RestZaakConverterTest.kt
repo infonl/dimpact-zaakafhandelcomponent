@@ -23,7 +23,7 @@ import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
@@ -57,7 +57,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val brcClientService = mockk<BrcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val restZaakResultaatConverter = mockk<RestZaakResultaatConverter>()
     val restGroupConverter = mockk<RestGroupConverter>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
@@ -136,7 +136,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -190,7 +190,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -244,7 +244,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -385,7 +385,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort()
+                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }
@@ -445,7 +445,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd()
                     isOpgeschort shouldBe zaak.isOpgeschort()
-                    isEerderOpgeschort shouldBe true
+                    eerdereOpschorting shouldBe true
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             }

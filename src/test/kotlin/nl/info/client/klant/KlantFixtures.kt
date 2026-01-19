@@ -4,20 +4,23 @@
  */
 package nl.info.client.klant
 
-import nl.info.client.klant.model.BetrokkeneForeignKey
-import nl.info.client.klant.model.CategorieRelatie
-import nl.info.client.klant.model.CategorieRelatieForeignKey
-import nl.info.client.klant.model.DigitaalAdres
-import nl.info.client.klant.model.DigitaalAdresForeignKey
-import nl.info.client.klant.model.ExpandBetrokkene
-import nl.info.client.klant.model.ExpandPartij
-import nl.info.client.klant.model.ExpandPartijAllOfExpand
-import nl.info.client.klant.model.PaginatedExpandPartijList
-import nl.info.client.klant.model.PartijForeignKey
-import nl.info.client.klant.model.PartijIdentificator
-import nl.info.client.klant.model.PartijIdentificatorForeignkey
-import nl.info.client.klant.model.PartijIdentificatorGroepType
-import nl.info.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klanten.model.generated.BetrokkeneForeignKey
+import nl.info.client.klanten.model.generated.CategorieRelatie
+import nl.info.client.klanten.model.generated.CategorieRelatieForeignKey
+import nl.info.client.klanten.model.generated.CodeObjecttypeEnum
+import nl.info.client.klanten.model.generated.CodeRegisterEnum
+import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
+import nl.info.client.klanten.model.generated.DigitaalAdres
+import nl.info.client.klanten.model.generated.DigitaalAdresForeignKey
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.ExpandPartij
+import nl.info.client.klanten.model.generated.ExpandPartijAllOfExpand
+import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
+import nl.info.client.klanten.model.generated.PartijForeignKey
+import nl.info.client.klanten.model.generated.PartijIdentificator
+import nl.info.client.klanten.model.generated.PartijIdentificatorForeignkey
+import nl.info.client.klanten.model.generated.PartijIdentificatorGroepType
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import java.net.URI
 import java.util.UUID
 
@@ -88,7 +91,7 @@ fun createExpandPartij(
 fun createExpandPartijAllOfExpand(
     betrokkenen: List<ExpandBetrokkene>? = null,
     categorieRelaties: List<CategorieRelatie>? = null,
-    digitaleAdressen: List<DigitaalAdres> = listOf(createDigitalAddress())
+    digitaleAdressen: List<DigitaalAdres>? = listOf(createDigitalAddress())
 ) = ExpandPartijAllOfExpand(betrokkenen, categorieRelaties).apply {
     this.digitaleAdressen = digitaleAdressen
 }
@@ -119,9 +122,9 @@ fun createPartijIdentificatorForeignkey(
 }
 
 fun createPartijIdentificatorGroepType(
-    codeObjecttype: String = "fakeCodeObjecttype",
-    codeRegister: String = "fakeCodeRegister",
-    codeSoortObjectId: String = "fakeCodeSoortObjectId",
+    codeObjecttype: CodeObjecttypeEnum = CodeObjecttypeEnum.NATUURLIJK_PERSOON,
+    codeRegister: CodeRegisterEnum = CodeRegisterEnum.BRP,
+    codeSoortObjectId: CodeSoortObjectIdEnum = CodeSoortObjectIdEnum.BSN,
     objectId: String = "fakeObjectId"
 ) = PartijIdentificatorGroepType().apply {
     this.codeObjecttype = codeObjecttype

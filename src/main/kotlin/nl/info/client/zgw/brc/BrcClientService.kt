@@ -7,10 +7,10 @@ package nl.info.client.zgw.brc
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import nl.info.client.zgw.brc.model.BesluitenListParameters
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.util.AllOpen
@@ -28,16 +28,16 @@ import java.util.UUID
 class BrcClientService @Inject constructor(
     @RestClient
     private val brcClient: BrcClient,
-    private val zgwClientHeadersFactory: ZGWClientHeadersFactory
+    private val zgwClientHeadersFactory: ZgwClientHeadersFactory
 ) {
     fun listBesluiten(zaak: Zaak): List<Besluit> = BesluitenListParameters()
         .apply { this.zaakUri = zaak.url }
-        .let { brcClient.besluitList(it).results }
+        .let { brcClient.besluitList(it).results() }
 
     fun createBesluit(besluit: Besluit): Besluit = brcClient.besluitCreate(besluit)
 
-    fun updateBesluit(besluit: Besluit, toelichting: String?): Besluit {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+    fun updateBesluit(besluit: Besluit, auditExplanation: String?): Besluit {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
     }
 
@@ -47,9 +47,9 @@ class BrcClientService @Inject constructor(
 
     fun createBesluitInformatieobject(
         besluitInformatieobject: BesluitInformatieObject,
-        toelichting: String?
+        auditExplanation: String?
     ): BesluitInformatieObject {
-        toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return brcClient.besluitinformatieobjectCreate(besluitInformatieobject)
     }
 

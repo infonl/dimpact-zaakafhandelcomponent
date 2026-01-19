@@ -25,6 +25,7 @@ import {
   MAT_DATE_LOCALE,
 } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatDialogActions } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -42,20 +43,19 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
-import { DocumentIconComponent } from "../document-icon/document-icon.component";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFile } from "../form/file/file";
 import { ZacForm } from "../form/form";
+import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
-import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { PipesModule } from "../pipes/pipes.module";
@@ -122,6 +122,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacDocuments,
     ZacRadio,
     ZacForm,
+    ZacFormActions,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -156,6 +157,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacRadio,
     ZacForm,
     CapitalizeFirstLetterPipe,
+    ZacFormActions,
   ],
   imports: [
     FileDragAndDropDirective,
@@ -173,6 +175,7 @@ import { FormComponent } from "./form/form/form.component";
     MatAutocompleteModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatDialogActions,
     TranslateModule,
     PipesModule,
     MatTableModule,
@@ -183,8 +186,6 @@ import { FormComponent } from "./form/form/form.component";
     NgxEditorModule,
     MatMenuModule,
     MatListModule,
-    DocumentIconComponent,
-    InformatieObjectIndicatiesComponent,
     MatExpansionPanelActionRow,
   ],
   providers: [

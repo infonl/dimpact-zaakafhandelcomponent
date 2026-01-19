@@ -15,7 +15,7 @@ import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.JsonbConfiguration
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.ztc.exception.ZtcResponseExceptionMapper
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
@@ -45,7 +45,7 @@ import java.util.UUID
  * because of caching purposes.
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
-@RegisterClientHeaders(ZGWClientHeadersFactory::class)
+@RegisterClientHeaders(ZgwClientHeadersFactory::class)
 @RegisterProvider(ZgwErrorExceptionMapper::class)
 @RegisterProvider(ZgwValidationErrorResponseExceptionMapper::class)
 @RegisterProvider(ZtcResponseExceptionMapper::class)

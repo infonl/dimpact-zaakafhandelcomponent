@@ -36,6 +36,7 @@ public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
         this.sessionRegistry = sessionRegistry;
     }
 
+    @Override
     public void onFire(final @ObservesAsync ScreenEvent event) {
         try {
             LOG.fine(() -> String.format("Received screen event: %s", event.toString()));

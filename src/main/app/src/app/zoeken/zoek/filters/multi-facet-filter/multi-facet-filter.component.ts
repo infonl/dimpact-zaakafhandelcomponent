@@ -11,6 +11,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "zac-multi-facet-filter",
   templateUrl: "./multi-facet-filter.component.html",
   styleUrls: ["./multi-facet-filter.component.less"],
+  standalone: false,
 })
 export class MultiFacetFilterComponent implements OnInit {
   @Input({ required: true }) filter!: GeneratedType<"FilterParameters">;

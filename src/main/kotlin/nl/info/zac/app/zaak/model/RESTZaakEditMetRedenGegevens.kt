@@ -4,12 +4,14 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.validation.Valid
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
 data class RESTZaakEditMetRedenGegevens(
+    @field:Valid
     var zaak: RestZaakCreateData,
 
     var reden: String

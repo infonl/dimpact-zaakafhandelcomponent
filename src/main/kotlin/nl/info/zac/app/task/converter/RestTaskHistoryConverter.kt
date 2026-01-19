@@ -32,9 +32,7 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     fun convert(historicTaskLogEntries: List<HistoricTaskLogEntry>): List<RestTaskHistoryLine> =
-        historicTaskLogEntries
-            .map { convert(it) }
-            .mapNotNull { it }
+        historicTaskLogEntries.mapNotNull(::convert)
 
     private fun convert(historicTaskLogEntry: HistoricTaskLogEntry): RestTaskHistoryLine? {
         val restTaakHistorieRegel = when (historicTaskLogEntry.type) {
@@ -77,7 +75,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 null
             )
             HistoricTaskLogEntryType.USER_TASK_OWNER_CHANGED -> convertOwnerChanged(data)
-            HistoricTaskLogEntryType.USER_TASK_DUEDATE_CHANGED -> convertDuedateChanged(data)
+            HistoricTaskLogEntryType.USER_TASK_DUEDATE_CHANGED -> convertDueDateChanged(data)
             // unsupported types result in null return value
             else -> null
         }
@@ -102,15 +100,15 @@ class RestTaskHistoryConverter @Inject constructor(
         JsonbUtil.JSONB.fromJson(data, AssigneeChangedData::class.java).let {
             return RestTaskHistoryLine(
                 AANGEMAAKT_DOOR_ATTRIBUUT_LABEL,
-                getMedewerkerFullName(it.previousAssigneeId),
-                getMedewerkerFullName(it.newAssigneeId),
+                it.previousAssigneeId?.let(::getMedewerkerFullName),
+                it.newAssigneeId?.let(::getMedewerkerFullName),
                 null
             )
         }
     }
 
-    private fun getMedewerkerFullName(medewerkerId: String?): String? =
-        medewerkerId?.let { identityService.readUser(it).getFullName() }
+    private fun getMedewerkerFullName(medewerkerId: String): String =
+        identityService.readUser(medewerkerId).getFullName()
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)
@@ -120,7 +118,7 @@ class RestTaskHistoryConverter @Inject constructor(
         var previousDueDate: Date? = null
     }
 
-    private fun convertDuedateChanged(data: String): RestTaskHistoryLine {
+    private fun convertDueDateChanged(data: String): RestTaskHistoryLine {
         JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
                 FATALEDATUM_ATTRIBUUT_LABEL,

@@ -21,11 +21,10 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
@@ -49,7 +48,6 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.zaak.ZaakService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -72,7 +70,7 @@ class PlanItemsRestService @Inject constructor(
     private var zrcClientService: ZrcClientService,
     private var zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private var planItemConverter: RESTPlanItemConverter,
-    private var zgwApiService: ZGWApiService,
+    private var zgwApiService: ZgwApiService,
     private var indexingService: IndexingService,
     private var mailService: MailService,
     private var configuratieService: ConfiguratieService,
@@ -80,7 +78,6 @@ class PlanItemsRestService @Inject constructor(
     private var policyService: PolicyService,
     private var suspensionZaakHelper: SuspensionZaakHelper,
     private var restMailGegevensConverter: RESTMailGegevensConverter,
-    private var zaakService: ZaakService
 ) {
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
@@ -247,35 +244,17 @@ class PlanItemsRestService @Inject constructor(
 
         if (userEventListenerData.zaakOntvankelijk) return
 
-        zaakService.checkZaakAfsluitbaar(zaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
         zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
-            zgwApiService.createResultaatForZaak(
-                zaak,
-                resultaattypeUUID,
-                userEventListenerData.resultaatToelichting
-            )
+            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
-        zaakService.checkZaakAfsluitbaar(zaak)
-
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            zaakService.processBrondatumProcedure(
-                zaak, resultaattypeUUID,
-                BrondatumArchiefprocedure().apply {
-                    this.datumkenmerk = userEventListenerData.brondatumEigenschap
-                }
-            )
-
-            zgwApiService.createResultaatForZaak(
-                zaak,
-                resultaattypeUUID,
-                userEventListenerData.resultaatToelichting
-            )
+            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."

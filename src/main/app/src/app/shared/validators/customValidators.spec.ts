@@ -99,6 +99,29 @@ describe(CustomValidators.name, () => {
     },
   );
 
+  it.each([
+    ["<p></p>", { emptyHtmlElement: true }],
+    ["<div></div>", { emptyHtmlElement: true }],
+    ["<h1></h1>", { emptyHtmlElement: true }],
+    ["<blockquote></blockquote>", { emptyHtmlElement: true }],
+    ["<p>   </p>", { emptyHtmlElement: true }],
+    ["<p>\n\t  \n</p>", { emptyHtmlElement: true }],
+    ["<p></p><div></div><h1></h1>", { emptyHtmlElement: true }],
+    ['<p class="test"></p>', { emptyHtmlElement: true }],
+    ["<p>Content</p>", null],
+    ["<p>  Content  </p>", null],
+    ["<div><p>Content</p></div>", null],
+    ['<p class="test">Content</p>', null],
+    [null, null], // Let Validators.required handle empty values
+    ["", null], // Let Validators.required handle empty values
+  ])(
+    "Non-empty HTML element validation: for %s it should return %p",
+    (html, expected) => {
+      const control = createControl(html);
+      expect(CustomValidators.nonEmptyHtmlElement(control)).toEqual(expected);
+    },
+  );
+
   describe("error messages", () => {
     const createControl = (value: unknown): AbstractControl =>
       new FormControl(value);

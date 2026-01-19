@@ -22,7 +22,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
@@ -40,8 +40,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
-    val zgwApiService = mockk<ZGWApiService>()
-
+    val zgwApiService = mockk<ZgwApiService>()
     val enkelvoudigInformatieObjectUpdateService = EnkelvoudigInformatieObjectUpdateService(
         drcClientService,
         enkelvoudigInformatieObjectLockService,
@@ -51,7 +50,6 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         taakVariabelenService,
         zgwApiService
     )
-
     val zaak = Zaak()
     val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
     val zaakInformatieObject = createZaakInformatieobjectForCreatesAndUpdates()

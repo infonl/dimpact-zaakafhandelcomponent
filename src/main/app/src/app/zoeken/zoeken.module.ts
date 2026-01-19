@@ -11,6 +11,7 @@ import { RouterLink } from "@angular/router";
 import { BAGModule } from "../bag/bag.module";
 import { KlantenModule } from "../klanten/klanten.module";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { PipesModule } from "../shared/pipes/pipes.module";
 import { DocumentZoekObjectComponent } from "./zoek-object/document-zoek-object/document-zoek-object.component";
 import { TaakZoekObjectComponent } from "./zoek-object/taak-zoek-object/taak-zoek-object.component";
 import { ZaakZoekObjectComponent } from "./zoek-object/zaak-zoek-object/zaak-zoek-object.component";
@@ -41,6 +42,7 @@ import { ZoekComponent } from "./zoek/zoek.component";
     RouterLink,
     InformatieObjectIndicatiesComponent,
     BAGModule,
+    PipesModule,
   ],
 })
 export class ZoekenModule {}

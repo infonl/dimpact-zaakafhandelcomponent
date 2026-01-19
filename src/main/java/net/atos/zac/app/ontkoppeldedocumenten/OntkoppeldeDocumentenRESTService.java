@@ -57,7 +57,7 @@ public class OntkoppeldeDocumentenRESTService {
     private PolicyService policyService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public OntkoppeldeDocumentenRESTService() {
     }

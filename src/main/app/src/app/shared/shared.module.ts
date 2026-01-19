@@ -4,20 +4,25 @@
  */
 
 import { DragDropModule } from "@angular/cdk/drag-drop";
-import { APP_INITIALIZER, Injector, NgModule } from "@angular/core";
+import {
+  Injector,
+  NgModule,
+  inject,
+  provideAppInitializer,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { Title } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
 import { DialogComponent } from "./dialog/dialog.component";
 import { OutsideClickDirective } from "./directives/outside-click.directive";
 import { DocumentViewerComponent } from "./document-viewer/document-viewer.component";
 import { ColumnPickerComponent } from "./dynamic-table/column-picker/column-picker.component";
 import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
-import { EditGroepBehandelaarComponent } from "./edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
 import { EditInputComponent } from "./edit/edit-input/edit-input.component";
 import { ExportButtonComponent } from "./export-button/export-button.component";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
@@ -48,7 +53,6 @@ import { VersionComponent } from "./version/version.component";
     StaticTextComponent,
     ReadMoreComponent,
     OutsideClickDirective,
-    EditGroepBehandelaarComponent,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
@@ -63,6 +67,7 @@ import { VersionComponent } from "./version/version.component";
     BesluitIndicatiesComponent,
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
+    ZaakdataComponent,
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
@@ -89,7 +94,6 @@ import { VersionComponent } from "./version/version.component";
     PipesModule,
     MaterialModule,
     MaterialFormBuilderModule,
-    EditGroepBehandelaarComponent,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
@@ -103,6 +107,7 @@ import { VersionComponent } from "./version/version.component";
     BesluitIndicatiesComponent,
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
+    ZaakdataComponent,
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
@@ -116,12 +121,13 @@ import { VersionComponent } from "./version/version.component";
       useFactory: (translateService: TranslateService) =>
         new PaginatorTranslator(translateService).getTranslatedPaginator(),
     },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: paginatorLanguageInitializerFactory,
-      deps: [TranslateService, Injector],
-      multi: true,
-    },
+    provideAppInitializer(() => {
+      const initializerFn = paginatorLanguageInitializerFactory(
+        inject(TranslateService),
+        inject(Injector),
+      );
+      return initializerFn();
+    }),
     {
       provide: VertrouwelijkaanduidingToTranslationKeyPipe,
       useClass: VertrouwelijkaanduidingToTranslationKeyPipe,

@@ -35,6 +35,9 @@
     routerLink="/zaken/create"
     mat-mini-fab
     title="{{ 'actie.zaak.aanmaken' | translate }}"
+    [disabled]="
+      queryClient.isMutating({ mutationKey: createZaakMutationKey }) > 0
+    "
     aria-label="Zaak toevoegen"
   >
     <mat-icon>create_new_folder</mat-icon>
@@ -129,10 +132,10 @@
       matInput
       placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
       [formControl]="zoekenFormControl"
-      (keyup.enter)="zoekenSideNav.open()"
+      (keydown.enter)="zoekenSideNav.open()"
     />
     <button
-      *ngIf="hasSearched"
+      *ngIf="zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       [title]="'actie.zoekopdracht.wissen' | translate"
@@ -141,7 +144,7 @@
       <mat-icon outlined>close</mat-icon>
     </button>
     <button
-      *ngIf="!hasSearched"
+      *ngIf="!zoekenService.hasSearched()"
       mat-icon-button
       matSuffix
       type="button"
@@ -178,13 +181,16 @@
     aria-label="Gebruikers profiel"
     [title]="'toolbar.profiel' | translate"
   >
-    <div class="flex-col items-center" [matTooltip]="ingelogdeMedewerker?.naam">
+    <div
+      class="flex-col items-center"
+      [matTooltip]="loggedInUserQuery.data()?.naam"
+    >
       <mat-icon>account_circle</mat-icon>
-      <span class="username">{{ medewerkerNaamToolbar }}</span>
+      <span class="username">{{ medewerkerNaamToolbar() }}</span>
     </div>
     <mat-menu #accountMenu="matMenu">
       <p class="user-name-menu" mat-menu-item disabled>
-        {{ ingelogdeMedewerker?.naam }}
+        {{ loggedInUserQuery.data()?.naam }}
       </p>
       <mat-divider></mat-divider>
       <button

@@ -21,11 +21,11 @@ import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionM
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.JsonbConfiguration
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import nl.info.client.zgw.brc.exception.BrcResponseExceptionMapper
 import nl.info.client.zgw.brc.model.BesluitenListParameters
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
@@ -38,7 +38,7 @@ import java.util.UUID
  * ZGW Besluiten API Client voor integratie met een Besluitregistratiecomponent (BRC).
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
-@RegisterClientHeaders(ZGWClientHeadersFactory::class)
+@RegisterClientHeaders(ZgwClientHeadersFactory::class)
 @RegisterProvider(ZgwErrorExceptionMapper::class)
 @RegisterProvider(ZgwValidationErrorResponseExceptionMapper::class)
 @RegisterProvider(BrcResponseExceptionMapper::class)

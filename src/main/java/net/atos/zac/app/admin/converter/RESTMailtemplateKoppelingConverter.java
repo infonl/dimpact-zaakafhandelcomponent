@@ -11,6 +11,9 @@ import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 
 public final class RESTMailtemplateKoppelingConverter {
+    // Private constructor to prevent instantiation
+    private RESTMailtemplateKoppelingConverter() {
+    }
 
     public static RESTMailtemplateKoppeling convert(final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters) {
         final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();

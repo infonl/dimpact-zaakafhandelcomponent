@@ -5,243 +5,102 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
+import nl.info.zac.itest.client.ZaakHelper
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BPMN_TEST_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2000_03_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2024_01_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
-import org.json.JSONObject
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
-import java.util.UUID
 
 private const val ROWS_DEFAULT = 10
 private const val PAGE_DEFAULT = 0
-private const val ZOEK_ZAAK_IDENTIFIER = "ZAAK-2000"
 
-/**
- * This test assumes a zaak has been created in a previously run test.
- */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
-@Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+    val zaakHelper = ZaakHelper(ZacClient(itestHttpClient))
     val logger = KotlinLogging.logger {}
-    lateinit var zaakUUID: UUID
-    lateinit var teKoppelenZaakUuid: UUID
+    val now = System.currentTimeMillis()
 
-    Given("ZAC Docker container is running and the zaaktypeCmmnConfiguration have been created") {
-        itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2024_01_IDENTIFICATION"
-        ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body.string()
-            logger.info { "Response: $responseBody" }
-            with(JSONObject(responseBody)) {
-                zaakUUID = getString("uuid").let(UUID::fromString)
-            }
-        }
-        itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/zaak/id/$ZAAK_MANUAL_2000_03_IDENTIFICATION"
-        ).use { getZaakResponse ->
-            val responseBody = getZaakResponse.body.string()
-            logger.info { "Response: $responseBody" }
-            with(JSONObject(responseBody)) {
-                teKoppelenZaakUuid = getString("uuid").let(UUID::fromString)
-            }
-        }
+    Given("Two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+        val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
+        val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaakDescription = zaakDescription,
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            group = BEHANDELAARS_DOMAIN_TEST_1,
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true
+        )
+        val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createZaak(
+            zaakDescription = toBeLinkedZaakDescription,
+            zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
+            group = BEHANDELAARS_DOMAIN_TEST_1,
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true
+        )
 
         When(
             """
-            searching for a DEELZAAK linkable zaken with 'ZAAK-2000' zaak identifier and then link the linkable
-            zaak
+            searching for a DEELZAAK linkable zaken on the first created zaak for the
+            'to be linked' zaak identifier
             """.trimIndent()
         ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUUID/zoek-koppelbare-zaken" +
-                    "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken" +
+                    "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
                     "&relationType=DEELZAAK" +
                     "&rows=$ROWS_DEFAULT" +
                     "&page=$PAGE_DEFAULT"
             )
 
-            Then("returns list of zaken each with a linkable flag") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+            Then("it returns the 'to be linked' zaak as linkable zaak") {
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                {
-                  "foutmelding": "",
-                  "resultaten": [
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringOrder """
                     {
-                      "identificatie": "ZAAK-2000-0000000007",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Afgerond",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000006",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Afgerond",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000005",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "In behandeling",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_BPMN_TEST_IDENTIFICATION",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
-                      "isKoppelbaar": true,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000002",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000001",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
+                      "foutmelding" : "",
+                      "resultaten" : [ {
+                        "id" : "$teKoppelenZaakUuid",
+                        "identificatie" : "$teKoppelenZaakIdentification",
+                        "isKoppelbaar" : true,
+                        "omschrijving" : "$toBeLinkedZaakDescription",
+                        "statustypeOmschrijving" : "Intake",
+                        "type" : "ZAAK",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                      } ],
+                      "totaal" : 1,
+                      "filters" : { }
                     }
-                  ],
-                  "totaal": 7,
-                  "filters": {}
-                }
                 """.trimIndent()
             }
         }
 
-        When("link $ZAAK_MANUAL_2000_03_IDENTIFICATION as hoofdzaak to $ZAAK_MANUAL_2024_01_IDENTIFICATION") {
+        When("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
                 {
                      "zaakUuid": "$teKoppelenZaakUuid",
-                     "teKoppelenZaakUuid": "$zaakUUID",
+                     "teKoppelenZaakUuid": "$zaakUuid",
                      "relatieType": "HOOFDZAAK"
                 }
                 """.trimIndent()
             )
 
-            Then("successfully links the zaak") {
+            Then("successfully links the zaken") {
                 response.code shouldBe HTTP_NO_CONTENT
-            }
-        }
-
-        When(
-            """
-            searching for a HOOFDZAAK linkable zaken with 'ZAAK-2000' zaak identifier but without the 'rows' and 
-            'page' request parameters
-            """.trimIndent()
-        ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakProductaanvraag1Uuid/zoek-koppelbare-zaken" +
-                    "?zoekZaakIdentifier=$ZOEK_ZAAK_IDENTIFIER" +
-                    "&relationType=HOOFDZAAK"
-            )
-
-            Then("returns list of zaken each with a linkable flag") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                {
-                  "foutmelding": "",
-                  "resultaten": [
-                    {
-                      "identificatie": "ZAAK-2000-0000000007",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Afgerond",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000006",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Afgerond",
-                      "type": "ZAAK"
-                    },
-                    { 
-                      "identificatie": "ZAAK-2000-0000000005",
-                      "isKoppelbaar": true,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "In behandeling",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_BPMN_TEST_IDENTIFICATION",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_BPMN_TEST_DESCRIPTION",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "$ZAAK_MANUAL_2000_03_IDENTIFICATION",
-                      "isKoppelbaar": false,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000002",
-                      "isKoppelbaar": true,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "identificatie": "ZAAK-2000-0000000001",
-                      "isKoppelbaar": true,
-                      "omschrijving": "$ZAAK_OMSCHRIJVING",
-                      "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                      "statustypeOmschrijving": "Intake",
-                      "type": "ZAAK"
-                    }
-                  ],
-                  "totaal": 7,
-                  "filters": {}
-                }
-                """.trimIndent()
             }
         }
     }

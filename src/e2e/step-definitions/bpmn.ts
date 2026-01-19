@@ -5,16 +5,19 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import playwright from "playwright";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
 const TWO_MINUTES_IN_MS = 120_000;
 const FORTY_SECOND_IN_MS = 40_000;
-const FIVE_SECONDS_IN_MS = 5_000;
 const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
+
+const beheerdersGroupId = "beheerders_elk_domein";
+const beheerdersGroupName = "Beheerders elk domein - new IAM";
+const beheerderUserId = "beheerder1newiam";
+const beheerderUser = "Beheerder 1 New IAM";
 
 When(
   "{string} opens the active task",
@@ -53,8 +56,6 @@ Given(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
-    await triggerDataLoad(this.page, "Template", { text: "SmartDocuments" });
-
     // BPMN form: create a document
     await this.page
       .getByLabel("Template")
@@ -85,31 +86,6 @@ Given(
   },
 );
 
-async function triggerDataLoad(
-  page: playwright.Page,
-  componentLabel: string,
-  options?: { text?: string; timeout?: number },
-) {
-  await expect(page.getByLabel(componentLabel)).toBeVisible({
-    timeout: FORTY_SECOND_IN_MS,
-  });
-
-  // First click
-  await page.getByLabel(componentLabel).click();
-  await page.getByLabel(componentLabel).press("ArrowDown");
-
-  if (options?.text) {
-    await page.getByText(options?.text).focus();
-    await page.getByText(options?.text).click();
-  }
-
-  await page.waitForTimeout(options?.timeout || TWO_SECONDS_IN_MS);
-
-  // Press arrow-down on the component again
-  await page.getByLabel(componentLabel).press("Escape");
-  await page.getByLabel(componentLabel).press("ArrowDown");
-}
-
 When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
@@ -134,10 +110,12 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await triggerDataLoad(this.page, "Select one or more documents", {
-      text: "Available Documents",
-      timeout: FIVE_SECONDS_IN_MS,
-    });
+    await this.page
+      .getByRole("searchbox", {
+        name: "Select one or more documents",
+      })
+      .fill(documentName);
+
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
@@ -148,10 +126,8 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await triggerDataLoad(this.page, "Group", { text: "Approval by:" });
-
     await expect(this.page.getByLabel("Group")).toContainText(
-      "Functioneelbeheerders",
+      beheerdersGroupName,
       { timeout: FORTY_SECOND_IN_MS },
     );
     await this.page.getByLabel("Communication channel").press("ArrowDown");
@@ -166,20 +142,18 @@ When(
   "{string} fills all mandatory form fields",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByLabel("Group").selectOption("functioneelbeheerders");
+    await this.page.getByLabel("Group").selectOption(beheerdersGroupName);
 
     await this.page.getByLabel("User").click();
-    await this.page.getByLabel("User").selectOption("functioneelbeheerder2");
+    await this.page.getByLabel("User").selectOption(beheerderUser);
     await this.page
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
     await this.page
-      .getByLabel("Test form")
-      .getByText("file A", { exact: true })
+      .getByRole("option", { name: "file A", exact: true })
       .click();
     await this.page
-      .getByLabel("Test form")
-      .getByText("file B", { exact: true })
+      .getByRole("option", { name: "file B", exact: true })
       .click();
     await this.page.getByLabel("Communication channel").selectOption("E-mail");
     await this.page.getByLabel("Select result").click();
@@ -204,13 +178,13 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
-      this.page.getByRole("cell", { name: "Test form" }),
+      this.page.getByRole("cell", { name: "Test", exact: true }),
     ).not.toBeVisible();
     await this.page
       .getByRole("switch", { name: "Toon afgeronde taken" })
       .click();
     await expect(
-      this.page.getByRole("cell", { name: "Test form" }),
+      this.page.getByRole("cell", { name: "Test", exact: true }),
     ).toBeVisible();
   },
 );
@@ -224,9 +198,9 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    await expect(
-      this.page.getByRole("cell", { name: "Summary" }),
-    ).toBeVisible();
+    await expect(this.page.getByRole("cell", { name: "Summary" })).toBeVisible({
+      timeout: FORTY_SECOND_IN_MS,
+    });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible();
@@ -244,20 +218,26 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
-      "functioneelbeheerders",
+      beheerdersGroupId,
     );
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
-      "functioneelbeheerder2",
+      beheerderUserId,
     );
-    await expect(this.page.getByRole("combobox")).toContainText("file A", {
-      timeout: FORTY_SECOND_IN_MS,
-    });
-    await expect(this.page.getByRole("combobox")).toContainText("file B", {
-      timeout: FORTY_SECOND_IN_MS,
-    });
-    await expect(
-      this.page.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue("E-mail");
+    await expect(this.page.getByRole("option", { name: "file A" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "file B" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
+    await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
+      {
+        timeout: FORTY_SECOND_IN_MS,
+      },
+    );
   },
 );
 
@@ -307,7 +287,7 @@ Then(
     user: z.infer<typeof worldUsers>,
     groupName: string,
   ) {
-    await this.page.getByRole("button", { name: "Zaakdata" }).click();
+    await this.page.getByRole("button", { name: "Zaakdata" }).first().click();
     await expect(
       this.page.getByRole("textbox", { name: "zaakGroep" }),
     ).toHaveValue(groupName);

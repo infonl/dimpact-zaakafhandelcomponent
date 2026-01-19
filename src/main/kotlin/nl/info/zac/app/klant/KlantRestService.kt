@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.klant
 
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
@@ -22,7 +23,7 @@ import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
-import nl.info.client.klant.model.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -50,6 +51,7 @@ import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -67,27 +69,34 @@ class KlantRestService @Inject constructor(
     val brpClientService: BrpClientService,
     val kvkClientService: KvkClientService,
     val ztcClientService: ZtcClientService,
-    val klantClientService: KlantClientService
+    val klantClientService: KlantClientService,
+    val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+    companion object {
+        const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
+    }
+
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
-        @HeaderParam("X-ZAAK-ID") zaakIdentification: String? = null,
-    ) = runBlocking {
-        // run the two client calls concurrently in a coroutine scope,
-        // so we do not need to wait for the first call to complete
-        withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses =
-                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
-            val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, zaakIdentification)
-            }
-            klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                brpPersoon.await()?.toRestPersoon()?.apply {
-                    telefoonnummer = contactDetails.telephoneNumber
-                    emailadres = contactDetails.emailAddress
-                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
+    ) = loggedInUserInstance.get()?.id.let { userName ->
+        runBlocking {
+            // run the two client calls concurrently in a coroutine scope,
+            // so we do not need to wait for the first call to complete
+            withContext(Dispatchers.IO) {
+                val klantPersoonDigitalAddresses =
+                    async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
+                val brpPersoon = async {
+                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
+                }
+                klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    brpPersoon.await()?.toRestPersoon()?.apply {
+                        telefoonnummer = contactDetails.telephoneNumber
+                        emailadres = contactDetails.emailAddress
+                    } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+                }
             }
         }
     }
@@ -144,15 +153,18 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
+    fun listPersonen(
+        restListPersonenParameters: RestListPersonenParameters,
+        @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
+    ): RESTResultaat<RestPersoon> =
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn))
+                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
                     .map { it.toRestPersoon() }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
                 .toRestPersonen()
                 .toRestResultaat()
 
@@ -193,10 +205,11 @@ class KlantRestService @Inject constructor(
     @Path("contactmomenten")
     fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
         val number = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
-        // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
+        // OpenKlant 2.x pages start from 1 (not 0-based). Page 0 is considered invalid number
         // we currently assume that `number` is always non-null here; this will be refactored in a future PR
-        val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenen(number!!, parameters.page + 1)
-        val klantcontactListPage = betrokkenenWithKlantcontactList.mapNotNull { it.expand?.hadKlantcontact }
+        val betrokkenenWithKlantcontactList = klantClientService.listExpandBetrokkenen(number!!, parameters.page + 1)
+        val klantcontactListPage = betrokkenenWithKlantcontactList
+            .mapNotNull { it.expand?.hadKlantcontact }
             .map { it.toRestContactMoment(betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap()) }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }

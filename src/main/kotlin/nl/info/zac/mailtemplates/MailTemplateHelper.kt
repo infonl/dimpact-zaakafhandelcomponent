@@ -16,7 +16,7 @@ import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.util.toAddressString
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -35,6 +35,7 @@ import org.apache.commons.text.StringEscapeUtils
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.logging.Logger
 
 @AllOpen
@@ -45,7 +46,7 @@ class MailTemplateHelper @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private val identityService: IdentityService,
     private val kvkClientService: KvkClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
 ) {
@@ -111,7 +112,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiatorRole ->
                 replaceInitiatorVariables(
                     resolvedText = resolvedTekst,
-                    zaakIdentification = zaak.identificatie,
+                    zaaktypeUuid = zaak.zaaktype.extractUuid(),
                     initiatorRole = initiatorRole
                 )
             } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
@@ -156,7 +157,7 @@ class MailTemplateHelper @Inject constructor(
                     .filter { IdentityLinkType.CANDIDATE == it.type }
                     .map { it.groupId }
                     .map { identityService.readGroup(it) }
-                    .map(Group::name)
+                    .map(Group::description)
                     .firstOrNull()
             )
         }
@@ -220,18 +221,14 @@ class MailTemplateHelper @Inject constructor(
         )
 
     @Suppress("NestedBlockDepth")
-    private fun replaceInitiatorVariables(
-        resolvedText: String,
-        zaakIdentification: String,
-        initiatorRole: Rol<*>
-    ): String {
+    private fun replaceInitiatorVariables(resolvedText: String, zaaktypeUuid: UUID, initiatorRole: Rol<*>): String {
         val identificatie = initiatorRole.getIdentificatienummer() ?: run {
             LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
             return ""
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                brpClientService.retrievePersoon(identificatie, zaakIdentification)?.let {
+                brpClientService.retrievePersoon(identificatie, zaaktypeUuid)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 

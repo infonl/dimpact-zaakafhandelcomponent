@@ -15,27 +15,24 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.exception.ZaaktypeInUseException
+import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnBetrokkeneParameters
-import nl.info.zac.admin.model.ZaaktypeCmmnBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.CREATIEDATUM
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.PRODUCTAANVRAAGTYYPE
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration.Companion.ZAAKTYPE_UUID
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnUsereventlistenerParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
@@ -52,7 +49,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationBeheerService::class.java.name)
@@ -68,7 +64,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     fun fetchZaaktypeCmmnConfiguration(zaaktypeUUID: UUID): ZaaktypeCmmnConfiguration {
         ztcClientService.resetCacheTimeToNow()
         return readZaaktypeCmmnConfiguration(zaaktypeUUID) ?: ZaaktypeCmmnConfiguration().apply {
-            zaakTypeUUID = zaaktypeUUID
+            zaaktypeUuid = zaaktypeUUID
         }
     }
 
@@ -83,7 +79,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
-        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUUID))
+        query.select(root).where(builder.equal(root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull()
     }
@@ -98,22 +94,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
         ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
 
-        zaaktypeCmmnConfiguration.zaakTypeUUID?.let { uuid ->
-            zaaktypeBpmnConfigurationService
-                .findConfigurationByZaaktypeUuid(uuid)
-                ?.let {
-                    throw ZaaktypeInUseException(
-                        "BPMN configuration for zaaktype '${zaaktypeCmmnConfiguration.zaaktypeOmschrijving} already exists"
-                    )
-                }
-        }
-
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
             getHumanTaskParametersCollection().forEach { ValidationUtil.valideerObject(it) }
             getUserEventListenerParametersCollection().forEach { ValidationUtil.valideerObject(it) }
             getMailtemplateKoppelingen().forEach { ValidationUtil.valideerObject(it) }
-            creatiedatum = creatiedatum ?: ZonedDateTime.now()
         }
 
         return if (zaaktypeCmmnConfiguration.id == null) {
@@ -132,7 +117,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
      *
      * @return the list of found [ZaaktypeCmmnConfiguration] or an empty list if none are found
      */
-    fun findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(
+    fun findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
         productaanvraagType: String
     ): List<ZaaktypeCmmnConfiguration> {
         val builder = entityManager.criteriaBuilder
@@ -140,14 +125,17 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         val subquery = query.subquery(Date::class.java)
         val subqueryRoot = subquery.from(ZaaktypeCmmnConfiguration::class.java)
-        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM)))
+        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM_VARIABLE_NAME)))
             .where(
-                builder.equal(subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING), root.get<String>(ZAAKTYPE_OMSCHRIJVING))
+                builder.equal(
+                    subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME),
+                    root.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME)
+                )
             )
         query.select(root).where(
             builder.and(
-                builder.equal(root.get<String>(PRODUCTAANVRAAGTYYPE), productaanvraagType),
-                builder.equal(root.get<String>(CREATIEDATUM), subquery)
+                builder.equal(root.get<String>(PRODUCTAANVRAAGTYPE_VARIABLE_NAME), productaanvraagType),
+                builder.equal(root.get<String>(CREATIEDATUM_VARIABLE_NAME), subquery)
             )
         )
         return entityManager.createQuery(query).resultList
@@ -161,48 +149,41 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    @SuppressWarnings("ReturnCount")
-    fun upsertZaaktypeCmmnConfiguration(zaaktypeUri: URI) {
+    fun upsertZaaktypeCmmnConfiguration(zaaktype: ZaakType) {
         zaaktypeCmmnConfigurationService.clearListCache()
-        ztcClientService.clearZaaktypeCache()
-
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         val zaaktypeUuid = zaaktype.url.extractUuid()
-        if (zaaktype.concept) {
-            LOG.warning { "Zaak type with UUID $zaaktypeUuid is still a concept. Ignoring" }
-            return
-        }
 
-        val zaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktypeUuid)
-        zaaktypeCmmnConfiguration.apply {
+        val existingZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktypeUuid)
+        val zaaktypeCmmnConfiguration = (existingZaaktypeCmmnConfiguration ?: ZaaktypeCmmnConfiguration()).apply {
+            this.zaaktypeUuid = zaaktypeUuid
             zaaktypeOmschrijving = zaaktype.omschrijving
-            einddatumGeplandWaarschuwing = zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
+            einddatumGeplandWaarschuwing = this.einddatumGeplandWaarschuwing.takeIf {
                 zaaktype.isServicenormAvailable()
             }
         }
 
-        if (zaaktypeCmmnConfiguration.zaakTypeUUID != null) {
-            LOG.warning {
-                "ZaaktypeCmmnConfiguration for zaak type with UUID $zaaktypeUuid is already published. " +
-                    "Updating parameters data"
+        if (existingZaaktypeCmmnConfiguration != null) {
+            LOG.info {
+                "ZaaktypeCmmnConfiguration for zaak type with UUID $zaaktypeUuid is already published. Updating parameters data"
             }
             updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-            return
         } else {
-            zaaktypeCmmnConfiguration.zaakTypeUUID = zaaktypeUuid
-        }
+            val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
+            mapPreviousZaaktypeCmmnConfigurationData(
+                zaaktypeCmmnConfiguration,
+                zaaktype,
+                previousZaaktypeCmmnConfiguration
+            )
+            storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
 
-        val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
-        mapPreviousZaaktypeCmmnConfigurationData(zaaktypeCmmnConfiguration, zaaktype, previousZaaktypeCmmnConfiguration)
-        storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
-
-        // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
-        // already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
-        previousZaaktypeCmmnConfiguration.zaakTypeUUID?.let { previousZaaktypeCmmnConfigurationUuid ->
-            zaaktypeCmmnConfiguration.zaakTypeUUID?.let { newZaaktypeCmmnConfigurationUuid ->
-                mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
-                storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+            // ZaaktypeCmmnConfiguration and SmartDocumentsTemplates have circular relations. To solve this, we update
+            // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
+            previousZaaktypeCmmnConfiguration.zaaktypeUuid.let { previousZaaktypeCmmnConfigurationUuid ->
+                zaaktypeCmmnConfiguration.zaaktypeUuid.let { newZaaktypeCmmnConfigurationUuid ->
+                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+                }
             }
         }
     }
@@ -212,11 +193,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktypeOmschrijving: String
     ) {
         val activeZaaktypeCmmnConfigurationForProductaanvraagtype =
-            findActiveZaaktypeCmmnConfigurationByProductaanvraagtype(productaanvraagtype)
+            findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraagtype)
         if (activeZaaktypeCmmnConfigurationForProductaanvraagtype.size > 1) {
             LOG.warning(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
+                    activeZaaktypeCmmnConfigurationForProductaanvraagtype.joinToString(", ") { it.zaaktypeUuid.toString() } + "'. " +
                     "This indicates a configuration error in the zaaktypeCmmnConfiguration. " +
                     "There should be at most only one active zaaktypeCmmnConfiguration for each productaanvraagtype."
             )
@@ -228,7 +209,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             LOG.info(
                 "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
                     "with zaaktype omschrijving: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
-                    "and zaaktype UUID: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaakTypeUUID}'. " +
+                    "and zaaktype UUID: '${activeZaaktypeCmmnConfigurationForProductaanvraagtype.first().zaaktypeUuid}'. " +
                     "Please use a unique productaanvraagtype per active zaaktypeCmmnConfiguration."
             )
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
@@ -240,14 +221,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktype: ZaakType,
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
-        if (previousZaaktypeCmmnConfiguration.zaakTypeUUID == null) {
-            LOG.warning {
-                "No previous version of ZaaktypeCmmnConfiguration for zaak type with UUID ${zaaktype.url.extractUuid()} " +
-                    "found. Skipping data copy"
-            }
-            return
-        }
-
         zaaktypeCmmnConfiguration.apply {
             caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
             groepID = previousZaaktypeCmmnConfiguration.groepID
@@ -272,20 +245,20 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         mapZaakbeeindigGegevens(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration, zaaktype)
         mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
+        zaaktypeCmmnConfiguration.mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 
-    private fun currentZaaktypeCmmnConfiguration(zaaktypeUuid: UUID): ZaaktypeCmmnConfiguration {
+    private fun currentZaaktypeCmmnConfiguration(zaaktypeUuid: UUID): ZaaktypeCmmnConfiguration? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         query.select(root)
-            .where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUuid))
-        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
+            .where(builder.equal(root.get<Any>(ZAAKTYPE_UUID_VARIABLE_NAME), zaaktypeUuid))
+        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
-        return resultList.firstOrNull() ?: ZaaktypeCmmnConfiguration()
+        return resultList.firstOrNull()
     }
 
     private fun currentZaaktypeCmmnConfiguration(zaaktypeDescription: String): ZaaktypeCmmnConfiguration {
@@ -293,10 +266,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         val query = builder.createQuery(ZaaktypeCmmnConfiguration::class.java)
         val root = query.from(ZaaktypeCmmnConfiguration::class.java)
         query.select(root)
-            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
-        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
+            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME), zaaktypeDescription))
+        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM_VARIABLE_NAME)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
-        return resultList.firstOrNull() ?: ZaaktypeCmmnConfiguration()
+        return resultList.firstOrNull()
+            ?: throw ZaaktypeConfigurationNotFoundException("Zaaktype with description '$zaaktypeDescription' not found")
     }
 
     /**
@@ -384,8 +358,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
 
         zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            zaakbeeindigParameter.resultaattype
-                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
+            mapVorigResultaattypeOpNieuwResultaattype(zaakbeeindigParameter.resultaattype, newResultaattypen)
                 ?.let {
                     ZaaktypeCmmnCompletionParameters().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
@@ -433,28 +406,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setZaakAfzenders)
-
-    private fun mapBetrokkeneKoppelingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeCmmnBetrokkeneParameters = ZaaktypeCmmnBetrokkeneParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            brpKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBetrokkeneParameters?.kvkKoppelen
-        }
-    }
-
-    private fun mapBrpDoelbindingen(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
-    ) = newZaaktypeCmmnConfiguration.apply {
-        zaaktypeCmmnBrpParameters = ZaaktypeCmmnBrpParameters().apply {
-            zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
-            zoekWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.zoekWaarde
-            raadpleegWaarde = previousZaaktypeCmmnConfiguration.zaaktypeCmmnBrpParameters?.raadpleegWaarde
-        }
-    }
 
     private fun mapAutomaticEmailConfirmation(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,

@@ -7,19 +7,20 @@ package nl.info.zac.flowable.bpmn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUUID
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAKTYPE_UUID
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.engine.ProcessEngine
@@ -34,12 +35,12 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         processEngine,
-        zaaktypeBpmnConfigurationService
+        zaaktypeBpmnConfigurationBeheerService
     )
 
     beforeEach {
@@ -90,7 +91,7 @@ class BpmnServiceTest : BehaviorSpec({
             referentieProces = createReferentieProcess(name = referentieProcesName)
         )
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             uuid = zaakUUID
         )
         val zaakData = mapOf<String, Any>("fakeKey" to "fakeValue")
@@ -105,7 +106,7 @@ class BpmnServiceTest : BehaviorSpec({
                 .businessKey(zaakUUID.toString())
                 .variable(VAR_ZAAK_UUID, zaakUUID)
                 .variable(VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-                .variable(VAR_ZAAKTYPE_UUUID, zaakTypeUUID)
+                .variable(VAR_ZAAKTYPE_UUID, zaakTypeUUID)
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaakType.omschrijving)
         } returns processInstanceBuilder
         every { processInstanceBuilder.variables(zaakData) } returns processInstanceBuilder
@@ -125,7 +126,7 @@ class BpmnServiceTest : BehaviorSpec({
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
         every {
-            zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
+            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeBpmnProcessDefinition
 
         When("finding the process definition for the zaaktype") {
@@ -139,13 +140,15 @@ class BpmnServiceTest : BehaviorSpec({
 
     Given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
-        every { zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID) } returns null
+        every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
-            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+                bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+            }
 
             Then("null is returned") {
-                result shouldBe null
+                exception.message shouldContain "$zaaktypeUUID"
             }
         }
     }

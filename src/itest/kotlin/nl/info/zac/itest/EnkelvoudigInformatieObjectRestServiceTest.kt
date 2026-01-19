@@ -6,37 +6,36 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.TaskHelper
+import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_5_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_6_IDENTIFICATION
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
-import nl.info.zac.itest.config.ItestConfiguration.task1ID
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -51,19 +50,27 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * This test assumes a zaak has been created, and a task has been started in a previously run test.
- */
-@Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
-    lateinit var enkelvoudigInformatieObject2UUID: String
+    val zacClient = ZacClient(itestHttpClient)
+    val zaakHelper = ZaakHelper(zacClient)
+    val taskHelper = TaskHelper(zacClient)
+    val today = LocalDate.now()
 
     Given(
-        "ZAC and all related Docker containers are running and zaak exists"
+        """
+            A zaak exists and a behandelaar authorised for the zaaktype of the zaak is logged in
+        """
     ) {
+        // log in as a beheerder authorised in all domains
+        // and create the zaken, tasks and documents and index them
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+        val (_, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        lateinit var enkelvoudigInformatieObjectUuid: String
+        lateinit var enkelvoudigInformatieObject2Uuid: String
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When(
             """
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
@@ -73,25 +80,29 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
-                zaakUUID = zaakProductaanvraag1Uuid,
+                zaakUUID = zaakUuid,
                 fileName = TEST_PDF_FILE_NAME,
                 fileMediaType = PDF_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
             )
 
-            Then("the response should be OK and contain information for the created document and uploaded file") {
-                val responseBody = response.body.string()
+            Then(
+                """
+                   the response should be OK and contain information for the created document and uploaded file
+                   and the permissions for the document should be those for a behandelaar
+                   """
+            ) {
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                          "auteur" : "$TEST_USER_1_NAME",
+                          "auteur" : "$FAKE_AUTHOR_NAME",
                           "beschrijving" : "",
                           "bestandsomvang" : ${file.length()},
                           "creatiedatum" : "${LocalDate.now()}",
                           "formaat" : "$PDF_MIME_TYPE",
-                          "identificatie" : "$DOCUMENT_4_IDENTIFICATION",
                           "indicatieGebruiksrecht" : false,
                           "indicaties" : [ ],
                           "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -100,7 +111,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "rechten" : {
                             "lezen" : true,
                             "ondertekenen" : true,
-                            "ontgrendelen" : true,
+                            "ontgrendelen" : false,
                             "toevoegenNieuweVersie" : true,
                             "vergrendelen" : true,
                             "verwijderen" : true,
@@ -113,7 +124,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
                         }
                 """.trimIndent()
-                enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
+                enkelvoudigInformatieObjectUuid = JSONObject(responseBody).getString("uuid")
+                JSONObject(responseBody).getString("identificatie") shouldNotBe null
             }
         }
 
@@ -128,8 +140,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val requestBody =
                 MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("uuid", enkelvoudigInformatieObjectUUID)
-                    .addFormDataPart("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                    .addFormDataPart("uuid", enkelvoudigInformatieObjectUuid)
+                    .addFormDataPart("zaakUuid", zaakUuid.toString())
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_FACTUUR_UUID)
                     .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
                     .addFormDataPart("titel", DOCUMENT_UPDATED_FILE_TITLE)
@@ -155,37 +167,52 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = requestBody
             )
+
             Then(
                 "the response should be OK and should contain information about the updates"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
-                    shouldContainJsonKeyValue("taal", "Nederlands")
-                    shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-                    )
-                    shouldContainJsonKeyValue(
-                        "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("identificatie")
-                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_FILE_NAME)
-                    shouldContainJsonKeyValue("bestandsomvang", TEST_TXT_FILE_SIZE)
-                    shouldContainJsonKeyValue("formaat", TEXT_MIME_TYPE)
-                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "bestandsnaam" : "$TEST_TXT_FILE_NAME",
+                      "auteur" : "$FAKE_AUTHOR_NAME",
+                      "beschrijving" : "",
+                      "bestandsomvang" : $TEST_TXT_FILE_SIZE,
+                      "creatiedatum" : "$today",
+                      "formaat" : "$TEXT_MIME_TYPE",
+                      "indicatieGebruiksrecht" : false,
+                      "indicaties" : [ ],
+                      "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID",
+                      "isBesluitDocument" : false,
+                      "rechten" : {
+                        "lezen" : true,
+                        "ondertekenen" : false,
+                        "ontgrendelen" : false,
+                        "toevoegenNieuweVersie" : false,
+                        "vergrendelen" : false,
+                        "verwijderen" : false,
+                        "wijzigen" : false
+                      },
+                      "status" : "$DOCUMENT_STATUS_IN_BEWERKING",
+                      "taal" : "Nederlands",
+                      "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
+                      "versie" : 2,
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                    }
+                """.trimIndent()
+                responseBody shouldContainJsonKey("registratiedatumTijd")
+                responseBody shouldContainJsonKey("identificatie")
+                responseBody shouldContainJsonKey("uuid")
             }
         }
+
         When("ondertekenInformatieObject endpoint is called") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject" +
-                    "/$enkelvoudigInformatieObjectUUID/onderteken?zaak=$zaakProductaanvraag1Uuid"
+                    "/$enkelvoudigInformatieObjectUuid/onderteken?zaak=$zaakUuid"
             logger.info { "Calling $endpointUrl endpoint" }
 
             val response = itestHttpClient.performPostRequest(
@@ -199,39 +226,94 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
             }
         }
-        When("the huidigeversie endpoint is called") {
+
+        When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/huidigeversie"
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/"
             )
             Then(
                 """
-                    the response should be OK and the informatieobject should be returned and
-                    should have the status 'definitief' since it was signed
-                    """
+                the response should be OK and should contain an `ONDERTEKEND` indicatie
+                and data about the ondertekening and the status should be 'definitief'
+                """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
-                    shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("bestandsnaam")
-                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "bestandsnaam" : "$TEST_TXT_FILE_NAME",
+                      "auteur" : "$FAKE_AUTHOR_NAME",
+                      "beschrijving" : "",
+                      "bestandsomvang" : $TEST_TXT_FILE_SIZE,
+                      "creatiedatum" : "$today",
+                      "formaat" : "$TEXT_MIME_TYPE",
+                      "indicatieGebruiksrecht" : false,
+                      "indicaties" : [ "ONDERTEKEND" ],
+                      "informatieobjectTypeOmschrijving" : "factuur",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID",
+                      "isBesluitDocument" : false,
+                      "ondertekening" : {
+                        "datum" : "$today",
+                        "soort" : "digitaal"
+                      },
+                      "rechten" : {
+                        "converteren" : true,
+                        "lezen" : true,
+                        "ondertekenen" : false,
+                        "ontgrendelen" : false,
+                        "toevoegenNieuweVersie" : false,
+                        "vergrendelen" : false,
+                        "verwijderen" : false,
+                        "wijzigen" : false
+                      },
+                      "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                      "taal" : "Nederlands",
+                      "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
+                      "versie" : 3,
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                    }
+                """.trimIndent()
             }
         }
+
+        When("the current version endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/huidigeversie"
+            )
+            Then("the response should be OK and the informatieobject should be returned") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "auteur" : "$FAKE_AUTHOR_NAME",
+                      "beschrijving" : "",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID",
+                      "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                      "taal" : {
+                        "code" : "dut",
+                        "id" : "1",
+                        "local" : "Nederlands",
+                        "naam" : "Nederlands",
+                        "name" : "Dutch"
+                      },
+                      "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                    }
+                """.trimIndent()
+                responseBody shouldContainJsonKey("uuid")
+                responseBody shouldContainJsonKey("bestandsnaam")
+            }
+        }
+
         When(
             """
                 the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
                 """
         ) {
             val endpointUrl =
-                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUuid/$zaakUuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
@@ -260,7 +342,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -273,21 +355,27 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = requestBody
             )
+
             Then(
-                "the response should be OK and contain information for the created document and uploaded file"
+                """
+                the response should be OK and contain information for the created document and uploaded file
+                and the document permissions should be as expected for a document with status 'definitief'
+                and a behandelaar user (e.g. no 'wijzigen' permission)
+                """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
+                // note: there is an issue where the update endpoint does not take into account the zaak
+                // to which this document belongs, resulting in incorrect permissions being returned
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "bestandsnaam" : "$TEST_TXT_FILE_NAME",
-                      "auteur" : "$TEST_USER_1_NAME",
+                      "auteur" : "$FAKE_AUTHOR_NAME",
                       "beschrijving" : "",
                       "bestandsomvang" : ${file.length()},
                       "creatiedatum" : "${LocalDate.now()}",
                       "formaat" : "$TEXT_MIME_TYPE",
-                      "identificatie" : "$DOCUMENT_5_IDENTIFICATION",
                       "indicatieGebruiksrecht" : false,
                       "indicaties" : [ ],
                       "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -296,11 +384,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "rechten" : {
                         "lezen" : true,
                         "ondertekenen" : true,
-                        "ontgrendelen" : true,
-                        "toevoegenNieuweVersie" : true,
+                        "ontgrendelen" : false,
+                        "toevoegenNieuweVersie" : false,
                         "vergrendelen" : true,
-                        "verwijderen" : true,
-                        "wijzigen" : true
+                        "verwijderen" : false,
+                        "wijzigen" : false
                       },
                       "status" : "$DOCUMENT_STATUS_DEFINITIEF",
                       "taal" : "Engels",
@@ -309,54 +397,62 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                     }
                 """.trimIndent()
-                enkelvoudigInformatieObject2UUID = JSONObject(responseBody).getString("uuid")
+                enkelvoudigInformatieObject2Uuid = JSONObject(responseBody).getString("uuid")
             }
         }
+
         When("the convert endpoint is called") {
             val response = itestHttpClient.performPostRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/" +
-                    "convert?zaak=$zaakProductaanvraag1Uuid",
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/" +
+                    "convert?zaak=$zaakUuid",
                 requestBody = "".toRequestBody()
             )
             Then(
                 """
                     the response should be OK and the informatieobject should be converted from TXT to PDF
+                    because a recordmanager is allowed to convert documents even if they have the status 'definitief'
                     """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
         }
+
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/"
             )
-            Then("the response should be OK and should contain information about the document converted to PDF") {
-                val responseBody = response.body.string()
+            Then(
+                """
+                the response should be OK and should contain information about the document converted to PDF
+                and the permissions should be those for a document with status 'definitief' and a behandelaar user
+                """
+            ) {
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",
-                  "identificatie" : "$DOCUMENT_5_IDENTIFICATION",
                   "indicatieGebruiksrecht" : false,
                   "indicaties" : [ ],
                   "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
                   "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
                   "isBesluitDocument" : false,
-                  "rechten" : {
-                    "lezen" : true,
-                    "ondertekenen" : false,
-                    "ontgrendelen" : true,
-                    "toevoegenNieuweVersie" : true,
-                    "vergrendelen" : false,
-                    "verwijderen" : true,
-                    "wijzigen" : true
+                  "rechten": {
+                    "converteren": true,
+                    "lezen": true,
+                    "ondertekenen": false,
+                    "ontgrendelen": false,
+                    "toevoegenNieuweVersie": false,
+                    "vergrendelen": false,
+                    "verwijderen": false,
+                    "wijzigen": false
                   },
                   "status" : "$DOCUMENT_STATUS_DEFINITIEF",
                   "taal" : "Engels",
@@ -365,14 +461,25 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                 }
                 """.trimIndent()
+                JSONObject(responseBody).getString("identificatie") shouldNotBe null
             }
         }
     }
 
-    Given("ZAC and all related Docker containers are running and a task exists") {
+    Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
+        authenticate(BEHEERDER_ELK_ZAAKTYPE)
+        val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
+            zaakUuid = zaakUuid,
+            zaakIdentificatie = zaakIdentification,
+            fatalDate = LocalDate.now().plusDays(1),
+            group = BEHANDELAARS_DOMAIN_TEST_1
+        )
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
-                "$zaakProductaanvraag1Uuid/$task1ID?taakObject=true"
+                "$zaakUuid/$taskId?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
@@ -401,7 +508,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "eng")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -414,20 +521,20 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = requestBody
             )
+
             Then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "$TEST_PDF_FILE_NAME",
-                  "auteur" : "$TEST_USER_1_NAME",
+                  "auteur" : "$FAKE_AUTHOR_NAME",
                   "beschrijving" : "",
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "$PDF_MIME_TYPE",
-                  "identificatie" : "$DOCUMENT_6_IDENTIFICATION",
                   "indicatieGebruiksrecht" : false,
                   "indicaties" : [ ],
                   "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
@@ -436,11 +543,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "rechten" : {
                     "lezen" : true,
                     "ondertekenen" : true,
-                    "ontgrendelen" : true,
-                    "toevoegenNieuweVersie" : true,
+                    "ontgrendelen" : false,
+                    "toevoegenNieuweVersie" : false,
                     "vergrendelen" : true,
-                    "verwijderen" : true,
-                    "wijzigen" : true
+                    "verwijderen" : false,
+                    "wijzigen" : false
                   },
                   "status" : "$DOCUMENT_STATUS_DEFINITIEF",
                   "taal" : "Engels",

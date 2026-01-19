@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Subject, takeUntil } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -15,12 +16,23 @@ import { TakenService } from "../taken.service";
 @Component({
   selector: "zac-taken-verdelen-dialog",
   templateUrl: "./taken-verdelen-dialog.component.html",
-  styleUrls: ["./taken-verdelen-dialog.component.less"],
+  standalone: false,
 })
-export class TakenVerdelenDialogComponent implements OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+export class TakenVerdelenDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef);
+  private readonly takenService = inject(TakenService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly identityService = inject(IdentityService);
 
-  loading = false;
+  protected readonly data = inject<{
+    taken: TaakZoekObject[];
+    screenEventResourceId: string;
+  }>(MAT_DIALOG_DATA);
+
+  protected readonly mutation = injectMutation(() => ({
+    ...this.takenService.verdelenVanuitLijst(),
+    onSuccess: () => this.dialogRef.close(this.form.value),
+  }));
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -37,21 +49,16 @@ export class TakenVerdelenDialogComponent implements OnDestroy {
   protected groups = this.identityService.listGroups();
   protected users: GeneratedType<"RestUser">[] = [];
 
-  constructor(
-    public dialogRef: MatDialogRef<TakenVerdelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      taken: TaakZoekObject[];
-      screenEventResourceId: string;
-    },
-    private takenService: TakenService,
-    private readonly formBuilder: FormBuilder,
-    private readonly identityService: IdentityService,
-  ) {
+  constructor() {
+    if (!this.data.taken.length) {
+      this.form.disable();
+      return;
+    }
+
     this.form.controls.medewerker.disable();
 
     this.form.controls.groep.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
         this.form.controls.medewerker.disable();
@@ -64,35 +71,20 @@ export class TakenVerdelenDialogComponent implements OnDestroy {
       });
   }
 
-  close(): void {
+  close() {
     this.dialogRef.close(false);
   }
 
-  isDisabled() {
-    return this.form.invalid || this.loading || !this.data.taken.length;
-  }
-
-  verdeel(): void {
-    this.dialogRef.disableClose = true;
-    this.loading = true;
-    this.takenService
-      .verdelenVanuitLijst({
-        taken: this.data.taken.map(({ id, zaakUuid }) => ({
-          taakId: id,
-          zaakUuid,
-        })),
-        behandelaarGebruikersnaam: this.form.value.medewerker?.id,
-        reden: this.form.value.reden ?? "",
-        groepId: this.form.value.groep!.id,
-        screenEventResourceId: this.data.screenEventResourceId,
-      })
-      .subscribe(() => {
-        this.dialogRef.close(this.form.value);
-      });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  verdeel() {
+    this.mutation.mutate({
+      taken: this.data.taken.map(({ id, zaakUuid }) => ({
+        taakId: id,
+        zaakUuid,
+      })),
+      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      reden: this.form.value.reden ?? "",
+      groepId: this.form.value.groep!.id,
+      screenEventResourceId: this.data.screenEventResourceId,
+    });
   }
 }

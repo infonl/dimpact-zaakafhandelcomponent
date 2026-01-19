@@ -78,6 +78,96 @@
         "clientRole": false,
         "containerId": "zaakafhandelcomponent",
         "attributes": {}
+      },
+      {
+        "id": "f3e2e2b1-2d0e-4c8e-9f3a-5e1f3c6d1f4e",
+        "name": "raadpleger_domein_test_1",
+        "description": "Raadpleger functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "0815385d-ab08-4f40-b1aa-23a552fb8c5d",
+        "name": "raadpleger_domein_test_2",
+        "description": "Raadpleger functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
+        "name": "behandelaar_domein_test_1",
+        "description": "Behandelaar functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "391a44cb-93ca-40b7-a095-1f78d426e675",
+        "name": "behandelaar_domein_test_2",
+        "description": "Behandelaar functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+        "name": "coordinator_domein_test_1",
+        "description": "Coordinator functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "9ae7d9ec-4d5e-4641-84f6-eef9772112a3",
+        "name": "coordinator_domein_test_2",
+        "description": "Coordinator functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "2ceaa973-17a4-484f-bc0f-859c9f70f5f3",
+        "name": "recordmanager_domein_test_1",
+        "description": "Recordmanager functional role for domain 'domein_test_1' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "d57a282a-05ad-457d-9527-0b72c0dda5dd",
+        "name": "recordmanager_domein_test_2",
+        "description": "Recordmanager functional role for domain 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
+        "name": "recordmanager_domein_test_1_en_domein_test_2",
+        "description": "Recordmanager functional role for domains 'domein_test_1' and 'domein_test_2' - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
+      },
+      {
+        "id": "d1f4e2e2-b12d-0e4c-8e9f-3a5e1f3c6d1f",
+        "name": "beheerder_elk_domein",
+        "description": "Beheerder functional role for all domains - new IAM",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "zaakafhandelcomponent",
+        "attributes": {}
       }
     ],
     "client": {
@@ -428,64 +518,6 @@
           "attributes": {}
         },
         {
-          "id": "f3e2e2b1-2d0e-4c8e-9f3a-5e1f3c6d1f4e",
-          "name": "raadpleger_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "0815385d-ab08-4f40-b1aa-23a552fb8c5d",
-          "name": "raadpleger_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-
-        {
-          "id": "f5c3c8e4-2d6b-4f4a-9f1e-3c9e2b7a6d5f",
-          "name": "behandelaar_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "391a44cb-93ca-40b7-a095-1f78d426e675",
-          "name": "behandelaar_domein_test_2",
-          "description": "",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
-          "name": "coordinator_domein_test_1",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "e1f3c6d1-2d0e-4c8e-9f3a-f3e2e2b15e1f",
-          "name": "recordmanager_domein_test_1_en_domein_test_2",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
-          "id": "d1f4e2e2-b12d-0e4c-8e9f-3a5e1f3c6d1f",
-          "name": "beheerder_elk_domein",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
           "id": "79226e68-19c9-4fce-a407-8e883a75bd25",
           "name": "domein_elk_zaaktype",
           "composite": false,
@@ -510,6 +542,17 @@
           "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
           "attributes": {}
         }
+      ],
+      "pabc": [
+        {
+          "id": "d75a1f4e-76a3-48d4-994d-ae9b8de2a64b",
+          "name": "administrator",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "c1160d7b-ad3e-496e-9c58-8e07516360f4",
+          "attributes": {}
+        }
       ]
     }
   },
@@ -518,8 +561,8 @@
       "id": "6e4c5646-e8b1-4fa9-93f9-ff7444b3284b",
       "name": "test-group-a",
       "path": "/test-group-a",
+      "description": "Test group A - old IAM",
       "attributes": {
-        "description": ["Test group A"],
         "email": ["${ZAC_GROUP_A_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -529,13 +572,7 @@
           "behandelaar",
           "coordinator",
           "recordmanager",
-          "beheerder",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "behandelaar_domein_test_2",
-          "coordinator_domein_test_1",
-          "recordmanager_domein_test_1_en_domein_test_2",
-          "beheerder_elk_domein"
+          "beheerder"
         ]
       }
     },
@@ -543,8 +580,8 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
       "name": "test-group-fb",
       "path": "/test-group-fb",
+      "description": "Test group Functional Admins - old IAM",
       "attributes": {
-        "description": ["Test group Functional Admins"],
         "email": ["${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -554,12 +591,7 @@
           "behandelaar",
           "coordinator",
           "recordmanager",
-          "beheerder",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1",
-          "recordmanager_domein_test_1_en_domein_test_2",
-          "beheerder_elk_domein"
+          "beheerder"
         ]
       }
     },
@@ -567,8 +599,8 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309d",
       "name": "test-group-rm",
       "path": "/test-group-rm",
+      "description": "Test group Record Managers - old IAM",
       "attributes": {
-        "description": ["Test group Record Managers"],
         "email": ["${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -577,11 +609,7 @@
           "raadpleger",
           "behandelaar",
           "coordinator",
-          "recordmanager",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1",
-          "recordmanager_domein_test_1_en_domein_test_2"
+          "recordmanager"
         ]
       }
     },
@@ -589,18 +617,12 @@
       "id": "34613d00-56b6-4012-b287-b45674c269af",
       "name": "test-group-domein-test-1",
       "path": "/test-group-domein-test-1",
+      "description": "Test group which has access to domein_test_1 only - old IAM",
       "attributes": {
-        "description": ["Test group which has access to domein_test_1 only"],
         "email": ["${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_1",
-          "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1"
-        ]
+        "zaakafhandelcomponent": ["domein_test_1", "raadpleger", "behandelaar"]
       }
     },
     {
@@ -608,27 +630,21 @@
       "name": "test-group-domein-test-2",
       "path": "/test-group-domein-test-2",
       "subGroups": [],
+      "description": "Test group which has access to domein_test_2 only - old IAM",
       "attributes": {
-        "description": ["Test group which has access to domein_test_2 only"],
         "email": ["${ZAC_GROUP_DOMEIN_TEST_2_EMAIL_ADDRESS}"]
       },
       "realmRoles": [],
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_test_2",
-          "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_2",
-          "behandelaar_domein_test_2"
-        ]
+        "zaakafhandelcomponent": ["domein_test_2", "raadpleger", "behandelaar"]
       }
     },
     {
       "id": "20657c93-6396-4b0c-862c-7da3a8e1418f",
       "name": "test-group-co",
       "path": "/test-group-co",
+      "description": "Test group Coordinators - old IAM",
       "attributes": {
-        "description": ["Test group Coordinators"],
         "email": ["${ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
@@ -636,10 +652,7 @@
           "domein_elk_zaaktype",
           "raadpleger",
           "behandelaar",
-          "coordinator",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1",
-          "coordinator_domein_test_1"
+          "coordinator"
         ]
       }
     },
@@ -647,17 +660,15 @@
       "id": "77e39e27-c95a-42d4-80fc-23344884b6c9",
       "name": "test-group-bh",
       "path": "/test-group-bh",
+      "description": "Test group Behandelaars - old IAM",
       "attributes": {
-        "description": ["Test group Behandelaars"],
         "email": ["${ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
           "raadpleger",
-          "behandelaar",
-          "raadpleger_domein_test_1",
-          "behandelaar_domein_test_1"
+          "behandelaar"
         ]
       }
     },
@@ -665,17 +676,103 @@
       "id": "84802893-f2a9-4d67-b3e6-b1696f476201",
       "name": "test-group-rp",
       "path": "/test-group-rp",
+      "description": "Test group Raadplegers - old IAM",
       "attributes": {
-        "description": ["Test group Raadplegers"],
         "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },
       "clientRoles": {
-        "zaakafhandelcomponent": [
-          "domein_elk_zaaktype",
-          "raadpleger",
-          "raadpleger_domein_test_1"
-        ]
+        "zaakafhandelcomponent": ["domein_elk_zaaktype", "raadpleger"]
       }
+    },
+    {
+      "id": "0f9d399d-8eb2-4bde-aaf7-8760419a75e9",
+      "name": "raadplegers-test-1",
+      "path": "/raadplegers-test-1",
+      "description": "Test group raadplegers domein test 1 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["raadpleger_domein_test_1"]
+    },
+    {
+      "id": "d9c72935-8825-4d59-8d51-04976edd6880",
+      "name": "raadplegers-test-2",
+      "path": "/raadplegers-test-2",
+      "description": "Test group raadplegers domein test 2 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["raadpleger_domein_test_2"]
+    },
+    {
+      "id": "e02264af-db24-4265-999e-03ff1cea32cf",
+      "name": "behandelaars-test-1",
+      "path": "/behandelaars-test-1",
+      "description": "Test group behandelaars domein test 1 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["behandelaar_domein_test_1"]
+    },
+    {
+      "id": "eb7a1785-8c61-4a1d-9318-0688a2c7e02c",
+      "name": "behandelaars-test-2",
+      "path": "/behandelaars-test-2",
+      "description": "Test group behandelaars domein test 2 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["behandelaar_domein_test_2"]
+    },
+    {
+      "id": "b964fabf-9895-460c-9061-2b5839890d91",
+      "name": "coordinators-test-1",
+      "path": "/coordinators-test-1",
+      "description": "Test group coordinators domein test 1 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["coordinator_domein_test_1"]
+    },
+    {
+      "id": "279d3d57-e71f-41c7-adce-149a78817bbd",
+      "name": "coordinators-test-2",
+      "path": "/coordinators-test-2",
+      "description": "Test group coordinators domein test 2 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["coordinator_domein_test_2"]
+    },
+    {
+      "id": "bbd551b5-e156-4ebb-b8c2-13904819ab41",
+      "name": "recordmanagers-test-1",
+      "path": "/recordmanagers-test-1",
+      "description": "Test group recordmanagers domein test 1 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["recordmanager_domein_test_1"]
+    },
+    {
+      "id": "500759a1-8da3-4c6e-8f95-e9b6d5d62000",
+      "name": "recordmanagers-test-2",
+      "path": "/recordmanagers-test-2",
+      "description": "Test group recordmanagers domein test 2 - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["recordmanager_domein_test_2"]
+    },
+    {
+      "id": "0d860be6-e27d-47df-bf03-2e574939c4a6",
+      "name": "beheerders-elk-domein",
+      "path": "/beheerders-elk-domein",
+      "description": "Test group beheerders elk domein - new IAM",
+      "attributes": {
+        "email": ["${ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["beheerder_elk_domein"]
     }
   ],
   "defaultRole": {
@@ -1072,9 +1169,12 @@
       "frontchannelLogout": true,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.secret.creation.time": "1734337478",
         "backchannel.logout.session.required": "true",
+        "standard.token.exchange.enabled": "false",
+        "frontchannel.logout.session.required": "true",
         "oauth2.device.authorization.grant.enabled": "false",
         "display.on.consent.screen": "false",
         "backchannel.logout.revoke.offline.tokens": "false"
@@ -1127,6 +1227,150 @@
         }
       ],
       "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "access": {
+        "view": true,
+        "configure": true,
+        "manage": true
+      }
+    },
+    {
+      "id": "c1160d7b-ad3e-496e-9c58-8e07516360f4",
+      "clientId": "pabc",
+      "name": "pabc",
+      "description": "PABC API Client",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "pabcClientSecret",
+      "redirectUris": [
+        "http://localhost:8000/*",
+        "http://localhost:8006/*",
+        "http://host.docker.internal:8006/*",
+        "http://host.docker.internal:8000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8000",
+        "http://localhost:8006",
+        "http://host.docker.internal:8006",
+        "http://host.docker.internal:8000"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1734337478",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "f2f66821-e2b0-4e01-8965-d5bb47180ec2",
+          "name": "clientRole",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "access": {
+        "view": true,
+        "configure": true,
+        "manage": true
+      }
+    },
+    {
+      "clientId": "pabc-admin-client",
+      "name": "PABC admin client",
+      "description": "Client voor het Platform Autorisatie Beheer Component (PABC) t.b.v. de systeemintegratie tussen PABC en Keycloak.",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "pabcAdminClientSecret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1765209523",
+        "backchannel.logout.session.required": "true",
+        "standard.token.exchange.enabled": "false",
+        "frontchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "service_account",
         "web-origins",
         "acr",
         "roles",
@@ -2485,6 +2729,15 @@
       }
     },
     {
+      "username": "service-account-pabc-admin-client",
+      "enabled": true,
+      "serviceAccountClientId": "pabc-admin-client",
+      "clientRoles": {
+        "realm-management": ["view-users", "view-realm"],
+        "account": ["view-groups"]
+      }
+    },
+    {
       "id": "ab4991ca-2497-4e93-92b3-9effcf714aff",
       "username": "functioneelbeheerder1",
       "firstName": "Test",
@@ -2644,7 +2897,7 @@
       "username": "coordinator1",
       "firstName": "Test",
       "lastName": "Coordinator1",
-      "email": "ZAC_COORDINATOR_1_EMAIL_ADDRESS",
+      "email": "${ZAC_COORDINATOR_1_EMAIL_ADDRESS}",
       "emailVerified": true,
       "createdTimestamp": 1744275625372,
       "enabled": true,
@@ -2670,7 +2923,7 @@
       "username": "behandelaar1",
       "firstName": "Test",
       "lastName": "Behandelaar1",
-      "email": "ZAC_BEHANDELAAR_1_EMAIL_ADDRESS",
+      "email": "${ZAC_BEHANDELAAR_1_EMAIL_ADDRESS}",
       "emailVerified": true,
       "createdTimestamp": 1744275562288,
       "enabled": true,
@@ -2682,32 +2935,6 @@
           "userLabel": "My password",
           "createdDate": 1744275581734,
           "secretData": "{\"value\":\"qwFBarWRgMoIy3OpIvdjfJrGxidPM61+HNDwEfm3gsA=\",\"salt\":\"mMR9vtFBsAnk/fJ6XBvwNA==\",\"additionalParameters\":{}}",
-          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-        }
-      ],
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": ["default-roles-zac"],
-      "notBefore": 0,
-      "groups": ["/test-group-bh"]
-    },
-    {
-      "id": "b9af695d-c804-4bd7-a788-378c58d2b1b4",
-      "username": "behandelaar2",
-      "firstName": "Test",
-      "lastName": "Behandelaar2",
-      "email": "behandelaar2@team-dimpact.info.nl",
-      "emailVerified": true,
-      "createdTimestamp": 1757574611895,
-      "enabled": true,
-      "totp": false,
-      "credentials": [
-        {
-          "id": "9534c0cb-9cc4-41f8-9c32-a9d84b514520",
-          "type": "password",
-          "userLabel": "My password",
-          "createdDate": 1757575202563,
-          "secretData": "{\"value\":\"sPExcd/n6cr0JjELXLd99irdT3PClcLtNcZ00kBFuqA=\",\"salt\":\"QVYL1KqTkrzvL9oYeRmBXA==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2744,6 +2971,266 @@
       "groups": ["/test-group-rp"]
     },
     {
+      "id": "17fa0786-159a-4939-ad74-03bad203fb4e",
+      "username": "raadpleger1newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger 1 - new IAM",
+      "email": "${ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "a593288f-b25f-4d9b-acd7-37de31705596",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"A/LHXHN0lEIaeG4h5HvuqDVCGAhRfTCUx1L6bWH0Pek=\",\"salt\":\"n9XqApsU9kQUt0aQ/Ox1iA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-1"]
+    },
+    {
+      "id": "584cc6b7-275e-4e44-86fc-d9703f3733bc",
+      "username": "raadpleger2newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger 2 - new IAM",
+      "email": "${ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "3a7b1841-4e28-443c-a61f-19b2139a0a6a",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"6/+cneOZEc5/FPzF2AdijvHYEVHUmJmCEgqDN9CAOSg=\",\"salt\":\"Js7ah2+SYp4977ESe8Hz+A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-2"]
+    },
+    {
+      "id": "08e8c9f7-b041-4e01-b717-d713764467d6",
+      "username": "behandelaar1newiam",
+      "firstName": "Test",
+      "lastName": "Behandelaar 1 - new IAM",
+      "email": "${ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "cbaa87de-b649-4e88-8658-2ad3dfb5d85d",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"PXZbGqh5iNZNjrY9Czz8B4luOaDN9G7Sbb4s9DZ1vnM=\",\"salt\":\"PshEG9Wr6tQHiivf3EShUg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/behandelaars-test-1"]
+    },
+    {
+      "id": "8ec5e62b-36d9-42aa-bb02-520cfac91d5e",
+      "username": "behandelaar2newiam",
+      "firstName": "Test",
+      "lastName": "Behandelaar 2 - new IAM",
+      "email": "${ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "395a30b0-74b1-4a0a-b58f-3488d678d8fc",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/behandelaars-test-2"]
+    },
+    {
+      "id": "0043da56-52cb-4a94-a2fa-045ea019b9c2",
+      "username": "coordinator1newiam",
+      "firstName": "Test",
+      "lastName": "Coordinator 1 - new IAM",
+      "email": "${ZAC_COORDINATOR_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "89fd02a9-68ae-4f33-ac2f-bb4f91cc1f78",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"2seGmxJ2RpfIHURfuFsX+nxGteJXwFSFCiCoGsU+jh4=\",\"salt\":\"sucfkzv723ZjhZoHE0EH3w==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/coordinators-test-1"]
+    },
+    {
+      "id": "96ccb0e4-67f5-447a-a717-4e3b12a5a4b7",
+      "username": "coordinator2newiam",
+      "firstName": "Test",
+      "lastName": "Coordinator 2 - new IAM",
+      "email": "${ZAC_COORDINATOR_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "f3cd0ada-c1c2-4235-8f10-095d3aa9ae63",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"9BoLi8hjTeUTxQ4zCXO2kNDXTx6Wgwntq/sgaybWe8Q=\",\"salt\":\"5Qw7DMqj0ToA6L49OLKoRw==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/coordinators-test-2"]
+    },
+    {
+      "id": "d528c826-ebc6-4c80-9b58-72ef8b1585dd",
+      "username": "recordmanager1newiam",
+      "firstName": "Test",
+      "lastName": "Recordmanager 1 - new IAM",
+      "email": "${ZAC_RECORDMANAGER_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "03a8b42f-93eb-4b8f-afb5-20e97bb462da",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"/Fnaf0+tE/Y5ilc5wm4dIzGhEmTAucxCsewPO5K/nxc=\",\"salt\":\"Ic8V2QIfF/hGjyh9CAbSRQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/recordmanagers-test-1"]
+    },
+    {
+      "id": "ff14aff2-fe5b-44b8-8d81-89f4c41e7dbc",
+      "username": "recordmanager2newiam",
+      "firstName": "Test",
+      "lastName": "Recordmanager 2 - new IAM",
+      "email": "${ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "3c0fccfa-2ac2-48df-a17b-7ab26af49e4b",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"EgoppdMrmAOgXFoAg5Wz+19HmXNC/yO3/Bg+YhXM26s=\",\"salt\":\"5mMSFHBaFAzl8tfocVpe1g==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/recordmanagers-test-2"]
+    },
+    {
+      "id": "bb6ad48e-972e-4a7e-b1b2-75958a6d8070",
+      "username": "beheerder1newiam",
+      "firstName": "Test",
+      "lastName": "Beheerder 1 - new IAM",
+      "email": "${ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "e5ae0068-a2ed-4c46-9293-07f9774abb37",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"h9ebp+3t1vvspXsecW8oWLHHv+E3uGaERLRKfhtCSL8=\",\"salt\":\"MVxNNDgVwte7W0W7kuLjRg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/beheerders-elk-domein"]
+    },
+    {
+      "id": "a4ea43b6-459f-48c9-a167-33f2656eaa3f",
+      "username": "raadplegerenbehandelaar1newiam",
+      "firstName": "Test",
+      "lastName": "Raadpleger domein 1 - behandelaar domein 2 - new IAM",
+      "email": "${ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "b3903efb-a912-4e64-9e8e-09ff1e42178f",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"v0M/NxEmXXbRXkZP9274dOWRQ9jN0FZ49f3LgLwAhAI=\",\"salt\":\"HLTZdR5TUL2hTSXzrx19tA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/raadplegers-test-1", "/behandelaars-test-2"]
+    },
+    {
       "id": "acfd57fa-a72a-44a4-9dcf-d904e819a044",
       "username": "userwithoutanyrole",
       "firstName": "Test",
@@ -2766,6 +3253,33 @@
       "realmRoles": [],
       "notBefore": 0,
       "groups": []
+    },
+    {
+      "id": "f1f0cae8-7c71-4e64-8875-d1af397fe640",
+      "username": "pabcadmin",
+      "firstName": "PABC",
+      "lastName": "Admin",
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "22c5e729-2667-4db2-b667-ee1a6a486f52",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1754984431730,
+          "secretData": "{\"value\":\"Kw3PYlVF7w+NuSwnO7utsEP5vBwmmhtMXLUr852GH0o=\",\"salt\":\"ZQR2lAmR1Vxqdf2GFHI27A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [],
+      "notBefore": 0,
+      "groups": [],
+      "clientRoles": {
+        "pabc": ["administrator"]
+      }
     }
   ]
 }

@@ -7,7 +7,6 @@
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.koppelen'"
       (klantGegevens)="initiatorSelected($event.klant)"
-      [context]="'ZAAK_AANMAKEN'"
       [sideNav]="actionsSidenav"
       [initiator]="true"
       [allowBedrijf]="
@@ -18,6 +17,7 @@
         form.controls.zaaktype.value?.zaakafhandelparameters
           ?.betrokkeneKoppelingen?.brpKoppelen ?? false
       "
+      [zaaktypeUUID]="form.controls.zaaktype.value?.uuid"
       class="side-nav-container"
     ></zac-klant-koppel>
     <zac-bag-zoek

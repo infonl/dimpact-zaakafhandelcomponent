@@ -18,7 +18,6 @@ import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.JsonbConfiguration
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -27,11 +26,14 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.zrc.model.generated.Status
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
+import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
@@ -41,7 +43,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
-@RegisterClientHeaders(ZGWClientHeadersFactory::class)
+@RegisterClientHeaders(ZgwClientHeadersFactory::class)
 @RegisterProvider(ZgwErrorExceptionMapper::class)
 @RegisterProvider(ZgwValidationErrorResponseExceptionMapper::class)
 @RegisterProvider(ZrcResponseExceptionMapper::class)
@@ -160,6 +162,14 @@ interface ZrcClient {
         @PathParam("uuid") uuid: UUID,
         zaakeigenschap: ZaakEigenschap
     ): ZaakEigenschap
+
+    @POST
+    @Path("zaak_afsluiten/{uuid}")
+    fun zaakAfsluiten(@PathParam("uuid") uuid: UUID, zaakAfsluiten: ZaakAfsluiten): ZaakAfsluiten
+
+    @POST
+    @Path("zaak_bijwerken/{uuid}")
+    fun zaakBijwerken(@PathParam("uuid") uuid: UUID, zaakBijwerken: ZaakBijwerken): ZaakBijwerken
 
     @POST
     @Path("zaken/{zaak_uuid}/zaakeigenschappen")

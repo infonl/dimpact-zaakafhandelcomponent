@@ -11,7 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -22,7 +22,7 @@ import nl.info.zac.policy.output.createZaakRechten
 
 class RestZaakOverzichtConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val zgwApiService = mockk<ZGWApiService>()
+    val zgwApiService = mockk<ZgwApiService>()
     val zaakResultaatConverter = mockk<RestZaakResultaatConverter>()
     val groupConverter = mockk<RestGroupConverter>()
     val userConverter = mockk<RestUserConverter>()

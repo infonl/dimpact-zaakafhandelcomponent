@@ -16,7 +16,7 @@ global:
     # -- curl docker repository used throughout the chart
     repository: curlimages/curl
     # -- curl docker tag to pull
-    tag: 8.16.0@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6
+    tag: 8.18.0@sha256:2a3ad47a2fb208f20ee041d0c7e9becc00b7ecbe683d1272c6717c71fb1e4808
     pullPolicy: IfNotPresent
 
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
@@ -87,8 +87,6 @@ klantinteractiesApi:
 
 # Supported feature flags
 featureFlags:
-  # -- turns BPMN support on or off; defaults to false
-  bpmnSupport: false
   # -- turns PABC integration on or off; defaults to false
   pabcIntegration: false
 
@@ -288,6 +286,12 @@ tolerations: []
 # -- set affinity parameters
 affinity: {}
 
+# -- set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
 # set initContainer parameters
 initContainer:
   enabled: true
@@ -306,7 +310,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac"
+    tag: "1.12.3-static@sha256:59a9258e3cf8682020ad9269e201e35ade5253325b30c869621bdeac0ac21076"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling:
@@ -330,11 +334,14 @@ opa:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  topologySpreadConstraints: []
 
 # If an external solr instance is used, configure the URL here
 solr:
-  # -- The location of an existing solr instance to be used by zac
+  # -- The location of an existing solr instance (unmanaged by this chart) to be used by zac
   url: ""
+  # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
+  createZacCore: true
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.
@@ -377,7 +384,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:facb103d02c3e0fcf34e272264b7d7deea98e1b2861075d2c9c4dd329d4c1c0d
+      tag: 1.37.0-glibc@sha256:3bf024f5b91b256d55fcecaa910a7f671bdd2b6bb5bb22ac6b774cc4678f2093
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -387,7 +394,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.9.0@sha256:9f220fd72cb887cd5229ca3a6536fc3c8accc1ed2c53a3b1e1206db8f2e489ae
+      tag: 9.10.0@sha256:60f3fbc0911eabd3ad0a6efb2f465b6e68d35ed487bda7b6bbf6339b9b5a39e6
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -396,8 +403,6 @@ solr-operator:
       affinity: {}
       # -- annotations for jobs
       annotations: {}
-      # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
-      createZacCore: true
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs
@@ -420,6 +425,16 @@ solr-operator:
       size: 1Gi
     # -- tolerations for solr in solrcloud
     tolerations: []
+    # -- topologySpreadConstraints for solr in solrcloud
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            technology: solr-cloud
+        matchLabelKeys:
+          - controller-revision-hash
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -484,7 +499,16 @@ solr-operator:
         size: 1Gi
       # -- tolerations for zookeeper
       tolerations: []
-
+      # -- topologySpreadConstraints for zookeeper
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              technology: zookeeper
+          matchLabelKeys:
+            - controller-revision-hash
 # office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
@@ -519,6 +543,7 @@ office_converter:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  topologySpreadConstraints: []
 
 
 # -- Extra objects to deploy (value evaluated as a template)
@@ -532,7 +557,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.138.0@sha256:4a951ff0a9772f4fa8e9c7a326434370301b98b2b813933468dcb54aa6a6b5e5"
+    tag: "0.143.1@sha256:f051aff195ad50ed5ad9d95bcdd51d7258200c937def3797cf830366ed62e034"
   presets:
     clusterMetrics:
       enabled: false
@@ -563,7 +588,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.2@sha256:39466f69197cbf5844a3aaa799b32318112aff7e07ce93557ceeee5825e0727d
+    tag: 1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
   service:
     type: ClusterIP
     port: 80
@@ -597,6 +622,7 @@ nginx:
   useXForwardedHost: false
   allowedHosts: ""
   client_max_body_size: 120M
+  topologySpreadConstraints: []
   api_proxy:
     enabled: false
     certificate_secret: nginx-certs

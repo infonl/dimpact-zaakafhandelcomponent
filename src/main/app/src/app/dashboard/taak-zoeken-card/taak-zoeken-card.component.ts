@@ -9,7 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
-import { DEFAULT_ZOEK_PARAMETERS } from "../../zoeken/model/zoek-parameters";
+import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -20,6 +20,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./taak-zoeken-card.component.less",
   ],
+  standalone: false,
 })
 export class TaakZoekenCardComponent extends DashboardCardComponent {
   columns = [
@@ -34,7 +35,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
 
   zoekParameters = computed(() => {
     const zoekParameters = TakenMijnDatasource.mijnLopendeTaken(
-      DEFAULT_ZOEK_PARAMETERS,
+      getDefaultZoekParameters(),
     );
     zoekParameters.sorteerVeld = "TAAK_FATALEDATUM";
     zoekParameters.sorteerRichting = "asc";
@@ -43,7 +44,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     return zoekParameters;
   });
 
-  zoekQuery = injectQuery(() => ({
+  protected readonly zoekQuery = injectQuery(() => ({
     queryKey: ["taak zoeken dashboard", this.zoekParameters()],
     queryFn: () =>
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
@@ -58,7 +59,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      if (this.paginator) this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal ?? 0;
     });
   }
 

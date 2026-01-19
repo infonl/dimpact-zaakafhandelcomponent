@@ -44,7 +44,7 @@ import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.model.generated.SoortEnum
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -100,7 +100,7 @@ class TaskRestService @Inject constructor(
     @ActiveSession
     private val httpSession: Instance<HttpSession>,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val signaleringService: SignaleringService,
@@ -125,7 +125,7 @@ class TaskRestService @Inject constructor(
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID))
+        return taskService.listTasksForZaak(zaakUUID).let(restTaskConverter::convert)
     }
 
     @GET
@@ -226,9 +226,7 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("toekennen/mij")
     fun assignTaskToLoggedInUser(restTaskAssignData: RestTaskAssignData) =
-        assignLoggedInUserToTask(restTaskAssignData).let {
-            restTaskConverter.convert(it)
-        }
+        assignLoggedInUserToTask(restTaskAssignData).let(restTaskConverter::convert)
 
     @PATCH
     @Path("complete")
@@ -266,7 +264,7 @@ class TaskRestService @Inject constructor(
             .filterNot {
                 it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
                     it.key.equals(
-                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                        ZaakVariabelenService.VAR_ZAAKTYPE_UUID
                     )
             }
 
@@ -308,9 +306,7 @@ class TaskRestService @Inject constructor(
     @Path("{taskId}/historie")
     fun listHistory(@PathParam("taskId") taskId: String): List<RestTaskHistoryLine> {
         assertPolicy(policyService.readTaakRechten(flowableTaskService.readTask(taskId)).lezen)
-        flowableTaskService.listHistorieForTask(taskId).let {
-            return taakHistorieConverter.convert(it)
-        }
+        return flowableTaskService.listHistorieForTask(taskId).let(taakHistorieConverter::convert)
     }
 
     private fun assignLoggedInUserToTask(restTaskAssignData: RestTaskAssignData): Task {
@@ -377,8 +373,8 @@ class TaskRestService @Inject constructor(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
             ).dropLastWhile { it.isEmpty() }.toTypedArray()
                 .filter { it.isNotEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach { enkelvoudigInformatieobject ->
                     // note: the DRC API can return an empty ondertekening soort when no signature is present,
                     // even when this is not permitted according to the OpenAPI spec

@@ -56,7 +56,7 @@ public class BagRestService {
     private PolicyService policyService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public BagRestService() {
     }
@@ -128,8 +128,8 @@ public class BagRestService {
         assertPolicy(policyService.readZaakRechten(zaak).getLezen());
         zaakobjectListParameters.setZaak(zaak.getUrl());
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
-        if (zaakobjecten.getCount() > 0) {
-            return zaakobjecten.getResults().stream()
+        if (zaakobjecten.count() > 0) {
+            return zaakobjecten.results().stream()
                     .filter(Zaakobject::isBagObject)
                     .map(RestBagConverter::convertToRESTBAGObjectGegevens)
                     .toList();
@@ -156,6 +156,6 @@ public class BagRestService {
             case OPENBARE_RUIMTE -> zaakobjectListParameters.setObjectType(ObjectTypeEnum.OPENBARE_RUIMTE);
         }
         final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
-        return zaakobjecten.getResults().isEmpty();
+        return zaakobjecten.results().isEmpty();
     }
 }

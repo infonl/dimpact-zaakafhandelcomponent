@@ -5,7 +5,6 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -13,15 +12,14 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -39,10 +37,8 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 /**
- * This test creates a zaak and uploads a document and because we do not want this test
- * to impact e.g. [SearchRestServiceTest] we run it afterward.
+ * Integration test that creates a zaak, uploads a document, and verifies access via the WebDAV servlet.
  */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class WebDavServletTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val zacClient = ZacClient()
@@ -50,18 +46,19 @@ class WebDavServletTest : BehaviorSpec({
     lateinit var enkelvoudigInformatieObjectUUID: String
     lateinit var wordDocumentWebDAVToken: UUID
 
-    Given("A zaak that was created") {
+    Given("A zaak that was created and a logged-in behandelaar") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
-            behandelaarId = TEST_USER_2_ID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
             }
@@ -101,7 +98,7 @@ class WebDavServletTest : BehaviorSpec({
                             "yyyy-MM-dd'T'HH:mm+01:00"
                         ).format(ZonedDateTime.now())
                     )
-                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("auteur", FAKE_AUTHOR_NAME)
                     .addFormDataPart("taal", "dut")
                     .build()
             val response = itestHttpClient.performPostRequest(
@@ -117,12 +114,13 @@ class WebDavServletTest : BehaviorSpec({
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
+
         When("the edit endpoint is called on the enkelvoudig informatie object") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +
@@ -134,7 +132,7 @@ class WebDavServletTest : BehaviorSpec({
                 token for the uploaded Word document
                 """
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldStartWith "\"ms-word:http://localhost:8080/webdav/folder/"
@@ -151,23 +149,21 @@ class WebDavServletTest : BehaviorSpec({
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
             }
         }
 
         When("a HEAD request is performed using the WebDAV token for the uploaded file") {
-            val response = itestHttpClient.performHeadRequest(
+            val responseCode = itestHttpClient.performHeadRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
                 // the WebDAV servlet does not require any authorization
                 addAuthorizationHeader = false
             )
 
             Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                responseCode shouldBe HTTP_OK
             }
         }
     }

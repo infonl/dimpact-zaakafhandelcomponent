@@ -11,24 +11,24 @@ import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.util.AuditWijzigingJsonbDeserializer;
 
 @JsonbTypeDeserializer(AuditWijzigingJsonbDeserializer.class)
-public abstract class AuditWijziging<OBJECT> {
-    private OBJECT oud;
+public abstract class AuditWijziging<T> {
+    private T oud;
 
-    private OBJECT nieuw;
+    private T nieuw;
 
-    public OBJECT getOud() {
+    public T getOud() {
         return oud;
     }
 
-    public void setOud(final OBJECT oud) {
+    public void setOud(final T oud) {
         this.oud = oud;
     }
 
-    public OBJECT getNieuw() {
+    public T getNieuw() {
         return nieuw;
     }
 
-    public void setNieuw(final OBJECT nieuw) {
+    public void setNieuw(final T nieuw) {
         this.nieuw = nieuw;
     }
 

@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -61,6 +61,16 @@ services:
       - ZAC_BEHANDELAAR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_1_EMAIL_ADDRESS:-behandelaar1@example.com}
       - ZAC_BEHANDELAAR_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_2_EMAIL_ADDRESS:-behandelaar2@example.com}
       - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
+      - ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_1_EMAIL_ADDRESS:-raadpleger-test-1@example.com}
+      - ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_2_EMAIL_ADDRESS:-raadpleger-test-2@example.com}
+      - ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-behandelaar-test-1@example.com}
+      - ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_2_EMAIL_ADDRESS:-behandelaar-test-2@example.com}
+      - ZAC_COORDINATOR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_TEST_1_EMAIL_ADDRESS:-coordinator-test-1@example.com}
+      - ZAC_COORDINATOR_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_TEST_2_EMAIL_ADDRESS:-coordinator-test-2@example.com}
+      - ZAC_RECORDMANAGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_1_EMAIL_ADDRESS:-recordmanager-test-1@example.com}
+      - ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_2_EMAIL_ADDRESS:-recordmanager-test-2@example.com}
+      - ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHEERDER_TEST_1_EMAIL_ADDRESS:-beheerder-test-1@example.com}
+      - ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-raadpleger-en-behandelaar-test-1@example.com}
       - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
       - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
       - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
@@ -68,6 +78,15 @@ services:
       - ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_EMAIL_ADDRESS:-test-group-behandelaars@example.com}
       - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
+      - ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS:-test-group-raadplegers-test-1@example.com}
+      - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
+      - ZAC_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_2_EMAIL_ADDRESS:-test-group-behandelaars-test-2@example.com}
+      - ZAC_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_1_EMAIL_ADDRESS:-test-group-coordinators-test-1@example.com}
+      - ZAC_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_TEST_2_EMAIL_ADDRESS:-test-group-coordinators-test-2@example.com}
+      - ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS:-test-group-recordmanagers-test-1@example.com}
+      - ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS:-test-group-recordmanagers-test-2@example.com}
+      - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
@@ -98,7 +117,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.23.0@sha256:605509fa027597bcfdeda1c69532d888eaf82263b0e0947926ac6b4268466638
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -123,6 +142,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
+      - OTEL_SDK_DISABLED=true
     ports:
       - "8001:8000"
     volumes:
@@ -147,7 +167,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.23.0@sha256:605509fa027597bcfdeda1c69532d888eaf82263b0e0947926ac6b4268466638
+    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -163,12 +183,12 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.6@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
+    image: redis:7.4.7@sha256:4433ffbcb32e47f6da3d584420e011dcbf3ffd0809d78340996aab703b83a792
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:3.1.4@sha256:0d080242a8cf0342aff8e0667f4329027169c1274eab95dcecfef19dd06e1256
+    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -214,7 +234,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:3.1.4@sha256:0d080242a8cf0342aff8e0667f4329027169c1274eab95dcecfef19dd06e1256
+    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -228,7 +248,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.9.0-slim@sha256:0ef1dd94cb9255011b7e58cb56137bd68e52021bc7eb66be45ef458acfb8478a
+    image: docker.io/solr:9.10.0-slim@sha256:8c3e4e80cee82478bac8a9132f640c5036fc80221d94bb1bf29c6309025ba260
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -244,13 +264,13 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.9.0-static@sha256:60b6af32b58377718546ac7d4634eecbfe50ec36f7d3ca3f8ebf515f9826c2ac
+    image: docker.io/openpolicyagent/opa:1.12.3-static@sha256:59a9258e3cf8682020ad9269e201e35ade5253325b30c869621bdeac0ac21076
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
   brp-personen-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
+    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
     volumes:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
@@ -261,7 +281,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202509221256@sha256:551ea5a7cab3dd96b2d682a7acebb5d162049d8b3d27b5195e59559e0d6132d5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202511050738@sha256:91cb8678ac8fb9bb1b872d8a95a17104c67b99bd54e44c39310a94af4410ce54
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -269,7 +289,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -288,7 +308,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:2.9.0@sha256:0a71d5d498fa2bd39edcbaa16af09673a22eb99ca32f4f4cc346ed7bc130a7b3
+    image: docker.io/maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -313,7 +333,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
+    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -324,7 +344,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
+    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -337,7 +357,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.13.1@sha256:d61e7720f89483fdef5366843b58d1dfd06bcce5828179c9f2f54de5c28354b0
+    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -349,7 +369,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.9.0@sha256:bd7e1216865884be8095726fb80282ece2f6b531883bc86f9f8917f2fc52de61
+    image: docker.io/openpolicyagent/opa:1.12.3@sha256:d051ffbd818b36e46cfaaa3fd4770e0a2103813877bb77234f025e7e7f73a316
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -365,7 +385,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.138.0@sha256:56951db9579bf00d3f32a4e934e19548183a86c14640798502bcd4c225976ea6
+    image: docker.io/otel/opentelemetry-collector:0.143.1@sha256:e38787c822875f4afe459a4e4b798b0cbfb7372669f06643ad293793d25762ce
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -395,7 +415,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.7.2@sha256:23031bfe0e74a13004252caaa74eccd0d62b6c6e7a04711d5b8bf5b7e113adc7
+    image: docker.io/prom/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -408,7 +428,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.2.1@sha256:35c41e0fd0295f5d0ee5db7e780cf33506abfaf47686196f825364889dee878b
+    image: docker.io/grafana/grafana:12.3.1@sha256:2175aaa91c96733d86d31cf270d5310b278654b03f5718c59de12a865380a31f
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -431,7 +451,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.7@sha256:d4208fff461fd1809a108073681a2bdbdbbc13bee9557fe77d1f2f05a7a1a37d
+    image: docker.io/greenmail/standalone:2.1.8@sha256:d556b8c7df01ba04a0e0f67dacab2c5f75a61207a51774e0654c179b83a671e1
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -446,7 +466,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.1.4-alpine@sha256:1eb39c312d394eaba5b11fb65808851801dff96877ee293afbb53c9b3a17fa57
+    image: rabbitmq:4.2.2-alpine@sha256:70aa053dcda614c2c0f89215447a854ea48da3cbc4273b0321c20c0ffeba2905
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -476,7 +496,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -515,11 +535,11 @@ services:
       - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
     depends_on:
       opennotificaties-init:
-          condition: service_completed_successfully
+        condition: service_completed_successfully
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -537,7 +557,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
-    image: docker.io/openzaak/open-notificaties:1.10.0@sha256:6d6b5beca728b6a5e642ab369969fd69aca24e5c124f79dcc633dcc2dc52e9b9
+    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -548,8 +568,8 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-        opennotificaties:
-            condition: service_healthy
+      opennotificaties:
+        condition: service_healthy
     profiles: [ "opennotificaties" ]
 
   openarchiefbeheer-database:
@@ -664,9 +684,9 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx:1.29.2@sha256:3b7732505933ca591ce4a6d860cb713ad96a3176b82f7979a8dfa9973486a0d6
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
     ports:
-      - "8005:80"
+      - "8005:8080"
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -675,7 +695,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -684,31 +704,41 @@ services:
       - POSTGRES_PASSWORD=pabc
       - POSTGRES_DB=Pabc
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "$${POSTGRES_DB}", "-U", "$${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 10s
       timeout: 10s
       retries: 10
     volumes:
-      - ./scripts/docker-compose/imports/pabc-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:0.0.1-rc.4@sha256:dc8c8a1886f42d56f3d05b69a9112ea727dc5d959d6c9b860f6436fbe1d70f5f
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+      JSON_DATASET_PATH: "/app/json/pabc-mapping-data.json"
     depends_on:
       pabc-database:
         condition: "service_healthy"
+    volumes:
+      - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:0.0.1-rc.4@sha256:3ec75e173c7c2662f9c720d79dd7bfdbda9bd08223ad9ae021dde2f05312bb8d
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.0.0@sha256:68749474713f7a9614e4ec10c046e70f160c1d93e19eb89e9e786fc06c7ce3cd
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       HTTP_PORTS: "8000"
       API_KEY__0: "zac-test-api-key"
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
+      Oidc__Authority: "http://keycloak:8080/realms/zaakafhandelcomponent/"
+      Oidc__ClientId: "pabc"
+      Oidc__ClientSecret: "pabcClientSecret"
+      Oidc__FunctioneelBeheerderRole: "administrator"
+      # in our Docker Compose setup we run Keycloak on HTTP
+      Oidc__RequireHttps: "false"
+      KeycloakAdmin__ClientId: "pabc-admin-client"
+      KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
     ports:
       - "8006:8000"
     depends_on:
@@ -718,7 +748,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.6@sha256:a7fdfd815005ea658281c60b06020f49ab8a6bbe21434d3a59fe14654f6d4293
+    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
     platform: linux/amd64
     ports:
       - "54320:5432"
@@ -749,18 +779,17 @@ services:
       - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
-      - BRP_ORIGIN_OIN=${BRON_ORGANISATIE_RSIN:-123443210}
-      - BRP_DOELBINDING_ZOEKMET=BRPACT-Totaal
-      - BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
-      - BRP_VERWERKINGSREGISTER=Algemeen
+      - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
       - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
+      - BRP_DOELBINDING_ZOEKMET=${BRP_DOELBINDING_ZOEKMET:-BRPACT-Totaal}
+      - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
+      - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac
       - DB_PASSWORD=password
       - DB_USER=zac
-      - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-true}
       - FEATURE_FLAG_PABC_INTEGRATION=${FEATURE_FLAG_PABC_INTEGRATION:-true}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}

@@ -17,6 +17,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./informatieobjecten-card.component.less",
   ],
+  standalone: false,
 })
 export class InformatieobjectenCardComponent extends DashboardCardComponent<
   GeneratedType<"RestEnkelvoudigInformatieobject">

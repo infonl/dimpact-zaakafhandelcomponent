@@ -36,7 +36,7 @@ fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
             type = GeometryTypeEnum.POINT
             coordinates = listOf(
                 this@toGeoJSONGeometry.point?.longitude?.toBigDecimal(),
-                this@toGeoJSONGeometry.point?.latitude?.toBigDecimal(),
+                this@toGeoJSONGeometry.point?.latitude?.toBigDecimal()
             )
         }
         else -> {

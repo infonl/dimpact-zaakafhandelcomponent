@@ -6,73 +6,42 @@ package nl.info.zac.authentication
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkClass
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
-import nl.info.client.pabc.model.generated.ApplicationRoleModel
-import nl.info.client.pabc.model.generated.EntityTypeModel
+import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.client.pabc.model.generated.GetApplicationRolesResponseModel
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
+import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import java.time.ZonedDateTime
+import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
+    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val pabcClientService = mockk<PabcClientService>()
-
     val httpServletRequest = mockk<HttpServletRequest>()
-    val servletResponse = mockk<ServletResponse>()
+    val servletResponse = mockk<HttpServletResponse>()
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
-    val oidcPrincipal = mockkClass(OidcPrincipal::class, relaxed = true)
-    val oidcSecurityContext = mockk<OidcSecurityContext>(relaxed = true)
-    val accessToken = mockk<AccessToken>(relaxed = true)
-
-    fun pabcRolesResponse(zaaktypeName: String, vararg names: String): GetApplicationRolesResponse {
-        val applicationRolesResponse = mockk<GetApplicationRolesResponse>()
-        val responseModel = mockk<GetApplicationRolesResponseModel>()
-        val entityType = mockk<EntityTypeModel>()
-        every { entityType.type } returns "zaaktype"
-        every { entityType.id } returns zaaktypeName
-        every { responseModel.entityType } returns entityType
-
-        val roleModels = names.map { roleName ->
-            mockk<ApplicationRoleModel>().also { every { it.name } returns roleName }
-        }
-        every { responseModel.applicationRoles } returns roleModels
-        every { applicationRolesResponse.results } returns listOf(responseModel)
-        return applicationRolesResponse
-    }
-
-    every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
-    every { oidcSecurityContext.token } returns accessToken
-    every { accessToken.rolesClaim } returns listOf("role1")
-    every { accessToken.preferredUsername } returns "user"
-    every { accessToken.givenName } returns "Given"
-    every { accessToken.familyName } returns "Family"
-    every { accessToken.name } returns "Full Name"
-    every { accessToken.email } returns "user@example.com"
-    every { accessToken.getStringListClaimValue(any()) } returns listOf("group1")
+    val newHttpSession = mockk<HttpSession>()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -81,7 +50,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     Context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
             zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = true
         )
@@ -94,60 +63,75 @@ class UserPrincipalFilterTest : BehaviorSpec({
         ) {
             val userId = "fakeId"
             val loggedInUser = createLoggedInUser(
-                id = userId
+                id = userId,
+                applicationRolesPerZaaktype = mapOf("testZaaktype" to setOf("fakeAppRole1"))
             )
+            val oidcSecurityContext = OidcSecurityContext()
+            val oidcPrincipal = OidcPrincipal(userId, oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { filterChain.doFilter(any(), any()) } just runs
-            every { oidcPrincipal.name } returns userId
 
-            When(" doFilter is called") {
+            When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("filterChain is invoked") {
-                    verify(exactly = 1) {
-                        filterChain.doFilter(httpServletRequest, servletResponse)
-                    }
+                Then("filterChain is invoked; no invalidate; no PABC call triggered by this branch") {
+                    verify(exactly = 1) { filterChain.doFilter(httpServletRequest, servletResponse) }
+                    verify(exactly = 0) { httpSession.invalidate() }
                 }
             }
         }
-        Given(
-            """A logged-in user is present in the HTTP session and a servlet request containing 
-            a user principal with a different id as the logged-in user"""
-        ) {
-            val userId = "fakeId"
-            val loggedInUser = createLoggedInUser(id = userId)
-            val roles = listOf("fakeRole1", "fakeRole2")
-            val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
-            val zaaktypeName = "fakeZaaktypeOmschrijving1"
-            val newHttpSession = mockk<HttpSession>()
-            val capturedLoggedInUser = slot<LoggedInUser>()
 
+        Given(
+            """A logged-in user is present in the HTTP session with a token containing functional roles
+                as realm roles and a servlet request containing a user principal with a different id 
+                as the logged-in user"""
+        ) {
+            val functionalRoles = listOf("fakeFunctionalRole1", "fakeFunctionalRole2")
+            val loggedInUser = createLoggedInUser()
+            val entityTypeId = "fakeZaaktypeOmschrijving1"
+            val pabcRoleNames = listOf("applicationRoleA", "applicationRoleB")
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "name": "fakeFullName",
+                        "given_name": "fakeGivenName",
+                        "family_name": "fakeFamilyName",
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "${functionalRoles.joinToString(separator = "\", \"")}" ]
+                        }
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val capturedLoggedInUser = slot<LoggedInUser>()
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("aDifferentUserId", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
             every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
-            every { oidcPrincipal.name } returns "aDifferentUserId"
-            every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
-            every { oidcSecurityContext.token } returns accessToken
-            every { accessToken.rolesClaim } returns roles
-            every { accessToken.preferredUsername } returns "fakeUserName"
-            every { accessToken.givenName } returns "fakeGivenName"
-            every { accessToken.familyName } returns "fakeFamilyName"
-            every { accessToken.name } returns "fakeFullName"
-            every { accessToken.email } returns "fakeemail@example.com"
-            every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
-            every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
             every {
-                pabcClientService.getApplicationRoles(roles)
-            } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
+                pabcClientService.getApplicationRoles(functionalRoles)
+            } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = entityTypeId,
+                        roleNames = pabcRoleNames
+                    )
+                )
+            }
+            every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
             every {
                 zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
             } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationService.listConfigurations() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -157,11 +141,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         filterChain.doFilter(httpServletRequest, servletResponse)
                         httpSession.invalidate()
                         newHttpSession.setAttribute("logged-in-user", any())
-                        pabcClientService.getApplicationRoles(roles)
+                        pabcClientService.getApplicationRoles(functionalRoles)
                     }
                     with(capturedLoggedInUser.captured) {
-                        this.roles shouldContainAll roles
-                        this.applicationRolesPerZaaktype[zaaktypeName]?.shouldContainAll(pabcRoleNames)
+                        this.roles shouldContainAll functionalRoles
+                        this.applicationRolesPerZaaktype[entityTypeId]?.shouldContainAll(pabcRoleNames)
                     }
                 }
             }
@@ -169,8 +153,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         Given(
             """
             No logged-in user is present in the HTTP session and an OIDC security context is present with a token that 
-            contains user information including a role for a domain which is also present in one of the currently 
-            active zaaktypeCmmnConfiguration
+            contains user information and PABC authorisation mappings exist for the user's functional role. 
         """
         ) {
             val userName = "fakeUserName"
@@ -178,76 +161,67 @@ class UserPrincipalFilterTest : BehaviorSpec({
             val familyName = "fakeFamilyName"
             val fullName = "fakeFullName"
             val email = "fake@example.com"
-            val domein1 = "fakeDomein1"
-            val groups = arrayListOf(
-                "fakeGroup1",
-                "fakeGroup2"
-            )
-            val roles = arrayListOf(
-                "beheerder",
-                domein1
-            )
-            val zaaktypeCmmnConfigurations = listOf(
-                createZaaktypeCmmnConfiguration(
-                    domein = domein1,
-                    zaaktypeOmschrijving = "fakeZaaktypeOmschrijving1"
-                ),
-                // zaaktypeCmmnConfiguration for an old version of zaaktype2
-                createZaaktypeCmmnConfiguration(
-                    creationDate = ZonedDateTime.now().minusDays(1),
-                    domein = domein1,
-                    zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
-                ),
-                // zaaktypeCmmnConfiguration for the current version of zaaktype2
-                createZaaktypeCmmnConfiguration(
-                    creationDate = ZonedDateTime.now(),
-                    domein = "fakeDomein2",
-                    zaaktypeOmschrijving = "fakeZaaktypeOmschrijving2"
+            val groups = listOf("fakeGroup1")
+            val functionalRoles = listOf("fakeFunctionalRole")
+            val zaaktypeId = "fakeZaaktypeId1"
+            val pabcRoleNames = listOf("testApplicationRole1")
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "name": "$fullName",
+                        "given_name": "$givenName",
+                        "family_name": "$familyName",
+                        "preferred_username": "$userName",
+                        "realm_access": {
+                            "roles": [ "${functionalRoles.joinToString(separator = "\", \"")}" ]
+                        },
+                        "email": "$email",
+                        "group_membership": [ "${groups.joinToString(separator = "\", \"")}" ]
+                    }                    
+                    """.trimMargin(),
+                    null
                 )
             )
-
-            val pabcRoleNames = listOf(domein1, "testApplicationRole1")
+            val refreshableOidcSecurityContext = RefreshableOidcSecurityContext(
+                null,
+                null,
+                "fakeTokenString",
+                accessToken,
+                "fakeIdTokenString",
+                null,
+                "test-refresh-token"
+            )
+            val oidcPrincipal = OidcPrincipal("fakeUserId", refreshableOidcSecurityContext)
             val loggedInUserSlot = slot<LoggedInUser>()
-
-            every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
-            // no logged-in user present in HTTP session
             every { httpSession.getAttribute("logged-in-user") } returns null
-            every { filterChain.doFilter(any(), any()) } just runs
-            every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
-            every { oidcSecurityContext.token } returns accessToken
-            every { accessToken.rolesClaim } returns roles
-            every { accessToken.preferredUsername } returns userName
-            every { accessToken.givenName } returns givenName
-            every { accessToken.familyName } returns familyName
-            every { accessToken.name } returns fullName
-            every { accessToken.email } returns email
-            every { accessToken.getStringListClaimValue("group_membership") } returns groups
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns zaaktypeCmmnConfigurations
             every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
             every {
                 pabcClientService.getApplicationRoles(any())
-            } returns pabcRolesResponse("fakeZaaktypeOmschrijving1", *pabcRoleNames.toTypedArray())
-            every {
-                zaaktypeBpmnConfigurationService.listConfigurations()
-            } returns listOf(
-                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1"),
-                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn2")
+            } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = zaaktypeId,
+                        roleNames = pabcRoleNames
+                    )
+                )
+            }
+            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
+                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1")
             )
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then(
-                    """
-                    the user is retrieved from security context and is added to the HTTP session and the user should have 
-                    access to only that zaaktype for which zaaktypeCmmnConfiguration are defined with the same domain as
-                    is present in the user's roles
-                """
-                ) {
+                Then("the user is created from OIDC and stored on the session - set refresh_token") {
                     verify(exactly = 1) {
-                        filterChain.doFilter(httpServletRequest, servletResponse)
                         httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
+                        httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, "test-refresh-token")
+                        filterChain.doFilter(httpServletRequest, servletResponse)
                     }
                     with(loggedInUserSlot.captured) {
                         this.id shouldBe userName
@@ -255,76 +229,115 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         this.lastName shouldBe familyName
                         this.getFullName() shouldBe fullName
                         this.email shouldBe email
-                        this.roles shouldContainAll roles
+                        this.roles shouldContainAll functionalRoles
                         this.groupIds shouldContainAll groups
-                        this.geautoriseerdeZaaktypen shouldContainExactly listOf("fakeZaaktypeOmschrijving1", "bpmn1", "bpmn2")
-                        this.applicationRolesPerZaaktype["fakeZaaktypeOmschrijving1"]?.shouldContainAll(pabcRoleNames)
+                        this.applicationRolesPerZaaktype[zaaktypeId]?.shouldContainAll(pabcRoleNames)
                     }
                 }
             }
         }
+
         Given(
             """
-            No logged-in user is present in the HTTP session, and an OIDC security context is available with a token 
-            containing user information. Functional roles from the token are filtered against the PABC-defined roles 
-            and mapped into application roles per zaaktype.
-        """
+                User details in the OIDC token in the security context and
+                PABC authorisation mappings for an application role without an entity type exists for the functional role of this user
+                """
         ) {
-            val userName = "fakeUserName"
-            val givenName = "fakeGivenName"
-            val familyName = "fakeFamilyName"
-            val fullName = "fakeFullName"
-            val email = "fake@example.com"
-            val groups = arrayListOf(
-                "fakeGroup1",
-            )
-            val roles = arrayListOf(
-                "coordinator",
-                "domein_elk_zaaktype"
-            )
-            val zaaktypeName = "fakeZaaktypeOmschrijving1"
-            val pabcRoleNames = listOf("fakeDomein1", "testApplicationRole2")
-
             val loggedInUserSlot = slot<LoggedInUser>()
-
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            every { httpSession.getAttribute("logged-in-user") } returns null
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession
-            // no logged-in user present in HTTP session
-            every { httpSession.getAttribute("logged-in-user") } returns null
-            every { filterChain.doFilter(any(), any()) } just runs
-            every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
-            every { oidcSecurityContext.token } returns accessToken
-            every { accessToken.rolesClaim } returns roles
-            every { accessToken.preferredUsername } returns userName
-            every { accessToken.givenName } returns givenName
-            every { accessToken.familyName } returns familyName
-            every { accessToken.name } returns fullName
-            every { accessToken.email } returns email
-            every { accessToken.getStringListClaimValue("group_membership") } returns groups
             every { httpSession.setAttribute(any(), any()) } just runs
-            every {
-                pabcClientService.getApplicationRoles(any())
-            } returns pabcRolesResponse(zaaktypeName, *pabcRoleNames.toTypedArray())
+            every { filterChain.doFilter(any(), any()) } just runs
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = listOf("fakeApplicationRole")
+                    )
+                )
+            }
+            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
+                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
+                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
+            )
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then(
-                    """
-                the user is retrieved from security context and is added to the HTTP session and 
-                the user should have access to all zaakttypes
-                """
+                Then("the logged-in user is added to the HTTP session") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                }
+
+                And(
+                    "the application roles per zaaktype for the logged-in user contain application roles for all available zaaktypes"
                 ) {
-                    verify(exactly = 1) {
-                        filterChain.doFilter(httpServletRequest, servletResponse)
-                        httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
-                    }
                     with(loggedInUserSlot.captured) {
-                        this.id shouldBe userName
-                        // null indicates that the user has access to all zaaktypen
-                        this.geautoriseerdeZaaktypen shouldBe null
-                        this.roles shouldContainAll roles
-                        this.applicationRolesPerZaaktype[zaaktypeName]?.shouldContainAll(pabcRoleNames)
+                        this.applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
+                            setOf("fakeApplicationRole")
+                        )
+                        this.applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(
+                            setOf("fakeApplicationRole")
+                        )
+                    }
+                }
+            }
+
+            When("doFilter is called for a mix of roles per-zaaktype and without zaaktype") {
+                clearMocks(httpSession, answers = false, recordedCalls = true)
+                val loggedInUserSlot2 = slot<LoggedInUser>()
+                val applicationRolesResponse = GetApplicationRolesResponse().apply {
+                    results = listOf(
+                        createApplicationRolesResponseModel(
+                            entityTypeId = "fakeZaaktype1",
+                            entityTypeType = "ZAAKTYPE",
+                            roleNames = listOf("fakeApplicationRole1", "fakeApplicationRole2")
+                        ),
+                        createApplicationRolesResponseModel(
+                            entityTypeId = null,
+                            entityTypeType = "ZAAKTYPE",
+                            roleNames = listOf("fakeApplicationRole3")
+                        )
+                    )
+                }
+                every { pabcClientService.getApplicationRoles(any()) } returns applicationRolesResponse
+                every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2"),
+                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype3")
+                )
+                every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
+
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("stores loggedInUser and merges roles per-zaaktype and for all zaaktypes into the session") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot2)) }
+                    with(loggedInUserSlot2.captured) {
+                        applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
+                            setOf("fakeApplicationRole1", "fakeApplicationRole2", "fakeApplicationRole3")
+                        )
+                        applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(
+                            setOf("fakeApplicationRole3")
+                        )
+                        applicationRolesPerZaaktype["fakeZaaktype3"]?.shouldContainAll(
+                            setOf("fakeApplicationRole3")
+                        )
                     }
                 }
             }
@@ -334,60 +347,47 @@ class UserPrincipalFilterTest : BehaviorSpec({
     Context("PABC integration is disabled") {
         val userPrincipalFilter = UserPrincipalFilter(
             zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
+            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
             pabcClientService = pabcClientService,
             pabcIntegrationEnabled = false
         )
 
-        Given(" user roles trigger PABC behavior") {
+        Given(" switching user does not call PABC - session is swapped") {
             val userId = "testUserId"
-            val username = "user"
-            val roles = listOf(
-                "fakeRole1",
-                "domein_elk_zaaktype"
-            )
-
             val loggedInUser = createLoggedInUser(id = userId)
-            val newHttpSession = mockk<HttpSession>()
-            val loggedInUserSlot = slot<LoggedInUser>()
-
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                    "preferred_username": "testUserName"
+                    }                    
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("differentUserId", oidcSecurityContext)
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
             every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { httpSession.invalidate() } just runs
             every { filterChain.doFilter(any(), any()) } just runs
-            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
-            every { oidcPrincipal.name } returns "differentUserId"
-            every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
-            every { oidcSecurityContext.token } returns accessToken
-            every { accessToken.rolesClaim } returns roles
-            every { accessToken.preferredUsername } returns username
-            every { accessToken.givenName } returns "given"
-            every { accessToken.familyName } returns "family"
-            every { accessToken.name } returns "Full Name"
-            every { accessToken.email } returns "user@example.com"
-            every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
             every { newHttpSession.setAttribute(any(), any()) } just runs
+            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
+            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("pabcClientService should not be called") {
-                    verify(exactly = 0) {
-                        pabcClientService.getApplicationRoles(any())
-                    }
+                Then("PABC service is not called") {
+                    verify(exactly = 0) { pabcClientService.getApplicationRoles(any()) }
                 }
-
-                And("the new session is used and user is logged in") {
+                And("the session is invalidated and the filter chain is passed on") {
                     verify(exactly = 1) {
                         httpSession.invalidate()
-                        newHttpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
+                        newHttpSession.setAttribute("logged-in-user", any())
                         filterChain.doFilter(httpServletRequest, servletResponse)
-                    }
-                    with(loggedInUserSlot.captured) {
-                        this.id shouldBe username
-                        // null indicates that the user has access to all zaaktypen
-                        this.geautoriseerdeZaaktypen shouldBe null
                     }
                 }
             }

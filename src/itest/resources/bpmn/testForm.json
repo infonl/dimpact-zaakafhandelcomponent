@@ -18,10 +18,13 @@
       "tableView": false,
       "components": [
         {
-          "legend": "Approval by:",
-          "type": "groepMedewerkerFieldset",
-          "key": "AM_TeamBehandelaar",
+          "title": "Approved by:",
+          "collapsible": false,
+          "key": "PL_ApprovedBy",
+          "type": "panel",
+          "label": "Panel",
           "input": false,
+          "tableView": false,
           "components": [
             {
               "label": "Group",
@@ -31,6 +34,9 @@
               "widget": "html5",
               "validate": {
                 "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_groep"
               },
               "dataSrc": "custom",
               "clearOnRefresh": true
@@ -44,6 +50,9 @@
               "validate": {
                 "required": true
               },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_medewerker"
+              },
               "dataSrc": "custom",
               "refreshOn": "AM_TeamBehandelaar_Groep",
               "clearOnRefresh": true
@@ -51,10 +60,13 @@
           ]
         },
         {
-          "legend": "SmartDocuments",
-          "type": "smartDocumentsFieldset",
-          "key": "SD_SmartDocuments",
+          "title": "Documents:",
+          "collapsible": false,
+          "key": "PL_Documents",
+          "type": "panel",
+          "label": "Panel",
           "input": false,
+          "tableView": false,
           "components": [
             {
               "label": "Template",
@@ -63,7 +75,13 @@
               "input": true,
               "widget": "html5",
               "dataSrc": "custom",
-              "clearOnRefresh": true
+              "clearOnRefresh": true,
+              "attributes": {
+                "ZAC_TYPE": "ZAC_smart_documents_template"
+              },
+              "properties": {
+                "SmartDocuments_Group": "Dimpact/OpenZaak"
+              }
             },
             {
               "label": "Create",
@@ -80,15 +98,7 @@
                 "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "df964baf-d3fe-430a-b711-03e389041f20",
                 "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
               }
-            }
-          ]
-        },
-        {
-          "legend": "Available Documents",
-          "type": "documentsFieldset",
-          "key": "ZAAK_Documents",
-          "input": false,
-          "components": [
+            },
             {
               "label": "Documents",
               "type": "select",
@@ -110,37 +120,38 @@
               },
               "validate": {
                 "required": true
-              }
-            }
-          ]
-        },
-        {
-          "legend": "Reference table",
-          "type": "referenceTableFieldset",
-          "key": "RT_ReferenceTable",
-          "input": false,
-          "components": [
-            {
-              "label": "Communication channel",
-              "type": "select",
-              "key": "RT_ReferenceTable_Values",
-              "input": true,
-              "widget": "html5",
-              "validate": {
-                "required": true
               },
-              "dataSrc": "custom",
-              "properties": {
-                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+              "attributes": {
+                "ZAC_TYPE": "ZAC_documenten"
               }
             }
           ]
         },
         {
-          "legend": "Zaak Result",
-          "type": "zaakResultTypesFieldset",
-          "key": "FS_ZaakResult",
+          "label": "Communication channel",
+          "type": "select",
+          "key": "RT_ReferenceTable_Values",
+          "input": true,
+          "widget": "html5",
+          "validate": {
+            "required": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          },
+          "dataSrc": "custom",
+          "properties": {
+            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+          }
+        },
+        {
+          "title": "Result & Status:",
+          "collapsible": false,
+          "key": "PL_Result_Status",
+          "type": "panel",
+          "label": "Panel",
           "input": false,
+          "tableView": false,
           "components": [
             {
               "label": "Select result",
@@ -151,18 +162,13 @@
                 "required": true,
                 "onlyAvailableItems": true
               },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_resultaat"
+              },
               "type": "select",
               "input": true,
               "dataSrc": "custom"
-            }
-          ]
-        },
-        {
-          "legend": "Zaak Status",
-          "type": "zaakStatusTypesFieldset",
-          "key": "FS_ZaakStatus",
-          "input": false,
-          "components": [
+            },
             {
               "label": "Select status",
               "optionsLabelPosition": "right",
@@ -172,11 +178,26 @@
                 "required": true,
                 "onlyAvailableItems": true
               },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_status"
+              },
               "type": "select",
               "input": true,
               "dataSrc": "custom"
             }
           ]
+        },
+        {
+          "label": "Initiator",
+          "key": "ZK_initiator",
+          "validate": {
+            "required": false
+          },
+          "type": "input",
+          "input": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_process_data"
+          }
         }
       ]
     }

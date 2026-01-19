@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 @file:Suppress("PackageName")
 
 package net.atos.client.or.`object`.model
@@ -29,4 +28,13 @@ fun createObjectRecord(
 ) = ObjectRecord().apply {
     this.data = data
     this.startAt = startAt
+}
+
+fun createModelObject(
+    uuid: UUID = UUID.randomUUID(),
+    url: URI = URI("https://example.com/objects/1"),
+    type: URI = URI("https://example.com/objecttypes/1"),
+) = ModelObject(url).apply {
+    this.uuid = uuid
+    this.type = type
 }

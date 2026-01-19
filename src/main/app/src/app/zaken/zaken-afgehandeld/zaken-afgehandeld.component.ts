@@ -28,13 +28,13 @@ import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ZakenService } from "../zaken.service";
 import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
 
 @Component({
   templateUrl: "./zaken-afgehandeld.component.html",
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZakenAfgehandeldComponent
   extends WerklijstComponent
@@ -64,7 +64,6 @@ export class ZakenAfgehandeldComponent
   );
 
   constructor(
-    private zakenService: ZakenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private zoekenService: ZoekenService,

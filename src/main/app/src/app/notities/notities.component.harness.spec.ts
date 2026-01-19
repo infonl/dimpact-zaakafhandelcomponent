@@ -12,6 +12,8 @@ import { of } from "rxjs";
 import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { testQueryClient } from "../../../setupJest";
 import { IdentityService } from "../identity/identity.service";
 import { MaterialModule } from "../shared/material/material.module";
 import { PipesModule } from "../shared/pipes/pipes.module";
@@ -21,6 +23,7 @@ import { NotitieService } from "./notities.service";
 
 @Component({
   template: `<zac-notities></zac-notities>`,
+  standalone: false,
 })
 class TestHostComponent {}
 
@@ -91,6 +94,7 @@ describe("NotitiesComponent Harness with Host Wrapper", () => {
         { provide: IdentityService, useValue: mockIdentityService },
         { provide: NotitieService, useValue: mockNotitieService },
         { provide: TranslateService, useValue: mockTranslateService },
+        provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
 

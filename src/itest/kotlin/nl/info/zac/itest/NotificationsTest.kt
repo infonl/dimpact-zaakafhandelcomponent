@@ -6,7 +6,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
@@ -14,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
@@ -43,9 +43,8 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_INITIALIZATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -57,11 +56,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UIT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag2Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag3Uuid
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraagComboUuid
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -79,14 +73,16 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak and a document (the form data PDF) from a productaanvraag which we use in other tests,
- * and therefore we run this test right after initialization.
+ * This test creates a zaak and a document (the form data PDF) from a productaanvraag.
  */
-@Order(TEST_SPEC_ORDER_AFTER_INITIALIZATION)
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    lateinit var zaakProductaanvraag1Uuid: UUID
+    lateinit var zaakProductaanvraag3Uuid: UUID
+    lateinit var zaakProductaanvraagComboUuid: UUID
+    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 
     Given("""ZAC and all related Docker containers are running""") {
         When(""""the notificaties endpoint is called with fake payload without authentication header""") {
@@ -152,14 +148,14 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
@@ -185,10 +181,10 @@ class NotificationsTest : BehaviorSpec({
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
                 )
-                logger.info { "Response: ${receivedMailsResponse.body}" }
+                logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
@@ -210,7 +206,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
@@ -278,13 +274,13 @@ class NotificationsTest : BehaviorSpec({
 
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_UUID.toString()
-                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_DESCRIPTION.toString()
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_1_UUID.toString()
+                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION.toString()
                         getBoolean("isOpen") shouldBe true
                         getBoolean("isProcesGestuurd") shouldBe true
                         getString("communicatiekanaal") shouldBe "E-formulier"
@@ -308,7 +304,7 @@ class NotificationsTest : BehaviorSpec({
                 """.trimIndent()
             ) {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     []
@@ -361,14 +357,14 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                         // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
@@ -379,7 +375,6 @@ class NotificationsTest : BehaviorSpec({
                             getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
                             getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
                         }
-                        zaakProductaanvraag2Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
             }
@@ -389,7 +384,7 @@ class NotificationsTest : BehaviorSpec({
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
-                val receivedMails = JSONArray(receivedMailsResponse.body.string())
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
                 with(receivedMails) {
                     length() shouldBe 1
                     with(getJSONObject(0)) {
@@ -449,14 +444,14 @@ class NotificationsTest : BehaviorSpec({
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION"
-                ).use { getZaakResponse ->
-                    val responseBody = getZaakResponse.body.string()
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
-                        getJSONObject("groep").getString("id") shouldBe "test-group-a"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
@@ -478,7 +473,7 @@ class NotificationsTest : BehaviorSpec({
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
@@ -541,7 +536,7 @@ class NotificationsTest : BehaviorSpec({
             }
 
             And("No initiator should be set") {
-                val responseBody = getZaakResponse.body.string()
+                val responseBody = getZaakResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 with(JSONObject(responseBody)) {
                     getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
@@ -572,8 +567,8 @@ class NotificationsTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "zaaktypen",
                         "resource" to "zaaktype",
-                        "resourceUrl" to "http://example.com/fakeResourceUrl",
-                        "hoofdObject" to "http://example.com/fakeResourceUrl",
+                        "resourceUrl" to "https://example.com/fakeResourceUrl",
+                        "hoofdObject" to "https://example.com/fakeResourceUrl",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )

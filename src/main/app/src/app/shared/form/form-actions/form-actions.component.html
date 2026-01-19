@@ -1,0 +1,49 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<ng-container>
+  @switch (wrapper()) {
+    @case ("dialog") {
+      <mat-dialog-actions>
+        <ng-container *ngTemplateOutlet="actions"></ng-container>
+      </mat-dialog-actions>
+    }
+    @default {
+      <mat-action-row>
+        <ng-container *ngTemplateOutlet="actions"></ng-container>
+      </mat-action-row>
+    }
+  }
+</ng-container>
+
+<ng-template #actions>
+  <button
+    mat-raised-button
+    type="submit"
+    color="primary"
+    class="flex-row gap-8"
+    [disabled]="
+      form().disabled ||
+      !form().valid ||
+      !form().dirty ||
+      mutation().isPending()
+    "
+  >
+    @if (mutation().isPending()) {
+      <mat-icon>
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+    }
+    {{ submitLabel() | translate }}
+  </button>
+  <button
+    mat-raised-button
+    [disabled]="mutation().isPending()"
+    type="button"
+    (click)="onCancel($event)"
+  >
+    {{ cancelLabel() | translate }}
+  </button>
+</ng-template>

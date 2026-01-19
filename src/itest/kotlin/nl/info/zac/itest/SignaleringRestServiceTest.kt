@@ -8,13 +8,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -22,14 +25,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_BEHANDELAAR_1_USERNAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_BEHANDELAARS_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_PASSWORD
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -50,15 +46,11 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * This test creates and assigns a zaak, to test the signaleringen functionality.
- * Because we do not want this test to impact e.g. [SearchRestServiceTest] we run it afterward.
- */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
 class SignaleringRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
+    val zacClient = ZacClient(itestHttpClient)
+    val openZaakClient = OpenZaakClient(itestHttpClient)
     val afterThirtySeconds = eventuallyConfig {
         duration = 30.seconds
         interval = 500.milliseconds
@@ -67,13 +59,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
     lateinit var zaakIdentificatie: String
     lateinit var zaakPath: String
 
-    afterSpec {
-        // re-authenticate using testuser1 since currently subsequent integration tests rely on this user being logged in
-        authenticate(username = TEST_USER_1_USERNAME, password = TEST_USER_1_PASSWORD)
-    }
-
     Given("A logged-in behandelaar") {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("dashboard signaleringen are turned on for all signalering types") {
             val notificationBodies = arrayOf(
@@ -101,17 +88,16 @@ class SignaleringRestServiceTest : BehaviorSpec({
     }
 
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
-        authenticate(username = TEST_BEHANDELAAR_1_USERNAME, password = TEST_BEHANDELAAR_1_PASSWORD)
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_BEHANDELAARS_ID,
-            groupName = TEST_GROUP_BEHANDELAARS_DESCRIPTION,
-            behandelaarId = TEST_BEHANDELAAR_1_USERNAME,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
             startDate = DATE_TIME_2024_01_31
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            this.isSuccessful shouldBe true
+            this.code shouldBe HTTP_OK
             JSONObject(responseBody).run {
                 zaakUUID = getString("uuid").run(UUID::fromString)
                 zaakIdentificatie = getString("identificatie")
@@ -119,10 +105,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
 
         zaakPath = "zaken/api/v1/zaken/$zaakUUID"
-        val zaakRollenResponse = itestHttpClient.performGetRequest(
-            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
-        )
-        val responseBody = zaakRollenResponse.body.string()
+        // retrieve the roles of this zaak from Open Zaak
+        val zaakRollenResponse = openZaakClient.getRolesForZaak(zaakUUID)
+        val responseBody = zaakRollenResponse.bodyAsString
         logger.info { "Response: $responseBody" }
         zaakRollenResponse.code shouldBe HTTP_OK
         val zaakRollenUrl = JSONObject(responseBody)
@@ -155,7 +140,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -184,7 +169,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
@@ -197,9 +182,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
+                    response.code shouldBe HTTP_OK
 
                     // application/json should be changed to text/plain in the endpoint to get rid of the quotes
                     val dateString = responseBody.replace("\"", "")
@@ -220,9 +205,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
-            response.isSuccessful shouldBe true
+            response.code shouldBe HTTP_OK
 
             Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
@@ -249,7 +234,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
             Then("400 should be returned") {
@@ -271,7 +256,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             )
 
             Then("the response should be OK and contain information for the created document") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
@@ -282,7 +267,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
-            var responseBody = zaakInformatieObjectenResponse.body.string()
+            var responseBody = zaakInformatieObjectenResponse.bodyAsString
             logger.info { "Response: $responseBody" }
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             zaakInformatieObjectenResponse.code shouldBe HTTP_OK
@@ -311,23 +296,28 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then("the response should be 'no content'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
             When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-                val response = itestHttpClient.performPutRequest(
-                    "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
-                    requestBodyAsString = """
+                // it may take a while before the notification is processed and the signalering is created
+                lateinit var responseBody: String
+                eventually(10.seconds) {
+                    val response = itestHttpClient.performPutRequest(
+                        "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                        requestBodyAsString = """
                         {
                             "page": 0,
                             "rows": 5
                         }
-                    """.trimIndent()
-                )
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                        """.trimIndent()
+                    )
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getDouble("totaal") shouldBe 1.0
+                }
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {
@@ -349,7 +339,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given(
         """
-        An existing signalering record and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
+        Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days
         """
     ) {
         When("signaleringen older than 0 days are deleted") {
@@ -361,14 +351,15 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 ).toHeaders(),
                 addAuthorizationHeader = false
             )
-            val responseBody = response.body.string()
+            val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("the existing two signaleringen should be deleted") {
-                response.isSuccessful shouldBe true
+            Then("at least the two existing signaleringen should be deleted") {
+                response.code shouldBe HTTP_OK
 
                 with(JSONObject(responseBody)) {
-                    getInt("deletedSignaleringenCount") shouldBe 2
+                    // there may be more than two signaleringen deleted if other tests have created signaleringen as well
+                    getInt("deletedSignaleringenCount") shouldBeGreaterThan 1
                 }
             }
         }

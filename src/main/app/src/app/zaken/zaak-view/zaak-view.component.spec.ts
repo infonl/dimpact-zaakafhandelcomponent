@@ -11,25 +11,25 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
-import { MatSidenav } from "@angular/material/sidenav";
+import {
+  MatNavListItemHarness,
+  MatSubheaderHarness,
+} from "@angular/material/list/testing";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
+import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
@@ -57,7 +57,6 @@ describe(ZaakViewComponent.name, () => {
   let planItemsService: PlanItemsService;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
-  let identityService: IdentityService;
   let websocketService: WebsocketService;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
 
@@ -71,7 +70,9 @@ describe(ZaakViewComponent.name, () => {
       omschrijving: "mock description",
     }),
     indicaties: [],
-    rechten: {},
+    rechten: {
+      behandelen: true,
+    },
     groep: {},
     vertrouwelijkheidaanduiding: "OPENBAAR",
     gerelateerdeZaken: [],
@@ -112,7 +113,8 @@ describe(ZaakViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
+        PlanItemsService,
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
@@ -143,7 +145,13 @@ describe(ZaakViewComponent.name, () => {
     planItemsService = TestBed.inject(PlanItemsService);
     jest
       .spyOn(planItemsService, "listUserEventListenerPlanItems")
-      .mockReturnValue(of([]));
+      .mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RESTPlanItem">>({
+            userEventListenerActie: "INTAKE_AFRONDEN",
+          }),
+        ]),
+      );
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItems")
       .mockReturnValue(of([]));
@@ -153,11 +161,6 @@ describe(ZaakViewComponent.name, () => {
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue(of(fromPartial<GeneratedType<"RestLoggedInUser">>({})));
 
     TestBed.inject(KlantenService);
 
@@ -189,6 +192,11 @@ describe(ZaakViewComponent.name, () => {
       close: jest.fn(),
       open: jest.fn(),
     });
+    fixture.componentInstance.sideNavContainer =
+      fromPartial<MatSidenavContainer>({
+        hasBackdrop: false,
+        updateContentMargins: jest.fn(),
+      });
   });
 
   describe("actie.zaak.opschorten", () => {
@@ -205,7 +213,7 @@ describe(ZaakViewComponent.name, () => {
       },
       isHeropend: false,
       isOpgeschort: false,
-      isEerderOpgeschort: false,
+      eerdereOpschorting: false,
       isProcesGestuurd: false,
     } satisfies GeneratedType<"RestZaak">;
 
@@ -220,12 +228,12 @@ describe(ZaakViewComponent.name, () => {
       expect(button).toBeTruthy();
     });
 
-    describe("isEerderOpgeschort", () => {
+    describe("eerdereOpschorting", () => {
       beforeEach(() => {
         mockActivatedRoute.data.next({
           zaak: {
             ...opschortenZaak,
-            isEerderOpgeschort: true,
+            eerdereOpschorting: true,
           },
         });
       });
@@ -439,16 +447,12 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("openPlanItemStartenDialog", () => {
-    const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-      userEventListenerActie: "ZAAK_AFHANDELEN",
-    });
-
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
     });
 
-    it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", () => {
+    it("should open side menu and set action when dialog returns 'openBesluitVastleggen'", async () => {
       const openSpy = jest.spyOn(
         fixture.componentInstance.actionsSidenav,
         "open",
@@ -457,7 +461,11 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(dialogRef, "afterClosed")
         .mockReturnValue(of("openBesluitVastleggen"));
 
-      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+      const listItem = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+      );
+
+      await listItem?.click();
 
       expect(openSpy).toHaveBeenCalled();
       expect(fixture.componentInstance.activeSideAction).toBe(
@@ -465,16 +473,121 @@ describe(ZaakViewComponent.name, () => {
       );
     });
 
-    it("should show snackbar when dialog returns other value", () => {
+    it("should show snackbar when dialog returns other value", async () => {
       const spy = jest.spyOn(utilService, "openSnackbar");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of("otherValue"));
 
-      fixture.componentInstance.openPlanItemStartenDialog(mockPlanItem);
+      const listItem = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ text: /planitem.INTAKE_AFRONDEN/ }),
+      );
+
+      await listItem?.click();
 
       expect(spy).toHaveBeenCalledWith(
-        "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN",
+        "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
+    });
+  });
+
+  describe("subscriptions$", () => {
+    let subscriptionsPushSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      subscriptionsPushSpy = jest.spyOn(
+        fixture.componentInstance["subscriptions$"],
+        "push",
+      );
+      mockActivatedRoute.data.next({ zaak });
+
+      fixture.detectChanges();
+    });
+
+    it("should add menu subscription to subscriptions$ array when setupMenu is called", () => {
+      expect(subscriptionsPushSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("actie.zaak.acties header", () => {
+    const baseZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      isProcesGestuurd: false,
+      isHeropend: false,
+      isOpgeschort: false,
+      eerdereOpschorting: false,
+      zaaktype: {
+        ...zaak.zaaktype,
+        opschortingMogelijk: false,
+        verlengingMogelijk: false,
+      },
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      jest
+        .spyOn(planItemsService, "listHumanTaskPlanItems")
+        .mockReturnValue(of([]));
+      jest
+        .spyOn(planItemsService, "listProcessTaskPlanItems")
+        .mockReturnValue(of([]));
+    });
+
+    it("should add header when userEventListenerPlanItems.length > 0 and actionMenuItems.length === 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(
+          of([
+            fromPartial<GeneratedType<"RESTPlanItem">>({
+              userEventListenerActie: "INTAKE_AFRONDEN",
+            }),
+          ]),
+        );
+
+      mockActivatedRoute.data.next({ zaak: baseZaak });
+
+      const subheader = await loader.getHarness(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeTruthy();
+    });
+
+    it("should add header when userEventListenerPlanItems.length === 0 and actionMenuItems.length > 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(of([]));
+
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...baseZaak,
+          isOpen: false,
+          rechten: {
+            ...baseZaak.rechten,
+            heropenen: true,
+          },
+        },
+      });
+
+      const subheader = await loader.getHarness(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeTruthy();
+    });
+
+    it("should not add header when both userEventListenerPlanItems.length === 0 and actionMenuItems.length === 0", async () => {
+      jest
+        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .mockReturnValue(of([]));
+
+      mockActivatedRoute.data.next({ zaak: baseZaak });
+
+      const subheader = await loader.getHarnessOrNull(
+        MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
+      );
+      expect(subheader).toBeNull();
     });
   });
 });

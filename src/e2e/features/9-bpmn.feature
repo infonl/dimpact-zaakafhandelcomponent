@@ -16,8 +16,8 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees group "Test groep B" in the zaak data
-    Given Employee "Bob" assigns the zaak to group "Coördinatorsgroep" and user "Coördinator"
-    Then "Bob" sees group "Coördinatorsgroep" and user "Coördinator" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM "
+    Then "Bob" sees group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM" in the zaak data
 
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
@@ -45,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started with group "Coördinatorsgroep" and user "Coördinator"
+    Then "Bob" sees that the summary task is started with group "Beheerders elk domein - new IAM" and user "Beheerder 1 New IAM"
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac

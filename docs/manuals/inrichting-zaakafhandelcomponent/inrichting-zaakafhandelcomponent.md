@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 12-08-2025 <br>
-> Versie :   1.4 <br>
-> Verandering : ZAC v3.12 Inrichting Zaakafhandelcomponent <br>
+> Datum : 15-01-2026 <br>
+> Versie :   1.7 <br>
+> Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -14,12 +14,15 @@
 
 Versiegeschiedenis:
 
-| 1.0   | Initiële versie     |
-|-------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0 | Initiële versie |
+|-----|-------------------------------------------------------------------------------------------------------------------------------------|
 | 1.1 | ZAC versie 3.7 |
 | 1.2 | ZAC versie 3.9 |
 | 1.3 | ZAC versie 3.11 |
 | 1.4 | ZAC versie 3.12 |
+| 1.5 | ZAC versie 3.17.67 |
+| 1.6 | ZAC versie 3.20.53 |
+| 1.7 | ZAC versie 4.0.54 |
 
 # Inhoud
 
@@ -30,6 +33,7 @@ Versiegeschiedenis:
 [*Zaakafhandel-parameters*](#zaakafhandel-parameters)
 - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
 - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+ [*CMMN*](#cmmn)
  [*Gegevens*](#gegevens)
  [*Taakgegevens*](#taakgegevens)
  [*Actiegegevens*](#actiegegevens)
@@ -90,8 +94,27 @@ Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-
 
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+
+#### CMMN
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
+![image](images/zaps_cmmn.png)
+Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
+###### CMMN
+![image](images/zaps_cmmn_cmmn.png)
+###### BPMN
+![image](images/zaps_cmmn_bpmn.png)
+
+
 #### Gegevens
-![image](images/zaps_gegevens.png)
+Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
+- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
+- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+
+![image](images/zaps_gegevens_bpmn.png)
+Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
 - Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen keuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
@@ -105,10 +128,11 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
   - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
   - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![image](images/zaps_gegevens.png)
+
 #### Taakgegevens
 1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
 ![image](images/zaps_taakgegevens.png)
-
  
 2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
 - Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
@@ -117,7 +141,7 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
 ![image](images/zaps_advies_intern.png)
 #### Actiegegevens
-Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moete zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
 ![image](images/zaps_actiegegevens.png)
 #### Mailgegevens
 1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
@@ -145,15 +169,18 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
 
 #### Koppelingen
 
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk Smartocuments  sjabloon moet worden verwerkt.
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
 
 ##### Landelijke registratie koppelingen
 
 - Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
-  -- Basisregistratie personen (persoonsgegevens) koppelen
-  -- KvK (bedrijfsgegevens) koppelen
+  - Basisregistratie personen (persoonsgegevens) koppelen
+  - KvK (bedrijfsgegevens) koppelen
 
-Met de dropdown keuzes Zoekwaarde, Raapleegwaarde en Verwerkingregisterwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+Afhankelijk van je proxy is er aanvullende informatie nodig.
+Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
+
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
 
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
 - BRP_DOELBINDING_ZOEK_WAARDE
@@ -176,9 +203,18 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 
 2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
+## BPMN Definities
+
+Voor het inrichten van BPMN zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+![image](images/zaps_BPMN_definities.png)
+
+- BPMN proces definities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulier definities - zal worden verwijderd en is al niet meer in gebruik.
+- Form.io formulieren - hier kunnen de met bijvoorbeeld Flowable aangemaakte formulieren worden toegevoegd. Deze worden dan gebruikt in de BPMN proces definities.
+
 ## Referentietabellen
 
-Referentietabellen worden in de ZAC ondermeer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
+Referentietabellen worden in de ZAC onder meer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
 ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde referentietabellen. De systeemreferentietabellen zijn standaard beschikbaar en kunnen niet verwijderd worden. De zelf toegevoegde referentietabellen kunnen wel verwijderd worden.
 ZAC kent de volgende systeemreferentietabellen:
 
@@ -324,7 +360,9 @@ Stappen:
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
-# Domeinen
+# Domeinen (huidige IAM-architectuur)
+
+Deze sectie beschrijft de werking van domeinen t.b.v. zaaktype autorisaties in ZAC bij gebruik van de huidige ('oude') IAM-architectuur.
 
 ## De functie van Domeinen
 
@@ -334,13 +372,24 @@ Bijvoorbeeld als je een domein wilt maken dat alle vergunningen omvat, zodat je 
 ## Domeinen inrichten en zaaktype / behandelaars toewijzen
 
 Om het domein in te richten en toe te wijzen neem je de volgende stappen:
-1. In keyckloak:
-- selecteer het zaakafhandelcomponent realm
-- in clients selecteer het zaakafhandelcomponent
-- maak een rol aan met een naam die beginnent met domein_ en een korte omschrijving van het domein, bijvoorbeeld domein_vergunningen
+1. In Keycloak:
+- selecteer de zaakafhandelcomponent realm
+- in clients, selecteer de zaakafhandelcomponent client
+- maak een rol aan met een naam die begint met domein_ en een korte omschrijving van het domein, bijvoorbeeld "domein_vergunningen"
 - maak een groep aan met de functionele rol die de gebruikers moeten krijgen en de juist aangemaakte domein rol
 - plaats de gebruikers die bij dit domein horen aan de groep toe
 2. In ZAC
-- maak in de referentietabel Domein een domein aan met exact dezelfde naam, in dit geval domein_vergunningen
+- maak in de referentietabel `Domein` een domein aan met exact dezelfde naam, in dit geval "domein_vergunningen"
 - open een zaaktype dat aan dit domein behoort in 'Zaakafhandel-parameters bewerken' en op de tab Gegevens kan je dan onder Domein je nieuw aangemaakte domein uit de referentietabel kiezen
 Na het opslaan is de domein-opzet meteen in werking.
+
+# Groepen
+
+Groepen van medewerkers worden beheerd in Keycloak. In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Zie eerdere secties in dit document voor details.
+
+> Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
+
+> Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
+> Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
+> Hier wordt geen foutmelding van getoond. 

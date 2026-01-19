@@ -33,15 +33,26 @@ import nl.info.zac.policy.PolicyService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MailtemplateKoppelingRESTService {
-
-    @Inject
     private MailTemplateKoppelingenService mailTemplateKoppelingenService;
-
-    @Inject
     private RestZaakafhandelParametersConverter restZaakafhandelParametersConverter;
+    private PolicyService policyService;
+
+    /**
+     * No-arg constructor for CDI.
+     */
+    public MailtemplateKoppelingRESTService() {
+    }
 
     @Inject
-    private PolicyService policyService;
+    public MailtemplateKoppelingRESTService(
+            final MailTemplateKoppelingenService mailTemplateKoppelingenService,
+            final RestZaakafhandelParametersConverter restZaakafhandelParametersConverter,
+            final PolicyService policyService
+    ) {
+        this.mailTemplateKoppelingenService = mailTemplateKoppelingenService;
+        this.restZaakafhandelParametersConverter = restZaakafhandelParametersConverter;
+        this.policyService = policyService;
+    }
 
     @GET
     @Path("{id}")

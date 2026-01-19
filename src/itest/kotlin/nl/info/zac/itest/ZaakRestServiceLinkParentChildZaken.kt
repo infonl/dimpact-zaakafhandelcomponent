@@ -5,16 +5,15 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -26,9 +25,8 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
- * Integration test to test the functionality of linking parent and child zaken (hoofd- en deelzaken).
+ * Tests linking parent and child zaken (hoofd- en deelzaken).
  */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
@@ -37,19 +35,21 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     Given(
         """
             Two zaken each of a different zaaktype and these two zaaktypes have been configured so
-            that these zaken are allowed to have a parent-child relationship
+            that these zaken are allowed to have a parent-child relationship,
+            and a behandelaar is logged in
         """
     ) {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaak1UUID: UUID
         lateinit var zaak2UUID: UUID
         lateinit var zaak2Identificatie: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 zaak1UUID = getString("uuid").run(UUID::fromString)
@@ -57,17 +57,17 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
         }
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-            groupId = TEST_GROUP_A_ID,
-            groupName = TEST_GROUP_A_DESCRIPTION,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            val responseBody = body.string()
-            logger.info { "Response: $responseBody" }
-            JSONObject(responseBody).run {
+            logger.info { "Response: $bodyAsString" }
+            JSONObject(bodyAsString).run {
                 zaak2Identificatie = getString("identificatie")
                 zaak2UUID = getString("uuid").run(UUID::fromString)
             }
         }
+
         When("a request is done to link the parent zaak to the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
@@ -79,8 +79,9 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the parent-child relationship between the two zaken should be established") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
 
@@ -88,7 +89,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
                     code shouldBe HTTP_OK
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
                         length() shouldBe 1
@@ -105,6 +106,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 }
             }
         }
+
         When("a request is done to unlink the linked parent zaak from the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/ontkoppel",
@@ -117,8 +119,9 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                     }
                 """.trimIndent()
             )
+
             Then("the parent-child relationship between the two zaken should be removed") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
 
@@ -126,7 +129,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 val response = zacClient.retrieveZaak(zaak1UUID)
                 with(response) {
                     code shouldBe HTTP_OK
-                    val responseBody = response.body.string()
+                    val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
                         length() shouldBe 0

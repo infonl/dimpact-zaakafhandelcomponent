@@ -13,6 +13,7 @@ import { DocumentenOndertekenenFormField } from "./documenten-ondertekenen-form-
 @Component({
   templateUrl: "../documenten-lijst/documenten-lijst.component.html",
   styleUrls: ["../documenten-lijst/documenten-lijst.component.less"],
+  standalone: false,
 })
 export class DocumentenOndertekenenComponent
   extends DocumentenLijstComponent

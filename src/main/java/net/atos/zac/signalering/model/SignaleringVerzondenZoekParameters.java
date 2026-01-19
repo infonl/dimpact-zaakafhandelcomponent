@@ -48,7 +48,7 @@ public class SignaleringVerzondenZoekParameters {
     }
 
     public SignaleringVerzondenZoekParameters(final Group target) {
-        this(GROUP, target.getId());
+        this(GROUP, target.getName());
     }
 
     public SignaleringVerzondenZoekParameters(final User target) {

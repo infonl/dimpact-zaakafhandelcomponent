@@ -48,7 +48,7 @@ class CMMNServiceTest : BehaviorSpec({
             uri = URI("https://example.com/zaaktypes/$zaakTypeUUID"),
         )
         val zaak = createZaak(
-            zaakTypeURI = zaakType.url,
+            zaaktypeUri = zaakType.url,
             uuid = zaakUUID
         )
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(

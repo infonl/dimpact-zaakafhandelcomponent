@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -31,7 +31,7 @@ import java.util.UUID
 class ZaakZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val identityService: IdentityService,
     private val flowableTaskService: FlowableTaskService
 ) : AbstractZoekObjectConverter<ZaakZoekObject>() {
@@ -85,8 +85,8 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         addBetrokkenen(zaak, zaakZoekObject)
         findGroup(zaak)?.let {
-            zaakZoekObject.groepID = it.id
-            zaakZoekObject.groepNaam = it.name
+            zaakZoekObject.groepID = it.name
+            zaakZoekObject.groepNaam = it.description
         }
         findBehandelaar(zaak)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()
@@ -144,7 +144,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     private fun getBagObjectIDs(zaak: Zaak): List<String> {
         val zaakobjectListParameters = ZaakobjectListParameters().apply { this.zaak = zaak.url }
         return zrcClientService.listZaakobjecten(zaakobjectListParameters)
-            .results
+            .results()
             .filter { it.isBagObject }
             .map { it.waarde }
             .let { it.ifEmpty { emptyList() } }

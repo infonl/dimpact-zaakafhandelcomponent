@@ -71,17 +71,10 @@ export class ZakenService {
     );
   }
 
-  verlengenZaak(
-    uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/verlenging">,
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}/verlenging",
-      body,
-      {
-        path: { uuid },
-      },
-    );
+  verlengenZaak(uuid: string) {
+    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
+      path: { uuid },
+    });
   }
 
   listZaakWaarschuwingen() {
@@ -92,8 +85,8 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
-  updateZaakdata(zaak: PutBody<"/rest/zaken/zaakdata">) {
-    return this.zacHttpClient.PUT("/rest/zaken/zaakdata", zaak);
+  updateZaakdata() {
+    return this.zacQueryClient.PUT("/rest/zaken/zaakdata");
   }
 
   toekennen(body: PatchBody<"/rest/zaken/toekennen">) {
@@ -104,8 +97,8 @@ export class ZakenService {
     return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
   }
 
-  vrijgevenVanuitLijst(body: PutBody<"/rest/zaken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/vrijgeven", body);
+  vrijgevenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/zaken/lijst/vrijgeven");
   }
 
   toekennenAanIngelogdeMedewerker(body: PutBody<"/rest/zaken/toekennen/mij">) {
@@ -242,7 +235,7 @@ export class ZakenService {
   }
 
   listStatustypes(zaaktypeUUID: string) {
-    return this.zacHttpClient.GET("/rest/zaken/statustypes/{zaaktypeUUID}", {
+    return this.zacQueryClient.GET("/rest/zaken/statustypes/{zaaktypeUUID}", {
       path: { zaaktypeUUID },
     });
   }
@@ -268,6 +261,6 @@ export class ZakenService {
   }
 
   listProcesVariabelen() {
-    return this.zacHttpClient.GET("/rest/zaken/procesvariabelen");
+    return this.zacQueryClient.GET("/rest/zaken/procesvariabelen");
   }
 }

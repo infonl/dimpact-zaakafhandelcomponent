@@ -21,17 +21,20 @@ class UserTaskCompletionListener : FlowableEventListener {
     }
 
     override fun onEvent(event: FlowableEvent) {
-        if (event.type == FlowableEngineEventType.TASK_COMPLETED) {
-            (event as FlowableEntityEvent).let { entityEvent ->
-                (entityEvent.entity as TaskEntity).let { task ->
-                    LOG.fine(
-                        "User task with id '${task.id}, name '${task.name}' completed for process id " +
-                            "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
-                            "by user '${task.assignee}'"
-                    )
-                    FlowableHelper.getInstance().indexeerService.removeTaak(task.id)
-                }
-            }
+        when (event.type) {
+            FlowableEngineEventType.TASK_COMPLETED ->
+                removeTaak(event as FlowableEntityEvent)
+        }
+    }
+
+    private fun removeTaak(entityEvent: FlowableEntityEvent) {
+        (entityEvent.entity as TaskEntity).let { task ->
+            LOG.fine(
+                "User task with id '${task.id}, name '${task.name}' completed for process id " +
+                    "'${task.processInstanceId}', process name '${task.processDefinitionId} " +
+                    "by user '${task.assignee}'"
+            )
+            FlowableHelper.getInstance().indexeerService.removeTaak(task.id)
         }
     }
 

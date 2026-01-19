@@ -4,6 +4,7 @@
  */
 package net.atos.client.zgw.shared.model;
 
+import java.io.Serial;
 import java.net.URI;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import jakarta.json.bind.annotation.JsonbProperty;
  * The structure of these errors comply to the <a href="https://datatracker.ietf.org/doc/html/rfc7807">Problem Details Standard</a>.
  */
 public class ValidationZgwError extends ZgwError {
+    @Serial
+    private static final long serialVersionUID = 79823432543535L;
 
     private final List<FieldValidationError> invalidParams;
 

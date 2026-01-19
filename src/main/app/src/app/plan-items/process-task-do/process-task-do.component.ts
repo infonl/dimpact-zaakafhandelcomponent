@@ -17,6 +17,7 @@ import { PlanItemsService } from "../plan-items.service";
   selector: "zac-process-task-do",
   templateUrl: "./process-task-do.component.html",
   styleUrls: ["./process-task-do.component.less"],
+  standalone: false,
 })
 export class ProcessTaskDoComponent implements OnInit {
   formItems: Array<AbstractFormField[]>;

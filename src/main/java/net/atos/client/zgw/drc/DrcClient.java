@@ -34,11 +34,11 @@ import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionM
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
-import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import nl.info.client.zgw.drc.model.generated.*;
+import nl.info.client.zgw.util.ZgwClientHeadersFactory;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
-@RegisterClientHeaders(ZGWClientHeadersFactory.class)
+@RegisterClientHeaders(ZgwClientHeadersFactory.class)
 @RegisterProvider(ZgwErrorExceptionMapper.class)
 @RegisterProvider(ZgwValidationErrorResponseExceptionMapper.class)
 @RegisterProvider(DrcRuntimeResponseExceptionMapper.class)

@@ -29,7 +29,7 @@ class NoteServiceTest : BehaviorSpec({
         val note = createNote()
         every { entityManager.persist(note) } returns Unit
 
-        When("createNote is called") {
+        When("the note is created") {
             val result = noteService.createNote(note)
 
             Then("it should persist the note and return it") {
@@ -46,7 +46,7 @@ class NoteServiceTest : BehaviorSpec({
             text = ""
         )
 
-        When("createNote is called") {
+        When("the note is created") {
             val exception = shouldThrow<ConstraintViolationException> {
                 noteService.createNote(note)
             }
@@ -61,7 +61,7 @@ class NoteServiceTest : BehaviorSpec({
         val updatedNote = createNote()
         every { entityManager.merge(note) } returns updatedNote
 
-        When("createNote is called") {
+        When("the note is updated") {
             val result = noteService.updateNote(note)
 
             Then("it should merge the updated note and return it") {
@@ -78,7 +78,7 @@ class NoteServiceTest : BehaviorSpec({
             text = ""
         )
 
-        When("createNote is called") {
+        When("the note is updated") {
             val exception = shouldThrow<ConstraintViolationException> {
                 noteService.updateNote(note)
             }
@@ -94,10 +94,10 @@ class NoteServiceTest : BehaviorSpec({
         every { entityManager.find(Note::class.java, noteId) } returns note
         every { entityManager.remove(note) } just Runs
 
-        When("createNote is called") {
-            val result = noteService.deleteNote(noteId)
+        When("the note is deleted") {
+            noteService.deleteNote(noteId)
 
-            Then("it should merge the updated note and return it") {
+            Then("it should remove the note") {
                 verify(exactly = 1) {
                     entityManager.remove(note)
                 }

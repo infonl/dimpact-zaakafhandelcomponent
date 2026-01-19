@@ -13,20 +13,21 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-persoongegevens",
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
+  standalone: false,
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
 
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);
+  protected zaaktypeUuid = input.required<string>();
   protected bsn = input.required<string>();
-  protected zaakIdentificatie = input.required<string>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();
 
   protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(this.bsn(), this.zaakIdentificatie()),
+    this.klantenService.readPersoon(this.bsn(), this.zaaktypeUuid()),
   );
 
   protected readonly indicatiesLayout = IndicatiesLayout;

@@ -43,6 +43,7 @@ import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.reflect.InvocationTargetException
 import java.net.UnknownHostException
 import java.util.logging.Level
 
@@ -525,6 +526,28 @@ class RestExceptionMapperTest : BehaviorSpec({
                     errorMessage = "fakeErrorCodeValue",
                     expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
                 )
+                verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+            }
+        }
+    }
+
+    Given("An exception chain IllegalArgumentException->InvocationTargetException->ServerErrorException") {
+        val exception = ServerErrorException(ErrorCode.ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION, "message")
+        val chain = IllegalArgumentException(InvocationTargetException(exception))
+
+        When("the chain is mapped to a response") {
+            val response = restExceptionMapper.toResponse(chain)
+
+            Then("it should return the expected error code and exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.bad.brp.protocollering.configuration",
+                    exceptionMessage = "message",
+                    expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                )
+            }
+
+            And("it should log the exception") {
                 verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
             }
         }

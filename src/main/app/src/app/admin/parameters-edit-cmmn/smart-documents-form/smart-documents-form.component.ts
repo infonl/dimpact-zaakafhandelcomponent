@@ -29,6 +29,7 @@ interface FlatNode {
   selector: "smart-documents-form",
   templateUrl: "./smart-documents-form.component.html",
   styleUrl: "./smart-documents-form.component.less",
+  standalone: false,
 })
 export class SmartDocumentsFormComponent {
   @Input({ required: true }) zaakTypeUuid!: string;
@@ -79,7 +80,7 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
+  private readonly allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
     queryKey: ["allSmartDocumentTemplateGroupsQuery"],
     refetchOnWindowFocus: false,
     queryFn: () =>
@@ -88,7 +89,7 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  currentTemplateMappingsQuery = injectQuery(() => ({
+  private readonly currentTemplateMappingsQuery = injectQuery(() => ({
     queryKey: ["currentTemplateMappingsQuery", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>
@@ -97,7 +98,7 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  informationObjectTypesQuery = injectQuery(() => ({
+  private readonly informationObjectTypesQuery = injectQuery(() => ({
     queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>

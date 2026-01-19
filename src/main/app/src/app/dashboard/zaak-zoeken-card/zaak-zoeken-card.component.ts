@@ -9,7 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasource";
-import { DEFAULT_ZOEK_PARAMETERS } from "../../zoeken/model/zoek-parameters";
+import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -20,6 +20,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "../dashboard-card/dashboard-card.component.less",
     "./zaak-zoeken-card.component.less",
   ],
+  standalone: false,
 })
 export class ZaakZoekenCardComponent extends DashboardCardComponent {
   columns = [
@@ -34,7 +35,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
 
   zoekParameters = computed(() => {
     const zoekParameters = ZakenMijnDatasource.mijnLopendeZaken(
-      DEFAULT_ZOEK_PARAMETERS,
+      getDefaultZoekParameters(),
     );
     zoekParameters.sorteerVeld = "ZAAK_STREEFDATUM";
     zoekParameters.sorteerRichting = "asc";
@@ -43,7 +44,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     return zoekParameters;
   });
 
-  zoekQuery = injectQuery(() => ({
+  protected readonly zoekQuery = injectQuery(() => ({
     queryKey: ["zaak zoeken dashboard", this.zoekParameters()],
     queryFn: () =>
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
@@ -58,7 +59,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     effect(() => {
       const { resultaten = [], totaal = 0 } = this.zoekQuery.data() ?? {};
       this.dataSource.data = resultaten;
-      if (this.paginator) this.paginator.length = totaal;
+      if (this.paginator) this.paginator.length = totaal ?? 0;
     });
   }
 

@@ -12,33 +12,34 @@
   <!--
     Step below is skipped on load when parameters are already saved
   -->
-  <mat-step
-    *ngIf="showFirstStep && cmmnBpmnFormGroup"
-    [stepControl]="cmmnBpmnFormGroup"
-  >
+  <mat-step *ngIf="cmmnBpmnFormGroup" [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
       "gegevens.proces-definitie.CMMN" | translate
     }}</ng-template>
 
-    <p>
-      {{ "zaps.step.proces-definitie.intro" | translate }}
-    </p>
+    <header>
+      <h2>{{ parameters.zaaktype.omschrijving }}</h2>
+      <p>
+        {{ "zaps.step.proces-definitie.intro" | translate }}
+      </p>
+    </header>
 
-    <zac-radio
-      [form]="cmmnBpmnFormGroup"
-      key="options"
-      label="zaps.step.proces-definitie.label"
-      [options]="zaakProcessDefinitionOptions"
-      optionDisplayValue="label"
-    ></zac-radio>
-    <mat-hint *ngIf="!featureFlagBpmnSupport">{{
-      "zaps.step.proces-definitie.bpmn-feature-flag-off.hint" | translate
-    }}</mat-hint>
+    <section>
+      <zac-radio
+        [form]="cmmnBpmnFormGroup"
+        key="options"
+        label="zaps.step.proces-definitie.label"
+        [options]="zaakProcessDefinitionOptions"
+        optionDisplayValue="label"
+      ></zac-radio>
 
-    <div class="flex-row items-center gap-10 ml-1 my-3">
-      <mat-icon color="warn" class="pr-3">warning</mat-icon>
-      <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
-    </div>
+      <div class="flex-row items-center gap-10 ml-1 my-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+    </section>
 
     <div class="button-group flex-row flex-wrap">
       @if (
@@ -113,13 +114,15 @@
             [options]="caseDefinitions"
           >
           </zac-select>
-          <zac-select
-            class="col-12 col-lg-6"
-            key="domein"
-            [form]="algemeenFormGroup"
-            [options]="domeinen"
-          >
-          </zac-select>
+          @if (!featureFlagPabcIntegration) {
+            <zac-select
+              class="col-12 col-lg-6"
+              key="domein"
+              [form]="algemeenFormGroup"
+              [options]="domeinen"
+            >
+            </zac-select>
+          }
         </section>
         <section class="row">
           <zac-select
@@ -179,7 +182,7 @@
         }}</small>
       </div>
       <div class="button-group flex-row flex-wrap">
-        <button *ngIf="showFirstStep" mat-raised-button matStepperPrevious>
+        <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}
         </button>
         <button mat-raised-button matStepperNext>
@@ -547,6 +550,9 @@
                 ></tr>
               </table>
             </div>
+            <mat-error *ngIf="mailFormGroup.hasError('noDefaultAfzender')">
+              {{ "validators.required" | translate }}
+            </mat-error>
           </mat-card-content>
         </mat-card>
         <mat-card>
@@ -587,7 +593,7 @@
                     >
                       <mat-option
                         *ngFor="
-                          let template of getBeschikbareMailtemplates(
+                          let template of getAvailableMailtemplates(
                             mailtemplate
                           )
                         "
@@ -766,7 +772,7 @@
   </mat-step>
   <mat-step
     [stepControl]="smartDocumentsEnabledForm"
-    [hasError]="!isSmartDocumentsStepValid || !brpProtocoleringFormGroup.valid"
+    [hasError]="!brpProtocoleringFormGroup.valid"
   >
     <ng-template matStepLabel>{{
       "gegevens.koppelingen" | translate

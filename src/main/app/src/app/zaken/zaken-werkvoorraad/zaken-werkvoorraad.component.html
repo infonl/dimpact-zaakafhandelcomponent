@@ -5,7 +5,7 @@
 
 <div
   class="table-wrapper"
-  [class.loading]="(utilService.loading$ | async) || zakenLoading()"
+  [class.loading]="utilService.loading() || zakenLoading()"
 >
   <table
     mat-table

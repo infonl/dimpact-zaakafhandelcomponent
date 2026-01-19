@@ -32,7 +32,7 @@ data class RestGroup(
 )
 
 fun Group.toRestGroup(): RestGroup =
-    RestGroup(this.id, this.name)
+    RestGroup(this.name, this.description)
 
 fun List<Group>.toRestGroups(): List<RestGroup> =
     this.map { it.toRestGroup() }

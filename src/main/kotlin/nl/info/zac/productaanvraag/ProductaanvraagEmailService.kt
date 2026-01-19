@@ -8,7 +8,7 @@ package nl.info.zac.productaanvraag
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.klant.KlantClientService
-import nl.info.client.klant.model.SoortDigitaalAdresEnum
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters

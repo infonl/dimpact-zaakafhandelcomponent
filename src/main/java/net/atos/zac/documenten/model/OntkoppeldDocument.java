@@ -27,22 +27,22 @@ import jakarta.validation.constraints.NotNull;
 public class OntkoppeldDocument {
 
     /** Naam van property: {@link OntkoppeldDocument#titel} */
-    public static final String TITEL = "titel";
+    public static final String TITEL_PROPERTY_NAME = "titel";
 
     /** Naam van property: {@link OntkoppeldDocument#creatiedatum} */
-    public static final String CREATIEDATUM = "creatiedatum";
+    public static final String CREATIEDATUM_PROPERTY_NAME = "creatiedatum";
 
     /** Naam van property: {@link OntkoppeldDocument#zaakID} */
-    public static final String ZAAK_ID = "zaakID";
+    public static final String ZAAK_ID_PROPERTY_NAME = "zaakID";
 
     /** Naam van property: {@link OntkoppeldDocument#ontkoppeldDoor} */
-    public static final String ONTKOPPELD_DOOR = "ontkoppeldDoor";
+    public static final String ONTKOPPELD_DOOR_PROPERTY_NAME = "ontkoppeldDoor";
 
     /** Naam van property: {@link OntkoppeldDocument#ontkoppeldOp} */
-    public static final String ONTKOPPELD_OP = "ontkoppeldOp";
+    public static final String ONTKOPPELD_OP_PROPERTY_NAME = "ontkoppeldOp";
 
     /** Naam van property: {@link OntkoppeldDocument#reden} */
-    public static final String REDEN = "reden";
+    public static final String REDEN_PROPERTY_NAME = "reden";
 
     @Id
     @GeneratedValue(generator = "sq_ontkoppeld_document", strategy = GenerationType.SEQUENCE)

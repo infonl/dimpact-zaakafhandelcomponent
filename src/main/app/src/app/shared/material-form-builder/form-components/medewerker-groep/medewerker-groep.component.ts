@@ -22,12 +22,13 @@ import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
 @Component({
   templateUrl: "./medewerker-groep.component.html",
   styleUrls: ["./medewerker-groep.component.less"],
+  standalone: false,
 })
 export class MedewerkerGroepComponent extends FormComponent implements OnInit {
   private groups: GeneratedType<"RestGroup">[] = [];
   private users: GeneratedType<"RestUser">[] = [];
 
-  public data: MedewerkerGroepFormField;
+  public data!: MedewerkerGroepFormField;
   protected filteredGroups: GeneratedType<"RestGroup">[] = [];
   protected filteredUsers: GeneratedType<"RestUser">[] = [];
 
@@ -82,7 +83,7 @@ export class MedewerkerGroepComponent extends FormComponent implements OnInit {
 
   private setGroups(): void {
     this.identityService
-      .listGroups(this.data.zaaktypeUuid)
+      .listBehandelaarGroupsForZaaktype(this.data.zaaktypeUuid)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
       .subscribe((groups) => {
         this.groups = this.filteredGroups = groups;

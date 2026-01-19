@@ -7,7 +7,7 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import fs from "fs";
 import { PDFParse } from "pdf-parse";
 import { z } from "zod";
-import { profiles } from "../support/worlds/userProfiles";
+import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
 
@@ -92,7 +92,7 @@ When(
   ) {
     const zaakNumber = this.testStorage.get("caseNumber");
     const user2Parsed = worldUsers.parse(user2);
-    const user2Profile = profiles[user2Parsed];
+    const user2Profile = users[user2Parsed];
 
     await this.page.getByText("Aanvullende informatie").first().click();
 
@@ -244,7 +244,7 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user1: string, _user2: string) {
     const user1Parsed = worldUsers.parse(user1);
-    const user1Profile = profiles[user1Parsed];
+    const user1Profile = users[user1Parsed];
     const zaakNumber = this.testStorage.get("caseNumber");
 
     await checkZaakAssignment.call(this, zaakNumber, user1Profile);
@@ -256,7 +256,7 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user1: string, _user2: string) {
     const user1Parsed = worldUsers.parse(user1);
-    const user1Profile = profiles[user1Parsed];
+    const user1Profile = users[user1Parsed];
 
     const caseNumber = this.testStorage.get("caseNumber");
 

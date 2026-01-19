@@ -22,6 +22,7 @@ import { BAGService } from "../../bag.service";
   selector: "zac-bag-zoek",
   templateUrl: "./bag-zoek.component.html",
   styleUrls: ["./bag-zoek.component.less"],
+  standalone: false,
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();

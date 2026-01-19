@@ -18,7 +18,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.formulieren.model.FormulierVeldtype
 import net.atos.zac.util.time.DateTimeConverterUtil
-import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -38,7 +38,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class FormulierRuntimeService @Inject constructor(
-    private val zgwApiService: ZGWApiService,
+    private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
@@ -110,11 +110,11 @@ class FormulierRuntimeService @Inject constructor(
         val formulierData = FormulierData(restTask.taakdata ?: emptyMap())
 
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
-            if (formulierData.toelichting != null) {
-                task.description = formulierData.toelichting
+            formulierData.toelichting?.let {
+                task.description = it
             }
-            if (formulierData.taakFataleDatum != null) {
-                task.dueDate = DateTimeConverterUtil.convertToDate(formulierData.taakFataleDatum)
+            formulierData.taakFataleDatum?.let {
+                task.dueDate = DateTimeConverterUtil.convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }
@@ -212,7 +212,7 @@ class FormulierRuntimeService @Inject constructor(
     private fun getGroepForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findGroepForZaak(zaak).let { group ->
             group?.betrokkeneIdentificatie?.identificatie?.let {
-                identityService.readGroup(it).name
+                identityService.readGroup(it).description
             }
         }
 

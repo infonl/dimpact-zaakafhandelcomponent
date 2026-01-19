@@ -35,6 +35,7 @@ import { HealthCheckService } from "../health-check.service";
       ),
     ]),
   ],
+  standalone: false,
 })
 export class InrichtingscheckComponent
   extends AdminComponent

@@ -27,7 +27,7 @@ class SendEmailDelegate : AbstractDelegate() {
     lateinit var template: Expression
 
     companion object {
-        private val LOG: Logger = Logger.getLogger(SendEmailDelegate::class.java.name)
+        private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -42,9 +42,8 @@ class SendEmailDelegate : AbstractDelegate() {
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
 
-        LOG.info(
-            "Sending mail to '$toAddress' from '$fromAddress' for zaak " +
-                "${zaak.identificatie}, using template '$templateName'"
+        LOG.fine(
+            "Sending mail to '$toAddress' from '$fromAddress' for zaak ${zaak.identificatie}, using template '$templateName'"
         )
         flowableHelper.mailService.sendMail(
             mailGegevens = MailGegevens(
@@ -54,7 +53,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
-                isCreateDocumentFromMail = false
+                isCreateDocumentFromMail = true
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

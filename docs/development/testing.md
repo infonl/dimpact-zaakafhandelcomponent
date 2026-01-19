@@ -37,14 +37,24 @@ To do this you will first need to do the following:
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
 then start up ZAC as Docker container and finally run the integration tests.
 
+### Configuring Docker Compose containers start/stop behaviour
+
+Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
+* `TESTCONTAINERS_RYUK_DISABLED` - do not stop Docker containers after the tests finish executing
+* `DO_NOT_START_DOCKER_COMPOSE` - do not start Docker Compose when running the integration tests
+
+![Run Configuration](./attachments/images/run-configuration.gif)
+
+In such way you can run the integration tests in a more controlled environment and start up Docker Compose only once.
+
 ### Debugging integration tests
 
-Debugging integration tests can be difficult, because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
+Debugging integration tests can be challenging because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
 The following steps can help you debug failing integration tests:
 
 1. Build the ZAC Docker Image. See instructions above.
 2. Make sure there are no running Docker containers on your computer.
-3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right click and select `Debug Tests in Zaakafhandelcomponent `
+3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right-click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
    2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
    3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
@@ -79,7 +89,7 @@ For selecting elements in our end-to-end (e2e) tests, we follow best practices f
 
 The categories we use for selecting an element:
 
-1. Queries accesible for everyone
+1. Queries accessible for everyone
    
     We prioritize queries like getByRole, getByText, getByLabel, which mimic how users interact with the UI (e.g., buttons, text inputs). These ensure our tests are aligned with user experience.
 
@@ -91,9 +101,9 @@ The categories we use for selecting an element:
 
     We avoid using id selectors or data-testid in most cases as they can be less stable and a user cannot see the id of a element which goes against testing regulations. IDs are prone to being altered during development making tests fragile and hard to maintain.
 
-### Generating e2e tests with playwright codegen
+### Generating e2e tests with Playwright Codegen
 
-You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
+You can use the Playwright Codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
 can find more information about this tool [here](https://playwright.dev/docs/codegen).
 
 you can run the following command to generate a test with taking the test environment as a base:
@@ -102,7 +112,7 @@ you can run the following command to generate a test with taking the test enviro
 npx playwright codegen https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl
 ```
 
-This will open a chrome window, will record all your clicks, and will generate code that you can copy paste into your cucumber test.
+This will open a Chrome window, will record all your clicks, and will generate code that you can copy paste into your cucumber test.
 
 #### Writing Cucumber tests in IntelliJ
 
@@ -118,42 +128,17 @@ Then you will have all the autocomplete features available to you
 
 ### Running e2e tests locally
 
-Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because docker containers can't communicate with the host machine using localhost. To make this work we need to add an entry to the /etc/hosts file on your machine. This is only needed when running the tests locally. When running the tests in the pipeline this is not needed.
-
-#### Steps to Add host.docker.internal Entry to /etc/hosts File
-When working with Docker, adding host.docker.internal to your /etc/hosts file allows Docker containers to access services running on the host machine. Follow these steps to add this entry:
-
-1. Open the /etc/hosts File:
-    - You need administrative privileges to edit the /etc/hosts file.
-    - Open the file in a text editor of your choice. For example, using vim, you would use the following command:
-    ```bash
-        sudo vim /etc/hosts
-    ```
-2. Add the host.docker.internal Entry:
-    - In the /etc/hosts file, add a new line to link host.docker.internal to the IP address of your host machine. This is typically 127.0.0.1 (localhost).
-    - The entry should look like this:
-    ```csharp
-        # ZAC
-        127.0.0.1 host.docker.internal
-    ```
-    - Save the file and exit the text editor.
-3. Verify the Entry:
-
-    - After adding the entry, you can verify it by running a command that references host.docker.internal from within a Docker container. For example, using a simple ping test:
-    ```bash
-        docker run --rm alpine ping -c 4 host.docker.internal
-    ```
-This command runs a temporary Alpine Linux container and pings host.docker.internal four times. Successful ping responses indicate that the entry is correctly configured.
+Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because Docker containers cannot communicate with the host machine using localhost. To make this work we need to add an entry to the `/etc/hosts` file on your machine. 
+This is only needed when running the tests locally. When running the tests in the pipeline this is not needed.
 
 #### Steps to run the tests locally
 
-`docker-compose.yml`
-- replace the follwoing values in the `docker-compose.yml` file:
+1. Replace the following values in the `docker-compose.yml` file:
 
-under services -> keycloack -> command
+under services -> keycloack -> environment
 ```diff
--      - "--hostname-url=http://localhost:8081"
-+      - "--hostname-url=http://host.docker.internal:8081"
+-      - KC_HOSTNAME=http://localhost:8081
++      - KC_HOSTNAME=http://host.docker.internal:8081
 ```
 
 under services -> zac -> environment
@@ -162,7 +147,19 @@ under services -> zac -> environment
 +      - CONTEXT_URL=http://host.docker.internal:8080
 ```
 
+2. Start the Docker Compose environment including ZAC using the following command:
+```sh
+./start-docker-compose.sh -db
+```
+
+3. Run the e2e tests using the following command:
+
+```sh
+./start-e2e-with-local-env.sh
+```
+
 ## GitHub Action Tests
+
 As GitHub pipelines are code as well, we should make an attempt to test their
 behaviour before any changes are pushed to the GitHub repository, before it
 breaks the build itself.
@@ -182,6 +179,16 @@ docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resour
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).
 
 ## Manual tests
+
+### Local test users
+
+Several local test users are provisioned in Keycloak when you run ZAC locally using our Docker Compose set-up.
+You can use these users to log in to ZAC when running it locally. 
+
+For all of these local test users the password is equal to the username.
+
+You can find the set of these local test users in the [ZAC Keycloak realm import file](../../scripts/docker-compose/imports/keycloak/realms/zaakafhandelcomponent-realm.json) 
+or in the set of [integration test user constants](../../src/itest/kotlin/nl/info/zac/itest/config/TestUsers.kt). 
 
 ### Using Postman
 

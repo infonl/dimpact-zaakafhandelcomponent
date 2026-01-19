@@ -15,18 +15,20 @@ import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
-import { EditGroepBehandelaarComponent } from "../../shared/edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -103,7 +105,6 @@ describe(TaakViewComponent.name, () => {
         ZaakVerkortComponent,
         SideNavComponent,
         StaticTextComponent,
-        EditGroepBehandelaarComponent,
       ],
       imports: [
         MatSidenav,
@@ -125,6 +126,7 @@ describe(TaakViewComponent.name, () => {
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
 
@@ -260,28 +262,28 @@ describe(TaakViewComponent.name, () => {
       {
         enabledGlobally: true,
         enabledForZaaktype: true,
-        showBothButtons: true,
+        expectButtons: 2,
       },
-      { enabledGlobally: true, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: true, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: false, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: true, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: false, showButtons: false },
-      { enabledGlobally: null, enabledForZaaktype: null, showButtons: false },
-      { enabledGlobally: null, showButtons: false },
-      { enabledForZaaktype: true, showButtons: false },
-      { enabledForZaaktype: false, showButtons: false },
-      { enabledForZaaktype: null, showButtons: false },
-      { showButtons: false },
+      { enabledGlobally: true, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: true, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: true, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: true, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: false, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: false, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: true, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: false, expectButtons: 1 },
+      { enabledGlobally: null, enabledForZaaktype: null, expectButtons: 1 },
+      { enabledGlobally: null, expectButtons: 1 },
+      { enabledForZaaktype: true, expectButtons: 1 },
+      { enabledForZaaktype: false, expectButtons: 1 },
+      { enabledForZaaktype: null, expectButtons: 1 },
+      { expectButtons: 1 },
     ];
 
     test.each(smartDocumentVariants)(
       "smartDocuments = %o",
-      async ({ enabledGlobally, enabledForZaaktype, showBothButtons }) => {
+      async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
           enabledGlobally;
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
@@ -292,31 +294,9 @@ describe(TaakViewComponent.name, () => {
         component.instance.ngOnInit();
         fixture.detectChanges();
 
-        const menuButtons: NodeListOf<HTMLButtonElement> =
-          fixture.nativeElement.querySelectorAll("zac-side-nav button");
+        const buttons = await loader.getAllHarnesses(MatNavListItemHarness);
 
-        const documentButtons: HTMLButtonElement[] = Array.from(
-          menuButtons,
-        ).filter(
-          (btn: HTMLButtonElement) =>
-            btn.textContent?.includes("actie.document.toevoegen") ||
-            btn.textContent?.includes("actie.document.maken"),
-        );
-
-        if (showBothButtons) {
-          expect(documentButtons.length).toBe(2);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-          expect(documentButtons[1].textContent).toContain(
-            "actie.document.maken",
-          );
-        } else {
-          expect(documentButtons.length).toBe(1);
-          expect(documentButtons[0].textContent).toContain(
-            "actie.document.toevoegen",
-          );
-        }
+        expect(buttons.length).toBe(expectButtons);
       },
     );
   });

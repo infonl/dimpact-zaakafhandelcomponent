@@ -7,9 +7,9 @@ Since every user in ZAC has a role, these policies are used to enforce the acces
 
 ## ZAC roles
 
-### Functional roles
+### Application roles
 
-As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports the following functional user roles (in Dutch):
+As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports the following application user roles (in Dutch):
 
 | Role          | Description                                                                                                                                |
 | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -30,9 +30,10 @@ This means the following in practise:
 - A user with the 'Recordmanager' role also needs to have the 'Raadpleger', 'Behandelaar' and 'Coordinator' roles
 - A user with the 'Beheerder' role also needs to have the 'Raadpleger', 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
 
-### Domain roles
+### Domain roles (will be removed in new IAM architecture)
 
-ZAC also supports the concept of 'domain' (domein) roles.
+In the current ('old') IAM architecture, with the PABC feature flag turned off, ZAC also supports the concept of 'domain' (domein) roles.
+In the new IAM architecture, with the PABC feature flag turned on, the concept of domain roles no longer exists, and this section will be rewritten.
 These roles normally correspond to user groups in the [ZAC IAM architecture](iamArchitecture.md) and typically to departments
 in a municipality. E.g. 'sociaal domein'.
 These roles are used to grant access to a certain zaaktype (or set of zaaktypes) in ZAC.
@@ -99,6 +100,7 @@ various resources on which a user can perform actions:
 | verplaatsen (koppelen)                               |            |     ✅<br/>_(zaak open, document onvergrendeld of vergrendeld door gebruiker, document status anders dan definitief)_      |             |           ✅<br/>_(afgehandelde zaak, status definitief)_           |           |
 | ontkoppelen                                          |            |      ✅<br/>_(zaak open, document onvergrendeld of vergrendeld door gebruiker, document satus anders dan definitief)_      |             |           ✅<br/>_(afgehandelde zaak, status definitief)_           |           |
 | downloaden                                           |     ✅      |                                                                                                                           |             |                                                                    |           |
+| converteren                                          |            |                                                  ✅ (document definitief)                                                  |             |                                                                    |           |
 |                                                      |            |                                                                                                                           |             |                                                                    |           |
 | **_Werklijst rechten_**                              |            |                                                                                                                           |             |                                                                    |           |
 | inbox                                                |            |                                                                                                                           |      ✅      |                                                                    |           |

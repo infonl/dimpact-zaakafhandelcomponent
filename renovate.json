@@ -42,6 +42,18 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/charts/zac/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "appVersion: '(?<currentValue>[^']+)'"
+      ],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
@@ -57,14 +69,293 @@
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
-	"version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # helm version updated by renovate"
+        "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # helm version updated by renovate"
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "helm/helm",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*postgres\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/postgres",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*keycloak\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "quay.io/keycloak/keycloak",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*postgis\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/postgis/postgis",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*open-zaak\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/openzaak/open-zaak",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*redis\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/redis",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*objects-api\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/maykinmedia/objects-api",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*solr\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/solr",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*openpolicyagent/opa\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/openpolicyagent/opa",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*wiremock\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/wiremock/wiremock",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*brp-api/personen-mock\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/brp-api/personen-mock",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d{12})$",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*open-klant\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/maykinmedia/open-klant",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*kontextwork-converter\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/eugenmayer/kontextwork-converter",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*otel/opentelemetry-collector\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/otel/opentelemetry-collector",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*grafana/tempo\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/grafana/tempo",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*prom/prometheus\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/prom/prometheus",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*grafana/grafana\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/grafana/grafana",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*greenmail/standalone\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/greenmail/standalone",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*rabbitmq\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/rabbitmq",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*open-notificaties\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/openzaak/open-notificaties",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*open-archiefbeheer\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/maykinmedia/open-archiefbeheer",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*nginxinc/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "docker.io/nginxinc/nginx-unprivileged",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*pabc-migrations\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations",
+      "versioningTemplate": "semver",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*pabc-api\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/platform-autorisatie-beheer-component/pabc-api",
+      "versioningTemplate": "semver",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
     }
   ],
   "packageRules": [
+    {
+      "groupName": "Platform Autorisatie Beheer Component (PABC)",
+      "matchPackageNames": [
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations",
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "description": [
+        "Group PABC migrations and API updates into a single PR"
+      ]
+    },
+    {
+      "description": "Disable digest pinning for DEPENDENCIES.md - we only want version tags there",
+      "matchFileNames": [
+        "DEPENDENCIES.md"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    },
     {
       "matchDatasources": [
         "docker"
@@ -127,7 +418,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.2.0",
+      "allowedVersions": "< 3.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -139,7 +430,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.1.0",
+      "allowedVersions": "< 3.4.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -151,7 +442,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.10.0",
+      "allowedVersions": "< 2.14.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -163,7 +454,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.24.0",
+      "allowedVersions": "< 1.27.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -175,7 +466,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.11.0",
+      "allowedVersions": "< 1.14.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -187,7 +478,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 7.5.0",
+      "allowedVersions": "< 8.1.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -224,12 +515,13 @@
       "matchDatasources": [
         "github-releases"
       ],
+      "groupName": "dimpact-zaakafhandelcomponent release",
       "automerge": true,
       "schedule": [
         "* 0-8 1,15 * *"
       ],
       "description": [
-        "automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"
+        "Group and automerge the updates to publiccode.yaml and Chart.yaml appVersion on the 1st and 15th day of the month before 08:00"
       ]
     },
     {
@@ -263,7 +555,7 @@
         "docker"
       ],
       "versioning": "loose",
-      "allowedVersions": "/jre-ubi9-minimal$/"
+      "allowedVersions": "/jre-ubi10-minimal$/"
     },
     {
       "matchPackageNames": [

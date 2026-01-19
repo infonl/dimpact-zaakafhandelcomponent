@@ -22,7 +22,7 @@ import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { DEFAULT_ZOEK_PARAMETERS } from "../../zoeken/model/zoek-parameters";
+import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -31,6 +31,7 @@ import { ZoekenService } from "../../zoeken/zoeken.service";
   selector: "zac-bag-zaken-tabel",
   templateUrl: "./bag-zaken-tabel.component.html",
   styleUrls: ["./bag-zaken-tabel.component.less"],
+  standalone: false,
 })
 export class BagZakenTabelComponent
   implements OnInit, AfterViewInit, OnChanges
@@ -52,7 +53,7 @@ export class BagZakenTabelComponent
   filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
   filterChange = new EventEmitter<void>();
-  zoekParameters = DEFAULT_ZOEK_PARAMETERS;
+  zoekParameters = getDefaultZoekParameters();
   zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   init = false;
   inclusiefAfgerondeZaken = new FormControl(false);

@@ -12,6 +12,7 @@ import { SingleInputFormField } from "../BaseFormField";
   selector: "zac-checkbox",
   templateUrl: "./checkbox.html",
   styleUrls: ["./checkbox.less"],
+  standalone: false,
 })
 export class ZacCheckbox<
   Form extends Record<string, AbstractControl>,

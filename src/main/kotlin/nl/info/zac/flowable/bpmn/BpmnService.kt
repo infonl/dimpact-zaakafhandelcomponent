@@ -11,7 +11,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -33,7 +33,7 @@ class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
     private val processEngine: ProcessEngine,
-    private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -91,7 +91,7 @@ class BpmnService @Inject constructor(
             .businessKey(zaak.uuid.toString())
             .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
             .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktypeUUID)
+            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUID, zaaktypeUUID)
             .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
         zaakData?.let(processInstanceBuilder::variables)
         processInstanceBuilder.start()
@@ -117,10 +117,14 @@ class BpmnService @Inject constructor(
             .forEach { repositoryService.deleteDeployment(it.id, true) }
 
     /**
-     * Returns the BPMN process definition for the given zaaktype UUID or null if no process definition is found.
+     * Returns the BPMN process definition for the given zaaktype UUID
+     *
+     * @param zaaktypeUUID UUID of the zaaktype for which the process definition is requested
+     * @throws ProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
-        zaaktypeBpmnConfigurationService.findConfigurationByZaaktypeUuid(zaaktypeUUID)
+        zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
+            ?: throw ProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.

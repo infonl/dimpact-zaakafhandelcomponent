@@ -35,7 +35,7 @@ class RestSignaleringInstellingenConverter @Inject constructor(
         instellingen.map(this::convert)
 
     fun convert(restInstellingen: RestSignaleringInstellingen, group: Group): SignaleringInstellingen =
-        signaleringService.readInstellingenGroup(restInstellingen.type, group.id).apply {
+        signaleringService.readInstellingenGroup(restInstellingen.type, group.name).apply {
             isDashboard = false
             isMail = this.type.type.isMail && restInstellingen.mail == true
         }

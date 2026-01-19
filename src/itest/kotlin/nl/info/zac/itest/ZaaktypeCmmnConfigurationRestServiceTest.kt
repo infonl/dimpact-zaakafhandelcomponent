@@ -7,17 +7,15 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -33,65 +31,28 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUP
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import java.net.HttpURLConnection.HTTP_OK
 
-@Order(TEST_SPEC_ORDER_AFTER_REFERENCE_TABLES_UPDATED)
 class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    val zacClient = ZacClient()
 
     Given(
         """
-        ZAC Docker container is running and no zaaktypeCmmnConfiguration have been created
-        and a test domein exists in the domein reference table 
+        Zaaktype CMMN configuration have been created for the CMMN test zaaktypes,
+        a test domein exists in the domein reference table, 
+        and a beheerder is logged in
         """.trimIndent()
     ) {
-        When(
-            """
-            the create zaakafhandelparameters endpoint is called to create a new zaaktypeCmmnConfiguration
-            for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype without specifying a 'domein'
-            """.trimIndent()
-        ) {
-            val response = zacClient.createZaaktypeCmmnConfiguration(
-                zaakTypeIdentificatie = ZAAKTYPE_TEST_3_IDENTIFICATIE,
-                zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
-                zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
-                productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
-                automaticEmailConfirmationSender = "GEMEENTE"
-            )
-            Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-            }
-        }
-        When(
-            """
-            the create zaakafhandelparameters endpoint is called to create a new zaakafhandelparameters
-            for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype with specifying the existing test domein
-            """.trimIndent()
-        ) {
-            val response = zacClient.createZaaktypeCmmnConfiguration(
-                zaakTypeIdentificatie = ZAAKTYPE_TEST_2_IDENTIFICATIE,
-                zaakTypeUuid = ZAAKTYPE_TEST_2_UUID,
-                zaakTypeDescription = ZAAKTYPE_TEST_2_DESCRIPTION,
-                productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
-                domein = DOMEIN_TEST_1
-            )
-            Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-            }
-        }
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
+            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "zaaktype.identificatie",
@@ -107,9 +68,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             Then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
             ) {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "afrondenMail" : "BESCHIKBAAR_UIT",
@@ -154,7 +115,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                           "type" : "USER_EVENT_LISTENER"
                         } ]
                       },
-                      "defaultGroepId" : "$TEST_GROUP_A_ID",
+                      "defaultGroepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                       "domein" : "$DOMEIN_TEST_1",
                       "humanTaskParameters" : [ {
                         "actief" : true,
@@ -297,9 +258,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions"
             )
             Then("the response should be ok and it should return all available case definitions") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ {
                       "humanTaskDefinitions" : [ {
@@ -350,9 +311,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen"
             )
             Then("the response should be ok and it should return all available zaakbeeindigredenen") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ 
                         {
@@ -376,9 +337,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities"
             )
             Then("the response should be ok and it should return all available formulierdefinities") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody shouldEqualJson """
                     [ {
                       "id" : "DEFAULT_TAAKFORMULIER",

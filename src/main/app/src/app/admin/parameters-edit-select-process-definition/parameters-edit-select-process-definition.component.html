@@ -9,25 +9,32 @@
       "gegevens.proces-definitie" | translate
     }}</ng-template>
 
-    <p>
-      {{ "zaps.step.proces-definitie.intro" | translate }}
-    </p>
+    <header>
+      <h2>{{ zaakafhandelParameters.zaaktype.omschrijving }}</h2>
+      <p>
+        {{ "zaps.step.proces-definitie.intro" | translate }}
+      </p>
+    </header>
 
-    <zac-radio
-      [form]="cmmnBpmnFormGroup"
-      key="options"
-      label="zaps.step.proces-definitie.label"
-      [options]="zaakProcessDefinitionOptions"
-      optionDisplayValue="label"
-    ></zac-radio>
+    <section>
+      <zac-radio
+        [form]="cmmnBpmnFormGroup"
+        key="options"
+        label="zaps.step.proces-definitie.label"
+        [options]="zaakProcessDefinitionOptions"
+        optionDisplayValue="label"
+      ></zac-radio>
 
-    <div class="flex-row items-center gap-10 ml-1 my-3">
-      <mat-icon color="warn" class="pr-3">warning</mat-icon>
-      <small>{{ "msg.zaakafhandelparameters.waarschuwing" | translate }}</small>
-    </div>
+      <div class="flex-row items-center gap-10 ml-1 my-3">
+        <mat-icon color="warn" class="pr-3">warning</mat-icon>
+        <small>{{
+          "msg.zaakafhandelparameters.waarschuwing" | translate
+        }}</small>
+      </div>
+    </section>
 
     <div class="button-group flex-row flex-wrap">
-      <button mat-raised-button (click)="onNext()">
+      <button mat-raised-button matStepperNext>
         {{ "actie.volgende" | translate }}
       </button>
       <button mat-raised-button color="primary" disabled>

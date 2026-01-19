@@ -6,172 +6,92 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.schema.array
-import io.kotest.assertions.json.schema.jsonSchema
-import io.kotest.assertions.json.schema.obj
-import io.kotest.assertions.json.schema.shouldMatchSchema
-import io.kotest.common.ExperimentalKotest
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.match
+import io.kotest.matchers.string.shouldStartWith
+import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_4_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
-import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.client.ZaakHelper
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
-import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_OK
+import java.time.LocalDate
 
-@OptIn(ExperimentalKotest::class)
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
+    val zaakHelper = ZaakHelper(zacClient)
+    val documentHelper = DocumentHelper(zacClient)
+    val now = System.currentTimeMillis()
 
-    Given("A zaak exists for which there is an uploaded document") {
-        When("informatieobjecten historie is requested") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/historie"
+    Context("Listing informatieobject history") {
+        Given(
+            """
+                A zaak exists with a zaaktype in domain test 1, a document has been uploaded to this zaak,
+                and a raadpleger for domain test 1 is logged in
+                """
+        ) {
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            val zaakDescription =
+                "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-listing-$now"
+            val documentTitle = "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-documenttitle-$now"
+            val documentAuthorName = "fakeAuthorName"
+            val (_, zaakUuid) = zaakHelper.createZaak(
+                zaakDescription = zaakDescription,
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
             )
+            val (enkelvoudiginformatieobjectUuid, enkelvoudiginformatieobjectIdentification) =
+                documentHelper.uploadDocumentToZaak(
+                    zaakUuid = zaakUuid,
+                    documentTitle = documentTitle,
+                    authorName = documentAuthorName,
+                    fileName = TEST_PDF_FILE_NAME
+                )
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
-            Then("the response should be ok") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+            When("informatieobjecten history is requested") {
+                val today = LocalDate.now()
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie"
+                )
 
-                val expectedResponse = """[
-                  {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "registratiedatum",
-                    "door": "$TEST_USER_1_NAME",
-                    "toelichting": "Door ondertekenen"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "versie",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "3",
-                    "oudeWaarde": "2",
-                    "toelichting": "Door ondertekenen"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "informatieobject.status",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$DOCUMENT_STATUS_DEFINITIEF",
-                    "oudeWaarde": "$DOCUMENT_STATUS_IN_BEWERKING",
-                    "toelichting": "Door ondertekenen"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "ondertekening",
-                    "door": "$TEST_USER_1_NAME",
-                    "toelichting": "Door ondertekenen"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "titel",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$DOCUMENT_UPDATED_FILE_TITLE",
-                    "oudeWaarde": "$DOCUMENT_FILE_TITLE",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "bestandsnaam",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEST_TXT_FILE_NAME",
-                    "oudeWaarde": "$TEST_PDF_FILE_NAME",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "documentType",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING",
-                    "oudeWaarde": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "registratiedatum",
-                    "door": "$TEST_USER_1_NAME",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "versie",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "2",
-                    "oudeWaarde": "1",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "formaat",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEXT_MIME_TYPE",
-                    "oudeWaarde": "$PDF_MIME_TYPE",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "indicatieGebruiksrecht",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "geen",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "applicatie": "ZAC",
-                    "attribuutLabel": "informatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$DOCUMENT_4_IDENTIFICATION",
-                    "toelichting": ""
-                  }
-                ]
-                """.trimIndent()
-
-                responseBody shouldMatchSchema jsonSchema {
-                    array {
-                        obj {
-                            string("actie")
-                            string("applicatie")
-                            string("attribuutLabel")
-                            string("datumTijd") {
-                                // accept formats "2024-07-16T10:46:53.405553Z" or "2024-07-16T10:46:53.405Z"
-                                // (if the nanoseconds are divisible by 1,000, they are truncated to milliseconds)
-                                match("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(\d{3})?Z""".toRegex())
-                            }
-                            string("door")
-                            string("nieuweWaarde")
-                            string("oudeWaarde", optional = true)
-                            string("toelichting")
-                        }
+                Then("the response should be ok and the expected history records are returned") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                        [ 
+                            {
+                              "actie" : "GEKOPPELD",
+                              "applicatie" : "ZAC",
+                              "attribuutLabel" : "indicatieGebruiksrecht",
+                              "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                              "nieuweWaarde" : "geen",
+                              "toelichting" : ""
+                            }, 
+                            {
+                              "actie" : "GEKOPPELD",
+                              "applicatie" : "ZAC",
+                              "attribuutLabel" : "informatieobject",
+                              "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                              "nieuweWaarde" : "$enkelvoudiginformatieobjectIdentification",
+                              "toelichting" : ""
+                            } 
+                        ]
+                    """.trimIndent()
+                    JSONArray(responseBody).forEach { item ->
+                        (item as JSONObject).getString("datumTijd") shouldStartWith "$today"
                     }
                 }
-                responseBody shouldEqualJsonIgnoringExtraneousFields expectedResponse
             }
         }
     }

@@ -24,8 +24,8 @@ import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificat
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
-  DEFAULT_ZOEK_PARAMETERS,
-  heeftActieveZoekFilters,
+  getDefaultZoekParameters,
+  hasActiveSearchFilters,
 } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -36,6 +36,7 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-klant-zaken-tabel",
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
+  standalone: false,
 })
 export class KlantZakenTabelComponent implements AfterViewInit {
   protected readonly klant =
@@ -60,7 +61,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected isLoadingResults = true;
   protected filterChange = new EventEmitter<void>();
   protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
-    ...DEFAULT_ZOEK_PARAMETERS,
+    ...getDefaultZoekParameters(),
     type: "ZAAK",
   };
   protected actieveFilters = true;
@@ -117,7 +118,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private updateActieveFilters() {
     this.actieveFilters =
       this.zoekParameters &&
-      heeftActieveZoekFilters({
+      hasActiveSearchFilters({
         ...this.zoekParameters,
         filtersType: "ZoekParameters",
         zoeken: this.zoekParameters.zoeken ?? {},
@@ -167,7 +168,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    return Array.from(zaak.betrokkenen).reduce((acc, [rol, ids]) => {
+
+    return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
       if (betrokkene.bsnNummer && ids.includes(betrokkene.bsnNummer)) {
         acc.push(rol);
       }

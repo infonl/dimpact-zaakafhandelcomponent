@@ -8,6 +8,10 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatTableDataSource } from "@angular/material/table";
 import { of } from "rxjs";
+import {
+  mapDocumentenToString,
+  mapStringToDocumentenStrings,
+} from "../../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -15,6 +19,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "zac-documenten-formulier-veld",
   templateUrl: "./documenten-formulier-veld.component.html",
   styleUrls: ["./documenten-formulier-veld.component.less"],
+  standalone: false,
 })
 export class DocumentenFormulierVeldComponent implements OnInit {
   @Input({ required: true })
@@ -84,9 +89,8 @@ export class DocumentenFormulierVeldComponent implements OnInit {
 
   toggleCheckbox(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
     this.selection.toggle(document);
-    this.control.setValue(
-      this.selection.selected.map((value) => value.uuid).join(";"),
-    );
+    const selected = this.selection.selected.map((value) => value.uuid);
+    this.control.setValue(mapDocumentenToString(selected));
   }
 
   selectDisabled() {
@@ -104,7 +108,7 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     if (!uuids) return of([]);
 
     return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-      informatieobjectUUIDs: String(uuids).split(";"),
+      informatieobjectUUIDs: mapStringToDocumentenStrings(String(uuids)),
     });
   }
 }

@@ -16,15 +16,21 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
-import nl.info.zac.flowable.bpmn.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 
 @Singleton
 @Path("zaaktype-bpmn-configuration")
@@ -34,13 +40,14 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaaktypeBpmnConfigurationService.listConfigurations().map {
+        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
+        return zaaktypeBpmnConfigurationBeheerService.listConfigurations().map {
             it.toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -50,8 +57,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     fun getZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String
     ): RestZaaktypeBpmnConfiguration {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        val processDefinitions = zaaktypeBpmnConfigurationService
+        assertPolicy(policyService.readOverigeRechten().startenZaak || policyService.readOverigeRechten().beheren)
+        val processDefinitions = zaaktypeBpmnConfigurationBeheerService
             .listConfigurations()
             .filter { it.bpmnProcessDefinitionKey == processDefinitionKey }
 
@@ -82,7 +89,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            groupId = restZaaktypeBpmnProcessDefinition.groepNaam
+            groepID = restZaaktypeBpmnProcessDefinition.groepNaam
+                ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
+            creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -91,7 +100,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-            zaaktypeBpmnConfigurationService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
+            zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
 
@@ -101,7 +112,11 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-            groepNaam = this.groupId,
-            productaanvraagtype = this.productaanvraagtype
-        )
+            groepNaam = this.groepID,
+            productaanvraagtype = this.productaanvraagtype,
+            creatiedatum = this.creatiedatum
+        ).apply {
+            zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
+            zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
+        }
 }

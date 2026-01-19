@@ -9,9 +9,9 @@ import {
   Component,
   inject,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
@@ -19,7 +19,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
@@ -34,7 +34,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
@@ -70,10 +69,11 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-view.component.html",
   styleUrls: ["./zaak-view.component.less"],
   animations: [detailExpand],
+  standalone: false,
 })
 export class ZaakViewComponent
   extends ActionsViewComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements AfterViewInit, OnDestroy
 {
   private readonly queryClient = inject(QueryClient);
 
@@ -146,7 +146,6 @@ export class ZaakViewComponent
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   dateFieldIconMap = new Map<string, TextIcon>();
   viewInitialized = false;
-  loggedInUser!: GeneratedType<"RestLoggedInUser">;
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -162,6 +161,10 @@ export class ZaakViewComponent
   @ViewChild("takenSort") takenSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
+
+  protected readonly loggedInUser = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
 
   constructor(
     private takenService: TakenService,
@@ -179,51 +182,46 @@ export class ZaakViewComponent
     private policyService: PolicyService,
   ) {
     super();
-  }
+    this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
+      const zaak = data["zaak"] as GeneratedType<"RestZaak">;
+      this.init(zaak);
 
-  ngOnInit() {
-    this.subscriptions$.push(
-      this.route.data.subscribe((data) => {
-        this.init(data["zaak"]);
+      this.zaakListener = this.websocketService.addListenerWithSnackbar(
+        Opcode.ANY,
+        ObjectType.ZAAK,
+        zaak.uuid,
+        () => this.updateZaak(),
+      );
 
-        this.zaakListener = this.websocketService.addListenerWithSnackbar(
-          Opcode.ANY,
-          ObjectType.ZAAK,
-          this.zaak.uuid,
-          () => this.updateZaak(),
-        );
+      this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_ROLLEN,
+        zaak.uuid,
+        () => this.updateZaak(),
+      );
 
-        this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
+      this.zaakBesluitenListener =
+        this.websocketService.addListenerWithSnackbar(
           Opcode.UPDATED,
-          ObjectType.ZAAK_ROLLEN,
-          this.zaak.uuid,
-          () => this.updateZaak(),
+          ObjectType.ZAAK_BESLUITEN,
+          zaak.uuid,
+          () => this.loadBesluiten(),
         );
 
-        this.zaakBesluitenListener =
-          this.websocketService.addListenerWithSnackbar(
-            Opcode.UPDATED,
-            ObjectType.ZAAK_BESLUITEN,
-            this.zaak.uuid,
-            () => this.loadBesluiten(),
-          );
+      this.zaakTakenListener = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_TAKEN,
+        zaak.uuid,
+        () => this.loadTaken(),
+      );
 
-        this.zaakTakenListener = this.websocketService.addListener(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_TAKEN,
-          this.zaak.uuid,
-          () => this.loadTaken(),
-        );
+      this.utilService.setTitle("title.zaak", {
+        zaak: zaak.identificatie,
+      });
 
-        this.utilService.setTitle("title.zaak", {
-          zaak: this.zaak.identificatie,
-        });
-
-        this.getIngelogdeMedewerker();
-        this.loadTaken();
-        this.loadNotitieRechten();
-      }),
-    );
+      this.loadTaken();
+      this.loadNotitieRechten();
+    });
 
     this.takenDataSource.filterPredicate = (data, filter) => {
       if (!filter) return true;
@@ -238,7 +236,7 @@ export class ZaakViewComponent
     );
   }
 
-  init(zaak: GeneratedType<"RestZaak">) {
+  private init(zaak: GeneratedType<"RestZaak">) {
     this.zaak = zaak;
     this.loadHistorie();
     this.loadBetrokkenen();
@@ -247,12 +245,6 @@ export class ZaakViewComponent
     this.loadOpschorting();
     this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((loggedInUser) => {
-      this.loggedInUser = loggedInUser;
-    });
   }
 
   ngAfterViewInit() {
@@ -413,9 +405,9 @@ export class ZaakViewComponent
     if (this.zaak.rechten.creerenDocument) {
       if (
         this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
-          .enabledGlobally &&
-        this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
-          .enabledForZaaktype
+          .enabledForZaaktype &&
+        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
+          .enabledGlobally
       ) {
         this.menu.push(
           new ButtonMenuItem(
@@ -459,7 +451,7 @@ export class ZaakViewComponent
       );
     }
 
-    forkJoin([
+    const menuSubscription = forkJoin([
       this.planItemsService.listUserEventListenerPlanItems(this.zaak.uuid),
       this.planItemsService.listHumanTaskPlanItems(this.zaak.uuid),
       this.planItemsService.listProcessTaskPlanItems(this.zaak.uuid),
@@ -481,36 +473,35 @@ export class ZaakViewComponent
           );
         }
 
-        if (
-          userEventListenerPlanItems.length > 0 ||
-          actionMenuItems.length > 0
-        ) {
-          this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
-          if (this.zaak.rechten.behandelen) {
-            this.menu = this.menu.concat(
-              userEventListenerPlanItems
-                .map((userEventListenerPlanItem) =>
-                  this.createUserEventListenerPlanItemMenuItem(
-                    userEventListenerPlanItem,
-                  ),
-                )
-                .filter((menuItem) => menuItem != null),
-            );
+        if (this.zaak.rechten.behandelen) {
+          if (userEventListenerPlanItems.length || actionMenuItems.length) {
+            this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
           }
-          this.menu = this.menu.concat(actionMenuItems);
+          this.menu = this.menu.concat(
+            userEventListenerPlanItems
+              .map((userEventListenerPlanItem) =>
+                this.createUserEventListenerPlanItemMenuItem(
+                  userEventListenerPlanItem,
+                ),
+              )
+              .filter((menuItem) => menuItem != null),
+          );
         }
+        this.menu = this.menu.concat(actionMenuItems);
 
-        if (this.zaak.rechten.behandelen && humanTaskPlanItems.length > 0) {
-          this.menu.push(new HeaderMenuItem("actie.taak.starten"));
+        if (this.zaak.rechten.behandelen) {
+          if (humanTaskPlanItems.length) {
+            this.menu.push(new HeaderMenuItem("actie.taak.starten"));
+          }
           this.menu = this.menu.concat(
             humanTaskPlanItems.map((humanTaskPlanItem) =>
               this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
             ),
           );
-        }
 
-        if (this.zaak.rechten.behandelen && processTaskPlanItems.length > 0) {
-          this.menu.push(new HeaderMenuItem("actie.proces.starten"));
+          if (processTaskPlanItems.length) {
+            this.menu.push(new HeaderMenuItem("actie.proces.starten"));
+          }
           this.menu = this.menu.concat(
             processTaskPlanItems.map((processTaskPlanItem) =>
               this.createPlanItemMenuItem(processTaskPlanItem, "receipt_long"),
@@ -522,6 +513,8 @@ export class ZaakViewComponent
         this.updateMargins();
       },
     );
+
+    this.subscriptions$.push(menuSubscription);
   }
 
   private createKoppelingenMenuItems() {
@@ -589,7 +582,7 @@ export class ZaakViewComponent
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd &&
-      !this.zaak.isEerderOpgeschort
+      !this.zaak.eerdereOpschorting
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
@@ -659,7 +652,7 @@ export class ZaakViewComponent
     return actionMenuItems;
   }
 
-  openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">) {
+  private openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">) {
     this.actionsSidenav.close();
     this.websocketService.doubleSuspendListener(this.zaakListener);
     const userEventListenerDialog =
@@ -686,7 +679,9 @@ export class ZaakViewComponent
       });
   }
 
-  createUserEventListenerDialog(planItem: GeneratedType<"RESTPlanItem">): {
+  private createUserEventListenerDialog(
+    planItem: GeneratedType<"RESTPlanItem">,
+  ): {
     dialogComponent: ComponentType<unknown>;
     dialogData: {
       zaak: GeneratedType<"RestZaak">;
@@ -705,7 +700,7 @@ export class ZaakViewComponent
     }
   }
 
-  createUserEventListenerIntakeAfrondenDialog(
+  private createUserEventListenerIntakeAfrondenDialog(
     planItem: GeneratedType<"RESTPlanItem">,
   ) {
     return {
@@ -714,7 +709,7 @@ export class ZaakViewComponent
     };
   }
 
-  createUserEventListenerZaakAfhandelenDialog(
+  private createUserEventListenerZaakAfhandelenDialog(
     planItem: GeneratedType<"RESTPlanItem">,
   ) {
     return {
@@ -955,10 +950,6 @@ export class ZaakViewComponent
       });
   }
 
-  protected bedrijfRouteLink(bedrijf: GeneratedType<"RestZaakBetrokkene">) {
-    return buildBedrijfRouteLink(bedrijf);
-  }
-
   private loadBagObjecten() {
     this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
       this.gekoppeldeBagObjecten = bagObjecten
@@ -968,21 +959,21 @@ export class ZaakViewComponent
     });
   }
 
-  editCaseDetails() {
+  protected editCaseDetails() {
     if (this.zaak.rechten.wijzigen || this.zaak.rechten.toekennen) {
       this.activeSideAction = "actie.zaak.wijzigen";
       this.actionsSidenav.open();
     }
   }
 
-  editLocationDetails() {
+  protected editLocationDetails() {
     if (this.zaak.rechten.wijzigen) {
       this.activeSideAction = "actie.zaak.locatie.koppelen";
       this.actionsSidenav.open();
     }
   }
 
-  addOrEditZaakInitiator() {
+  protected addOrEditZaakInitiator() {
     this.activeSideAction = "actie.initiator.koppelen";
     this.actionsSidenav.open();
   }
@@ -1021,17 +1012,17 @@ export class ZaakViewComponent
       .subscribe((rechten) => (this.notitieRechten = rechten));
   }
 
-  expandTaken(expand: boolean) {
+  protected expandTaken(expand: boolean) {
     this.takenDataSource.data.forEach((value) => (value.expanded = expand));
     this.checkAllTakenExpanded();
   }
 
-  expandTaak(taak: ExpandableTableData<GeneratedType<"RestTask">>) {
+  private expandTaak(taak: ExpandableTableData<GeneratedType<"RestTask">>) {
     taak.expanded = !taak.expanded;
     this.checkAllTakenExpanded();
   }
 
-  checkAllTakenExpanded() {
+  private checkAllTakenExpanded() {
     const filter = this.toonAfgerondeTaken.value
       ? this.takenDataSource.data.filter((value) => !value.expanded)
       : this.takenDataSource.data.filter(
@@ -1041,16 +1032,17 @@ export class ZaakViewComponent
     this.allTakenExpanded = filter.length === 0;
   }
 
-  showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
-    return Boolean(
-      taak.status !== "AFGEROND" &&
-        taak.rechten.toekennen &&
-        this.loggedInUser.id !== taak.behandelaar?.id &&
-        (this.loggedInUser.groupIds ?? []).indexOf(taak.groep?.id ?? "") >= 0,
-    );
+  protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
+    if (taak.status === "AFGEROND") return false;
+    if (!taak.rechten.toekennen) return false;
+    if (!taak.groep?.id) return false;
+    const loggedInUser = this.loggedInUser.data();
+    if (!loggedInUser) return false;
+    if (loggedInUser.id === taak.behandelaar?.id) return false;
+    return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 
-  initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
+  protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.actionsSidenav.close();
 
@@ -1113,7 +1105,7 @@ export class ZaakViewComponent
     this.loadHistorie();
   }
 
-  deleteInitiator() {
+  protected deleteInitiator() {
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.dialog
       .open(DialogComponent, {
@@ -1147,7 +1139,7 @@ export class ZaakViewComponent
       });
   }
 
-  betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
+  protected betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     void this.actionsSidenav.close();
     this.zakenService
@@ -1169,7 +1161,7 @@ export class ZaakViewComponent
       });
   }
 
-  deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
+  protected deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     const betrokkeneIdentificatie: string =
       betrokkene.roltype + " " + betrokkene.identificatie;
@@ -1212,7 +1204,7 @@ export class ZaakViewComponent
       });
   }
 
-  adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">) {
     this.websocketService.suspendListener(this.zaakListener);
     this.bagService
       .create({
@@ -1226,7 +1218,10 @@ export class ZaakViewComponent
       });
   }
 
-  assignTaakToMe(taak: GeneratedType<"RestTask">, $event: MouseEvent) {
+  protected assignTaakToMe(
+    taak: GeneratedType<"RestTask">,
+    $event: MouseEvent,
+  ) {
     $event.stopPropagation();
 
     this.websocketService.suspendListener(this.zaakTakenListener);
@@ -1234,7 +1229,7 @@ export class ZaakViewComponent
       .toekennenAanIngelogdeMedewerker({
         taakId: taak.id!,
         zaakUuid: taak.zaakUuid,
-        groepId: null as unknown as string,
+        groepId: taak.groep!.id!,
       })
       .subscribe((returnTaak) => {
         taak.behandelaar = returnTaak.behandelaar;
@@ -1245,7 +1240,7 @@ export class ZaakViewComponent
       });
   }
 
-  filterTakenOpStatus() {
+  protected filterTakenOpStatus() {
     if (!this.toonAfgerondeTaken.value) {
       this.takenStatusFilter = "AFGEROND";
     }
@@ -1257,59 +1252,59 @@ export class ZaakViewComponent
     );
   }
 
-  sluitSidenav() {
+  private sluitSidenav() {
     this.activeSideAction = null;
     this.actiefPlanItem = null;
     void this.actionsSidenav.close();
   }
 
-  taakGestart() {
+  protected taakGestart() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  processGestart() {
+  protected processGestart() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  mailVerstuurd(mailVerstuurd: boolean) {
+  protected mailVerstuurd(mailVerstuurd: boolean) {
     this.sluitSidenav();
     if (!mailVerstuurd) return;
     this.updateZaak();
   }
 
-  ontvangstBevestigd(ontvangstBevestigd: boolean) {
+  protected ontvangstBevestigd(ontvangstBevestigd: boolean) {
     this.sluitSidenav();
     if (!ontvangstBevestigd) return;
     this.updateZaak();
   }
 
-  documentToegevoegd() {
+  protected documentToegevoegd() {
     this.updateZaak();
   }
 
-  documentCreated() {
+  protected documentCreated() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  documentSent() {
+  protected documentSent() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  zaakLinked() {
+  protected zaakLinked() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  locationSelected() {
+  protected locationSelected() {
     this.sluitSidenav();
     this.updateZaak();
   }
 
-  startZaakOntkoppelenDialog(
+  protected startZaakOntkoppelenDialog(
     gerelateerdeZaak: GeneratedType<"RestGerelateerdeZaak">,
   ) {
     this.dialog
@@ -1329,17 +1324,17 @@ export class ZaakViewComponent
       });
   }
 
-  besluitVastgelegd() {
+  protected besluitVastgelegd() {
     this.sluitSidenav();
   }
 
-  besluitWijzigen($event: GeneratedType<"RestDecision">) {
+  protected besluitWijzigen($event: GeneratedType<"RestDecision">) {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
   }
 
-  documentMoveToCase(
+  protected documentMoveToCase(
     $event: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>,
   ) {
     this.activeSideAction = "actie.document.verplaatsen";
@@ -1347,12 +1342,12 @@ export class ZaakViewComponent
     this.actionsSidenav.open();
   }
 
-  updateDocumentList() {
+  protected updateDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
     this.loadHistorie();
   }
 
-  doIntrekking($event: {
+  protected doIntrekking($event: {
     uuid: string;
     vervaldatum: string;
     vervalreden: FormControl<string>;
@@ -1370,7 +1365,7 @@ export class ZaakViewComponent
       });
   }
 
-  async betrokkeneGegevensOphalen(
+  protected async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
       gegevens?: string | null;
     },
@@ -1381,7 +1376,7 @@ export class ZaakViewComponent
         const persoon = await this.queryClient.ensureQueryData(
           this.klantenService.readPersoon(
             betrokkene.identificatie,
-            this.zaak.identificatie,
+            this.zaak.zaaktype.uuid,
           ),
         );
         betrokkene["gegevens"] = persoon.naam;
@@ -1421,7 +1416,7 @@ export class ZaakViewComponent
     }
   }
 
-  bagObjectVerwijderen(
+  protected bagObjectVerwijderen(
     bagObjectGegevens: GeneratedType<"RESTBAGObjectGegevens">,
   ) {
     const bagObject = bagObjectGegevens.zaakobject;
@@ -1467,7 +1462,7 @@ export class ZaakViewComponent
       });
   }
 
-  showProces() {
+  protected showProces() {
     const dialogData = new DialogData({
       formFields: [
         new ReadonlyFormFieldBuilder(
@@ -1488,7 +1483,7 @@ export class ZaakViewComponent
     this.dialog.open(DialogComponent, { data: dialogData });
   }
 
-  hasZaakData() {
+  private hasZaakData() {
     return this.zaak.zaakdata && Object.keys(this.zaak.zaakdata).length > 0;
   }
 
@@ -1503,7 +1498,7 @@ export class ZaakViewComponent
     }
   }
 
-  async menuItemChanged(event: string | null) {
+  protected async menuItemChanged(event: string | null) {
     this.activeSideAction = event;
   }
 
@@ -1518,6 +1513,8 @@ export class ZaakViewComponent
   }
 
   protected showPersoonsgegevens() {
+    if (!this.zaak.zaaktype?.uuid) return false;
+
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 

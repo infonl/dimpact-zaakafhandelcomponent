@@ -1,14 +1,19 @@
-## Enabling BPMN functionality
+# BPMN processes
 
-The BPMN functionality is behind a feature flag. To enable it you have to change the ZAC environment variable to `FEATURE_FLAG_BPMN_SUPPORT=true`
+Besides [CMMN](cmmn.md), ZAC also supports [BPMN (Business Process Model and Notation)](https://www.bpmn.org/) processes to handle zaken.
 
-## BPMN dependencies
+Also see:
+* [Process automation architecture](../solution-architecture/processAutomationArchitecture.md)
+* [BPMN guide](../manuals/bpmn-guide/README.md)
 
-### Automation Engine 
+## BPMN process automation engine 
+
 BPMN process flows make use of the open source [Flowable](https://www.flowable.com/open-source)
 process automation engine which is embedded within the ZAC application.
+Business process data is stored in the ZAC Flowable database. 
 
-### Form Renderer
+## BPMN form.io forms
+
 The [Form.io](https://github.com/formio/angular) Angular components are used to:
 * visualize the progress
 * provide input forms

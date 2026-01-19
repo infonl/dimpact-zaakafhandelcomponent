@@ -6,6 +6,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -17,6 +18,10 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -24,6 +29,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
@@ -57,6 +63,7 @@ import { FormioSetupService } from "./formio/formio-setup-service";
 @Component({
   templateUrl: "./taak-view.component.html",
   styleUrls: ["./taak-view.component.less"],
+  standalone: false,
 })
 export class TaakViewComponent
   extends ActionsViewComponent
@@ -102,7 +109,6 @@ export class TaakViewComponent
   protected initialized = false;
 
   private taakListener?: WebsocketListener;
-  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
   readonly TaakStatusAfgerond =
     "AFGEROND" satisfies GeneratedType<"TaakStatus">;
 
@@ -113,6 +119,30 @@ export class TaakViewComponent
     partialSubmitLabel: "actie.opslaan",
     hideCancelButton: true,
   };
+
+  private readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+
+  private readonly updateTaakdataMutation = injectMutation(() => ({
+    ...this.takenService.updateTaakdata(),
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.taak.opgeslagen");
+    },
+  }));
+
+  private readonly completeTaakMutation = injectMutation(() => ({
+    ...this.takenService.complete(),
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.taak.afgerond");
+    },
+  }));
+
+  protected readonly isPending = computed(
+    () =>
+      this.updateTaakdataMutation.isPending() ||
+      this.completeTaakMutation.isPending(),
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -132,7 +162,6 @@ export class TaakViewComponent
   }
 
   ngOnInit() {
-    this.getIngelogdeMedewerker();
     this.route.data.subscribe((data) => {
       this.createZaakFromTaak(data.taak);
       this.init(data.taak);
@@ -263,9 +292,7 @@ export class TaakViewComponent
 
       const allAttachments = [
         ...(taak.taakdocumenten ?? []),
-        ...((taak.taakdata?.bijlagen as string | undefined)
-          ?.split(";")
-          ?.filter(Boolean) ?? []),
+        ...mapStringToDocumentenStrings(taak.taakdata?.bijlagen),
       ];
       const attachments = await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
@@ -394,6 +421,11 @@ export class TaakViewComponent
       });
   }
 
+  editTaak() {
+    this.activeSideAction = "actie.taak.wijzigen";
+    this.actionsSidenav.open();
+  }
+
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     let taskBody:
       | PutBody<"/rest/taken/taakdata">
@@ -432,16 +464,18 @@ export class TaakViewComponent
     if (!taskBody) return;
 
     if (partial) {
-      this.takenService.updateTaakdata(taskBody).subscribe((task) => {
-        this.utilService.openSnackbar("msg.taak.opgeslagen");
-        this.init(task, false);
+      this.updateTaakdataMutation.mutate(taskBody, {
+        onSuccess: (task) => {
+          this.init(task, false);
+        },
       });
       return;
     }
 
-    this.takenService.complete(taskBody).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.afgerond");
-      this.init(task, false);
+    this.completeTaakMutation.mutate(taskBody, {
+      onSuccess: (task) => {
+        this.init(task, false);
+      },
     });
   }
 
@@ -450,9 +484,10 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.updateTaakdata(this.taak).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
-      this.init(task);
+    this.updateTaakdataMutation.mutate(this.taak, {
+      onSuccess: (task) => {
+        this.init(task);
+      },
     });
   }
 
@@ -461,9 +496,10 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     this.taak.taakdata = formState;
-    this.takenService.complete(this.taak).subscribe((task) => {
-      this.utilService.openSnackbar("msg.taak.afgerond");
-      this.init(task);
+    this.completeTaakMutation.mutate(this.taak, {
+      onSuccess: (task) => {
+        this.init(task);
+      },
     });
   }
 
@@ -479,15 +515,11 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     if (submission.state === "submitted") {
-      this.takenService.complete(this.taak).subscribe(() => {
-        this.utilService.openSnackbar("msg.taak.afgerond");
-      });
+      this.completeTaakMutation.mutate(this.taak);
       return;
     }
 
-    this.takenService.updateTaakdata(this.taak).subscribe(() => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
-    });
+    this.updateTaakdataMutation.mutate(this.taak);
   }
 
   onFormioFormChange(event: FormioChangeEvent) {
@@ -515,65 +547,6 @@ export class TaakViewComponent
         normalizedTemplateName,
       );
     void this.actionsSidenav.open();
-  }
-
-  // TODO add the correct type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editToewijzing(event: any) {
-    if (
-      event["medewerker-groep"].medewerker &&
-      event["medewerker-groep"].medewerker.id ===
-        this.ingelogdeMedewerker?.id &&
-      this.taak?.groep === event["medewerker-groep"].groep
-    ) {
-      this.assignToMe();
-      return;
-    }
-
-    if (!this.taak) return;
-
-    this.taak.groep = event["medewerker-groep"].groep;
-    this.taak.behandelaar = event["medewerker-groep"].medewerker;
-
-    this.takenService
-      .toekennen({
-        taakId: this.taak.id!,
-        zaakUuid: this.taak.zaakUuid,
-        groepId: this.taak.groep!.id!,
-        behandelaarId: this.taak.behandelaar?.id,
-        reden: event["reden"],
-      })
-      .subscribe(() => {
-        if (this.taak?.behandelaar) {
-          this.utilService.openSnackbar("msg.taak.toegekend", {
-            behandelaar: this.taak?.behandelaar?.naam,
-          });
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.taak");
-        }
-      });
-  }
-
-  private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
-    });
-  }
-
-  private assignToMe() {
-    if (!this.taak) return;
-
-    this.takenService
-      .toekennenAanIngelogdeMedewerker({
-        taakId: this.taak.id!,
-        zaakUuid: this.taak.zaakUuid,
-        groepId: null as unknown as string,
-      })
-      .subscribe((taak) => {
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar?.naam,
-        });
-      });
   }
 
   updateTaakdocumenten(
@@ -629,6 +602,14 @@ export class TaakViewComponent
 
   updateZaakDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
+  }
+
+  protected updateZaak() {
+    const zaakUuid = this.zaak?.uuid ?? this.taak?.zaakUuid;
+    if (!zaakUuid) return;
+    this.zakenService.readZaak(zaakUuid).subscribe((zaak) => {
+      this.zaak = zaak;
+    });
   }
 
   /**

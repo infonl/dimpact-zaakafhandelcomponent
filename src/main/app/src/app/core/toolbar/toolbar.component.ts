@@ -3,18 +3,29 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { Observable, Subject, Subscription, takeUntil } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
+import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "../websocket/model/object-type";
@@ -26,71 +37,79 @@ import { WebsocketService } from "../websocket/websocket.service";
   selector: "zac-toolbar",
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
+  standalone: false,
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
+  protected readonly queryClient = inject(QueryClient);
+  protected readonly createZaakMutationKey =
+    this.zakenService.createZaak().mutationKey;
+
   @Input({ required: true }) zoekenSideNav!: MatSidenav;
   zoekenFormControl = new FormControl<string>("");
-  hasSearched = false;
 
   headerTitle$?: Observable<string>;
   hasNewSignaleringen = false;
-  ingelogdeMedewerker?: GeneratedType<"RestUser">;
   overigeRechten?: GeneratedType<"RestOverigeRechten">;
   werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
-  medewerkerNaamToolbar = "";
 
   private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
-  private destroy$ = new Subject<void>();
+
+  protected readonly loggedInUserQuery = injectQuery(() =>
+    this.identityService.readLoggedInUser(),
+  );
+  protected readonly medewerkerNaamToolbar = computed(() =>
+    this.loggedInUserQuery
+      .data()
+      ?.naam?.split(" ")
+      .filter(Boolean)
+      .map(([firstLetter]) => firstLetter)
+      .join(""),
+  );
 
   constructor(
     public utilService: UtilService,
     public navigation: NavigationService,
     private identityService: IdentityService,
-    private zoekenService: ZoekenService,
+    protected readonly zoekenService: ZoekenService,
     private signaleringenService: SignaleringenService,
     private websocketService: WebsocketService,
     private policyService: PolicyService,
     private router: Router,
-  ) {}
-
-  ngOnInit(): void {
-    this.zoekenService.trefwoorden$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((trefwoorden) => {
-        if (this.zoekenFormControl.value !== trefwoorden) {
-          this.zoekenFormControl.setValue(trefwoorden);
-        }
-      });
-    this.zoekenService.hasSearched$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((hasSearched) => {
-        this.hasSearched = hasSearched;
-      });
-    this.zoekenFormControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((trefwoorden) => {
-        this.zoekenService.trefwoorden$.next(trefwoorden || "");
-      });
-    this.zoekenService.reset$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.zoekenFormControl.setValue("");
-    });
-
-    this.headerTitle$ = this.utilService.headerTitle$;
-    this.identityService.readLoggedInUser().subscribe((medewerker) => {
-      this.ingelogdeMedewerker = medewerker;
-      this.medewerkerNaamToolbar = medewerker.naam
-        .split(" ")
-        .map((n) => n[0])
-        .join("");
+    private readonly zakenService: ZakenService,
+  ) {
+    effect(() => {
+      const loggedInUser = this.loggedInUserQuery.data();
+      if (!loggedInUser) return;
 
       this.signaleringListener = this.websocketService.addListener(
         Opcode.UPDATED,
         ObjectType.SIGNALERINGEN,
-        medewerker.id,
+        loggedInUser.id,
         () => this.signaleringenService.updateSignaleringen(),
       );
     });
+
+    effect(() => {
+      const trefwoorden = this.zoekenService.trefwoorden();
+      if (this.zoekenFormControl.value === trefwoorden) return;
+      this.zoekenFormControl.setValue(trefwoorden);
+    });
+
+    this.zoekenFormControl.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((trefwoorden) => {
+        this.zoekenService.trefwoorden.set(trefwoorden);
+      });
+
+    this.zoekenService.reset$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.zoekenFormControl.setValue(null);
+    });
+  }
+
+  ngOnInit() {
+    this.headerTitle$ = this.utilService.headerTitle$;
+
     this.policyService
       .readOverigeRechten()
       .subscribe((rechten) => (this.overigeRechten = rechten));
@@ -100,9 +119,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.setSignaleringen();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnDestroy() {
     this.subscription$?.unsubscribe();
 
     if (this.signaleringListener) {

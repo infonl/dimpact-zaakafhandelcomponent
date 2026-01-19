@@ -15,6 +15,7 @@ import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.util.BrpClientHeadersFactory
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_DOELBINDING
+import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_GEBRUIKER
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.X_VERWERKING
 import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout
@@ -43,9 +44,9 @@ import java.time.temporal.ChronoUnit
 @Produces(MediaType.APPLICATION_JSON)
 @Timeout(unit = ChronoUnit.SECONDS, value = 10)
 interface PersonenApi {
+
     /**
      * Zoek personen
-     *
      *
      * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
      * 1. Raadpleeg met burgerservicenummer
@@ -55,8 +56,10 @@ interface PersonenApi {
      * 5. Zoek met straat, huisnummer en gemeente van inschrijving
      * 6. Zoek met nummeraanduiding identificatie
      *
-     *@param personenQuery de zoekcriteria voor personen
-     *@param purpose de doelbinding (X-DOELBINDING-header), verplicht voor protocollering en autorisatie
+     * @param personenQuery de zoekcriteria voor personen
+     * @param doelbinding de doelbinding (X-DOELBINDING-header), verplicht voor protocollering en autorisatie
+     * @param verwerking de verwerking (X-VERWERKING-header), verplicht voor protocollering en autorisatie
+     * @param gebruikersnaam de gebruikersnaam (X-GEBRUIKER-header), verplicht voor protocollering en gebruiker
      *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
@@ -64,7 +67,27 @@ interface PersonenApi {
     @POST
     fun personen(
         personenQuery: PersonenQuery,
-        @HeaderParam(X_DOELBINDING) purpose: String?,
-        @HeaderParam(X_VERWERKING) auditEvent: String?
+        @HeaderParam(X_DOELBINDING) doelbinding: String?,
+        @HeaderParam(X_VERWERKING) verwerking: String?,
+        @HeaderParam(X_GEBRUIKER) gebruikersnaam: String?
     ): PersonenQueryResponse
+
+    /**
+     * Zoek personen
+     *
+     * Zoek personen met één van de onderstaande verplichte combinaties van parameters en vul ze evt. aan met optionele parameters.
+     * 1. Raadpleeg met burgerservicenummer
+     * 2. Zoek met geslachtsnaam en geboortedatum
+     * 3. Zoek met geslachtsnaam, voornamen en gemeente van inschrijving
+     * 4. Zoek met postcode en huisnummer
+     * 5. Zoek met straat, huisnummer en gemeente van inschrijving
+     * 6. Zoek met nummeraanduiding identificatie
+     *
+     * @param personenQuery de zoekcriteria voor personen
+     *
+     * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
+     * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
+     */
+    @POST
+    fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
 }

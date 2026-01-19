@@ -11,6 +11,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "zac-date-filter",
   templateUrl: "./date-filter.component.html",
   styleUrls: ["./date-filter.component.less"],
+  standalone: false,
 })
 export class DateFilterComponent implements OnInit {
   @Input() range?: GeneratedType<"RestDatumRange"> = {};

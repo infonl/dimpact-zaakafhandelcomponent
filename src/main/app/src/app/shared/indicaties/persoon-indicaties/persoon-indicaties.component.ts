@@ -14,6 +14,7 @@ import { IndicatiesComponent } from "../indicaties.component";
   selector: "zac-persoon-indicaties",
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
+  standalone: false,
 })
 export class PersoonIndicatiesComponent
   extends IndicatiesComponent

@@ -14,6 +14,7 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   selector: "betrokkene-link",
   templateUrl: "./betrokkene-link.component.html",
   styleUrls: [],
+  standalone: false,
 })
 export class BetrokkeneLinkComponent {
   constructor(private readonly klantenService: KlantenService) {}
@@ -28,14 +29,10 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    const persoonQuery = this.klantenService.readPersoon(
+    return this.klantenService.readPersoon(
       betrokkene.identificatie,
+      this.zaaktypeUuid(),
     );
-
-    return {
-      queryKey: persoonQuery.queryKey,
-      queryFn: persoonQuery.queryFn,
-    };
   });
 
   protected readonly bedrijfQuery = injectQuery(() => {
@@ -48,18 +45,15 @@ export class BetrokkeneLinkComponent {
       };
     }
 
-    const bedrijfQuery = this.klantenService.readBedrijf(
+    return this.klantenService.readBedrijf(
       new BetrokkeneIdentificatie(betrokkene),
     );
-
-    return {
-      queryKey: bedrijfQuery.queryKey,
-      queryFn: bedrijfQuery.queryFn,
-    };
   });
 
   protected readonly betrokkene =
     input.required<GeneratedType<"RestZaakBetrokkene">>();
+
+  protected readonly zaaktypeUuid = input.required<string>();
 
   protected readonly bedrijfRouteLink = computed(() =>
     buildBedrijfRouteLink(this.betrokkene()),

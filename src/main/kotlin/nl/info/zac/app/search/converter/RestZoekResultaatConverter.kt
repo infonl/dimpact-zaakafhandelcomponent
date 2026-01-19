@@ -57,7 +57,8 @@ class RestZoekResultaatConverter @Inject constructor(
         RestZoekResultaat(
             zoekResultaat.items.mapIndexed { index, result ->
                 with(result as ZaakZoekObject) {
-                    result.toRestZaakZoekObject(policyService.readZaakRechtenForZaakZoekObject(result))
+                    policyService.readZaakRechtenForZaakZoekObject(result)
+                        .let(result::toRestZaakZoekObject)
                         .toRestZaakKoppelenZoekObject(documentLinkableList[index])
                 }
             },

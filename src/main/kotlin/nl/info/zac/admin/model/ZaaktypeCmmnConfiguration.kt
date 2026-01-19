@@ -6,75 +6,30 @@ package nl.info.zac.admin.model
 
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
-import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.PrimaryKeyJoinColumn
 import jakarta.persistence.Table
-import jakarta.validation.constraints.NotBlank
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
 @Table(schema = SCHEMA, name = "zaaktype_cmmn_configuration")
-@SequenceGenerator(
-    schema = SCHEMA,
-    name = "sq_zaaktype_cmmn_configuration",
-    sequenceName = "sq_zaaktype_cmmn_configuration",
-    allocationSize = 1
-)
+@DiscriminatorValue("CMMN")
+@PrimaryKeyJoinColumn(name = "id")
 @AllOpen
 @Suppress("TooManyFunctions")
-class ZaaktypeCmmnConfiguration {
-
-    companion object {
-        /** Naam van property: [zaakTypeUUID] */
-        const val ZAAKTYPE_UUID = "zaakTypeUUID"
-
-        /** Naam van property: [zaaktypeOmschrijving] */
-        const val ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving"
-
-        /** Naam van property: [creatiedatum] */
-        const val CREATIEDATUM = "creatiedatum"
-
-        /** Naam van property: [productaanvraagtype] */
-        const val PRODUCTAANVRAAGTYYPE = "productaanvraagtype"
-    }
-
-    @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_configuration", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
-    var id: Long? = null
-
-    // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
-    @Column(name = "zaaktype_uuid", nullable = false)
-    var zaakTypeUUID: UUID? = null
-
-    @NotBlank
-    @Column(name = "zaaktype_omschrijving", nullable = false)
-    lateinit var zaaktypeOmschrijving: String
-
+class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     /**
-     * This field is nullable because when a new zaaktype is published,
-     * ZAC creates an initial 'inactive' zaaktypeCmmnConfiguration record without a value.
-     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory is never null.
+     * This field is nullable because for a new zaaktype we return non-filled zaaktype data to the UI.
+     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory and is never null.
      */
     @Column(name = "id_case_definition")
     var caseDefinitionID: String? = null
-
-    /**
-     * This field is nullable because when a new zaaktype is published,
-     * ZAC creates an initial 'inactive' zaaktypeCmmnConfiguration record without a value.
-     * For 'active' zaaktypeCmmnConfiguration, however, this field becomes mandatory is never null.
-     */
-    @Column(name = "groep_id")
-    var groepID: String? = null
 
     @Column(name = "gebruikersnaam_behandelaar")
     var gebruikersnaamMedewerker: String? = null
@@ -88,10 +43,6 @@ class ZaaktypeCmmnConfiguration {
     @Column(name = "niet_ontvankelijk_resultaattype_uuid")
     var nietOntvankelijkResultaattype: UUID? = null
 
-    // Nullable to avoid lateinit init errors; DB NOT NULL—set before persist.
-    @Column(name = "creatiedatum", nullable = false)
-    var creatiedatum: ZonedDateTime? = null
-
     /**
      * This field has a sensible default value because it is non-nullable.
      */
@@ -103,12 +54,6 @@ class ZaaktypeCmmnConfiguration {
      */
     @Column(name = "afronden_mail", nullable = false)
     var afrondenMail: String? = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
-
-    @Column(name = "productaanvraagtype")
-    var productaanvraagtype: String? = null
-
-    @Column(name = "domein")
-    var domein: String? = null
 
     @Column(name = "smartdocuments_ingeschakeld")
     var smartDocumentsIngeschakeld: Boolean = false
@@ -158,22 +103,6 @@ class ZaaktypeCmmnConfiguration {
     )
     var zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters? = null
 
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeCmmnBetrokkeneParameters: ZaaktypeCmmnBetrokkeneParameters? = null
-
-    @OneToOne(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    var zaaktypeCmmnBrpParameters: ZaaktypeCmmnBrpParameters? = null
-
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(
         mappedBy = "zaaktypeCmmnConfiguration",
@@ -216,10 +145,6 @@ class ZaaktypeCmmnConfiguration {
     }
 
     fun getAutomaticEmailConfirmation(): ZaaktypeCmmnEmailParameters? = zaaktypeCmmnEmailParameters
-
-    fun setAutomaticEmailConfirmation(value: ZaaktypeCmmnEmailParameters?) {
-        zaaktypeCmmnEmailParameters = value
-    }
 
     fun getZaakbeeindigParameters(): Set<ZaaktypeCmmnCompletionParameters> =
         zaaktypeCmmnCompletionParameters ?: emptySet()
@@ -322,20 +247,6 @@ class ZaaktypeCmmnConfiguration {
         }
     }
 
-    fun getBetrokkeneParameters(): ZaaktypeCmmnBetrokkeneParameters =
-        zaaktypeCmmnBetrokkeneParameters ?: ZaaktypeCmmnBetrokkeneParameters()
-
-    fun setBetrokkeneParameters(value: ZaaktypeCmmnBetrokkeneParameters?) {
-        zaaktypeCmmnBetrokkeneParameters = value
-    }
-
-    fun getBrpParameters(): ZaaktypeCmmnBrpParameters =
-        zaaktypeCmmnBrpParameters ?: ZaaktypeCmmnBrpParameters()
-
-    fun setBrpParameters(value: ZaaktypeCmmnBrpParameters?) {
-        zaaktypeCmmnBrpParameters = value
-    }
-
     /**
      * Geeft aan dat er voldoende gegevens zijn ingevuld om een zaak te starten
      *
@@ -351,7 +262,7 @@ class ZaaktypeCmmnConfiguration {
         getZaakbeeindigParameters().firstOrNull {
             it.zaakbeeindigReden.id == zaakbeeindigRedenId
         } ?: throw RuntimeException(
-            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaakTypeUUID' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
+            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaaktypeUuid' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
         )
 
     @Suppress("TooGenericExceptionThrown")
@@ -359,9 +270,11 @@ class ZaaktypeCmmnConfiguration {
         getUserEventListenerParametersCollection().firstOrNull {
             it.planItemDefinitionID == planitemDefinitionID
         } ?: throw RuntimeException(
-            "No UserEventListenerParameters found for zaaktypeUUID: '$zaakTypeUUID' and planitemDefinitionID: '$planitemDefinitionID'"
+            "No UserEventListenerParameters found for zaaktypeUUID: '$zaaktypeUuid' and planitemDefinitionID: '$planitemDefinitionID'"
         )
 
     fun findHumanTaskParameter(planitemDefinitionID: String): ZaaktypeCmmnHumantaskParameters? =
         getHumanTaskParametersCollection().find { it.planItemDefinitionID == planitemDefinitionID }
+
+    override fun getConfigurationType() = Companion.ZaaktypeConfigurationType.CMMN
 }

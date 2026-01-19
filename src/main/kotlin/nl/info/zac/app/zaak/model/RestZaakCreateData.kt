@@ -61,6 +61,7 @@ fun RestZaakCreateData.toZaak(
     null,
     null,
     null,
+    null,
     null
 ).apply {
     this.bronorganisatie = bronOrganisatie

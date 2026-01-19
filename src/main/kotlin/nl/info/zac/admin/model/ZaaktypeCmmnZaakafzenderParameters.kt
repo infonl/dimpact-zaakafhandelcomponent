@@ -44,14 +44,14 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
 
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
-    @NotNull
+    @field:NotNull
     lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 
     @Column(name = "default_mail", nullable = false)
     var defaultMail: Boolean = false
 
     @Column(name = "mail", nullable = false)
-    @NotBlank
+    @field:NotBlank
     lateinit var mail: String
 
     @Column(name = "replyto")
@@ -72,5 +72,14 @@ class ZaaktypeCmmnZaakafzenderParameters : UserModifiable<ZaaktypeCmmnZaakafzend
     override fun resetId(): ZaaktypeCmmnZaakafzenderParameters {
         id = null
         return this
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ZaaktypeCmmnZaakafzenderParameters) return false
+        return mail == other.mail && defaultMail == other.defaultMail && Objects.equals(replyTo, other.replyTo)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(mail, defaultMail, replyTo)
     }
 }

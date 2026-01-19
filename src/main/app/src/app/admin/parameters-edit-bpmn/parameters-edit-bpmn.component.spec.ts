@@ -15,6 +15,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -55,21 +56,20 @@ describe(ParametersEditBpmnComponent.name, () => {
     },
   });
 
-  const bpmnProcessDefinitionsList: GeneratedType<"RestBpmnProcessDefinition">[] =
-    [
-      {
-        id: "RestBpmnProcessDefinition-1",
-        key: "itProcessDefinition-2",
-        name: "BPMN Process Definition - 2",
-        version: 1,
-      },
-      {
-        id: "RestBpmnProcessDefinition-2",
-        key: "itProcessDefinition-2",
-        name: "BPMN Process Definition - 2",
-        version: 1,
-      },
-    ];
+  const bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] = [
+    {
+      id: "RestBpmnProcessDefinition-1",
+      key: "itProcessDefinition-2",
+      name: "BPMN Process Definition - 2",
+      version: 1,
+    },
+    {
+      id: "RestBpmnProcessDefinition-2",
+      key: "itProcessDefinition-2",
+      name: "BPMN Process Definition - 2",
+      version: 1,
+    },
+  ];
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -106,7 +106,7 @@ describe(ParametersEditBpmnComponent.name, () => {
               parameters: {
                 zaakafhandelParameters,
                 bpmnZaakafhandelParameters,
-                bpmnProcessDefinitionsList,
+                bpmnProcessDefinitions,
                 isSavedZaakafhandelParameters: true,
               },
             }),
@@ -144,6 +144,9 @@ describe(ParametersEditBpmnComponent.name, () => {
       .spyOn(referentieTabelService, "listBrpViewValues")
       .mockReturnValue(of([]));
     jest
+      .spyOn(referentieTabelService, "listBrpProcessingValues")
+      .mockReturnValue(of([]));
+    jest
       .spyOn(referentieTabelService, "listBrpSearchValues")
       .mockReturnValue(of([]));
 
@@ -172,7 +175,13 @@ describe(ParametersEditBpmnComponent.name, () => {
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
+    const configuratieService = TestBed.inject(ConfiguratieService);
+    jest
+      .spyOn(configuratieService, "readBrpProtocollering")
+      .mockReturnValue(of(""));
+
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
+    fixture.detectChanges();
     await fixture.whenStable();
 
     loader = TestbedHarnessEnvironment.loader(fixture);

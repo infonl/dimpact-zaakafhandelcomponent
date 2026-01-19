@@ -8,6 +8,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
   templateUrl: "./notification-dialog.component.html",
+  standalone: false,
 })
 export class NotificationDialogComponent {
   constructor(

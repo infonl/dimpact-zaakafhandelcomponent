@@ -55,7 +55,7 @@ public class SolrDeployerService {
     private List<SolrSchemaUpdate> schemaUpdates;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public SolrDeployerService() {
     }

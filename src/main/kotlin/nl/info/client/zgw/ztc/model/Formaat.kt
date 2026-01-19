@@ -11,7 +11,7 @@ import net.atos.client.zgw.shared.model.AbstractEnum
  *
  */
 @JsonbTypeAdapter(Formaat.Adapter::class)
-enum class Formaat(private val value: String) : AbstractEnum<Formaat> {
+enum class Formaat(private val value: String) : AbstractEnum {
     TEKST("tekst"),
 
     GETAL("getal"),

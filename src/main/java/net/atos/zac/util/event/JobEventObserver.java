@@ -27,7 +27,7 @@ public class JobEventObserver {
     private ZaakTaskDueDateEmailNotificationService zaakTaskDueDateEmailNotificationService;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public JobEventObserver() {
     }

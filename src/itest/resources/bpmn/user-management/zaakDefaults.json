@@ -1,0 +1,42 @@
+{
+  "display": "form",
+  "name": "zaakDefaults",
+  "title": "Zaak defaults",
+  "type": "form",
+  "components": [
+    {
+      "title": "Zaak defaults",
+      "label": "Zaak defaults",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "components": [
+        {
+          "label": "Group",
+          "labelPosition": "left-left",
+          "key": "zaakGroep",
+          "type": "textfield",
+          "input": false,
+          "disabled": true
+        },
+        {
+          "label": "User",
+          "labelPosition": "left-left",
+          "key": "zaakBehandelaar",
+          "type": "textfield",
+          "defaultValue": "-- not set --",
+          "input": false,
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Next",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

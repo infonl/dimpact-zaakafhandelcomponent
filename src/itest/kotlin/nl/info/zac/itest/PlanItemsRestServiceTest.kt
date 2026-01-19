@@ -8,45 +8,57 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
-/**
- * This test assumes a zaak has been created in a previously run test.
- */
-@Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
+const val UITERLIJKE_EINDDATUM_AFDOENING = "2000-01-15"
+
 class PlanItemsRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
-
     lateinit var humanTaskItemAanvullendeInformatieId: String
 
-    Given("A zaak has been created") {
+    Given("A zaak has been created for test zaaktype 3 and a behandelaar is logged in") {
+        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+        lateinit var zaakUuid: UUID
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).run {
+                zaakUuid = getString("uuid").run(UUID::fromString)
+            }
+        }
+
         When("the list human task plan items endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
-            )
+            val response = zacClient.getHumanTaskPlanItemsForZaak(zaakUuid)
+
             Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, so there should be only be one human task
                 // plan item: 'aanvullende informatie'
@@ -56,7 +68,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
-                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakUuid.toString())
                     shouldContainJsonKey("id")
                 }
                 humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
@@ -68,82 +80,71 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
             )
             Then("the human task plan item data for this task is returned") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("actief", "true")
                     shouldContainJsonKeyValue("formulierDefinitie", FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE)
                     shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
                     shouldContainJsonKeyValue("type", HUMAN_TASK_TYPE)
-                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                    shouldContainJsonKeyValue("zaakUuid", zaakUuid.toString())
                     shouldContainJsonKeyValue("id", humanTaskItemAanvullendeInformatieId)
                 }
             }
         }
 
-        When("the start human task plan items endpoint is called") {
-            val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
-                .minusDays(1)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
-                requestBodyAsString = """{
-                    "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
-                    "fataledatum":"$fataleDatum",
-                    "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                    "taakdata":{}
-                }
-                """.trimIndent()
+        When("the start human task plan items endpoint is called with a fatal date") {
+            val response = zacClient.startHumanTaskPlanItem(
+                planItemInstanceId = humanTaskItemAanvullendeInformatieId,
+                fatalDate = LocalDate.parse(UITERLIJKE_EINDDATUM_AFDOENING).minusDays(1),
+                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                groupName = BEHANDELAARS_DOMAIN_TEST_1.description
             )
-            Then("a task is started for this zaak") {
-                val responseBody = response.body.string()
-                logger.info { "Response: $responseBody" }
 
-                response.isSuccessful shouldBe true
+            Then("a task is started for this zaak") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
         When("creation of a new additional info task with fatal date past the zaak fatal date is requested") {
             val newAdditionalTaskInfoResponse = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
+                "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems"
             )
-            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.body.string()
+            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.bodyAsString
             logger.info { "Response: $newAdditionalTaskInfoResponseBody" }
-            newAdditionalTaskInfoResponse.isSuccessful shouldBe true
+            newAdditionalTaskInfoResponse.code shouldBe HTTP_OK
             val newAdditionalInfoTaskId = JSONArray(newAdditionalTaskInfoResponseBody).getJSONObject(0).getString("id")
 
-            val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
+            val fataleDatum = LocalDate.parse(UITERLIJKE_EINDDATUM_AFDOENING)
                 .plusDays(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """{
-                    "planItemInstanceId":"$newAdditionalInfoTaskId",
-                    "fataledatum":"$fataleDatum",
-                    "taakStuurGegevens":{"sendMail":false},
-                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "planItemInstanceId": "$newAdditionalInfoTaskId",
+                    "fataledatum": "$fataleDatum",
+                    "taakStuurGegevens": { "sendMail": false },
+                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
                     "taakdata":{}
                 }
                 """.trimIndent()
             )
 
             Then("a new task is started for this zaak") {
-                val responseBody = response.body.string()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-
-                response.isSuccessful shouldBe true
+                response.code shouldBe HTTP_NO_CONTENT
             }
 
             And("zaak fatal date is moved forward to correspond to the task fatal date") {
-                val zacResponse = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
-                val responseBody = zacResponse.body.string()
+                val zacResponse = zacClient.retrieveZaak(zaakUuid)
+                val responseBody = zacResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
-
                 with(zacResponse) {
                     code shouldBe HTTP_OK
-
                     with(responseBody) {
                         shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fataleDatum.toString())
                     }

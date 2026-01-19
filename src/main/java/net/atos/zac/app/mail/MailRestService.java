@@ -40,7 +40,7 @@ public class MailRestService {
     private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
-     * Default no-arg constructor, required by Weld.
+     * No-arg constructor for CDI.
      */
     public MailRestService() {
     }
