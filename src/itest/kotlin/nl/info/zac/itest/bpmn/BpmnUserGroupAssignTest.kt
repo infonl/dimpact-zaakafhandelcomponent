@@ -134,33 +134,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 """
                 {
                     "selectedGroup": "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}"
+                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}",
+                    "copyTaskUsesZaakDefaults": false
                 }
                 """.trimIndent()
             )
-
-            Then("the next task has the selected user and group assigned") {
-                getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
-                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                    {
-                      "groep" : {
-                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
-                      },
-                      "behandelaar" : {
-                        "id" : "${RECORDMANAGER_DOMAIN_TEST_1.username}",
-                        "naam" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}"
-                      }
-                    }                    
-                """.trimIndent()
-            }
-        }
-
-        When("the new zaak defaults are set by service task") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
 
             Then("the next task has the selected user and group assigned") {
                 getTaskData(

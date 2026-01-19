@@ -340,7 +340,6 @@ object ItestConfiguration {
 
     const val BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME = "Zaak defaults"
     const val BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME = "Hard coded"
-    const val BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME = "Display selected user and group"
     const val BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME = "New zaak defaults"
     const val BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME = "Copy user and group"
 
