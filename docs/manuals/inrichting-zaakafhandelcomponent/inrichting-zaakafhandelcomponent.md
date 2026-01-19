@@ -499,6 +499,11 @@ Voor ZAC moet dit zijn: `zaakafhandelcomponent`.
 
 ###### Entiteitstypes
 
+Dit zijn de zaaktypes waarop geautoriseerd moet worden.
+In de toekomst zullen ook andere entiteitstypes worden ondersteund.
+
+  ![PABC entiteitstypes](images/pabc_entiteitstypes.png)
+
 ##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
 
 ###### Domeinen
