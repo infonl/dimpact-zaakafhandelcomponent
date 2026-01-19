@@ -9,6 +9,7 @@ import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
 
 const ONE_MINUTE_IN_MS = 60_000;
+const FIVE_SECONDS_IN_MS = 5_000;
 
 const zaakCheckmarkTitle = "Selecteren";
 let _noOfZaken = 0;
@@ -49,6 +50,7 @@ When(
     await this.page.getByRole("option", { name: users.Bob.username }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
+    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS)
   },
 );
 
@@ -66,6 +68,7 @@ When(
       .getByRole("button", { name: /Vrijgeven/ })
       .nth(1)
       .click();
+    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS)
   },
 );
 
