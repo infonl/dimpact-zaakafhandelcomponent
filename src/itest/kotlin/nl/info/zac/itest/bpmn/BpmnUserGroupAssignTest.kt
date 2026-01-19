@@ -18,7 +18,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUN
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI

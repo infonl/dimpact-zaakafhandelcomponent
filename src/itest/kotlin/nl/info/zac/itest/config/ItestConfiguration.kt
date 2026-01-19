@@ -329,7 +329,6 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH = "bpmn/user-management/zaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH = "bpmn/user-management/hardCoded.json"
     const val BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH = "bpmn/user-management/userGroupSelection.json"
-    const val BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH = "bpmn/user-management/displayUserGroup.json"
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
