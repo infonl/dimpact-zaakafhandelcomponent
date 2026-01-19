@@ -448,20 +448,18 @@ via de functionele rollen die aan de groep(en) zijn toegekend.
 
 #### PABC
 
+De PABC wordt gebruikt voor het beheer van zogenaamde 'autorisatie-koppelingen'. 
+ZAC gebruikt deze autorisatie-koppelingen voor het autoriseren groepen en medewerkers.
 
-##### Domeinen
+##### Beheer - beheer van de lijsten
 
-Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
-Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
+Voordat de autorisatie-koppelingen kunnen worden beheerd, moeten een aantal lijsten in de PABC worden ingericht.
 
-Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
-van entiteitstypes (zoals zaaktypes) te autoriseren.
+###### Applicatierollen
 
-##### Applicatierollen
-
-Applicatierollen zijn laag-niveau applicatie-specifieke rollen. 
+Applicatierollen zijn laag-niveau applicatie-specifieke rollen.
 Ze worden gedefinieerd door de specifieke applicatie (in dit geval ZAC) en kunnen niet worden aangepast.
-Ze moeten (op dit moment) ook geconfigureerd worden in de PABC.
+Ze moeten ook geconfigureerd worden in de PABC voor de ZAC-applicatie.
 
 ZAC kent op dit moment de volgende applicatierollen:
 * `raadpleger`
@@ -472,6 +470,41 @@ ZAC kent op dit moment de volgende applicatierollen:
 
 De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
 te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
+
+  ![PABC applicatierollen](images/pabc_applicatierollen.png)
+
+###### Domeinen
+
+Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
+Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
+
+Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
+van entiteitstypes (zoals zaaktypes) te autoriseren.
+
+  ![PABC domeinen](images/pabc_domeinen.png)
+
+###### Functionele rollen
+
+De functionele rollen waarop geautoriseerd moet worden moeten in de PABC worden ingericht.
+De namen van deze functionele rollen moet overeen komen met die in Keycloak.
+
+  ![PABC functionele rollen](images/pabc_functionele_rollen.png)
+
+###### Applicaties
+
+De ZAC-applicatie moet worden ingericht in de PABC.
+Voor ZAC moet dit zijn: `zaakafhandelcomponent`.
+
+  ![PABC applicaties](images/pabc_applicaties.png)
+
+###### Entiteitstypes
+
+##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
+
+###### Domeinen
+
+###### Autorisatie-koppelingen (middels functionele rollen)
+
 
 ## Groepen
 
