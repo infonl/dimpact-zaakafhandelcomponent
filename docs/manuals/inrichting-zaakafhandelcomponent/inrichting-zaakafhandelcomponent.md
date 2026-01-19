@@ -386,7 +386,8 @@ Om het domein in te richten en toe te wijzen neem je de volgende stappen:
 - selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt
 - in clients, selecteer de `zaakafhandelcomponent` client
 - maak een rol aan met een naam die begint met `domein_` en een korte omschrijving van het domein, bijvoorbeeld "domein_vergunningen"
-- maak een groep aan met de ZAC applicatierol(len) die de gebruikers moeten krijgen en ook met de juist aangemaakte domein rol
+- maak een groep aan met de ZAC applicatierol(len) die de gebruikers moeten krijgen en ook met de juist aangemaakte domein rol:
+  ![Keycloak group old IAM](images/keycloak_group_iam_old.png)
 - plaats de gebruikers die bij dit domein horen aan de groep toe
 2. In ZAC
 - maak in de referentietabel `Domein` een domein aan met exact dezelfde naam, in dit geval "domein_vergunningen"
@@ -396,7 +397,8 @@ Na het opslaan is de domein-opzet meteen in werking.
 ### Nieuwe IAM architectuur
 
 Deze sectie beschrijft de werking van de nieuwe IAM-architectuur in ZAC.
-ZAC moet expliciet worden geconfigureerd om gebruik te maken van de nieuwe IAM-architectuur.
+ZAC moet op dit moment expliciet worden geconfigureerd middels een 'feature flag' om gebruik te maken van de nieuwe IAM-architectuur.
+Standaard staat deze feature flag uit, waardoor ZAC gebruik maakt van de oude IAM-architectuur.
 
 De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
 * Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
@@ -406,25 +408,56 @@ verschillende applicatierollen toe te kennen voor verschillende domeinen.
 * Het verlaagt de autorisatiebeheer-last met behulp van hoog-niveau abstracties zoals domeinen en functionele rollen. 
 * Het vereist dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
 
-#### Zaaktype autorisaties
+Om een zaaktype te autoriseren voor ZAC, moeten de volgende stappen doorlopen worden (per component):
 
-Om een zaaktype te autoriseren voor een medewerker of groep, moeten de volgende stappen doorlopen worden:
-1. In Keycloak:
-- Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
-- Maak één of meerdere functionele rollen aan op het niveau van het realm ('Ream Roles' in Keycloak). 
-Bijvoorbeeld: 'behandelaar_vergunningen' en 'raadpleger_fysieke_leefomgeving'. 
-- 
-2. In de PABC:
-- TODO
+#### Keycloak
 
-TODO; ook screenshots toevoegen
-
-#### Functionele rollen en applicatierollen
+#### Functionele rollen
 
 Functionele rollen zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
 Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt worden,
 zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
-Functionele rollen worden beheerd in Keycloak.
+Functionele rollen worden beheerd in Keycloak, en worden in de PABC gebruikt voor autorisatie-koppelingen.
+
+1. Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
+2. Maak één of meerdere functionele rollen aan op het niveau van het realm (`Ream Roles` in Keycloak). 
+Bijvoorbeeld: 'behandelaar_domein_test_1' en 'raadpleger_domein_test_2'. 
+In werkelijkheid zal dit iets zijn als 'behandelaar_vergunningen' of 'raadpleger_fysieke_leefomgeving'.
+
+  ![Keycloak functionele rollen](images/keycloak_functionele_rollen.png)
+
+##### Groepen
+
+In de nieuwe IAM-architectuur worden de `functionele rollen` toegekend aan groepen.
+De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
+Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
+
+ZAC maakt gebruik van autorisaties op groep-niveau, bijvoorbeeld bij het toekennen van een zaak aan een groep.
+Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
+
+![Keycloak group](images/keycloak_group.png)
+
+##### Medewerkers
+
+Een medewerker zit in één of meerdere groepen en krijgt de autorisaties die aan deze groep(en) is/zijn toegekend,
+via de functionele rollen die aan de groep(en) zijn toegekend.
+
+  ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
+
+  ![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
+
+#### PABC
+
+
+##### Domeinen
+
+Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
+Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
+
+Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
+van entiteitstypes (zoals zaaktypes) te autoriseren.
+
+##### Applicatierollen
 
 Applicatierollen zijn laag-niveau applicatie-specifieke rollen. 
 Ze worden gedefinieerd door de specifieke applicatie (in dit geval ZAC) en kunnen niet worden aangepast.
@@ -440,18 +473,10 @@ ZAC kent op dit moment de volgende applicatierollen:
 De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
 te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
 
-#### Domeinen
-
-Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
-Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
-
-Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
-van entiteitstypes (zoals zaaktypes) te autoriseren.
-
 ## Groepen
 
 Groepen van medewerkers worden beheerd in Keycloak. 
-In ZAC worden deze groepen vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+In ZAC worden deze groepen vervolgens gebruikt middels groep-autorisaties op zaaktype(s) om bijvoorbeeld zaken en taken aan toe te wijzen.
 Zie eerdere secties in dit document voor specifieke details.
 
 ### Beheer van groepen
@@ -463,28 +488,3 @@ Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen va
 > Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 
-
-### Groep autorisaties
-
-Zowel in de oude als nieuwe IAM-architectuur worden ook groepen gebruikt om autorisaties te beheren.
-Dit vindt plaats middels de rol(len) die aan de groep zijn toegekend in Keycloak.
-
-ZAC maakt gebruik van autorisaties op groep-niveau (bijvoorbeeld bij het toekennen van een zaak aan een groep).
-Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
-
-Het beheer van groepen verschilt tussen de oude en de nieuwe IAM-architectuur:
-
-#### Groep autorisaties in de oude IAM-architectuur
-
-In de oude IAM-architectuur worden de ZAC-applicatierollen direct toegekend aan groepen. 
-Ook worden de 'domein-rollen' toegekend aan groepen t.b.v. zaaktype autorisaties.
-
-  ![Keycloak group old IAM](images/keycloak_group_iam_old.png)
-
-#### Groep autorisaties in de nieuwe IAM-architectuur
-
-In de nieuwe IAM-architectuur worden echter `functionele rollen` toegekend aan groepen.
-De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
-Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
-
-  ![Keycloak group](images/keycloak_group.png)
