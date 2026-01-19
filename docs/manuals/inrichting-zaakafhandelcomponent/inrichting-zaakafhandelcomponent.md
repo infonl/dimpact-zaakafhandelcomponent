@@ -516,10 +516,20 @@ Elk zaaktype heeft de volgende velden:
 
 ###### Domeinen
 
+Een domein is een verzameling van entiteitstypes (zoals zaaktypes), en vormen het 
+abstractieniveau waarop geautoriseerd wordt.
 
+  ![PABC dashboard domeinen](images/pabc_dashboard_domeinen.png)
 
 ###### Autorisatie-koppelingen (middels functionele rollen)
 
+Autorisatie-koppelingen zijn de combinaties van applicatie rollen en domeinen die zijn 
+gekoppeld aan een functionele rol.
+Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen welk domein.
+
+  ![PABC autorisatie-koppelingen 1](images/pabc_autorisatie_koppelingen_1.png)
+
+  ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
 
 ## Groepen
 
