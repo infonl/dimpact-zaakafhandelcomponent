@@ -4,12 +4,9 @@
  */
 
 import {
-  AfterViewInit,
   booleanAttribute,
   Component,
-  ElementRef,
   EventEmitter,
-  inject,
   Input,
   Output,
   ViewChild,
@@ -25,12 +22,10 @@ import {
   selector: "zac-formio-wrapper",
   templateUrl: "./formio-wrapper.component.html",
   styleUrl: "./formio-wrapper.component.less",
-  encapsulation: ViewEncapsulation.ShadowDom,
+  encapsulation: ViewEncapsulation.None,
   standalone: false,
 })
-export class FormioWrapperComponent implements AfterViewInit {
-  private elementRef = inject(ElementRef);
-  private static bootstrapStyleSheet: CSSStyleSheet | null = null;
+export class FormioWrapperComponent {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -42,45 +37,6 @@ export class FormioWrapperComponent implements AfterViewInit {
 
   @ViewChild(FormioComponent, { static: false })
   formioComponent!: FormioComponent;
-
-  async ngAfterViewInit() {
-    await this.loadBootstrapStyles();
-  }
-
-  private async loadBootstrapStyles(): Promise<void> {
-    const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
-    if (!shadowRoot) return;
-
-    // Use cached stylesheet if available
-    if (FormioWrapperComponent.bootstrapStyleSheet) {
-      shadowRoot.adoptedStyleSheets = [
-        FormioWrapperComponent.bootstrapStyleSheet,
-        ...shadowRoot.adoptedStyleSheets,
-      ];
-      return;
-    }
-
-    try {
-      // Lazy load Bootstrap CSS from CDN
-      const response = await fetch(
-        "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
-      );
-      let css = await response.text();
-
-      // Transform :root to :host for Shadow DOM compatibility
-      css = css.replace(/:root\b/g, ":host");
-
-      // Create and cache stylesheet
-      const sheet = new CSSStyleSheet();
-      await sheet.replace(css);
-      FormioWrapperComponent.bootstrapStyleSheet = sheet;
-
-      // Adopt into Shadow DOM - prepend so component styles override
-      shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
-    } catch (error) {
-      console.error("Failed to load Bootstrap CSS:", error);
-    }
-  }
 
   onSubmit(event: object) {
     this.formSubmit.emit(event);
