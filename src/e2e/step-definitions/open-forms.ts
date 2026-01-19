@@ -57,8 +57,9 @@ Given(
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
     await this.page
-      .getByPlaceholder("dd-mm-jjjj HH:mm").nth(1).fill(profile.incidentDetails.date);
-
+      .getByPlaceholder("dd-mm-jjjj HH:mm")
+      .nth(1)
+      .fill(profile.incidentDetails.date);
 
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();

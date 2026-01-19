@@ -32,9 +32,11 @@ async function checkZaakAssignment(
   ).toBeVisible();
 
   await this.expect(
-    this.page.getByRole("cell", {
-      name: "Aanvullende informatie"
-    }).first(),
+    this.page
+      .getByRole("cell", {
+        name: "Aanvullende informatie",
+      })
+      .first(),
   ).toBeVisible();
 
   await this.expect(
@@ -139,8 +141,7 @@ When(
       .locator("svg")
       .click();
     await this.page.getByText(groupName).click();
-    await this.page
-      .getByLabel("Behandelaar").click()
+    await this.page.getByLabel("Behandelaar").click();
     await this.page.getByText(userName, { exact: true }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
@@ -216,7 +217,7 @@ When(
     await this.page.getByLabel("Omschrijving").fill("E2etest1");
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 
-    this.page.waitForTimeout(TEN_SECONDS_IN_MS);
+    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
 
     const currentYear = new Date().getFullYear();
 
