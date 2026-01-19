@@ -504,9 +504,19 @@ In de toekomst zullen ook andere entiteitstypes worden ondersteund.
 
   ![PABC entiteitstypes](images/pabc_entiteitstypes.png)
 
+Elk zaaktype heeft de volgende velden:
+- `Entiteitstype`: dit moet `ZAAKTYPE` zijn (in hoofdletters).
+- `Entiteitstype ID`: de waarde van het `Omschrijving` veld van het zaaktype in het zaakregister (zoals Open Zaak)
+- `Entiteitstype naam`: gelijk aan het `Entiteitstype ID` veld. Dit veld wordt niet gebruikt door ZAC, maar is verplicht in de PABC.
+- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
+
+  ![PABC entiteitstype velden](images/pabc_entiteitstype_velden.png)
+
 ##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
 
 ###### Domeinen
+
+
 
 ###### Autorisatie-koppelingen (middels functionele rollen)
 
