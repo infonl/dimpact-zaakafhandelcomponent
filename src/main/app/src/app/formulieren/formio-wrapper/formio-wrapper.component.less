@@ -3,7 +3,72 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-@import "../../../../node_modules/bootstrap/dist/css/bootstrap.css";
+@import "../../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "../../../variables.less";
+
+/**
+ * Bootstrap 5 CSS variables for component scope.
+ * Angular ViewEncapsulation prevents :root variables from bootstrap.css reaching this component.
+ * These must be defined here to make Bootstrap form controls render correctly.
+ * Colors aligned with Material Indigo theme (see variables.less).
+ * NOTE: When upgrading Bootstrap, check node_modules/bootstrap/dist/css/bootstrap.css :root block
+ * for any changed variable values and update below.
+ */
+:host {
+  // Border variables
+  --bs-border-width: 1px;
+  --bs-border-color: #e0e0e0; // @border-color
+  --bs-border-radius: 0.375rem;
+
+  // Body/background
+  --bs-body-color: #212121; // @title-color
+  --bs-body-bg: #fff;
+
+  // Form states - Material Indigo theme colors
+  --bs-primary: #3f51b5; // @primary-background-color
+  --bs-primary-rgb: 63, 81, 181;
+  --bs-success: #3f691f; // @success-background-color
+  --bs-success-rgb: 63, 105, 31;
+  --bs-danger: #ff0000; // @error-color
+  --bs-danger-rgb: 255, 0, 0;
+}
+
+// Override Bootstrap button colors to match Material Indigo theme
+.btn-primary {
+  --bs-btn-bg: #3f51b5; // Material Indigo 500
+  --bs-btn-border-color: #3f51b5;
+  --bs-btn-hover-bg: #5c6bc0; // Material Indigo 400 (lighter)
+  --bs-btn-hover-border-color: #5c6bc0;
+  --bs-btn-active-bg: #5c6bc0;
+  --bs-btn-active-border-color: #5c6bc0;
+  --bs-btn-focus-shadow-rgb: 63, 81, 181;
+  --bs-btn-disabled-bg: #3f51b5;
+  --bs-btn-disabled-border-color: #3f51b5;
+}
+
+.btn-success {
+  --bs-btn-bg: #3f691f; // Theme green
+  --bs-btn-border-color: #3f691f;
+  --bs-btn-hover-bg: #5a8e2d; // Lightened
+  --bs-btn-hover-border-color: #5a8e2d;
+  --bs-btn-active-bg: #5a8e2d;
+  --bs-btn-active-border-color: #5a8e2d;
+  --bs-btn-focus-shadow-rgb: 63, 105, 31;
+  --bs-btn-disabled-bg: #3f691f;
+  --bs-btn-disabled-border-color: #3f691f;
+}
+
+.btn-danger {
+  --bs-btn-bg: #ff0000; // Theme red
+  --bs-btn-border-color: #ff0000;
+  --bs-btn-hover-bg: #ff3333; // Lightened
+  --bs-btn-hover-border-color: #ff3333;
+  --bs-btn-active-bg: #ff3333;
+  --bs-btn-active-border-color: #ff3333;
+  --bs-btn-focus-shadow-rgb: 255, 0, 0;
+  --bs-btn-disabled-bg: #ff0000;
+  --bs-btn-disabled-border-color: #ff0000;
+}
 
 /**
  * Override Font Awesome icons with Material Symbols for visual consistency across the application.
