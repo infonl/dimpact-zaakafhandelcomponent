@@ -36,10 +36,6 @@ class BpmnFormioFormulierenRestServiceTest : BehaviorSpec({
                     "title": "Copy user and group"
                   },
                   {
-                    "name": "displayUserGroup",
-                    "title": "User and group"
-                  },
-                  {
                     "name": "hardCoded",
                     "title": "Hard-coded"
                   },

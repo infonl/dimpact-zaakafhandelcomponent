@@ -3,6 +3,8 @@
 This guide describes how to install ZAC in a Kubernetes environment as a system administrator.
 For developer documentation on how to build, install and run ZAC locally, please see [INSTALL.md](../../development/INSTALL.md). 
 
+For an architectural overview, see the: [ZAC deployment model](../../solution-architecture/deploymentModel.md).
+
 ## Install ZAC in Kubernetes
 
 To deploy ZAC in a Kubernetes cluster you can use the [ZAC Helm chart](../../../charts/zac/Chart.yaml) and fill-in all values that do not have a 

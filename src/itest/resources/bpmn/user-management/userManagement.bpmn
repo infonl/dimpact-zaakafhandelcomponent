@@ -27,13 +27,6 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="displayUserGroup" name="Display selected user and group" flowable:assignee="${selectedUser}" flowable:candidateGroups="${selectedGroup}" flowable:formKey="displayUserGroup" flowable:formFieldValidation="false">
-      <extensionElements>
-        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
-        <design:stencilid><![CDATA[FormTask]]></design:stencilid>
-        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
-      </extensionElements>
-    </userTask>
     <serviceTask id="setUserGroup" name="Set user and group" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate">
       <extensionElements>
         <flowable:field name="groepId">
@@ -56,9 +49,15 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="copyUserGroup" name="Copy user and group" flowable:assignee="${taken:behandelaar('hardCoded')}" flowable:candidateGroups="${taken:groep('hardCoded')}" flowable:formKey="copyUserGroup" flowable:formFieldValidation="false">
+    <userTask id="copyUserGroup"
+              name="Copy user and group"
+              flowable:assignee="${copyTaskUsesZaakDefaults ? var:get(zaakBehandelaar) : taken:behandelaar('hardCoded')}"
+              flowable:candidateGroups="${copyTaskUsesZaakDefaults ? zaakGroep : taken:groep('hardCoded')}"
+              flowable:formKey="copyUserGroup"
+              flowable:formFieldValidation="false">
       <extensionElements>
-        <flowable:executionListener event="start" expression="${execution.setVariable('actualUser', taken:behandelaar('hardCoded'))}"/>
+        <flowable:executionListener event="start" expression="${execution.setVariable('actualGroup', copyTaskUsesZaakDefaults ? zaakGroep : taken:groep('hardCoded'))}"/>
+        <flowable:executionListener event="start" expression="${execution.setVariable('actualUser', copyTaskUsesZaakDefaults ? var:get(zaakBehandelaar) : taken:behandelaar('hardCoded'))}"/>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
@@ -85,12 +84,7 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_15" sourceRef="userGroupSelection" targetRef="displayUserGroup">
-      <extensionElements>
-        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
-      </extensionElements>
-    </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_16" sourceRef="displayUserGroup" targetRef="setUserGroup">
+    <sequenceFlow id="SequenceFlow_15" sourceRef="userGroupSelection" targetRef="setUserGroup">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
