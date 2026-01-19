@@ -117,7 +117,7 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByRole("cell", { name: "Aanvullende informatie" }),
+      this.page.getByRole("cell", { name: "Aanvullende informatie" }).nth(0),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
@@ -282,7 +282,7 @@ Then(
 Then(
   "{string} sees the created zaak",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.waitForTimeout(3000);
     await this.page.reload();
     const caseNumber = this.testStorage.get("caseNumber");
@@ -296,7 +296,7 @@ Then(
 Then(
   "{string} sees the zaak initiator",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME);
     await this.page.getByText(/initiator/i).click();
     await this.expect(
@@ -311,7 +311,7 @@ Then(
 Then(
   "{string} sees the indication that no acknowledgment has been sent",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.expect(
       this.page.getByRole("option", { name: "Geen bevestiging verstuurd" }),
     ).toBeVisible();
@@ -321,7 +321,7 @@ Then(
 Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     // Load duration is necessary in order for added documents to load into the zaak
     await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
@@ -332,7 +332,7 @@ Then(
 Then(
   "Employee {string} sees the zaak that {string} created in open-forms",
   { timeout: ONE_MINUTE_IN_MS + 30000 },
-  async function (this: CustomWorld) {
+  async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get("open-forms-testid");
 
     await this.page.getByText("plagiarism").nth(1).click();
