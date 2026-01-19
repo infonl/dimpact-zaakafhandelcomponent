@@ -52,7 +52,10 @@ When(
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: "Vrijgeven" }).click();
     await this.page.getByLabel("Reden").fill("Fake reason");
-    await this.page.getByRole("button", { name: /Vrijgeven/ }).click();
+    await this.page
+      .getByRole("button", { name: /Vrijgeven/ })
+      .nth(1)
+      .click();
   },
 );
 

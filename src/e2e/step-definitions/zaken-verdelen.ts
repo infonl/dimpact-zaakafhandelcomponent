@@ -49,6 +49,7 @@ When(
     await this.page.getByRole("option", { name: users.Bob.username }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
+    await this.page.waitForTimeout(10000);
   },
 );
 
@@ -62,9 +63,10 @@ When(
       .click();
 
     await this.page.getByLabel("Reden").fill("Fake reason");
-    await this.page.getByRole("button", { name: "Vrijgeven" }).click();
-
-    await this.page.waitForTimeout(3000);
+    await this.page
+      .getByRole("button", { name: /Vrijgeven/ })
+      .nth(1)
+      .click();
   },
 );
 
