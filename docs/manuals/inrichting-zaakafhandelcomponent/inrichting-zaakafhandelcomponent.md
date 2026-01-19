@@ -530,6 +530,30 @@ Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen
 
   ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
 
+### Migratie van de oude naar de nieuwe IAM-architectuur
+
+Om te migreren van de oude naar de nieuwe IAM-architectuur, moeten de volgende stappen worden doorlopen:
+
+#### Keycloak
+
+- Applicatierollen: deze moeten worden verwijderd. In de nieuwe IAM-architectuur bestaan applicatierollen niet meer in Keycloak.
+- Domein-rollen: deze moeten worden verwijderd. Domein-rollen bestaan niet meer in de nieuwe IAM-architectuur.
+- Functionele rollen: deze moeten worden ingericht. Functionele rollen bestaan niet in de oude IAM-architectuur.
+- Groepen: groepen uit de oude IAM-architectuur kunnen worden gebruikt voor de nieuwe IAM-architectuur. 
+Wel is het zo dat groepen in de nieuwe IAM-architectuur functionele rollen bevatten, terwijl ze in de oude
+IAM-architectuur applicatierollen en domein-rollen bevatten.
+Indien mogelijk kan het beter zijn om te starten met nieuwe groepen voor de nieuwe IAM-architectuur.
+
+#### PABC
+
+Aangezien de PABC niet bestaat in de oude IAM-architectuur moet deze ingericht worden volgens de instructies hierboven
+beschreven.
+
+#### ZAC
+
+De `Domeinen` referentietabel moet worden verwijderd. 
+De nieuwe IAM-architectuur kent geen koppeling meer van de zaakafhandelparameters naar een domein.
+
 ## Groepen
 
 Groepen van medewerkers worden beheerd in Keycloak. 
