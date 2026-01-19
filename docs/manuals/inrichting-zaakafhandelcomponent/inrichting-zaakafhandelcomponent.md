@@ -62,7 +62,6 @@ Versiegeschiedenis:
 - [Nieuwe IAM architectuur](#nieuwe-iam-architectuur)
 
 [*Groepen*](#groepen)
-- [Groep autorisaties](#groep-autorisaties)
 - [Beheer van groepen](#beheer-van-groepen)
 
 ## Inrichting Zaakafhandelcomponent 
@@ -363,7 +362,7 @@ Deze sectie beschrijft de werking van identiteits- en toegangsbeheer (Identity a
 Er wordt onderscheid gemaakt tussen de 'oude' en 'nieuwe' IAM-architectuur.
 * De oude IAM-architectuur maakt met name gebruik van domeinen in ZAC om zaaktype autorisaties te regelen,
 en zal in de toekomst worden vervangen door de nieuwe IAM-architectuur.
-* De nieuwe IAM-architectuur maakt met name gebruik van het PABC (Platform Autorisatie Beheer Component) om zaaktype (en andere) autorisaties te beheren.
+* De nieuwe IAM-architectuur maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
 
 ### Oude IAM architectuur
 
