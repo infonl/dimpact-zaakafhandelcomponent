@@ -49,7 +49,6 @@ When(
     await this.page.getByRole("option", { name: users.Bob.username }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
     await this.page.getByRole("button", { name: /verdelen/i }).click();
-    await this.page.waitForTimeout(10000);
   },
 );
 
