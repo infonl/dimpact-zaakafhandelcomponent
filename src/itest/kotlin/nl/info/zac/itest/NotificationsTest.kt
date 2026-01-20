@@ -582,7 +582,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
-            
+
             Then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
