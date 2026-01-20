@@ -4,9 +4,9 @@
  */
 package net.atos.zac.websocket.event;
 
-import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
+
+import org.jspecify.annotations.NonNull;
 
 public record ScreenEventId(String resource, String detail) {
     /**
@@ -18,8 +18,10 @@ public record ScreenEventId(String resource, String detail) {
      */
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof ScreenEventId other)) return false;
+        if (this == object)
+            return true;
+        if (!(object instanceof ScreenEventId other))
+            return false;
         return resource.equals(other.resource);
     }
 
