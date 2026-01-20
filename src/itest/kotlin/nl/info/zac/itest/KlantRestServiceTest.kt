@@ -549,6 +549,9 @@ class KlantRestServiceTest : BehaviorSpec({
 
     Context("Retrieving a rechtspersoon") {
         Given("An existing rechtspersoon and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When(
                 """
                 the read rechtspersoon endpoint is called with the RSIN of a test company available in the KVK mock
