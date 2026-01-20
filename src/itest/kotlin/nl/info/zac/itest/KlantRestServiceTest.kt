@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
@@ -52,6 +53,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -72,7 +74,15 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing role types") {
-        Given("Persons and company data is present in the BRP Personen Mock and the Klanten API database") {
+        Given(
+            """
+            Persons and company data is present in the BRP Personen Mock and the Klanten API database,
+            and a logged-in raadpleger
+            """
+        ) {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When("the list role types endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype"
@@ -95,7 +105,15 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a person") {
-        Given("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+        Given(
+            """
+                A person which is present in the BRP and for which contact data exists in the Klanten API,
+                and a logged-in raadpleger
+                """
+        ) {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
@@ -198,7 +216,10 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("an existing person") {
+        Given("an existing person and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             val expectedResponse = """{ 
                 "foutmelding": "",
                 "resultaten": [{
@@ -308,7 +329,10 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a vestiging") {
-        Given("An existing vestiging") {
+        Given("An existing vestiging and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When(
                 """
                 A vestiging is requested by vestigingsnummer and KVK number which is present in the KVK test environment
@@ -478,7 +502,10 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving contactmomenten for a person") {
-        Given("Existing contactmomenten") {
+        Given("Existing contactmomenten and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -521,7 +548,7 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a rechtspersoon") {
-        Given("An existing rechtspersoon") {
+        Given("An existing rechtspersoon and a logged-in raadpleger") {
             When(
                 """
                 the read rechtspersoon endpoint is called with the RSIN of a test company available in the KVK mock
@@ -578,7 +605,10 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving personen parameters") {
-        Given("Existing personen parameters") {
+        Given("Existing personen parameters and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When("the personen parameters endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/parameters",
@@ -653,7 +683,10 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving betrokkenen for a zaaktype") {
-        Given("Existing betrokkenen") {
+        Given("Existing betrokkenen and a logged-in raadpleger") {
+            // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+            // a user with at least one ZAC role must be logged in
+            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
