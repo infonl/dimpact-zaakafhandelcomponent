@@ -2,8 +2,8 @@
 
 
 > **Colofon** <br>
-> Datum : 19-01-2026 <br>
-> Versie :   1.8 <br>
+> Datum : 20-01-2026 <br>
+> Versie :   1.9 <br>
 > Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -14,16 +14,17 @@
 
 Versiegeschiedenis:
 
-| 1.0 | Initiële versie |
-|-----|-------------------------------------------------------------------------------------------------------------------------------------|
-| 1.1 | ZAC versie 3.7 |
-| 1.2 | ZAC versie 3.9 |
-| 1.3 | ZAC versie 3.11 |
-| 1.4 | ZAC versie 3.12 |
+| 1.0 | Initiële versie    |
+|-----|--------------------|
+| 1.1 | ZAC versie 3.7     |
+| 1.2 | ZAC versie 3.9     |
+| 1.3 | ZAC versie 3.11    |
+| 1.4 | ZAC versie 3.12    |
 | 1.5 | ZAC versie 3.17.67 |
 | 1.6 | ZAC versie 3.20.53 |
-| 1.7 | ZAC versie 4.0.54 |
-| 1.8 | ZAC versie 4.0.54 |
+| 1.7 | ZAC versie 4.0.54  |
+| 1.8 | ZAC versie 4.0.54  |
+| 1.9 | ZAC versie 4.0.83  |
 
 # Inhoud
 
@@ -443,7 +444,32 @@ via de functionele rollen die aan de groep(en) zijn toegekend.
 
   ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
 
-  ![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
+###### Een medewerker in meerdere groepen
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen verschillende domeinen, 
+dan krijgt de medewerker verschillende autorisaties per domein via de groepen.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol Y' in 'Domein 2'.
+
+In dit geval krijgt de medewerker de applicatie rol 'Applicatie rol X' voor het domein 'Domein 1',
+en de applicatie rol 'Applicatie rol Y' voor het domein 'Domein 2'.
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen één en hetzelfde domein, 
+dan worden deze autorisaties samengevoegd binnen dat domein.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol Y' in 'Domein 1'.
+
+In dit geval krijgt de medewerker beide applicatierollen 'Applicatie rol X' en 'Applicatie rol Y' voor het domein 'Domein 1'.
+
+![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
 
 #### PABC
 
@@ -560,12 +586,15 @@ Het `Domein` veld in de zaakafhandelparameters is er daarom ook niet meer in de 
 ## Groepen
 
 Groepen van medewerkers worden beheerd in Keycloak. 
-In ZAC worden deze groepen vervolgens gebruikt middels groep-autorisaties op zaaktype(s) om bijvoorbeeld zaken en taken aan toe te wijzen.
-Zie eerdere secties in dit document voor specifieke details.
+In ZAC worden deze groepen, met behulp van de PABC, vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Dit gebeurt via zogenaamde groep-autorisaties op zaaktypes. Zie eerdere secties in dit document voor specifieke details.
 
 ### Beheer van groepen
 
 Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
+
+In Keycloak is het ook mogelijk om 'subgroepen' aan te maken, oftewel groepen binnen groepen.
+Dergelijke subgroepen worden niet ondersteund.
 
 > Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
 
