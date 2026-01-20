@@ -1,53 +1,49 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.websocket.event;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 
-public class ScreenEventId {
-    private final String resource;
+import org.jspecify.annotations.NonNull;
 
-    private final String detail;
-
-    public ScreenEventId(final String resource, final String detail) {
-        this.resource = resource;
-        this.detail = detail;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    /* Do NOT include the detail field in equality! */
+public record ScreenEventId(String resource, String detail) {
+    /**
+     * Override the default equals to explicitly exclude the 'detail' field,
+     * because screen event IDs are considered equal if their 'resource' fields are equal.
+     *
+     * @param object the object to compare with
+     * @return true if equal, false otherwise
+     */
     @Override
-    public boolean equals(final Object obj) {
-        // snel antwoord
-        if (obj == this) {
+    public boolean equals(Object object) {
+        if (this == object)
             return true;
-        }
-        // gebruik getClass i.p.v. instanceof, maar dan wel met de null check
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!(object instanceof ScreenEventId other))
             return false;
-        }
-        // cast en vergelijk
-        final ScreenEventId other = (ScreenEventId) obj;
-        return StringUtils.equals(resource, other.resource);
+        return resource.equals(other.resource);
     }
 
+    /**
+     * Override the default equals to explicitly exclude the 'detail' field,
+     * because screen event IDs are considered equal if their 'resource' fields are equal.
+     *
+     * @return hash code based on the 'resource' field
+     */
     @Override
     public int hashCode() {
-        return resource != null ? resource.hashCode() : 0;
+        return Objects.hashCode(resource);
     }
 
+    /**
+     * String representation of the ScreenEventId.
+     * This string format is used in the ZAC WebSocket code and should not be changed.
+     *
+     * @return string representation
+     */
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return detail != null ? String.format("%s;%s", resource, detail) : resource;
     }
 }

@@ -123,8 +123,8 @@ public class SessionRegistry {
      * @return an event in which the objectId is stripped of any quotes
      */
     public ScreenEvent fix(final ScreenEvent event) {
-        final String resource = fix(event.getObjectId().getResource());
-        final String detail = fix(event.getObjectId().getDetail());
+        final String resource = fix(event.getObjectId().resource());
+        final String detail = fix(event.getObjectId().detail());
         if (resource != null || detail != null) {
             return new ScreenEvent(
                     event.getOpcode(),
