@@ -100,6 +100,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """"
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
@@ -200,10 +201,12 @@ class NotificationsTest : BehaviorSpec({
                 }
             }
         }
+
         When("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
             )
+
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
@@ -266,6 +269,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                     using the BPMN-configured zaaktype and a BPMN process should be started in ZAC"""
@@ -348,6 +352,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
@@ -378,6 +383,7 @@ class NotificationsTest : BehaviorSpec({
                     }
                 }
             }
+
             And("an automated email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/"
@@ -435,6 +441,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces should be started in ZAC with both kvkNummer and vestigingsNummer"""
@@ -575,6 +582,7 @@ class NotificationsTest : BehaviorSpec({
                 ).toString(),
                 addAuthorizationHeader = false
             )
+
             Then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
@@ -593,6 +601,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
@@ -657,6 +666,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given("""A websocket subscription is created to listen to all changes made to zaak-rollen""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -712,7 +722,8 @@ class NotificationsTest : BehaviorSpec({
             }
         }
         Then(
-            """the response should be 'no content' and an event that the zaak-rol has been updated should be sent to the websocket"""
+            """the response should be 'no content' and an event that the zaak-rol
+                has been updated should be sent to the websocket"""
         ) {
             websocketListener.messagesReceived.forAtLeastOne {
                 with(JSONObject(it)) {
