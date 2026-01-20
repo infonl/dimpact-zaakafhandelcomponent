@@ -41,7 +41,8 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
-      # This requires an entry in your `/etc/hosts` file. See the `installDockerCompose.md` readme.
+      # This requires adding host.docker.internal to your `/etc/hosts` file.
+      # See the "Steps to Add host.docker.internal Entry to /etc/hosts File" section in `installDockerCompose.md`.
       - KC_HOSTNAME=http://host.docker.internal:8081
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
