@@ -14,6 +14,7 @@ import { worldUsers, zaakStatus } from "../utils/schemes";
 const ONE_MINUTE_IN_MS = 60_000;
 const TWO_MINUTES_IN_MS = 120_000;
 const FIFTEEN_SECONDS_IN_MS = 15_000;
+const TEN_SECONDS_IN_MS = 10_000;
 
 const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
 const TEST_PERSON_HENDRIKA_JANSE_NAME = "Héndrika Janse";
@@ -31,10 +32,11 @@ async function checkZaakAssignment(
   ).toBeVisible();
 
   await this.expect(
-    this.page.getByRole("cell", {
-      name: "Aanvullende informatie",
-      exact: true,
-    }),
+    this.page
+      .getByRole("cell", {
+        name: "Aanvullende informatie",
+      })
+      .first(),
   ).toBeVisible();
 
   await this.expect(
@@ -115,7 +117,7 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByRole("cell", { name: "Aanvullende informatie" }),
+      this.page.getByRole("cell", { name: "Aanvullende informatie" }).nth(0),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
@@ -139,10 +141,7 @@ When(
       .locator("svg")
       .click();
     await this.page.getByText(groupName).click();
-    await this.page
-      .getByRole("combobox", { name: "Behandelaar Kies een" })
-      .locator("svg")
-      .click();
+    await this.page.getByRole("combobox", { name: "Behandelaar" }).click();
     await this.page.getByText(userName, { exact: true }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
@@ -217,6 +216,8 @@ When(
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     await this.page.getByLabel("Omschrijving").fill("E2etest1");
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
+
+    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
 
     const currentYear = new Date().getFullYear();
 
@@ -320,7 +321,7 @@ Then(
 Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     // Load duration is necessary in order for added documents to load into the zaak
     await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();

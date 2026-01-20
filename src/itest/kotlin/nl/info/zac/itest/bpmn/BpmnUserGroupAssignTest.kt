@@ -18,7 +18,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUN
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -134,33 +133,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 """
                 {
                     "selectedGroup": "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}"
+                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}",
+                    "copyTaskUsesZaakDefaults": false
                 }
                 """.trimIndent()
             )
-
-            Then("the next task has the selected user and group assigned") {
-                getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
-                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                    {
-                      "groep" : {
-                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
-                      },
-                      "behandelaar" : {
-                        "id" : "${RECORDMANAGER_DOMAIN_TEST_1.username}",
-                        "naam" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}"
-                      }
-                    }                    
-                """.trimIndent()
-            }
-        }
-
-        When("the new zaak defaults are set by service task") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
 
             Then("the next task has the selected user and group assigned") {
                 getTaskData(
