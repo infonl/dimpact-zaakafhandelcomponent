@@ -45,6 +45,14 @@
       ]
     },
     {
+      "label": "Use for copy task",
+      "tableView": false,
+      "key": "copyTaskUsesZaakDefaults",
+      "type": "checkbox",
+      "input": true,
+      "defaultValue": false
+    },
+    {
       "type": "button",
       "label": "Next",
       "key": "submit",
