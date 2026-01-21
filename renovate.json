@@ -330,6 +330,19 @@
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<wildfly.version>(?<currentValue>[^<]+)</wildfly.version>"
+      ],
+      "depNameTemplate": "wildfly/wildfly",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)\\.Final",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
