@@ -30,7 +30,7 @@ on:
       - 'publiccode.yaml'
 
 env:
-  JAVA_VERSION: "21.0.9"
+  JAVA_VERSION: "21.0.10"
   CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
   APPLICATION_NAME: "zaakafhandelcomponent"
 
