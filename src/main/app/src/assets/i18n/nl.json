@@ -1088,5 +1088,6 @@
   "defaultWaarde": "Standaardwaarde",
   "verplicht": "Verplicht",
   "meerkeuzeOpties": "Meerkeuze opties",
-  "volgorde": "Volgorde"
+  "volgorde": "Volgorde",
+  "persoon.detail.geen-data": "Geen persoonsgegevens beschikbaar. Zoek een persoon om de details te bekijken."
 }

@@ -1088,5 +1088,6 @@
   "defaultWaarde": "Default value",
   "verplicht": "Required",
   "meerkeuzeOpties": "Multiple choice options",
-  "volgorde": "Order"
+  "volgorde": "Order",
+  "persoon.detail.geen-data": "No personal data available. Search for a person to view the details."
 }
