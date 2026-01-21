@@ -18,7 +18,7 @@ permissions:
   pages: write
 
 env:
-  JAVA_VERSION: "21.0.9"
+  JAVA_VERSION: "21.0.10"
   SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
 
 jobs:
