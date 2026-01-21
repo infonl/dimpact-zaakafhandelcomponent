@@ -341,7 +341,7 @@
       ],
       "depNameTemplate": "wildfly/wildfly",
       "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)\\.Final",
       "versioningTemplate": "semver"
     }
   ],
