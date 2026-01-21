@@ -38,9 +38,8 @@
         <a
           *ngIf="persoonQuery.data()"
           mat-icon-button
-          [routerLink]="['/persoon', persoonQuery.data()?.bsn]"
-          (click)="$event.stopPropagation()"
           title="{{ 'actie.persoon.bekijken' | translate }}"
+          (click)="openPersoonPage($event)"
         >
           <mat-icon>visibility</mat-icon>
         </a>

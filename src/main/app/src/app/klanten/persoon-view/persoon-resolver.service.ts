@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot } from "@angular/router";
+import { Router } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
@@ -17,14 +17,14 @@ export class PersoonResolverService {
   private readonly queryClient = inject(QueryClient);
   private readonly klantenService = inject(KlantenService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly router = inject(Router);
 
-  async resolve(route: ActivatedRouteSnapshot) {
-    const bsn = route.paramMap.get("bsn");
+  async resolve() {
+    const bsn = this.router.getCurrentNavigation()?.extras.state?.bsn;
 
     if (!bsn) {
-      throw new Error(
-        `${PersoonResolverService.name}: no 'bsn' found in route`,
-      );
+      console.error(`${PersoonResolverService.name}: no 'BSN' provided`);
+      return;
     }
 
     return this.queryClient.ensureQueryData({

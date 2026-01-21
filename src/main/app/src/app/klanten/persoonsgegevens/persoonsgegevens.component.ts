@@ -4,6 +4,7 @@
  */
 
 import { Component, inject, input, output } from "@angular/core";
+import { Router } from "@angular/router";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -17,6 +18,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
+  private readonly router = inject(Router);
 
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);
@@ -31,4 +33,12 @@ export class PersoonsgegevensComponent {
   );
 
   protected readonly indicatiesLayout = IndicatiesLayout;
+
+  protected openPersoonPage(event: MouseEvent) {
+    event.stopPropagation();
+
+    this.router.navigateByUrl("/persoon", {
+      state: { bsn: this.bsn() },
+    });
+  }
 }
