@@ -313,6 +313,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
+
     this.isLoading = true;
     this.zaakafhandelParametersService
       .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
@@ -324,6 +325,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         productaanvraagtype:
           this.algemeenFormGroup.value.productaanvraagtype || null,
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
+        defaultBehandelaarId: this.algemeenFormGroup.value.defaultBehandelaar?.id || null,
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,

@@ -63,6 +63,9 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "groep_id", nullable = false)
     var groepID: String? = null
 
+    @Column(name = "default_behandelaar_id")
+    var defaultBehandelaarId: String? = null
+
     @field:NotNull
     @Column(name = "creatiedatum", nullable = false)
     var creatiedatum: ZonedDateTime? = null
