@@ -337,12 +337,13 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<wildfly.version>(?<currentValue>[^<]+)</wildfly.version>"
+        "<wildfly\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)\\.Final</wildfly\\.version>"
       ],
       "depNameTemplate": "wildfly/wildfly",
       "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)\\.Final",
-      "versioningTemplate": "semver"
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)\\.Final$",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "<wildfly.version>{{{newValue}}}.Final</wildfly.version>"
     }
   ],
   "packageRules": [
