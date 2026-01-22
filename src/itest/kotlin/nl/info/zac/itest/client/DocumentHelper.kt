@@ -96,7 +96,7 @@ class DocumentHelper(
                         "page": 0,
                         "type": "DOCUMENT"
                     }
-                    """.trimIndent(),
+                """.trimIndent(),
                 testUser = testUser
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1

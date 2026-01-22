@@ -781,7 +781,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val websocket = itestHttpClient.connectNewWebSocket(
                 url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-                webSocketListener = zakenVerdelenWebsocketListener
+                webSocketListener = zakenVerdelenWebsocketListener,
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             logger.info { "WebSocket created: '$websocket'" }
 
@@ -865,7 +866,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             itestHttpClient.connectNewWebSocket(
                 url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-                webSocketListener = zakenVerdelenWebsocketListener
+                webSocketListener = zakenVerdelenWebsocketListener,
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             When(

@@ -622,7 +622,8 @@ class NotificationsTest : BehaviorSpec({
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = websocketListener,
+            testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
@@ -688,7 +689,8 @@ class NotificationsTest : BehaviorSpec({
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = websocketListener,
+            testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When(""""a notification is sent to ZAC that a zaak-rol has been created""") {
             // we need eventually here because it takes some time before the new websocket has been

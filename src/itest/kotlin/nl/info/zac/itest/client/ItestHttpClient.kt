@@ -7,62 +7,70 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_READ_TIMEOUT_SECONDS
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
-import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import java.net.CookieManager
-import java.net.CookiePolicy
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
     private val logger = KotlinLogging.logger {}
-    private var okHttpClient: OkHttpClient
+    private var okHttpClient: OkHttpClient = OkHttpClient.Builder()
+        .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .followRedirects(false)
+        .build()
 
-    init {
-        // use a non-persistent cookie manager, so that we can reuse HTTP sessions across requests
-        val cookieManager = CookieManager().apply {
-            setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-        }
-        okHttpClient = OkHttpClient.Builder()
-            .cookieJar(JavaNetCookieJar(cookieManager))
-            .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .followRedirects(false)
+    fun connectNewWebSocket(
+        url: String,
+        webSocketListener: WebSocketListener,
+        headers: Headers = buildHeaders(acceptType = null),
+        testUser: TestUser
+    ): WebSocket {
+        val tokens = authenticate(testUser)
+        logger.info { "Connecting new websocket on: '$url'" }
+        val request = Request.Builder()
+            .headers(cloneHeadersWithAuthorization(headers, url, tokens.first))
+            .url(url)
             .build()
+        val webSocket = okHttpClient.newWebSocket(request, webSocketListener)
+        logout(testUser, tokens.second)
+        return webSocket
     }
-
-    // TODO: create generic function for all HTTP methods that does:
-    // 1. log in, 2. perform request, 3. log out
 
     fun performDeleteRequest(
         url: String,
         headers: Headers = buildHeaders(),
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Performing DELETE request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(
+                        headers = headers,
+                        url = url,
+                        accessToken = tokens.first
+                    )
+                } ?: run {
                     headers
                 }
             )
             .url(url)
             .delete()
             .build()
-        return okHttpClient.newCall(request).execute().use {
+        val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
+        tokens?.let { logout(testUser, it.second) }
+        return responseContent
     }
 
     fun performGetRequest(
@@ -91,31 +99,7 @@ class ItestHttpClient {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
-        tokens?.let{ logout(testUser, it.second) }
-        // TODO test, log out from ZAC
-        // tokens?.run { performGetRequest(url = "$ZAC_BASE_URI/logout") }
-        return responseContent
-    }
-
-    fun performZgwApiGetRequest(
-        url: String,
-        headers: Headers = buildHeaders(acceptType = null)
-    ): ResponseContent {
-        logger.info { "Performing GET request on: '$url'" }
-        val request = Request.Builder()
-            .headers(
-                cloneHeadersWithAuthorization(
-                    headers = headers,
-                    url = url
-                )
-            )
-            .url(url)
-            .get()
-            .build()
-        val responseContent = okHttpClient.newCall(request).execute().use {
-            logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
-        }
+        tokens?.let { logout(testUser, it.second) }
         return responseContent
     }
 
@@ -227,33 +211,26 @@ class ItestHttpClient {
         return responseContent
     }
 
-    fun connectNewWebSocket(
+    fun performZgwApiGetRequest(
         url: String,
-        webSocketListener: WebSocketListener,
-        headers: Headers = buildHeaders(acceptType = null),
-        // TODO: for releasing zaken from the list authorisation seems to be required, but for
-        // assigning zaken from the list not? see ZaakRestServiceTest
-        // websockets are not secured at all I think?
-        testUser: TestUser? = null
-    ): WebSocket {
-        val tokens = testUser?.let(::authenticate)
-        logger.info { "Connecting new websocket on: '$url'" }
+        headers: Headers = buildHeaders(acceptType = null)
+    ): ResponseContent {
+        logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                tokens?.let {
-                    cloneHeadersWithAuthorization(headers, url, tokens.first)
-                } ?: run {
-                    headers
-                }
+                cloneHeadersWithAuthorization(
+                    headers = headers,
+                    url = url
+                )
             )
             .url(url)
+            .get()
             .build()
-        val webSocket = okHttpClient.newWebSocket(
-            request,
-            webSocketListener
-        )
-        tokens?.let { logout(testUser, it.second) }
-        return webSocket
+        val responseContent = okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
+        return responseContent
     }
 
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =

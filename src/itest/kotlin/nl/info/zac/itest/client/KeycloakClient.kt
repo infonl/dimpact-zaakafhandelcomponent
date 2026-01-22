@@ -31,9 +31,9 @@ fun authenticate(testUser: TestUser) = authenticate(
  */
 fun logout(testUser: TestUser, refreshToken: String) {
     logger.info { "Logging out user: '${testUser.username}'" }
-    // to logout from Keycloak directly (which is a legacy and unrecommended flow) we need to include
-    // both the refresh token and client credentials
-    // Ssee: https://www.keycloak.org/securing-apps/oidc-layers
+    // To logout from Keycloak directly (which is a legacy flow) we need to include
+    // both the refresh token and client credentials.
+    // See: https://www.keycloak.org/securing-apps/oidc-layers
     val request = Request.Builder()
         .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/logout")
         .header("Content-Type", "application/x-www-form-urlencoded")

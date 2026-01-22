@@ -34,7 +34,8 @@ class TaskHelper(
      * @param zaakIdentificatie the identification of the zaak for search purposes.
      * @param fatalDate the fatal date for the task.
      * @param group the group under which to start the task.
-     * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable before retrieving its ID.
+     * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable
+     * before retrieving its ID.
      * @param testUser the user performing the operation.
      * @return the ID of the created 'Aanvullende informatie' task.
      */
@@ -90,7 +91,7 @@ class TaskHelper(
                         "page": 0,
                         "type": "TAAK"
                     }
-                    """.trimIndent(),
+                """.trimIndent(),
                 testUser = testUser
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1

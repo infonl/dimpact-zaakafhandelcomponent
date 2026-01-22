@@ -247,7 +247,8 @@ class TaskRestServiceTest : BehaviorSpec({
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = websocketListener,
+            testUser = COORDINATOR_DOMAIN_TEST_1
         )
         When("the release tasks endpoint is called for this task") {
             val releaseTasksResponse = itestHttpClient.performPutRequest(

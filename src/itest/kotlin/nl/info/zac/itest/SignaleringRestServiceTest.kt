@@ -231,7 +231,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "page": 2,
                         "rows": 5
                     }
-                    """.trimIndent(),
+                """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1,
             )
             val responseBody = response.bodyAsString

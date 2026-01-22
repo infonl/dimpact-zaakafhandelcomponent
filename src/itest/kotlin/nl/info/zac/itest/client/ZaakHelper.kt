@@ -95,7 +95,7 @@ class ZaakHelper(
                         "page": 0,
                         "type": "ZAAK"
                     }
-                    """.trimIndent(),
+                """.trimIndent(),
                 testUser = testUser,
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1

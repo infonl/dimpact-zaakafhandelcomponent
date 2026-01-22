@@ -107,7 +107,7 @@ class ZacClient(
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
-        testUser: TestUser? = null
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
@@ -147,7 +147,7 @@ class ZacClient(
         brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@example.com",
         automaticEmailConfirmationReply: String = "reply@example.com",
-        testUser: TestUser? = null
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype CMMN configuration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
