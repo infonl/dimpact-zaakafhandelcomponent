@@ -114,6 +114,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
+            defaultBehandelaarId = this.gebruikersnaamMedewerker,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum
         ).apply {

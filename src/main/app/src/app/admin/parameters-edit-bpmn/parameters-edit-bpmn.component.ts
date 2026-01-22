@@ -195,7 +195,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       ) || null,
     );
 
-    // Use the same logic as CMMN for behandelaar dropdown
     const { groepNaam: defaultGroepId, defaultBehandelaarId } = this.bpmnZaakafhandelParameters;
 
     this.algemeenFormGroup.controls.defaultGroep.valueChanges
