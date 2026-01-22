@@ -37,7 +37,7 @@ class ZaaktypeCmmnCompletionParameters : UserModifiable<ZaaktypeCmmnCompletionPa
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeCmmnConfiguration: ZaaktypeConfiguration
 
     @ManyToOne
     @JoinColumn(name = "id_zaakbeeindigreden", referencedColumnName = "id_zaakbeeindigreden")

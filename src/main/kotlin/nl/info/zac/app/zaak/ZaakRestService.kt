@@ -643,49 +643,32 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
-        val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(zaakType.url.extractUuid())
-        when (zaaktypeConfiguration?.getConfigurationType()) {
-            CMMN -> {
-                val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
-                    zaakType.url.extractUuid()
-                )
-
-                if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-                    // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
-                    zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattype ->
-                        terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
-                    }
-                } else {
-                    afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                        zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
-                            param.zaakbeeindigReden.naam?.let { naam ->
-                                terminateZaak(zaak, param.resultaattype, naam)
-                            }
+        zaaktypeConfigurationService.readZaaktypeConfiguration(
+            zaakType.url.extractUuid()
+        )?.let {
+            // Abort the case in OpenZaak
+            if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
+                // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+                it.nietOntvankelijkResultaattype?.let { resultaattype ->
+                    terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+                }
+            } else {
+                afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
+                    it.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
+                        param.zaakbeeindigReden.naam?.let { naam ->
+                            terminateZaak(zaak, param.resultaattype, naam)
                         }
                     }
                 }
-
-                // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-                cmmnService.terminateCase(zaakUUID)
             }
-            BPMN -> {
-                val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.url.extractUuid())
-
-                if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-                    // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
-                    zaaktypeBpmnConfiguration?.nietOntvankelijkResultaattype?.let { resultaattype ->
-                        terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
-                    }
-                } else {
-                    // TODO
+            // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
+            when (it.getConfigurationType()) {
+                CMMN -> {
+                    cmmnService.terminateCase(zaakUUID)
                 }
-
-                // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-                bpmnService.terminateCase(zaakUUID)
-            }
-            else -> {
-                // No case type
-                // TODO
+                BPMN -> {
+                    bpmnService.terminateCase(zaakUUID)
+                }
             }
         }
     }
