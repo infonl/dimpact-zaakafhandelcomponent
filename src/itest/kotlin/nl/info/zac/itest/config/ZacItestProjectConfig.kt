@@ -409,6 +409,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
+    @Suppress("LongMethod")
     private fun createZaaktypeConfigurations() {
         zacClient.createZaaktypeBpmnConfiguration(
             zaakTypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
