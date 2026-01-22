@@ -125,7 +125,7 @@
         "- \\*\\*redis\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/redis",
+      "depNameTemplate": "redis",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
