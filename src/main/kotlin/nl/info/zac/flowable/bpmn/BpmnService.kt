@@ -142,6 +142,6 @@ class BpmnService @Inject constructor(
      */
     fun terminateCase(zaakUUID: UUID) =
         findProcessInstance(zaakUUID)?.let {
-            runtimeService.deleteProcessInstance(it.id, "Zaak terminated")
+            runtimeService.deleteProcessInstance(it.id, null)
         }
 }
