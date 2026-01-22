@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 20-01-2026 <br>
-> Versie :   1.9 <br>
-> Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
+> Datum : 21-01-2026 <br>
+> Versie :   1.10 <br>
+> Verandering : ZAC v4.1.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -14,17 +14,18 @@
 
 Versiegeschiedenis:
 
-| 1.0 | Initiële versie    |
-|-----|--------------------|
-| 1.1 | ZAC versie 3.7     |
-| 1.2 | ZAC versie 3.9     |
-| 1.3 | ZAC versie 3.11    |
-| 1.4 | ZAC versie 3.12    |
-| 1.5 | ZAC versie 3.17.67 |
-| 1.6 | ZAC versie 3.20.53 |
-| 1.7 | ZAC versie 4.0.54  |
-| 1.8 | ZAC versie 4.0.54  |
-| 1.9 | ZAC versie 4.0.83  |
+| 1.0  | Initiële versie    |
+|------|--------------------|
+| 1.1  | ZAC versie 3.7     |
+| 1.2  | ZAC versie 3.9     |
+| 1.3  | ZAC versie 3.11    |
+| 1.4  | ZAC versie 3.12    |
+| 1.5  | ZAC versie 3.17.67 |
+| 1.6  | ZAC versie 3.20.53 |
+| 1.7  | ZAC versie 4.0.54  |
+| 1.8  | ZAC versie 4.0.54  |
+| 1.9  | ZAC versie 4.0.83  |
+| 1.10 | ZAC versie 4.1.0   |
 
 # Inhoud
 
@@ -94,12 +95,12 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 
 #### CMMN
 Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
-![image](images/zaps_cmmn.png)
+![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
 Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### CMMN
-![image](images/zaps_cmmn_cmmn.png)
+![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
 ###### BPMN
-![image](images/zaps_cmmn_bpmn.png)
+![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
 
 
 #### Gegevens
@@ -109,7 +110,7 @@ Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de v
 - Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 
-![image](images/zaps_gegevens_bpmn.png)
+![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
 Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
@@ -552,9 +553,29 @@ Autorisatie-koppelingen zijn de combinaties van applicatie rollen en domeinen di
 gekoppeld aan een functionele rol.
 Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen welk domein.
 
+Verreweg de meeste autorisatie-koppelingen zijn van het type `entiteitstype van een specifiek domein`. 
+Hiermee wordt een functionele rol gekoppeld aan applicatierollen voor een specifiek domein.
+
+  ![PABC autorisatie-koppeling voor een specifiek domein](images/pabc_autorisatie_koppeling_1.png)
+
   ![PABC autorisatie-koppelingen 1](images/pabc_autorisatie_koppelingen_1.png)
 
   ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
+
+Voor (functioneel) beheerders in ZAC geldt, in ieder geval op dit moment, dat ze binnen ZAC alles moeten kunnen,
+binnen alle domeinen.
+In dit geval kan er gekozen worden voor het type `geen enkel entiteitstype`.
+Dit type wordt gebruikt voor functionele rollen waar entiteitstypes niet voor van toepassing zijn.
+De aanbeveling is om dit type te gebruiken om de ZAC beheerder-rollen in te richten.
+Bij gebruik van dit roltype, zijn ook alle toekomstig nog aan te maken entiteitstypes (zoals zaaktypes) automatisch geautoriseerd. 
+Dit vermindert beheerslast.
+
+  ![PABC autorisatie-koppeling voor alle entiteitstypes](images/pabc_autorisatie_koppeling_2.png)
+
+  ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
+
+Het derde type autorisatie-koppeling, `alle entiteitstypes`, is bedoeld voor rollen die geautoriseerd moeten worden voor per definitie alle entiteitstypes.
+Dit type wordt (nog) niet ondersteund door ZAC.
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 
