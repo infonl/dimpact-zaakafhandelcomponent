@@ -156,13 +156,20 @@ export class ZaakCreateComponent {
         this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
+
+          const selectedZaaktype = this.form.controls.zaaktype.value;
+          const bpmnConfig = this.bpmnCaseTypesConfigurations?.find(
+            ({ zaaktypeUuid }) => zaaktypeUuid === selectedZaaktype?.uuid,
+          );
+          let defaultBehandelaarId: string | undefined | null;
+          if (bpmnConfig) {
+            defaultBehandelaarId = bpmnConfig.defaultBehandelaarId;
+          } else {
+            defaultBehandelaarId = selectedZaaktype?.zaakafhandelparameters?.defaultBehandelaarId;
+          }
+
           this.form.controls.behandelaar.setValue(
-            this.users.find(
-              ({ id }) =>
-                id ===
-                this.form.controls.zaaktype.value?.zaakafhandelparameters
-                  ?.defaultBehandelaarId,
-            ),
+            this.users.find(({ id }) => id === defaultBehandelaarId) ?? null,
           );
         });
       });
