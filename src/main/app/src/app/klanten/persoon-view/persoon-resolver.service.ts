@@ -28,7 +28,7 @@ export class PersoonResolverService {
     }
 
     return this.queryClient.ensureQueryData({
-      ...this.klantenService.readPersoon(bsn + bsn),
+      ...this.klantenService.readPersoon(bsn),
       retry: (count, error) => {
         if (count < DEFAULT_RETRY_COUNT) return true;
 
