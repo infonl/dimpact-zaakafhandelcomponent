@@ -351,12 +351,11 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<wildfly-maven-plugin\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)\\.Final</wildfly-maven-plugin\\.version>"
+        "<wildfly-maven-plugin\\.version>(?<currentValue>[^<]+)</wildfly-maven-plugin\\.version>"
       ],
       "depNameTemplate": "org.wildfly.plugins:wildfly-maven-plugin",
       "datasourceTemplate": "maven",
-      "versioningTemplate": "maven",
-      "autoReplaceStringTemplate": "<wildfly-maven-plugin.version>{{{newValue}}}.Final</wildfly-maven-plugin.version>"
+      "versioningTemplate": "maven"
     },
     {
       "customType": "regex",
@@ -364,12 +363,11 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<wildfly-datasources-galleon-pack\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)\\.Final</wildfly-datasources-galleon-pack\\.version>"
+        "<wildfly-datasources-galleon-pack\\.version>(?<currentValue>[^<]+)</wildfly-datasources-galleon-pack\\.version>"
       ],
       "depNameTemplate": "org.wildfly:wildfly-datasources-galleon-pack",
       "datasourceTemplate": "maven",
-      "versioningTemplate": "maven",
-      "autoReplaceStringTemplate": "<wildfly-datasources-galleon-pack.version>{{{newValue}}}.Final</wildfly-datasources-galleon-pack.version>"
+      "versioningTemplate": "maven"
     },
     {
       "customType": "regex",
@@ -377,22 +375,19 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<wildfly-cloud-galleon-pack\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)\\.Final</wildfly-cloud-galleon-pack\\.version>"
+        "<wildfly-cloud-galleon-pack\\.version>(?<currentValue>[^<]+)</wildfly-cloud-galleon-pack\\.version>"
       ],
       "depNameTemplate": "org.wildfly.cloud:wildfly-cloud-galleon-pack",
       "datasourceTemplate": "maven",
-      "versioningTemplate": "maven",
-      "autoReplaceStringTemplate": "<wildfly-cloud-galleon-pack.version>{{{newValue}}}.Final</wildfly-cloud-galleon-pack.version>"
+      "versioningTemplate": "maven"
     }
   ],
   "packageRules": [
     {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
-        "wildfly/wildfly",
-        "org.wildfly.plugins:wildfly-maven-plugin",
-        "org.wildfly:wildfly-datasources-galleon-pack",
-        "org.wildfly.cloud:wildfly-cloud-galleon-pack"
+        "/^wildfly/",
+        "/^org\\.wildfly/"
       ],
       "description": [
         "Group WildFly application server and its Maven plugins/Galleon packs into a single PR"
