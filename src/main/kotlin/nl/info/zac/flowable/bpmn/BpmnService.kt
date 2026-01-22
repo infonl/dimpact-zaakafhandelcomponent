@@ -133,4 +133,15 @@ class BpmnService @Inject constructor(
         runtimeService.createProcessInstanceQuery()
             .processInstanceBusinessKey(zaakUUID.toString())
             .singleResult()
+
+    /**
+     * Terminate the case for a zaak.
+     * This also terminates all open tasks related to the case,
+     *
+     * @param zaakUUID UUID of the zaak, for which the case should be terminated.
+     */
+    fun terminateCase(zaakUUID: UUID) =
+        findProcessInstance(zaakUUID)?.let {
+            runtimeService.deleteProcessInstance(it.id, "Zaak terminated")
+        }
 }

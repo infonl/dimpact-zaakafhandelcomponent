@@ -73,6 +73,9 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "domein")
     var domein: String? = null
 
+    @Column(name = "niet_ontvankelijk_resultaattype_uuid")
+    var nietOntvankelijkResultaattype: UUID? = null
+
     @OneToOne(
         mappedBy = "zaaktypeConfiguration",
         cascade = [CascadeType.ALL],

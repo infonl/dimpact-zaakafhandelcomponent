@@ -40,9 +40,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     @Column(name = "uiterlijke_einddatum_afdoening_waarschuwing")
     var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null
 
-    @Column(name = "niet_ontvankelijk_resultaattype_uuid")
-    var nietOntvankelijkResultaattype: UUID? = null
-
     /**
      * This field has a sensible default value because it is non-nullable.
      */
