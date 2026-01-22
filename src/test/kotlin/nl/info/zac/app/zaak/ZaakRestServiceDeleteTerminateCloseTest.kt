@@ -179,15 +179,15 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
-            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
-            } returns zaaktypeCmmnConfiguration
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+            } returns zaaktypeConfiguration
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
@@ -201,7 +201,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
-                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
+                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
                         cmmnService.terminateCase(zaak.uuid)
@@ -258,7 +258,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
