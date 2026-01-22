@@ -16,7 +16,6 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_2
@@ -363,7 +362,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("the get zaak endpoint is called as a beheerder") {
                 val response = zacClient.retrieveZaak(
                     zaakUUID = zaak2UUID,
-                    testUser = BEHEERDER_ELK_ZAAKTYPE)
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                )
 
                 Then(
                     """the response should be a 200 HTTP response and contain the created zaak,
@@ -879,7 +879,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "reden": "fakeLijstVerdelenReason",
                         "screenEventResourceId": "$uniqueResourceId"                 
-                    }""".trimIndent(),
+                    }
+                    """.trimIndent(),
                     testUser = COORDINATOR_DOMAIN_TEST_1
                 )
                 Then(
@@ -931,7 +932,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaakUuid",
                         "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                         "reden": "fakeAssignToMeFromListReason"
-                    }""".trimIndent(),
+                    }
+                    """.trimIndent(),
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
                 Then(
@@ -949,10 +951,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
                 And("the zaak should be assigned to the user") {
-                    with(zacClient.retrieveZaak(
-                        zaakUUID = zaakUuid,
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
-                    )) {
+                    with(
+                        zacClient.retrieveZaak(
+                            zaakUUID = zaakUuid,
+                            testUser = RAADPLEGER_DOMAIN_TEST_1
+                        )
+                    ) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).apply {
                             getJSONObject("behandelaar").apply {
@@ -1013,10 +1017,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                     // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                     eventually(20.seconds) {
                         websocketListener.messagesReceived.size shouldBe 1
-                        with(zacClient.retrieveZaak(
-                            zaakUUID = zaak1UUID,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
-                        )) {
+                        with(
+                            zacClient.retrieveZaak(
+                                zaakUUID = zaak1UUID,
+                                testUser = RAADPLEGER_DOMAIN_TEST_1
+                            )
+                        ) {
                             code shouldBe HTTP_OK
                             JSONObject(bodyAsString).apply {
                                 getJSONObject("groep").apply {
@@ -1026,10 +1032,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 has("behandelaar") shouldBe false
                             }
                         }
-                        with(zacClient.retrieveZaak(
-                            zaakUUID = zaak2UUID,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
-                        )) {
+                        with(
+                            zacClient.retrieveZaak(
+                                zaakUUID = zaak2UUID,
+                                testUser = RAADPLEGER_DOMAIN_TEST_1
+                            )
+                        ) {
                             code shouldBe HTTP_OK
                             JSONObject(bodyAsString).apply {
                                 getJSONObject("groep").apply {

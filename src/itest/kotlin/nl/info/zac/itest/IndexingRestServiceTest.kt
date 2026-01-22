@@ -7,7 +7,6 @@ package nl.info.zac.itest
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import okhttp3.RequestBody.Companion.toRequestBody

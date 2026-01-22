@@ -8,7 +8,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
@@ -19,11 +18,10 @@ class BpmnFormioFormulierenRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("BPMN process definition and Formio forms have been created in ZAC in the integration test setup phase") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
         When("the Form.io forms are listed") {
             val response = itestHttpClient.performGetRequest(
-                "${ZAC_API_URI}/formio-formulieren"
+                url = "${ZAC_API_URI}/formio-formulieren",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response contains the form.io forms that were created") {
                 val responseBody = response.bodyAsString

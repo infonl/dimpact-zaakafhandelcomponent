@@ -11,7 +11,6 @@ import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HOSTNAME_URL
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_REALM
 import nl.info.zac.itest.config.TestUser
 import okhttp3.FormBody
-import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -30,7 +29,7 @@ fun authenticate(testUser: TestUser) = authenticate(
 /**
  * Logs out the given user in ZAC (and therefore also in Keycloak).
  */
-fun logout(testUser: TestUser, refreshToken: String)  {
+fun logout(testUser: TestUser, refreshToken: String) {
     logger.info { "Logging out user: '${testUser.username}'" }
     // to logout from Keycloak directly (which is a legacy and unrecommended flow) we need to include
     // both the refresh token and client credentials
@@ -71,7 +70,7 @@ private fun authenticate(username: String, password: String): Pair<String, Strin
         )
         .build()
     return okHttpClient.newCall(request).execute().use { response ->
-         with(JSONObject(response.body.string())) {
+        with(JSONObject(response.body.string())) {
             Pair(
                 getString(ACCESS_TOKEN_ATTRIBUTE),
                 getString(REFRESH_TOKEN_ATTRIBUTE)

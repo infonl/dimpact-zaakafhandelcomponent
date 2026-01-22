@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
@@ -45,13 +44,12 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var taskId: String
 
     beforeSpec {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         bpmnZaakUuid = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -62,7 +60,10 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        taskId = itestHttpClient.performGetRequest("$ZAC_API_URI/taken/zaak/$bpmnZaakUuid").let {
+        taskId = itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
+        ).let {
             val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
             it.code shouldBe HTTP_OK
@@ -89,7 +90,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "creationDate" to ZonedDateTime.now(),
                         "author" to FAKE_AUTHOR_NAME
                     )
-                ).toString()
+                ).toString(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -122,7 +124,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                         "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
-                ).toString()
+                ).toString(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -161,7 +164,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
-                    .build()
+                    .build(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
@@ -205,7 +209,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
-                    .build()
+                    .build(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
@@ -246,7 +251,8 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = FormBody.Builder().build()
+                requestBody = FormBody.Builder().build(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {

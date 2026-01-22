@@ -12,7 +12,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -134,7 +133,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "rows": 10,
                         "page": 0                        
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             ).bodyAsString
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
@@ -157,8 +157,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "actie" to "destroy",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
-                ).toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                ).toString()
             )
             Then(
                 """
@@ -219,7 +218,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                                 "rows": 10,
                                 "page": 0                        
                             }
-                            """.trimIndent(),
+                        """.trimIndent(),
                         testUser = BEHANDELAAR_DOMAIN_TEST_1
                     ).bodyAsString
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0

@@ -66,7 +66,7 @@ class ZaakHelper(
             }
         }
         if (indexZaak) {
-            indexZaak(zaakUuid, zaakIdentification)
+            indexZaak(zaakUuid, zaakIdentification, testUser)
         }
         return Pair(zaakIdentification, zaakUuid)
     }
@@ -75,7 +75,7 @@ class ZaakHelper(
      * The zaak identification must be unique in the context of the integration test suite,
      * or else zaken indexed by previously run tests may interfere with the indexing check.
      */
-    private suspend fun indexZaak(zaakUuid: UUID, zaakIdentification: String) {
+    private suspend fun indexZaak(zaakUuid: UUID, zaakIdentification: String, testUser: TestUser) {
         sendZaakCreateNotification(zaakUuid)
         // wait for the indexing to complete by searching for the newly created zaak
         // until we get the expected result
@@ -83,19 +83,20 @@ class ZaakHelper(
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
-                {
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": true,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": { "ZAAK_IDENTIFICATIE": "$zaakIdentification" },
-                    "filters": {},
-                    "datums": {},
-                    "rows": 1,
-                    "page": 0,
-                    "type": "ZAAK"
-                }
-                """.trimIndent()
+                    {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": true,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": { "ZAAK_IDENTIFICATIE": "$zaakIdentification" },
+                        "filters": {},
+                        "datums": {},
+                        "rows": 1,
+                        "page": 0,
+                        "type": "ZAAK"
+                    }
+                    """.trimIndent(),
+                testUser = testUser,
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }

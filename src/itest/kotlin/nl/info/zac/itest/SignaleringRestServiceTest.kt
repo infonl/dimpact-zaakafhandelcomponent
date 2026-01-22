@@ -15,7 +15,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
@@ -60,8 +59,6 @@ class SignaleringRestServiceTest : BehaviorSpec({
     lateinit var zaakPath: String
 
     Given("A logged-in behandelaar") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         When("dashboard signaleringen are turned on for all signalering types") {
             val notificationBodies = arrayOf(
                 """{"dashboard":true,"mail":false,"subjecttype":"ZAAK","type":"ZAAK_DOCUMENT_TOEGEVOEGD"}""",
@@ -76,7 +73,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "Content-Type",
                         "application/json"
                     ),
-                    requestBodyAsString = it
+                    requestBodyAsString = it,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
 
                 Then("the response should be 'ok'") {
@@ -92,7 +90,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
-            startDate = DATE_TIME_2024_01_31
+            startDate = DATE_TIME_2024_01_31,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -173,12 +172,13 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
 
         When("the latest signaleringen are requested") {
-            val latestSignaleringenDateUrl = "$ZAC_API_URI/signaleringen/latest"
-
             Then("it returns a date between the start of the tests and current moment") {
                 // The backend event processing is asynchronous. Wait a bit until the events are processed
                 eventually(afterThirtySeconds) {
-                    val response = itestHttpClient.performGetRequest(latestSignaleringenDateUrl)
+                    val response = itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/signaleringen/latest",
+                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                    )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -197,10 +197,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = """{
-                    "page": 0,
-                    "rows": 5
-                }
-                """.trimIndent()
+                        "page": 0,
+                        "rows": 5
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -225,11 +226,13 @@ class SignaleringRestServiceTest : BehaviorSpec({
         When("the list of zaken signaleringen is requested with wrong page") {
             val response = itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
-                requestBodyAsString = """{
-                    "page": 2,
-                    "rows": 5
-                }
-                """.trimIndent()
+                requestBodyAsString = """
+                    {
+                        "page": 2,
+                        "rows": 5
+                    }
+                    """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -250,6 +253,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 fileName = TEST_TXT_FILE_NAME,
                 fileMediaType = TEXT_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1,
             )
 
             Then("the response should be OK and contain information for the created document") {
@@ -261,7 +265,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         When("a notification is sent to ZAC that a document was added to the zaak") {
             // obtain the zaakinformatieobject URL from OpenZaak for the document that was just added to the zaak
-            val zaakInformatieObjectenResponse = itestHttpClient.performGetRequest(
+            val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
                 url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten?zaak=$OPEN_ZAAK_EXTERNAL_URI/$zaakPath"
             )
             var responseBody = zaakInformatieObjectenResponse.bodyAsString
@@ -303,11 +307,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
                     val response = itestHttpClient.performPutRequest(
                         "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
                         requestBodyAsString = """
-                        {
-                            "page": 0,
-                            "rows": 5
-                        }
-                        """.trimIndent()
+                            {
+                                "page": 0,
+                                "rows": 5
+                            }
+                        """.trimIndent(),
+                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
                     )
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -339,13 +344,13 @@ class SignaleringRestServiceTest : BehaviorSpec({
         """
     ) {
         When("signaleringen older than 0 days are deleted") {
+            // internal endpoint without user authorisation, but with API key in header
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/internal/signaleringen/delete-old",
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
+                ).toHeaders()
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }

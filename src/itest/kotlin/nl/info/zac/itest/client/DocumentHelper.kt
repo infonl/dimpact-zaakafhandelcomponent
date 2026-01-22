@@ -64,7 +64,7 @@ class DocumentHelper(
         val informatieobjectUuid = responseBodyAsJsonObject.getString("uuid").run(UUID::fromString)
         val informatieobjectIdentification = responseBodyAsJsonObject.getString("identificatie")
         if (indexDocument) {
-            indexDocument(informatieobjectUuid, documentTitle)
+            indexDocument(informatieobjectUuid, documentTitle, testUser)
         }
         return Pair(informatieobjectUuid, informatieobjectIdentification)
     }
@@ -75,7 +75,7 @@ class DocumentHelper(
      * The document title must be unique within the integration test suite scope,
      * or else documents indexed by previously run tests may interfere with the indexing check.
      */
-    private suspend fun indexDocument(informatieobjectUuid: UUID, documentTitle: String) {
+    private suspend fun indexDocument(informatieobjectUuid: UUID, documentTitle: String, testUser: TestUser) {
         // trigger the notification service to index the document
         sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid)
         // wait for the indexing to complete by searching for the newly created document
@@ -84,19 +84,20 @@ class DocumentHelper(
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
-                {
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": false,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
-                    "filters": {},
-                    "datums": {},
-                    "rows": 1,
-                    "page": 0,
-                    "type": "DOCUMENT"
-                }
-                """.trimIndent()
+                    {
+                        "alleenMijnZaken": false,
+                        "alleenOpenstaandeZaken": false,
+                        "alleenAfgeslotenZaken": false,
+                        "alleenMijnTaken": false,
+                        "zoeken": { "DOCUMENT_TITEL": "$documentTitle" },
+                        "filters": {},
+                        "datums": {},
+                        "rows": 1,
+                        "page": 0,
+                        "type": "DOCUMENT"
+                    }
+                    """.trimIndent(),
+                testUser = testUser
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }

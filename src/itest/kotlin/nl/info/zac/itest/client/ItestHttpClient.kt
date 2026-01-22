@@ -91,11 +91,31 @@ class ItestHttpClient {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
-        //tokens?.let{ logout(testUser, it.second) }
-        // TODO test
-        performGetRequest(
-            url = "$ZAC_BASE_URI/logout"
-        )
+        tokens?.let{ logout(testUser, it.second) }
+        // TODO test, log out from ZAC
+        // tokens?.run { performGetRequest(url = "$ZAC_BASE_URI/logout") }
+        return responseContent
+    }
+
+    fun performZgwApiGetRequest(
+        url: String,
+        headers: Headers = buildHeaders(acceptType = null)
+    ): ResponseContent {
+        logger.info { "Performing GET request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                cloneHeadersWithAuthorization(
+                    headers = headers,
+                    url = url
+                )
+            )
+            .url(url)
+            .get()
+            .build()
+        val responseContent = okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
         return responseContent
     }
 
@@ -138,7 +158,7 @@ class ItestHttpClient {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
-        tokens?.let{ logout(testUser, it.second) }
+        tokens?.let { logout(testUser, it.second) }
         return responseContent
     }
 
@@ -177,7 +197,7 @@ class ItestHttpClient {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
-        tokens?.let{ logout(testUser, it.second) }
+        tokens?.let { logout(testUser, it.second) }
         return responseContent
     }
 
@@ -203,7 +223,7 @@ class ItestHttpClient {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
-        tokens?.let{ logout(testUser, it.second) }
+        tokens?.let { logout(testUser, it.second) }
         return responseContent
     }
 
@@ -232,7 +252,7 @@ class ItestHttpClient {
             request,
             webSocketListener
         )
-        tokens?.let{ logout(testUser, it.second) }
+        tokens?.let { logout(testUser, it.second) }
         return webSocket
     }
 
@@ -242,8 +262,7 @@ class ItestHttpClient {
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String, accessToken: String): Headers =
         headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url, accessToken)).build()
 
-    private fun generateBearerToken(url: String, accessToken: String? = null)
-    = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+    private fun generateBearerToken(url: String, accessToken: String? = null) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
         generateOpenZaakJwtToken()
     } else {
         accessToken

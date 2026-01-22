@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -112,7 +111,7 @@ class CsvRestServiceTest : BehaviorSpec({
                             "sorteerVeld": "ZAAK_IDENTIFICATIE",
                             "sorteerRichting": "asc"
                          }
-                        """.trimIndent(),
+                    """.trimIndent(),
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
 

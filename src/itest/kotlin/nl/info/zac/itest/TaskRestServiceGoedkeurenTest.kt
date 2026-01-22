@@ -11,7 +11,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
@@ -46,7 +45,6 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         and a behandelaar is logged in
         """
     ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val zaakUUID: UUID
         lateinit var enkelvoudigInformatieObjectUUID: UUID
         lateinit var humanTaskItemGoedkeurenId: String
@@ -56,7 +54,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             this.code shouldBe HTTP_OK
@@ -68,7 +67,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         }
         // get the first of the current user event listener plan items for this zaak (= 'Intake afronden')
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             JSONArray(bodyAsString).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
@@ -80,13 +80,14 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "planItemInstanceId":"$intakeId",
-                "actie":"$ACTIE_INTAKE_AFRONDEN",
-                "zaakOntvankelijk":true
-            }
-            """.trimIndent()
+                {
+                    "zaakUuid":"$zaakUUID",
+                    "planItemInstanceId":"$intakeId",
+                    "actie":"$ACTIE_INTAKE_AFRONDEN",
+                    "zaakOntvankelijk":true
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_NO_CONTENT
@@ -102,6 +103,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 fileName = TEST_TXT_FILE_NAME,
                 fileMediaType = TEXT_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the response should be OK and contain information for the created document") {
@@ -114,7 +116,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
 
         When("the list human task plan items endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+                url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
                 val responseBody = response.bodyAsString
@@ -135,16 +138,17 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """
-                {
-                    "planItemInstanceId": "$humanTaskItemGoedkeurenId",
-                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
-                    "taakStuurGegevens": {},
-                    "taakdata": {
-                        "vraag": "fakeQuestion",
-                        "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID"
+                    {
+                        "planItemInstanceId": "$humanTaskItemGoedkeurenId",
+                        "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
+                        "taakStuurGegevens": {},
+                        "taakdata": {
+                            "vraag": "fakeQuestion",
+                            "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID"
+                        }
                     }
-                }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("a task is started for this zaak") {
                 logger.info { "Response: ${response.bodyAsString}" }
@@ -154,7 +158,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
 
         When("the get tasks for the zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/taken/zaak/$zaakUUID"
+                url = "$ZAC_API_URI/taken/zaak/$zaakUUID",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the list with tasks for this zaak is returned") {
@@ -170,33 +175,34 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/taken/complete",
                 requestBodyAsString = """
-                {
-                    "creatiedatumTijd": "${ZonedDateTime.now()}",
-                    "formulierDefinitieId": "GOEDKEUREN",
-                    "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
-                    "id": "$goedkeurenTaskId",
-                    "naam": "Goedkeuren",
-                    "rechten":{ "lezen": true, "toekennen": true, "toevoegenDocument": true, "wijzigen": true },
-                    "status": "NIET_TOEGEKEND",
-                    "taakdata": {
-                        "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID",
-                        "vraag": "fakeQuestion",
-                        "ondertekenen": "$enkelvoudigInformatieObjectUUID",
-                        "goedkeuren": "goedkeuren.AKKOORD"
-                    },
-                    "taakdocumenten": [],
-                    "taakinformatie": {
-                        "uitkomst": "goedkeuren.AKKOORD",
-                        "opmerking": "fakeToelichting",
-                        "bijlagen": ""
-                    },
-                    "tabellen": {},
-                    "zaakUuid": "$zaakUUID",
-                    "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                    "zaaktypeUUID": "$ZAAKTYPE_TEST_2_UUID",
-                    "toelichting": "fakeToelichting"
-                }
-                """.trimIndent()
+                    {
+                        "creatiedatumTijd": "${ZonedDateTime.now()}",
+                        "formulierDefinitieId": "GOEDKEUREN",
+                        "groep": { "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}" },
+                        "id": "$goedkeurenTaskId",
+                        "naam": "Goedkeuren",
+                        "rechten":{ "lezen": true, "toekennen": true, "toevoegenDocument": true, "wijzigen": true },
+                        "status": "NIET_TOEGEKEND",
+                        "taakdata": {
+                            "relevanteDocumenten": "$enkelvoudigInformatieObjectUUID",
+                            "vraag": "fakeQuestion",
+                            "ondertekenen": "$enkelvoudigInformatieObjectUUID",
+                            "goedkeuren": "goedkeuren.AKKOORD"
+                        },
+                        "taakdocumenten": [],
+                        "taakinformatie": {
+                            "uitkomst": "goedkeuren.AKKOORD",
+                            "opmerking": "fakeToelichting",
+                            "bijlagen": ""
+                        },
+                        "tabellen": {},
+                        "zaakUuid": "$zaakUUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                        "zaaktypeUUID": "$ZAAKTYPE_TEST_2_UUID",
+                        "toelichting": "fakeToelichting"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the taak status should be set to 'AFGEROND'") {
@@ -208,7 +214,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
 
             And("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID"
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

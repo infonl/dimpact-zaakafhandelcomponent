@@ -14,7 +14,6 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
@@ -60,11 +59,10 @@ class SearchRestServiceTest : BehaviorSpec({
             and a document has been uploaded to the zaak and is indexed           
             """.trimIndent()
         ) {
-            // log in as a beheerder authorised in all domains
-            // and create the zaken, tasks and documents and index them
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
-            // make sure the zaak description and document title are unique for this test run,
-            // because we use it later on to search on this zaak
+            // First log in as a beheerder authorised in all domains
+            // and create the zaken, tasks and documents and index them.
+            // Make sure the zaak description and document title are unique for this test run,
+            // because we use it later on to search on this zaak.
             val zaakDescription = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
             val documentTitle = "${SearchRestServiceTest::class.simpleName}-listingsearchresults-$now"
             val documentAuthorName = "fakeAuthorNameForSearchRestServiceTest"
@@ -73,23 +71,25 @@ class SearchRestServiceTest : BehaviorSpec({
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-                indexZaak = true
+                indexZaak = true,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakUuid,
                 zaakIdentificatie = zaakIdentification,
                 fatalDate = aanvullendeInformatieTaskFatalDate,
                 group = BEHANDELAARS_DOMAIN_TEST_1,
-                waitForTaskToBeIndexed = true
+                waitForTaskToBeIndexed = true,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             documentHelper.uploadDocumentToZaak(
                 zaakUuid = zaakUuid,
                 documentTitle = documentTitle,
                 authorName = documentAuthorName,
                 fileName = TEST_PDF_FILE_NAME,
-                indexDocument = true
+                indexDocument = true,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
-            authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
             When(
                 """the search endpoint is called to search open zaken on the unique description
@@ -112,7 +112,8 @@ class SearchRestServiceTest : BehaviorSpec({
                             "page": 0,
                             "type": "ZAAK"
                         }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then(
@@ -256,7 +257,8 @@ class SearchRestServiceTest : BehaviorSpec({
                         "page": 0,
                         "type": "TAAK"
                         }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1,
                 )
                 Then(
                     """
@@ -316,7 +318,8 @@ class SearchRestServiceTest : BehaviorSpec({
                         "page": 0,
                         "type": "DOCUMENT"
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1,
                 )
                 Then(
                     """
@@ -399,7 +402,6 @@ class SearchRestServiceTest : BehaviorSpec({
                 one of which can be linked to an information object of a specific type,
                 and a logged-in raadpleger authorised for the domain of these zaaktypes"""
         ) {
-            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
             // make sure the zaak descriptions are unique for this test run,
             // because we use it later on to search on these zaken
             val zaak1Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype1-$now"
@@ -407,14 +409,15 @@ class SearchRestServiceTest : BehaviorSpec({
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak1Description,
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-                indexZaak = true
+                indexZaak = true,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak2Description,
                 zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
-                indexZaak = true
+                indexZaak = true,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
-            authenticate(RAADPLEGER_DOMAIN_TEST_1)
             When(
                 """
                 the search endpoint is called to search for the first created zaak
@@ -424,13 +427,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/zaken",
                     requestBodyAsString = """
-                {
-                    "rows": 5,
-                    "page": 0,
-                    "zaakIdentificator": "$zaak1Identification",
-                    "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
-                }
-                    """.trimIndent()
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "$zaak1Identification",
+                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then(
                     """
@@ -472,13 +476,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/zaken",
                     requestBodyAsString = """
-                {
-                    "rows": 5,
-                    "page": 0,
-                    "zaakIdentificator": "$zaak2Identification",
-                    "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
-                }
-                    """.trimIndent()
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "$zaak2Identification",
+                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then(
                     """
@@ -490,23 +495,23 @@ class SearchRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                    {
-                      "foutmelding" : "",
-                      "resultaten" : [ 
-                      {
-                        "id" : "$zaak2Uuid",
-                        "identificatie" : "$zaak2Identification",
-                        "isKoppelbaar" : false,
-                        "omschrijving" : "$zaak2Description",
-                        "statustypeOmschrijving" : "Intake",
-                        "toelichting" : "null",
-                        "type" : "ZAAK",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
-                      } 
-                      ],
-                      "totaal" : 1,
-                      "filters" : { }
-                    }
+                        {
+                          "foutmelding" : "",
+                          "resultaten" : [ 
+                          {
+                            "id" : "$zaak2Uuid",
+                            "identificatie" : "$zaak2Identification",
+                            "isKoppelbaar" : false,
+                            "omschrijving" : "$zaak2Description",
+                            "statustypeOmschrijving" : "Intake",
+                            "toelichting" : "null",
+                            "type" : "ZAAK",
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                          } 
+                          ],
+                          "totaal" : 1,
+                          "filters" : { }
+                        }
                     """.trimIndent()
                 }
             }
@@ -520,13 +525,14 @@ class SearchRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/zaken",
                     requestBodyAsString = """
-                {
-                    "rows": 5,
-                    "page": 0,
-                    "zaakIdentificator": "$zaak1Identification",
-                    "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
-                }
-                    """.trimIndent()
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "$zaak1Identification",
+                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then(
                     """
@@ -538,23 +544,23 @@ class SearchRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                    {
-                        "foutmelding" : "",
-                        "resultaten" : [
                         {
-                            "id" : "$zaak1Uuid",
-                            "identificatie" : "$zaak1Identification",
-                            "isKoppelbaar" : false,
-                            "omschrijving" : "$zaak1Description",
-                            "statustypeOmschrijving" : "Intake",
-                            "toelichting" : "null",
-                            "type" : "ZAAK",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            "foutmelding" : "",
+                            "resultaten" : [
+                            {
+                                "id" : "$zaak1Uuid",
+                                "identificatie" : "$zaak1Identification",
+                                "isKoppelbaar" : false,
+                                "omschrijving" : "$zaak1Description",
+                                "statustypeOmschrijving" : "Intake",
+                                "toelichting" : "null",
+                                "type" : "ZAAK",
+                                "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            }
+                            ],
+                            "totaal" : 1,
+                            "filters" : { }
                         }
-                        ],
-                        "totaal" : 1,
-                        "filters" : { }
-                    }
                     """.trimIndent()
                 }
             }

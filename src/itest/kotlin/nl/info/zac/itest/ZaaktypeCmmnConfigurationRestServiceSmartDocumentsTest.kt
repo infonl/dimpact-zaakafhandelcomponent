@@ -9,7 +9,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
@@ -49,9 +48,9 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
         """
     ) {
         When("the list SmartDocuments templates endpoint is called") {
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates"
+                url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
 
             Then("the response should be ok") {
@@ -115,10 +114,11 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-group-template-names",
                 requestBodyAsString = """
-                {
-                    "path": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
-                }
-                """.trimIndent()
+                    {
+                        "path": [ "$SMART_DOCUMENTS_ROOT_GROUP_NAME", "$SMART_DOCUMENTS_GROUP_1_NAME" ]
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
 
             Then("the response should be ok") {
@@ -136,14 +136,18 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 "$ZAAKTYPE_TEST_3_UUID/smartdocuments-templates-mapping"
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
-                requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS
+                requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             val storeBody = storeResponse.bodyAsString
             logger.info { "Response: $storeBody" }
             storeResponse.code shouldBe HTTP_NO_CONTENT
 
             And("then the mapping is fetched back") {
-                val fetchResponse = itestHttpClient.performGetRequest(url = smartDocumentsZaakafhandelParametersUrl)
+                val fetchResponse = itestHttpClient.performGetRequest(
+                    url = smartDocumentsZaakafhandelParametersUrl,
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                )
 
                 Then("the data is fetched correctly") {
                     val fetchResponseBody = fetchResponse.bodyAsString
@@ -189,7 +193,8 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             """.trimIndent()
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
-                requestBodyAsString = restTemplateGroups
+                requestBodyAsString = restTemplateGroups,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
 
             Then("the request errors") {

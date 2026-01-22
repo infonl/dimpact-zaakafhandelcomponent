@@ -55,10 +55,11 @@ class TaskHelper(
         )
         response.code shouldBe HTTP_NO_CONTENT
         if (waitForTaskToBeIndexed) {
-            waitForTaskToBeIndexed(zaakIdentificatie)
+            waitForTaskToBeIndexed(zaakIdentificatie, testUser)
         }
         val getTaskResponse = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$zaakUuid"
+            url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
+            testUser = testUser,
         )
         val responseBody = getTaskResponse.bodyAsString
         logger.info { "Response: $responseBody" }
@@ -69,7 +70,7 @@ class TaskHelper(
         return JSONArray(responseBody).getJSONObject(taskCount - 1).getString("id")
     }
 
-    private suspend fun waitForTaskToBeIndexed(zaakIdentificatie: String) {
+    private suspend fun waitForTaskToBeIndexed(zaakIdentificatie: String, testUser: TestUser) {
         // The task is automatically indexed, so no need to (re)index here.
         // However, the indexing may still take some time to complete, so we perform a search
         // here to ensure the task is findable.
@@ -77,7 +78,7 @@ class TaskHelper(
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
-                       {
+                   {
                         "alleenMijnZaken": false,
                         "alleenOpenstaandeZaken": false,
                         "alleenAfgeslotenZaken": false,
@@ -88,8 +89,9 @@ class TaskHelper(
                         "rows": 10,
                         "page": 0,
                         "type": "TAAK"
-                        }
-                """.trimIndent()
+                    }
+                    """.trimIndent(),
+                testUser = testUser
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }

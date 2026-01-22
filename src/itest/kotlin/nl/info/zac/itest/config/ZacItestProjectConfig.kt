@@ -14,7 +14,6 @@ import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
@@ -180,9 +179,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 }
             }
             logger.info { "ZAC is healthy" }
-
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
             if (!skipDockerComposeStart) {
                 createTestSetupData()
             }
@@ -319,7 +315,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                         "filename": "$it",
                         "content": "${readResourceFile(it)}"
                     }
-                    """.trimIndent(),
+                """.trimIndent(),
                 testUser = BEHEERDER_ELK_ZAAKTYPE
             ).let { response ->
                 val responseBody = response.bodyAsString

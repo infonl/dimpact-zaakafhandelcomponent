@@ -56,6 +56,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UIT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -147,7 +148,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -204,6 +206,7 @@ class NotificationsTest : BehaviorSpec({
         When("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
@@ -275,7 +278,8 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
 
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -298,6 +302,7 @@ class NotificationsTest : BehaviorSpec({
         When("the get betrokkene endpoint is called for the BPMN-started zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -358,7 +363,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -383,7 +389,8 @@ class NotificationsTest : BehaviorSpec({
 
             And("an automated email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/"
+                    url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -446,7 +453,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -473,6 +481,7 @@ class NotificationsTest : BehaviorSpec({
         When("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagComboUuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
@@ -524,7 +533,8 @@ class NotificationsTest : BehaviorSpec({
             )
 
             val getZaakResponse = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION"
+                url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then(

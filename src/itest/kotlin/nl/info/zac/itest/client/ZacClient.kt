@@ -20,7 +20,6 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
@@ -495,7 +494,10 @@ class ZacClient(
         sendMail: Boolean = false,
         testUser: TestUser
     ): ResponseContent {
-        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(zaakUUID).let { response ->
+        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(
+            zaakUUID,
+            testUser
+        ).let { response ->
             JSONArray(response.bodyAsString)
                 .map { it as JSONObject }
                 .firstOrNull {
@@ -515,7 +517,7 @@ class ZacClient(
         )
     }
 
-    fun searchForTasks(zaakIdentificatie: String, taskName: String): String =
+    fun searchForTasks(zaakIdentificatie: String, taskName: String, testUser: TestUser): String =
         itestHttpClient.performPutRequest(
             url = "${ZAC_API_URI}/zoeken/list",
             requestBodyAsString = """
@@ -539,7 +541,8 @@ class ZacClient(
                   "sorteerRichting": "",
                   "type": "TAAK"
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -547,9 +550,10 @@ class ZacClient(
             responseBody
         }
 
-    fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
+    fun submitFormData(bpmnZaakUuid: UUID, taakData: String, testUser: TestUser): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
-            "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid"
+            url = "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid",
+            testUser = testUser
         ).let {
             val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -562,7 +566,8 @@ class ZacClient(
 
         return itestHttpClient.performPatchRequest(
             url = "${ZAC_API_URI}/taken/complete",
-            requestBodyAsString = patchedTakenData
+            requestBodyAsString = patchedTakenData,
+            testUser = testUser
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
