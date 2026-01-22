@@ -955,6 +955,9 @@
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort": "Bij deze aanpassing wordt de fatale datum van de zaak overschreden en aangepast.",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig": "Het is mogelijk om de fatale datum aan te passen en of opschorten te kiezen.",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig.opgeschort": "Het is mogelijk om de fatale datum aan te passen.",
+  "error-card.title.default": "Er is een fout opgetreden",
+  "error-card.persoon.title.geen-data": "Geen persoonsgegevens beschikbaar",
+  "error-card.persoon.text.geen-data": "Zoek een persoon om de details te bekijken",
   " 7b ": ">>--> HINTS <--<<",
   "hint.zaak.dialoog.verlengen.verlengduur": "De maximale verlengduur voor deze zaak is {{ verlengDuur }} dag",
   "hint.zaak.dialoog.verlengen.verlengduur.meervoud": "De maximale verlengduur voor deze zaak is {{ verlengDuur }} dagen",
@@ -1088,6 +1091,5 @@
   "defaultWaarde": "Standaardwaarde",
   "verplicht": "Verplicht",
   "meerkeuzeOpties": "Meerkeuze opties",
-  "volgorde": "Volgorde",
-  "persoon.detail.geen-data": "Geen persoonsgegevens beschikbaar. Zoek een persoon om de details te bekijken."
+  "volgorde": "Volgorde"
 }

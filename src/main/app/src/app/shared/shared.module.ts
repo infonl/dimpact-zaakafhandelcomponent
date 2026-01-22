@@ -45,6 +45,7 @@ import { FacetFilterComponent } from "./table-zoek-filters/facet-filter/facet-fi
 import { TekstFilterComponent } from "./table-zoek-filters/tekst-filter/tekst-filter.component";
 import { ToggleFilterComponent } from "./table-zoek-filters/toggle-filter/toggle-filter.component";
 import { VersionComponent } from "./version/version.component";
+import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
+    ErrorCardComponent,
   ],
   imports: [
     FormsModule,
@@ -111,6 +113,7 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
+    ErrorCardComponent,
     VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   providers: [

@@ -63,11 +63,10 @@
         </div>
       </div>
     } @else {
-      <div class="no-data-container">
-        <h2>
-          {{ "persoon.detail.geen-data" | translate }}
-        </h2>
-      </div>
+      <zac-error-card
+        title="error-card.persoon.title.geen-data"
+        text="error-card.persoon.text.geen-data"
+      ></zac-error-card>
     }
   </mat-drawer-content>
 </mat-drawer-container>
