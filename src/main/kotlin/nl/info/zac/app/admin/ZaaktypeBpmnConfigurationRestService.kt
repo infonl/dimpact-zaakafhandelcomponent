@@ -89,7 +89,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            defaultBehandelaarId = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
+            gebruikersnaamMedewerker = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
             groepID = restZaaktypeBpmnProcessDefinition.groepNaam
                 ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
             creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
