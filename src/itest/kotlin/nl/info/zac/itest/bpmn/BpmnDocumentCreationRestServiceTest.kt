@@ -161,8 +161,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
-                    .build(),
-                addAuthorizationHeader = true
+                    .build()
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
@@ -206,8 +205,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                 ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
-                    .build(),
-                addAuthorizationHeader = true
+                    .build()
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
@@ -248,8 +246,7 @@ class BpmnDocumentCreationRestServiceTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = FormBody.Builder().build(),
-                addAuthorizationHeader = true
+                requestBody = FormBody.Builder().build()
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {

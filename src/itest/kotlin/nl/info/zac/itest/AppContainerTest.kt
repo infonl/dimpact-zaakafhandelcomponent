@@ -28,8 +28,7 @@ class AppContainerTest : BehaviorSpec({
     Given("ZAC Docker container and all related Docker containers are running") {
         When("the liveness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health/live",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health/live"
             )
             logger.info {
                 """
@@ -56,8 +55,7 @@ class AppContainerTest : BehaviorSpec({
 
         When("the readiness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health/ready",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health/ready"
             )
             logger.info {
                 """
@@ -122,8 +120,7 @@ class AppContainerTest : BehaviorSpec({
 
         When("the generic health endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health"
             )
             logger.info {
                 """

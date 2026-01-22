@@ -54,8 +54,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 "Content-Type",
                 "application/json"
             ),
-            requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
-            addAuthorizationHeader = true
+            requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }"""
         )
         response.code shouldBe HTTP_OK
 
@@ -117,8 +116,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
+                ).toHeaders()
             )
 
             Then("the response should be 'ok' and a task signalering email should be sent") {

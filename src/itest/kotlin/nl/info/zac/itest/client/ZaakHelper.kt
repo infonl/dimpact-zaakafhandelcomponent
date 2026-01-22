@@ -13,6 +13,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
+import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -38,12 +39,14 @@ class ZaakHelper(
      *
      * @return a Pair of the zaak identification and zaak UUID of the newly created zaak.
      */
+    @Suppress("LongParameterList")
     suspend fun createZaak(
         zaakDescription: String = "itestZaakDescription-${System.currentTimeMillis()}",
         zaaktypeUuid: UUID,
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01,
-        indexZaak: Boolean = false
+        indexZaak: Boolean = false,
+        testUser: TestUser
     ): Pair<String, UUID> {
         var zaakIdentification: String
         var zaakUuid: UUID
@@ -52,7 +55,8 @@ class ZaakHelper(
             description = zaakDescription,
             groupId = group.name,
             groupName = group.description,
-            startDate = startDate
+            startDate = startDate,
+            testUser = testUser,
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -119,8 +123,7 @@ class ZaakHelper(
                     "actie" to "create",
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )
-            ).toString(),
-            addAuthorizationHeader = false
+            ).toString()
         ).run {
             code shouldBe HTTP_NO_CONTENT
         }

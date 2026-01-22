@@ -7,6 +7,8 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_READ_TIMEOUT_SECONDS
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
+import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
@@ -22,8 +24,8 @@ import java.util.concurrent.TimeUnit
 
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
-    private var okHttpClient: OkHttpClient
     private val logger = KotlinLogging.logger {}
+    private var okHttpClient: OkHttpClient
 
     init {
         // use a non-persistent cookie manager, so that we can reuse HTTP sessions across requests
@@ -36,6 +38,9 @@ class ItestHttpClient {
             .followRedirects(false)
             .build()
     }
+
+    // TODO: create generic function for all HTTP methods that does:
+    // 1. log in, 2. perform request, 3. log out
 
     fun performDeleteRequest(
         url: String,
@@ -63,40 +68,44 @@ class ItestHttpClient {
     fun performGetRequest(
         url: String,
         headers: Headers = buildHeaders(acceptType = null),
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Performing GET request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(
+                        headers = headers,
+                        url = url,
+                        accessToken = tokens.first
+                    )
+                } ?: run {
                     headers
                 }
             )
             .url(url)
             .get()
             .build()
-        return okHttpClient.newCall(request).execute().use {
+        val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
+        //tokens?.let{ logout(testUser, it.second) }
+        // TODO test
+        performGetRequest(
+            url = "$ZAC_BASE_URI/logout"
+        )
+        return responseContent
     }
 
     fun performHeadRequest(
         url: String,
-        headers: Headers = buildHeaders(acceptType = null),
-        addAuthorizationHeader: Boolean = true
+        headers: Headers = buildHeaders(acceptType = null)
     ): Int {
         logger.info { "Performing HEAD request on: '$url'" }
         val request = Request.Builder()
-            .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
-                    headers
-                }
-            )
+            .headers(headers)
             .url(url)
             .head()
             .build()
@@ -110,114 +119,133 @@ class ItestHttpClient {
         url: String,
         headers: Headers = buildHeaders(),
         requestBody: RequestBody,
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(headers, url, tokens.first)
+                } ?: run {
                     headers
                 }
             )
             .url(url)
             .post(requestBody)
             .build()
-        return okHttpClient.newCall(request).execute().use {
+        val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
+        tokens?.let{ logout(testUser, it.second) }
+        return responseContent
     }
 
     fun performJSONPostRequest(
         url: String,
         headers: Headers = buildHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ) = performPostRequest(
         url = url,
         headers = headers,
         requestBody = requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()),
-        addAuthorizationHeader = addAuthorizationHeader
+        testUser = testUser
     )
 
     fun performPatchRequest(
         url: String,
         headers: Headers = buildHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Performing PATCH request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(headers, url, tokens.first)
+                } ?: run {
                     headers
                 }
             )
             .url(url)
             .patch(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
-        return okHttpClient.newCall(request).execute().use {
+        val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
+        tokens?.let{ logout(testUser, it.second) }
+        return responseContent
     }
 
     fun performPutRequest(
         url: String,
         headers: Headers = buildHeaders(),
         requestBodyAsString: String,
-        addAuthorizationHeader: Boolean = true
+        testUser: TestUser? = null
     ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Performing PUT request on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(headers, url, tokens.first)
+                } ?: run {
                     headers
                 }
             ).url(url)
             .put(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
-        return okHttpClient.newCall(request).execute().use {
+        val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
             ResponseContent(it.body.string(), it.headers, it.code)
         }
+        tokens?.let{ logout(testUser, it.second) }
+        return responseContent
     }
 
     fun connectNewWebSocket(
         url: String,
         webSocketListener: WebSocketListener,
         headers: Headers = buildHeaders(acceptType = null),
-        addAuthorizationHeader: Boolean = true
+        // TODO: for releasing zaken from the list authorisation seems to be required, but for
+        // assigning zaken from the list not? see ZaakRestServiceTest
+        // websockets are not secured at all I think?
+        testUser: TestUser? = null
     ): WebSocket {
+        val tokens = testUser?.let(::authenticate)
         logger.info { "Connecting new websocket on: '$url'" }
         val request = Request.Builder()
             .headers(
-                if (addAuthorizationHeader) {
-                    cloneHeadersWithAuthorization(headers, url)
-                } else {
+                tokens?.let {
+                    cloneHeadersWithAuthorization(headers, url, tokens.first)
+                } ?: run {
                     headers
                 }
             )
             .url(url)
             .build()
-        return okHttpClient.newWebSocket(
+        val webSocket = okHttpClient.newWebSocket(
             request,
             webSocketListener
         )
+        tokens?.let{ logout(testUser, it.second) }
+        return webSocket
     }
 
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
         headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 
-    private fun generateBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+    private fun cloneHeadersWithAuthorization(headers: Headers, url: String, accessToken: String): Headers =
+        headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url, accessToken)).build()
+
+    private fun generateBearerToken(url: String, accessToken: String? = null)
+    = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
         generateOpenZaakJwtToken()
     } else {
-        refreshAccessToken()
+        accessToken
     }
 }

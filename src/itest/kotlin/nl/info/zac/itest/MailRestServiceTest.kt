@@ -42,18 +42,18 @@ class MailRestServiceTest : BehaviorSpec({
     val today = LocalDate.now()
 
     Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
         val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaak(
             zaakUuid = zaakUuid,
             documentTitle = "${MailRestServiceTest::class.simpleName}-1-$now",
             authorName = "fakeAuthorName",
             mediaType = TEXT_MIME_TYPE,
-            fileName = TEST_TXT_FILE_NAME
+            fileName = TEST_TXT_FILE_NAME,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("A mail is sent with the 'create document from mail' option enabled") {
             val receiverMail = "receiverMailTest@example.com"
@@ -75,7 +75,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "createDocumentFromMail": true
                 }
                 """.trimIndent(),
-                addAuthorizationHeader = true
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the response should be 'no-content'") {
@@ -86,7 +86,8 @@ class MailRestServiceTest : BehaviorSpec({
 
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -123,7 +124,8 @@ class MailRestServiceTest : BehaviorSpec({
                             "zaakUUID": "$zaakUuid",
                             "gekoppeldeZaakDocumenten": false
                         }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

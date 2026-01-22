@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
+import nl.info.zac.itest.config.TestUser
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -34,19 +35,23 @@ class TaskHelper(
      * @param fatalDate the fatal date for the task.
      * @param group the group under which to start the task.
      * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable before retrieving its ID.
+     * @param testUser the user performing the operation.
      * @return the ID of the created 'Aanvullende informatie' task.
      */
+    @Suppress("LongParameterList")
     suspend fun startAanvullendeInformatieTaskForZaak(
         zaakUuid: UUID,
         zaakIdentificatie: String,
         fatalDate: LocalDate,
         group: TestGroup,
-        waitForTaskToBeIndexed: Boolean = false
+        waitForTaskToBeIndexed: Boolean = false,
+        testUser: TestUser
     ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
             fatalDate = fatalDate,
-            group = group
+            group = group,
+            testUser = testUser
         )
         response.code shouldBe HTTP_NO_CONTENT
         if (waitForTaskToBeIndexed) {

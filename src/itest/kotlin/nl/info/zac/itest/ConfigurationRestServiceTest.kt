@@ -26,11 +26,10 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("Configuration items are available in ZAC and a user with at least one ZAC role is logged in") {
-        authenticate(RAADPLEGER_DOMAIN_TEST_1)
-
         When("the languages are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/talen"
+                url = "$ZAC_API_URI/configuratie/talen",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the available languages are returned") {
@@ -80,7 +79,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the default language is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/talen/default"
+                url = "$ZAC_API_URI/configuratie/talen/default",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the default language is returned") {
@@ -100,7 +100,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the max upload file size is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/max-file-size-mb"
+                url = "$ZAC_API_URI/configuratie/max-file-size-mb",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the max upload file size is returned") {
@@ -110,7 +111,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the additional file types are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/additional-allowed-file-types"
+                url = "$ZAC_API_URI/configuratie/additional-allowed-file-types",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("no additional file types are returned because ZAC does not provide any by default") {
@@ -124,7 +126,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the council name is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/gemeente"
+                url = "$ZAC_API_URI/configuratie/gemeente",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the council name is returned") {
@@ -136,7 +139,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the council code is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/gemeente/code"
+                url = "$ZAC_API_URI/configuratie/gemeente/code",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the council code is returned") {
@@ -148,7 +152,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the feature flag 'PABC integration' is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/feature-flags/pabc-integration"
+                url = "$ZAC_API_URI/configuratie/feature-flags/pabc-integration",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("'true' is returned if the PABC integration flag is enabled, 'false' otherwise") {
@@ -160,7 +165,8 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the BRP protocollering provider is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/brp/protocollering-provider"
+                url = "$ZAC_API_URI/configuratie/brp/protocollering-provider",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then("the configured BRP protocollering provider is returned") {

@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
@@ -43,11 +44,10 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             and a logged-in beheerder
             """
     ) {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier"
+                "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -60,11 +60,10 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     }
 
     Given("Zaak types are configured correctly and a logged-in beheerder") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
         When("the check for zaak types validity is performed") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/health-check/zaaktypes"
+                url = "$ZAC_API_URI/health-check/zaaktypes",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }

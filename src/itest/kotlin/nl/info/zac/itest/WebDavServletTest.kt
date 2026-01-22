@@ -142,10 +142,9 @@ class WebDavServletTest : BehaviorSpec({
         }
 
         When("the DOCX Word document is requested using the WebDAV token for the uploaded file") {
+            // the WebDAV servlet does not require any authorization
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
-                // the WebDAV servlet does not require any authorization
-                addAuthorizationHeader = false
+                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
@@ -156,10 +155,9 @@ class WebDavServletTest : BehaviorSpec({
         }
 
         When("a HEAD request is performed using the WebDAV token for the uploaded file") {
+            // the WebDAV servlet does not require any authorization
             val responseCode = itestHttpClient.performHeadRequest(
-                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
-                // the WebDAV servlet does not require any authorization
-                addAuthorizationHeader = false
+                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
             Then("the response should be ok") {

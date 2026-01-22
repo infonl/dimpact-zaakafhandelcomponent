@@ -137,8 +137,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
@@ -266,8 +265,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then(
@@ -349,8 +347,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then(
@@ -438,8 +435,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then(
@@ -524,8 +520,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             val getZaakResponse = itestHttpClient.performGetRequest(
@@ -579,8 +574,7 @@ class NotificationsTest : BehaviorSpec({
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then(
@@ -646,8 +640,7 @@ class NotificationsTest : BehaviorSpec({
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
                         )
-                    ).toString(),
-                    addAuthorizationHeader = false
+                    ).toString()
                 )
                 response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
@@ -713,8 +706,7 @@ class NotificationsTest : BehaviorSpec({
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
                         )
-                    ).toString(),
-                    addAuthorizationHeader = false
+                    ).toString()
                 )
                 response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.

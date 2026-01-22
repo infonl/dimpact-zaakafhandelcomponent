@@ -12,6 +12,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -43,7 +44,8 @@ class DocumentHelper(
         authorName: String,
         mediaType: String = PDF_MIME_TYPE,
         vertrouwelijkheidsaanduiding: String = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
-        indexDocument: Boolean = false
+        indexDocument: Boolean = false,
+        testUser: TestUser
     ): Pair<UUID, String> {
         val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
@@ -51,7 +53,8 @@ class DocumentHelper(
             title = documentTitle,
             authorName = authorName,
             fileMediaType = mediaType,
-            vertrouwelijkheidaanduiding = vertrouwelijkheidsaanduiding
+            vertrouwelijkheidaanduiding = vertrouwelijkheidsaanduiding,
+            testUser = testUser
         )
         val responseBody = response.bodyAsString
         logger.info { "response: $responseBody" }
@@ -117,8 +120,7 @@ class DocumentHelper(
                     "actie" to "create",
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )
-            ).toString(),
-            addAuthorizationHeader = false
+            ).toString()
         ).run {
             code shouldBe HTTP_NO_CONTENT
         }

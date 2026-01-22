@@ -76,8 +76,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "Content-Type",
                         "application/json"
                     ),
-                    requestBodyAsString = it,
-                    addAuthorizationHeader = true
+                    requestBodyAsString = it
                 )
 
                 Then("the response should be 'ok'") {
@@ -135,8 +134,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resourceUrl" to zaakRollenUrl,
                         "aanmaakdatum" to now.plusSeconds(1).toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then("the response should be 'no content'") {
@@ -164,8 +162,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resourceUrl" to zaakRollenUrl,
                         "aanmaakdatum" to now.plusSeconds(2).toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             Then("the response should be 'no content'") {
@@ -292,8 +289,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resourceUrl" to zaakInformatieObjectenUrl,
                         "aanmaakdatum" to now.toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
             Then("the response should be 'no content'") {
                 val responseBody = response.bodyAsString

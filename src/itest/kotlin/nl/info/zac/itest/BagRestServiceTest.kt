@@ -32,14 +32,13 @@ class BagRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("A logged-in raadpleger, and address data is present in the BAG API mock") {
-        authenticate(RAADPLEGER_DOMAIN_TEST_1)
-
         When("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
                         { "trefwoorden": "fake search text" }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
@@ -167,7 +166,8 @@ class BagRestServiceTest : BehaviorSpec({
     Given("A logged-in raadpleger and a BAG object that is present in the BAG API mock") {
         When("the BAG object is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION"
+                url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then("the BAG object is successfully returned") {
                 val responseBody = response.bodyAsString
@@ -1162,12 +1162,12 @@ class BagRestServiceTest : BehaviorSpec({
     }
 
     Given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val zaakUUID = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).let { responseContent ->
             logger.info { "Response: ${responseContent.bodyAsString}" }
             JSONObject(responseContent.bodyAsString).getString("uuid").run(UUID::fromString)
@@ -1190,14 +1190,16 @@ class BagRestServiceTest : BehaviorSpec({
                              "openbareRuimteNaam": "Dam"
                         }                 
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("it is successfully added to the zaak") {
                 response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the BAG objects for the zaak
                 itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID"
+                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).run {
                     val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }

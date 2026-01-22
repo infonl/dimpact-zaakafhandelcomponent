@@ -40,28 +40,29 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                 and a raadpleger for domain test 1 is logged in
                 """
         ) {
-            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
             val zaakDescription =
                 "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-listing-$now"
             val documentTitle = "${EnkelvoudigInformatieObjectRestServiceHistorieTest::class.simpleName}-documenttitle-$now"
             val documentAuthorName = "fakeAuthorName"
             val (_, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             val (enkelvoudiginformatieobjectUuid, enkelvoudiginformatieobjectIdentification) =
                 documentHelper.uploadDocumentToZaak(
                     zaakUuid = zaakUuid,
                     documentTitle = documentTitle,
                     authorName = documentAuthorName,
-                    fileName = TEST_PDF_FILE_NAME
+                    fileName = TEST_PDF_FILE_NAME,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
-            authenticate(RAADPLEGER_DOMAIN_TEST_1)
 
             When("informatieobjecten history is requested") {
                 val today = LocalDate.now()
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie"
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be ok and the expected history records are returned") {
