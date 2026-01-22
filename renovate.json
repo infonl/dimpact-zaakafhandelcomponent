@@ -81,7 +81,7 @@
         "- \\*\\*postgres\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/postgres",
+      "depNameTemplate": "postgres",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -147,7 +147,7 @@
         "- \\*\\*solr\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/solr",
+      "depNameTemplate": "solr",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -269,7 +269,7 @@
         "- \\*\\*rabbitmq\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/rabbitmq",
+      "depNameTemplate": "rabbitmq",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
