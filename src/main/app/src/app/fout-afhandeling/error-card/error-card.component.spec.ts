@@ -4,9 +4,9 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Data } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { ErrorCardComponent } from "./error-card.component";
 
 describe(ErrorCardComponent.name, () => {
@@ -21,7 +21,7 @@ describe(ErrorCardComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({}),
+            data: new BehaviorSubject<Data>({}),
           },
         },
       ],
@@ -52,17 +52,6 @@ describe(ErrorCardComponent.name, () => {
     expect(component.title).toBe("custom.title");
   });
 
-  it("should display title from route data", async () => {
-    const activatedRoute = TestBed.inject(ActivatedRoute);
-    (activatedRoute.data as any) = of({ title: "route.title" });
-
-    const newFixture = TestBed.createComponent(ErrorCardComponent);
-    const newComponent = newFixture.componentInstance;
-    newFixture.detectChanges();
-
-    expect(newComponent.title).toBe("route.title");
-  });
-
   it("should have an empty default text", () => {
     expect(component.text).toBe("");
   });
@@ -73,14 +62,20 @@ describe(ErrorCardComponent.name, () => {
     expect(component.text).toBe("custom.text");
   });
 
-  it("should display text from route data", async () => {
+  it("should override defaults with route data", () => {
+    const routeData = new BehaviorSubject<Data>({
+      title: "route.title",
+      text: "route.text",
+      iconName: "warning",
+    });
+
     const activatedRoute = TestBed.inject(ActivatedRoute);
-    (activatedRoute.data as any) = of({ text: "route.text" });
+    (activatedRoute.data as BehaviorSubject<Data>) = routeData;
 
-    const newFixture = TestBed.createComponent(ErrorCardComponent);
-    const newComponent = newFixture.componentInstance;
-    newFixture.detectChanges();
+    const newComponent = new ErrorCardComponent(activatedRoute);
 
+    expect(newComponent.title).toBe("route.title");
     expect(newComponent.text).toBe("route.text");
+    expect(newComponent.iconName).toBe("warning");
   });
 });

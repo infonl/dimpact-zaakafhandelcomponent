@@ -16,6 +16,7 @@ import { Title } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
 import { DialogComponent } from "./dialog/dialog.component";
@@ -45,7 +46,6 @@ import { FacetFilterComponent } from "./table-zoek-filters/facet-filter/facet-fi
 import { TekstFilterComponent } from "./table-zoek-filters/tekst-filter/tekst-filter.component";
 import { ToggleFilterComponent } from "./table-zoek-filters/toggle-filter/toggle-filter.component";
 import { VersionComponent } from "./version/version.component";
-import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 
 @NgModule({
   declarations: [
