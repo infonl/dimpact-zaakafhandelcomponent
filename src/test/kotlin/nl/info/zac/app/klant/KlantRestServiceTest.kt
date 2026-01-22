@@ -33,6 +33,7 @@ import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.sensitive.SensitiveDataService
 import java.time.LocalDate
 import java.util.UUID
 
@@ -45,12 +46,14 @@ class KlantRestServiceTest : BehaviorSpec({
     val kvkClientService = mockk<KvkClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val klantClientService = mockk<KlantClientService>()
+    val sensitiveDataService = mockk<SensitiveDataService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val klantRestService = KlantRestService(
         brpClientService,
         kvkClientService,
         ztcClientService,
         klantClientService,
+        sensitiveDataService,
         loggedInUserInstance
     )
 
@@ -202,6 +205,7 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Reading a person") {
         Given("A person with a BSN which exists in the klanten client and in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
             val emailAddress = "test@example.com"
             val userName = "fakeUserName"
@@ -215,9 +219,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, zaaktypeUuid)
+                val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
@@ -232,6 +237,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
             every {
@@ -239,9 +245,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, zaaktypeUuid)
+                val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
@@ -256,6 +263,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
             val emailAddress = "test@example.com"
             val userName = "fakeUserName"
@@ -268,10 +276,11 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn, zaaktypeUuid)
+                    klantRestService.readPersoon(personId, zaaktypeUuid)
                 }
 
                 Then("an exception should be thrown") {
@@ -282,15 +291,17 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             every {
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns emptyList()
             every { loggedInUserInstance.get() } returns null
             every { brpClientService.retrievePersoon(bsn) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn)
+                    klantRestService.readPersoon(personId)
                 }
 
                 Then("an exception should be thrown") {
@@ -301,6 +312,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("No logged-in user is available") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
             val emailAddress = "test@example.com"
             val digitaalAdresses = createDigitalAddresses(
@@ -313,9 +325,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get() } returns null
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid) } returns persoon
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn, zaaktypeUuid)
+                val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
@@ -362,6 +375,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
             every {
@@ -369,9 +383,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn)
+                val restPersoon = klantRestService.readPersoon(personId)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
@@ -386,6 +401,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
             val emailAddress = "test@example.com"
             val userName = "fakeUserName"
@@ -398,10 +414,11 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn)
+                    klantRestService.readPersoon(personId)
                 }
 
                 Then("an exception should be thrown") {
@@ -412,16 +429,18 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val userName = "fakeUserName"
             every {
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn, zaaktypeUuid)
+                    klantRestService.readPersoon(personId, zaaktypeUuid)
                 }
 
                 Then("an exception should be thrown") {
@@ -464,6 +483,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
             every {
@@ -471,9 +491,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(bsn)
+                val restPersoon = klantRestService.readPersoon(personId)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
@@ -488,6 +509,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
             val emailAddress = "test@example.com"
             val userName = "fakeUserName"
@@ -500,10 +522,11 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn, zaaktypeUuid)
+                    klantRestService.readPersoon(personId, zaaktypeUuid)
                 }
 
                 Then("an exception should be thrown") {
@@ -514,16 +537,18 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val userName = "fakeUserName"
             every {
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
+            every { sensitiveDataService.get(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
-                    klantRestService.readPersoon(bsn)
+                    klantRestService.readPersoon(personId)
                 }
 
                 Then("an exception should be thrown") {

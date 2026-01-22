@@ -44,7 +44,9 @@ import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRI
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
+import nl.info.zac.sensitive.SensitiveDataService
 import java.util.EnumSet
+import java.util.UUID
 
 private data class TestCase(
     val description: String,
@@ -66,6 +68,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
+    val sensitiveDataService = mockk<SensitiveDataService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -78,7 +81,8 @@ class RestZaakConverterTest : BehaviorSpec({
         restDecisionConverter = restDecisionConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
-        bpmnService = bpmnService
+        bpmnService = bpmnService,
+        sensitiveDataService = sensitiveDataService
     )
 
     beforeEach {
@@ -95,6 +99,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
+        val personId = UUID.randomUUID()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(
                 bsn = bsn
@@ -119,6 +124,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { sensitiveDataService.put(bsn) } returns personId
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -129,7 +135,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     with(initiatorIdentificatie!!) {
                         this.type shouldBe IdentificatieType.BSN
-                        this.bsnNummer shouldBe bsn
+                        this.bsnNummer shouldBe personId.toString()
                     }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
@@ -370,6 +376,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { sensitiveDataService.put(rol.identificatienummer!!) } returns UUID.randomUUID()
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -430,6 +437,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { sensitiveDataService.put(rol.identificatienummer!!) } returns UUID.randomUUID()
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -471,6 +479,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { sensitiveDataService.put(rolNatuurlijkPersoon.identificatienummer!!) } returns UUID.randomUUID()
 
         When("converting a zaak to a rest zaak") {
             val testCases = listOf(

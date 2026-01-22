@@ -58,7 +58,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -80,9 +79,9 @@ class KlantRestService @Inject constructor(
     }
 
     @GET
-    @Path("persoon/{persoon-uuid}")
+    @Path("persoon/{personId}")
     fun readPersoon(
-        @PathParam("persoon-uuid") personId: UUID,
+        @PathParam("personId") personId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
@@ -195,16 +194,18 @@ class KlantRestService @Inject constructor(
         ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactdetails/bsn/{bsn}")
+    @Path("contactdetails/{personId}")
     fun getContactDetailsForPerson(
-        @PathParam("bsn") bsn: String
+        @PathParam("personId") personId: UUID
     ): RestContactDetails =
-        klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
-            RestContactDetails(
-                telefoonnummer = it.telephoneNumber,
-                emailadres = it.emailAddress
-            )
-        }
+        sensitiveDataService.get(personId)?.let { bsn ->
+            klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
+                RestContactDetails(
+                    telefoonnummer = it.telephoneNumber,
+                    emailadres = it.emailAddress
+                )
+            }
+        } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor uuid '$personId'")
 
     @PUT
     @Path("contactmomenten")

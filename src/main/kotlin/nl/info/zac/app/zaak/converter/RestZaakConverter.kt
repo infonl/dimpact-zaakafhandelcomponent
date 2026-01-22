@@ -141,7 +141,11 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) }?.let{ replaceBsnWithKey(it) },
+            initiatorIdentificatie = initiator?.let {
+                createBetrokkeneIdentificatieForInitiatorRole(
+                    it
+                )
+            }?.let { replaceBsnWithKey(it) },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
@@ -166,7 +170,7 @@ class RestZaakConverter @Inject constructor(
     }
 
     private fun replaceBsnWithKey(identificatie: BetrokkeneIdentificatie): BetrokkeneIdentificatie =
-        when(identificatie.type) {
+        when (identificatie.type) {
             IdentificatieType.BSN -> {
                 identificatie.bsnNummer = identificatie.bsnNummer?.let { sensitiveDataService.put(it).toString() }
                 identificatie
