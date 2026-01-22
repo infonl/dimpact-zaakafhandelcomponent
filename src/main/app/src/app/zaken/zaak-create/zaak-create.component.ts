@@ -165,7 +165,8 @@ export class ZaakCreateComponent {
           if (bpmnConfig) {
             defaultBehandelaarId = bpmnConfig.defaultBehandelaarId;
           } else {
-            defaultBehandelaarId = selectedZaaktype?.zaakafhandelparameters?.defaultBehandelaarId;
+            defaultBehandelaarId =
+              selectedZaaktype?.zaakafhandelparameters?.defaultBehandelaarId;
           }
 
           this.form.controls.behandelaar.setValue(

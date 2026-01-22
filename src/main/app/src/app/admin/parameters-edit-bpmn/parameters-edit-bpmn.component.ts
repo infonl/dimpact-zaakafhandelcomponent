@@ -53,7 +53,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
     [];
   protected groepen = this.identityService.listGroups();
-    protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
+  protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
@@ -121,8 +121,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       null,
       [Validators.required],
     ),
-      defaultBehandelaar:
-          this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+    defaultBehandelaar:
+      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
     productaanvraagtype: this.formBuilder.control<string | null>(null),
   });
 
@@ -195,7 +195,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       ) || null,
     );
 
-    const { groepNaam: defaultGroepId, defaultBehandelaarId } = this.bpmnZaakafhandelParameters;
+    const { groepNaam: defaultGroepId, defaultBehandelaarId } =
+      this.bpmnZaakafhandelParameters;
 
     this.algemeenFormGroup.controls.defaultGroep.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -312,7 +313,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
-
     this.isLoading = true;
     this.zaakafhandelParametersService
       .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
@@ -324,7 +324,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         productaanvraagtype:
           this.algemeenFormGroup.value.productaanvraagtype || null,
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
-        defaultBehandelaarId: this.algemeenFormGroup.value.defaultBehandelaar?.id || null,
+        defaultBehandelaarId:
+          this.algemeenFormGroup.value.defaultBehandelaar?.id || null,
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
