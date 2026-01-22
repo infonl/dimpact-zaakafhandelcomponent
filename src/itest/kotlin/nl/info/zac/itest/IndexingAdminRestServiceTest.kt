@@ -70,8 +70,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one zaak is indexed"""
@@ -107,8 +106,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one task is indexed"""
@@ -144,8 +142,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one document is indexed"""
