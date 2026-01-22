@@ -52,11 +52,13 @@ import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.sensitive.SensitiveDataService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -70,6 +72,7 @@ class KlantRestService @Inject constructor(
     val kvkClientService: KvkClientService,
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
+    val sensitiveDataService: SensitiveDataService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -77,12 +80,14 @@ class KlantRestService @Inject constructor(
     }
 
     @GET
-    @Path("persoon/{bsn}")
+    @Path("persoon/{persoon-uuid}")
     fun readPersoon(
-        @PathParam("bsn") @Length(min = 8, max = 9) bsn: String,
+        @PathParam("persoon-uuid") personId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
+            val bsn = sensitiveDataService.get(personId)
+                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor uuid '$personId'")
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {

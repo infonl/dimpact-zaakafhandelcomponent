@@ -49,6 +49,7 @@ import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
+import nl.info.zac.sensitive.SensitiveDataService
 import java.time.Period
 import java.util.EnumSet.noneOf
 import java.util.logging.Logger
@@ -66,7 +67,8 @@ class RestZaakConverter @Inject constructor(
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BpmnService
+    private val bpmnService: BpmnService,
+    private val sensitiveDataService: SensitiveDataService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -139,7 +141,7 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) },
+            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) }?.let{ replaceBsnWithKey(it) },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
@@ -162,6 +164,15 @@ class RestZaakConverter @Inject constructor(
             }
         )
     }
+
+    private fun replaceBsnWithKey(identificatie: BetrokkeneIdentificatie): BetrokkeneIdentificatie =
+        when(identificatie.type) {
+            IdentificatieType.BSN -> {
+                identificatie.bsnNummer = identificatie.bsnNummer?.let { sensitiveDataService.put(it).toString() }
+                identificatie
+            }
+            else -> identificatie
+        }
 
     private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
