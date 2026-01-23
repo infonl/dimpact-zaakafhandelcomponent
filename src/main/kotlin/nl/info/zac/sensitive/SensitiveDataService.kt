@@ -31,13 +31,11 @@ class SensitiveDataService {
 
         val dataToUuidStorage: Cache<String, UUID> = Caffeine.newBuilder()
             .maximumSize(STORAGE_SIZE)
-            .recordStats()
             .build()
 
         val uuidToDataStorage: Cache<UUID, String?> = Caffeine.newBuilder()
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
-            .recordStats()
             .removalListener { key: UUID?, value: String?, cause ->
                 LOG.fine("Removing sensitive storage data with key $key, because of: $cause")
                 value?.let { dataToUuidStorage.invalidate(value) }
