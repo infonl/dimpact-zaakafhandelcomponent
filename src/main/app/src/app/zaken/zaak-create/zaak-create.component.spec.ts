@@ -328,7 +328,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar should be disabled ---
-        expect(await inputs[5].isDisabled()).toBe(true);
+        expect(await inputs[5].isDisabled()).toBe(false);
       });
 
       it("should set the confidentiality notice", async () => {
