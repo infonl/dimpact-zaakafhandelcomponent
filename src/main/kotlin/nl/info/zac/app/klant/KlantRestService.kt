@@ -79,14 +79,14 @@ class KlantRestService @Inject constructor(
     }
 
     @GET
-    @Path("persoon/{personId}")
+    @Path("persoon/{persoonId}")
     fun readPersoon(
-        @PathParam("personId") personId: UUID,
+        @PathParam("persoonId") persoonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
-            val bsn = sensitiveDataService.get(personId)
-                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor uuid '$personId'")
+            val bsn = sensitiveDataService.get(persoonId)
+                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor id '$persoonId'")
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {
@@ -194,18 +194,18 @@ class KlantRestService @Inject constructor(
         ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactdetails/{personId}")
+    @Path("contactdetails/persoon/{persoonId}")
     fun getContactDetailsForPerson(
-        @PathParam("personId") personId: UUID
+        @PathParam("persoonId") persoonId: UUID
     ): RestContactDetails =
-        sensitiveDataService.get(personId)?.let { bsn ->
+        sensitiveDataService.get(persoonId)?.let { bsn ->
             klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
                 RestContactDetails(
                     telefoonnummer = it.telephoneNumber,
                     emailadres = it.emailAddress
                 )
             }
-        } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor uuid '$personId'")
+        } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor id '$persoonId'")
 
     @PUT
     @Path("contactmomenten")

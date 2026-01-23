@@ -13,6 +13,12 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
+/**
+ * Service to store sensitive data in memory.
+ *
+ * Implemented as BiMap of two Caffeine caches to store key and sensitive data.
+ * At most [STORAGE_SIZE] data entries are kept in memory for [EXPIRATION_TIME_HOURS].
+ */
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
@@ -23,19 +29,42 @@ class SensitiveDataService {
 
         private val LOG = Logger.getLogger(SensitiveDataService::class.java.name)
 
-        val storage: Cache<UUID, String?> = Caffeine.newBuilder()
+        val dataToUuidStorage: Cache<String, UUID> = Caffeine.newBuilder()
+            .maximumSize(STORAGE_SIZE)
+            .recordStats()
+            .build()
+
+        val uuidToDataStorage: Cache<UUID, String?> = Caffeine.newBuilder()
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .recordStats()
-            .removalListener { key: UUID?, _: String?, cause ->
+            .removalListener { key: UUID?, value: String?, cause ->
                 LOG.fine("Removing sensitive storage data with key $key, because of: $cause")
+                value?.let { dataToUuidStorage.invalidate(value) }
             }.build()
     }
 
+    /**
+     * Replaces a sensitive data with a UUID key and stores the key for later retrieval.
+     *
+     * Multiple calls with the same data will return the same UUID key until the data is evicted. Then a new UUID key is generated.
+     * Parallel calls are thread-safe and will not result in duplicate UUID keys.
+     *
+     * @param data the sensitive data to store
+     * @return the UUID key for the stored sensitive data
+     */
     fun put(data: String): UUID =
-        UUID.randomUUID().also {
-            storage.put(it, data)
+        dataToUuidStorage.get(data) {
+            UUID.randomUUID().also {
+                uuidToDataStorage.put(it, data)
+            }
         }
 
-    fun get(key: UUID): String? = storage.getIfPresent(key)
+    /**
+     * Retrieves the sensitive data for a given UUID key.
+     *
+     * @param key the UUID key for the sensitive data
+     * @return the sensitive data or null if not found
+     */
+    fun get(key: UUID): String? = uuidToDataStorage.getIfPresent(key)
 }

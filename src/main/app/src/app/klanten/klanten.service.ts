@@ -17,9 +17,9 @@ export class KlantenService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   /* istanbul ignore next */
-  readPersoon(personId: string, zaaktypeUuid?: string) {
-    return this.zacQueryClient.GET("/rest/klanten/persoon/{personId}", {
-      path: { personId },
+  readPersoon(persoonId: string, zaaktypeUuid?: string) {
+    return this.zacQueryClient.GET("/rest/klanten/persoon/{persoonId}", {
+      path: { persoonId },
       ...(zaaktypeUuid && {
         header: { "X-ZAAKTYPE-UUID": zaaktypeUuid },
       }),
@@ -142,9 +142,12 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
-  getContactDetailsForPerson(personId: string) {
-    return this.zacHttpClient.GET("/rest/klanten/contactdetails/{personId}", {
-      path: { personId: personId },
-    });
+  getContactDetailsForPerson(persoonId: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/contactdetails/persoon/{persoonId}",
+      {
+        path: { persoonId: persoonId },
+      },
+    );
   }
 }

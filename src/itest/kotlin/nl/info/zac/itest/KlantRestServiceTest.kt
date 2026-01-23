@@ -14,9 +14,14 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
@@ -56,19 +61,77 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
 import java.net.HttpURLConnection.HTTP_OK
+import java.util.UUID
 
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
 @Suppress("LongParameterList", "LargeClass")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
+
+    var zaakUuid: UUID? = null
+    var persoonId: UUID? = null
 
     beforeSpec {
         // Delete BRP Wiremock requests journal
-        val response = itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests")
-        response.code shouldBe HTTP_OK
+        itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests").code shouldBe HTTP_OK
+    }
+
+    Context("create zaak with initiator") {
+        Given("A behandelaar is logged in") {
+            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+
+            When("zaak is created") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                    behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+                    startDate = DATE_TIME_2000_01_01
+                )
+
+                Then("response is ok") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpURLConnection.HTTP_OK
+                    JSONObject(responseBody).run {
+                        getJSONObject("zaakdata").run {
+                            zaakUuid = getString("zaakUUID").run(UUID::fromString)
+                        }
+                    }
+                }
+            }
+
+            When("initiator is added") {
+                val response = itestHttpClient.performPatchRequest(
+                    url = "${ZAC_API_URI}/zaken/initiator",
+                    requestBodyAsString = """
+                    {
+                        "betrokkeneIdentificatie": {
+                            "bsnNummer": "${TEST_PERSON_HENDRIKA_JANSE_BSN}",
+                            "type": "${BETROKKENE_IDENTIFICATION_TYPE_BSN}"
+                        },
+                        "zaakUUID": "$zaakUuid"
+                    }
+                    """.trimIndent()
+                )
+                Then("the response should be a 200 HTTP response and the initiator should be added") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HttpURLConnection.HTTP_OK
+                    val identificatie = JSONObject(responseBody).getJSONObject("initiatorIdentificatie")
+                    with(identificatie.toString()) {
+                        shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
+                        shouldContainJsonKey("bsnNummer")
+                    }
+                    persoonId = UUID.fromString(identificatie.getString("bsnNummer"))
+                }
+            }
+        }
     }
 
     Context("Listing role types") {
@@ -95,7 +158,9 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a person") {
-        Given("a person is retrieved using a BSN which is present in both the BRP and Klanten API databases") {
+        Given(
+            "a person is retrieved using a person id and the BSN is present in both the BRP and Klanten API databases"
+        ) {
             val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
@@ -116,7 +181,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                    url = "$ZAC_API_URI/klanten/persoon/$persoonId",
                     headers = headers
                 )
                 Then(
@@ -157,7 +222,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/persoon/$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                    url = "$ZAC_API_URI/klanten/persoon/$persoonId"
                 )
 
                 Then(
