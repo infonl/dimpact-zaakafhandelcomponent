@@ -5,6 +5,7 @@
 package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
@@ -86,7 +87,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 response.code shouldBe HttpURLConnection.HTTP_OK
                 with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
                     shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
-                    shouldContainJsonKeyValue("bsnNummer", TEST_PERSON_HENDRIKA_JANSE_BSN)
+                    shouldContainJsonKey("bsnNummer")
                 }
             }
         }

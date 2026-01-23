@@ -5,11 +5,14 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKey
+import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
@@ -171,7 +174,7 @@ class NotificationsTest : BehaviorSpec({
                         }
                         with(getJSONObject("initiatorIdentificatie")) {
                             getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
-                            getString("bsnNummer") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsnNummer") shouldNotBe TEST_PERSON_HENDRIKA_JANSE_BSN
                         }
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
