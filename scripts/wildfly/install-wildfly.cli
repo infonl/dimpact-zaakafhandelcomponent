@@ -1,0 +1,4 @@
+embed-server
+run-batch --file=../../src/main/resources/wildfly/configure-wildfly.cli
+
+

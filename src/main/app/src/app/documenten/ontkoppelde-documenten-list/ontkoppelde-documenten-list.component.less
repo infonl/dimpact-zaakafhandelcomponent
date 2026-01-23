@@ -1,0 +1,54 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.mat-column-zaakID {
+  width: 200px;
+}
+
+.mat-column-ontkoppeldDoor {
+  width: 200px;
+}
+
+.mat-column-ontkoppeldOp {
+  width: 150px;
+}
+
+.mat-column-creatiedatum {
+  width: 150px;
+}
+
+.mat-column-actions {
+  width: 170px;
+}
+
+.lock-icon {
+  color: var(--mdc-chip-label-text-color);
+  block-size: fit-content;
+  margin-block: auto;
+  padding: 0.125em;
+}
+
+.actions-grid {
+  @column-count: 4;
+  --_column-count: @column-count;
+  --_column-size: 3rem;
+  --_spacing: 0.375rem;
+
+  display: grid;
+  grid-template-columns: repeat(var(--_column-count), var(--_column-size));
+  gap: var(--_spacing);
+  margin-inline: var(--_spacing);
+  place-items: center;
+
+  > * {
+    margin: 0;
+  }
+
+  each(range(1, @column-count, 1), {
+    > .col-@{index} {
+      grid-column: @index;
+    }
+  });
+}

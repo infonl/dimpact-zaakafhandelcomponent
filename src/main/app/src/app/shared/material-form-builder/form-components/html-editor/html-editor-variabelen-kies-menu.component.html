@@ -1,0 +1,24 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<button
+  class="menu-item"
+  type="button"
+  mat-button
+  [matMenuTriggerFor]="beschikbare_variabelen"
+>
+  <mat-icon outlined class="menu-icon">add_circle</mat-icon>
+  {{ "variabelen" | translate }}
+</button>
+
+<mat-menu #beschikbare_variabelen="matMenu" [class]="'variabelenMenu'">
+  <tr *ngFor="let variabele of variabelen">
+    <button mat-menu-item type="button" (click)="plakExpressie(variabele)">
+      {{
+        variabele + ": " + ("mailtemplate.variabele." + variabele | translate)
+      }}
+    </button>
+  </tr>
+</mat-menu>

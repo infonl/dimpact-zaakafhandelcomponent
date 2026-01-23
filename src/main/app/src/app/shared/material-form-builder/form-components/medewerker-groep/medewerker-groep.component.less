@@ -1,0 +1,62 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+fieldset {
+  border: none;
+  padding: 10px 0 0;
+  margin: 0;
+  min-width: 0;
+
+  legend {
+    font-size: small;
+    font-weight: 500;
+  }
+}
+
+button {
+  mat-icon {
+    color: var(--mat-form-field-enabled-select-arrow-color);
+
+    &.error {
+      color: var(--mat-form-field-error-text-color);
+    }
+  }
+
+  &:hover mat-icon {
+    color: var(--mat-form-field-trailing-icon-color);
+  }
+
+  &.mat-mdc-button-disabled {
+    mat-icon {
+      color: var(--mat-form-field-disabled-select-arrow-color);
+    }
+  }
+}
+
+mat-icon {
+  margin-right: 4px;
+  color: var(--mat-form-field-enabled-select-arrow-color);
+
+  &.error {
+    color: var(--mat-form-field-error-text-color);
+  }
+}
+
+::ng-deep .row {
+  padding-top: 0px !important;
+
+  & .fields {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+}
+
+::ng-deep .case-details-edit-form {
+  @media screen and (min-width: 959px) {
+    width: 558px;
+  }
+}

@@ -1,0 +1,40 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div mat-dialog-title>
+  <h3>{{ "actie.bevestig" | translate }}</h3>
+  <button mat-icon-button (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content>
+  <p [innerHTML]="data._melding.key | translate: data._melding.args"></p>
+  <p *ngIf="data.uitleg" class="uitleg" [innerHTML]="data.uitleg"></p>
+</div>
+
+<div mat-dialog-actions>
+  <button
+    id="confirmButton"
+    mat-raised-button
+    autofocus
+    color="primary"
+    [disabled]="loading"
+    (click)="confirm()"
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="18"></mat-spinner>
+    </mat-icon>
+    {{ "actie.ja" | translate }}
+  </button>
+  <button
+    id="cancelButton"
+    mat-raised-button
+    [disabled]="loading"
+    (click)="cancel()"
+  >
+    {{ "actie.nee" | translate }}
+  </button>
+</div>

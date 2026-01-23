@@ -1,0 +1,18 @@
+{
+  "request": {
+    "url": "/lvbag/individuelebevragingen/v2/adressen?q=dummy+search+text&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats",
+    "method": "GET",
+    "headers": {
+      "Accept": {
+        "equalTo": "application/hal+json, application/problem+json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "bag-adressen-zoeken-dummy-search-text-body.json",
+    "headers": {
+      "Content-Type": "application/hal+json"
+    }
+  }
+}

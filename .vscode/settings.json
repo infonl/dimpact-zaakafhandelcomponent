@@ -1,0 +1,11 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cucumber.features": [  
+        "features/**/*.feature",
+        "src/e2e/**/*.feature"
+    ],
+    "cucumber.glue": [
+        "src/e2e/step-definitions/*.ts",
+        "step-definitions/*.ts"
+    ]
+}

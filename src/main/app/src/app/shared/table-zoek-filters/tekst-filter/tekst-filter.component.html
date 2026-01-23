@@ -1,0 +1,15 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-form-field subscriptSizing="dynamic">
+  <input
+    matInput
+    placeholder="..."
+    (blur)="change()"
+    (keyup.enter)="change()"
+    [formControl]="formControl"
+  />
+  <mat-icon matSuffix (click)="change()">search</mat-icon>
+</mat-form-field>

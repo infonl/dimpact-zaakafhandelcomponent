@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "scripts": {
+    "e2e:run": "./node_modules/.bin/cucumber-js -p default",
+    "e2e:start": "npm ci && npm run e2e:run",
+    "e2e:generate:report": "node generate-report.mjs"
+  },
+  "private": true,
+  "dependencies": {
+    "@cucumber/cucumber": "11.2.0",
+    "@types/uniqid": "5.3.4",
+    "cross-fetch": "4.1.0",
+    "pdf-parse": "1.1.1",
+    "uniqid": "5.4.0",
+    "zod": "3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "@playwright/test": "1.51.1",
+    "cucumber-html-reporter": "7.2.0",
+    "cucumber-pretty": "6.0.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.2"
+  },
+  "cucumber.features": ["features/**/*.feature"]
+}

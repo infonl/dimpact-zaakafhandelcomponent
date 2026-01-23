@@ -1,0 +1,121 @@
+{
+  "documentsStructure": {
+    "templatesStructure": {
+      "templateGroups": [
+        {
+          "templateGroups": [
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "group 1 template 1"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "group 1 template 2"
+                }
+              ],
+              "accessible": true,
+              "id": "0E18B04EDF9646C0A2D04E651DC4C6FF",
+              "name": "group 1"
+            },
+            {
+              "templateGroups": [],
+              "templates": [
+                {
+                  "favorite": false,
+                  "id": "7B7857BB9959470C82974037304E433D",
+                  "name": "group 2 template 1"
+                },
+                {
+                  "favorite": false,
+                  "id": "273C2707E5A844699B653C87ACFD618E",
+                  "name": "group 2 template 2"
+                }
+              ],
+              "accessible": true,
+              "id": "348097107FA346DC9AEBBE33A5500B79",
+              "name": "group 2"
+            }
+          ],
+          "templates": [
+            {
+              "favorite": false,
+              "id": "445E1A2C5D964A33961CA46679AB51CF",
+              "name": "root template 1"
+            },
+            {
+              "favorite": false,
+              "id": "8CCCF38A7757473CB5F5F2B8E5D7484D",
+              "name": "root template 2"
+            }
+          ],
+          "accessible": true,
+          "id": "D5037631FF6748269059B353699EFA0C",
+          "name": "root"
+        }
+      ],
+      "accessible": true
+    },
+    "headersStructure": {
+      "headerGroups": [],
+      "accessible": true
+    }
+  },
+  "usersStructure": {
+    "groupsAccess": {
+      "templateGroups": [],
+      "headerGroups": []
+    },
+    "userGroups": [
+      {
+        "groupsAccess": {
+          "templateGroups": [
+            {
+              "id": "D5037631FF6748269059B353699EFA0C",
+              "name": "Dimpact",
+              "allDescendants": true
+            }
+          ],
+          "headerGroups": []
+        },
+        "userGroups": [],
+        "users": [
+          {
+            "id": "53D4C8F354C34236911C2228180CFE5A",
+            "name": "zaakafhandelcomponent"
+          }
+        ],
+        "accessible": true,
+        "id": "85F565BC938F496E9EAEEE5AFE6662D1",
+        "name": "Atos"
+      },
+      {
+        "groupsAccess": {
+          "templateGroups": [
+            {
+              "id": "D5037631FF6748269059B353699EFA0C",
+              "name": "Dimpact",
+              "allDescendants": true
+            }
+          ],
+          "headerGroups": []
+        },
+        "userGroups": [],
+        "users": [
+          {
+            "id": "53D4C8F354C34236911C2228180CFE5A",
+            "name": "zaakafhandelcomponent"
+          }
+        ],
+        "accessible": true,
+        "id": "59FD5E31809645D0B9CC7EAE2A536513",
+        "name": "Dimpact"
+      }
+    ],
+    "accessible": true
+  }
+}

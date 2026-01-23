@@ -1,0 +1,29 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.filter-control {
+  &:hover {
+    .filter-icon {
+      visibility: hidden;
+    }
+
+    .filter-button {
+      visibility: visible;
+    }
+  }
+
+  .filter-icon {
+    visibility: visible;
+  }
+
+  .filter-button {
+    visibility: hidden;
+    margin-left: -24px;
+  }
+}
+
+.filter-menu {
+  width: 250px;
+}

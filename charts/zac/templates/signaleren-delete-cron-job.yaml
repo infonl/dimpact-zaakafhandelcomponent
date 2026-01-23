@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "zaakafhandelcomponent.fullname" . }}-sig-del
+  labels:
+    {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.signaleringen.deleteOldSignaleringenSchedule | quote }}
+  concurrencyPolicy: {{ .Values.signaleringen.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.signaleringen.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.signaleringen.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "zaakafhandelcomponent.labels" . | nindent 12 }}
+        spec:
+          {{- with .Values.signaleringen.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.signaleringen.securityContext | nindent 12 }}
+          restartPolicy: {{ .Values.signaleringen.restartPolicy }}
+          {{- with .Values.signaleringen.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
+              image: "{{ .Values.signaleringen.image.repository }}:{{ .Values.signaleringen.image.tag }}"
+              imagePullPolicy: {{ .Values.signaleringen.image.pullPolicy }}
+              resources:
+                {{- toYaml .Values.signaleringen.resources | nindent 16 }}
+              args:
+                - -X DELETE
+                - {{ printf "http://%s.%s/rest/admin/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+          {{- with .Values.signaleringen.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.signaleringen.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.signaleringen.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
