@@ -142,9 +142,7 @@ class RestZaakConverter @Inject constructor(
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator?.let {
-                createBetrokkeneIdentificatieForInitiatorRole(
-                    it
-                )
+                createBetrokkeneIdentificatieForInitiatorRole(it)
             }?.let { replaceBsnWithKey(it) },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
