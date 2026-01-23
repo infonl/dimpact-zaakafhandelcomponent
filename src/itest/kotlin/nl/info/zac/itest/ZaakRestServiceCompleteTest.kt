@@ -15,7 +15,6 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
@@ -45,7 +44,6 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         and a logged-in recordmanager for domain test 1
         """
     ) {
-        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
@@ -53,7 +51,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -64,7 +63,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -77,18 +77,20 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "planItemInstanceId":"$intakeId",
-                "actie":"$ACTIE_INTAKE_AFRONDEN",
-                "zaakOntvankelijk":true
-            }
-            """.trimIndent()
+                {
+                    "zaakUuid":"$zaakUUID",
+                    "planItemInstanceId":"$intakeId",
+                    "actie":"$ACTIE_INTAKE_AFRONDEN",
+                    "zaakOntvankelijk":true
+                }
+            """.trimIndent(),
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID",
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -101,7 +103,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         When("the zaak is completed") {
             val afhandelenId: Int
             itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+                url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
             ).run {
                 val responseBody = bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -113,20 +116,22 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-                requestBodyAsString = """{
-                    "zaakUuid":"$zaakUUID",
-                    "planItemInstanceId":"$afhandelenId",
-                    "actie":"$ACTIE_ZAAK_AFHANDELEN",
-                    "resultaattypeUuid": "$resultaatTypeUuid",
-                    "resultaatToelichting":"afronden"
-                }
-                """.trimIndent()
+                requestBodyAsString = """
+                    {
+                        "zaakUuid":"$zaakUUID",
+                        "planItemInstanceId":"$afhandelenId",
+                        "actie":"$ACTIE_ZAAK_AFHANDELEN",
+                        "resultaattypeUuid": "$resultaatTypeUuid",
+                        "resultaatToelichting":"afronden"
+                    }
+                """.trimIndent(),
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -144,14 +149,15 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
                 requestBodyAsString = """
-                    {"reden":"fakeReason"}
-                """.trimIndent()
+                        { "reden": "fakeReason" }
+                """.trimIndent(),
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be open and should no longer have a result") {
-                zacClient.retrieveZaak(zaakUUID).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -173,16 +179,17 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/afsluiten",
                 requestBodyAsString = """
                     {
-                    "reden":"fakeReason",
-                    "resultaattypeUuid":"$resultaatTypeUuid"
+                        "reden": "fakeReason",
+                        "resultaattypeUuid": "$resultaatTypeUuid"
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -201,7 +208,6 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         and a logged-in recordmanager for domain test 1
         """
     ) {
-        authenticate(RECORDMANAGER_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         val afhandelenId: Int
@@ -209,7 +215,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -220,7 +227,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID",
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -230,7 +238,8 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+            testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -247,23 +256,25 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-                requestBodyAsString = """{
-                    "zaakUuid":"$zaakUUID",
-                    "planItemInstanceId":"$afhandelenId",
-                    "actie":"$ACTIE_ZAAK_AFHANDELEN",
-                    "resultaattypeUuid": "$resultaatTypeUuid",
-                    "resultaatToelichting":"afronden",
-                    "zaakOntvankelijk": false,
-                    "restMailGegevens": {
-                        "verzender": "$senderMail",
-                        "ontvanger": "$receiverMail",
-                        "replyTo": "replyTo@example.com",
-                        "onderwerp": "closed zaak subject",
-                        "body": "$mailBody",
-                        "createDocumentFromMail": false
+                requestBodyAsString = """
+                    {
+                        "zaakUuid":"$zaakUUID",
+                        "planItemInstanceId":"$afhandelenId",
+                        "actie":"$ACTIE_ZAAK_AFHANDELEN",
+                        "resultaattypeUuid": "$resultaatTypeUuid",
+                        "resultaatToelichting":"afronden",
+                        "zaakOntvankelijk": false,
+                        "restMailGegevens": {
+                            "verzender": "$senderMail",
+                            "ontvanger": "$receiverMail",
+                            "replyTo": "replyTo@example.com",
+                            "onderwerp": "closed zaak subject",
+                            "body": "$mailBody",
+                            "createDocumentFromMail": false
+                        }
                     }
-                }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
