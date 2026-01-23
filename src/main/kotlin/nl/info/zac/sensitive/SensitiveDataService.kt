@@ -37,7 +37,7 @@ class SensitiveDataService {
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->
-                LOG.fine("Removing sensitive storage data with key $key, because of: $cause")
+                LOG.fine { "Removing sensitive storage data with key $key, because of: $cause" }
                 value?.let { dataToUuidStorage.invalidate(value) }
             }.build()
     }
