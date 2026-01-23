@@ -97,7 +97,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                   "groep" : {
                     "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                     "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
-                  }               
+                  },
+                  "behandelaar" : {
+                    "id" : "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                    "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.username}"
+                  }           
                 }
                 """.trimIndent()
             }

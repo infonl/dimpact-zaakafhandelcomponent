@@ -11,6 +11,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
@@ -34,6 +35,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "bpmnProcessDefinitionKey": "${BPMN_TEST_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE}",
             "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+            "defaultBehandelaarId": "${BEHEERDER_1.username}"
         }
     """.trimIndent()
     val bpmnZaakType2 = """
@@ -44,6 +46,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
             "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+            "defaultBehandelaarId": "${BEHEERDER_1.username}"
         }
     """.trimIndent()
 

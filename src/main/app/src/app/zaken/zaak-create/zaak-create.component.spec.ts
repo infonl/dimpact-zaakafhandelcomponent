@@ -325,7 +325,7 @@ describe(ZaakCreateComponent.name, () => {
 
         await autocompleteOptions[0].click();
         expect(await input.getValue()).toBe("test group BPMN");
-        expect(identityService.listUsersInGroup).toHaveBeenCalledTimes(0);
+        expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
         // --- Behandelaar should be disabled ---
         expect(await inputs[5].isDisabled()).toBe(true);
