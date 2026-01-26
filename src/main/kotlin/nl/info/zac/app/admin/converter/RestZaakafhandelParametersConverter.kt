@@ -202,7 +202,11 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeBpmnConfiguration.getBrpParameters()
-                .toRestBrpDoelbindingen()
+                .toRestBrpDoelbindingen(),
+            zaakNietOntvankelijkResultaattype = zaaktypeBpmnConfiguration.nietOntvankelijkResultaattype?.let {
+                ztcClientService.readResultaattype(it).toRestResultaatType()
+            },
+            zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
         )
         return restZaakafhandelParameters
     }

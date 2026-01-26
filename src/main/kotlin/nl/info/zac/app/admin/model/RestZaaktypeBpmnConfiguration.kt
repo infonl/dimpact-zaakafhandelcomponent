@@ -6,6 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -38,4 +39,9 @@ data class RestZaaktypeBpmnConfiguration(
     var brpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
 
     var nietOntvankelijkResultaattype: UUID? = null,
+
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList(),
 )
