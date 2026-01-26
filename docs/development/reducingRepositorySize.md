@@ -47,7 +47,7 @@ Squashing the gh-pages branch to a single commit while keeping only the latest c
     git push origin gh-pages --force
     ```
 
-4. GitHub will do automatic garbage collection.
+4. GitHub will perform automatic garbage collection eventually. Note that the space savings may not be immediately visible and can take several hours or days to fully reflect in the repository size.
 
 5. All team members should re-clone or run:
     ```shell
