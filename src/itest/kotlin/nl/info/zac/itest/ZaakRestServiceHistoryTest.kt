@@ -11,7 +11,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
@@ -30,7 +29,6 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val zacClient = ZacClient()
 
     Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
@@ -38,7 +36,8 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             groupId = RAADPLEGERS_DOMAIN_TEST_1.name,
             groupName = RAADPLEGERS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID
+            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             JSONObject(bodyAsString).run {
                 logger.info { "Response: $this" }
@@ -50,19 +49,22 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         val zaakAssignToMeFromListReason = "fakeAssignToMeFromListReason"
         itestHttpClient.performPutRequest(
             url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
-            requestBodyAsString = """{
+            requestBodyAsString = """
+                {
                     "zaakUUID" : "$zaakUuid",
                     "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                     "reden" : "$zaakAssignToMeFromListReason"
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
         }
 
         When("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie"
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then(

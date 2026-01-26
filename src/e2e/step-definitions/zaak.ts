@@ -67,7 +67,7 @@ Given(
     user: z.infer<typeof worldUsers>,
     status: z.infer<typeof zaakStatus>,
   ) {
-    await openZaak.call(this, user, status);
+    await openZaak.call(this, user);
 
     const parsedStatus = zaakStatus.parse(status);
     await this.expect(

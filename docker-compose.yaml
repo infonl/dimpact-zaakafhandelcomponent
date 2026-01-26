@@ -41,7 +41,9 @@ services:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
-      - KC_HOSTNAME=http://localhost:8081
+      # This requires adding host.docker.internal to your `/etc/hosts` file.
+      # See the "Steps to Add host.docker.internal Entry to /etc/hosts File" section in `installDockerCompose.md`.
+      - KC_HOSTNAME=http://host.docker.internal:8081
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
       - KC_DB=postgres
@@ -183,7 +185,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:7.4.7@sha256:4433ffbcb32e47f6da3d584420e011dcbf3ffd0809d78340996aab703b83a792
+    image: redis:8.4.0@sha256:73dad4271642c5966db88db7a7585fae7cf10b685d1e48006f31e0294c29fdd7
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -248,7 +250,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.10.0-slim@sha256:8c3e4e80cee82478bac8a9132f640c5036fc80221d94bb1bf29c6309025ba260
+    image: docker.io/solr:9.10.1-slim@sha256:5c50282c6e316fc3d670eb86b443dc70b1147ac0d31b76444b52be75e4b40468
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -385,7 +387,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.143.1@sha256:e38787c822875f4afe459a4e4b798b0cbfb7372669f06643ad293793d25762ce
+    image: docker.io/otel/opentelemetry-collector:0.144.0@sha256:a43e68866ce4cfa701fb6711de3111b72660e40ebb05a79d1759b002938b608f
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z

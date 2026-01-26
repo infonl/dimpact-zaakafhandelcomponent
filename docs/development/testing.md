@@ -135,12 +135,6 @@ This is only needed when running the tests locally. When running the tests in th
 
 1. Replace the following values in the `docker-compose.yml` file:
 
-under services -> keycloack -> environment
-```diff
--      - KC_HOSTNAME=http://localhost:8081
-+      - KC_HOSTNAME=http://host.docker.internal:8081
-```
-
 under services -> zac -> environment
 ```diff
 -      - CONTEXT_URL=http://localhost:8080

@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 19-01-2026 <br>
-> Versie :   1.8 <br>
-> Verandering : ZAC v4.0.54 Inrichting Zaakafhandelcomponent <br>
+> Datum : 21-01-2026 <br>
+> Versie :   1.10 <br>
+> Verandering : ZAC v4.1.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -14,16 +14,18 @@
 
 Versiegeschiedenis:
 
-| 1.0 | Initiële versie |
-|-----|-------------------------------------------------------------------------------------------------------------------------------------|
-| 1.1 | ZAC versie 3.7 |
-| 1.2 | ZAC versie 3.9 |
-| 1.3 | ZAC versie 3.11 |
-| 1.4 | ZAC versie 3.12 |
-| 1.5 | ZAC versie 3.17.67 |
-| 1.6 | ZAC versie 3.20.53 |
-| 1.7 | ZAC versie 4.0.54 |
-| 1.8 | ZAC versie 4.0.54 |
+| 1.0  | Initiële versie    |
+|------|--------------------|
+| 1.1  | ZAC versie 3.7     |
+| 1.2  | ZAC versie 3.9     |
+| 1.3  | ZAC versie 3.11    |
+| 1.4  | ZAC versie 3.12    |
+| 1.5  | ZAC versie 3.17.67 |
+| 1.6  | ZAC versie 3.20.53 |
+| 1.7  | ZAC versie 4.0.54  |
+| 1.8  | ZAC versie 4.0.54  |
+| 1.9  | ZAC versie 4.0.83  |
+| 1.10 | ZAC versie 4.1.0   |
 
 # Inhoud
 
@@ -93,12 +95,12 @@ Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 
 #### CMMN
 Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
-![image](images/zaps_cmmn.png)
+![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
 Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### CMMN
-![image](images/zaps_cmmn_cmmn.png)
+![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
 ###### BPMN
-![image](images/zaps_cmmn_bpmn.png)
+![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
 
 
 #### Gegevens
@@ -108,7 +110,7 @@ Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de v
 - Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
 
-![image](images/zaps_gegevens_bpmn.png)
+![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
 Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
@@ -443,7 +445,32 @@ via de functionele rollen die aan de groep(en) zijn toegekend.
 
   ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
 
-  ![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
+###### Een medewerker in meerdere groepen
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen verschillende domeinen, 
+dan krijgt de medewerker verschillende autorisaties per domein via de groepen.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol Y' in 'Domein 2'.
+
+In dit geval krijgt de medewerker de applicatie rol 'Applicatie rol X' voor het domein 'Domein 1',
+en de applicatie rol 'Applicatie rol Y' voor het domein 'Domein 2'.
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen één en hetzelfde domein, 
+dan worden deze autorisaties samengevoegd binnen dat domein.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol Y' in 'Domein 1'.
+
+In dit geval krijgt de medewerker beide applicatierollen 'Applicatie rol X' en 'Applicatie rol Y' voor het domein 'Domein 1'.
+
+![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
 
 #### PABC
 
@@ -526,9 +553,29 @@ Autorisatie-koppelingen zijn de combinaties van applicatie rollen en domeinen di
 gekoppeld aan een functionele rol.
 Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen welk domein.
 
+Verreweg de meeste autorisatie-koppelingen zijn van het type `entiteitstype van een specifiek domein`. 
+Hiermee wordt een functionele rol gekoppeld aan applicatierollen voor een specifiek domein.
+
+  ![PABC autorisatie-koppeling voor een specifiek domein](images/pabc_autorisatie_koppeling_1.png)
+
   ![PABC autorisatie-koppelingen 1](images/pabc_autorisatie_koppelingen_1.png)
 
   ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
+
+Voor (functioneel) beheerders in ZAC geldt, in ieder geval op dit moment, dat ze binnen ZAC alles moeten kunnen,
+binnen alle domeinen.
+In dit geval kan er gekozen worden voor het type `geen enkel entiteitstype`.
+Dit type wordt gebruikt voor functionele rollen waar entiteitstypes niet voor van toepassing zijn.
+De aanbeveling is om dit type te gebruiken om de ZAC beheerder-rollen in te richten.
+Bij gebruik van dit roltype, zijn ook alle toekomstig nog aan te maken entiteitstypes (zoals zaaktypes) automatisch geautoriseerd. 
+Dit vermindert beheerslast.
+
+  ![PABC autorisatie-koppeling voor alle entiteitstypes](images/pabc_autorisatie_koppeling_2.png)
+
+  ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
+
+Het derde type autorisatie-koppeling, `alle entiteitstypes`, is bedoeld voor rollen die geautoriseerd moeten worden voor per definitie alle entiteitstypes.
+Dit type wordt (nog) niet ondersteund door ZAC.
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 
@@ -560,12 +607,15 @@ Het `Domein` veld in de zaakafhandelparameters is er daarom ook niet meer in de 
 ## Groepen
 
 Groepen van medewerkers worden beheerd in Keycloak. 
-In ZAC worden deze groepen vervolgens gebruikt middels groep-autorisaties op zaaktype(s) om bijvoorbeeld zaken en taken aan toe te wijzen.
-Zie eerdere secties in dit document voor specifieke details.
+In ZAC worden deze groepen, met behulp van de PABC, vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Dit gebeurt via zogenaamde groep-autorisaties op zaaktypes. Zie eerdere secties in dit document voor specifieke details.
 
 ### Beheer van groepen
 
 Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
+
+In Keycloak is het ook mogelijk om 'subgroepen' aan te maken, oftewel groepen binnen groepen.
+Dergelijke subgroepen worden niet ondersteund.
 
 > Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
 
