@@ -48,7 +48,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoon.burgerservicenummer
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.complementOf(
                     EnumSet.of(
                         RestPersoonIndicaties.MINISTERIELE_REGELING,
@@ -78,7 +78,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoon.burgerservicenummer
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
                     RestPersoonIndicaties.MINISTERIELE_REGELING
@@ -106,7 +106,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoon.burgerservicenummer
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
                     RestPersoonIndicaties.EMIGRATIE
@@ -181,7 +181,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoonBeperkt.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 // check for all but OVERLIJDEN and EMIGRATION
                 restPersoon.indicaties shouldBe EnumSet.complementOf(
                     EnumSet.of(
@@ -213,7 +213,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoonBeperkt.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
                     RestPersoonIndicaties.MINISTERIELE_REGELING
@@ -241,7 +241,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoonBeperkt.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
                     RestPersoonIndicaties.EMIGRATIE
@@ -260,7 +260,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoon.burgerservicenummer
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.IN_ONDERZOEK,
                     RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS
@@ -279,7 +279,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoonBeperkt.toRestPersoon()
 
             Then("conversion is correct") {
-                restPersoon.personId shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.IN_ONDERZOEK,
                     RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS
@@ -295,7 +295,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion yields no indications") {
-                restPersoon.personId shouldBe persoon.burgerservicenummer
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
             }
         }
@@ -308,7 +308,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoonBeperkt.toRestPersoon()
 
             Then("conversion yields no indications") {
-                restPersoon.personId shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
             }
         }

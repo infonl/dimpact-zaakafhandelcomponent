@@ -10,7 +10,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
@@ -42,7 +41,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
@@ -173,7 +171,7 @@ class NotificationsTest : BehaviorSpec({
                         }
                         with(getJSONObject("initiatorIdentificatie")) {
                             getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
-                            getString("bsnNummer") shouldNotBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            UUID.fromString(getString("personId"))
                         }
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }

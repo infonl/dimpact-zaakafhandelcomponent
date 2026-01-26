@@ -81,11 +81,11 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("person/{personId}")
     fun readPersoon(
-        @PathParam("personId") persoonId: UUID,
+        @PathParam("personId") requestedPersonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
-            val bsn = klantService.replaceKeyWithBsn(persoonId)
+            val bsn = klantService.replaceKeyWithBsn(requestedPersonId)
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {
@@ -98,6 +98,7 @@ class KlantRestService @Inject constructor(
                     brpPersoon.await()?.toRestPersoon()?.apply {
                         telefoonnummer = contactDetails.telephoneNumber
                         emailadres = contactDetails.emailAddress
+                        personId = requestedPersonId
                     } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
                 }
             }
@@ -165,12 +166,12 @@ class KlantRestService @Inject constructor(
             ?.let { bsn ->
                 listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
                     .map { it.toRestPersoon() }
-                    .map { it.apply { personId = klantService.replaceBsnWithKey(bsn).toString() } }
+                    .map { it.apply { personId = klantService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
             ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
                 .toRestPersonen()
-                .map { it.apply { personId = personId?.let(klantService::replaceBsnWithKey).toString() } }
+                .map { it.apply { personId = bsn?.let(klantService::replaceBsnWithKey) } }
                 .toRestResultaat()
 
     @PUT

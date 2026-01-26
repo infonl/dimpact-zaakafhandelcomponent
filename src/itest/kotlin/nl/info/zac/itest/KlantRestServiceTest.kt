@@ -74,15 +74,11 @@ class KlantRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
 
+    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
+
     var zaakUuid: UUID? = null
-    var persoonId: UUID? = null
 
-    beforeSpec {
-        // Delete BRP Wiremock requests journal
-        itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests").code shouldBe HTTP_OK
-    }
-
-    Context("create zaak with initiator") {
+    Context("Create zaak with initiator") {
         Given("A behandelaar is logged in") {
             authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
@@ -114,23 +110,29 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         },
                         "zaakUUID": "$zaakUuid"
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
-                Then("the response should be a 200 HTTP response and the initiator should be added") {
+                Then("the requested initiator should be added") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpURLConnection.HTTP_OK
+                    response.code shouldBe HTTP_OK
                     val identificatie = JSONObject(responseBody).getJSONObject("initiatorIdentificatie")
                     with(identificatie.toString()) {
                         shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
-                        shouldContainJsonKey("bsnNummer")
+                        shouldContainJsonKeyValue("personId", personId.toString())
                     }
-                    persoonId = UUID.fromString(identificatie.getString("bsnNummer"))
+                }
+            }
+
+            When("zaak is set-up") {
+                Then("delete BRP Wiremock requests journal") {
+                    itestHttpClient.performDeleteRequest(url = "$BRP_WIREMOCK_API/requests").code shouldBe HTTP_OK
                 }
             }
         }
@@ -177,6 +179,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                      "personId": "$personId",
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
                       "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
@@ -196,7 +199,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/person/$persoonId",
+                    url = "$ZAC_API_URI/klanten/person/$personId",
                     headers = headers,
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
@@ -239,7 +242,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/person/$persoonId",
+                    url = "$ZAC_API_URI/klanten/person/$personId",
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
@@ -287,6 +290,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 "foutmelding": "",
                 "resultaten": [{
                    "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                   "personId": "$personId",
                    "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                    "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
                    "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",

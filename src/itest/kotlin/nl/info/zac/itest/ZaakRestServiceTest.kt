@@ -92,6 +92,8 @@ class ZaakRestServiceTest : BehaviorSpec({
     lateinit var zaak1UUID: UUID
     lateinit var zaak2UUID: UUID
 
+    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
+
     Context("Listing zaaktypes for creating zaken") {
         Given(
             """
@@ -417,7 +419,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaak2UUID",
                         "roltypeUUID": "$ROLTYPE_UUID_BELANGHEBBENDE",
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
                     }
@@ -550,7 +552,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "roltypeUUID": "$ROLTYPE_UUID_MEDEAANVRAGER",
                         "roltoelichting": "fakeToelichting",
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
                     }

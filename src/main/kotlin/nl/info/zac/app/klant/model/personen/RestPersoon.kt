@@ -39,11 +39,13 @@ import org.apache.commons.lang3.StringUtils
 import java.util.EnumSet
 import java.util.Locale
 import java.util.Objects
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
 data class RestPersoon(
-    var personId: String? = null,
+    var personId: UUID? = null,
+    var bsn: String? = null,
     var geslacht: String? = null,
     var geboortedatum: String? = null,
     var verblijfplaats: String? = null,
@@ -53,11 +55,11 @@ data class RestPersoon(
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
     override fun getIdentificatieType(): IdentificatieType? {
-        return if (personId != null) IdentificatieType.BSN else null
+        return if (bsn != null) IdentificatieType.BSN else null
     }
 
     override fun getIdentificatie(): String? {
-        return personId
+        return bsn
     }
 }
 
@@ -66,7 +68,7 @@ private const val MINISTRIAL_REGULATION_CODE = "M"
 private const val EMIGRATION_CODE = "E"
 
 fun Persoon.toRestPersoon() = RestPersoon(
-    personId = this.burgerservicenummer,
+    bsn = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     verblijfplaats = this.verblijfplaats?.toStringRepresentation(),
@@ -101,7 +103,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
 }
 
 fun PersoonBeperkt.toRestPersoon() = RestPersoon(
-    personId = this.burgerservicenummer,
+    bsn = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,

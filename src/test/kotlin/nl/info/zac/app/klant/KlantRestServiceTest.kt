@@ -226,7 +226,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
-                        this.personId shouldBe bsn
+                        this.personId shouldBe personId
+                        this.bsn shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe emailAddress
                         this.telefoonnummer shouldBe telephoneNumber
@@ -252,7 +253,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.personId shouldBe bsn
+                        this.personId shouldBe personId
+                        this.bsn shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null
@@ -332,7 +334,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
-                        this.personId shouldBe bsn
+                        this.personId shouldBe personId
+                        this.bsn shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe emailAddress
                         this.telefoonnummer shouldBe telephoneNumber
@@ -390,7 +393,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.personId shouldBe bsn
+                        this.personId shouldBe personId
+                        this.bsn shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null
@@ -498,7 +502,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.personId shouldBe bsn
+                        this.personId shouldBe personId
+                        this.bsn shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null

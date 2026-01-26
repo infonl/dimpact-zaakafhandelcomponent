@@ -5,7 +5,6 @@
 package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
@@ -29,6 +28,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
+import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -45,6 +45,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         duration = 30.seconds
         interval = 500.milliseconds
     }
+
+    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
 
     Given("A behandelaar is logged in and a BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
@@ -73,7 +75,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "${TEST_PERSON_HENDRIKA_JANSE_BSN}",
+                            "personId": "$personId",
                             "type": "${BETROKKENE_IDENTIFICATION_TYPE_BSN}"
                         },
                         "zaakUUID": "$bpmnZaakUuid"
@@ -85,9 +87,10 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
-                with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
+                val initiatorIdentification = JSONObject(responseBody).getJSONObject("initiatorIdentificatie")
+                with(initiatorIdentification.toString()) {
                     shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
-                    shouldContainJsonKey("bsnNummer")
+                    shouldContainJsonKeyValue("personId", personId.toString())
                 }
             }
         }
