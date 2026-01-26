@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
@@ -135,15 +134,12 @@ val TEST_GROUPS_ALL =
 class IdentityServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    beforeSpec {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-    }
-
     Context("Getting all available groups") {
         Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
             When("the 'list groups' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups"
+                    url = "$ZAC_API_URI/identity/groups",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
                     "all available groups in the Keycloak ZAC realm are returned"
@@ -166,7 +162,8 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID"
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
                     """
@@ -221,7 +218,8 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID"
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
                     """
@@ -270,7 +268,8 @@ class IdentityServiceTest : BehaviorSpec({
                     "the PABC feature flag is on and the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
                 ) {
                     val response = itestHttpClient.performGetRequest(
-                        url = "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups"
+                        url = "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups",
+                        testUser = BEHEERDER_ELK_ZAAKTYPE
                     )
                     Then(
                         """
@@ -309,7 +308,8 @@ class IdentityServiceTest : BehaviorSpec({
         Given("Keycloak contains all provisioned test users, and a logged-in beheerder") {
             When("the 'list users' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/users"
+                    url = "$ZAC_API_URI/identity/users",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then("All available users in the Keycloak ZAC realm are returned") {
                     response.code shouldBe HTTP_OK
@@ -412,7 +412,8 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When("the 'list users in group' endpoint is called for 'test group a'") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users"
+                    url = "$ZAC_API_URI/identity/groups/${OLD_IAM_TEST_GROUP_A.name}/users",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then("'testuser 1' and 'testuser 2' are returned") {
                     response.code shouldBe HTTP_OK
@@ -443,7 +444,8 @@ class IdentityServiceTest : BehaviorSpec({
 
             When("the 'get logged in user' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/loggedInUser"
+                    url = "$ZAC_API_URI/identity/loggedInUser",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
 
                 Then("the response is OK and the expected group IDs are returned") {

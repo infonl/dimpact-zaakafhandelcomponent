@@ -16,7 +16,7 @@ class OpenZaakClient(
     val itestHttpClient: ItestHttpClient
 ) {
     fun getRolesForZaak(zaakUUID: UUID): ResponseContent =
-        itestHttpClient.performGetRequest(
+        itestHttpClient.performZgwApiGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID"
         )
 }

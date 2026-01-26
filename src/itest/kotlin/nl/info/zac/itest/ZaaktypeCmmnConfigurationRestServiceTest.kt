@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
@@ -45,9 +44,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         """.trimIndent()
     ) {
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID"
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
                 val responseBody = response.bodyAsString
@@ -63,7 +62,8 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_2_UUID"
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_2_UUID",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
@@ -255,7 +255,8 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the list case definitions endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions"
+                url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok and it should return all available case definitions") {
                 val responseBody = response.bodyAsString
@@ -308,7 +309,8 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the list zaakbeeindigredenen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen"
+                url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok and it should return all available zaakbeeindigredenen") {
                 val responseBody = response.bodyAsString
@@ -334,7 +336,8 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the list formulier definities endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities"
+                url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok and it should return all available formulierdefinities") {
                 val responseBody = response.bodyAsString
