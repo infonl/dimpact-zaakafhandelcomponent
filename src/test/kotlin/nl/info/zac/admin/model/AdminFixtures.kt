@@ -144,6 +144,39 @@ fun createZaaktypeCmmnConfiguration(
         }
     }
 
+@Suppress("LongParameterList")
+fun createZaaktypeBpmnConfiguration(
+    id: Long? = 1234L,
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    domein: String? = "fakeDomein",
+    zaaktypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    productaanvraagtype: String? = null,
+    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
+    groupId: String? = null,
+    zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
+    zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
+) =
+    ZaaktypeBpmnConfiguration().apply {
+        this.id = id
+        this.creatiedatum = creationDate
+        this.domein = domein
+        this.zaaktypeUuid = zaaktypeUUID
+        this.zaaktypeOmschrijving = zaaktypeOmschrijving
+        this.productaanvraagtype = productaanvraagtype
+        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.groepID = groupId
+        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
+        val parameters = this
+        this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
+            this.zaaktypeConfiguration = parameters
+        }
+        this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
+            this?.zaaktypeConfiguration = parameters
+        }
+    }
+
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,

@@ -43,6 +43,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -285,6 +286,41 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
 
                 Then("it throws an error") {
                     exception.message shouldBe "For input string: \"not a number\""
+                }
+            }
+        }
+
+        Given("A BPMN zaak and no managed zaakbeeindigreden") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaakTypeUUID = zaakType.url.extractUuid()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val zaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+            } returns zaaktypeConfiguration
+            every {
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+            } just runs
+            every { bpmnService.terminateCase(zaak.uuid) } returns Unit
+
+            When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+                zaakRestService.terminateZaak(
+                    zaak.uuid,
+                    RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                )
+
+                Then("it is ended with result") {
+                    verify(exactly = 1) {
+                        zgwApiService.closeZaak(
+                            zaak,
+                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
+                            "Zaak is niet ontvankelijk"
+                        )
+                        bpmnService.terminateCase(zaak.uuid)
+                    }
                 }
             }
         }
