@@ -92,7 +92,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                     groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                     behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
-                    startDate = DATE_TIME_2000_01_01
+                    startDate = DATE_TIME_2000_01_01,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
 
                 Then("response is ok") {
@@ -113,8 +114,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "${TEST_PERSON_HENDRIKA_JANSE_BSN}",
-                            "type": "${BETROKKENE_IDENTIFICATION_TYPE_BSN}"
+                            "bsnNummer": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         },
                         "zaakUUID": "$zaakUuid"
                     }
