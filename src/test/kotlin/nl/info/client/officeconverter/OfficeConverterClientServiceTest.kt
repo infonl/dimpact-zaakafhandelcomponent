@@ -4,8 +4,8 @@
  */
 package nl.info.client.officeconverter
 
-import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -13,7 +13,7 @@ import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import java.io.ByteArrayInputStream
 
-class OfficeConverterClientServiceTest: BehaviorSpec({
+class OfficeConverterClientServiceTest : BehaviorSpec({
     val response = mockk<Response>()
     val officeConverterClient = mockk<OfficeConverterClient>()
     val officeConverterClientService = OfficeConverterClientService(officeConverterClient)

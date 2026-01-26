@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream
 @ApplicationScoped
 class OfficeConverterClientService @Inject constructor(
     @RestClient private val officeConverterClient: OfficeConverterClient
-){
+) {
     fun convertToPDF(document: ByteArrayInputStream, filename: String): ByteArrayInputStream {
         val multipartFormDataOutput = MultipartFormDataOutput().apply {
             addFormData("file", document, APPLICATION_OCTET_STREAM_TYPE, filename)
