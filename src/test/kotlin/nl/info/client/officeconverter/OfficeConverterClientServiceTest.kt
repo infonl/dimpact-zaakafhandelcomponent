@@ -19,7 +19,7 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
     val officeConverterClientService = OfficeConverterClientService(officeConverterClient)
 
     Context("Converting a document to PDF") {
-        Given("A byte array input stream an office converter client response that could be buffered") {
+        Given("A byte array input stream and an office converter client response that could be buffered") {
             val document = ByteArrayInputStream("fakeDocumentContent".toByteArray())
             val filename = "fakeFilename.docx"
             val expectedPdf = ByteArrayInputStream("fakePdfContent".toByteArray())
@@ -38,7 +38,7 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A byte array input stream an office converter client response that could not be buffered") {
+        Given("A byte array input stream and an office converter client response that could not be buffered") {
             val document = ByteArrayInputStream("fakeDocumentContent".toByteArray())
             val filename = "fakeFilename.docx"
             every { response.bufferEntity() } returns false
