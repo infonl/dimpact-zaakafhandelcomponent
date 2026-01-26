@@ -181,7 +181,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         zaaktypeCmmnZaakafzenderParameters?.let { setComponent(it, param) }
     }
 
-
     /**
      * Geeft aan dat er voldoende gegevens zijn ingevuld om een zaak te starten
      *

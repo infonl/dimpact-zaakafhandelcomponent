@@ -103,7 +103,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
             it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
             it.nietOntvankelijkResultaattype = restZaaktypeBpmnProcessDefinition.zaakNietOntvankelijkResultaattype?.id
-            //it.zaakbeeindigParameters = restZaaktypeBpmnProcessDefinition.zaakbeeindigParameters
+            // it.zaakbeeindigParameters = restZaaktypeBpmnProcessDefinition.zaakbeeindigParameters
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -120,5 +120,6 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         ).apply {
             zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
             zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
+            zaakNietOntvankelijkResultaattype?.let { null }
         }
 }

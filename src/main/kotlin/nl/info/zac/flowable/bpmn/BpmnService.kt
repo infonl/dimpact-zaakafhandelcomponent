@@ -29,6 +29,7 @@ import java.util.logging.Logger
 @Transactional
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,

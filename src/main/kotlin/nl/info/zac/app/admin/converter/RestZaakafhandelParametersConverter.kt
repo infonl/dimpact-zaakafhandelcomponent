@@ -206,7 +206,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             zaakNietOntvankelijkResultaattype = zaaktypeBpmnConfiguration.nietOntvankelijkResultaattype?.let {
                 ztcClientService.readResultaattype(it).toRestResultaatType()
             },
-            zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
+            zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                zaaktypeBpmnConfiguration.getZaakbeeindigParameters()
+            )
         )
         return restZaakafhandelParameters
     }

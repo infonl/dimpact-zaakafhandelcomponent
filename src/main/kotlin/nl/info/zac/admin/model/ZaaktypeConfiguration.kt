@@ -37,6 +37,7 @@ import java.util.UUID
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "configuration_type", discriminatorType = DiscriminatorType.STRING)
 @AllOpen
+@Suppress("TooManyFunctions")
 abstract class ZaaktypeConfiguration {
     companion object {
         enum class ZaaktypeConfigurationType { CMMN, BPMN }
