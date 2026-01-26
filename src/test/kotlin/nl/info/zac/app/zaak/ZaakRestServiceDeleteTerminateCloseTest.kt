@@ -62,6 +62,7 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -106,6 +107,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
+    val klantService = mockk<KlantService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -139,7 +141,8 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        klantService = klantService
     )
 
     beforeEach {

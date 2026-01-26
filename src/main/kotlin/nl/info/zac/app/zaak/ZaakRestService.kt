@@ -124,6 +124,7 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
@@ -184,6 +185,7 @@ class ZaakRestService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
+    private val klantService: KlantService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -986,7 +988,7 @@ class ZaakRestService @Inject constructor(
     ): Pair<IdentificatieType, String> {
         return when (betrokkeneIdentificatie.type) {
             IdentificatieType.BSN -> {
-                val bsn = betrokkeneIdentificatie.personId
+                val bsn = betrokkeneIdentificatie.personId?.let(klantService::replaceKeyWithBsn)
                 require(!bsn.isNullOrBlank()) { "BSN is required for betrokkene identification type BSN" }
                 IdentificatieType.BSN to bsn
             }
@@ -1014,7 +1016,7 @@ class ZaakRestService @Inject constructor(
         restZaak.initiatorIdentificatie?.let { initiator ->
             val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
             val identification = when (initiator.type) {
-                IdentificatieType.BSN -> initiator.personId
+                IdentificatieType.BSN -> initiator.personId?.let(klantService::replaceKeyWithBsn)
                 // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available
                 IdentificatieType.RSIN -> initiator.kvkNummer ?: initiator.rsin
                 IdentificatieType.VN -> createVestigingIdentificationString(

@@ -56,6 +56,7 @@ import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createZaakRechten
@@ -104,6 +105,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
+    val klantService = mockk<KlantService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -137,7 +139,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        klantService = klantService
     )
 
     beforeEach {
@@ -320,8 +323,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 rechten = zaakRechten.toRestZaakRechten(),
                 initiatorBetrokkeneIdentificatie = createBetrokkeneIdentificatie(
-                    type = IdentificatieType.BSN,
-                    bsnNummer = "123456789"
+                    type = IdentificatieType.BSN
                 )
             )
             every {

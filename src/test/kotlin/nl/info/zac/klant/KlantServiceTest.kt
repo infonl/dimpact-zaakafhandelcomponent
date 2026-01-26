@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package nl.info.zac.klant
 
 import io.kotest.assertions.throwables.shouldThrow
@@ -36,7 +40,7 @@ class KlantServiceTest : BehaviorSpec({
             Then("it should return a BetrokkeneIdentificatie with type BSN and the replaced personId") {
                 with(result) {
                     type shouldBe IdentificatieType.BSN
-                    personId shouldBe uuid.toString()
+                    personId shouldBe uuid
                     kvkNummer shouldBe null
                     rsin shouldBe null
                     vestigingsnummer shouldBe null

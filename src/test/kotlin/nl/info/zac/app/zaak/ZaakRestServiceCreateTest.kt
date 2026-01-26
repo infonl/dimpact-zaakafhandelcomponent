@@ -70,6 +70,7 @@ import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
+import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
@@ -117,6 +118,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
+    val klantService = mockk<KlantService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -150,7 +152,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        klantService = klantService
     )
 
     beforeEach {
@@ -159,6 +162,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
 
     Given("CMMN zaak input data is provided") {
         val group = createGroup()
+        val bsn = "12345678"
         val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
         val objectRegistratieObject = createORObject()
         val productaanvraagDimpact = createProductaanvraagDimpact()
@@ -240,7 +244,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every {
             zaakService.addInitiatorToZaak(
                 identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
-                identification = restZaakCreateData.initiatorIdentificatie!!.personId!!,
+                identification = bsn,
                 zaak = zaak,
                 explanation = "Aanmaken zaak"
             )
@@ -260,6 +264,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, zaakType)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+            every { klantService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.personId!!) } returns bsn
 
             val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
@@ -296,6 +301,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
 
     Given("BPMN zaak input data is provided") {
         val group = createGroup()
+        val bsn = "12345678"
         val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
         val objectRegistratieObject = createORObject()
         val productaanvraagDimpact = createProductaanvraagDimpact()
@@ -381,7 +387,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every {
             zaakService.addInitiatorToZaak(
                 identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
-                identification = restZaakCreateData.initiatorIdentificatie!!.personId!!,
+                identification = bsn,
                 zaak = zaak,
                 explanation = "Aanmaken zaak"
             )
@@ -402,6 +408,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, zaakType)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+            every { klantService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.personId!!) } returns bsn
 
             val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 

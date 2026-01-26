@@ -63,6 +63,7 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
@@ -108,6 +109,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
+    val klantService = mockk<KlantService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -141,7 +143,8 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        klantService = klantService
     )
 
     beforeEach {
@@ -446,7 +449,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(toevoegenInitiatorPersoon = true)
-            val indentification = "123456677"
+            val bsn = "123456677"
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
             val rolMedewerker = createRolMedewerker()
             val restZaak = createRestZaak()
@@ -458,6 +461,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             every { zrcClientService.deleteRol(any(), any()) } just runs
             every { zaakService.addInitiatorToZaak(any(), any(), any(), any()) } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
+            every { klantService.replaceKeyWithBsn(restZaakInitiatorGegevens.betrokkeneIdentificatie.personId!!) } returns bsn
 
             When("an initiator is updated") {
                 val updatedRestZaak = zaakRestService.updateInitiator(restZaakInitiatorGegevens)
@@ -471,7 +475,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                         )
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.BSN,
-                            indentification,
+                            bsn,
                             zaak,
                             restZaakInitiatorGegevens.toelichting!!
                         )

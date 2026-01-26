@@ -98,14 +98,14 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
-        val personId = UUID.randomUUID().toString()
+        val personId = UUID.randomUUID()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(
                 bsn = bsn
             )
         )
         val betrokkeneIdentificatie = createBetrokkeneIdentificatie(
-            bsnNummer = personId
+            personId = personId
         )
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
