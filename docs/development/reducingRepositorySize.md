@@ -52,6 +52,7 @@ Squashing the gh-pages branch to a single commit while keeping only the latest c
 5. All team members should re-clone or run:
     ```shell
     git fetch origin gh-pages
+    git checkout main  # or any non-gh-pages branch
     git branch -D gh-pages
     git checkout -b gh-pages origin/gh-pages
     git gc --aggressive --prune=now
