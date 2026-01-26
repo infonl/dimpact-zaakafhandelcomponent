@@ -43,7 +43,7 @@ import java.util.Objects
 @AllOpen
 @NoArgConstructor
 data class RestPersoon(
-    var bsn: String? = null,
+    var personId: String? = null,
     var geslacht: String? = null,
     var geboortedatum: String? = null,
     var verblijfplaats: String? = null,
@@ -53,11 +53,11 @@ data class RestPersoon(
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
     override fun getIdentificatieType(): IdentificatieType? {
-        return if (bsn != null) IdentificatieType.BSN else null
+        return if (personId != null) IdentificatieType.BSN else null
     }
 
     override fun getIdentificatie(): String? {
-        return bsn
+        return personId
     }
 }
 
@@ -66,7 +66,7 @@ private const val MINISTRIAL_REGULATION_CODE = "M"
 private const val EMIGRATION_CODE = "E"
 
 fun Persoon.toRestPersoon() = RestPersoon(
-    bsn = this.burgerservicenummer,
+    personId = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     verblijfplaats = this.verblijfplaats?.toStringRepresentation(),
@@ -101,7 +101,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
 }
 
 fun PersoonBeperkt.toRestPersoon() = RestPersoon(
-    bsn = this.burgerservicenummer,
+    personId = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,

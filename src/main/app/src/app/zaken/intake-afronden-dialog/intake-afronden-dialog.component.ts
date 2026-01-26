@@ -79,11 +79,11 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
 
     if (
       this.data.zaak.initiatorIdentificatie?.type &&
-      this.data.zaak.initiatorIdentificatie?.bsnNummer
+      this.data.zaak.initiatorIdentificatie?.personId
     ) {
       this.klantenService
         .getContactDetailsForPerson(
-          this.data.zaak.initiatorIdentificatie.bsnNummer,
+          this.data.zaak.initiatorIdentificatie.personId,
         )
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {

@@ -986,7 +986,7 @@ class ZaakRestService @Inject constructor(
     ): Pair<IdentificatieType, String> {
         return when (betrokkeneIdentificatie.type) {
             IdentificatieType.BSN -> {
-                val bsn = betrokkeneIdentificatie.bsnNummer
+                val bsn = betrokkeneIdentificatie.personId
                 require(!bsn.isNullOrBlank()) { "BSN is required for betrokkene identification type BSN" }
                 IdentificatieType.BSN to bsn
             }
@@ -1014,7 +1014,7 @@ class ZaakRestService @Inject constructor(
         restZaak.initiatorIdentificatie?.let { initiator ->
             val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
             val identification = when (initiator.type) {
-                IdentificatieType.BSN -> initiator.bsnNummer
+                IdentificatieType.BSN -> initiator.personId
                 // A `rechtspersoon` has the type RSIN but gets passed a `kvkNummer` if available
                 IdentificatieType.RSIN -> initiator.kvkNummer ?: initiator.rsin
                 IdentificatieType.VN -> createVestigingIdentificationString(

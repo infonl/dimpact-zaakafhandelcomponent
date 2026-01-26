@@ -240,7 +240,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every {
             zaakService.addInitiatorToZaak(
                 identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
-                identification = restZaakCreateData.initiatorIdentificatie!!.bsnNummer!!,
+                identification = restZaakCreateData.initiatorIdentificatie!!.personId!!,
                 zaak = zaak,
                 explanation = "Aanmaken zaak"
             )
@@ -381,7 +381,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every {
             zaakService.addInitiatorToZaak(
                 identificationType = restZaakCreateData.initiatorIdentificatie!!.type,
-                identification = restZaakCreateData.initiatorIdentificatie!!.bsnNummer!!,
+                identification = restZaakCreateData.initiatorIdentificatie!!.personId!!,
                 zaak = zaak,
                 explanation = "Aanmaken zaak"
             )

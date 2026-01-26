@@ -35,7 +35,7 @@ fun createBetrokkeneIdentificatie(
     vestigingsnummer: String? = null
 ) = BetrokkeneIdentificatie(
     type = type,
-    bsnNummer = bsnNummer,
+    personId = bsnNummer,
     kvkNummer = kvkNummer,
     rsin = rsin,
     vestigingsnummer = vestigingsnummer
@@ -260,7 +260,7 @@ fun createRestZaakInitiatorGegevens(
     toelichting: String = "fakeRoltoelichting",
     betrokkeneIdentificatie: BetrokkeneIdentificatie = BetrokkeneIdentificatie(
         type = IdentificatieType.BSN,
-        bsnNummer = "123456677"
+        personId = "123456677"
     )
 ) = RestZaakInitiatorGegevens(
     zaakUUID = zaakUUID,

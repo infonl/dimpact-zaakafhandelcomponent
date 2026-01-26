@@ -33,7 +33,7 @@ class SensitiveDataService {
             .maximumSize(STORAGE_SIZE)
             .build()
 
-        val uuidToDataStorage: Cache<UUID, String?> = Caffeine.newBuilder()
+        val uuidToDataStorage: Cache<UUID, String> = Caffeine.newBuilder()
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->

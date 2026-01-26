@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 data class BetrokkeneIdentificatie(
     @field:NotNull
     var type: IdentificatieType,
-    var bsnNummer: String? = null,
+    var personId: String? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
     var vestigingsnummer: String? = null
@@ -39,14 +39,14 @@ class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIden
     override fun isValid(value: BetrokkeneIdentificatie?, context: ConstraintValidatorContext): Boolean {
         if (value == null) return false
         return when (value.type) {
-            IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank() &&
+            IdentificatieType.BSN -> !value.personId.isNullOrBlank() &&
                 value.kvkNummer.isNullOrBlank() &&
                 value.vestigingsnummer.isNullOrBlank()
             IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank() &&
                 !value.vestigingsnummer.isNullOrBlank() &&
-                value.bsnNummer.isNullOrBlank()
+                value.personId.isNullOrBlank()
             IdentificatieType.RSIN -> !value.kvkNummer.isNullOrBlank() &&
-                value.bsnNummer.isNullOrBlank() &&
+                value.personId.isNullOrBlank() &&
                 value.vestigingsnummer.isNullOrBlank()
         }
     }

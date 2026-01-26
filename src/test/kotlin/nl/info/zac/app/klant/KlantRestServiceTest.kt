@@ -33,7 +33,7 @@ import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.sensitive.SensitiveDataService
+import nl.info.zac.klant.KlantService
 import java.time.LocalDate
 import java.util.UUID
 
@@ -46,14 +46,14 @@ class KlantRestServiceTest : BehaviorSpec({
     val kvkClientService = mockk<KvkClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val klantClientService = mockk<KlantClientService>()
-    val sensitiveDataService = mockk<SensitiveDataService>()
+    val klantService = mockk<KlantService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val klantRestService = KlantRestService(
         brpClientService,
         kvkClientService,
         ztcClientService,
         klantClientService,
-        sensitiveDataService,
+        klantService,
         loggedInUserInstance
     )
 
@@ -219,14 +219,14 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
-                        this.bsn shouldBe bsn
+                        this.personId shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe emailAddress
                         this.telefoonnummer shouldBe telephoneNumber
@@ -245,14 +245,14 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.bsn shouldBe bsn
+                        this.personId shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null
@@ -276,7 +276,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -297,7 +297,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get() } returns null
             every { brpClientService.retrievePersoon(bsn) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -325,14 +325,14 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get() } returns null
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid) } returns persoon
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(personId, zaaktypeUuid)
 
                 Then("the person should be returned and should have contact details") {
                     with(restPersoon) {
-                        this.bsn shouldBe bsn
+                        this.personId shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe emailAddress
                         this.telefoonnummer shouldBe telephoneNumber
@@ -383,14 +383,14 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(personId)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.bsn shouldBe bsn
+                        this.personId shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null
@@ -414,7 +414,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -436,7 +436,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -491,14 +491,14 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(personId)
 
                 Then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
-                        this.bsn shouldBe bsn
+                        this.personId shouldBe bsn
                         this.geslacht shouldBe persoon.geslacht
                         this.emailadres shouldBe null
                         this.telefoonnummer shouldBe null
@@ -522,7 +522,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -544,7 +544,7 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
-            every { sensitiveDataService.get(personId) } returns bsn
+            every { klantService.replaceKeyWithBsn(personId) } returns bsn
 
             When("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
@@ -782,12 +782,14 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Listing personen") {
         Given("A person exists for a given BSN") {
             val bsn = "123456789"
+            val personId = UUID.randomUUID()
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
             every {
                 brpClientService.retrievePersoon(bsn)
             } returns person
+            every { klantService.replaceBsnWithKey(bsn) } returns personId
 
             When("listPersonen is called") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)
@@ -829,12 +831,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 geboortedatum = LocalDate.of(1990, 1, 1)
             )
             val bsn = "987654321"
+            val personId = UUID.randomUUID()
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
             every {
                 brpClientService.queryPersonen(any())
             } returns personenResponse
+            every { klantService.replaceBsnWithKey(bsn) } returns personId
 
             When("listPersonen is called") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)

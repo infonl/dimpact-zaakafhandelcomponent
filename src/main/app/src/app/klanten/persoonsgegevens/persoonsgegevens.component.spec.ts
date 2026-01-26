@@ -25,7 +25,7 @@ const mockTranslateService = {
 };
 
 const testPerson: GeneratedType<"RestPersoon"> = {
-  bsn: "999993033",
+  personId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
   indicaties: [],
 };
 

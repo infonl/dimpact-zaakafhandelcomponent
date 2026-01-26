@@ -29,7 +29,7 @@ describe(KlantZakenTabelComponent.name, () => {
   let zoekenService: ZoekenService;
 
   const mockPersoon = fromPartial<GeneratedType<"RestPersoon">>({
-    bsn: "999990408",
+    personId: "d090f7a6-bab0-4f0a-9ae2-36f0e8edd92b",
     identificatieType: "BSN",
   });
 
@@ -39,8 +39,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-001",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [mockPersoon.personId],
+        Contactpersoon: [mockPersoon.personId],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -48,7 +48,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-002",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
+        Melder: [mockPersoon.personId],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -56,7 +56,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [mockPersoon.bsn, "999992958"],
+        Bewindvoerder: [mockPersoon.personId, "999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -64,8 +64,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-004",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [mockPersoon.personId],
+        Contactpersoon: [mockPersoon.personId],
         Behandelaar: ["behandelaar-user"],
       },
     } as unknown as ZaakZoekObject,

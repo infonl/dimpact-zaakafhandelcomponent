@@ -20,7 +20,7 @@
             <zac-static-text
               class="flex-1"
               label="burgerservicenummer"
-              [value]="persoon?.bsn"
+              [value]="persoon?.personId"
             />
             <zac-static-text
               class="flex-1"
@@ -51,8 +51,8 @@
           [klant]="persoon"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
-          *ngIf="persoon && persoon.bsn"
-          [bsn]="persoon?.bsn"
+          *ngIf="persoon && persoon.personId"
+          [bsn]="persoon?.personId"
         ></zac-klant-contactmomenten-tabel>
       </div>
     </div>
