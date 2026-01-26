@@ -11,8 +11,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
-import net.atos.client.officeconverter.OfficeConverterClient
-import net.atos.client.officeconverter.OfficeConverterClientService
 import java.io.ByteArrayInputStream
 
 class OfficeConverterClientServiceTest: BehaviorSpec({

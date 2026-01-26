@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.officeconverter
+package nl.info.client.officeconverter
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
