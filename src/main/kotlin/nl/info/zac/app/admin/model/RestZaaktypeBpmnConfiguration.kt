@@ -36,4 +36,6 @@ data class RestZaaktypeBpmnConfiguration(
 
     // The frontend currently requires this field to be non-null
     var brpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+
+    var nietOntvankelijkResultaattype: UUID? = null,
 )
