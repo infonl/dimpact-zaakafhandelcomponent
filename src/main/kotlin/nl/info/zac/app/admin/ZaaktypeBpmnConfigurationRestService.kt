@@ -102,7 +102,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             }
             it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
             it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
-            it.nietOntvankelijkResultaattype = restZaaktypeBpmnProcessDefinition.nietOntvankelijkResultaattype
+            it.nietOntvankelijkResultaattype = restZaaktypeBpmnProcessDefinition.zaakNietOntvankelijkResultaattype?.id
             //it.zaakbeeindigParameters = restZaaktypeBpmnProcessDefinition.zaakbeeindigParameters
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
