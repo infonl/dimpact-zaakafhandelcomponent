@@ -17,7 +17,7 @@ import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
@@ -332,7 +332,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                 zaakbeeindigParameter.resultaattype
                     .let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
                     ?.let {
-                        ZaaktypeCmmnCompletionParameters().apply {
+                        ZaaktypeCompletionParameters().apply {
                             zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
                             resultaattype = it
                         }
@@ -360,7 +360,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
             mapVorigResultaattypeOpNieuwResultaattype(zaakbeeindigParameter.resultaattype, newResultaattypen)
                 ?.let {
-                    ZaaktypeCmmnCompletionParameters().apply {
+                    ZaaktypeCompletionParameters().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
                         resultaattype = it
                     }

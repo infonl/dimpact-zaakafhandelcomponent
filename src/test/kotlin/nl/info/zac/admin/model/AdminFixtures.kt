@@ -102,7 +102,7 @@ fun createZaaktypeCmmnConfiguration(
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
+    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters>? = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     gebruikersnaamMedewerker: String? = null,
@@ -131,7 +131,7 @@ fun createZaaktypeCmmnConfiguration(
             )
         )
         setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
-        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
+        setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
             this.zaaktypeConfiguration = parameters
@@ -153,7 +153,7 @@ fun createZaaktypeBpmnConfiguration(
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
+    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters>? = emptySet(),
     groupId: String? = null,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
@@ -167,7 +167,7 @@ fun createZaaktypeBpmnConfiguration(
         this.productaanvraagtype = productaanvraagtype
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
-        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
+        setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
             this.zaaktypeConfiguration = parameters

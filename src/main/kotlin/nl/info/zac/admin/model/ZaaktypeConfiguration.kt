@@ -101,7 +101,7 @@ abstract class ZaaktypeConfiguration {
         fetch = FetchType.EAGER,
         orphanRemoval = true
     )
-    var zaaktypeCmmnCompletionParameters: MutableSet<ZaaktypeCmmnCompletionParameters>? = null
+    var zaaktypeCompletionParameters: MutableSet<ZaaktypeCompletionParameters>? = null
 
     abstract fun getConfigurationType(): ZaaktypeConfigurationType
 
@@ -135,31 +135,31 @@ abstract class ZaaktypeConfiguration {
     }
 
     @Suppress("TooGenericExceptionThrown")
-    fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCmmnCompletionParameters =
+    fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCompletionParameters =
         getZaakbeeindigParameters().firstOrNull {
             it.zaakbeeindigReden.id == zaakbeeindigRedenId
         } ?: throw RuntimeException(
             "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaaktypeUuid' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
         )
 
-    fun getZaakbeeindigParameters(): Set<ZaaktypeCmmnCompletionParameters> =
-        zaaktypeCmmnCompletionParameters ?: emptySet()
+    fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
+        zaaktypeCompletionParameters ?: emptySet()
 
-    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCmmnCompletionParameters>?) {
-        if (zaaktypeCmmnCompletionParameters == null) {
-            zaaktypeCmmnCompletionParameters = mutableSetOf()
+    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>?) {
+        if (zaaktypeCompletionParameters == null) {
+            zaaktypeCompletionParameters = mutableSetOf()
         }
         desired?.forEach { setZaakbeeindigParameter(it) }
-        zaaktypeCmmnCompletionParameters?.let { cmmnCompletionParameters ->
+        zaaktypeCompletionParameters?.let { cmmnCompletionParameters ->
             desired?.let { d ->
                 cmmnCompletionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
             }
         }
     }
 
-    private fun setZaakbeeindigParameter(param: ZaaktypeCmmnCompletionParameters) {
+    private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
         param.zaaktypeCmmnConfiguration = this
-        zaaktypeCmmnCompletionParameters?.let { setComponent(it, param) }
+        zaaktypeCompletionParameters?.let { setComponent(it, param) }
     }
 
     /**

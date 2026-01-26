@@ -42,7 +42,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.decision.DecisionService
@@ -244,8 +244,8 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultTypeUUID = UUID.randomUUID()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-                zaaktypeCmmnCompletionParameters = setOf(
-                    ZaaktypeCmmnCompletionParameters().apply {
+                zaaktypeCompletionParameters = setOf(
+                    ZaaktypeCompletionParameters().apply {
                         id = 123
                         resultaattype = resultTypeUUID
                         zaakbeeindigReden = ZaakbeeindigReden().apply {

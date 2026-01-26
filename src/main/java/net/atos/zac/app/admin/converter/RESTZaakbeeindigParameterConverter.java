@@ -14,20 +14,20 @@ import jakarta.inject.Inject;
 
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
 import nl.info.client.zgw.ztc.ZtcClientService;
-import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters;
+import nl.info.zac.admin.model.ZaaktypeCompletionParameters;
 
 public class RESTZaakbeeindigParameterConverter {
 
     @Inject
     private ZtcClientService ztcClientService;
 
-    public List<RESTZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaaktypeCmmnCompletionParameters> zaakbeeindigRedenen) {
+    public List<RESTZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaaktypeCompletionParameters> zaakbeeindigRedenen) {
         return zaakbeeindigRedenen.stream()
                 .map(this::convertZaakbeeindigParameter)
                 .toList();
     }
 
-    public static List<ZaaktypeCmmnCompletionParameters> convertRESTZaakbeeindigParameters(
+    public static List<ZaaktypeCompletionParameters> convertRESTZaakbeeindigParameters(
             final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters
     ) {
         return restZaakbeeindigParameters.stream()
@@ -36,27 +36,27 @@ public class RESTZaakbeeindigParameterConverter {
     }
 
     private RESTZaakbeeindigParameter convertZaakbeeindigParameter(
-            final ZaaktypeCmmnCompletionParameters zaaktypeCmmnCompletionParameters
+            final ZaaktypeCompletionParameters zaaktypeCompletionParameters
     ) {
         final RESTZaakbeeindigParameter restZaakbeeindigParameter = new RESTZaakbeeindigParameter();
-        restZaakbeeindigParameter.id = zaaktypeCmmnCompletionParameters.getId();
+        restZaakbeeindigParameter.id = zaaktypeCompletionParameters.getId();
         restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(
-                zaaktypeCmmnCompletionParameters.zaakbeeindigReden
+                zaaktypeCompletionParameters.zaakbeeindigReden
         );
-        restZaakbeeindigParameter.resultaattype = toRestResultaatType(ztcClientService.readResultaattype(zaaktypeCmmnCompletionParameters
+        restZaakbeeindigParameter.resultaattype = toRestResultaatType(ztcClientService.readResultaattype(zaaktypeCompletionParameters
                 .getResultaattype()));
         return restZaakbeeindigParameter;
     }
 
-    private static ZaaktypeCmmnCompletionParameters convertRESTZaakbeeindigParameter(
+    private static ZaaktypeCompletionParameters convertRESTZaakbeeindigParameter(
             final RESTZaakbeeindigParameter restZaakbeeindigParameter
     ) {
-        final ZaaktypeCmmnCompletionParameters zaaktypeCmmnCompletionParameters = new ZaaktypeCmmnCompletionParameters();
-        zaaktypeCmmnCompletionParameters.setId(restZaakbeeindigParameter.id);
-        zaaktypeCmmnCompletionParameters.setZaakbeeindigReden(
+        final ZaaktypeCompletionParameters zaaktypeCompletionParameters = new ZaaktypeCompletionParameters();
+        zaaktypeCompletionParameters.setId(restZaakbeeindigParameter.id);
+        zaaktypeCompletionParameters.setZaakbeeindigReden(
                 RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(restZaakbeeindigParameter.zaakbeeindigReden)
         );
-        zaaktypeCmmnCompletionParameters.setResultaattype(restZaakbeeindigParameter.resultaattype.getId());
-        return zaaktypeCmmnCompletionParameters;
+        zaaktypeCompletionParameters.setResultaattype(restZaakbeeindigParameter.resultaattype.getId());
+        return zaaktypeCompletionParameters;
     }
 }
