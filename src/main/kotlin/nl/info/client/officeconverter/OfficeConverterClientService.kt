@@ -7,11 +7,15 @@ package nl.info.client.officeconverter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput
 import java.io.ByteArrayInputStream
 
 @ApplicationScoped
+@NoArgConstructor
+@AllOpen
 class OfficeConverterClientService @Inject constructor(
     @RestClient private val officeConverterClient: OfficeConverterClient
 ) {
