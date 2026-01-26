@@ -8,7 +8,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
@@ -50,11 +49,10 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     Given("A BPMN zaaktype configuration was created in the overall test setup") {
         lateinit var responseBody: String
 
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         When("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                "${ZAC_API_URI}/zaaktype-bpmn-configuration/${BPMN_TEST_PROCESS_DEFINITION_KEY}"
+                url = "${ZAC_API_URI}/zaaktype-bpmn-configuration/${BPMN_TEST_PROCESS_DEFINITION_KEY}",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the response is successful") {
@@ -71,7 +69,10 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         When("list of all BPMN zaaktype configurations is retrieved") {
             lateinit var responseBody: String
 
-            val response = itestHttpClient.performGetRequest("${ZAC_API_URI}/zaaktype-bpmn-configuration")
+            val response = itestHttpClient.performGetRequest(
+                url = "${ZAC_API_URI}/zaaktype-bpmn-configuration",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            )
 
             Then("the response is successful") {
                 responseBody = response.bodyAsString

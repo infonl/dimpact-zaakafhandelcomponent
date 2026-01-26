@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -32,7 +31,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val now = System.currentTimeMillis()
 
     Given("Two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
         val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
         val (_, zaakUuid) = zaakHelper.createZaak(
@@ -40,14 +38,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
             group = BEHANDELAARS_DOMAIN_TEST_1,
             startDate = DATE_TIME_2000_01_01,
-            indexZaak = true
+            indexZaak = true,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
         val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createZaak(
             zaakDescription = toBeLinkedZaakDescription,
             zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
             group = BEHANDELAARS_DOMAIN_TEST_1,
             startDate = DATE_TIME_2000_01_01,
-            indexZaak = true
+            indexZaak = true,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
 
         When(
@@ -61,7 +61,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
                     "&relationType=DEELZAAK" +
                     "&rows=$ROWS_DEFAULT" +
-                    "&page=$PAGE_DEFAULT"
+                    "&page=$PAGE_DEFAULT",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("it returns the 'to be linked' zaak as linkable zaak") {
@@ -91,12 +92,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
-                {
-                     "zaakUuid": "$teKoppelenZaakUuid",
-                     "teKoppelenZaakUuid": "$zaakUuid",
-                     "relatieType": "HOOFDZAAK"
-                }
-                """.trimIndent()
+                    {
+                        "zaakUuid": "$teKoppelenZaakUuid",
+                        "teKoppelenZaakUuid": "$zaakUuid",
+                        "relatieType": "HOOFDZAAK"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1,
             )
 
             Then("successfully links the zaken") {

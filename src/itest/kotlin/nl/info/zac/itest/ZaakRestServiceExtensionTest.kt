@@ -11,7 +11,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -32,13 +31,13 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
     Given(
         """A zaak exists which has not been extended yet and a behandelaar is logged in"""
     ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUuid: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -57,7 +56,8 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
                         "duurDagen": $daysExtended,
                         "takenVerlengen": false
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 """the response should be OK and the returned zaak should be extended"""

@@ -12,7 +12,6 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -47,14 +46,14 @@ class WebDavServletTest : BehaviorSpec({
     lateinit var wordDocumentWebDAVToken: UUID
 
     Given("A zaak that was created and a logged-in behandelaar") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
-            startDate = DATE_TIME_2024_01_31
+            startDate = DATE_TIME_2024_01_31,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -109,7 +108,8 @@ class WebDavServletTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = requestBody
+                requestBody = requestBody,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
@@ -124,7 +124,8 @@ class WebDavServletTest : BehaviorSpec({
         When("the edit endpoint is called on the enkelvoudig informatie object") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +
-                    "?zaak=$zaakUUID"
+                    "?zaak=$zaakUUID",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -142,10 +143,9 @@ class WebDavServletTest : BehaviorSpec({
         }
 
         When("the DOCX Word document is requested using the WebDAV token for the uploaded file") {
+            // the WebDAV servlet does not require any authorization
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
-                // the WebDAV servlet does not require any authorization
-                addAuthorizationHeader = false
+                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
             Then("the response should be ok (and contain the DOCX Word document)") {
@@ -156,10 +156,9 @@ class WebDavServletTest : BehaviorSpec({
         }
 
         When("a HEAD request is performed using the WebDAV token for the uploaded file") {
+            // the WebDAV servlet does not require any authorization
             val responseCode = itestHttpClient.performHeadRequest(
-                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
-                // the WebDAV servlet does not require any authorization
-                addAuthorizationHeader = false
+                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
             Then("the response should be ok") {

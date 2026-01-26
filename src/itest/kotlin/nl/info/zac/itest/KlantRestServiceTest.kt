@@ -57,6 +57,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -135,10 +136,18 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing role types") {
-        Given("Persons and company data is present in the BRP Personen Mock and the Klanten API database") {
+        Given(
+            """
+            Persons and company data is present in the BRP Personen Mock and the Klanten API database,
+            and a logged-in raadpleger
+            """
+        ) {
             When("the list role types endpoint is called") {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/roltype"
+                    url = "$ZAC_API_URI/klanten/roltype",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
                     response.code shouldBe HTTP_OK
@@ -159,7 +168,10 @@ class KlantRestServiceTest : BehaviorSpec({
 
     Context("Retrieving a person") {
         Given(
-            "a person is retrieved using a person id and the BSN is present in both the BRP and Klanten API databases"
+            """
+                A person which is present in the BRP and for which contact data exists in the Klanten API,
+                and a logged-in raadpleger
+                """
         ) {
             val expectedResponse = """
                     {
@@ -180,9 +192,12 @@ class KlantRestServiceTest : BehaviorSpec({
                 val headers = Headers.Builder()
                     .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/persoon/$persoonId",
-                    headers = headers
+                    url = "$ZAC_API_URI/klanten/person/$persoonId",
+                    headers = headers,
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then(
                     "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
@@ -211,7 +226,8 @@ class KlantRestServiceTest : BehaviorSpec({
                               }
                             }
                           }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_DOMAIN_TEST_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -222,7 +238,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/persoon/$persoonId"
+                    url = "$ZAC_API_URI/klanten/person/$persoonId",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then(
@@ -253,7 +270,8 @@ class KlantRestServiceTest : BehaviorSpec({
                               }
                             }
                           }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_DOMAIN_TEST_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -263,7 +281,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("an existing person") {
+        Given("an existing person and a logged-in raadpleger") {
             val expectedResponse = """{ 
                 "foutmelding": "",
                 "resultaten": [{
@@ -284,10 +302,13 @@ class KlantRestServiceTest : BehaviorSpec({
                 val headers = Headers.Builder()
                     .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
                     .build()
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/personen",
                     headers = headers,
-                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }"""
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then(
@@ -318,7 +339,8 @@ class KlantRestServiceTest : BehaviorSpec({
                               }
                             }
                           }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_DOMAIN_TEST_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -330,7 +352,8 @@ class KlantRestServiceTest : BehaviorSpec({
             When("zaaktype uuid is missing in the request") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/personen",
-                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }"""
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then(
@@ -361,7 +384,8 @@ class KlantRestServiceTest : BehaviorSpec({
                               }
                             }
                           }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_DOMAIN_TEST_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -373,15 +397,18 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a vestiging") {
-        Given("An existing vestiging") {
+        Given("An existing vestiging and a logged-in raadpleger") {
             When(
                 """
                 A vestiging is requested by vestigingsnummer and KVK number which is present in the KVK test environment
                 and for which contact details are present in Open Klant
             """
             ) {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1"
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -412,7 +439,8 @@ class KlantRestServiceTest : BehaviorSpec({
             """
             ) {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1"
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -437,7 +465,8 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("a vestigingsprofiel is requested which is present in the KVK test environment") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1"
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 Then("the vestigingsprofiel is returned with the expected data") {
                     response.code shouldBe HTTP_OK
@@ -485,7 +514,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/bedrijven",
                     requestBodyAsString = JSONObject(
                         mapOf("naam" to TEST_KVK_NAAM_1)
-                    ).toString()
+                    ).toString(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -515,7 +545,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/bedrijven",
                     requestBodyAsString = JSONObject(
                         mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
-                    ).toString()
+                    ).toString(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -543,8 +574,10 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving contactmomenten for a person") {
-        Given("Existing contactmomenten") {
+        Given("Existing contactmomenten and a logged-in raadpleger") {
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
                     requestBodyAsString = """
@@ -552,7 +585,8 @@ class KlantRestServiceTest : BehaviorSpec({
                         "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                         "page": 0
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be a 200 HTTP response with the customer contactmomenten") {
@@ -586,14 +620,17 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving a rechtspersoon") {
-        Given("An existing rechtspersoon") {
+        Given("An existing rechtspersoon and a logged-in raadpleger") {
             When(
                 """
                 the read rechtspersoon endpoint is called with the RSIN of a test company available in the KVK mock
                 """
             ) {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -620,6 +657,7 @@ class KlantRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -643,10 +681,13 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving personen parameters") {
-        Given("Existing personen parameters") {
+        Given("Existing personen parameters and a logged-in raadpleger") {
             When("the personen parameters endpoint is called") {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/parameters",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -718,10 +759,13 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Retrieving betrokkenen for a zaaktype") {
-        Given("Existing betrokkenen") {
+        Given("Existing betrokkenen and a logged-in raadpleger") {
             When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
+                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {

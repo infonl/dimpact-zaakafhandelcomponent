@@ -8,7 +8,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
@@ -63,10 +62,11 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("The CMMN and BPMN zaaktype configurations have been created and a beheerder is logged in") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
         When("mail template list is fetched") {
-            val response = itestHttpClient.performGetRequest(url = "$ZAC_API_URI/beheer/mailtemplates")
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/beheer/mailtemplates",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
             lateinit var responseBody: String
 
             Then("the response should be a 200 HTTP response") {
@@ -149,7 +149,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
 
         When("mail template koppeling list is fetched") {
-            val response = itestHttpClient.performGetRequest(url = "$ZAC_API_URI/beheer/mailtemplatekoppeling")
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
             lateinit var responseBody: String
 
             Then("the response should be a 200 HTTP response") {
