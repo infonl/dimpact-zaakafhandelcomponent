@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input, output } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -30,5 +37,15 @@ export class PersoonsgegevensComponent {
     this.klantenService.readPersoon(this.personId(), this.zaaktypeUuid()),
   );
 
+  protected readonly isDisabled = signal(false);
+
   protected readonly indicatiesLayout = IndicatiesLayout;
+
+  constructor() {
+    effect(() => {
+      this.isDisabled.set(
+        this.persoonQuery.isLoading() || !!this.persoonQuery.error(),
+      );
+    });
+  }
 }
