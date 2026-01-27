@@ -22,7 +22,7 @@ import {
   selector: "zac-formio-wrapper",
   templateUrl: "./formio-wrapper.component.html",
   styleUrl: "./formio-wrapper.component.less",
-  encapsulation: ViewEncapsulation.ShadowDom,
+  encapsulation: ViewEncapsulation.None,
   standalone: false,
 })
 export class FormioWrapperComponent {

@@ -591,10 +591,7 @@
         *matCellDef="let row"
         [colSpan]="dataSource.visibleColumns.length"
       >
-        <div
-          class="row-detail"
-          [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
-        >
+        <div [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
           <div class="flex-row flex-wrap gap-10 flex-fill">
             <ng-container
               *ngFor="let column of dataSource.detailExpandColumns"
@@ -768,21 +765,22 @@
   <ng-container *ngIf="dataSource.totalItems === 0"
     ><p>{{ "msg.geen.gegevens.gevonden" | translate }}</p></ng-container
   >
-  <div class="pagination-wrapper">
-    <zac-export-button
-      *ngIf="this.werklijstRechten.zakenTakenExporteren"
-      [zoekParameters]="this.dataSource.zoekParameters"
-      [filename]="'title.zaken.afgehandeld' | translate"
-    ></zac-export-button>
-    <mat-paginator
-      (page)="paginatorChanged($event)"
-      #paginator
-      [length]="dataSource.totalItems"
-      [pageIndex]="dataSource.zoekParameters.page"
-      [pageSize]="aantalPerPagina"
-      [pageSizeOptions]="pageSizeOptions"
-      sticky
-    >
-    </mat-paginator>
-  </div>
+</div>
+
+<div class="pagination-wrapper">
+  <zac-export-button
+    *ngIf="this.werklijstRechten.zakenTakenExporteren"
+    [zoekParameters]="this.dataSource.zoekParameters"
+    [filename]="'title.zaken.afgehandeld' | translate"
+  ></zac-export-button>
+  <mat-paginator
+    (page)="paginatorChanged($event)"
+    #paginator
+    [length]="dataSource.totalItems"
+    [pageIndex]="dataSource.zoekParameters.page"
+    [pageSize]="aantalPerPagina"
+    [pageSizeOptions]="pageSizeOptions"
+    sticky
+  >
+  </mat-paginator>
 </div>
