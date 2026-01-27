@@ -32,7 +32,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
-import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -462,7 +461,7 @@ class ZacClient(
         )
         val responseBody = response.bodyAsString
         logger.info { "Response: $responseBody" }
-        response.code shouldBe HTTP_OK
+        response.code shouldBe HttpURLConnection.HTTP_OK
         val firstResult = JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0)
         with(firstResult.toString()) {
             shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)

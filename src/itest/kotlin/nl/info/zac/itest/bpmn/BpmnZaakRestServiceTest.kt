@@ -28,7 +28,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
-import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -87,8 +86,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
-                val initiatorIdentification = JSONObject(responseBody).getJSONObject("initiatorIdentificatie")
-                with(initiatorIdentification.toString()) {
+                with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
                     shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
                     shouldContainJsonKeyValue("personId", personId.toString())
                 }

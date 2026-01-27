@@ -62,7 +62,6 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
@@ -95,7 +94,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("response is ok") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    response.code shouldBe HttpURLConnection.HTTP_OK
+                    response.code shouldBe HTTP_OK
                     JSONObject(responseBody).run {
                         getJSONObject("zaakdata").run {
                             zaakUuid = getString("zaakUUID").run(UUID::fromString)
