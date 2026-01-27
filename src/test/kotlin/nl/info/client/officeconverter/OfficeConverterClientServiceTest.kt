@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
+import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import java.io.ByteArrayInputStream
 
 class OfficeConverterClientServiceTest : BehaviorSpec({
@@ -45,7 +46,7 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
             every { officeConverterClient.convert(any()) } returns response
 
             When("convertToPDF is called") {
-                val exception = shouldThrow<RuntimeException> {
+                val exception = shouldThrow<MessageEntityDataCouldNotBeBufferedException> {
                     officeConverterClientService.convertToPDF(document, filename)
                 }
 

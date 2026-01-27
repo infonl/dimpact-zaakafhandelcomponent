@@ -7,6 +7,7 @@ package nl.info.client.officeconverter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE
+import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -25,7 +26,7 @@ class OfficeConverterClientService @Inject constructor(
         }
         val response = officeConverterClient.convert(multipartFormDataOutput)
         if (!response.bufferEntity()) {
-            throw RuntimeException("Content of PDF converter could not be buffered.")
+            throw MessageEntityDataCouldNotBeBufferedException("Content of PDF converter could not be buffered.")
         }
         return response.entity as ByteArrayInputStream
     }
