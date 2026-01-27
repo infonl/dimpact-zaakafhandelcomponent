@@ -15,6 +15,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.sensitive.SensitiveDataService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.jacobras.humanreadable.HumanReadable.fileSize
@@ -32,11 +33,13 @@ import kotlin.time.toDuration
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val sensitiveDataService: SensitiveDataService,
     private val policyService: PolicyService
 ) {
     companion object {
         private val ZTC: String = h(2, "ztcClientService")
         private val ZHPS: String = h(2, "zaakafhandelParameterService")
+        private val SENSITIVE: String = h(2, "sensitiveDataService")
 
         private fun links(url: List<String>) = ul(url.map { a("/rest/admin/util/$it", it) })
 
@@ -61,8 +64,8 @@ class UtilRestService @Inject constructor(
         return body(
             h(1, "Util") +
                 h(2, "Caches") +
-                links(listOf("cache", "cache/ztc", "cache/zhps")) +
-                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
+                links(listOf("cache", "cache/ztc", "cache/zhps", "cache/sensitive")) +
+                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear", "cache/sensitive/clear")) +
                 h(2, "System") +
                 links(listOf("memory"))
         )
@@ -75,7 +78,8 @@ class UtilRestService @Inject constructor(
         return body(
             listOf(
                 ztcClientCaches(),
-                zaakafhandelParameterServiceCaches()
+                zaakafhandelParameterServiceCaches(),
+                sensitiveDataServiceCaches()
             )
         )
     }
@@ -95,10 +99,17 @@ class UtilRestService @Inject constructor(
     }
 
     @GET
+    @Path("cache/sensitive")
+    fun sensitiveDataCaches(): String {
+        checkBeherenPolicy()
+        return body(sensitiveDataServiceCaches())
+    }
+
+    @GET
     @Path("cache/clear")
     fun clearCaches(): String {
         checkBeherenPolicy()
-        return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches()))
+        return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches(), clearSensitiveDataServiceCaches()))
     }
 
     @GET
@@ -113,6 +124,13 @@ class UtilRestService @Inject constructor(
     fun clearAllZaakafhandelParameterServiceCaches(): String {
         checkBeherenPolicy()
         return body(clearAllZhpsCaches())
+    }
+
+    @GET
+    @Path("cache/sensitive/clear")
+    fun clearAllSensitiveDataCaches(): String {
+        checkBeherenPolicy()
+        return body(clearSensitiveDataServiceCaches())
     }
 
     @GET
@@ -160,6 +178,8 @@ class UtilRestService @Inject constructor(
             )
         )
 
+    private fun clearSensitiveDataServiceCaches() = SENSITIVE + ul(listOf(sensitiveDataService.clearStorage()))
+
     private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeCmmnConfigurationService)
@@ -185,4 +205,10 @@ class UtilRestService @Inject constructor(
             }
         )
     }
+
+    private fun sensitiveDataServiceCaches() = SENSITIVE + """
+        <p>
+        ${b("Sensitive data")}
+        </p>
+    """.trimIndent()
 }

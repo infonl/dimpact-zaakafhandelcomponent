@@ -65,4 +65,16 @@ class SensitiveDataService {
      * @return the sensitive data or null if not found
      */
     fun get(key: UUID): String? = uuidToDataStorage.getIfPresent(key)
+
+    /**
+     * Clears the storage of sensitive data.
+     *
+     * @return a message indicating the operation was successful
+     */
+    fun clearStorage(): String {
+        dataToUuidStorage.invalidateAll()
+        uuidToDataStorage.invalidateAll()
+        LOG.info("Sensitive storage cleared.")
+        return "Storage cleared."
+    }
 }

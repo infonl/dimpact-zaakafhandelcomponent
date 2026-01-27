@@ -17,14 +17,17 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.sensitive.SensitiveDataService
 
 class UtilRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val policyService = mockk<PolicyService>()
+    val sensitiveDataService = mockk<SensitiveDataService>()
     val utilRESTService = UtilRestService(
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+        sensitiveDataService = sensitiveDataService,
         policyService = policyService
     )
 
@@ -54,6 +57,7 @@ class UtilRestServiceTest : BehaviorSpec({
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
+                response shouldContain "sensitive"
                 response shouldContain "Estimated cache size: 0"
             }
         }
