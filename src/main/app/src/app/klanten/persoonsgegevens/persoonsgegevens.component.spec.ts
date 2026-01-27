@@ -8,7 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, throwError } from "rxjs";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
@@ -17,21 +17,6 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
-
-const mockTranslateService = {
-  get(key: unknown) {
-    return of(key);
-  },
-  getCurrentLang() {
-    return "nl";
-  },
-  getFallbackLang() {
-    return "nl";
-  },
-  onTranslationChange: of({}),
-  onLangChange: of({}),
-  onFallbackLangChange: of({}),
-};
 
 const testPerson: GeneratedType<"RestPersoon"> = {
   personId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
@@ -57,7 +42,6 @@ describe("PersoonsgegevensComponent", () => {
       ],
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
-        { provide: TranslateService, useValue: mockTranslateService },
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
