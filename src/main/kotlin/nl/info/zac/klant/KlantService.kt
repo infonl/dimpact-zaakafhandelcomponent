@@ -7,7 +7,7 @@ package nl.info.zac.klant
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
-import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.brp.exception.BrpPersonIdNotCachedException
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
@@ -87,5 +87,5 @@ class KlantService @Inject constructor(
     fun replaceBsnWithKey(bsn: String): UUID = sensitiveDataService.put(bsn)
 
     fun replaceKeyWithBsn(key: UUID): String = sensitiveDataService.get(key)
-        ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor id '$key'")
+        ?: throw BrpPersonIdNotCachedException("Geen persoon gevonden voor id '$key'")
 }

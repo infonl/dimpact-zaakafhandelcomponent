@@ -9,7 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.brp.exception.BrpPersonIdNotCachedException
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -149,7 +149,7 @@ class KlantServiceTest : BehaviorSpec({
         When("the key does not exist") {
             every { sensitiveDataService.get(uuid) } returns null
             Then("it should throw a BrpPersonNotFoundException") {
-                shouldThrow<BrpPersonNotFoundException> {
+                shouldThrow<BrpPersonIdNotCachedException> {
                     klantService.replaceKeyWithBsn(uuid)
                 }
             }

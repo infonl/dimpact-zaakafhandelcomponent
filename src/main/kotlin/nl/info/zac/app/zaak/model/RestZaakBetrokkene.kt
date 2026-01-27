@@ -16,6 +16,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.klant.KlantService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -61,11 +62,12 @@ data class RestZaakBetrokkene(
  * It can also happen that a specific betrokkene type does not have an actual identification field.
  * We do not return these roles as they do not contain enough useful information for the client.
  *
+ * @param klantService the [KlantService] instance to use for BSN replacement, or `null` to skip replacement
  * @returns the converted [RestZaakBetrokkene], or `null` if the rol has no [Rol.betrokkeneIdentificatie]
  * since we do not support [RestZaakBetrokkene] objects without an identification.
  */
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
-fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
+fun Rol<*>.toRestZaakBetrokkene(klantService: KlantService? = null): RestZaakBetrokkene? {
     var identificatieType: IdentificatieType? = null
     var identificatie: String
     var kvkNummer: String? = null
@@ -73,6 +75,9 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
         NATUURLIJK_PERSOON -> {
             identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
+            if (klantService != null) {
+                identificatie = klantService.replaceBsnWithKey(identificatie).toString()
+            }
         }
         NIET_NATUURLIJK_PERSOON -> {
             // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
@@ -118,4 +123,5 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
     )
 }
 
-fun List<Rol<*>>.toRestZaakBetrokkenen(): List<RestZaakBetrokkene> = mapNotNull { it.toRestZaakBetrokkene() }
+fun List<Rol<*>>.toRestZaakBetrokkenen(klantService: KlantService? = null): List<RestZaakBetrokkene> =
+    mapNotNull { it.toRestZaakBetrokkene(klantService) }
