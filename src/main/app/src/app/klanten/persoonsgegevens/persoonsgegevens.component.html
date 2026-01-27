@@ -38,7 +38,7 @@
         <a
           *ngIf="persoonQuery.data()"
           mat-icon-button
-          [routerLink]="['/persoon', bsn()]"
+          [routerLink]="['/persoon', personId()]"
           (click)="$event.stopPropagation()"
           title="{{ 'actie.persoon.bekijken' | translate }}"
         >

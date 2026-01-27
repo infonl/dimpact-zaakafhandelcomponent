@@ -21,13 +21,13 @@ export class PersoonsgegevensComponent {
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);
   protected zaaktypeUuid = input.required<string>();
-  protected bsn = input.required<string>();
+  protected personId = input.required<string>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();
 
   protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(this.bsn(), this.zaaktypeUuid()),
+    this.klantenService.readPersoon(this.personId(), this.zaaktypeUuid()),
   );
 
   protected readonly indicatiesLayout = IndicatiesLayout;

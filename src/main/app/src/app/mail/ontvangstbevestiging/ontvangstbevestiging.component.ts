@@ -92,11 +92,11 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.variables = mailtemplate?.variabelen ?? [];
       });
 
-    const bsnNummer = this.zaak().initiatorIdentificatie?.personId;
-    if (!bsnNummer) return;
+    const personId = this.zaak().initiatorIdentificatie?.personId;
+    if (!personId) return;
 
     this.klantenService
-      .getContactDetailsForPerson(bsnNummer)
+      .getContactDetailsForPerson(personId)
       .subscribe((gegevens) => {
         this.contactGegevens = gegevens;
       });
