@@ -230,6 +230,9 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("personId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("personId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("personId"))
                 zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)
             }
         }
@@ -494,6 +497,7 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("personId"))
             }
         }
     }

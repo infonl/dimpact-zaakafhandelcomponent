@@ -377,7 +377,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         ) {
             val zaak = createZaak()
             val zaakType = createZaakType()
-            val personId = UUID.randomUUID()
+            val expectedPersonId = UUID.randomUUID()
             val rolNatuurlijkPersoon = createRolNatuurlijkPersoonForReads()
             val rolNietNatuurlijkPersoonWithVestigingsnummer = createRolNietNatuurlijkPersoonForReads(
                 nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
@@ -401,7 +401,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
             every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
-            every { klantService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns personId
+            every { klantService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
 
             When("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
@@ -414,7 +414,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNatuurlijkPersoon.omschrijving
                             roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                             type shouldBe "NATUURLIJK_PERSOON"
-                            identificatie shouldBe personId.toString()
+                            identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
+                            personId shouldBe expectedPersonId
                             identificatieType shouldBe IdentificatieType.BSN
                         }
                         with(this[1]) {
