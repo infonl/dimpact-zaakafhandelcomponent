@@ -1375,7 +1375,7 @@ export class ZaakViewComponent
       case "NATUURLIJK_PERSOON": {
         const persoon = await this.queryClient.ensureQueryData(
           this.klantenService.readPersoon(
-            betrokkene.identificatie,
+            betrokkene.personId!,
             this.zaak.zaaktype.uuid,
           ),
         );
@@ -1523,7 +1523,7 @@ export class ZaakViewComponent
 
     return Boolean(
       brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
+      ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1536,7 +1536,7 @@ export class ZaakViewComponent
 
     return Boolean(
       kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
+      ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
     );
   }
 
@@ -1554,16 +1554,16 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen,
     );
   }
 

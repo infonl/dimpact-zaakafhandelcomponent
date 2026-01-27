@@ -24,7 +24,7 @@ export class BetrokkeneLinkComponent {
 
     if (!this.isBsnType() || !betrokkene.personId) {
       return {
-        queryKey: ["persoon", betrokkene.personId],
+        queryKey: ["persoon", betrokkene.personId, this.zaaktypeUuid()],
         enabled: false,
       };
     }
