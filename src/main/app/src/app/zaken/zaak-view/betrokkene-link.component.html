@@ -13,7 +13,7 @@
 @if (persoonQuery.data()) {
   <a
     mat-icon-button
-    [routerLink]="['/persoon', betrokkene().identificatie]"
+    [routerLink]="['/persoon', betrokkene().personId]"
     title="{{ 'actie.persoon.bekijken' | translate }}"
   >
     <mat-icon>visibility</mat-icon>
