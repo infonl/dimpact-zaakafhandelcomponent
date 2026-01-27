@@ -647,6 +647,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected isZaaknietontvankelijkParameter(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
+    console.log("CMMN:", parameter.zaakbeeindigReden === undefined);
     return parameter.zaakbeeindigReden === undefined;
   }
 
@@ -675,13 +676,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     reden: GeneratedType<"RESTZaakbeeindigReden">,
   ) {
     let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
-    console.log("fetched data cmmn params: ", this.parameters);
-    console.log("cmmn params: ", this.zaakbeeindigParameters);
-
-    console.log(
-      "cmmn zaakbeeindigparams",
-      this.parameters.zaakbeeindigParameters,
-    );
     for (const item of this.parameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;

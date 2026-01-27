@@ -316,6 +316,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
     field: string,
   ) {
+    console.log("VALIDE?", this.isValid());
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
     );
@@ -326,13 +327,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
     );
-    console.log("fetched data bpmn params: ", this.bpmnZaakafhandelParameters);
-    console.log("bpmn params: ", this.zaakbeeindigParameters);
-    console.log(
-      "bpmn zaakbeeindigparams ",
-      this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
-    );
-
     for (const reden of this.zaakbeeindigRedenen) {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
@@ -363,10 +357,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     reden: GeneratedType<"RESTZaakbeeindigReden">,
   ) {
     let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
-    console.log(
-      "bpmn zaakbeeindigparams ",
-      this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
-    );
     for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
@@ -377,37 +367,27 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     if (parameter === null) {
       parameter = { zaakbeeindigReden: reden };
     }
-    console.log(parameter);
     return parameter;
   }
 
   private updateZaakbeeindigForm(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
-    if (this.isZaaknietontvankelijkParameter(parameter)) {
-      return;
-    }
-
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
-    if (!control) {
-      return;
-    }
-
     if (this.selection.isSelected(parameter)) {
-      control.addValidators([Validators.required]);
+      control?.addValidators([Validators.required]);
     } else {
-      control.clearValidators();
+      control?.clearValidators();
     }
-
-    control.updateValueAndValidity({ emitEvent: false });
+    control?.updateValueAndValidity({ emitEvent: false });
   }
-
   protected compareObject = (a: unknown, b: unknown) =>
     this.utilService.compare(a, b);
 
   protected opslaan() {
     const bpmnProcessDefinitionKey =
       this.algemeenFormGroup.value.bpmnDefinition?.key;
+    console.log("VALIDE? OPSLAAN", this.isValid());
 
     if (!bpmnProcessDefinitionKey) {
       return;
@@ -503,7 +483,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
       this.algemeenFormGroup.valid &&
       this.zaakbeeindigFormGroup.valid &&
-      this.brpDoelbindingenFormGroup.valid
+      this.brpDoelbindingenFormGroup.valid &&
+      this.zaakbeeindigFormGroup.valid
     );
   }
 
