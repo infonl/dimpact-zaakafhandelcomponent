@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
@@ -25,7 +24,6 @@ const testPerson: GeneratedType<"RestPersoon"> = {
 
 describe("PersoonsgegevensComponent", () => {
   let klantenServiceMock: Partial<KlantenService>;
-  let loader: HarnessLoader;
 
   beforeEach(async () => {
     klantenServiceMock = {
@@ -52,7 +50,6 @@ describe("PersoonsgegevensComponent", () => {
     ref.setInput("zaaktypeUuid", "test-zaaktype-uuid");
     ref.setInput("action", "test");
     fixture.detectChanges();
-    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should call service method just once", () => {
