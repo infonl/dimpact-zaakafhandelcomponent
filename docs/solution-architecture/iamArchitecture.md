@@ -163,7 +163,7 @@ block-beta
 
     ZAC -- "Unauthorised groups and<br/>users per group\n(Keycloak API)" -.-> Keycloak
     ZAC -- "Functional role<br/>authorisation mappings\nand authorised groups \n(PABC API)" -.-> PABC
-    PABC -- "Groups and</br>groups' functional roles\n(Keycloak API)" -.-> Keycloak
+    PABC -- "Groups and<br/>groups' functional roles\n(Keycloak API)" -.-> Keycloak
 
     %% workaround to make sure titles of sub-blocks are vertically aligned
     %% see: https://github.com/mermaid-js/mermaid/issues/5423
