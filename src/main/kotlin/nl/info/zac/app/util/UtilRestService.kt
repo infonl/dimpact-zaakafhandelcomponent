@@ -64,8 +64,10 @@ class UtilRestService @Inject constructor(
         return body(
             h(1, "Util") +
                 h(2, "Caches") +
-                links(listOf("cache", "cache/ztc", "cache/zhps", "cache/sensitive")) +
-                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear", "cache/sensitive/clear")) +
+                links(listOf("cache", "cache/ztc", "cache/zhps")) +
+                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
+                h(2, "Sensitive data") +
+                links(listOf("sensitive-data/clear")) +
                 h(2, "System") +
                 links(listOf("memory"))
         )
@@ -78,8 +80,7 @@ class UtilRestService @Inject constructor(
         return body(
             listOf(
                 ztcClientCaches(),
-                zaakafhandelParameterServiceCaches(),
-                sensitiveDataServiceCaches()
+                zaakafhandelParameterServiceCaches()
             )
         )
     }
@@ -99,17 +100,10 @@ class UtilRestService @Inject constructor(
     }
 
     @GET
-    @Path("cache/sensitive")
-    fun sensitiveDataCaches(): String {
-        checkBeherenPolicy()
-        return body(sensitiveDataServiceCaches())
-    }
-
-    @GET
     @Path("cache/clear")
     fun clearCaches(): String {
         checkBeherenPolicy()
-        return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches(), clearSensitiveDataServiceCaches()))
+        return body(listOf(clearZtcClientCaches(), clearAllZhpsCaches()))
     }
 
     @GET
@@ -127,10 +121,10 @@ class UtilRestService @Inject constructor(
     }
 
     @GET
-    @Path("cache/sensitive/clear")
+    @Path("sensitive-data/clear")
     fun clearAllSensitiveDataCaches(): String {
         checkBeherenPolicy()
-        return body(clearSensitiveDataServiceCaches())
+        return body(clearSensitiveDataServiceData())
     }
 
     @GET
@@ -178,8 +172,6 @@ class UtilRestService @Inject constructor(
             )
         )
 
-    private fun clearSensitiveDataServiceCaches() = SENSITIVE + ul(listOf(sensitiveDataService.clearStorage()))
-
     private fun ztcClientCaches() = getSeriviceCacheDetails(ZTC, ztcClientService)
 
     private fun zaakafhandelParameterServiceCaches() = getSeriviceCacheDetails(ZHPS, zaaktypeCmmnConfigurationService)
@@ -206,9 +198,5 @@ class UtilRestService @Inject constructor(
         )
     }
 
-    private fun sensitiveDataServiceCaches() = SENSITIVE + """
-        <p>
-        ${b("Sensitive data")}
-        </p>
-    """.trimIndent()
+    private fun clearSensitiveDataServiceData() = SENSITIVE + ul(listOf(sensitiveDataService.clearStorage()))
 }

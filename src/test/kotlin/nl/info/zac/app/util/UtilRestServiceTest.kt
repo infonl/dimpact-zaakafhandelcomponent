@@ -7,12 +7,15 @@ package nl.info.zac.app.util
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldInclude
 import io.kotest.matchers.string.shouldMatch
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
@@ -57,7 +60,6 @@ class UtilRestServiceTest : BehaviorSpec({
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
-                response shouldContain "sensitive"
                 response shouldContain "Estimated cache size: 0"
             }
         }
@@ -73,6 +75,53 @@ class UtilRestServiceTest : BehaviorSpec({
                 indexResponse shouldContain "cache"
                 indexResponse shouldContain "clear"
                 indexResponse shouldContain "memory"
+            }
+        }
+
+        When("all caches are cleared") {
+            every { ztcClientService.clearZaaktypeCache() } returns "zaaktype-cache cleared"
+            every { ztcClientService.clearResultaattypeCache() } returns "resultaattype-cache cleared"
+            every { ztcClientService.clearStatustypeCache() } returns "statustype-cache cleared"
+            every { ztcClientService.clearInformatieobjecttypeCache() } returns "informatieobjecttype-cache cleared"
+            every {
+                ztcClientService.clearZaaktypeInformatieobjecttypeCache()
+            } returns "zaaktype-informatieobjecttype-cache cleared"
+            every { ztcClientService.clearBesluittypeCache() } returns "besluittype-cache cleared"
+            every { ztcClientService.clearRoltypeCache() } returns "roltype-cache cleared"
+            every { ztcClientService.clearCacheTime() } returns "cachetime cleared"
+            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "zaaktype-cmmn-cache cleared"
+            every { zaaktypeCmmnConfigurationService.clearManagedCache() } returns "zaaktype-cmmn-managed-cache cleared"
+
+            val clearResponse = utilRESTService.clearCaches()
+
+            Then("it should clear all caches") {
+                verify(exactly = 1) {
+                    ztcClientService.clearZaaktypeCache()
+                    ztcClientService.clearResultaattypeCache()
+                    ztcClientService.clearStatustypeCache()
+                    ztcClientService.clearInformatieobjecttypeCache()
+                    ztcClientService.clearZaaktypeInformatieobjecttypeCache()
+                    ztcClientService.clearBesluittypeCache()
+                    ztcClientService.clearRoltypeCache()
+                    ztcClientService.clearCacheTime()
+                    zaaktypeCmmnConfigurationService.clearListCache()
+                    zaaktypeCmmnConfigurationService.clearManagedCache()
+                }
+            }
+            And("sensitive data should not be cleared") {
+                verify(exactly = 0) { sensitiveDataService.clearStorage() }
+            }
+            And("response should contain the all results") {
+                clearResponse.windowed("cleared".length) { it == "cleared" }.count { it } shouldBe 10
+            }
+        }
+
+        When("sensitive data clear is requested") {
+            every { sensitiveDataService.clearStorage() } returns "cache cleared"
+            val clearResponse = utilRESTService.clearAllSensitiveDataCaches()
+
+            Then("it should clear all sensitive data caches") {
+                clearResponse shouldInclude "cache cleared"
             }
         }
 
