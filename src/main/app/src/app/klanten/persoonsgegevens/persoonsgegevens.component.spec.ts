@@ -54,7 +54,7 @@ describe("PersoonsgegevensComponent", () => {
 
     const fixture = TestBed.createComponent(PersoonsgegevensComponent);
     const ref = fixture.componentRef;
-    ref.setInput("bsn", "20");
+    ref.setInput("personId", "f31b38f2-d336-431f-a045-2ce4240c6c7e");
     ref.setInput("zaaktypeUuid", "test-zaaktype-uuid");
     ref.setInput("action", "test");
     fixture.detectChanges();
