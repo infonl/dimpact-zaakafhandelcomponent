@@ -21,6 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
+import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -48,7 +49,8 @@ class ZacClient(
         title: String = DOCUMENT_FILE_TITLE,
         authorName: String = FAKE_AUTHOR_NAME,
         fileMediaType: String,
-        vertrouwelijkheidaanduiding: String
+        vertrouwelijkheidaanduiding: String,
+        testUser: TestUser
     ): ResponseContent {
         val createEnkelvoudigInformatieobjectEndpointURI =
             "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
@@ -90,7 +92,8 @@ class ZacClient(
                 "Content-Type",
                 "multipart/form-data"
             ),
-            requestBody = requestBody
+            requestBody = requestBody,
+            testUser = testUser
         )
     }
 
@@ -104,6 +107,7 @@ class ZacClient(
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype BPMN configuration in ZAC for zaaktype with description: $zaakTypeDescription " +
@@ -126,7 +130,8 @@ class ZacClient(
                 "verwerkingWaarde": "$brpVerwerkingWaarde"
               }
             }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         )
     }
 
@@ -141,7 +146,8 @@ class ZacClient(
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
         automaticEmailConfirmationSender: String = "sender@example.com",
-        automaticEmailConfirmationReply: String = "reply@example.com"
+        automaticEmailConfirmationReply: String = "reply@example.com",
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating a zaaktype CMMN configuration in ZAC for zaaktype with identificatie: $zaakTypeIdentificatie " +
@@ -367,7 +373,8 @@ class ZacClient(
                 "emailReply": "$automaticEmailConfirmationReply"
               }
             }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         )
     }
 
@@ -381,7 +388,8 @@ class ZacClient(
         toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
-        vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+        vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
@@ -414,43 +422,49 @@ class ZacClient(
                 },
                 "bagObjecten": [] 
             }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         )
     }
 
-    fun retrieveZaak(zaakUUID: UUID): ResponseContent {
+    fun retrieveZaak(zaakUUID: UUID, testUser: TestUser): ResponseContent {
         logger.info {
             "Retrieving zaak with UUID: $zaakUUID"
         }
         return itestHttpClient.performGetRequest(
-            url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID"
+            url = "${ZAC_API_URI}/zaken/zaak/$zaakUUID",
+            testUser = testUser
         )
     }
 
-    fun retrieveZaak(id: String): ResponseContent {
+    fun retrieveZaak(id: String, testUser: TestUser): ResponseContent {
         logger.info {
             "Retrieving zaak with id: $id"
         }
         return itestHttpClient.performGetRequest(
-            url = "${ZAC_API_URI}/zaken/zaak/id/$id"
+            url = "${ZAC_API_URI}/zaken/zaak/id/$id",
+            testUser = testUser
         )
     }
 
-    fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID): ResponseContent {
+    fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID, testUser: TestUser): ResponseContent {
         logger.info {
             "Retrieving human task plan items for zaak with UUID: $zaakUUID"
         }
         return itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
+            testUser = testUser
         )
     }
 
+    @Suppress("LongParameterList")
     fun startHumanTaskPlanItem(
         planItemInstanceId: String,
         fatalDate: LocalDate,
         groupId: String,
         groupName: String,
-        sendMail: Boolean = false
+        sendMail: Boolean = false,
+        testUser: TestUser
     ): ResponseContent {
         logger.info {
             "Starting human task plan item with plan item instance id: $planItemInstanceId, " +
@@ -465,7 +479,8 @@ class ZacClient(
                     "groep": { "id": "$groupId", "naam": "$groupName" },
                     "taakdata":{}
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         )
     }
 
@@ -476,9 +491,13 @@ class ZacClient(
         zaakUUID: UUID,
         fatalDate: LocalDate,
         group: TestGroup,
-        sendMail: Boolean = false
+        sendMail: Boolean = false,
+        testUser: TestUser
     ): ResponseContent {
-        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(zaakUUID).let { response ->
+        val aanvullendeInformatieHumanTaskPlanItemId = getHumanTaskPlanItemsForZaak(
+            zaakUUID,
+            testUser
+        ).let { response ->
             JSONArray(response.bodyAsString)
                 .map { it as JSONObject }
                 .firstOrNull {
@@ -493,11 +512,12 @@ class ZacClient(
             fatalDate = fatalDate,
             groupId = group.name,
             groupName = group.description,
-            sendMail = sendMail
+            sendMail = sendMail,
+            testUser = testUser
         )
     }
 
-    fun searchForTasks(zaakIdentificatie: String, taskName: String): String =
+    fun searchForTasks(zaakIdentificatie: String, taskName: String, testUser: TestUser): String =
         itestHttpClient.performPutRequest(
             url = "${ZAC_API_URI}/zoeken/list",
             requestBodyAsString = """
@@ -521,7 +541,8 @@ class ZacClient(
                   "sorteerRichting": "",
                   "type": "TAAK"
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = testUser
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -529,9 +550,10 @@ class ZacClient(
             responseBody
         }
 
-    fun submitFormData(bpmnZaakUuid: UUID, taakData: String): String {
+    fun submitFormData(bpmnZaakUuid: UUID, taakData: String, testUser: TestUser): String {
         val takenCreateResponse = itestHttpClient.performGetRequest(
-            "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid"
+            url = "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid",
+            testUser = testUser
         ).let {
             val responseBody = it.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -544,7 +566,8 @@ class ZacClient(
 
         return itestHttpClient.performPatchRequest(
             url = "${ZAC_API_URI}/taken/complete",
-            requestBodyAsString = patchedTakenData
+            requestBodyAsString = patchedTakenData,
+            testUser = testUser
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }

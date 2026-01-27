@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -35,14 +34,14 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
     val taskHelper = TaskHelper(zacClient)
 
     Given("A zaak, a task and a document have been created, and a beheerder is logged in") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentification: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).run {
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
@@ -54,13 +53,15 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1
+            group = BEHANDELAARS_DOMAIN_TEST_1,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
         zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
-            vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+            vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
 
         When("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
@@ -69,8 +70,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one zaak is indexed"""
@@ -93,7 +93,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "page": 0,
                             "type": "ZAAK"
                         }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = BEHEERDER_ELK_ZAAKTYPE
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
@@ -105,8 +106,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one task is indexed"""
@@ -129,7 +129,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "page": 0,
                             "type": "TAAK"
                         }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = BEHEERDER_ELK_ZAAKTYPE
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
@@ -141,8 +142,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-                ).toHeaders(),
-                addAuthorizationHeader = false
+                ).toHeaders()
             )
             Then(
                 """the response is successful and at least one document is indexed"""
@@ -165,7 +165,8 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "page": 0,
                             "type": "DOCUMENT"
                         }
-                        """.trimIndent()
+                        """.trimIndent(),
+                        testUser = BEHEERDER_ELK_ZAAKTYPE
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }

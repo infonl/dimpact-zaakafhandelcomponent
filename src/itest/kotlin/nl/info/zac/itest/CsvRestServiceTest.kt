@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
@@ -76,16 +75,17 @@ class CsvRestServiceTest : BehaviorSpec({
 
     Context("Export to CSV") {
         Given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_TEST_1_UUID,
-                indexZaak = true
+                indexZaak = true,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak2Description",
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-                indexZaak = true
+                indexZaak = true,
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
 
             When(
@@ -95,23 +95,24 @@ class CsvRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "$ZAC_API_URI/csv/export",
                     requestBodyAsString = """
-                    {
-                        "alleenMijnZaken": false,
-                        "alleenOpenstaandeZaken": true,
-                        "alleenAfgeslotenZaken": false,
-                        "alleenMijnTaken": false,
-                        "zoeken": {},
-                        "filters": {
-                            "ZAAK_IDENTIFICATIE": { "values": [ "$zaak1Identification", "$zaak2Identification" ] }
-                        },
-                        "datums": {},
-                        "rows": 10,
-                        "page": 0,
-                        "type": "ZAAK",
-                        "sorteerVeld": "ZAAK_IDENTIFICATIE",
-                        "sorteerRichting": "asc"
-                     }
-                    """.trimIndent()
+                        {
+                            "alleenMijnZaken": false,
+                            "alleenOpenstaandeZaken": true,
+                            "alleenAfgeslotenZaken": false,
+                            "alleenMijnTaken": false,
+                            "zoeken": {},
+                            "filters": {
+                                "ZAAK_IDENTIFICATIE": { "values": [ "$zaak1Identification", "$zaak2Identification" ] }
+                            },
+                            "datums": {},
+                            "rows": 10,
+                            "page": 0,
+                            "type": "ZAAK",
+                            "sorteerVeld": "ZAAK_IDENTIFICATIE",
+                            "sorteerRichting": "asc"
+                         }
+                    """.trimIndent(),
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
 
                 Then(
