@@ -168,29 +168,26 @@ export class ParametersEditBpmnComponent implements OnDestroy {
             configuratieService.readBrpProtocollering(),
             this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
             this.zaakafhandelParametersService.listResultaattypes(
-                this.bpmnZaakafhandelParameters.zaaktype.uuid,
+            this.bpmnZaakafhandelParameters.zaaktype.uuid,
             ),
         ]).subscribe(
             async ([
-                       brpSearchValues,
-                       brpViewValues,
-                       brpProcessingValues,
-                       brpProtocollering,
-                       zaakbeeindigRedenen,
-                       resultaattypes,
+               brpSearchValues,
+               brpViewValues,
+               brpProcessingValues,
+               brpProtocollering,
+               zaakbeeindigRedenen,
+               resultaattypes,
                    ]) => {
                 this.brpSearchValues = brpSearchValues;
                 this.brpConsultingValues = brpViewValues;
                 this.brpProcessingValues = brpProcessingValues;
                 this.brpProtocollering = brpProtocollering;
-
                 this.zaakbeeindigRedenen = zaakbeeindigRedenen;
                 this.resultaattypes = resultaattypes;
-
                 await this.createForm();
             },
         );
-
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
@@ -330,6 +327,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         this.addZaakbeeindigParameter(
             this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
         );
+        console.log("fetched data bpmn params: ", this.bpmnZaakafhandelParameters);
+        console.log("bpmn params: ", this.zaakbeeindigParameters);
+        console.log("bpmn zaakbeeindigparams ", this.bpmnZaakafhandelParameters.zaakbeeindigParameters)
+
         for (const reden of this.zaakbeeindigRedenen) {
             this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
         }
@@ -361,6 +362,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         reden: GeneratedType<"RESTZaakbeeindigReden">,
     ) {
         let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
+        console.log("bpmn zaakbeeindigparams ", this.bpmnZaakafhandelParameters.zaakbeeindigParameters)
         for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
             if (this.compareObject(item.zaakbeeindigReden, reden)) {
                 parameter = item;
@@ -371,7 +373,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         if (parameter === null) {
             parameter = { zaakbeeindigReden: reden };
         }
-
+        console.log(parameter)
         return parameter;
     }
 
@@ -435,7 +437,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
-        zaakbeeindigParameters: this.zaakbeeindigParameters
+        zaakbeeindigParameters: this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
       })
       .subscribe({
         next: (data) => {

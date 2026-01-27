@@ -538,7 +538,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.parameters),
     );
-    for (const reden of this.zaakbeeindigRedenen) {
+      for (const reden of this.zaakbeeindigRedenen) {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
     this.filteredMedewerkerMail = this.replyTos.filter(
@@ -675,7 +675,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     reden: GeneratedType<"RESTZaakbeeindigReden">,
   ) {
     let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
-    for (const item of this.parameters.zaakbeeindigParameters) {
+    console.log("fetched data cmmn params: ", this.parameters);
+      console.log("cmmn params: ", this.zaakbeeindigParameters);
+
+      console.log("cmmn zaakbeeindigparams", this.parameters.zaakbeeindigParameters)
+      for (const item of this.parameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
