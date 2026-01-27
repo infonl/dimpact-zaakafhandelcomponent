@@ -62,7 +62,7 @@ wildfly-security-elytron-http-oidc = "2.7.0.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "6.1.0"
+kotest = "6.1.1"
 mockk = "1.14.9"
 
 testcontainers = "2.0.3"
