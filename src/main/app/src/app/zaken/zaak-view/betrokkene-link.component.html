@@ -42,7 +42,11 @@
   <mat-icon
     class="mx-2"
     color="warn"
-    [matTooltip]="'msg.hint.kvk.outdated' | translate"
+    [matTooltip]="
+      bedrijfQuery.error()
+        ? ('msg.hint.kvk.outdated' | translate)
+        : ('msg.hint.personId.onbekend' | translate)
+    "
     >warning</mat-icon
   >
 }
