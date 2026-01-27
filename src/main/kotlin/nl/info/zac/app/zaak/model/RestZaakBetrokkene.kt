@@ -19,6 +19,7 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.klant.KlantService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
@@ -39,6 +40,12 @@ data class RestZaakBetrokkene(
      * - In case of a [NIET_NATUURLIJK_PERSOON] this is the RSIN (innNnpId) if available, otherwise the `vestigingsnummer`.
      */
     var identificatie: String,
+
+    /**
+     * UUID that can be used to look up the person instead of using sensitive BSN
+     * Only populated when type is [NATUURLIJK_PERSOON]
+     */
+    var personId: UUID?,
 
     /**
      * The identificatieType indicating what the type is of the [identificatie] field.
@@ -70,14 +77,13 @@ data class RestZaakBetrokkene(
 fun Rol<*>.toRestZaakBetrokkene(klantService: KlantService? = null): RestZaakBetrokkene? {
     var identificatieType: IdentificatieType? = null
     var identificatie: String
+    var personId: UUID? = null
     var kvkNummer: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
             identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
-            if (klantService != null) {
-                identificatie = klantService.replaceBsnWithKey(identificatie).toString()
-            }
+            klantService?.let { personId = klantService.replaceBsnWithKey(identificatie) }
         }
         NIET_NATUURLIJK_PERSOON -> {
             // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
@@ -118,6 +124,7 @@ fun Rol<*>.toRestZaakBetrokkene(klantService: KlantService? = null): RestZaakBet
         roltoelichting = this.roltoelichting,
         type = this.betrokkeneType.name,
         identificatie = identificatie,
+        personId = personId,
         identificatieType = identificatieType,
         kvkNummer = kvkNummer
     )
