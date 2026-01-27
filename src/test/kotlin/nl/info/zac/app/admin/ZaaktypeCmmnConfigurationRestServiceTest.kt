@@ -22,6 +22,7 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.configuratie.ConfiguratieService
@@ -45,6 +46,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationConverter = mockk<RestZaakafhandelParametersConverter>()
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
@@ -57,6 +59,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         referenceTableService = referenceTableService,
         zaaktypeCmmnConfigurationConverter = zaaktypeCmmnConfigurationConverter,
         caseDefinitionConverter = caseDefinitionConverter,

@@ -34,7 +34,10 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
+import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
@@ -64,6 +67,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
     private val cmmnService: CMMNService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val referenceTableService: ReferenceTableService,
@@ -123,17 +127,29 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     }
 
     /**
-     * Retrieve the ZaaktypeCmmnConfiguration for a ZAAKTYPE
+     * Retrieve the ZaaktypeConfiguration for a ZAAKTYPE
      *
-     * @return ZaaktypeCmmnConfiguration for a ZAAKTYPE by uuid of the ZAAKTYPE
+     * @return RestZaakafhandelParameters for a ZAAKTYPE by uuid of the ZAAKTYPE
      */
     @GET
     @Path("{zaaktypeUUID}")
-    fun readZaaktypeCmmnConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
+    fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+        zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)?.let {
+            return when (it.getConfigurationType()) {
+                CMMN -> {
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
+                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+                    }
+                }
+                BPMN -> {
+                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
+                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeBpmnConfiguration(it!!)
+                    }
+                }
+            }
         }
+        throw InputValidationFailedException()
     }
 
     /**
