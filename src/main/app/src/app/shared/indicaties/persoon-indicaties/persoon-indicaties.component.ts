@@ -5,7 +5,6 @@
  */
 
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
