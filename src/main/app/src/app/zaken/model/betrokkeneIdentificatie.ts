@@ -5,9 +5,7 @@
 
 import { GeneratedType } from "../../shared/utils/generated-types";
 
-export class BetrokkeneIdentificatie
-  implements GeneratedType<"BetrokkeneIdentificatie">
-{
+export class BetrokkeneIdentificatie implements GeneratedType<"BetrokkeneIdentificatie"> {
   public readonly personId?: string | null = null;
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
