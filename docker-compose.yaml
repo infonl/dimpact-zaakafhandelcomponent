@@ -403,7 +403,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:2.9.1@sha256:290414580eabd1bde91f22e4a4579242fe77377c425223f45d59b8ad1540ce3c
+    image: docker.io/grafana/tempo:2.10.0@sha256:d7f4c72e0bad2b42b4e7263b0addaf3f5bbc105cec6b1917eba0aae3b9b70364
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml

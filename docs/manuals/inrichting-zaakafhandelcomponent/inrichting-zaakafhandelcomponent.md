@@ -2,8 +2,8 @@
 
 
 > **Colofon** <br>
-> Datum : 21-01-2026 <br>
-> Versie :   1.10 <br>
+> Datum : 27-01-2026 <br>
+> Versie :   1.11 <br>
 > Verandering : ZAC v4.1.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -26,6 +26,7 @@ Versiegeschiedenis:
 | 1.8  | ZAC versie 4.0.54  |
 | 1.9  | ZAC versie 4.0.83  |
 | 1.10 | ZAC versie 4.1.0   |
+| 1.11 | ZAC versie 4.1.27  |
 
 # Inhoud
 
@@ -102,7 +103,6 @@ Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### BPMN
 ![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
 
-
 #### Gegevens
 Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
@@ -171,7 +171,7 @@ Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal
 
 ##### Landelijke registratie koppelingen
 
-- Hiermee kan voor een zaaktype de BRP en of KvK koppelingen worden uitgezet, met de knoppen:
+- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
   - Basisregistratie personen (persoonsgegevens) koppelen
   - KvK (bedrijfsgegevens) koppelen
 
@@ -345,11 +345,20 @@ ZAC zoekt naar een roltype met behulp van één van deze velden:
 ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
 
 ## Signaleringen
-De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. Deze kunnen worden verstuurd wanneer een zaak niet op naam van een behandelaar maar alleen op naam van een groep staan.
+De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. 
+In tegenstelling tot gebruikers-signaleringen, kunnen groepsignaleringen alleen per e-mail worden verstuurd en niet als een dashboard signalering.
 
 ### Werking van de signaleringen
-Als er een trigger voor een signalering die niet voor een gebruiker is bestemd komt dan wordt gekeken of de groepsignalering is ingeschakeld. Als dit het geval is dan wordt het ingestelde e-mailadres gebruikt om de signaleringsmail naar toe te sturen. Als e-mailadres van de groep wordt het adres gebruikt wat in de gebruikte gebruikers administratie is ingesteld.
+Als er een trigger voor een signalering die niet voor een gebruiker is bestemd komt dan wordt gekeken of de groepsignalering is ingeschakeld. 
+Als dit het geval is dan wordt het voor de groep ingestelde e-mailadres gebruikt om de signaleringsmail naar toe te sturen.
 Er is één signalering beschikbaar voor groepen, dat is ‘Er is een zaak op de groep gezet’ die verstuurd wordt als er een zaak nieuw aan een groep wordt toegewezen zonder dat er ook een behandelaar is gekozen.
+
+### E-mailadres instellen voor een groep
+
+Het e-mailadres voor een groep moet in Keycloak worden ingesteld door een attribuut toe te voegen aan de groep met de naam `email` en als waarde het gewenste e-mailadres.
+Hiervoor is het nodig om in te loggen in Keycloak met een account dat rechten heeft om groepen te mogen bewerken.
+
+![E-mailadres groep instellen](images/keycloak_group_email.png)
 
 ### Groepsignalering inschakelen
 Stappen:
