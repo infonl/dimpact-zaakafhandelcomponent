@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
 import {
   Component,
   EventEmitter,
@@ -17,6 +18,7 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
+import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute } from "@angular/router";
 import { forkJoin, Subject, takeUntil } from "rxjs";
@@ -34,9 +36,6 @@ import {
 } from "../model/parameters/zaak-process-definition-type";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { SelectionModel } from "@angular/cdk/collections";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -107,21 +106,21 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-    protected zaakbeeindigParameters: GeneratedType<"RESTZaakbeeindigParameter">[] =
-        [];
+  protected zaakbeeindigParameters: GeneratedType<"RESTZaakbeeindigParameter">[] =
+    [];
 
-    protected zaakbeeindigFormGroup = new FormGroup({});
+  protected zaakbeeindigFormGroup = new FormGroup({});
 
-    protected selection =
-        new SelectionModel<GeneratedType<"RESTZaakbeeindigParameter">>(true);
+  protected selection = new SelectionModel<
+    GeneratedType<"RESTZaakbeeindigParameter">
+  >(true);
 
-    protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
+  protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
+  protected showDoelbindingen = false;
+  protected zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
 
-    protected showDoelbindingen = false;
-    protected zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
-
-    protected brpConsultingValues: string[] = [];
+  protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
   protected brpProcessingValues: string[] = [];
   protected brpProtocollering: string = "";
@@ -161,33 +160,33 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       this.bpmnProcessDefinitions =
         data.parameters.bpmnProcessDefinitions || [];
 
-        forkJoin([
-            referentieTabelService.listBrpSearchValues(),
-            referentieTabelService.listBrpViewValues(),
-            referentieTabelService.listBrpProcessingValues(),
-            configuratieService.readBrpProtocollering(),
-            this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
-            this.zaakafhandelParametersService.listResultaattypes(
-            this.bpmnZaakafhandelParameters.zaaktype.uuid,
-            ),
-        ]).subscribe(
-            async ([
-               brpSearchValues,
-               brpViewValues,
-               brpProcessingValues,
-               brpProtocollering,
-               zaakbeeindigRedenen,
-               resultaattypes,
-                   ]) => {
-                this.brpSearchValues = brpSearchValues;
-                this.brpConsultingValues = brpViewValues;
-                this.brpProcessingValues = brpProcessingValues;
-                this.brpProtocollering = brpProtocollering;
-                this.zaakbeeindigRedenen = zaakbeeindigRedenen;
-                this.resultaattypes = resultaattypes;
-                await this.createForm();
-            },
-        );
+      forkJoin([
+        referentieTabelService.listBrpSearchValues(),
+        referentieTabelService.listBrpViewValues(),
+        referentieTabelService.listBrpProcessingValues(),
+        configuratieService.readBrpProtocollering(),
+        this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
+        this.zaakafhandelParametersService.listResultaattypes(
+          this.bpmnZaakafhandelParameters.zaaktype.uuid,
+        ),
+      ]).subscribe(
+        async ([
+          brpSearchValues,
+          brpViewValues,
+          brpProcessingValues,
+          brpProtocollering,
+          zaakbeeindigRedenen,
+          resultaattypes,
+        ]) => {
+          this.brpSearchValues = brpSearchValues;
+          this.brpConsultingValues = brpViewValues;
+          this.brpProcessingValues = brpProcessingValues;
+          this.brpProtocollering = brpProtocollering;
+          this.zaakbeeindigRedenen = zaakbeeindigRedenen;
+          this.resultaattypes = resultaattypes;
+          await this.createForm();
+        },
+      );
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
@@ -227,7 +226,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     }
 
     this.createBetrokkeneKoppelingenForm();
-      this.createZaakbeeindigForm();
+    this.createZaakbeeindigForm();
 
     this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
     if (this.showDoelbindingen) {
@@ -297,114 +296,116 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     });
   }
 
-    protected isZaaknietontvankelijkParameter(
-        parameter: GeneratedType<"RESTZaakbeeindigParameter">,
-    ) {
-        return parameter.zaakbeeindigReden === undefined;
+  protected isZaaknietontvankelijkParameter(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ) {
+    return parameter.zaakbeeindigReden === undefined;
+  }
+
+  protected changeSelection(
+    $event: MatCheckboxChange,
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ): void {
+    if ($event) {
+      this.selection.toggle(parameter);
+      this.updateZaakbeeindigForm(parameter);
     }
+  }
 
-    protected changeSelection(
-        $event: MatCheckboxChange,
-        parameter: GeneratedType<"RESTZaakbeeindigParameter">,
-    ): void {
-        if ($event) {
-            this.selection.toggle(parameter);
-            this.updateZaakbeeindigForm(parameter);
-        }
+  protected getZaakbeeindigControl(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    field: string,
+  ) {
+    return this.zaakbeeindigFormGroup.get(
+      `${parameter.zaakbeeindigReden?.id}__${field}`,
+    );
+  }
+
+  private createZaakbeeindigForm() {
+    this.zaakbeeindigFormGroup = this.formBuilder.group({});
+    this.addZaakbeeindigParameter(
+      this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
+    );
+    console.log("fetched data bpmn params: ", this.bpmnZaakafhandelParameters);
+    console.log("bpmn params: ", this.zaakbeeindigParameters);
+    console.log(
+      "bpmn zaakbeeindigparams ",
+      this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
+    );
+
+    for (const reden of this.zaakbeeindigRedenen) {
+      this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
+  }
 
-    protected getZaakbeeindigControl(
-        parameter: GeneratedType<"RESTZaakbeeindigParameter">,
-        field: string,
-    ) {
-        return this.zaakbeeindigFormGroup.get(
-            `${parameter.zaakbeeindigReden?.id}__${field}`,
-        );
-    }
+  private addZaakbeeindigParameter(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ): void {
+    this.zaakbeeindigParameters.push(parameter);
+    this.zaakbeeindigFormGroup.addControl(
+      parameter.zaakbeeindigReden?.id + "__beeindigResultaat",
+      new FormControl(parameter.resultaattype),
+    );
+    this.updateZaakbeeindigForm(parameter);
+  }
 
-    private createZaakbeeindigForm() {
-        this.zaakbeeindigFormGroup = this.formBuilder.group({});
-        this.addZaakbeeindigParameter(
-            this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
-        );
-        console.log("fetched data bpmn params: ", this.bpmnZaakafhandelParameters);
-        console.log("bpmn params: ", this.zaakbeeindigParameters);
-        console.log("bpmn zaakbeeindigparams ", this.bpmnZaakafhandelParameters.zaakbeeindigParameters)
+  private getZaaknietontvankelijkParameter(
+    zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
+  ) {
+    const parameter: GeneratedType<"RESTZaakbeeindigParameter"> = {
+      resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
+    };
+    this.selection.select(parameter);
+    return parameter;
+  }
 
-        for (const reden of this.zaakbeeindigRedenen) {
-            this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
-        }
-    }
-
-    private addZaakbeeindigParameter(
-        parameter: GeneratedType<"RESTZaakbeeindigParameter">,
-    ): void {
-        this.zaakbeeindigParameters.push(parameter);
-        this.zaakbeeindigFormGroup.addControl(
-            parameter.zaakbeeindigReden?.id + "__beeindigResultaat",
-            new FormControl(parameter.resultaattype),
-        );
-        this.updateZaakbeeindigForm(parameter);
-    }
-
-    private getZaaknietontvankelijkParameter(
-        zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
-    ) {
-        const parameter: GeneratedType<"RESTZaakbeeindigParameter"> = {
-            resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype
-        };
+  private getZaakbeeindigParameter(
+    reden: GeneratedType<"RESTZaakbeeindigReden">,
+  ) {
+    let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
+    console.log(
+      "bpmn zaakbeeindigparams ",
+      this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
+    );
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
+      if (this.compareObject(item.zaakbeeindigReden, reden)) {
+        parameter = item;
         this.selection.select(parameter);
-        return parameter;
+        break;
+      }
+    }
+    if (parameter === null) {
+      parameter = { zaakbeeindigReden: reden };
+    }
+    console.log(parameter);
+    return parameter;
+  }
+
+  private updateZaakbeeindigForm(
+    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+  ) {
+    if (this.isZaaknietontvankelijkParameter(parameter)) {
+      return;
     }
 
-
-    private getZaakbeeindigParameter(
-        reden: GeneratedType<"RESTZaakbeeindigReden">,
-    ) {
-        let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
-        console.log("bpmn zaakbeeindigparams ", this.bpmnZaakafhandelParameters.zaakbeeindigParameters)
-        for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
-            if (this.compareObject(item.zaakbeeindigReden, reden)) {
-                parameter = item;
-                this.selection.select(parameter);
-                break;
-            }
-        }
-        if (parameter === null) {
-            parameter = { zaakbeeindigReden: reden };
-        }
-        console.log(parameter)
-        return parameter;
+    const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
+    if (!control) {
+      return;
     }
 
-    private updateZaakbeeindigForm(
-        parameter: GeneratedType<"RESTZaakbeeindigParameter">,
-    ) {
-        if (this.isZaaknietontvankelijkParameter(parameter)) {
-            return;
-        }
-
-        const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
-        if (!control) {
-            return;
-        }
-
-        if (this.selection.isSelected(parameter)) {
-            control.addValidators([Validators.required]);
-        } else {
-            control.clearValidators();
-        }
-
-        control.updateValueAndValidity({ emitEvent: false });
+    if (this.selection.isSelected(parameter)) {
+      control.addValidators([Validators.required]);
+    } else {
+      control.clearValidators();
     }
 
+    control.updateValueAndValidity({ emitEvent: false });
+  }
 
+  protected compareObject = (a: unknown, b: unknown) =>
+    this.utilService.compare(a, b);
 
-    protected compareObject = (a: unknown, b: unknown) =>
-        this.utilService.compare(a, b);
-
-
-protected opslaan() {
+  protected opslaan() {
     const bpmnProcessDefinitionKey =
       this.algemeenFormGroup.value.bpmnDefinition?.key;
 
@@ -425,16 +426,16 @@ protected opslaan() {
 
     this.bpmnZaakafhandelParameters.zaakbeeindigParameters = [];
     this.selection.selected.forEach((param) => {
-        if (this.isZaaknietontvankelijkParameter(param)) {
-            this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
-                this.getZaakbeeindigControl(param, "beeindigResultaat")?.value;
-        } else {
-            param.resultaattype = this.getZaakbeeindigControl(
-                param,
-                "beeindigResultaat",
-            )?.value;
-            this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(param);
-        }
+      if (this.isZaaknietontvankelijkParameter(param)) {
+        this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
+          this.getZaakbeeindigControl(param, "beeindigResultaat")?.value;
+      } else {
+        param.resultaattype = this.getZaakbeeindigControl(
+          param,
+          "beeindigResultaat",
+        )?.value;
+        this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(param);
+      }
     });
 
     this.isLoading = true;
@@ -451,8 +452,10 @@ protected opslaan() {
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
-          zaakNietOntvankelijkResultaattype: this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype,
-        zaakbeeindigParameters: this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
+        zaakNietOntvankelijkResultaattype:
+          this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype,
+        zaakbeeindigParameters:
+          this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
       })
       .subscribe({
         next: (data) => {
@@ -495,15 +498,14 @@ protected opslaan() {
       });
   }
 
-    protected isValid(): boolean {
-        return (
-            (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
-            this.algemeenFormGroup.valid &&
-            this.zaakbeeindigFormGroup.valid &&
-            this.brpDoelbindingenFormGroup.valid
-        );
-    }
-
+  protected isValid(): boolean {
+    return (
+      (this.cmmnBpmnFormGroup.disabled || this.cmmnBpmnFormGroup.valid) &&
+      this.algemeenFormGroup.valid &&
+      this.zaakbeeindigFormGroup.valid &&
+      this.brpDoelbindingenFormGroup.valid
+    );
+  }
 
   private isDirty(): boolean {
     return this.algemeenFormGroup.dirty;

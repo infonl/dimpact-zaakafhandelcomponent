@@ -45,7 +45,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
     },
     betrokkeneKoppelingen: {},
     brpDoelbindingen: {},
-      zaakbeeindigParameters: [],
+    zaakbeeindigParameters: [],
   };
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
