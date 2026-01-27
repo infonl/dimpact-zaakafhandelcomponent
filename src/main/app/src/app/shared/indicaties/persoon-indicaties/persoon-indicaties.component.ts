@@ -20,7 +20,7 @@ export class PersoonIndicatiesComponent
   extends IndicatiesComponent
   implements OnInit, OnChanges
 {
-  constructor(private translateService: TranslateService) {
+  constructor() {
     super();
   }
 
@@ -31,6 +31,11 @@ export class PersoonIndicatiesComponent
   }
 
   loadIndicaties(): void {
+    if (!this.persoon?.indicaties?.length) {
+      this.indicaties = [];
+      return;
+    }
+
     this.indicaties = this.persoon.indicaties.reduce((acc, indicatie) => {
       let icon = "info";
       switch (indicatie) {
@@ -61,7 +66,7 @@ export class PersoonIndicatiesComponent
       }
 
       return [...acc, new IndicatieItem(indicatie, icon).temporary()];
-    }, [] satisfies IndicatieItem[]);
+    }, [] as IndicatieItem[]);
   }
 
   ngOnChanges() {
