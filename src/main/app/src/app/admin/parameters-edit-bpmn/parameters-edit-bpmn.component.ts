@@ -404,7 +404,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         this.utilService.compare(a, b);
 
 
-    protected opslaan() {
+protected opslaan() {
     const bpmnProcessDefinitionKey =
       this.algemeenFormGroup.value.bpmnDefinition?.key;
 
@@ -423,6 +423,20 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
+    this.bpmnZaakafhandelParameters.zaakbeeindigParameters = [];
+    this.selection.selected.forEach((param) => {
+        if (this.isZaaknietontvankelijkParameter(param)) {
+            this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
+                this.getZaakbeeindigControl(param, "beeindigResultaat")?.value;
+        } else {
+            param.resultaattype = this.getZaakbeeindigControl(
+                param,
+                "beeindigResultaat",
+            )?.value;
+            this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(param);
+        }
+    });
+
     this.isLoading = true;
     this.zaakafhandelParametersService
       .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
@@ -437,6 +451,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,
+          zaakNietOntvankelijkResultaattype: this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype,
         zaakbeeindigParameters: this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
       })
       .subscribe({
