@@ -21,6 +21,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.createRestZaakafhandelParameters
 import nl.info.zac.app.admin.createRestZaakbeeindigParameter
@@ -47,7 +48,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         smartDocumentsService
     )
 
-    Given("ZaakafhandelParameters with minimal content") {
+    Given("ZaakafhandelParameters CMMN with minimal content") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val zaakType = createZaakType().apply {
             beginGeldigheid = LocalDate.now().minusDays(1)
@@ -124,7 +125,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
     }
 
-    Given("RestZaakafhandelParameters with minimal content") {
+    Given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
         val restZaakafhandelParameters = createRestZaakafhandelParameters().apply {
             caseDefinition = RESTCaseDefinition()
@@ -158,6 +159,59 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     productaanvraagtype shouldBe null
                     domein shouldBe "fakeDomein"
                     smartDocumentsIngeschakeld shouldBe false
+                }
+            }
+        }
+    }
+
+    Given("ZaakafhandelParameters BPMN with minimal content") {
+        val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+        val zaakType = createZaakType().apply {
+            beginGeldigheid = LocalDate.now().minusDays(1)
+        }
+        val resultaatType = createResultaatType()
+        val restResultType = resultaatType.toRestResultaatType()
+        val restZaakbeeindigParameter = createRestZaakbeeindigParameter(resultaattype = restResultType)
+
+        every { ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid) } returns zaakType
+        every {
+            ztcClientService.readResultaattype(zaaktypeBpmnConfiguration.nietOntvankelijkResultaattype!!)
+        } returns resultaatType
+        every {
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
+        } returns listOf(restZaakbeeindigParameter)
+        every { smartDocumentsService.isEnabled() } returns true
+
+        When("converted to REST representation") {
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(
+                zaaktypeBpmnConfiguration
+            )
+
+            Then("the created object is correct") {
+                with(restZaakafhandelParameters) {
+                    id shouldBe zaaktypeBpmnConfiguration.id
+                    with(zaaktype) {
+                        uuid shouldBe zaakType.url.extractUuid()
+                        identificatie shouldBe zaakType.identificatie
+                        doel shouldBe zaakType.doel
+                        omschrijving shouldBe zaakType.omschrijving
+                        servicenorm shouldBe false
+                        versiedatum shouldBe zaakType.versiedatum
+                        beginGeldigheid shouldBe zaakType.beginGeldigheid
+                        eindeGeldigheid shouldBe zaakType.eindeGeldigheid
+                        vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                        nuGeldig shouldBe true
+                    }
+                    defaultGroepId shouldBe null
+                    creatiedatum shouldNotBe null
+                    zaakNietOntvankelijkResultaattype shouldBe restResultType
+                    productaanvraagtype shouldBe null
+                    domein shouldBe "fakeDomein"
+                    zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
+                    smartDocuments shouldBe RestSmartDocuments(
+                        enabledGlobally = true,
+                        enabledForZaaktype = true
+                    )
                 }
             }
         }
