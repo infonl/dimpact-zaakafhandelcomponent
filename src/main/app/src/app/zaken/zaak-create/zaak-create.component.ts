@@ -63,8 +63,6 @@ export class ZaakCreateComponent {
   protected caseTypes = this.zakenService.listZaaktypesForCreation();
   protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
     [];
-  protected isBpmnCaseTypeSelected = false;
-
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
@@ -149,7 +147,7 @@ export class ZaakCreateComponent {
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value || this.isBpmnCaseTypeSelected) {
+        if (!value) {
           this.form.controls.behandelaar.setValue(null);
           this.form.controls.behandelaar.disable();
           return;
@@ -158,13 +156,21 @@ export class ZaakCreateComponent {
         this.identityService.listUsersInGroup(value.id).subscribe((users) => {
           this.users = users ?? [];
           this.form.controls.behandelaar.enable();
+
+          const selectedZaaktype = this.form.controls.zaaktype.value;
+          const bpmnConfig = this.bpmnCaseTypesConfigurations?.find(
+            ({ zaaktypeUuid }) => zaaktypeUuid === selectedZaaktype?.uuid,
+          );
+          let defaultBehandelaarId: string | undefined | null;
+          if (bpmnConfig) {
+            defaultBehandelaarId = bpmnConfig.defaultBehandelaarId;
+          } else {
+            defaultBehandelaarId =
+              selectedZaaktype?.zaakafhandelparameters?.defaultBehandelaarId;
+          }
+
           this.form.controls.behandelaar.setValue(
-            this.users.find(
-              ({ id }) =>
-                id ===
-                this.form.controls.zaaktype.value?.zaakafhandelparameters
-                  ?.defaultBehandelaarId,
-            ),
+            this.users.find(({ id }) => id === defaultBehandelaarId) ?? null,
           );
         });
       });
@@ -234,11 +240,6 @@ export class ZaakCreateComponent {
     ) {
       this.form.controls.initiatorIdentificatie.setValue(null);
     }
-
-    this.isBpmnCaseTypeSelected = !!this.bpmnCaseTypesConfigurations.find(
-      ({ zaaktypeUuid }) =>
-        zaaktypeUuid === zaakafhandelparameters?.zaaktype.uuid,
-    );
   }
 
   protected async openSideNav(action: string) {

@@ -31,9 +31,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     @Column(name = "id_case_definition")
     var caseDefinitionID: String? = null
 
-    @Column(name = "gebruikersnaam_behandelaar")
-    var gebruikersnaamMedewerker: String? = null
-
     @Column(name = "eindatum_gepland_waarschuwing")
     var einddatumGeplandWaarschuwing: Int? = null
 

@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
@@ -32,7 +33,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
     val bpmnZaakType2 = """
@@ -42,7 +44,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_2_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
 

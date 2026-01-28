@@ -29,6 +29,8 @@ data class RestZaaktypeBpmnConfiguration(
     @field:NotBlank
     var groepNaam: String? = null,
 
+    var defaultBehandelaarId: String? = null,
+
     var creatiedatum: ZonedDateTime?,
 
     // The frontend currently requires this field to be non-null
