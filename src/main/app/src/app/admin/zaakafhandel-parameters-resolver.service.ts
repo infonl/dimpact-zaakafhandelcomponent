@@ -52,13 +52,12 @@ export class ZaakafhandelParametersResolver {
           const isBpmn = !!bpmnZaakafhandelParameters;
           const isSavedZaakafhandelParameters =
             isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (group id initially null but set on save)
-
           return {
             zaakafhandelParameters,
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
-              zaakbeeindigParameters: [],
+              zaakbeeindigParameters: zaakafhandelParameters.zaakbeeindigParameters,
             },
             bpmnProcessDefinitions,
             isBpmn,
