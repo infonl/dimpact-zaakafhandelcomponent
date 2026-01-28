@@ -112,7 +112,7 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
