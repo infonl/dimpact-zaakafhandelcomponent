@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, DestroyRef, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -23,6 +23,18 @@ export class PersoonViewComponent {
     this.utilService.setTitle("persoonsgegevens");
     this.route.data.subscribe((data) => {
       this.persoon = data.persoon;
+    });
+
+    const destroyRef = inject(DestroyRef);
+
+    // Clear BSN from history state on component destroy for privacy reasons
+    destroyRef.onDestroy(() => {
+      if (history.state && history.state.bsn) {
+        const newState = { ...history.state };
+        delete newState.bsn;
+        history.replaceState(newState, "");
+        console.log("BSN cleared from history state on component destroy.");
+      }
     });
   }
 }

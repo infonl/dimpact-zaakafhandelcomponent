@@ -16,6 +16,7 @@ import { Title } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
 import { DialogComponent } from "./dialog/dialog.component";
@@ -71,6 +72,7 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
+    ErrorCardComponent,
   ],
   imports: [
     FormsModule,
@@ -111,6 +113,7 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     ZacNarrowMatCheckboxDirective,
+    ErrorCardComponent,
     VertrouwelijkaanduidingToTranslationKeyPipe,
   ],
   providers: [

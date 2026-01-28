@@ -140,7 +140,7 @@ export class FoutAfhandelingService {
         "dialoog.error.body.fout",
       );
       this.bericht = err.error.message;
-      void this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout"]);
       return of();
     }
 
@@ -154,7 +154,7 @@ export class FoutAfhandelingService {
         "dialoog.error.body.loggedout",
       );
       this.bericht = "";
-      void this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout"]);
       return of();
     }
 

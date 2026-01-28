@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -51,7 +51,7 @@
           [klant]="persoon"
         ></zac-klant-zaken-tabel>
         <zac-klant-contactmomenten-tabel
-          *ngIf="persoon && persoon.bsn"
+          *ngIf="persoon && persoon?.bsn"
           [bsn]="persoon?.bsn"
         ></zac-klant-contactmomenten-tabel>
       </div>
