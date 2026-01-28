@@ -104,6 +104,7 @@ class ZacClient(
         bpmnProcessDefinitionKey: String,
         productaanvraagType: String,
         defaultGroupName: String,
+        defaultBehandelaarId: String,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
@@ -120,6 +121,7 @@ class ZacClient(
               "zaaktypeOmschrijving": "$zaakTypeDescription",
               "productaanvraagtype": "$productaanvraagType",
               "groepNaam": "$defaultGroupName",
+              "defaultBehandelaarId": "$defaultBehandelaarId",
               "betrokkeneKoppelingen": {
                 "brpKoppelen": true,
                 "kvkKoppelen": true
