@@ -27,10 +27,7 @@ export class PersoonResolverService implements Resolve<
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly router = inject(Router);
 
-  async resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Promise<GeneratedType<"RestPersoon">> {
+  async resolve(): Promise<GeneratedType<"RestPersoon">> {
     const navigation = this.router.getCurrentNavigation();
     const bsn = navigation?.extras.state?.bsn;
 
