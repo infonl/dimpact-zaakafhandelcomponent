@@ -330,24 +330,30 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     }
 
     Given("No existing zaaktype configuration") {
-        val zaaktypeUuid = UUID.randomUUID()
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns null
         every {
-            zaaktypeCmmnConfigurationConverter.toEmptyParameters(zaaktypeUuid)
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every {
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
         } returns createRestZaakafhandelParameters()
 
         When("zaaktypeConfiguration is requested") {
             zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
-                zaaktypeUuid
+                zaaktypeCmmnConfiguration.zaaktypeUuid
             )
 
             Then("the correct functions are called to retrieve the configuration") {
                 verify(exactly = 1) {
-                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid)
-                    zaaktypeCmmnConfigurationConverter.toEmptyParameters(zaaktypeUuid)
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                        zaaktypeCmmnConfiguration.zaaktypeUuid
+                    )
+                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
                 }
             }
         }

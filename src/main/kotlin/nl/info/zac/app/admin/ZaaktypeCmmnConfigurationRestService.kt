@@ -149,7 +149,11 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
                 }
             }
         }
-        return zaaktypeCmmnConfigurationConverter.toEmptyParameters(zaakTypeUUID)
+
+        // Use CMMN ZaakafhandelParameters as default when no configuration exists yet
+        return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+        }
     }
 
     /**

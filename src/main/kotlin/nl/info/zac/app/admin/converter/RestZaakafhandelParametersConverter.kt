@@ -35,7 +35,6 @@ import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
@@ -212,11 +211,5 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
         )
         return restZaakafhandelParameters
-    }
-
-    fun toEmptyParameters(zaaktypeUuid: UUID): RestZaakafhandelParameters {
-        val emptyCmmnConfiguration: ZaaktypeCmmnConfiguration = ZaaktypeCmmnConfiguration()
-        emptyCmmnConfiguration.zaaktypeUuid = zaaktypeUuid
-        return this.toRestZaaktypeCmmnConfiguration(emptyCmmnConfiguration, false)
     }
 }
