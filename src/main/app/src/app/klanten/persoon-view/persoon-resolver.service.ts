@@ -4,27 +4,40 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { Router } from "@angular/router";
+import {
+  ActivatedRouteSnapshot,
+  Resolve,
+  Router,
+  RouterStateSnapshot,
+} from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
 @Injectable({
   providedIn: "root",
 })
-export class PersoonResolverService {
+export class PersoonResolverService implements Resolve<
+  GeneratedType<"RestPersoon">
+> {
   private readonly queryClient = inject(QueryClient);
   private readonly klantenService = inject(KlantenService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly router = inject(Router);
 
-  async resolve() {
-    const bsn = this.router.getCurrentNavigation()?.extras.state?.bsn;
+  async resolve(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ): Promise<GeneratedType<"RestPersoon">> {
+    const navigation = this.router.getCurrentNavigation();
+    const bsn = navigation?.extras.state?.bsn;
 
     if (!bsn) {
-      console.error(`${PersoonResolverService.name}: no 'BSN' provided`);
-      return;
+      throw new Error(
+        `${PersoonResolverService.name}: no 'BSN' found in navigation state`,
+      );
     }
 
     return this.queryClient.ensureQueryData({
