@@ -68,7 +68,7 @@ export class BetrokkeneLinkComponent {
     return betrokkene.type === "BSN" || betrokkene.identificatieType === "BSN";
   }
 
-  protected openPersoonPage(event: MouseEvent) {
+  protected openPersoonPagina(event: MouseEvent) {
     event.stopPropagation();
 
     this.router.navigateByUrl("/persoon", {

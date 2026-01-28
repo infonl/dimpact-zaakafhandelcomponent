@@ -34,7 +34,7 @@ export class PersoonsgegevensComponent {
 
   protected readonly indicatiesLayout = IndicatiesLayout;
 
-  protected openPersoonPage(event: MouseEvent) {
+  protected openPersoonPagina(event: MouseEvent) {
     event.stopPropagation();
 
     this.router.navigateByUrl("/persoon", {
