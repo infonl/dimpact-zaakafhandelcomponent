@@ -33,7 +33,6 @@ export class PersoonViewComponent {
         const newState = { ...history.state };
         delete newState.bsn;
         history.replaceState(newState, "");
-        console.log("BSN cleared from history state on component destroy.");
       }
     });
   }
