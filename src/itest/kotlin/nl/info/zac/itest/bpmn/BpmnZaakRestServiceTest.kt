@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
@@ -224,7 +223,6 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         var bpmnZaakUuid: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
