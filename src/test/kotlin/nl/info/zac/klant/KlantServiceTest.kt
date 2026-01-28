@@ -40,6 +40,7 @@ class KlantServiceTest : BehaviorSpec({
             Then("it should return a BetrokkeneIdentificatie with type BSN and the replaced personId") {
                 with(result) {
                     type shouldBe IdentificatieType.BSN
+                    bsn shouldBe bsn
                     personId shouldBe uuid
                     kvkNummer shouldBe null
                     rsin shouldBe null

@@ -38,6 +38,7 @@ class KlantService @Inject constructor(
         return initiatorIdentificatieType?.let {
             BetrokkeneIdentificatie(
                 type = it,
+                bsn = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
                 personId = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn?.let {
                     replaceBsnWithKey(it)
                 },

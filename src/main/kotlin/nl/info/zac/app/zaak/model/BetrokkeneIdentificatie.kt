@@ -21,6 +21,7 @@ import kotlin.reflect.KClass
 data class BetrokkeneIdentificatie(
     @field:NotNull
     var type: IdentificatieType,
+    var bsn: String? = null,
     var personId: UUID? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
