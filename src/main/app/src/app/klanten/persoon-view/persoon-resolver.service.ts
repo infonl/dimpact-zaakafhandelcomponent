@@ -40,6 +40,13 @@ export class PersoonResolverService implements Resolve<
       );
     }
 
+    // Clear BSN immediately to prevemnt leaking in browser history
+    if (history.state?.bsn) {
+      const newState = { ...history.state };
+      delete newState.bsn;
+      history.replaceState(newState, "", location.pathname);
+    }
+
     return this.queryClient.ensureQueryData({
       ...this.klantenService.readPersoon(bsn),
       retry: (count, error) => {
