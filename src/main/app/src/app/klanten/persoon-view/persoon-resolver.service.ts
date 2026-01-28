@@ -14,9 +14,9 @@ import { KlantenService } from "../klanten.service";
 @Injectable({
   providedIn: "root",
 })
-export class PersoonResolverService implements Resolve<
-  GeneratedType<"RestPersoon">
-> {
+export class PersoonResolverService
+  implements Resolve<GeneratedType<"RestPersoon">>
+{
   private readonly queryClient = inject(QueryClient);
   private readonly klantenService = inject(KlantenService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
