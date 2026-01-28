@@ -109,6 +109,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                             "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         },

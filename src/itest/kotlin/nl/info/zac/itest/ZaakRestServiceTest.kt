@@ -419,6 +419,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaak2UUID",
                         "roltypeUUID": "$ROLTYPE_UUID_BELANGHEBBENDE",
                         "betrokkeneIdentificatie": {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                             "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
@@ -552,6 +553,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "roltypeUUID": "$ROLTYPE_UUID_MEDEAANVRAGER",
                         "roltoelichting": "fakeToelichting",
                         "betrokkeneIdentificatie": {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                             "personId": "$personId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
