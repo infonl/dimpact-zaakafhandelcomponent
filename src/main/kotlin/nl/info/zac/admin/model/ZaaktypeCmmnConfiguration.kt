@@ -15,7 +15,6 @@ import jakarta.persistence.PrimaryKeyJoinColumn
 import jakarta.persistence.Table
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
-import java.util.UUID
 
 @Entity
 @Table(schema = SCHEMA, name = "zaaktype_cmmn_configuration")
@@ -39,9 +38,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
 
     @Column(name = "uiterlijke_einddatum_afdoening_waarschuwing")
     var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null
-
-    @Column(name = "niet_ontvankelijk_resultaattype_uuid")
-    var nietOntvankelijkResultaattype: UUID? = null
 
     /**
      * This field has a sensible default value because it is non-nullable.
@@ -76,15 +72,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     )
     private var zaaktypeCmmnUsereventlistenerParametersCollection:
         MutableSet<ZaaktypeCmmnUsereventlistenerParameters>? = null
-
-    // The set is necessary for Hibernate when you have more than one eager collection on an entity.
-    @OneToMany(
-        mappedBy = "zaaktypeCmmnConfiguration",
-        cascade = [CascadeType.ALL],
-        fetch = FetchType.EAGER,
-        orphanRemoval = true
-    )
-    private var zaaktypeCmmnCompletionParameters: MutableSet<ZaaktypeCmmnCompletionParameters>? = null
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(
@@ -146,21 +133,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
 
     fun getAutomaticEmailConfirmation(): ZaaktypeCmmnEmailParameters? = zaaktypeCmmnEmailParameters
 
-    fun getZaakbeeindigParameters(): Set<ZaaktypeCmmnCompletionParameters> =
-        zaaktypeCmmnCompletionParameters ?: emptySet()
-
-    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCmmnCompletionParameters>?) {
-        if (zaaktypeCmmnCompletionParameters == null) {
-            zaaktypeCmmnCompletionParameters = mutableSetOf()
-        }
-        desired?.forEach { setZaakbeeindigParameter(it) }
-        zaaktypeCmmnCompletionParameters?.let { cmmnCompletionParameters ->
-            desired?.let { d ->
-                cmmnCompletionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
-            }
-        }
-    }
-
     fun getUserEventListenerParametersCollection(): Set<ZaaktypeCmmnUsereventlistenerParameters> =
         zaaktypeCmmnUsereventlistenerParametersCollection ?: emptySet()
 
@@ -199,11 +171,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         zaaktypeCmmnHumantaskParametersCollection?.let { setComponent(it, param) }
     }
 
-    private fun setZaakbeeindigParameter(param: ZaaktypeCmmnCompletionParameters) {
-        param.zaaktypeCmmnConfiguration = this
-        zaaktypeCmmnCompletionParameters?.let { setComponent(it, param) }
-    }
-
     private fun setUserEventListenerParameters(param: ZaaktypeCmmnUsereventlistenerParameters) {
         param.zaaktypeCmmnConfiguration = this
         zaaktypeCmmnUsereventlistenerParametersCollection?.let { setComponent(it, param) }
@@ -215,39 +182,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     }
 
     /**
-     * This method replaces the Hibernate's PersistentSet#contains that does not use overridden <code>equals</code>
-     * and <code>hashCode</code>.
-     *
-     * @param targetCollection Collection that should be checked for the existence of the candidate element.
-     * @param candidate        Candidate element to be added to the collection.
-     * @return <code>true</code> if the element is not in the collection, <code>false</code> otherwise.
-     *
-     * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
-     *
-     */
-    private fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T): Boolean =
-        targetCollection.none { it == candidate }
-
-    private fun <T : UserModifiable<T>> elementToChange(
-        persistentCollection: Collection<T>,
-        changeCandidate: T
-    ): T? = persistentCollection.firstOrNull { it.isModifiedFrom(changeCandidate) }
-
-    private fun <T : UserModifiable<T>> setComponent(
-        targetCollection: MutableCollection<T>,
-        candidate: T
-    ) {
-        val existingElement = elementToChange(targetCollection, candidate)
-        if (existingElement != null) {
-            existingElement.applyChanges(candidate)
-        } else {
-            if (isElementNotInCollection(targetCollection, candidate)) {
-                targetCollection.add(candidate.resetId())
-            }
-        }
-    }
-
-    /**
      * Geeft aan dat er voldoende gegevens zijn ingevuld om een zaak te starten
      *
      * @return true indien er een zaak kan worden gestart
@@ -256,14 +190,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
         !groepID.isNullOrBlank() &&
             !caseDefinitionID.isNullOrBlank() &&
             nietOntvankelijkResultaattype != null
-
-    @Suppress("TooGenericExceptionThrown")
-    fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCmmnCompletionParameters =
-        getZaakbeeindigParameters().firstOrNull {
-            it.zaakbeeindigReden.id == zaakbeeindigRedenId
-        } ?: throw RuntimeException(
-            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaaktypeUuid' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
-        )
 
     @Suppress("TooGenericExceptionThrown")
     fun readUserEventListenerParameters(planitemDefinitionID: String): ZaaktypeCmmnUsereventlistenerParameters =

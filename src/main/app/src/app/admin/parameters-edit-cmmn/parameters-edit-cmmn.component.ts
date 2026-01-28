@@ -647,6 +647,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected isZaaknietontvankelijkParameter(
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
+    console.log("CMMN:", parameter.zaakbeeindigReden === undefined);
     return parameter.zaakbeeindigReden === undefined;
   }
 

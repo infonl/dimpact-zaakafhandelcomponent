@@ -16,6 +16,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
+import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
@@ -26,6 +29,7 @@ import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -42,7 +46,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val ztcClientService: ZtcClientService,
+    private val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
@@ -102,6 +108,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             }
             it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
             it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
+            it.nietOntvankelijkResultaattype = restZaaktypeBpmnProcessDefinition.zaakNietOntvankelijkResultaattype?.id
+            it.setZaakbeeindigParameters(
+                convertRESTZaakbeeindigParameters(
+                    restZaaktypeBpmnProcessDefinition.zaakbeeindigParameters
+                )
+            )
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
@@ -114,7 +126,13 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
             productaanvraagtype = this.productaanvraagtype,
-            creatiedatum = this.creatiedatum
+            creatiedatum = this.creatiedatum,
+            zaakNietOntvankelijkResultaattype = this.nietOntvankelijkResultaattype?.let {
+                ztcClientService.readResultaattype(it).toRestResultaatType()
+            },
+            zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                this.getZaakbeeindigParameters()
+            )
         ).apply {
             zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
             zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
