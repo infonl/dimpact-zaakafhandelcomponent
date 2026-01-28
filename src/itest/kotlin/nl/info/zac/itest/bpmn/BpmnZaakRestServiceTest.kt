@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
@@ -229,7 +230,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
