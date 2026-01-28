@@ -45,6 +45,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         interval = 500.milliseconds
     }
 
+    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
+
     Given("A behandelaar is logged in and a BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
@@ -72,7 +74,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "betrokkeneIdentificatie": {
-                            "bsnNummer": "${TEST_PERSON_HENDRIKA_JANSE_BSN}",
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "personId": "$personId",
                             "type": "${BETROKKENE_IDENTIFICATION_TYPE_BSN}"
                         },
                         "zaakUUID": "$bpmnZaakUuid"
@@ -86,7 +89,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 response.code shouldBe HttpURLConnection.HTTP_OK
                 with(JSONObject(responseBody).getJSONObject("initiatorIdentificatie").toString()) {
                     shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
-                    shouldContainJsonKeyValue("bsnNummer", TEST_PERSON_HENDRIKA_JANSE_BSN)
+                    shouldContainJsonKeyValue("personId", personId.toString())
                 }
             }
         }

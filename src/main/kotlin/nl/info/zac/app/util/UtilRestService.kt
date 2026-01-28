@@ -15,6 +15,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.sensitive.SensitiveDataService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.jacobras.humanreadable.HumanReadable.fileSize
@@ -32,11 +33,13 @@ import kotlin.time.toDuration
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val sensitiveDataService: SensitiveDataService,
     private val policyService: PolicyService
 ) {
     companion object {
         private val ZTC: String = h(2, "ztcClientService")
         private val ZHPS: String = h(2, "zaakafhandelParameterService")
+        private val SENSITIVE: String = h(2, "sensitiveDataService")
 
         private fun links(url: List<String>) = ul(url.map { a("/rest/admin/util/$it", it) })
 
@@ -63,6 +66,8 @@ class UtilRestService @Inject constructor(
                 h(2, "Caches") +
                 links(listOf("cache", "cache/ztc", "cache/zhps")) +
                 links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
+                h(2, "Sensitive data") +
+                links(listOf("sensitive-data/clear")) +
                 h(2, "System") +
                 links(listOf("memory"))
         )
@@ -113,6 +118,13 @@ class UtilRestService @Inject constructor(
     fun clearAllZaakafhandelParameterServiceCaches(): String {
         checkBeherenPolicy()
         return body(clearAllZhpsCaches())
+    }
+
+    @GET
+    @Path("sensitive-data/clear")
+    fun clearAllSensitiveDataCaches(): String {
+        checkBeherenPolicy()
+        return body(clearSensitiveDataServiceData())
     }
 
     @GET
@@ -185,4 +197,6 @@ class UtilRestService @Inject constructor(
             }
         )
     }
+
+    private fun clearSensitiveDataServiceData() = SENSITIVE + ul(listOf(sensitiveDataService.clearStorage()))
 }
