@@ -30,6 +30,7 @@ import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import java.time.LocalDate
+import java.util.UUID
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
@@ -212,6 +213,26 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         enabledGlobally = true,
                         enabledForZaaktype = true
                     )
+                }
+            }
+        }
+    }
+
+    Given("ZaakafhandelParameters with no content") {
+        val emptyZaaktypeId = UUID.randomUUID()
+        val zaakType = createZaakType().apply {
+            beginGeldigheid = LocalDate.now().minusDays(1)
+        }
+        every { ztcClientService.readZaaktype(emptyZaaktypeId) } returns zaakType
+        every { smartDocumentsService.isEnabled() } returns true
+        When("converted to REST representation") {
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toEmptyParameters(emptyZaaktypeId)
+
+            Then("the created object is correct") {
+                with(restZaakafhandelParameters) {
+                    with(zaaktype) {
+                        uuid shouldBe zaakType.url.extractUuid()
+                    }
                 }
             }
         }
