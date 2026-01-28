@@ -12,7 +12,6 @@ import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
@@ -53,12 +52,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         and a behandelaar is logged in
         """
     ) {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -71,9 +70,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1
+            group = BEHANDELAARS_DOMAIN_TEST_1,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("the create document attended ('wizard') endpoint is called on the zaak") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
@@ -89,7 +88,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
-                ).toString()
+                ).toString(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -121,7 +121,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
-                ).toString()
+                ).toString(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -148,7 +149,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                     )
-                ).toString()
+                ).toString(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be 400 Client Error") {
                 val responseBody = response.bodyAsString
@@ -181,7 +183,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                addAuthorizationHeader = true
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
@@ -223,7 +225,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                addAuthorizationHeader = true
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
@@ -262,7 +264,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                addAuthorizationHeader = true
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url, zaak id") {
@@ -301,7 +303,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                addAuthorizationHeader = true
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {

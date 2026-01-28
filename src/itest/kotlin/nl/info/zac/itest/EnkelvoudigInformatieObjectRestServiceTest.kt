@@ -13,10 +13,8 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -63,13 +61,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             A zaak exists and a behandelaar authorised for the zaaktype of the zaak is logged in
         """
     ) {
-        // log in as a beheerder authorised in all domains
-        // and create the zaken, tasks and documents and index them
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-        val (_, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
+        )
         lateinit var enkelvoudigInformatieObjectUuid: String
         lateinit var enkelvoudigInformatieObject2Uuid: String
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When(
             """
@@ -83,7 +80,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 zaakUUID = zaakUuid,
                 fileName = TEST_PDF_FILE_NAME,
                 fileMediaType = PDF_MIME_TYPE,
-                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then(
@@ -165,7 +163,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = requestBody
+                requestBody = requestBody,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then(
@@ -217,7 +216,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
-                requestBody = "".toRequestBody()
+                requestBody = "".toRequestBody(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 "the response should be OK"
@@ -229,7 +229,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/"
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -279,7 +280,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         When("the current version endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/huidigeversie"
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/huidigeversie",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be OK and the informatieobject should be returned") {
                 val responseBody = response.bodyAsString
@@ -353,7 +355,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = requestBody
+                requestBody = requestBody,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then(
@@ -405,7 +408,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPostRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/" +
                     "convert?zaak=$zaakUuid",
-                requestBody = "".toRequestBody()
+                requestBody = "".toRequestBody(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -421,7 +425,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/"
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -467,15 +472,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     }
 
     Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
-        authenticate(BEHEERDER_ELK_ZAAKTYPE)
-        val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ZAAKTYPE_TEST_2_UUID)
+        val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
+        )
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusDays(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1
+            group = BEHANDELAARS_DOMAIN_TEST_1,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
 
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
@@ -519,7 +526,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "Content-Type",
                     "multipart/form-data"
                 ),
-                requestBody = requestBody
+                requestBody = requestBody,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then(
