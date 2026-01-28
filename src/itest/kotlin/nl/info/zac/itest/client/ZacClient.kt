@@ -386,6 +386,7 @@ class ZacClient(
         groupId: String,
         groupName: String,
         behandelaarId: String? = null,
+        behandelaarName: String? = null,
         description: String? = ZAAK_OMSCHRIJVING,
         toelichting: String? = null,
         startDate: ZonedDateTime,
@@ -396,10 +397,12 @@ class ZacClient(
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
-        val behandelaarString = behandelaarId?.let {
+        val behandelaarString = behandelaarId?.let { id ->
+            val naam = behandelaarName ?: id
             """
                 "behandelaar": {
-                    "id": "$it"
+                    "id": "$id",
+                    "naam": "$naam"
                 },
             """
         } ?: ""
