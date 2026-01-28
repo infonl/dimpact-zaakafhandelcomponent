@@ -149,7 +149,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
                 }
             }
         }
-        throw InputValidationFailedException()
+        return zaaktypeCmmnConfigurationConverter.toEmptyParameters(zaakTypeUUID)
     }
 
     /**
