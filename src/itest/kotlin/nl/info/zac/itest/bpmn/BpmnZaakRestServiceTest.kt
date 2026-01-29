@@ -248,7 +248,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                     {
                         "zaakbeeindigRedenId": "ZAAK_NIET_ONTVANKELIJK"
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be a 204 HTTP response") {
                 val responseBody = response.bodyAsString
