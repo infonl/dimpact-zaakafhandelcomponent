@@ -4,7 +4,6 @@
  */
 
 import { Component, computed, input } from "@angular/core";
-import { Router } from "@angular/router";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
@@ -18,10 +17,7 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   standalone: false,
 })
 export class BetrokkeneLinkComponent {
-  constructor(
-    private readonly klantenService: KlantenService,
-    private readonly router: Router,
-  ) {}
+  constructor(private readonly klantenService: KlantenService) {}
 
   protected readonly persoonQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
@@ -66,13 +62,5 @@ export class BetrokkeneLinkComponent {
   private isBsnType() {
     const betrokkene = this.betrokkene();
     return betrokkene.type === "BSN" || betrokkene.identificatieType === "BSN";
-  }
-
-  protected openPersoonPagina(event: MouseEvent) {
-    event.stopPropagation();
-
-    this.router.navigateByUrl("/persoon", {
-      state: { bsn: this.betrokkene().identificatie },
-    });
   }
 }
