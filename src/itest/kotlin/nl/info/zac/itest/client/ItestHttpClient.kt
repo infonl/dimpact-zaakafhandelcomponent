@@ -232,7 +232,7 @@ class ItestHttpClient {
      * @param requestBodyAsString The JSON body of the PATCH request as a string.
      * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
      * If provided, the user will be logged out afterwards.
-     * @return A [ResponseContent] containing the response body, headers, and status code
+     * @return A [ResponseContent] containing the response body, headers, and status code.
      */
     fun performPatchRequest(
         url: String,
