@@ -96,7 +96,7 @@ abstract class ZaaktypeConfiguration {
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(
-        mappedBy = "zaaktypeCmmnConfiguration",
+        mappedBy = "zaaktypeConfiguration",
         cascade = [CascadeType.ALL],
         fetch = FetchType.EAGER,
         orphanRemoval = true
@@ -158,7 +158,7 @@ abstract class ZaaktypeConfiguration {
     }
 
     private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
-        param.zaaktypeCmmnConfiguration = this
+        param.zaaktypeConfiguration = this
         zaaktypeCompletionParameters?.let { setComponent(it, param) }
     }
 

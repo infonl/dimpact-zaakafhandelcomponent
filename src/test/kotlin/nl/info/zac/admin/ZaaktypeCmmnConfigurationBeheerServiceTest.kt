@@ -363,8 +363,8 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     it zip originalZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
                 }.forEach { (new, original) ->
                     new.id shouldNotBe original.id
-                    new.zaaktypeCmmnConfiguration shouldNotBe original.zaaktypeCmmnConfiguration
-                    new.zaaktypeCmmnConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
+                    new.zaaktypeConfiguration shouldNotBe original.zaaktypeConfiguration
+                    new.zaaktypeConfiguration shouldBe slotPersistZaaktypeCmmnConfiguration.captured
                     new.resultaattype shouldBe original.resultaattype
                     new.zaakbeeindigReden shouldBe original.zaakbeeindigReden
                 }
