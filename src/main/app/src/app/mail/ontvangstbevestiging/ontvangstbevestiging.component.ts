@@ -93,10 +93,10 @@ export class OntvangstbevestigingComponent implements OnInit {
       });
 
     this.zakenService
-        .readDefaultAfzenderVoorZaak(this.zaak().uuid)
-        .subscribe((defaultVerzenderVoorZaak) => {
-          this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
-        });
+      .readDefaultAfzenderVoorZaak(this.zaak().uuid)
+      .subscribe((defaultVerzenderVoorZaak) => {
+        this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
+      });
 
     const bsnNummer = this.zaak().initiatorIdentificatie?.bsnNummer;
     if (!bsnNummer) return;
