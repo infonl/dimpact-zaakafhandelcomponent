@@ -44,9 +44,11 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
@@ -417,7 +419,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -429,7 +432,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             bpmnProcessDefinitionKey = BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }

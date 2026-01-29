@@ -312,11 +312,13 @@ object ItestConfiguration {
     const val ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE = "bpmn-test-zaaktype-1"
     const val ZAAKTYPE_BPMN_TEST_1_DESCRIPTION = "BPMN test zaaktype 1"
     const val ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE = "bpmn-test-1-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString("82442c7f-05f2-4e9d-a0ae-c038344809af")
 
     val ZAAKTYPE_BPMN_TEST_2_UUID: UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
     const val ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE = "bpmn-test-zaaktype-2"
     const val ZAAKTYPE_BPMN_TEST_2_DESCRIPTION = "BPMN test zaaktype 2"
     const val ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE = "bpmn-test-2-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString("4f9da4cd-a910-4f85-98ca-adb33e215f43")
 
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
