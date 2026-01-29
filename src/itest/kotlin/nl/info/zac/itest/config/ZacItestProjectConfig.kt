@@ -417,7 +417,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            defaultBehandelaarId = BEHANDELAAR_1.username,
+            defaultBehandelaarId = BEHANDELAAR_2.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
@@ -430,7 +430,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             bpmnProcessDefinitionKey = BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE,
             defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            defaultBehandelaarId = BEHANDELAAR_1.username,
+            defaultBehandelaarId = BEHANDELAAR_2.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
