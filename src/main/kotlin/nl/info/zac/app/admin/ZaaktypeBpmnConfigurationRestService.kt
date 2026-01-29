@@ -26,7 +26,6 @@ import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
-import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
