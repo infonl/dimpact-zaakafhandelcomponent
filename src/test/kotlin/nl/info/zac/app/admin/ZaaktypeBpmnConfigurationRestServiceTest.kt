@@ -18,6 +18,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
@@ -26,13 +27,15 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val policyService = mockk<PolicyService>()
+    val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
             zaaktypeBpmnConfigurationService,
             zaaktypeBpmnConfigurationBeheerService,
             zaaktypeCmmnConfigurationBeheerService,
-            policyService
+            policyService,
+            identityService
         )
 
     beforeEach {
