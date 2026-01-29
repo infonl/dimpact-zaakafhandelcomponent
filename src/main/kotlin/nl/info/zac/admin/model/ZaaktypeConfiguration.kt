@@ -150,9 +150,9 @@ abstract class ZaaktypeConfiguration {
             zaaktypeCompletionParameters = mutableSetOf()
         }
         desired?.forEach { setZaakbeeindigParameter(it) }
-        zaaktypeCompletionParameters?.let { cmmnCompletionParameters ->
+        zaaktypeCompletionParameters?.let { completionParameters ->
             desired?.let { d ->
-                cmmnCompletionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
+                completionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
             }
         }
     }
