@@ -61,7 +61,8 @@ class ItestHttpClient {
      *
      * @param url The URL to perform the DELETE request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performDeleteRequest(
@@ -101,7 +102,8 @@ class ItestHttpClient {
      *
      * @param url The URL to perform the GET request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performGetRequest(
@@ -165,7 +167,8 @@ class ItestHttpClient {
      * @param url The URL to perform the POST request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
      * @param requestBody The body of the POST request.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performPostRequest(
@@ -203,7 +206,8 @@ class ItestHttpClient {
      * @param url The URL to perform the POST request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
      * @param requestBodyAsString The JSON body of the POST request as a string.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performJSONPostRequest(
@@ -226,7 +230,8 @@ class ItestHttpClient {
      * @param url The URL to perform the PATCH request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
      * @param requestBodyAsString The JSON body of the PATCH request as a string.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performPatchRequest(
@@ -264,7 +269,8 @@ class ItestHttpClient {
      * @param url The URL to perform the PUT request on.
      * @param headers Optional headers to include in the request. Defaults to standard headers.
      * @param requestBodyAsString The JSON body of the PUT request as a string.
-     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
      * @return A [ResponseContent] containing the response body, headers, and status code
      */
     fun performPutRequest(
