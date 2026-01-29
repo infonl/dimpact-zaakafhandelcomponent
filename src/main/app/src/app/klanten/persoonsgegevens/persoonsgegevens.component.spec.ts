@@ -9,6 +9,7 @@ import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { randomUUID } from "crypto";
 import { of, throwError } from "rxjs";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
 import { testQueryClient } from "../../../../setupJest";
@@ -18,7 +19,7 @@ import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const testPerson: GeneratedType<"RestPersoon"> = {
-  temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
+  temporaryPersonId: randomUUID(),
   indicaties: [],
 };
 

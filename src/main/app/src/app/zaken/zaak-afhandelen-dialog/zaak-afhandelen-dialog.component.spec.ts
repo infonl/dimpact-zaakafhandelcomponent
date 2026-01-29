@@ -24,6 +24,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { QueryClient } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -61,7 +62,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       GeneratedType<"BetrokkeneIdentificatie">
     >({
       type: "BSN",
-      temporaryPersonId: "a087e350-86c1-40a3-87d9-0216633cbe47",
+      temporaryPersonId: randomUUID(),
     }),
     resultaat: null,
     besluiten: [],

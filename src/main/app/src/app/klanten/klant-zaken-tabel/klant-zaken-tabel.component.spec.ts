@@ -13,6 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -29,7 +30,7 @@ describe(KlantZakenTabelComponent.name, () => {
   let zoekenService: ZoekenService;
 
   const mockPersoon = fromPartial<GeneratedType<"RestPersoon">>({
-    temporaryPersonId: "d090f7a6-bab0-4f0a-9ae2-36f0e8edd92b",
+    temporaryPersonId: randomUUID(),
     identificatieType: "BSN",
   });
 
