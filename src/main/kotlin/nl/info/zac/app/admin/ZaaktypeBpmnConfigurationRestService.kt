@@ -89,7 +89,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return ZaaktypeBpmnConfiguration().apply {
+
+        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(
+            restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+        ) ?: ZaaktypeBpmnConfiguration()
+
+        return zaaktypeBpmnConfiguration.apply {
             id = restZaaktypeBpmnProcessDefinition.id
             zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
