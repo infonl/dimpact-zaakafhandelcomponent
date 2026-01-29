@@ -92,6 +92,12 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.variables = mailtemplate?.variabelen ?? [];
       });
 
+    this.zakenService
+        .readDefaultAfzenderVoorZaak(this.zaak().uuid)
+        .subscribe((defaultVerzenderVoorZaak) => {
+          this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
+        });
+
     const bsnNummer = this.zaak().initiatorIdentificatie?.bsnNummer;
     if (!bsnNummer) return;
 
