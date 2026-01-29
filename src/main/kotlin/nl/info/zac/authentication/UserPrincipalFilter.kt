@@ -24,13 +24,10 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.logging.Logger
 import kotlin.jvm.java
-
-const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
 @ApplicationScoped
 @WebFilter(filterName = "UserPrincipalFilter")
@@ -74,11 +71,10 @@ constructor(
                         servletRequest.getSession(true)
                     )
                 }
+            } ?: run {
+                // no logged-in user in session
+                setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
             }
-                ?: run {
-                    // no logged-in user in session
-                    setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
-                }
         }
 
         filterChain.doFilter(servletRequest, servletResponse)
@@ -87,35 +83,25 @@ constructor(
     fun setLoggedInUserOnHttpSession(
         oidcPrincipal: OidcPrincipal<*>,
         httpSession: HttpSession
-    ) =
-        createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
-            setLoggedInUser(httpSession, loggedInUser)
-            if (!pabcIntegrationEnabled) {
-                LOG.info {
-                    "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                        "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                            if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                                "ELK-ZAAKTYPE"
-                            } else {
-                                loggedInUser.geautoriseerdeZaaktypen.toString()
-                            }
-                        }"
-                }
-            } else {
-                LOG.info {
-                    "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
-                        "functional roles: '${loggedInUser.roles}' " +
-                        "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
-                }
+    ) = createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
+        setLoggedInUser(httpSession, loggedInUser)
+        if (!pabcIntegrationEnabled) {
+            LOG.info {
+                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
+                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
+                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
+                            "ELK-ZAAKTYPE"
+                        } else {
+                            loggedInUser.geautoriseerdeZaaktypen.toString()
+                        }
+                    }"
             }
-            this.addRefreshTokenToHttpSession(oidcPrincipal, httpSession)
-        }
-
-    private fun addRefreshTokenToHttpSession(oidcPrincipal: OidcPrincipal<*>, httpSession: HttpSession) {
-        if (oidcPrincipal.oidcSecurityContext is RefreshableOidcSecurityContext) {
-            val refreshToken = (oidcPrincipal.oidcSecurityContext as RefreshableOidcSecurityContext).refreshToken
-            httpSession.setAttribute(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-            LOG.fine { "Added $REFRESH_TOKEN_ATTRIBUTE to the user session" }
+        } else {
+            LOG.info {
+                "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                    "functional roles: '${loggedInUser.roles}' " +
+                    "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
+            }
         }
     }
 
