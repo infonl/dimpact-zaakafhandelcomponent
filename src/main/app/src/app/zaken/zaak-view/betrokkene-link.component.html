@@ -15,6 +15,7 @@
     mat-icon-button
     [routerLink]="['/persoon', betrokkene().personId]"
     title="{{ 'actie.persoon.bekijken' | translate }}"
+    (click)="openPersoonPagina($event)"
   >
     <mat-icon>visibility</mat-icon>
   </a>

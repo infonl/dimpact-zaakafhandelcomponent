@@ -24,6 +24,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
+  private readonly router = inject(Router);
 
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);

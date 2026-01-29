@@ -55,6 +55,7 @@
           [disabled]="isDisabled()"
           (click)="$event.stopPropagation()"
           title="{{ 'actie.persoon.bekijken' | translate }}"
+          (click)="openPersoonPagina($event)"
         >
           <mat-icon>visibility</mat-icon>
         </a>
