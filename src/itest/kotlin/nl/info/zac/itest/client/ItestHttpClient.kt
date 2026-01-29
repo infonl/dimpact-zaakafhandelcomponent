@@ -169,7 +169,7 @@ class ItestHttpClient {
      * @param requestBody The body of the POST request.
      * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
      * If provided, the user will be logged out afterwards.
-     * @return A [ResponseContent] containing the response body, headers, and status code
+     * @return A [ResponseContent] containing the response body, headers, and status code.
      */
     fun performPostRequest(
         url: String,
