@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.173](https://img.shields.io/badge/Version-1.0.173-informational?style=flat-square) ![AppVersion: 4.0](https://img.shields.io/badge/AppVersion-4.0-informational?style=flat-square)
+![Version: 1.0.178](https://img.shields.io/badge/Version-1.0.178-informational?style=flat-square) ![AppVersion: 4.1](https://img.shields.io/badge/AppVersion-4.1-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.143.0 |
+| @opentelemetry | opentelemetry-collector | 0.144.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -244,7 +244,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.143.1@sha256:f051aff195ad50ed5ad9d95bcdd51d7258200c937def3797cf830366ed62e034"` |  |
+| opentelemetry-collector.image.tag | string | `"0.144.0@sha256:213886eb6407af91b87fa47551c3632be1a6419ff3a5114ef1e6fc364628496f"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -307,7 +307,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.0@sha256:60f3fbc0911eabd3ad0a6efb2f465b6e68d35ed487bda7b6bbf6339b9b5a39e6"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1@sha256:64485e1855605951b93f166461f7c8f86668d6a8e3ef0a8c399bc578c7575714"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

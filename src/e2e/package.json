@@ -18,10 +18,10 @@
     "@cucumber/cucumber": "12.5.0",
     "pdf-parse": "2.4.5",
     "uniqid": "5.4.0",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@playwright/test": "1.57.0",
+    "@playwright/test": "1.58.0",
     "@types/node": "22.19.7",
     "@types/uniqid": "5.3.4",
     "cucumber-html-reporter": "7.2.0",

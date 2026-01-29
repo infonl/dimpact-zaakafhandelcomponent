@@ -14,7 +14,7 @@
         {
           "label": "Group ID",
           "labelPosition": "left-left",
-          "key": "hardCodedGroup",
+          "key": "actualGroup",
           "type": "textfield",
           "persistent": false,
           "input": false,

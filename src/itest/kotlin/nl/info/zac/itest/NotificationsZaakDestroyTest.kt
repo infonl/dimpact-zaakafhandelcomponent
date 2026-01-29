@@ -12,7 +12,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -47,7 +46,6 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             and a logged-in behandelaar
         """.trimIndent()
     ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var zaakIdentificatie: String
         lateinit var humanTaskItemAanvullendeInformatieId: String
@@ -57,7 +55,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = OLD_IAM_TEST_USER_2.username,
-            startDate = DATE_TIME_2024_01_31
+            startDate = DATE_TIME_2024_01_31,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -69,7 +68,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         }
         // retrieve the human task plan items for the zaak so that we can start the task 'aanvullende informatie'
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -87,7 +87,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     "groep": {"id":"${BEHANDELAARS_DOMAIN_TEST_1.name}", "naam":"${BEHANDELAARS_DOMAIN_TEST_1.description}"},
                     "taakdata": { "fakeTestKey": "fakeTestValue" }
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -95,7 +96,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         }
         // get the list of taken for the zaak to set the task ID for the 'aanvullende informatie' task
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
+            url = "$ZAC_API_URI/taken/zaak/$zaakUUID",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -110,7 +112,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 "Content-Type" to "application/json",
                 "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
             ).toHeaders(),
-            addAuthorizationHeader = false
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             this.code shouldBe HTTP_NO_CONTENT
@@ -131,7 +133,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "rows": 10,
                         "page": 0                        
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             ).bodyAsString
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
@@ -154,8 +157,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                         "actie" to "destroy",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
             Then(
                 """
@@ -170,7 +172,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 // Note that in this test scenario the zaak is not deleted from OpenZaak
                 // and so ZAC should still return the zaak.
                 // However, all Flowable data related to the zaak should be deleted.
-                zacClient.retrieveZaak(zaakUUID).run {
+                zacClient.retrieveZaak(zaakUUID, BEHANDELAAR_DOMAIN_TEST_1).run {
                     val responseBody = this.bodyAsString
                     logger.info { "Response: $responseBody" }
                     this.code shouldBe HTTP_OK
@@ -180,7 +182,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 // check that there are no tasks left for the zaak
                 // any tasks should have been deleted as part of the 'zaak destroy' action
                 itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
+                    url = "$ZAC_API_URI/taken/zaak/$zaakUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).run {
                     val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -189,7 +192,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 }
                 // to be sure, also explicitly check if the task that was started earlier has been deleted
                 itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID"
+                    url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).run {
                     val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -203,18 +207,19 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     val searchResponseBody = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
-                    {
-                        "alleenMijnZaken": false,
-                        "alleenOpenstaandeZaken": true,
-                        "alleenAfgeslotenZaken": false,
-                        "alleenMijnTaken": false,
-                        "zoeken": { "ALLE": "$zaakIdentificatie" }, 
-                        "filters": {},                            
-                        "datums": {},
-                        "rows": 10,
-                        "page": 0                        
-                    }
-                        """.trimIndent()
+                            {
+                                "alleenMijnZaken": false,
+                                "alleenOpenstaandeZaken": true,
+                                "alleenAfgeslotenZaken": false,
+                                "alleenMijnTaken": false,
+                                "zoeken": { "ALLE": "$zaakIdentificatie" }, 
+                                "filters": {},                            
+                                "datums": {},
+                                "rows": 10,
+                                "page": 0                        
+                            }
+                        """.trimIndent(),
+                        testUser = BEHANDELAAR_DOMAIN_TEST_1
                     ).bodyAsString
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
