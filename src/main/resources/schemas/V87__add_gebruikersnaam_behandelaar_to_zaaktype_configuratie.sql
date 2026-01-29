@@ -8,10 +8,8 @@ ALTER TABLE ${schema}.zaaktype_configuration
 
 UPDATE ${schema}.zaaktype_configuration zc
 SET gebruikersnaam_behandelaar = cmmn.gebruikersnaam_behandelaar
-    FROM ${schema}.zaaktype_configuration c
-    INNER JOIN ${schema}.zaaktype_cmmn_configuration cmmn
-ON c.id = cmmn.id
-WHERE zc.id = c.id
+FROM ${schema}.zaaktype_cmmn_configuration cmmn
+WHERE zc.id = cmmn.id
   AND cmmn.gebruikersnaam_behandelaar IS NOT NULL;
 
 ALTER TABLE ${schema}.zaaktype_cmmn_configuration
