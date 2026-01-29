@@ -44,7 +44,6 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService,
-    private val identityService: IdentityService
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
@@ -85,11 +84,6 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        restZaaktypeBpmnProcessDefinition.defaultBehandelaarId?.let { defaultBehandelaarId ->
-            restZaaktypeBpmnProcessDefinition.defaultBehandelaarId?.let { defaultGroepId ->
-                identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
-            }
-        }
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnProcessDefinition.id
             zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
