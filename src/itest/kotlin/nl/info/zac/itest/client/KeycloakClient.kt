@@ -21,40 +21,20 @@ private val logger = KotlinLogging.logger {}
 private const val ACCESS_TOKEN_ATTRIBUTE = "access_token"
 private const val REFRESH_TOKEN_ATTRIBUTE = "refresh_token"
 
-fun authenticate(testUser: TestUser) = authenticate(
-    username = testUser.username,
-    password = testUser.password
-)
-
 /**
- * Logs out the given user in ZAC (and therefore also in Keycloak).
+ * Authenticates the given user in Keycloak and returns a pair of access token and refresh token.
+ * Note that this does not log in the user to ZAC, and therefore, no user session is created in ZAC (only in Keycloak) in this function.
+ * However, the returned access token can now be used to access protected endpoints in ZAC on behalf of the user.
+ * On the first request to ZAC with this token, a user session will be created in ZAC.
+ *
+ * This function should normally only be called from [ItestHttpClient] and not directly from our integration tests.
+ *
+ * @param testUser The user to authenticate.
+ * @return A pair containing the access token and refresh token.
  */
-fun logout(testUser: TestUser, refreshToken: String) {
-    logger.info { "Logging out user: '${testUser.username}'" }
-    // To logout from Keycloak directly (which is a legacy flow) we need to include
-    // both the refresh token and client credentials.
-    // See: https://www.keycloak.org/securing-apps/oidc-layers
-    val request = Request.Builder()
-        .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/logout")
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .post(
-            FormBody.Builder()
-                .add("client_id", KEYCLOAK_CLIENT)
-                .add("client_secret", KEYCLOAK_CLIENT_SECRET)
-                .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
-                .build()
-        )
-        .build()
-    okHttpClient.newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-            logger.warn { "Logout request for user '${testUser.username}' failed with code: ${response.code}" }
-        } else {
-            logger.info { "User '${testUser.username}' logged out successfully." }
-        }
-    }
-}
-
-private fun authenticate(username: String, password: String): Pair<String, String> {
+fun authenticate(testUser: TestUser): Pair<String, String> {
+    val username = testUser.username
+    val password = testUser.password
     logger.info { "Authenticating: '$username'" }
     val request = Request.Builder()
         .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/token")
@@ -75,6 +55,42 @@ private fun authenticate(username: String, password: String): Pair<String, Strin
                 getString(ACCESS_TOKEN_ATTRIBUTE),
                 getString(REFRESH_TOKEN_ATTRIBUTE)
             )
+        }
+    }
+}
+
+/**
+ * Logs out the given user in Keycloak, using the provided refresh token.
+ * Note that this function does not log out the user from ZAC itself, only from Keycloak.
+ * Therefore, the user's session in ZAC, if it exists, will remain intact.
+ * However, that ZAC user session will no longer be valid.
+ *
+ * We log out directly in Keycloak using OIDC, similar to how ZAC does this using the WildFly Elytron framework.
+ * This is considered a legacy flow in Keycloak.
+ * It requires us to include both the refresh token and client credentials in the logout request.
+ * See: [https://www.keycloak.org/securing-apps/oidc-layers].
+ *
+ * @param testUser The user to log out.
+ * @param refreshToken The refresh token of the user.
+ */
+fun logout(testUser: TestUser, refreshToken: String) {
+    logger.info { "Logging out user: '${testUser.username}'" }
+    val request = Request.Builder()
+        .url("$KEYCLOAK_HOSTNAME_URL/realms/$KEYCLOAK_REALM/protocol/openid-connect/logout")
+        .header("Content-Type", "application/x-www-form-urlencoded")
+        .post(
+            FormBody.Builder()
+                .add("client_id", KEYCLOAK_CLIENT)
+                .add("client_secret", KEYCLOAK_CLIENT_SECRET)
+                .add(REFRESH_TOKEN_ATTRIBUTE, refreshToken)
+                .build()
+        )
+        .build()
+    okHttpClient.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            logger.warn { "Logout request for user '${testUser.username}' failed with code: ${response.code}" }
+        } else {
+            logger.info { "User '${testUser.username}' logged out successfully." }
         }
     }
 }
