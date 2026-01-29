@@ -301,6 +301,10 @@ class ItestHttpClient {
 
     /**
      * Performs a ZGW API GET request on the given URL with optional headers.
+     *
+     * @param url The URL to perform the GET request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers for ZGW API requests.
+     * @return A [ResponseContent] containing the response body, headers, and status code.
      */
     fun performZgwApiGetRequest(
         url: String,
