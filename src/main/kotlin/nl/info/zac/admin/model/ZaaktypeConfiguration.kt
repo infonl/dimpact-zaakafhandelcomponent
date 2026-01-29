@@ -64,7 +64,7 @@ abstract class ZaaktypeConfiguration {
     var groepID: String? = null
 
     @Column(name = "gebruikersnaam_behandelaar")
-    var gebruikersnaamMedewerker: String? = null
+    var defaultBehandelaarId: String? = null
 
     @field:NotNull
     @Column(name = "creatiedatum", nullable = false)

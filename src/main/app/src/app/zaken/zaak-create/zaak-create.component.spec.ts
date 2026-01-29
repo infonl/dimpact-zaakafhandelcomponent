@@ -327,7 +327,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(await input.getValue()).toBe("test group BPMN");
         expect(identityService.listUsersInGroup).toHaveBeenCalled();
 
-        // --- Behandelaar should be disabled ---
+        // --- Behandelaar should be enabled ---
         expect(await inputs[5].isDisabled()).toBe(false);
       });
 

@@ -26,6 +26,7 @@ import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -42,7 +43,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val identityService: IdentityService
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
@@ -83,13 +85,18 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        restZaaktypeBpmnProcessDefinition.defaultBehandelaarId?.let { defaultBehandelaarId ->
+            restZaaktypeBpmnProcessDefinition.defaultBehandelaarId?.let { defaultGroepId ->
+                identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
+            }
+        }
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnProcessDefinition.id
             zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            gebruikersnaamMedewerker = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
+            defaultBehandelaarId = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
             groepID = restZaaktypeBpmnProcessDefinition.groepNaam
                 ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
             creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
@@ -114,7 +121,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
-            defaultBehandelaarId = this.gebruikersnaamMedewerker,
+            defaultBehandelaarId = this.defaultBehandelaarId,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum
         ).apply {
