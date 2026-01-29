@@ -44,10 +44,7 @@
               "shouldSort": false
             }
           },
-          "disabled": true,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_documenten"
-          }
+          "disabled": true
         },
         {
           "label": "Reference table value",
@@ -56,9 +53,6 @@
           "key": "RT_ReferenceTable_Values",
           "input": false,
           "disabled": true,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_referentie_tabel"
-          },
           "dataSrc": "custom",
           "properties": {
             "ReferenceTable_Code": "COMMUNICATIEKANAAL"

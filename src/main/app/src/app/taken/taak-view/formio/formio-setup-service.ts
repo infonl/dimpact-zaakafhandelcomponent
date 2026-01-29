@@ -252,6 +252,7 @@ export class FormioSetupService {
   private initializeDocumentsField(component: ExtendedComponentSchema): void {
     component.valueProperty = "uuid";
     component.template = "{{ item.titel }}";
+    component.valueProperty = "titel"
     component.data = {
       custom: async () =>
         this.queryClient.ensureQueryData({
