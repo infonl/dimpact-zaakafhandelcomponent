@@ -170,7 +170,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (betrokkene.personId && ids.includes(betrokkene.personId)) {
+      if (
+        betrokkene.temporaryPersonId &&
+        ids.includes(betrokkene.temporaryPersonId)
+      ) {
         acc.push(rol);
       }
 

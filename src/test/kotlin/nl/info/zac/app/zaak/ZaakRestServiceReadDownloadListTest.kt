@@ -55,8 +55,8 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createZaakRechten
@@ -105,7 +105,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
-    val klantService = mockk<KlantService>()
+    val identificationService = mockk<IdentificationService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -140,7 +140,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        klantService = klantService
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -401,7 +401,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
             every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
-            every { klantService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
+            every { identificationService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
 
             When("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
@@ -415,7 +415,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                             type shouldBe "NATUURLIJK_PERSOON"
                             identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
-                            personId shouldBe expectedPersonId
+                            temporaryPersonId shouldBe expectedPersonId
                             identificatieType shouldBe IdentificatieType.BSN
                         }
                         with(this[1]) {

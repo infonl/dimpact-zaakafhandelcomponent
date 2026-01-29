@@ -449,7 +449,7 @@ class ZacClient(
         )
     }
 
-    fun getPersonId(bsn: String, testUser: TestUser): UUID {
+    fun getTemporaryPersonId(bsn: String, testUser: TestUser): UUID {
         logger.info { "Retrieving person id for BSN: $bsn" }
         val response = itestHttpClient.performPutRequest(
             url = "${ZAC_API_URI}/klanten/personen",
@@ -466,7 +466,7 @@ class ZacClient(
         with(firstResult.toString()) {
             shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)
         }
-        return UUID.fromString(firstResult.getString("personId"))
+        return UUID.fromString(firstResult.getString("temporaryPersonId"))
     }
 
     fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID, testUser: TestUser): ResponseContent {

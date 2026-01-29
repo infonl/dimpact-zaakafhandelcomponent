@@ -52,7 +52,7 @@ import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.klant.KlantService
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -71,7 +71,7 @@ class KlantRestService @Inject constructor(
     val kvkClientService: KvkClientService,
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
-    val klantService: KlantService,
+    val identificationService: IdentificationService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -79,13 +79,13 @@ class KlantRestService @Inject constructor(
     }
 
     @GET
-    @Path("person/{personId}")
+    @Path("person/{temporaryPersonId}")
     fun readPersoon(
-        @PathParam("personId") requestedPersonId: UUID,
+        @PathParam("temporaryPersonId") requestedTemporaryPersonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
     ) = loggedInUserInstance.get()?.id.let { userName ->
         runBlocking {
-            val bsn = klantService.replaceKeyWithBsn(requestedPersonId)
+            val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {
@@ -98,7 +98,7 @@ class KlantRestService @Inject constructor(
                     brpPersoon.await()?.toRestPersoon()?.apply {
                         telefoonnummer = contactDetails.telephoneNumber
                         emailadres = contactDetails.emailAddress
-                        personId = requestedPersonId
+                        temporaryPersonId = requestedTemporaryPersonId
                     } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
                 }
             }
@@ -166,12 +166,12 @@ class KlantRestService @Inject constructor(
             ?.let { bsn ->
                 listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
                     .map { it.toRestPersoon() }
-                    .map { it.apply { personId = klantService.replaceBsnWithKey(bsn) } }
+                    .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
             ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
                 .toRestPersonen()
-                .map { it.apply { personId = bsn?.let(klantService::replaceBsnWithKey) } }
+                .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
                 .toRestResultaat()
 
     @PUT
@@ -196,11 +196,11 @@ class KlantRestService @Inject constructor(
         ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactdetails/person/{personId}")
+    @Path("contactdetails/person/{temporaryPersonId}")
     fun getContactDetailsForPerson(
-        @PathParam("personId") personId: UUID
+        @PathParam("temporaryPersonId") temporaryPersonId: UUID
     ): RestContactDetails =
-        klantService.replaceKeyWithBsn(personId).let { bsn ->
+        identificationService.replaceKeyWithBsn(temporaryPersonId).let { bsn ->
             klantClientService.findDigitalAddressesForNaturalPerson(bsn).toContactDetails().let {
                 RestContactDetails(
                     telefoonnummer = it.telephoneNumber,

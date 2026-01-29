@@ -16,7 +16,7 @@ import java.util.logging.Logger
 /**
  * Service to store sensitive data in memory.
  *
- * Implemented as BiMap of two Caffeine caches to store key and sensitive data.
+ * Implemented as bidirectional map of two [Caffeine](https://github.com/ben-manes/caffeine) caches to store key and sensitive data.
  * At most [STORAGE_SIZE] data entries are kept in memory for [EXPIRATION_TIME_HOURS].
  */
 @ApplicationScoped
@@ -37,7 +37,7 @@ class SensitiveDataService {
             .maximumSize(STORAGE_SIZE)
             .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
             .removalListener { key: UUID?, value: String?, cause ->
-                LOG.fine { "Removing sensitive storage data with key $key, because of: $cause" }
+                LOG.fine { "Removing sensitive storage data with key '$key', because of: '$cause'" }
                 value?.let { dataToUuidStorage.invalidate(value) }
             }.build()
     }

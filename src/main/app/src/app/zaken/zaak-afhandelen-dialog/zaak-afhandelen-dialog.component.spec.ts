@@ -61,7 +61,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       GeneratedType<"BetrokkeneIdentificatie">
     >({
       type: "BSN",
-      personId: "a087e350-86c1-40a3-87d9-0216633cbe47",
+      temporaryPersonId: "a087e350-86c1-40a3-87d9-0216633cbe47",
     }),
     resultaat: null,
     besluiten: [],
@@ -161,7 +161,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     queryClient.setQueryData(["afzenders", zaakMock.uuid], mockAfzenders);
     queryClient.setQueryData(["mailtemplate", zaakMock.uuid], mockMailtemplate);
     queryClient.setQueryData(
-      ["initiatorEmail", zaakMock.initiatorIdentificatie?.personId],
+      ["initiatorEmail", zaakMock.initiatorIdentificatie?.temporaryPersonId],
       { emailadres: "initiator@example.com" },
     );
 

@@ -82,7 +82,7 @@ export class ZaakAfhandelenDialogComponent {
   }));
 
   protected readonly initiatorEmailQuery = injectQuery(() => {
-    const bsn = this.data.zaak.initiatorIdentificatie?.personId;
+    const bsn = this.data.zaak.initiatorIdentificatie?.temporaryPersonId;
     if (!bsn) {
       return { queryKey: [], queryFn: () => Promise.resolve(null) };
     }

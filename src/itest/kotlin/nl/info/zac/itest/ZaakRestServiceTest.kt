@@ -92,7 +92,10 @@ class ZaakRestServiceTest : BehaviorSpec({
     lateinit var zaak1UUID: UUID
     lateinit var zaak2UUID: UUID
 
-    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
+    val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
+        TEST_PERSON_HENDRIKA_JANSE_BSN,
+        BEHANDELAAR_DOMAIN_TEST_1
+    )
 
     Context("Listing zaaktypes for creating zaken") {
         Given(
@@ -420,7 +423,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "roltypeUUID": "$ROLTYPE_UUID_BELANGHEBBENDE",
                         "betrokkeneIdentificatie": {
                             "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "personId": "$personId",
+                            "temporaryPersonId": "$temporaryPersonId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
                     }
@@ -554,7 +557,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "roltoelichting": "fakeToelichting",
                         "betrokkeneIdentificatie": {
                             "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "personId": "$personId",
+                            "temporaryPersonId": "$temporaryPersonId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         }
                     }
@@ -738,7 +741,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("roltoelichting") shouldBe "fakeToelichting"
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                             getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
-                            getString("personId") shouldBe personId.toString()
+                            getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
                         getJSONObject(1).apply {
@@ -748,7 +751,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                             getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
-                            getString("personId") shouldBe personId.toString()
+                            getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
                     }

@@ -13,7 +13,7 @@
         <mat-icon
           class="mr-2"
           color="warn"
-          [matTooltip]="'msg.hint.personId.unknown' | translate"
+          [matTooltip]="'msg.hint.temporary.person.id.unknown' | translate"
           >warning</mat-icon
         >
       }
@@ -51,7 +51,7 @@
         </button>
         <a
           mat-icon-button
-          [routerLink]="['/persoon', personId()]"
+          [routerLink]="['/persoon', temporaryPersonId()]"
           [disabled]="isDisabled()"
           (click)="$event.stopPropagation()"
           title="{{ 'actie.persoon.bekijken' | translate }}"

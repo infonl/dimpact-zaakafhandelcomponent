@@ -22,15 +22,19 @@ export class BetrokkeneLinkComponent {
   protected readonly persoonQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
 
-    if (!this.isBsnType() || !betrokkene.personId) {
+    if (!this.isBsnType() || !betrokkene.temporaryPersonId) {
       return {
-        queryKey: ["persoon", betrokkene.personId, this.zaaktypeUuid()],
+        queryKey: [
+          "persoon",
+          betrokkene.temporaryPersonId,
+          this.zaaktypeUuid(),
+        ],
         enabled: false,
       };
     }
 
     return this.klantenService.readPersoon(
-      betrokkene.personId,
+      betrokkene.temporaryPersonId,
       this.zaaktypeUuid(),
     );
   });

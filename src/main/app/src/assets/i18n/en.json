@@ -853,7 +853,7 @@
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",
-  "msg.hint.personId.unknown": "The registered involved is not found.",
+  "msg.hint.temporary.person.id.unknown": "The registered involved is not found.",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
   "msg.formioformulier.verwijderen.bevestigen": "Delete form '{{naam}}'?",

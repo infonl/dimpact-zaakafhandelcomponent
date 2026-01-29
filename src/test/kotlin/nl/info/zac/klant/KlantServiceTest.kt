@@ -9,7 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.brp.exception.BrpPersonIdNotCachedException
+import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -17,12 +17,13 @@ import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.model.createVestigingIdentificatie
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.sensitive.SensitiveDataService
 import java.util.UUID
 
 class KlantServiceTest : BehaviorSpec({
     val sensitiveDataService = mockk<SensitiveDataService>()
-    val klantService = KlantService(sensitiveDataService)
+    val identificationService = IdentificationService(sensitiveDataService)
 
     Given("createBetrokkeneIdentificatieForInitiatorRole") {
         When("the initiator is a Natuurlijk Persoon") {
@@ -35,13 +36,13 @@ class KlantServiceTest : BehaviorSpec({
 
             every { sensitiveDataService.put(bsn) } returns uuid
 
-            val result = klantService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type BSN and the replaced personId") {
+            Then("it should return a BetrokkeneIdentificatie with type BSN and the replaced temporaryPersonId") {
                 with(result) {
                     type shouldBe IdentificatieType.BSN
                     bsn shouldBe bsn
-                    personId shouldBe uuid
+                    temporaryPersonId shouldBe uuid
                     kvkNummer shouldBe null
                     rsin shouldBe null
                     vestigingsnummer shouldBe null
@@ -54,13 +55,13 @@ class KlantServiceTest : BehaviorSpec({
             val vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = vestigingsNummer)
             val initiatorRole = createRolVestiging(vestigingIdentificatie = vestigingIdentificatie)
 
-            val result = klantService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
             Then("it should return a BetrokkeneIdentificatie with type VN and the vestigingsnummer") {
                 with(result) {
                     type shouldBe IdentificatieType.VN
                     vestigingsnummer shouldBe vestigingsNummer
-                    personId shouldBe null
+                    temporaryPersonId shouldBe null
                 }
             }
         }
@@ -74,7 +75,7 @@ class KlantServiceTest : BehaviorSpec({
                 nietNatuurlijkPersoonIdentificatie = nietNatuurlijkPersoonIdentificatie
             )
 
-            val result = klantService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
             Then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
@@ -95,7 +96,7 @@ class KlantServiceTest : BehaviorSpec({
                 nietNatuurlijkPersoonIdentificatie = nietNatuurlijkPersoonIdentificatie
             )
 
-            val result = klantService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
             Then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
@@ -115,7 +116,7 @@ class KlantServiceTest : BehaviorSpec({
                 nietNatuurlijkPersoonIdentificatie = nietNatuurlijkPersoonIdentificatie
             )
 
-            val result = klantService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
+            val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
             Then("it should return a BetrokkeneIdentificatie with type VN") {
                 with(result) {
@@ -132,7 +133,7 @@ class KlantServiceTest : BehaviorSpec({
         every { sensitiveDataService.put(bsn) } returns uuid
 
         Then("it should return the UUID from sensitiveDataService") {
-            klantService.replaceBsnWithKey(bsn) shouldBe uuid
+            identificationService.replaceBsnWithKey(bsn) shouldBe uuid
         }
     }
 
@@ -143,15 +144,15 @@ class KlantServiceTest : BehaviorSpec({
         When("the key exists") {
             every { sensitiveDataService.get(uuid) } returns bsn
             Then("it should return the BSN") {
-                klantService.replaceKeyWithBsn(uuid) shouldBe bsn
+                identificationService.replaceKeyWithBsn(uuid) shouldBe bsn
             }
         }
 
         When("the key does not exist") {
             every { sensitiveDataService.get(uuid) } returns null
             Then("it should throw a BrpPersonNotFoundException") {
-                shouldThrow<BrpPersonIdNotCachedException> {
-                    klantService.replaceKeyWithBsn(uuid)
+                shouldThrow<BrpTemporaryPersonIdNotCachedException> {
+                    identificationService.replaceKeyWithBsn(uuid)
                 }
             }
         }

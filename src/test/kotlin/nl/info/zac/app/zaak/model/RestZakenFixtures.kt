@@ -29,13 +29,13 @@ const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 
 fun createBetrokkeneIdentificatie(
     type: IdentificatieType = IdentificatieType.BSN,
-    personId: UUID? = UUID.randomUUID(),
+    temporaryPersonId: UUID? = UUID.randomUUID(),
     kvkNummer: String? = null,
     rsin: String? = null,
     vestigingsnummer: String? = null
 ) = BetrokkeneIdentificatie(
     type = type,
-    personId = personId,
+    temporaryPersonId = temporaryPersonId,
     kvkNummer = kvkNummer,
     rsin = rsin,
     vestigingsnummer = vestigingsnummer
@@ -260,7 +260,7 @@ fun createRestZaakInitiatorGegevens(
     toelichting: String = "fakeRoltoelichting",
     betrokkeneIdentificatie: BetrokkeneIdentificatie = BetrokkeneIdentificatie(
         type = IdentificatieType.BSN,
-        personId = UUID.randomUUID()
+        temporaryPersonId = UUID.randomUUID()
     )
 ) = RestZaakInitiatorGegevens(
     zaakUUID = zaakUUID,

@@ -92,7 +92,7 @@ describe(TaakViewComponent.name, () => {
       GeneratedType<"BetrokkeneIdentificatie">
     >({
       type: "BSN",
-      personId: "f4c43bd4-3422-4c08-95aa-560cc165e818",
+      temporaryPersonId: "f4c43bd4-3422-4c08-95aa-560cc165e818",
     }),
     resultaat: null,
     besluiten: [],

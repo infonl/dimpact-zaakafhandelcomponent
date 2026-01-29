@@ -156,7 +156,7 @@
         <zac-persoongegevens
           *ngIf="showPersoonsgegevens()"
           class="w100 flex-1"
-          [personId]="zaak.initiatorIdentificatie?.personId!"
+          [temporaryPersonId]="zaak.initiatorIdentificatie?.temporaryPersonId!"
           [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
           [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
           [zaaktypeUuid]="zaak.zaaktype.uuid"

@@ -13,7 +13,7 @@
 @if (persoonQuery.data()) {
   <a
     mat-icon-button
-    [routerLink]="['/persoon', betrokkene().personId]"
+    [routerLink]="['/persoon', betrokkene().temporaryPersonId]"
     title="{{ 'actie.persoon.bekijken' | translate }}"
   >
     <mat-icon>visibility</mat-icon>
@@ -46,7 +46,7 @@
     [matTooltip]="
       bedrijfQuery.error()
         ? ('msg.hint.kvk.outdated' | translate)
-        : ('msg.hint.personId.unknown' | translate)
+        : ('msg.hint.temporaryPersonId.unknown' | translate)
     "
     >warning</mat-icon
   >

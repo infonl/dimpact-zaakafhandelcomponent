@@ -62,8 +62,8 @@ import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
-import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
@@ -109,7 +109,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
-    val klantService = mockk<KlantService>()
+    val identificationService = mockk<IdentificationService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -144,7 +144,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        klantService = klantService
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -461,7 +461,9 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             every { zrcClientService.deleteRol(any(), any()) } just runs
             every { zaakService.addInitiatorToZaak(any(), any(), any(), any()) } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
-            every { klantService.replaceKeyWithBsn(restZaakInitiatorGegevens.betrokkeneIdentificatie.personId!!) } returns bsn
+            every {
+                identificationService.replaceKeyWithBsn(restZaakInitiatorGegevens.betrokkeneIdentificatie.temporaryPersonId!!)
+            } returns bsn
 
             When("an initiator is updated") {
                 val updatedRestZaak = zaakRestService.updateInitiator(restZaakInitiatorGegevens)

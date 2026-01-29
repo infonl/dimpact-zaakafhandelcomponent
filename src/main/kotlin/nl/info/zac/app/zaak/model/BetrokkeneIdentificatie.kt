@@ -22,7 +22,7 @@ data class BetrokkeneIdentificatie(
     @field:NotNull
     var type: IdentificatieType,
     var bsn: String? = null,
-    var personId: UUID? = null,
+    var temporaryPersonId: UUID? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
     var vestigingsnummer: String? = null
@@ -42,14 +42,14 @@ class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIden
         if (value == null) return false
         return when (value.type) {
             IdentificatieType.BSN ->
-                value.personId != null &&
+                value.temporaryPersonId != null &&
                     value.kvkNummer.isNullOrBlank() &&
                     value.vestigingsnummer.isNullOrBlank()
             IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank() &&
                 !value.vestigingsnummer.isNullOrBlank() &&
-                value.personId == null
+                value.temporaryPersonId == null
             IdentificatieType.RSIN -> !value.kvkNummer.isNullOrBlank() &&
-                value.personId == null &&
+                value.temporaryPersonId == null &&
                 value.vestigingsnummer.isNullOrBlank()
         }
     }

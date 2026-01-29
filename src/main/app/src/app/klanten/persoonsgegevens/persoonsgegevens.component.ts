@@ -28,13 +28,16 @@ export class PersoonsgegevensComponent {
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);
   protected zaaktypeUuid = input.required<string>();
-  protected personId = input.required<string>();
+  protected temporaryPersonId = input.required<string>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();
 
   protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(this.personId(), this.zaaktypeUuid()),
+    this.klantenService.readPersoon(
+      this.temporaryPersonId(),
+      this.zaaktypeUuid(),
+    ),
   );
 
   protected readonly isDisabled = signal(false);

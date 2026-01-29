@@ -7,4 +7,4 @@ package nl.info.client.brp.exception
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.core.Response
 
-open class BrpPersonIdNotCachedException(message: String) : ClientErrorException(message, Response.Status.GONE)
+open class BrpTemporaryPersonIdNotCachedException(message: String) : ClientErrorException(message, Response.Status.GONE)

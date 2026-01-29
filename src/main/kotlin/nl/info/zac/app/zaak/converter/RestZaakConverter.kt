@@ -32,7 +32,7 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.klant.KlantService
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -58,7 +58,7 @@ class RestZaakConverter @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
-    private val klantService: KlantService,
+    private val identificationService: IdentificationService,
 ) {
     fun toRestZaak(
         zaak: Zaak,
@@ -127,7 +127,11 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let { klantService.createBetrokkeneIdentificatieForInitiatorRole(it) },
+            initiatorIdentificatie = initiator?.let {
+                identificationService.createBetrokkeneIdentificatieForInitiatorRole(
+                    it
+                )
+            },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),

@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.klant
+package nl.info.zac.identification
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
-import nl.info.client.brp.exception.BrpPersonIdNotCachedException
+import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
@@ -25,11 +25,11 @@ import java.util.logging.Logger
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-class KlantService @Inject constructor(
+class IdentificationService @Inject constructor(
     private val sensitiveDataService: SensitiveDataService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(KlantService::class.java.name)
+        private val LOG = Logger.getLogger(IdentificationService::class.java.name)
     }
 
     fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
@@ -39,7 +39,7 @@ class KlantService @Inject constructor(
             BetrokkeneIdentificatie(
                 type = it,
                 bsn = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
-                personId = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn?.let {
+                temporaryPersonId = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn?.let {
                     replaceBsnWithKey(it)
                 },
                 kvkNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.kvkNummer,
@@ -50,6 +50,11 @@ class KlantService @Inject constructor(
             )
         }
     }
+
+    fun replaceBsnWithKey(bsn: String): UUID = sensitiveDataService.put(bsn)
+
+    fun replaceKeyWithBsn(key: UUID): String = sensitiveDataService.get(key)
+        ?: throw BrpTemporaryPersonIdNotCachedException("Geen persoon gevonden voor id '$key'")
 
     private fun getInitiatorIdentificationType(
         initiatorRole: Rol<*>,
@@ -68,25 +73,18 @@ class KlantService @Inject constructor(
                     it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
                     else -> {
                         LOG.warning(
-                            "Unsupported identification fields for betrokkene type: '$betrokkeneType' " +
-                                "for role with UUID: '${initiatorRole.uuid}'"
+                            "Unsupported identification fields for betrokkene type '$betrokkeneType' " +
+                                "for role with UUID '${initiatorRole.uuid}'"
                         )
                         null
                     }
                 }
             }
-            // betrokkeneType may be null (sadly enough)
+            // betrokkeneType may be null in the ZGW API
             null -> null
             else -> {
-                LOG.warning(
-                    "Unsupported betrokkene type: '$betrokkeneType' for role with UUID: '${initiatorRole.uuid}'"
-                )
+                LOG.warning("Unsupported betrokkene type '$betrokkeneType' for role with UUID '${initiatorRole.uuid}'")
                 null
             }
         }
-
-    fun replaceBsnWithKey(bsn: String): UUID = sensitiveDataService.put(bsn)
-
-    fun replaceKeyWithBsn(key: UUID): String = sensitiveDataService.get(key)
-        ?: throw BrpPersonIdNotCachedException("Geen persoon gevonden voor id '$key'")
 }

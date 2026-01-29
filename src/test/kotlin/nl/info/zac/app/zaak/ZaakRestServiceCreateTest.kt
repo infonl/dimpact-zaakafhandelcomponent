@@ -68,9 +68,9 @@ import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
-import nl.info.zac.klant.KlantService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
@@ -118,7 +118,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
-    val klantService = mockk<KlantService>()
+    val identificationService = mockk<IdentificationService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -153,7 +153,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        klantService = klantService
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -264,7 +264,9 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, zaakType)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
-            every { klantService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.personId!!) } returns bsn
+            every {
+                identificationService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.temporaryPersonId!!)
+            } returns bsn
 
             val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
@@ -408,7 +410,9 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readZaakRechten(zaak, zaakType)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
-            every { klantService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.personId!!) } returns bsn
+            every {
+                identificationService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.temporaryPersonId!!)
+            } returns bsn
 
             val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 

@@ -171,7 +171,7 @@ class NotificationsTest : BehaviorSpec({
                         }
                         with(getJSONObject("initiatorIdentificatie")) {
                             getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
-                            UUID.fromString(getString("personId"))
+                            UUID.fromString(getString("temporaryPersonId"))
                         }
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
@@ -230,9 +230,9 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
-                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("personId"))
-                UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("personId"))
-                UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("personId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("temporaryPersonId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("temporaryPersonId"))
                 zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)
             }
         }
@@ -497,7 +497,7 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
-                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("personId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
             }
         }
     }

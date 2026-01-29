@@ -108,10 +108,10 @@ export class MailCreateComponent implements OnInit {
       });
 
     const initiatorIdentificatie = this.zaak().initiatorIdentificatie;
-    if (!initiatorIdentificatie?.personId) return;
+    if (!initiatorIdentificatie?.temporaryPersonId) return;
 
     this.klantenService
-      .getContactDetailsForPerson(initiatorIdentificatie.personId)
+      .getContactDetailsForPerson(initiatorIdentificatie.temporaryPersonId)
       .subscribe((contactGegevens) => {
         if (!contactGegevens.emailadres) return;
         this.contactGegevens = contactGegevens;

@@ -18,7 +18,7 @@ import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const testPerson: GeneratedType<"RestPersoon"> = {
-  personId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
+  temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
   indicaties: [],
 };
 
@@ -46,7 +46,7 @@ describe("PersoonsgegevensComponent", () => {
 
     const fixture = TestBed.createComponent(PersoonsgegevensComponent);
     const ref = fixture.componentRef;
-    ref.setInput("personId", "f31b38f2-d336-431f-a045-2ce4240c6c7e");
+    ref.setInput("temporaryPersonId", "f31b38f2-d336-431f-a045-2ce4240c6c7e");
     ref.setInput("zaaktypeUuid", "test-zaaktype-uuid");
     ref.setInput("action", "test");
     fixture.detectChanges();
@@ -63,7 +63,7 @@ describe("PersoonsgegevensComponent", () => {
 
     const fixture = TestBed.createComponent(PersoonsgegevensComponent);
     const ref = fixture.componentRef;
-    ref.setInput("personId", "invalid-id");
+    ref.setInput("temporaryPersonId", "invalid-id");
     ref.setInput("zaaktypeUuid", "test-zaaktype-uuid");
     ref.setInput("action", "test");
     fixture.detectChanges();
@@ -82,7 +82,7 @@ describe("PersoonsgegevensComponent", () => {
 
     const fixture = TestBed.createComponent(PersoonsgegevensComponent);
     const ref = fixture.componentRef;
-    ref.setInput("personId", "invalid-id");
+    ref.setInput("temporaryPersonId", "invalid-id");
     ref.setInput("zaaktypeUuid", "test-zaaktype-uuid");
     ref.setInput("action", "test");
 

@@ -44,7 +44,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 data class RestPersoon(
-    var personId: UUID? = null,
+    var temporaryPersonId: UUID? = null,
     var bsn: String? = null,
     var geslacht: String? = null,
     var geboortedatum: String? = null,

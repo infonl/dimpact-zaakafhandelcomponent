@@ -73,7 +73,10 @@ class KlantRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
 
-    val personId: UUID = zacClient.getPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_DOMAIN_TEST_1)
+    val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
+        TEST_PERSON_HENDRIKA_JANSE_BSN,
+        BEHANDELAAR_DOMAIN_TEST_1
+    )
 
     var zaakUuid: UUID? = null
 
@@ -110,7 +113,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                         "betrokkeneIdentificatie": {
                             "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "personId": "$personId",
+                            "temporaryPersonId": "$temporaryPersonId",
                             "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
                         },
                         "zaakUUID": "$zaakUuid"
@@ -125,7 +128,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val identificatie = JSONObject(responseBody).getJSONObject("initiatorIdentificatie")
                     with(identificatie.toString()) {
                         shouldContainJsonKeyValue("type", BETROKKENE_IDENTIFICATION_TYPE_BSN)
-                        shouldContainJsonKeyValue("personId", personId.toString())
+                        shouldContainJsonKeyValue("temporaryPersonId", temporaryPersonId.toString())
                     }
                 }
             }
@@ -179,7 +182,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val expectedResponse = """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                      "personId": "$personId",
+                      "temporaryPersonId": "$temporaryPersonId",
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
                       "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
@@ -199,7 +202,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/person/$personId",
+                    url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
                     headers = headers,
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
@@ -242,7 +245,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/person/$personId",
+                    url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
@@ -290,7 +293,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 "foutmelding": "",
                 "resultaten": [{
                    "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                   "personId": "$personId",
+                   "temporaryPersonId": "$temporaryPersonId",
                    "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                    "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
                    "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",

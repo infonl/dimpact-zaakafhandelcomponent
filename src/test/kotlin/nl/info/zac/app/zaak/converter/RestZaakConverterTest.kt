@@ -41,7 +41,7 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.klant.KlantService
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import java.util.EnumSet
@@ -67,7 +67,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
-    val klantService = mockk<KlantService>()
+    val identificationService = mockk<IdentificationService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -81,7 +81,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService,
-        klantService = klantService
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -98,14 +98,14 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
-        val personId = UUID.randomUUID()
+        val temporaryPersonId = UUID.randomUUID()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(
                 bsn = bsn
             )
         )
         val betrokkeneIdentificatie = createBetrokkeneIdentificatie(
-            personId = personId
+            temporaryPersonId = temporaryPersonId
         )
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
@@ -127,7 +127,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
         every {
-            klantService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
@@ -139,7 +139,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     with(initiatorIdentificatie!!) {
                         this.type shouldBe IdentificatieType.BSN
-                        this.personId shouldBe personId
+                        this.temporaryPersonId shouldBe temporaryPersonId
                     }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
@@ -190,7 +190,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-        every { klantService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
+        every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -252,7 +252,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-        every { klantService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
+        every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -296,7 +296,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
         every {
-            klantService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
