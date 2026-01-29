@@ -316,7 +316,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     parameter: GeneratedType<"RESTZaakbeeindigParameter">,
     field: string,
   ) {
-    console.log("VALIDE?", this.isValid());
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
     );
@@ -387,7 +386,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected opslaan() {
     const bpmnProcessDefinitionKey =
       this.algemeenFormGroup.value.bpmnDefinition?.key;
-    console.log("VALIDE? OPSLAAN", this.isValid());
 
     if (!bpmnProcessDefinitionKey) {
       return;
