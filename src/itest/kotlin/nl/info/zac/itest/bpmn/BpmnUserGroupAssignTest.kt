@@ -110,8 +110,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                     "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                   },
                   "behandelaar" : {
-                    "id" : "${BEHANDELAAR_DOMAIN_TEST_1.username}",
-                    "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.username}"
+                    "id" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
                   }
                 }
                 """.trimIndent()
