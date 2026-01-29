@@ -26,6 +26,17 @@ class ItestHttpClient {
         .followRedirects(false)
         .build()
 
+    /**
+     * Connects a new WebSocket to the given URL with the provided [webSocketListener] and optional headers.
+     * The [testUser] will be authenticated in Keycloak before the WebSocket connection is established,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to connect the WebSocket to.
+     * @param webSocketListener The [WebSocketListener] to handle WebSocket events.
+     * @param headers Optional headers to include in the WebSocket request. Defaults to standard headers.
+     * @param testUser The [TestUser] to authenticate to Keycloak before establishing the WebSocket connection.
+     * @return The established [WebSocket] connection.
+     */
     fun connectNewWebSocket(
         url: String,
         webSocketListener: WebSocketListener,
@@ -43,6 +54,16 @@ class ItestHttpClient {
         return webSocket
     }
 
+    /**
+     * Performs a DELETE request on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the DELETE request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performDeleteRequest(
         url: String,
         headers: Headers = buildHeaders(),
@@ -73,6 +94,16 @@ class ItestHttpClient {
         return responseContent
     }
 
+    /**
+     * Performs a GET request on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the GET request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performGetRequest(
         url: String,
         headers: Headers = buildHeaders(acceptType = null),
@@ -103,6 +134,13 @@ class ItestHttpClient {
         return responseContent
     }
 
+    /**
+     * Performs a HEAD request on the given URL with optional headers.
+     *
+     * @param url The URL to perform the HEAD request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @return The HTTP status code of the response.
+     */
     fun performHeadRequest(
         url: String,
         headers: Headers = buildHeaders(acceptType = null)
@@ -119,6 +157,17 @@ class ItestHttpClient {
         }
     }
 
+    /**
+     * Performs a POST request on the given URL with optional headers and request body.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the POST request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBody The body of the POST request.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performPostRequest(
         url: String,
         headers: Headers = buildHeaders(),
@@ -146,6 +195,17 @@ class ItestHttpClient {
         return responseContent
     }
 
+    /**
+     * Performs a POST request with a JSON body on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the POST request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBodyAsString The JSON body of the POST request as a string.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performJSONPostRequest(
         url: String,
         headers: Headers = buildHeaders(),
@@ -158,6 +218,17 @@ class ItestHttpClient {
         testUser = testUser
     )
 
+    /**
+     * Performs a PATCH request with a JSON body on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the PATCH request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBodyAsString The JSON body of the PATCH request as a string.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performPatchRequest(
         url: String,
         headers: Headers = buildHeaders(),
@@ -185,6 +256,17 @@ class ItestHttpClient {
         return responseContent
     }
 
+    /**
+     * Performs a PUT request with a JSON body on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the PUT request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBodyAsString The JSON body of the PUT request as a string.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request. If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code
+     */
     fun performPutRequest(
         url: String,
         headers: Headers = buildHeaders(),
@@ -211,6 +293,9 @@ class ItestHttpClient {
         return responseContent
     }
 
+    /**
+     * Performs a ZGW API GET request on the given URL with optional headers.
+     */
     fun performZgwApiGetRequest(
         url: String,
         headers: Headers = buildHeaders(acceptType = null)
