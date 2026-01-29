@@ -217,7 +217,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the user is created from OIDC and stored on the session - set refresh_token") {
+                Then("the user is created from OIDC and stored on the session") {
                     verify(exactly = 1) {
                         httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
                         filterChain.doFilter(httpServletRequest, servletResponse)
