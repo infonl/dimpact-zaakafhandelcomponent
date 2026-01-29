@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.klant
+package nl.info.zac.identification
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -17,11 +17,10 @@ import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolVestiging
 import nl.info.client.zgw.model.createVestigingIdentificatie
 import nl.info.zac.app.klant.model.klant.IdentificatieType
-import nl.info.zac.identification.IdentificationService
 import nl.info.zac.sensitive.SensitiveDataService
 import java.util.UUID
 
-class KlantServiceTest : BehaviorSpec({
+class IdentificationServiceTest : BehaviorSpec({
     val sensitiveDataService = mockk<SensitiveDataService>()
     val identificationService = IdentificationService(sensitiveDataService)
 
