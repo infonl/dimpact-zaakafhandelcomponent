@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
@@ -28,8 +27,7 @@ class AppContainerTest : BehaviorSpec({
     Given("ZAC Docker container and all related Docker containers are running") {
         When("the liveness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health/live",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health/live"
             )
             logger.info {
                 """
@@ -56,8 +54,7 @@ class AppContainerTest : BehaviorSpec({
 
         When("the readiness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health/ready",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health/ready"
             )
             logger.info {
                 """
@@ -122,8 +119,7 @@ class AppContainerTest : BehaviorSpec({
 
         When("the generic health endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_MANAGEMENT_URI/health",
-                addAuthorizationHeader = false
+                url = "$ZAC_MANAGEMENT_URI/health"
             )
             logger.info {
                 """
@@ -174,18 +170,18 @@ class AppContainerTest : BehaviorSpec({
             }
         }
         When("/admin is requested for a user who has the 'beheerder' role") {
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/admin"
+                url = "$ZAC_BASE_URI/admin",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok") {
                 response.code shouldBe HTTP_OK
             }
         }
         When("/admin is requested for a user who does not have the 'beheerder' role") {
-            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/admin"
+                url = "$ZAC_BASE_URI/admin",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
@@ -194,11 +190,10 @@ class AppContainerTest : BehaviorSpec({
     }
 
     Given("A logged-in user who does not have any of the ZAC application roles") {
-        authenticate(USER_WITHOUT_ANY_ROLE)
-
         When("The ZAC base URI is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = ZAC_BASE_URI
+                url = ZAC_BASE_URI,
+                testUser = USER_WITHOUT_ANY_ROLE
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
@@ -207,7 +202,8 @@ class AppContainerTest : BehaviorSpec({
 
         When("The ZAC logout URI is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/logout"
+                url = "$ZAC_BASE_URI/logout",
+                testUser = USER_WITHOUT_ANY_ROLE
             )
             Then("the response should be a redirect") {
                 response.code shouldBe HTTP_MOVED_TEMP

@@ -56,6 +56,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UIT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.dockerComposeContainer
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -100,6 +101,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given(
         """"
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
@@ -136,8 +138,7 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
@@ -147,7 +148,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -200,10 +202,13 @@ class NotificationsTest : BehaviorSpec({
                 }
             }
         }
+
         When("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
+
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
@@ -263,9 +268,9 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                     using the BPMN-configured zaaktype and a BPMN process should be started in ZAC"""
@@ -273,7 +278,8 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
 
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -296,6 +302,7 @@ class NotificationsTest : BehaviorSpec({
         When("the get betrokkene endpoint is called for the BPMN-started zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then(
                 """
@@ -345,9 +352,9 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces of type 'Productaanvraag-Dimpact' should be started in ZAC"""
@@ -356,7 +363,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -378,9 +386,11 @@ class NotificationsTest : BehaviorSpec({
                     }
                 }
             }
+
             And("an automated email is sent") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/"
+                    url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -432,9 +442,9 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
+
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces should be started in ZAC with both kvkNummer and vestigingsNummer"""
@@ -443,7 +453,8 @@ class NotificationsTest : BehaviorSpec({
 
                 // retrieve the newly created zaak and check the contents
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION"
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -470,6 +481,7 @@ class NotificationsTest : BehaviorSpec({
         When("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagComboUuid/betrokkene",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
             Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                 response.code shouldBe HTTP_OK
@@ -517,12 +529,12 @@ class NotificationsTest : BehaviorSpec({
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
                         )
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
 
             val getZaakResponse = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION"
+                url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION",
+                testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
             Then(
@@ -572,9 +584,9 @@ class NotificationsTest : BehaviorSpec({
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
-                ).toString(),
-                addAuthorizationHeader = false
+                ).toString()
             )
+
             Then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
@@ -593,6 +605,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
@@ -609,7 +622,8 @@ class NotificationsTest : BehaviorSpec({
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = websocketListener,
+            testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
@@ -637,8 +651,7 @@ class NotificationsTest : BehaviorSpec({
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
                         )
-                    ).toString(),
-                    addAuthorizationHeader = false
+                    ).toString()
                 )
                 response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
@@ -657,6 +670,7 @@ class NotificationsTest : BehaviorSpec({
             }
         }
     }
+
     Given("""A websocket subscription is created to listen to all changes made to zaak-rollen""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
@@ -675,7 +689,8 @@ class NotificationsTest : BehaviorSpec({
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = websocketListener,
+            testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When(""""a notification is sent to ZAC that a zaak-rol has been created""") {
             // we need eventually here because it takes some time before the new websocket has been
@@ -703,8 +718,7 @@ class NotificationsTest : BehaviorSpec({
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
                         )
-                    ).toString(),
-                    addAuthorizationHeader = false
+                    ).toString()
                 )
                 response.code shouldBe HTTP_NO_CONTENT
                 // because of the retries using eventually, we can end up with duplicate messages. that's ok.
@@ -712,7 +726,8 @@ class NotificationsTest : BehaviorSpec({
             }
         }
         Then(
-            """the response should be 'no content' and an event that the zaak-rol has been updated should be sent to the websocket"""
+            """the response should be 'no content' and an event that the zaak-rol
+                has been updated should be sent to the websocket"""
         ) {
             websocketListener.messagesReceived.forAtLeastOne {
                 with(JSONObject(it)) {

@@ -9,7 +9,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -26,12 +25,12 @@ class NoteServiceTest : BehaviorSpec({
 
     Given("An existing zaak and a logged-in behandelaar") {
         lateinit var zaakUuid: UUID
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
@@ -52,7 +51,8 @@ class NoteServiceTest : BehaviorSpec({
                         "tekst": "fakeNoteText",
                         "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}"
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
@@ -77,7 +77,8 @@ class NoteServiceTest : BehaviorSpec({
 
         When("the 'get notes' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/notities/zaken/$zaakUuid"
+                url = "$ZAC_API_URI/notities/zaken/$zaakUuid",
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(
                 "the just created note should be returned"

@@ -11,19 +11,18 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGERS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -45,13 +44,19 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         interval = 500.milliseconds
     }
 
-    suspend fun getTaskData(zaakIdentificatie: String, bpmnZaakUuid: UUID, taskName: String): String {
+    suspend fun getTaskData(
+        zaakIdentificatie: String,
+        bpmnZaakUuid: UUID,
+        taskName: String,
+        testUser: TestUser,
+    ): String {
         eventually(afterThirtySeconds) {
-            val searchResponseBody = zacClient.searchForTasks(zaakIdentificatie, taskName)
+            val searchResponseBody = zacClient.searchForTasks(zaakIdentificatie, taskName, testUser)
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
         }
         val response = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid"
+            url = "$ZAC_API_URI/taken/zaak/$bpmnZaakUuid",
+            testUser = testUser,
         )
         val responseBody = response.bodyAsString
         logger.info { "Response: $responseBody" }
@@ -65,15 +70,14 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         var bpmnZaakUuid: UUID? = null
         var zaakIdentificatie: String? = null
 
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
-
         When("zaak is created") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_2_UUID,
                 groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                 groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                 behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
-                startDate = DATE_TIME_2000_01_01
+                startDate = DATE_TIME_2000_01_01,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("response is ok") {
@@ -90,7 +94,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         }
 
         When("the first user task is created") {
-            val taskData = getTaskData(zaakIdentificatie!!, bpmnZaakUuid!!, BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME)
+            val taskData = getTaskData(
+                zaakIdentificatie = zaakIdentificatie!!,
+                bpmnZaakUuid = bpmnZaakUuid!!,
+                taskName = BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            )
 
             Then("task user and group are the zaak defaults") {
                 taskData shouldEqualJsonIgnoringOrderAndExtraneousFields """
@@ -105,13 +114,14 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         }
 
         When("the 'zaak defaults' form is submitted") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_DOMAIN_TEST_1)
 
             Then("the next task is assigned a hard-coded user and group") {
                 getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
+                    zaakIdentificatie = zaakIdentificatie!!,
+                    bpmnZaakUuid = bpmnZaakUuid,
+                    taskName = BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
@@ -128,45 +138,25 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         }
 
         When("the 'hard-coded' and 'select user&group' forms are submitted") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_DOMAIN_TEST_1)
             zacClient.submitFormData(
-                bpmnZaakUuid,
-                """
-                {
-                    "selectedGroup": "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                    "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}"
-                }
-                """.trimIndent()
+                bpmnZaakUuid = bpmnZaakUuid,
+                taakData = """
+                    {
+                        "selectedGroup": "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
+                        "selectedUser": "${RECORDMANAGER_DOMAIN_TEST_1.username}",
+                        "copyTaskUsesZaakDefaults": false
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
             Then("the next task has the selected user and group assigned") {
                 getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_USER_GROUP_TASK_NAME
-                ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                    {
-                      "groep" : {
-                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
-                      },
-                      "behandelaar" : {
-                        "id" : "${RECORDMANAGER_DOMAIN_TEST_1.username}",
-                        "naam" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}"
-                      }
-                    }                    
-                """.trimIndent()
-            }
-        }
-
-        When("the new zaak defaults are set by service task") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
-
-            Then("the next task has the selected user and group assigned") {
-                getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME
+                    zaakIdentificatie = zaakIdentificatie!!,
+                    bpmnZaakUuid = bpmnZaakUuid,
+                    taskName = BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
@@ -183,13 +173,14 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         }
 
         When("the copy user & group functions are used ") {
-            zacClient.submitFormData(bpmnZaakUuid!!, "{}")
+            zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_DOMAIN_TEST_1)
 
             Then("the next task has the copied user and group assigned") {
                 getTaskData(
-                    zaakIdentificatie!!,
-                    bpmnZaakUuid,
-                    BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
+                    zaakIdentificatie = zaakIdentificatie!!,
+                    bpmnZaakUuid = bpmnZaakUuid,
+                    taskName = BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME,
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {

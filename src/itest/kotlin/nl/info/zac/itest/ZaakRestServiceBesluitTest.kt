@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
@@ -44,7 +43,6 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         and a logged in behandelaar
         """
     ) {
-        authenticate(BEHANDELAAR_DOMAIN_TEST_1)
         lateinit var zaakUUID: UUID
         lateinit var resultaatType1Uuid: UUID
         lateinit var resultaatType2Uuid: UUID
@@ -55,7 +53,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            startDate = DATE_TIME_2000_01_01
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             JSONObject(bodyAsString).run {
                 getJSONObject("zaakdata").run {
@@ -64,7 +63,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             JSONArray(bodyAsString).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
@@ -75,19 +75,21 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "planItemInstanceId":"$intakeId",
-                "actie":"$ACTIE_INTAKE_AFRONDEN",
-                "zaakOntvankelijk":true
-            }
-            """.trimIndent()
+                {
+                    "zaakUuid":"$zaakUUID",
+                    "planItemInstanceId":"$intakeId",
+                    "actie":"$ACTIE_INTAKE_AFRONDEN",
+                    "zaakOntvankelijk":true
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID"
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             with(JSONArray(bodyAsString)) {
                 // we expect 4 resultaat types for this zaak type
@@ -97,7 +99,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_TEST_2_UUID"
+            url = "$ZAC_API_URI/zaken/besluittypes/$ZAAKTYPE_TEST_2_UUID",
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
         ).run {
             with(JSONArray(bodyAsString)) {
                 // we expect 2 besluit types for this zaak type
@@ -115,17 +118,18 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-                {
-                    "zaakUuid":"$zaakUUID",
-                    "resultaattypeUuid":"$resultaatType1Uuid",
-                    "besluittypeUuid":"$besluitType1Uuid",
-                    "toelichting":"fakeToelichting",
-                    "ingangsdatum":"$today",
-                    "vervaldatum":"$tomorrow",
-                    "publicationDate": "$publicationDate",
-                    "lastResponseDate": "$responseDate"
-                }
-                """.trimIndent()
+                    {
+                        "zaakUuid":"$zaakUUID",
+                        "resultaattypeUuid":"$resultaatType1Uuid",
+                        "besluittypeUuid":"$besluitType1Uuid",
+                        "toelichting":"fakeToelichting",
+                        "ingangsdatum":"$today",
+                        "vervaldatum":"$tomorrow",
+                        "publicationDate": "$publicationDate",
+                        "lastResponseDate": "$responseDate"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             ).run {
                 logger.info { "Response: $bodyAsString" }
                 code shouldBe HTTP_OK
@@ -133,7 +137,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
 
             Then("the besluit has been created successfully") {
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
+                    url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -169,16 +174,17 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-                {
-                    "besluitUuid":"$besluitUuid",
-                    "resultaattypeUuid":"$resultaatType2Uuid",
-                    "toelichting":"$updateReason",
-                    "ingangsdatum":"$startDate",
-                    "vervaldatum":"$fatalDate",
-                    "publicationDate":"$newPublicationDate",
-                    "lastResponseDate": "$newResponseDate"         
-                }
-                """.trimIndent()
+                    {
+                        "besluitUuid":"$besluitUuid",
+                        "resultaattypeUuid":"$resultaatType2Uuid",
+                        "toelichting":"$updateReason",
+                        "ingangsdatum":"$startDate",
+                        "vervaldatum":"$fatalDate",
+                        "publicationDate":"$newPublicationDate",
+                        "lastResponseDate": "$newResponseDate"         
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             ).let { response ->
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -191,7 +197,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
 
             Then("the besluit should be successfully updated") {
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
+                    url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -221,12 +228,13 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit/intrekken",
                 requestBodyAsString = """
-            {
-                "besluitUuid":"$besluitUuid",
-                "reden":"fakeReason",
-                "vervalreden":"ingetrokken_belanghebbende"
-            }
-                """.trimIndent()
+                    {
+                        "besluitUuid":"$besluitUuid",
+                        "reden":"fakeReason",
+                        "vervalreden":"ingetrokken_belanghebbende"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
             ).let { response ->
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -240,7 +248,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
 
             Then("the besluit has been withdrawn successfully") {
                 itestHttpClient.performGetRequest(
-                    "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
+                    url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
                 ).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }

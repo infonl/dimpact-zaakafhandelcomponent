@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
+import nl.info.zac.itest.config.TestUser
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -33,27 +34,33 @@ class TaskHelper(
      * @param zaakIdentificatie the identification of the zaak for search purposes.
      * @param fatalDate the fatal date for the task.
      * @param group the group under which to start the task.
-     * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable before retrieving its ID.
+     * @param waitForTaskToBeIndexed whether to wait until the created task is indexed and findable
+     * before retrieving its ID.
+     * @param testUser the user performing the operation.
      * @return the ID of the created 'Aanvullende informatie' task.
      */
+    @Suppress("LongParameterList")
     suspend fun startAanvullendeInformatieTaskForZaak(
         zaakUuid: UUID,
         zaakIdentificatie: String,
         fatalDate: LocalDate,
         group: TestGroup,
-        waitForTaskToBeIndexed: Boolean = false
+        waitForTaskToBeIndexed: Boolean = false,
+        testUser: TestUser
     ): String {
         val response = zacClient.startAanvullendeInformatieTaskForZaak(
             zaakUUID = zaakUuid,
             fatalDate = fatalDate,
-            group = group
+            group = group,
+            testUser = testUser
         )
         response.code shouldBe HTTP_NO_CONTENT
         if (waitForTaskToBeIndexed) {
-            waitForTaskToBeIndexed(zaakIdentificatie)
+            waitForTaskToBeIndexed(zaakIdentificatie, testUser)
         }
         val getTaskResponse = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/taken/zaak/$zaakUuid"
+            url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
+            testUser = testUser,
         )
         val responseBody = getTaskResponse.bodyAsString
         logger.info { "Response: $responseBody" }
@@ -64,7 +71,7 @@ class TaskHelper(
         return JSONArray(responseBody).getJSONObject(taskCount - 1).getString("id")
     }
 
-    private suspend fun waitForTaskToBeIndexed(zaakIdentificatie: String) {
+    private suspend fun waitForTaskToBeIndexed(zaakIdentificatie: String, testUser: TestUser) {
         // The task is automatically indexed, so no need to (re)index here.
         // However, the indexing may still take some time to complete, so we perform a search
         // here to ensure the task is findable.
@@ -72,7 +79,7 @@ class TaskHelper(
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
-                       {
+                   {
                         "alleenMijnZaken": false,
                         "alleenOpenstaandeZaken": false,
                         "alleenAfgeslotenZaken": false,
@@ -83,8 +90,9 @@ class TaskHelper(
                         "rows": 10,
                         "page": 0,
                         "type": "TAAK"
-                        }
-                """.trimIndent()
+                    }
+                """.trimIndent(),
+                testUser = testUser
             )
             JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
         }

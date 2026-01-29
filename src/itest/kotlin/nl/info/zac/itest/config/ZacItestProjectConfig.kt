@@ -14,7 +14,6 @@ import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
@@ -27,7 +26,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_HAR
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
@@ -166,8 +164,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             ) {
                 itestHttpClient.performGetRequest(
                     headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = KEYCLOAK_HEALTH_READY_URL,
-                    addAuthorizationHeader = false
+                    url = KEYCLOAK_HEALTH_READY_URL
                 ).code shouldBe HTTP_OK
             }
             logger.info { "Keycloak is healthy" }
@@ -175,17 +172,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             eventually(30.seconds) {
                 itestHttpClient.performGetRequest(
                     headers = Headers.headersOf("Content-Type", "application/json"),
-                    url = ZAC_HEALTH_READY_URL,
-                    addAuthorizationHeader = false
+                    url = ZAC_HEALTH_READY_URL
                 ).let { response ->
                     response.code shouldBe HTTP_OK
                     JSONObject(response.bodyAsString).getString("status") shouldBe "UP"
                 }
             }
             logger.info { "ZAC is healthy" }
-
-            authenticate(BEHEERDER_ELK_ZAAKTYPE)
-
             if (!skipDockerComposeStart) {
                 createTestSetupData()
             }
@@ -322,7 +315,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                         "filename": "$it",
                         "content": "${readResourceFile(it)}"
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             ).let { response ->
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -338,7 +332,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_DISPLAY_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
         ).forEach {
@@ -349,7 +342,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                         "filename": "$it",
                         "content": "${readResourceFile(it)}"
                     }
-                """.trimIndent()
+                """.trimIndent(),
+                testUser = BEHEERDER_ELK_ZAAKTYPE
             ).let { response ->
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -367,7 +361,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     private fun createDomainReferenceTableData() {
         val domeinReferenceTableId = itestHttpClient.performGetRequest(
-            "$ZAC_API_URI/referentietabellen"
+            url = "$ZAC_API_URI/referentietabellen",
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -389,7 +384,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                         "systeem" : true,
                         "waarden": [ { "naam" : "$DOMEIN_TEST_1" } ]
                     }
-            """.trimIndent()
+            """.trimIndent(),
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -413,13 +409,15 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
+    @Suppress("LongMethod")
     private fun createZaaktypeConfigurations() {
         zacClient.createZaaktypeBpmnConfiguration(
             zaakTypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
             zaakTypeDescription = ZAAKTYPE_BPMN_TEST_1_DESCRIPTION,
             bpmnProcessDefinitionKey = BPMN_TEST_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE,
-            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -430,7 +428,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeDescription = ZAAKTYPE_BPMN_TEST_2_DESCRIPTION,
             bpmnProcessDefinitionKey = BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
             productaanvraagType = ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE,
-            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -442,7 +441,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
             // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
-            domein = DOMEIN_TEST_2
+            domein = DOMEIN_TEST_2,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -454,7 +454,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeDescription = ZAAKTYPE_TEST_2_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
             // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
-            domein = DOMEIN_TEST_1
+            domein = DOMEIN_TEST_1,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -465,7 +466,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
             zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
-            automaticEmailConfirmationSender = "GEMEENTE"
+            automaticEmailConfirmationSender = "GEMEENTE",
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -481,7 +483,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "$zaaktypeUuid/smartdocuments-templates-mapping"
         val response = itestHttpClient.performJSONPostRequest(
             url = smartDocumentsZaakafhandelParametersUrl,
-            requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS
+            requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
         )
         logger.info { "Response: ${response.bodyAsString}" }
         response.code shouldBe HTTP_NO_CONTENT
