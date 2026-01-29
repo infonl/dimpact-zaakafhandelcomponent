@@ -23,6 +23,7 @@ import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
+import java.util.UUID
 
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
@@ -59,6 +60,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             every {
                 zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
             } returns listOf(restZaakbeeindigParameter)
+            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
 
             When("reading BPMN zaaktypes") {
                 val result = zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(

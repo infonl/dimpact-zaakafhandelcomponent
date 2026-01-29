@@ -29,7 +29,8 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaaktypeHelperService: ZaaktypeHelperService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -155,6 +156,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 creatiedatum = ZonedDateTime.now()
                 mapBetrokkeneKoppelingen(previousConfiguration, this)
                 mapBrpDoelbindingen(previousConfiguration, this)
+                nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
+                zaaktypeHelperService.updateZaakbeeindigGegevens(previousConfiguration, zaaktype)
+                zaaktypeCompletionParameters = previousConfiguration.zaaktypeCompletionParameters
             }.run(::storeConfiguration)
         }
     }

@@ -64,6 +64,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
+        zaaktypeHelperService = ZaaktypeHelperService(ztcClientService),
     )
 
     beforeEach {

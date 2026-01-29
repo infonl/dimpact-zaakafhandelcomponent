@@ -21,8 +21,11 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeHelperService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -30,6 +33,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VAR
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import java.net.URI
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -44,7 +48,10 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val ztcClientService = mockk<ZtcClientService>()
+    val zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
+    val zaaktypeBpmnConfigurationBeheerService =
+        ZaaktypeBpmnConfigurationBeheerService(entityManager, zaaktypeHelperService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -307,10 +314,12 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         Given("existing previous configuration") {
             val zaakType = createZaakType()
             val newZaaktypeUuid = zaakType.url.extractUuid()
+            val nietOntvankelijkResultaattype = UUID.randomUUID()
 
             val previousConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false)
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false),
+                nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
             )
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
@@ -327,6 +336,8 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every {
                 entityManager.createQuery(criteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull()
             } returns previousConfiguration
+            every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
+            every { ztcClientService.readResultaattype(nietOntvankelijkResultaattype) } returns createResultaatType()
 
             val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
             val newConfiguration = createZaaktypeBpmnConfiguration()
@@ -347,6 +358,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                         with(zaaktypeBrpParameters!!) {
                             raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
                         }
+                        nietOntvankelijkResultaattype shouldBe nietOntvankelijkResultaattype
                     }
                 }
             }
