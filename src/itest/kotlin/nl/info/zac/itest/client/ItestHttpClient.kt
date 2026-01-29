@@ -104,7 +104,7 @@ class ItestHttpClient {
      * @param headers Optional headers to include in the request. Defaults to standard headers.
      * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
      * If provided, the user will be logged out afterwards.
-     * @return A [ResponseContent] containing the response body, headers, and status code
+     * @return A [ResponseContent] containing the response body, headers, and status code.
      */
     fun performGetRequest(
         url: String,
