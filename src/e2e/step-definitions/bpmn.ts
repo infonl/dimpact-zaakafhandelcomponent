@@ -280,17 +280,21 @@ Then(
 );
 
 Then(
-  "{string} sees group {string} in the zaak data",
+  "{string} sees group {string} and behandelaar {string} in the zaak data",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
     groupName: string,
+    behandelaarName: string,
   ) {
     await this.page.getByRole("button", { name: "Zaakdata" }).first().click();
     await expect(
       this.page.getByRole("textbox", { name: "zaakGroep" }),
     ).toHaveValue(groupName);
+      await expect(
+          this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
+      ).toHaveValue(behandelaarName);
     await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );
