@@ -41,6 +41,14 @@ repositories {
     maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
+buildscript {
+    dependencies {
+        // enables the Smallrye OpenAPI Gradle plugin to be able to scan Kotlin metadata
+        // see: https://github.com/smallrye/smallrye-open-api/issues/2470
+        classpath(libs.kotlinx.metadata.jvm)
+    }
+}
+
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
