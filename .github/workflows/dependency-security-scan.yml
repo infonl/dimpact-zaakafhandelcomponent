@@ -112,7 +112,7 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
@@ -144,7 +144,7 @@ jobs:
       - name: Update OWASP dependency database
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          ./gradlew dependencyCheckUpdate --no-configuration-cache  -DdependencyCheck.connectionTimeout=2400000 || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
