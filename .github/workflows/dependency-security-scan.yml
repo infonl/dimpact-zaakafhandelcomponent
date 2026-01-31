@@ -144,7 +144,7 @@ jobs:
       - name: Update OWASP dependency database
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          ./gradlew dependencyCheckUpdate --no-configuration-cache  -DdependencyCheck.connectionTimeout=2400000 || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then

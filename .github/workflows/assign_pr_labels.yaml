@@ -1,0 +1,49 @@
+#
+# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Check Markdown Links
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  determine-pr-labels:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Determine and set PR labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [];
+            if (github.event.pull_request.user.login === 'renovate[bot]') {
+              labels.push('dependency');
+            }
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            if (files.data.some(f => f.filename.startsWith('docs/'))) {
+              labels.push('documentation');
+            }
+            if (files.data.some(f => f.filename.startsWith('.github/workflows/'))) {
+              labels.push('workflow');
+            }
+            if (files.data.some(f => f.filename.startsWith('charts/'))) {
+              labels.push('helm');
+            }
+            if (labels.length > 0) {
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels
+              });
+            }
