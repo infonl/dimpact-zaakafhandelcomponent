@@ -10,7 +10,6 @@ import { z } from "zod";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
-import {TIMEOUT} from "node:dns";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const TWO_MINUTES_IN_MS = 120_000;
@@ -210,13 +209,14 @@ When(
     await group.fill("test gr");
     await group.focus();
     await this.page.getByRole("listbox").first().click();
-      if (bpmnZaakType) {
-        const assignToUser = this.page.getByLabel("Zaak toekennen aan medewerker", {
-            }).nth(0);
-        await assignToUser.fill("test us");
-        await assignToUser.focus();
-        await this.page.getByRole("listbox").first().click();
-      }
+    if (bpmnZaakType) {
+      const assignToUser = this.page
+        .getByLabel("Zaak toekennen aan medewerker", {})
+        .nth(0);
+      await assignToUser.fill("test us");
+      await assignToUser.focus();
+      await this.page.getByRole("listbox").first().click();
+    }
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar

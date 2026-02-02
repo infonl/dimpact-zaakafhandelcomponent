@@ -82,6 +82,7 @@ Given(
     );
     await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv.getByText("succes")).toBeVisible();
+    await this.page.waitForTimeout(10000);
     await smartDocumentsWizardPage.close();
   },
 );
@@ -217,6 +218,7 @@ Then(
   "{string} sees that the summary form contains all filled-in data",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.waitForTimeout(15000);
     await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
       beheerdersGroupId,
     );
@@ -292,9 +294,9 @@ Then(
     await expect(
       this.page.getByRole("textbox", { name: "zaakGroep" }),
     ).toHaveValue(groupName);
-      await expect(
-          this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
-      ).toHaveValue(behandelaarName);
+    await expect(
+      this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
+    ).toHaveValue(behandelaarName);
     await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );
