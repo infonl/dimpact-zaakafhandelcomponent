@@ -174,6 +174,7 @@ describe(OntvangstbevestigingComponent.name, () => {
 
     loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -182,10 +183,6 @@ describe(OntvangstbevestigingComponent.name, () => {
   });
 
   describe("ngOnInit", () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
     it("should load documents for the zaak", () => {
       expect(component["documents"]).toEqual(mockDocuments);
     });
@@ -233,10 +230,6 @@ describe(OntvangstbevestigingComponent.name, () => {
   });
 
   describe("setOntvanger", () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
     it("should set ontvanger field with contact email address", () => {
       component.setOntvanger();
 
@@ -260,10 +253,6 @@ describe(OntvangstbevestigingComponent.name, () => {
   });
 
   describe("form validation", () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
     it("should mark form as invalid when required fields are empty", () => {
       component["form"].reset();
       component["form"].markAllAsTouched();
@@ -303,11 +292,6 @@ describe(OntvangstbevestigingComponent.name, () => {
   });
 
   describe("submit", () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-      jest.spyOn(utilService, "openSnackbar");
-    });
-
     it("should call sendAcknowledgeReceipt mutation with correct data", async () => {
       component["form"].patchValue({
         verzender: mockDefaultAfzender,
@@ -367,6 +351,7 @@ describe(OntvangstbevestigingComponent.name, () => {
     });
 
     it("should emit ontvangstBevestigd on successful submission", async () => {
+      jest.spyOn(utilService, "openSnackbar");
       const emitSpy = jest.spyOn(component["ontvangstBevestigd"], "emit");
 
       component["form"].patchValue({
@@ -401,10 +386,6 @@ describe(OntvangstbevestigingComponent.name, () => {
   });
 
   describe("form buttons", () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
     it("should have enabled submit button when form is valid", async () => {
       component["form"].patchValue({
         verzender: mockDefaultAfzender,
