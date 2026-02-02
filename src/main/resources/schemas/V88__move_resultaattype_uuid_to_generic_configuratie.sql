@@ -6,8 +6,7 @@ ALTER TABLE ${schema}.zaaktype_configuration ADD COLUMN niet_ontvankelijk_result
 
 UPDATE ${schema}.zaaktype_configuration ztc
 SET niet_ontvankelijk_resultaattype_uuid = cmmn.niet_ontvankelijk_resultaattype_uuid
-FROM ${schema}.zaaktype_configuration cmmn
-WHERE ztc.id = cmmn.id
-  AND cmmn.niet_ontvankelijk_resultaattype_uuid IS NOT NULL;
+FROM ${schema}.zaaktype_cmmn_configuration cmmn
+WHERE ztc.id = cmmn.id;
 
 ALTER TABLE ${schema}.zaaktype_cmmn_configuration DROP COLUMN niet_ontvankelijk_resultaattype_uuid;
