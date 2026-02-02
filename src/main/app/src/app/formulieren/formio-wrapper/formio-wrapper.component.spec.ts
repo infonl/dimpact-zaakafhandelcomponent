@@ -10,11 +10,14 @@ import { FormioWrapperComponent } from "./formio-wrapper.component";
 describe(FormioWrapperComponent.name, () => {
   let component: FormioWrapperComponent;
   let bootstrapLoader: FormioBootstrapLoaderService;
+  let mockElementRef: Pick<ElementRef, "nativeElement">;
 
   beforeEach(() => {
-    const mockElementRef: Pick<ElementRef, "nativeElement"> = {
+    mockElementRef = {
       nativeElement: {
-        shadowRoot: null,
+        shadowRoot: {
+          adoptedStyleSheets: [],
+        },
       },
     };
 
@@ -51,6 +54,48 @@ describe(FormioWrapperComponent.name, () => {
       component.onChange(event);
 
       expect(listener).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe("Bootstrap CSS loading", () => {
+    it("should load Bootstrap CSS on init", async () => {
+      await component.ngOnInit();
+
+      expect(bootstrapLoader.getBootstrapStyleSheet).toHaveBeenCalledTimes(1);
+    });
+
+    it("should adopt Bootstrap stylesheet into shadow DOM", async () => {
+      const mockSheet = new CSSStyleSheet();
+      jest
+        .spyOn(bootstrapLoader, "getBootstrapStyleSheet")
+        .mockResolvedValue(mockSheet);
+
+      await component.ngOnInit();
+
+      expect(
+        mockElementRef.nativeElement.shadowRoot.adoptedStyleSheets,
+      ).toContain(mockSheet);
+    });
+
+    it("should not throw error when shadowRoot is null", async () => {
+      mockElementRef.nativeElement.shadowRoot = null;
+
+      await expect(component.ngOnInit()).resolves.not.toThrow();
+    });
+
+    it("should handle errors gracefully", async () => {
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+      jest
+        .spyOn(bootstrapLoader, "getBootstrapStyleSheet")
+        .mockRejectedValue(new Error("Failed to load"));
+
+      await component.ngOnInit();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to load Bootstrap CSS:",
+        expect.any(Error),
+      );
+      consoleSpy.mockRestore();
     });
   });
 });
