@@ -22,7 +22,7 @@ import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
-import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
+import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
@@ -178,7 +178,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
             it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
             it.zaaktypeBetrokkeneParameters =
-                restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+                restZaakafhandelParameters.betrokkeneKoppelingen.toZaaktypeBetrokkenParameters(it)
             it.zaaktypeBrpParameters =
                 restZaakafhandelParameters.brpDoelbindingen.toZaaktypeBrpParameters(it)
             it.zaaktypeCmmnEmailParameters =

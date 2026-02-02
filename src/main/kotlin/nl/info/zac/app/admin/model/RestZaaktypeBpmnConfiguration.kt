@@ -34,11 +34,9 @@ data class RestZaaktypeBpmnConfiguration(
 
     var defaultBehandelaarId: String? = null,
 
-    // The frontend currently requires this field to be non-null
-    var betrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
+    var betrokkeneKoppelingen: RestBetrokkeneKoppelingen? = null,
 
-    // The frontend currently requires this field to be non-null
-    var brpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+    var brpDoelbindingen: RestBrpDoelbindingen? = null
 )
 
 fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
@@ -51,9 +49,9 @@ fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnCo
     groepID = this@toZaaktypeBpmnConfiguration.groepNaam
     creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
     zaaktypeBetrokkeneParameters =
-        this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen.toBetrokkeneKoppelingen(this)
+        this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
     zaaktypeBrpParameters =
-        this@toZaaktypeBpmnConfiguration.brpDoelbindingen.toZaaktypeBrpParameters(this)
+        this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
 }
 
 fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
