@@ -96,7 +96,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         ).toRestZaaktypeBpmnConfiguration()
     }
 
-    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
+    private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
         productaanvraagtype: String,
         zaaktypeDescription: String,
         zaaktypeUuid: UUID
