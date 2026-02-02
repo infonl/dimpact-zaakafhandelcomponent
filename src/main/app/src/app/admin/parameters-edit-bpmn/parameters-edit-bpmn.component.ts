@@ -379,13 +379,13 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   ) {
     let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
     for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
-      if (this.compareObject(item.zaakbeeindigReden, reden)) {
+      if (this.utilService.compare(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
         break;
       }
     }
-    if (parameter === null) {
+    if (!parameter) {
       parameter = { zaakbeeindigReden: reden };
     }
     return parameter;
@@ -402,8 +402,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     }
     control?.updateValueAndValidity({ emitEvent: false });
   }
-  protected compareObject = (a: unknown, b: unknown) =>
-    this.utilService.compare(a, b);
 
   protected opslaan() {
     const bpmnProcessDefinitionKey =
