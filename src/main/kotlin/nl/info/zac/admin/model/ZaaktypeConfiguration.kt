@@ -151,6 +151,8 @@ abstract class ZaaktypeConfiguration {
 
                     resultaattype = previousParameter.resultaattype
                 }
+                // If the zaaktypeUuid has changed, this indicates the configuration is being copied.
+                // In that case, we need to reset the id to ensure a new entity is created
                 if (previousZaaktypeConfiguration.zaaktypeUuid != newZaaktypeConfiguration.zaaktypeUuid) {
                     newParameter.id = null
                 }
