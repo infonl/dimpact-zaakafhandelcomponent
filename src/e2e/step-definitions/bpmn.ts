@@ -14,7 +14,8 @@ const FORTY_SECOND_IN_MS = 40_000;
 const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
 
-const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_REGEXP =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const beheerdersGroupId = "beheerders_elk_domein";
 const beheerdersGroupName = "Beheerders elk domein - new IAM";
@@ -222,11 +223,11 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
     );
-    await expect(this.page.getByRole("option", { name: UUID_REGEXP })).toBeVisible(
-      {
-        timeout: FORTY_SECOND_IN_MS,
-      },
-    );
+    await expect(
+      this.page.getByRole("option", { name: UUID_REGEXP }),
+    ).toBeVisible({
+      timeout: FORTY_SECOND_IN_MS,
+    });
     await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
       {
         timeout: FORTY_SECOND_IN_MS,
