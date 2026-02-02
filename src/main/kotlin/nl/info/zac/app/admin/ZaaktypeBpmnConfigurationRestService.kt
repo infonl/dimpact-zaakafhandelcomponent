@@ -76,13 +76,21 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         return processDefinitions.first().toRestZaaktypeBpmnConfiguration()
     }
 
+    /**
+     * Creates or updates a Zaaktype BPMN configuration.
+     * In future, we should split this into two separate endpoints for create (POST) and update (PUT),
+     * each with their own data input classes.
+     */
     @POST
     @Path("{processDefinitionKey}")
-    fun createZaaktypeBpmnConfiguration(
+    fun createOrUpdateZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
         @Valid restZaaktypeBpmnConfiguration: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        checkNotNull(restZaaktypeBpmnConfiguration.groepNaam) {
+            "groepNaam must not be null"
+        }
         return ZaaktypeBpmnConfiguration().apply {
             id = restZaaktypeBpmnConfiguration.id
             zaaktypeUuid = restZaaktypeBpmnConfiguration.zaaktypeUuid
@@ -90,7 +98,6 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
             groepID = restZaaktypeBpmnConfiguration.groepNaam
-                ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
             creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
