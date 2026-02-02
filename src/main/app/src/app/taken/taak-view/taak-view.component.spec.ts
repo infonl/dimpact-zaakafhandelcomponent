@@ -22,6 +22,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -92,7 +93,7 @@ describe(TaakViewComponent.name, () => {
       GeneratedType<"BetrokkeneIdentificatie">
     >({
       type: "BSN",
-      bsnNummer: "123456789",
+      temporaryPersonId: randomUUID(),
     }),
     resultaat: null,
     besluiten: [],

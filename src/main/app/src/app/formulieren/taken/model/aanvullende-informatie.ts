@@ -90,10 +90,12 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
     ]);
     if (
       zaak.initiatorIdentificatie?.type &&
-      zaak.initiatorIdentificatie?.bsnNummer
+      zaak.initiatorIdentificatie?.temporaryPersonId
     ) {
       this.klantenService
-        .getContactDetailsForPerson(zaak.initiatorIdentificatie.bsnNummer)
+        .getContactDetailsForPerson(
+          zaak.initiatorIdentificatie.temporaryPersonId,
+        )
         .subscribe((value) => {
           if (!value.emailadres) return;
           emailControl.setValue(value.emailadres);

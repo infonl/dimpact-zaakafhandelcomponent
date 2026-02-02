@@ -1375,7 +1375,7 @@ export class ZaakViewComponent
       case "NATUURLIJK_PERSOON": {
         const persoon = await this.queryClient.ensureQueryData(
           this.klantenService.readPersoon(
-            betrokkene.identificatie,
+            betrokkene.temporaryPersonId!,
             this.zaak.zaaktype.uuid,
           ),
         );

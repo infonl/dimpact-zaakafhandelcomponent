@@ -12,6 +12,7 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.jetbrains.annotations.NotNull
+import java.util.UUID
 import kotlin.reflect.KClass
 
 @AllOpen
@@ -20,7 +21,8 @@ import kotlin.reflect.KClass
 data class BetrokkeneIdentificatie(
     @field:NotNull
     var type: IdentificatieType,
-    var bsnNummer: String? = null,
+    var bsn: String? = null,
+    var temporaryPersonId: UUID? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
     var vestigingsnummer: String? = null
@@ -39,14 +41,15 @@ class BetrokkeneIdentificatieValidator : ConstraintValidator<ValidBetrokkeneIden
     override fun isValid(value: BetrokkeneIdentificatie?, context: ConstraintValidatorContext): Boolean {
         if (value == null) return false
         return when (value.type) {
-            IdentificatieType.BSN -> !value.bsnNummer.isNullOrBlank() &&
-                value.kvkNummer.isNullOrBlank() &&
-                value.vestigingsnummer.isNullOrBlank()
+            IdentificatieType.BSN ->
+                value.temporaryPersonId != null &&
+                    value.kvkNummer.isNullOrBlank() &&
+                    value.vestigingsnummer.isNullOrBlank()
             IdentificatieType.VN -> !value.kvkNummer.isNullOrBlank() &&
                 !value.vestigingsnummer.isNullOrBlank() &&
-                value.bsnNummer.isNullOrBlank()
+                value.temporaryPersonId == null
             IdentificatieType.RSIN -> !value.kvkNummer.isNullOrBlank() &&
-                value.bsnNummer.isNullOrBlank() &&
+                value.temporaryPersonId == null &&
                 value.vestigingsnummer.isNullOrBlank()
         }
     }

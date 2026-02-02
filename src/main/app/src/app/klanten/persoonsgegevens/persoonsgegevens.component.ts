@@ -3,8 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, input, output } from "@angular/core";
-import { Router } from "@angular/router";
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -18,27 +24,31 @@ import { KlantenService } from "../klanten.service";
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
-  private readonly router = inject(Router);
 
   protected isVerwijderbaar = input(false);
   protected isWijzigbaar = input(false);
   protected zaaktypeUuid = input.required<string>();
-  protected bsn = input.required<string>();
+  protected temporaryPersonId = input.required<string>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();
 
   protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(this.bsn(), this.zaaktypeUuid()),
+    this.klantenService.readPersoon(
+      this.temporaryPersonId(),
+      this.zaaktypeUuid(),
+    ),
   );
+
+  protected readonly isDisabled = signal(false);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
 
-  protected openPersoonPagina(event: MouseEvent) {
-    event.stopPropagation();
-
-    this.router.navigateByUrl("/persoon", {
-      state: { bsn: this.bsn() },
+  constructor() {
+    effect(() => {
+      this.isDisabled.set(
+        this.persoonQuery.isLoading() || !!this.persoonQuery.error(),
+      );
     });
   }
 }

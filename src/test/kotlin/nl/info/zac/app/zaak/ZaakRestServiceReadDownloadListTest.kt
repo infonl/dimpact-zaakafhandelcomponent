@@ -55,6 +55,7 @@ import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
@@ -104,6 +105,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
+    val identificationService = mockk<IdentificationService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
@@ -137,7 +139,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -320,8 +323,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 rechten = zaakRechten.toRestZaakRechten(),
                 initiatorBetrokkeneIdentificatie = createBetrokkeneIdentificatie(
-                    type = IdentificatieType.BSN,
-                    bsnNummer = "123456789"
+                    type = IdentificatieType.BSN
                 )
             )
             every {
@@ -375,6 +377,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         ) {
             val zaak = createZaak()
             val zaakType = createZaakType()
+            val expectedPersonId = UUID.randomUUID()
             val rolNatuurlijkPersoon = createRolNatuurlijkPersoonForReads()
             val rolNietNatuurlijkPersoonWithVestigingsnummer = createRolNietNatuurlijkPersoonForReads(
                 nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
@@ -398,6 +401,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
             every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
+            every { identificationService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
 
             When("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
@@ -411,6 +415,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                             type shouldBe "NATUURLIJK_PERSOON"
                             identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
+                            temporaryPersonId shouldBe expectedPersonId
                             identificatieType shouldBe IdentificatieType.BSN
                         }
                         with(this[1]) {
