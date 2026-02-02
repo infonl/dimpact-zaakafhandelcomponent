@@ -15,7 +15,7 @@ Feature: BPMN
   Scenario: Bob changes the assigned user and group
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    Then "Bob" sees group "Test groep B" and behandelaar "Test User2" in the zaak data
+    Then "Bob" sees group "Test groep B" and user "Test User2" in the zaak data
     Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM "
     Then "Bob" sees group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM" in the zaak data
 

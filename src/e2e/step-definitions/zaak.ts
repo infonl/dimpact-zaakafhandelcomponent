@@ -210,9 +210,9 @@ When(
     await group.focus();
     await this.page.getByRole("listbox").first().click();
     if (bpmnZaakType) {
-      const assignToUser = this.page
-        .getByLabel("Zaak toekennen aan medewerker", {})
-        .nth(0);
+        const assignToUser = this.page.getByRole("combobox", {
+            name: "Zaak toekennen aan medewerker",
+        });
       await assignToUser.fill("test us");
       await assignToUser.focus();
       await this.page.getByRole("listbox").first().click();
