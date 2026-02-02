@@ -73,15 +73,6 @@
           "key": "ZK_Status",
           "input": false,
           "disabled": true
-        },
-        {
-          "label": "Mail receiver",
-          "labelPosition": "left-left",
-          "disabled": true,
-          "key": "TF_EMAIL_TO",
-          "type": "textfield",
-          "input": true,
-          "defaultValue": "shared-team-dimpact@info.nl"
         }
       ]
     },

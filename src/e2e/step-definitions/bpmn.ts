@@ -22,6 +22,11 @@ const beheerdersGroupName = "Beheerders elk domein - new IAM";
 const beheerderUserId = "beheerder1newiam";
 const beheerderUser = "Beheerder 1 New IAM";
 
+const CHANNEL_KEY = "E-mail";
+const CHANNEL_VALUE = "46";
+const RESULT_VALUE = "Verleend";
+const STATUS_VALUE = "Afgerond";
+
 When(
   "{string} opens the active task",
   { timeout: TWO_MINUTES_IN_MS },
@@ -155,11 +160,13 @@ When(
     await this.page
       .getByRole("option", { name: "file A", exact: true })
       .click();
-    await this.page.getByLabel("Communication channel").selectOption("E-mail");
+    await this.page
+      .getByLabel("Communication channel")
+      .selectOption(CHANNEL_KEY);
     await this.page.getByLabel("Select result").click();
-    await this.page.getByLabel("Select result").selectOption("Verleend");
+    await this.page.getByLabel("Select result").selectOption(RESULT_VALUE);
     await this.page.getByLabel("Select status").click();
-    await this.page.getByLabel("Select status").selectOption("Afgerond");
+    await this.page.getByLabel("Select status").selectOption(STATUS_VALUE);
   },
 );
 
@@ -228,11 +235,15 @@ Then(
     ).toBeVisible({
       timeout: FORTY_SECOND_IN_MS,
     });
-    await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
-      {
-        timeout: FORTY_SECOND_IN_MS,
-      },
-    );
+    await expect(
+      this.page.getByRole("textbox", { name: "Reference table value" }),
+    ).toHaveValue(CHANNEL_VALUE);
+    await expect(
+      this.page.getByRole("textbox", { name: "Zaak Result" }),
+    ).toHaveValue(RESULT_VALUE);
+    await expect(
+      this.page.getByRole("textbox", { name: "Zaak Status" }),
+    ).toHaveValue(STATUS_VALUE);
   },
 );
 
