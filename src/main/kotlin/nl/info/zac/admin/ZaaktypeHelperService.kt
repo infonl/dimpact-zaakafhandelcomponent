@@ -55,7 +55,7 @@ class ZaaktypeHelperService @Inject constructor(
         }
     }
 
-    fun mapVorigResultaattypeOpNieuwResultaattype(
+    private fun mapVorigResultaattypeOpNieuwResultaattype(
         previousResultaattypeUUID: UUID,
         newResultaattypen: List<ResultaatType>,
     ): UUID? =
