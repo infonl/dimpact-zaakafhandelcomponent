@@ -8,22 +8,20 @@ import { expect } from "@playwright/test";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+import { regex as uuidRegex } from 'uuidv4';
 
 const TWO_MINUTES_IN_MS = 120_000;
 const FORTY_SECOND_IN_MS = 40_000;
 const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
 
-const UUID_REGEXP =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 const beheerdersGroupId = "beheerders_elk_domein";
 const beheerdersGroupName = "Beheerders elk domein - new IAM";
 const beheerderUserId = "beheerder1newiam";
 const beheerderUser = "Beheerder 1 New IAM";
 
-const CHANNEL_KEY = "E-mail";
-const CHANNEL_VALUE = "46";
+const COMMUNICATION_CHANNEL_KEY = "E-mail";
+const COMMUNICATION_CHANNEL_VALUE = "46";
 const RESULT_VALUE = "Verleend";
 const STATUS_VALUE = "Afgerond";
 
@@ -162,7 +160,7 @@ When(
       .click();
     await this.page
       .getByLabel("Communication channel")
-      .selectOption(CHANNEL_KEY);
+      .selectOption(COMMUNICATION_CHANNEL_KEY);
     await this.page.getByLabel("Select result").click();
     await this.page.getByLabel("Select result").selectOption(RESULT_VALUE);
     await this.page.getByLabel("Select status").click();
@@ -231,13 +229,13 @@ Then(
       beheerderUserId,
     );
     await expect(
-      this.page.getByRole("option", { name: UUID_REGEXP }),
+      this.page.getByRole("option", { name: uuidRegex.v4 }),
     ).toBeVisible({
       timeout: FORTY_SECOND_IN_MS,
     });
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue(CHANNEL_VALUE);
+    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE);
     await expect(
       this.page.getByRole("textbox", { name: "Zaak Result" }),
     ).toHaveValue(RESULT_VALUE);
