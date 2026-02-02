@@ -32,7 +32,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationService,
             zaaktypeBpmnConfigurationBeheerService,
             zaaktypeCmmnConfigurationBeheerService,
-            policyService
+            policyService,
         )
 
     beforeEach {

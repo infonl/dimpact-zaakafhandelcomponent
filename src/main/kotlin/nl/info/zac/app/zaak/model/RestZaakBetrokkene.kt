@@ -16,8 +16,10 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
@@ -38,6 +40,12 @@ data class RestZaakBetrokkene(
      * - In case of a [NIET_NATUURLIJK_PERSOON] this is the RSIN (innNnpId) if available, otherwise the `vestigingsnummer`.
      */
     var identificatie: String,
+
+    /**
+     * Temporary UUID that can be used to look up the person instead of using sensitive BSN
+     * Only populated when type is [NATUURLIJK_PERSOON]
+     */
+    var temporaryPersonId: UUID?,
 
     /**
      * The identificatieType indicating what the type is of the [identificatie] field.
@@ -61,18 +69,21 @@ data class RestZaakBetrokkene(
  * It can also happen that a specific betrokkene type does not have an actual identification field.
  * We do not return these roles as they do not contain enough useful information for the client.
  *
+ * @param identificationService the [IdentificationService] instance to use for BSN replacement, or `null` to skip replacement
  * @returns the converted [RestZaakBetrokkene], or `null` if the rol has no [Rol.betrokkeneIdentificatie]
  * since we do not support [RestZaakBetrokkene] objects without an identification.
  */
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
-fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
+fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = null): RestZaakBetrokkene? {
     var identificatieType: IdentificatieType? = null
     var identificatie: String
+    var temporaryPersonId: UUID? = null
     var kvkNummer: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
             identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
+            identificationService?.let { temporaryPersonId = identificationService.replaceBsnWithKey(identificatie) }
         }
         NIET_NATUURLIJK_PERSOON -> {
             // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
@@ -113,9 +124,11 @@ fun Rol<*>.toRestZaakBetrokkene(): RestZaakBetrokkene? {
         roltoelichting = this.roltoelichting,
         type = this.betrokkeneType.name,
         identificatie = identificatie,
+        temporaryPersonId = temporaryPersonId,
         identificatieType = identificatieType,
         kvkNummer = kvkNummer
     )
 }
 
-fun List<Rol<*>>.toRestZaakBetrokkenen(): List<RestZaakBetrokkene> = mapNotNull { it.toRestZaakBetrokkene() }
+fun List<Rol<*>>.toRestZaakBetrokkenen(identificationService: IdentificationService? = null): List<RestZaakBetrokkene> =
+    mapNotNull { it.toRestZaakBetrokkene(identificationService) }

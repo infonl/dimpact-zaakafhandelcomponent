@@ -376,7 +376,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
-            val gebruikersnaamMedewerker = "fakeGebruikersnaamMedewerker"
+            val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
             val fakeGebruikersnaamMedewerker = createUser()
             val zaakType = createZaakType()
             val createdZaak = createZaak()
@@ -384,7 +384,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
-                gebruikersnaamMedewerker = gebruikersnaamMedewerker
+                defaultBehandelaarId = defaultBehandelaarId
             )
             zaaktypeCmmnConfiguration.apply {
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
@@ -444,7 +444,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
-            every { identityService.readUser(gebruikersnaamMedewerker) } returns createUser()
+            every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
@@ -508,7 +508,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
-            val gebruikersnaamMedewerker = "fakeGebruikersnaamMedewerker"
+            val defaultBehandelaarId = "fakeGebruikersnaamMedewerker"
             val fakeGebruikersnaamMedewerker = createUser()
             val zaakType = createZaakType()
             val createdZaak = createZaak()
@@ -516,7 +516,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
-                gebruikersnaamMedewerker = gebruikersnaamMedewerker
+                defaultBehandelaarId = defaultBehandelaarId
             )
             zaaktypeCmmnConfiguration.apply {
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
@@ -579,7 +579,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
-            every { identityService.readUser(gebruikersnaamMedewerker) } returns createUser()
+            every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(

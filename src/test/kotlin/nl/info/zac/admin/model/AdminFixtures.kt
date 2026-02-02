@@ -105,7 +105,7 @@ fun createZaaktypeCmmnConfiguration(
     zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
-    gebruikersnaamMedewerker: String? = null,
+    defaultBehandelaarId: String? = null,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
     zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation()
@@ -121,7 +121,7 @@ fun createZaaktypeCmmnConfiguration(
         this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         this.groepID = groupId
         this.caseDefinitionID = caseDefinitionId
-        this.gebruikersnaamMedewerker = gebruikersnaamMedewerker
+        this.defaultBehandelaarId = defaultBehandelaarId
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(

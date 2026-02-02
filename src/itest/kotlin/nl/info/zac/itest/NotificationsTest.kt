@@ -41,7 +41,6 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
@@ -172,7 +171,7 @@ class NotificationsTest : BehaviorSpec({
                         }
                         with(getJSONObject("initiatorIdentificatie")) {
                             getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
-                            getString("bsnNummer") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            UUID.fromString(getString("temporaryPersonId"))
                         }
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
@@ -231,6 +230,9 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("temporaryPersonId"))
+                UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("temporaryPersonId"))
                 zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)
             }
         }
@@ -495,6 +497,7 @@ class NotificationsTest : BehaviorSpec({
                       "type" : "NATUURLIJK_PERSOON"
                     } ]
                 """.trimIndent()
+                UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
             }
         }
     }

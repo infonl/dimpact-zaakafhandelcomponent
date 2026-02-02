@@ -15,11 +15,9 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createOpschorting
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
-import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
@@ -35,6 +33,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRestDecision
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
@@ -42,9 +41,11 @@ import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
 import java.util.EnumSet
+import java.util.UUID
 
 private data class TestCase(
     val description: String,
@@ -66,6 +67,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
+    val identificationService = mockk<IdentificationService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -78,7 +80,8 @@ class RestZaakConverterTest : BehaviorSpec({
         restDecisionConverter = restDecisionConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
-        bpmnService = bpmnService
+        bpmnService = bpmnService,
+        identificationService = identificationService
     )
 
     beforeEach {
@@ -95,10 +98,14 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
+        val temporaryPersonId = UUID.randomUUID()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(
                 bsn = bsn
             )
+        )
+        val betrokkeneIdentificatie = createBetrokkeneIdentificatie(
+            temporaryPersonId = temporaryPersonId
         )
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
@@ -119,6 +126,9 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every {
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
+        } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
@@ -129,7 +139,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     identificatie shouldBe zaak.identificatie
                     with(initiatorIdentificatie!!) {
                         this.type shouldBe IdentificatieType.BSN
-                        this.bsnNummer shouldBe bsn
+                        this.temporaryPersonId shouldBe temporaryPersonId
                     }
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
@@ -138,197 +148,6 @@ class RestZaakConverterTest : BehaviorSpec({
                     isOpgeschort shouldBe zaak.isOpgeschort()
                     eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
-                }
-            }
-        }
-    }
-
-    Given(
-        """
-        A CMMN zaak with a niet-natuurlijk persoon with vestigingsnummer as initiator, no group, no behandelaar,
-        and no besluiten
-        """
-    ) {
-        val zaak = createZaak()
-        val zaakType = createZaakType()
-        val vestigingsNummer = "fakeVestigingsNummer"
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
-            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                vestigingsnummer = vestigingsNummer
-            )
-        )
-        val restZaakType = createRestZaaktype()
-        val zaakRechten = createZaakRechten()
-        val zaakdata = mapOf("fakeKey" to "fakeValue")
-
-        with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
-            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        }
-        with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
-            every { readZaakdata(zaak.uuid) } returns zaakdata
-        }
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-
-        When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-
-            Then("the zaak should be converted correctly") {
-                with(restZaak) {
-                    uuid shouldBe zaak.uuid
-                    identificatie shouldBe zaak.identificatie
-                    with(initiatorIdentificatie!!) {
-                        this.type shouldBe IdentificatieType.VN
-                        this.vestigingsnummer shouldBe vestigingsNummer
-                    }
-                    omschrijving shouldBe zaak.omschrijving
-                    toelichting shouldBe zaak.toelichting
-                    this.zaaktype shouldBe zaaktype
-                    isVerlengd shouldBe zaak.isVerlengd()
-                    isOpgeschort shouldBe zaak.isOpgeschort()
-                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
-                    indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
-                }
-            }
-        }
-    }
-
-    Given(
-        """
-        A CMMN zaak with a niet-natuurlijk persoon with RSIN (=INN NNP ID) as initiator, no group, no behandelaar,
-        and no besluiten
-        """
-    ) {
-        val zaak = createZaak()
-        val zaakType = createZaakType()
-        val rsin = "fakeRsin"
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
-            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                innNnpId = rsin
-            )
-        )
-        val restZaakType = createRestZaaktype()
-        val zaakRechten = createZaakRechten()
-        val zaakdata = mapOf("fakeKey" to "fakeValue")
-
-        with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
-            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        }
-        with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
-            every { readZaakdata(zaak.uuid) } returns zaakdata
-        }
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-
-        When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-
-            Then("the zaak should be converted correctly") {
-                with(restZaak) {
-                    uuid shouldBe zaak.uuid
-                    identificatie shouldBe zaak.identificatie
-                    with(initiatorIdentificatie!!) {
-                        this.type shouldBe IdentificatieType.RSIN
-                        this.rsin shouldBe rsin
-                    }
-                    omschrijving shouldBe zaak.omschrijving
-                    toelichting shouldBe zaak.toelichting
-                    this.zaaktype shouldBe zaaktype
-                    isVerlengd shouldBe zaak.isVerlengd()
-                    isOpgeschort shouldBe zaak.isOpgeschort()
-                    eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
-                    indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
-                }
-            }
-        }
-    }
-
-    Given("A CMMN zaak with a niet-natuurlijk persoon initiator with only a KVK nummer") {
-        val zaak = createZaak()
-        val zaakType = createZaakType()
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
-            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                innNnpId = null,
-                kvkNummer = "12344321",
-                vestigingsnummer = null
-            )
-        )
-        val restZaakType = createRestZaaktype()
-        val zaakRechten = createZaakRechten()
-        val zaakdata = mapOf("fakeKey" to "fakeValue")
-
-        with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
-            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        }
-        with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
-            every { readZaakdata(zaak.uuid) } returns zaakdata
-        }
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-
-        When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-
-            Then("the zaak should be converted correctly without a RSIN-type initiatorIdentificatie") {
-                with(restZaak) {
-                    uuid shouldBe zaak.uuid
-                    with(initiatorIdentificatie!!) {
-                        this.type shouldBe IdentificatieType.RSIN
-                        this.kvkNummer shouldBe kvkNummer
-                    }
-                }
-            }
-        }
-    }
-
-    Given("A CMMN zaak with a niet-natuurlijk persoon initiator without required identificatie fields") {
-        val zaak = createZaak()
-        val zaakType = createZaakType()
-        val rolNietNatuurlijkPersoon = createRolNietNatuurlijkPersoon(
-            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                innNnpId = null,
-                kvkNummer = null,
-                vestigingsnummer = null,
-                // unsupported identificatie type
-                annIdentificatie = "fakeAnnId"
-            )
-        )
-        val restZaakType = createRestZaaktype()
-        val zaakRechten = createZaakRechten()
-        val zaakdata = mapOf("fakeKey" to "fakeValue")
-
-        with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
-            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-            every { findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
-        }
-        with(zaakVariabelenService) {
-            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
-            every { readZaakdata(zaak.uuid) } returns zaakdata
-        }
-        every { brcClientService.listBesluiten(zaak) } returns emptyList()
-        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
-
-        When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
-
-            Then("the zaak should be converted correctly without an initiatorIdentificatie") {
-                with(restZaak) {
-                    uuid shouldBe zaak.uuid
-                    initiatorIdentificatie shouldBe null
                 }
             }
         }
@@ -352,6 +171,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
+        val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
@@ -370,6 +190,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -412,6 +233,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
+        val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
@@ -430,6 +252,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -456,6 +279,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaak = createZaak()
         val zaakType = createZaakType()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon()
+        val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
@@ -471,6 +295,9 @@ class RestZaakConverterTest : BehaviorSpec({
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every {
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
+        } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
             val testCases = listOf(

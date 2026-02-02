@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.177](https://img.shields.io/badge/Version-1.0.177-informational?style=flat-square) ![AppVersion: 4.1](https://img.shields.io/badge/AppVersion-4.1-informational?style=flat-square)
+![Version: 1.0.179](https://img.shields.io/badge/Version-1.0.179-informational?style=flat-square) ![AppVersion: 4.1](https://img.shields.io/badge/AppVersion-4.1-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.143.1 |
+| @opentelemetry | opentelemetry-collector | 0.144.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -218,7 +218,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.12.3-static@sha256:59a9258e3cf8682020ad9269e201e35ade5253325b30c869621bdeac0ac21076"` |  |
+| opa.image.tag | string | `"1.13.1-static@sha256:79dc887c32be886069d9429075a541c8b0e53326251856190b84572c44702a7a"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
