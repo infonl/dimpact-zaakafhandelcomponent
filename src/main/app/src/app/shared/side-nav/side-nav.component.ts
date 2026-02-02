@@ -113,7 +113,6 @@ export class SideNavComponent {
   }
 
   downloadHref(menuItem: MenuItem) {
-    console.log("Download clicked", menuItem);
     const url = this.asHrefMenuItem(menuItem).url;
     const a = document.createElement("a");
     a.href = url;
