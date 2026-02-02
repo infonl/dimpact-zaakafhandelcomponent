@@ -9,6 +9,8 @@ import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
+export const LINKABLE_ZAKEN_PAGINATION_SIZE = 10;
+
 @Injectable({
   providedIn: "root",
 })
@@ -25,8 +27,6 @@ export class ZoekenService {
 
   listDocumentKoppelbareZaken(body: PutBody<"/rest/zoeken/zaken">) {
     return this.zacHttpClient.PUT("/rest/zoeken/zaken", {
-      page: 0,
-      rows: 10,
       ...body,
     });
   }
@@ -40,7 +40,12 @@ export class ZoekenService {
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
       {
         path: { zaakUuid },
-        query: { zoekZaakIdentifier, relationType },
+        query: {
+          zoekZaakIdentifier: zoekZaakIdentifier,
+          relationType: relationType,
+          page: 0,
+          rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
+        },
       },
     );
   }

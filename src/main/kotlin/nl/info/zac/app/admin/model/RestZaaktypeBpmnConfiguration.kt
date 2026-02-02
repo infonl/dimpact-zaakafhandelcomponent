@@ -29,9 +29,9 @@ data class RestZaaktypeBpmnConfiguration(
     @field:NotBlank
     var groepNaam: String? = null,
 
-    var defaultBehandelaarId: String? = null,
+    var creatiedatum: ZonedDateTime? = null,
 
-    var creatiedatum: ZonedDateTime?,
+    var defaultBehandelaarId: String? = null,
 
     // The frontend currently requires this field to be non-null
     var betrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),

@@ -40,7 +40,9 @@ export class KlantContactmomentenTabelComponent
     "medewerker",
     "tekst",
   ];
-  listParameters: PutBody<"/rest/klanten/contactmomenten"> = {};
+  listParameters: PutBody<"/rest/klanten/contactmomenten"> = {
+    page: 0,
+  };
   init = false;
   isLoadingResults = true;
 

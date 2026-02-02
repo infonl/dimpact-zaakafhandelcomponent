@@ -25,14 +25,14 @@ import java.util.UUID
 @AllOpen
 data class RestZaaktypeOverzicht(
     var uuid: UUID,
-    var identificatie: String?,
-    var doel: String?,
-    var omschrijving: String?,
+    var identificatie: String? = null,
+    var doel: String? = null,
+    var omschrijving: String? = null,
     var servicenorm: Boolean = false,
-    var versiedatum: LocalDate?,
-    var beginGeldigheid: LocalDate?,
-    var eindeGeldigheid: LocalDate?,
-    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum?,
+    var versiedatum: LocalDate? = null,
+    var beginGeldigheid: LocalDate? = null,
+    var eindeGeldigheid: LocalDate? = null,
+    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = null,
     var nuGeldig: Boolean = false
 )
 
