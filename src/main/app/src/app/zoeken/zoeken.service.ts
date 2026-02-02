@@ -9,6 +9,8 @@ import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
+export const LINKABLE_ZAKEN_PAGINATION_SIZE = 10;
+
 @Injectable({
   providedIn: "root",
 })
@@ -42,7 +44,7 @@ export class ZoekenService {
           zoekZaakIdentifier: zoekZaakIdentifier,
           relationType: relationType,
           page: 0,
-          rows: 10,
+          rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
         },
       },
     );
