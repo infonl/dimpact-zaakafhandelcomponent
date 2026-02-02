@@ -315,12 +315,12 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
     this.isLoading = true;
     this.zaakafhandelParametersService
-      .updateBpmnZaakafhandelparameters(bpmnProcessDefinitionKey, {
+      .createOrUpdateBpmnZaakafhandelparameters({
         id: this.bpmnZaakafhandelParameters?.id || null,
         zaaktypeUuid: this.bpmnZaakafhandelParameters.zaaktype.uuid,
         zaaktypeOmschrijving:
           this.bpmnZaakafhandelParameters.zaaktype.omschrijving || "",
-        bpmnProcessDefinitionKey,
+        bpmnProcessDefinitionKey: bpmnProcessDefinitionKey,
         productaanvraagtype:
           this.algemeenFormGroup.value.productaanvraagtype || null,
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",

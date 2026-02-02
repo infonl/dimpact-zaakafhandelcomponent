@@ -26,8 +26,4 @@ export class BpmnService {
       path: { key },
     });
   }
-
-  listbpmnProcessConfigurations() {
-    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
-  }
 }

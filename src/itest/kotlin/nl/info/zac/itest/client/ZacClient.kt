@@ -117,10 +117,11 @@ class ZacClient(
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
+            url = "$ZAC_API_URI/zaaktype-bpmn-configuration",
             requestBodyAsString = """{ 
               "zaaktypeUuid": "$zaakTypeUuid",
               "zaaktypeOmschrijving": "$zaakTypeDescription",
+              "bpmnProcessDefinitionKey": "$bpmnProcessDefinitionKey",
               "productaanvraagtype": "$productaanvraagType",
               "groepNaam": "$defaultGroupName",
               "defaultBehandelaarId": "$defaultBehandelaarId",

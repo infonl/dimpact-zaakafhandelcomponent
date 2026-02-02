@@ -143,7 +143,7 @@ describe(ZaakCreateComponent.name, () => {
     });
 
     bpmnService = TestBed.inject(BpmnService);
-    jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
+    jest.spyOn(bpmnService, "getZaaktypeBpmnConfiguration").mockReturnValue(
       of([
         fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
           bpmnProcessDefinitionKey: "bpmn-process-1",
