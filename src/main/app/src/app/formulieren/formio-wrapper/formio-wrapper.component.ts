@@ -1,12 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import {
+  AfterViewInit,
   booleanAttribute,
   Component,
+  ElementRef,
   EventEmitter,
+  inject,
   Input,
   Output,
   ViewChild,
@@ -22,10 +25,10 @@ import {
   selector: "zac-formio-wrapper",
   templateUrl: "./formio-wrapper.component.html",
   styleUrl: "./formio-wrapper.component.less",
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false,
 })
-export class FormioWrapperComponent {
+export class FormioWrapperComponent implements AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -37,6 +40,45 @@ export class FormioWrapperComponent {
 
   @ViewChild(FormioComponent, { static: false })
   formioComponent!: FormioComponent;
+
+  private elementRef = inject(ElementRef);
+  private static bootstrapStyleSheet: CSSStyleSheet | null = null;
+
+  constructor() {}
+
+  async ngAfterViewInit() {
+    await this.loadBootstrapStyles();
+  }
+
+  private async loadBootstrapStyles(): Promise<void> {
+    const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
+    if (!shadowRoot) return;
+
+    if (FormioWrapperComponent.bootstrapStyleSheet) {
+      // Use cached stylesheet
+      shadowRoot.adoptedStyleSheets = [
+        FormioWrapperComponent.bootstrapStyleSheet,
+        ...shadowRoot.adoptedStyleSheets,
+      ];
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "/assets/vendor/bootstrap/bootstrap.min.css",
+      );
+      let css = await response.text();
+      css = css.replace(/:root\b/g, ":host");
+
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(css);
+      FormioWrapperComponent.bootstrapStyleSheet = sheet;
+
+      shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
+    } catch (error) {
+      console.error("Failed to load Bootstrap CSS:", error);
+    }
+  }
 
   onSubmit(event: object) {
     this.formSubmit.emit(event);

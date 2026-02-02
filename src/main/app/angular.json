@@ -47,6 +47,11 @@
                 "input": "src/static",
                 "output": "/static"
               },
+              {
+                "glob": "**/*",
+                "input": "node_modules/bootstrap/dist/css",
+                "output": "/assets/vendor/bootstrap"
+              },
               "src/favicon.ico"
             ],
             "styles": [

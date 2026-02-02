@@ -1,9 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-@import "bootstrap/dist/css/bootstrap.min.css";
+/**
+ * When importing Bootstrap here, the CSS will __ NOT __ be available in the Shadow DOM. 
+ * By injecting BS programmatically into the shadow DOM (see component ngAfterViewInit),
+ * the Bootstrap CSS styles the FormIO forms correctly. And because of the Shadow DOM,
+ * the BS styles do not leak outside this component.
+ */
 
 /**
  * Override Font Awesome icons with Material Symbols for visual consistency across the application.
@@ -12,6 +17,7 @@
  * All other Font Awesome icons will display a generic fallback ("abc").
  * Additional icon mappings may be added here in the future as needed.
  */
+
 .fa {
   font-family: "Material Symbols Outlined" !important;
   font-weight: normal !important;
