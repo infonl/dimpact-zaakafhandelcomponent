@@ -92,6 +92,17 @@ export class SideNavComponent {
     buttonMenuItem.fn();
   }
 
+  downloadHref(menuItem: MenuItem) {
+    const url = this.asHrefMenuItem(menuItem).url;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    a.target = "_self";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   asButtonMenuItem(menuItem: MenuItem): ButtonMenuItem {
     return menuItem as ButtonMenuItem;
   }
@@ -112,16 +123,6 @@ export class SideNavComponent {
     return MenuState;
   }
 
-  downloadHref(menuItem: MenuItem) {
-    const url = this.asHrefMenuItem(menuItem).url;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "";
-    a.target = "_self";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
 }
 
 export enum MenuMode {
