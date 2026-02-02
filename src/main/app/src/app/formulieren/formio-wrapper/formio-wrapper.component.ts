@@ -1,16 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import {
-  AfterViewInit,
   booleanAttribute,
   Component,
   ElementRef,
   EventEmitter,
   inject,
   Input,
+  OnInit,
   Output,
   ViewChild,
   ViewEncapsulation,
@@ -20,6 +20,7 @@ import {
   FormioComponent,
   FormioHookOptions,
 } from "@formio/angular";
+import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 
 @Component({
   selector: "zac-formio-wrapper",
@@ -28,7 +29,7 @@ import {
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false,
 })
-export class FormioWrapperComponent implements AfterViewInit {
+export class FormioWrapperComponent implements OnInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -42,41 +43,24 @@ export class FormioWrapperComponent implements AfterViewInit {
   formioComponent!: FormioComponent;
 
   private elementRef = inject(ElementRef);
-  private static bootstrapStyleSheet: CSSStyleSheet | null = null;
+  private bootstrapLoader = inject(FormioBootstrapLoaderService);
+  protected stylesLoaded = false;
 
-  constructor() {}
-
-  async ngAfterViewInit() {
+  async ngOnInit() {
     await this.loadBootstrapStyles();
+    this.stylesLoaded = true;
   }
 
   private async loadBootstrapStyles(): Promise<void> {
     const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
     if (!shadowRoot) return;
 
-    if (FormioWrapperComponent.bootstrapStyleSheet) {
-      // Use cached stylesheet
-      shadowRoot.adoptedStyleSheets = [
-        FormioWrapperComponent.bootstrapStyleSheet,
-        ...shadowRoot.adoptedStyleSheets,
-      ];
-      return;
-    }
-
     try {
-      const response = await fetch(
-        "/assets/vendor/bootstrap/bootstrap.min.css",
-      );
-      let css = await response.text();
-      css = css.replace(/:root\b/g, ":host");
-
-      const sheet = new CSSStyleSheet();
-      await sheet.replace(css);
-      FormioWrapperComponent.bootstrapStyleSheet = sheet;
-
+      const sheet = await this.bootstrapLoader.getBootstrapStyleSheet();
       shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
     } catch (error) {
       console.error("Failed to load Bootstrap CSS:", error);
+      // Allow form to render without Bootstrap styles
     }
   }
 
