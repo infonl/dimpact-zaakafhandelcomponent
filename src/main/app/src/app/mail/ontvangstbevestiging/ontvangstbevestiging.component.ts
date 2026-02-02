@@ -84,18 +84,18 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.afzenders = afzenders;
       });
 
+    this.zakenService
+      .readDefaultAfzenderVoorZaak(this.zaak().uuid)
+      .subscribe((defaultVerzenderVoorZaak) => {
+        this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
+      });
+
     this.mailtemplateService
       .findMailtemplate("TAAK_ONTVANGSTBEVESTIGING", this.zaak().uuid)
       .subscribe((mailtemplate) => {
         this.form.controls.onderwerp.setValue(mailtemplate?.onderwerp);
         this.form.controls.body.setValue(mailtemplate?.body);
         this.variables = mailtemplate?.variabelen ?? [];
-      });
-
-    this.zakenService
-      .readDefaultAfzenderVoorZaak(this.zaak().uuid)
-      .subscribe((defaultVerzenderVoorZaak) => {
-        this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
       });
 
     const temporaryPersonId =
