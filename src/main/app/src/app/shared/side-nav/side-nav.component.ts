@@ -122,7 +122,6 @@ export class SideNavComponent {
   get MenuState() {
     return MenuState;
   }
-
 }
 
 export enum MenuMode {
