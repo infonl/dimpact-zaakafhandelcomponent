@@ -4,10 +4,10 @@
  */
 ALTER TABLE ${schema}.zaaktype_configuration ADD COLUMN niet_ontvankelijk_resultaattype_uuid uuid NULL;
 
-UPDATE ${schema}.zaaktype_configuration
+UPDATE ${schema}.zaaktype_configuration ztc
 SET niet_ontvankelijk_resultaattype_uuid = cmmn.niet_ontvankelijk_resultaattype_uuid
-FROM ${schema}.zaaktype_configuration c
-INNER JOIN ${schema}.zaaktype_cmmn_configuration cmmn
-ON c.id = cmmn.id;
+FROM ${schema}.zaaktype_configuration cmmn
+WHERE ztc.id = cmmn.id
+  AND cmmn.niet_ontvankelijk_resultaattype_uuid IS NOT NULL;
 
 ALTER TABLE ${schema}.zaaktype_cmmn_configuration DROP COLUMN niet_ontvankelijk_resultaattype_uuid;

@@ -209,7 +209,7 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    Given("valid zaaktype UUID without an existing process definition\"") {
+    Given("valid zaaktype UUID without an existing process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         every {
             runtimeService.createProcessInstanceQuery()
