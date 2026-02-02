@@ -212,12 +212,11 @@ When(
     await this.page.getByRole("listbox").first().click();
       if (bpmnZaakType) {
         const assignToUser = this.page.getByLabel("Zaak toekennen aan medewerker", {
-            });
+            }).nth(0);
         await assignToUser.fill("test us");
         await assignToUser.focus();
         await this.page.getByRole("listbox").first().click();
       }
-    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
