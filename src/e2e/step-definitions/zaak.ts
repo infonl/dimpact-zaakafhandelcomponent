@@ -209,7 +209,14 @@ When(
     await group.fill("test gr");
     await group.focus();
     await this.page.getByRole("listbox").first().click();
-
+    if (bpmnZaakType) {
+      const assignToUser = this.page.getByRole("combobox", {
+        name: "Zaak toekennen aan medewerker",
+      });
+      await assignToUser.fill("test us");
+      await assignToUser.focus();
+      await this.page.getByRole("listbox").first().click();
+    }
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
