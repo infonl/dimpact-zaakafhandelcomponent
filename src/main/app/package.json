@@ -38,7 +38,7 @@
     "@formio/angular": "9.0.2",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
-    "@tanstack/angular-query-experimental": "5.90.24",
+    "@tanstack/angular-query-experimental": "5.90.25",
     "@tanstack/query-async-storage-persister": "5.90.22",
     "@tanstack/query-persist-client-core": "5.91.19",
     "bootstrap": "5.3.3",
