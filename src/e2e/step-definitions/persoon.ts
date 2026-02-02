@@ -18,6 +18,14 @@ const TEST_PERSON_CONTACT_MOMENT_FIRST = "e2eTestFirstName of e2eTestLastName";
 const TEST_PERSON_CONTACT_MOMENT_SECOND = "e2eFirstName in e2eLastName";
 
 Then(
+  "{string} navigates to initiator details page",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.getByRole("link", { name: "Persoon bekijken" }).click();
+  },
+);
+
+Then(
   "{string} sees the person",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
