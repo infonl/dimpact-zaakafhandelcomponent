@@ -13,6 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -29,7 +30,7 @@ describe(KlantZakenTabelComponent.name, () => {
   let zoekenService: ZoekenService;
 
   const mockPersoon = fromPartial<GeneratedType<"RestPersoon">>({
-    bsn: "999990408",
+    temporaryPersonId: randomUUID(),
     identificatieType: "BSN",
   });
 
@@ -39,8 +40,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-001",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [mockPersoon.temporaryPersonId],
+        Contactpersoon: [mockPersoon.temporaryPersonId],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -48,7 +49,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-002",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
+        Melder: [mockPersoon.temporaryPersonId],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -56,7 +57,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [mockPersoon.bsn, "999992958"],
+        Bewindvoerder: [mockPersoon.temporaryPersonId, "999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -64,8 +65,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-004",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [mockPersoon.temporaryPersonId],
+        Contactpersoon: [mockPersoon.temporaryPersonId],
         Behandelaar: ["behandelaar-user"],
       },
     } as unknown as ZaakZoekObject,

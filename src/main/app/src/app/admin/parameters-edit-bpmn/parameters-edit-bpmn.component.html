@@ -109,6 +109,15 @@
             [options]="groepen"
           >
           </zac-select>
+
+          <zac-select
+            class="col-12 col-lg-6"
+            key="defaultBehandelaar"
+            label="behandelaar"
+            optionDisplayValue="naam"
+            [form]="algemeenFormGroup"
+            [options]="medewerkers"
+          ></zac-select>
         </section>
         <section class="row">
           <zac-input

@@ -287,9 +287,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
 
   protected openPersoonPagina(persoon: GeneratedType<"RestPersoon">) {
     this.sideNav?.close();
-    void this.router.navigateByUrl("/persoon", {
-      state: { bsn: persoon.identificatie },
-    });
+    void this.router.navigate(["/persoon/", persoon.temporaryPersonId]);
   }
 
   protected clearFormAndData() {

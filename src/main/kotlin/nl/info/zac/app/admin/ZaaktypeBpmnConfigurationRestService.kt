@@ -42,7 +42,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
@@ -97,6 +97,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
+            defaultBehandelaarId = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
             groepID = restZaaktypeBpmnConfiguration.groepNaam
             creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
@@ -120,6 +121,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
+            defaultBehandelaarId = this.defaultBehandelaarId,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum
         ).apply {

@@ -39,10 +39,12 @@ import org.apache.commons.lang3.StringUtils
 import java.util.EnumSet
 import java.util.Locale
 import java.util.Objects
+import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
 data class RestPersoon(
+    var temporaryPersonId: UUID? = null,
     var bsn: String? = null,
     var geslacht: String? = null,
     var geboortedatum: String? = null,

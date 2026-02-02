@@ -5,6 +5,7 @@
 package nl.info.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
@@ -18,6 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVA
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestGroup
@@ -104,6 +106,7 @@ class ZacClient(
         bpmnProcessDefinitionKey: String,
         productaanvraagType: String,
         defaultGroupName: String,
+        defaultBehandelaarId: String,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
@@ -120,6 +123,7 @@ class ZacClient(
               "zaaktypeOmschrijving": "$zaakTypeDescription",
               "productaanvraagtype": "$productaanvraagType",
               "groepNaam": "$defaultGroupName",
+              "defaultBehandelaarId": "$defaultBehandelaarId",
               "betrokkeneKoppelingen": {
                 "brpKoppelen": true,
                 "kvkKoppelen": true
@@ -384,6 +388,7 @@ class ZacClient(
         groupId: String,
         groupName: String,
         behandelaarId: String? = null,
+        behandelaarName: String? = null,
         description: String? = ZAAK_OMSCHRIJVING,
         toelichting: String? = null,
         startDate: ZonedDateTime,
@@ -394,10 +399,12 @@ class ZacClient(
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
-        val behandelaarString = behandelaarId?.let {
+        val behandelaarString = behandelaarId?.let { id ->
+            val naam = behandelaarName ?: id
             """
                 "behandelaar": {
-                    "id": "$it"
+                    "id": "$id",
+                    "naam": "$naam"
                 },
             """
         } ?: ""
@@ -445,6 +452,26 @@ class ZacClient(
             url = "${ZAC_API_URI}/zaken/zaak/id/$id",
             testUser = testUser
         )
+    }
+
+    fun getTemporaryPersonId(bsn: String, testUser: TestUser): UUID {
+        logger.info { "Retrieving person id for BSN: $bsn" }
+        val response = itestHttpClient.performPutRequest(
+            url = "${ZAC_API_URI}/klanten/personen",
+            requestBodyAsString = """{
+                      "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                    }
+            """.trimMargin(),
+            testUser = testUser
+        )
+        val responseBody = response.bodyAsString
+        logger.info { "Response: $responseBody" }
+        response.code shouldBe HttpURLConnection.HTTP_OK
+        val firstResult = JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0)
+        with(firstResult.toString()) {
+            shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)
+        }
+        return UUID.fromString(firstResult.getString("temporaryPersonId"))
     }
 
     fun getHumanTaskPlanItemsForZaak(zaakUUID: UUID, testUser: TestUser): ResponseContent {

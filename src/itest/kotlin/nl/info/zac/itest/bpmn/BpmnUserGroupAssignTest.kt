@@ -76,6 +76,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                 groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                 behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+                behandelaarName = BEHANDELAAR_DOMAIN_TEST_1.displayName,
                 startDate = DATE_TIME_2000_01_01,
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
@@ -107,7 +108,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                   "groep" : {
                     "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
                     "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
-                  }               
+                  },
+                  "behandelaar" : {
+                    "id" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                    "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
+                  }
                 }
                 """.trimIndent()
             }

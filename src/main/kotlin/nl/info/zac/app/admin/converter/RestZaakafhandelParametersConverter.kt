@@ -58,7 +58,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 zaaktypeCmmnConfiguration.zaaktypeUuid
             ).toRestZaaktypeOverzicht(),
             defaultGroepId = zaaktypeCmmnConfiguration.groepID,
-            defaultBehandelaarId = zaaktypeCmmnConfiguration.gebruikersnaamMedewerker,
+            defaultBehandelaarId = zaaktypeCmmnConfiguration.defaultBehandelaarId,
             einddatumGeplandWaarschuwing = zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing,
             uiterlijkeEinddatumAfdoeningWaarschuwing = zaaktypeCmmnConfiguration
                 .uiterlijkeEinddatumAfdoeningWaarschuwing,
@@ -151,7 +151,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
             domein = restZaakafhandelParameters.domein
-            gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
+            defaultBehandelaarId = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             smartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
             creatiedatum = restZaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()

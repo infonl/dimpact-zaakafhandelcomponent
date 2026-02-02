@@ -138,7 +138,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
     this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
-      betrokkene.bsnNummer ?? betrokkene.kvkNummer ?? "";
+      betrokkene.bsn ?? betrokkene.kvkNummer ?? "";
   }
 
   ngAfterViewInit() {
@@ -170,7 +170,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (betrokkene.bsnNummer && ids.includes(betrokkene.bsnNummer)) {
+      if (
+        betrokkene.temporaryPersonId &&
+        ids.includes(betrokkene.temporaryPersonId)
+      ) {
         acc.push(rol);
       }
 

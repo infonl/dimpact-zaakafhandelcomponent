@@ -3,11 +3,23 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-expansion-panel>
+<mat-expansion-panel [disabled]="isDisabled()">
   <mat-expansion-panel-header>
-    <mat-panel-title> {{ "initiator.titel" | translate }} </mat-panel-title>
-    <mat-panel-description *ngIf="persoonQuery.data()">
-      {{ persoonQuery.data()?.naam ?? ("msg.loading" | translate) }}
+    <mat-panel-title>
+      <span class="mr-2">{{ "initiator.titel" | translate }}</span>
+      @if (persoonQuery.isLoading()) {
+        <mat-spinner diameter="14" />
+      } @else if (persoonQuery.error()) {
+        <mat-icon
+          class="mr-2"
+          color="warn"
+          [matTooltip]="'msg.hint.temporary.person.id.unknown' | translate"
+          >warning</mat-icon
+        >
+      }
+    </mat-panel-title>
+    <mat-panel-description>
+      <span>{{ persoonQuery.data()?.naam | empty }}</span>
       <div class="flex-row items-center">
         <zac-persoon-indicaties
           class="zac-persoon-indicaties"
@@ -20,26 +32,29 @@
           "
         ></zac-persoon-indicaties>
         <button
-          *ngIf="persoonQuery.data() && isWijzigbaar()"
-          [title]="'actie.initiator.wijzigen' | translate"
+          *ngIf="isWijzigbaar()"
           mat-icon-button
+          [title]="'actie.initiator.wijzigen' | translate"
+          [disabled]="isDisabled()"
           (click)="$event.stopPropagation(); edit.emit(persoonQuery.data()!)"
         >
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="persoonQuery.data() && isVerwijderbaar()"
-          [title]="'actie.ontkoppelen' | translate"
+          *ngIf="isVerwijderbaar()"
           mat-icon-button
+          [disabled]="isDisabled()"
+          [title]="'actie.ontkoppelen' | translate"
           (click)="$event.stopPropagation(); delete.emit(persoonQuery.data()!)"
         >
           <mat-icon>link_off</mat-icon>
         </button>
         <a
-          *ngIf="persoonQuery.data()"
           mat-icon-button
+          [routerLink]="['/persoon', temporaryPersonId()]"
+          [disabled]="isDisabled()"
+          (click)="$event.stopPropagation()"
           title="{{ 'actie.persoon.bekijken' | translate }}"
-          (click)="openPersoonPagina($event)"
         >
           <mat-icon>visibility</mat-icon>
         </a>
