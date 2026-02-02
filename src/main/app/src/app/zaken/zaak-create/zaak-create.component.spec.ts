@@ -36,6 +36,7 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
+import {ZaakafhandelParametersService} from "../../admin/zaakafhandel-parameters.service";
 
 const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
 
@@ -52,7 +53,7 @@ interface AnimationMock {
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
-  let bpmnService: BpmnService;
+  let zaakafhandelParametersService: ZaakafhandelParametersService;
   let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
@@ -142,8 +143,8 @@ describe(ZaakCreateComponent.name, () => {
         ),
     });
 
-    bpmnService = TestBed.inject(BpmnService);
-    jest.spyOn(bpmnService, "getZaaktypeBpmnConfiguration").mockReturnValue(
+    zaakafhandelParametersService = TestBed.inject(ZaakafhandelParametersService);
+    jest.spyOn(zaakafhandelParametersService, "getZaaktypeBpmnConfiguration").mockReturnValue(
       of([
         fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
           bpmnProcessDefinitionKey: "bpmn-process-1",
