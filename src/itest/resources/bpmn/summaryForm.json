@@ -49,14 +49,10 @@
         {
           "label": "Reference table value",
           "labelPosition": "left-left",
-          "type": "select",
+          "type": "textfield",
           "key": "RT_ReferenceTable_Values",
           "input": false,
-          "disabled": true,
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
+          "disabled": true
         },
         {
           "label": "Zaak Result",
