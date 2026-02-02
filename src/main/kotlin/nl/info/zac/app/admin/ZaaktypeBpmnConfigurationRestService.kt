@@ -80,18 +80,18 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     @Path("{processDefinitionKey}")
     fun createZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
-        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
+        @Valid restZaaktypeBpmnConfiguration: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ZaaktypeBpmnConfiguration().apply {
-            id = restZaaktypeBpmnProcessDefinition.id
-            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            id = restZaaktypeBpmnConfiguration.id
+            zaaktypeUuid = restZaaktypeBpmnConfiguration.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
-            zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-            productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            groepID = restZaaktypeBpmnProcessDefinition.groepNaam
+            zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
+            productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
+            groepID = restZaaktypeBpmnConfiguration.groepNaam
                 ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
-            creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
+            creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -100,8 +100,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
-            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toBrpDoelbindingen(it)
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }

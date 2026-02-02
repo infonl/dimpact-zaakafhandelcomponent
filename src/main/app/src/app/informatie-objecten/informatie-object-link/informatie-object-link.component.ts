@@ -99,6 +99,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       .listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
         informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
+        page: 0,
+        rows: 10
       })
       .subscribe({
         next: (result) => {

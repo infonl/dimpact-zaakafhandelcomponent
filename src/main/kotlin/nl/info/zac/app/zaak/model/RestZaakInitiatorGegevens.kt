@@ -16,7 +16,7 @@ data class RestZaakInitiatorGegevens(
     /**
      * Toelichting is only required when updating an existing initiator, not when creating a new one.
      */
-    var toelichting: String?,
+    var toelichting: String? = null,
 
     var zaakUUID: UUID
 )

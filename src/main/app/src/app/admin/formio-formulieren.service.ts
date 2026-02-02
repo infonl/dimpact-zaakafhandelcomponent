@@ -20,7 +20,7 @@ export class FormioFormulierenService {
 
   uploadFormioFormulier(
     body: PostBody<"/rest/formio-formulieren">,
-  ): Observable<void> {
+  ): Observable<unknown> {
     return this.zacHttpClient.POST("/rest/formio-formulieren", body);
   }
 

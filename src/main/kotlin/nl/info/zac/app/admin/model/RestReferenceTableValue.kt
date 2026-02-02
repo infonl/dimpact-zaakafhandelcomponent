@@ -21,7 +21,7 @@ class RestReferenceTableValue(
     @field:NotBlank
     var naam: String,
 
-    var isSystemValue: Boolean
+    var isSystemValue: Boolean = false
 )
 
 fun RestReferenceTableValue.toReferenceTableValue(

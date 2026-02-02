@@ -20,29 +20,29 @@ import java.time.LocalDate
 @NoArgConstructor
 @AllOpen
 data class RestZaakCreateData(
-    var behandelaar: RestUser?,
-    var bronorganisatie: String?,
-    var communicatiekanaal: String?,
-    var einddatumGepland: LocalDate?,
-    var einddatum: LocalDate?,
-    var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
+    var behandelaar: RestUser? = null,
+    var bronorganisatie: String? = null,
+    var communicatiekanaal: String? = null,
+    var einddatumGepland: LocalDate? = null,
+    var einddatum: LocalDate? = null,
+    var gerelateerdeZaken: List<RestGerelateerdeZaak>? = null,
     @field:Valid
-    var groep: RestGroup?,
-    var initiatorIdentificatie: BetrokkeneIdentificatie?,
+    var groep: RestGroup? = null,
+    var initiatorIdentificatie: BetrokkeneIdentificatie? = null,
 
     @field:Size(max = OMSCHRIJVING_MAX_LENGTH)
     var omschrijving: String,
 
-    var publicatiedatum: LocalDate?,
-    var registratiedatum: LocalDate?,
-    var startdatum: LocalDate?,
+    var publicatiedatum: LocalDate? = null,
+    var registratiedatum: LocalDate? = null,
+    var startdatum: LocalDate? = null,
 
     @field:Size(max = TOELICHTING_MAX_LENGTH)
-    var toelichting: String?,
+    var toelichting: String? = null,
 
-    var uiterlijkeEinddatumAfdoening: LocalDate?,
-    var vertrouwelijkheidaanduiding: String?,
-    var zaakgeometrie: RestGeometry?,
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null,
+    var vertrouwelijkheidaanduiding: String? = null,
+    var zaakgeometrie: RestGeometry? = null,
     var zaaktype: RestZaaktype
 )
 
