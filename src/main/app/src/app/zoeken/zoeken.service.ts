@@ -38,7 +38,12 @@ export class ZoekenService {
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
       {
         path: { zaakUuid },
-        query: { zoekZaakIdentifier: zoekZaakIdentifier, relationType: relationType, page: 0, rows: 10},
+        query: {
+          zoekZaakIdentifier: zoekZaakIdentifier,
+          relationType: relationType,
+          page: 0,
+          rows: 10,
+        },
       },
     );
   }

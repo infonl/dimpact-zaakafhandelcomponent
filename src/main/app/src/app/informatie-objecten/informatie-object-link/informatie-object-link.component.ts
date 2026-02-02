@@ -100,7 +100,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
         zaakIdentificator: caseSearch!,
         informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
         page: 0,
-        rows: 10
+        rows: 10,
       })
       .subscribe({
         next: (result) => {
