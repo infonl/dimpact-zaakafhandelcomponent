@@ -18,7 +18,7 @@
       "tableView": false,
       "components": [
         {
-          "title": "Approved by:",
+          "title": "Approval",
           "collapsible": false,
           "key": "PL_ApprovedBy",
           "type": "panel",
@@ -60,7 +60,7 @@
           ]
         },
         {
-          "title": "Documents:",
+          "title": "Documents",
           "collapsible": false,
           "key": "PL_Documents",
           "type": "panel",
@@ -75,7 +75,6 @@
               "input": true,
               "widget": "html5",
               "dataSrc": "custom",
-              "clearOnRefresh": true,
               "attributes": {
                 "ZAC_TYPE": "ZAC_smart_documents_template"
               },
@@ -107,7 +106,7 @@
               "widget": "choicesjs",
               "multiple": true,
               "defaultValue": [],
-              "clearOnRefresh": true,
+              "refreshOn": "data",
               "dataSrc": "custom",
               "placeholder": "Select one or more documents",
               "customOptions": {
@@ -128,24 +127,35 @@
           ]
         },
         {
-          "label": "Communication channel",
-          "type": "select",
-          "key": "RT_ReferenceTable_Values",
-          "input": true,
-          "widget": "html5",
-          "validate": {
-            "required": true
-          },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_referentie_tabel"
-          },
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
+          "title": "Communication",
+          "collapsible": false,
+          "key": "PL_Communication_Channel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Communication channel",
+              "type": "select",
+              "key": "RT_ReferenceTable_Values",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_referentie_tabel"
+              },
+              "dataSrc": "custom",
+              "properties": {
+                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+              }
+            }
+          ]
         },
         {
-          "title": "Result & Status:",
+          "title": "Result & Status",
           "collapsible": false,
           "key": "PL_Result_Status",
           "type": "panel",
@@ -186,18 +196,6 @@
               "dataSrc": "custom"
             }
           ]
-        },
-        {
-          "label": "Initiator",
-          "key": "ZK_initiator",
-          "validate": {
-            "required": false
-          },
-          "type": "input",
-          "input": true,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_process_data"
-          }
         }
       ]
     }

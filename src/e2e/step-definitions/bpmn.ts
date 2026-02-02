@@ -5,6 +5,7 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
+import { regex as uuidRegex } from "uuidv4";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -18,6 +19,11 @@ const beheerdersGroupId = "beheerders_elk_domein";
 const beheerdersGroupName = "Beheerders elk domein - new IAM";
 const beheerderUserId = "beheerder1newiam";
 const beheerderUser = "Beheerder 1 New IAM";
+
+const COMMUNICATION_CHANNEL_KEY = "E-mail";
+const COMMUNICATION_CHANNEL_VALUE = "46";
+const RESULT_VALUE = "Verleend";
+const STATUS_VALUE = "Afgerond";
 
 When(
   "{string} opens the active task",
@@ -153,13 +159,12 @@ When(
       .getByRole("option", { name: "file A", exact: true })
       .click();
     await this.page
-      .getByRole("option", { name: "file B", exact: true })
-      .click();
-    await this.page.getByLabel("Communication channel").selectOption("E-mail");
+      .getByLabel("Communication channel")
+      .selectOption(COMMUNICATION_CHANNEL_KEY);
     await this.page.getByLabel("Select result").click();
-    await this.page.getByLabel("Select result").selectOption("Verleend");
+    await this.page.getByLabel("Select result").selectOption(RESULT_VALUE);
     await this.page.getByLabel("Select status").click();
-    await this.page.getByLabel("Select status").selectOption("Afgerond");
+    await this.page.getByLabel("Select status").selectOption(STATUS_VALUE);
   },
 );
 
@@ -223,21 +228,20 @@ Then(
     await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
     );
-    await expect(this.page.getByRole("option", { name: "file A" })).toBeVisible(
-      {
-        timeout: FORTY_SECOND_IN_MS,
-      },
-    );
-    await expect(this.page.getByRole("option", { name: "file B" })).toBeVisible(
-      {
-        timeout: FORTY_SECOND_IN_MS,
-      },
-    );
-    await expect(this.page.getByRole("option", { name: "E-mail" })).toBeVisible(
-      {
-        timeout: FORTY_SECOND_IN_MS,
-      },
-    );
+    await expect(
+      this.page.getByRole("option", { name: uuidRegex.v4 }),
+    ).toBeVisible({
+      timeout: FORTY_SECOND_IN_MS,
+    });
+    await expect(
+      this.page.getByRole("textbox", { name: "Reference table value" }),
+    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE);
+    await expect(
+      this.page.getByRole("textbox", { name: "Zaak Result" }),
+    ).toHaveValue(RESULT_VALUE);
+    await expect(
+      this.page.getByRole("textbox", { name: "Zaak Status" }),
+    ).toHaveValue(STATUS_VALUE);
   },
 );
 
@@ -276,22 +280,6 @@ Then(
     await this.expect(
       this.page.getByText(`Resultaat ${parsedResult}`),
     ).toBeVisible();
-  },
-);
-
-Then(
-  "{string} sees group {string} in the zaak data",
-  { timeout: TWO_MINUTES_IN_MS },
-  async function (
-    this: CustomWorld,
-    user: z.infer<typeof worldUsers>,
-    groupName: string,
-  ) {
-    await this.page.getByRole("button", { name: "Zaakdata" }).first().click();
-    await expect(
-      this.page.getByRole("textbox", { name: "zaakGroep" }),
-    ).toHaveValue(groupName);
-    await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );
 
