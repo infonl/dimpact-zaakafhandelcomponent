@@ -44,25 +44,15 @@
               "shouldSort": false
             }
           },
-          "disabled": true,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_documenten"
-          }
+          "disabled": true
         },
         {
           "label": "Reference table value",
           "labelPosition": "left-left",
-          "type": "select",
+          "type": "textfield",
           "key": "RT_ReferenceTable_Values",
           "input": false,
-          "disabled": true,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_referentie_tabel"
-          },
-          "dataSrc": "custom",
-          "properties": {
-            "ReferenceTable_Code": "COMMUNICATIEKANAAL"
-          }
+          "disabled": true
         },
         {
           "label": "Zaak Result",
@@ -79,15 +69,6 @@
           "key": "ZK_Status",
           "input": false,
           "disabled": true
-        },
-        {
-          "label": "Mail receiver",
-          "labelPosition": "left-left",
-          "disabled": true,
-          "key": "TF_EMAIL_TO",
-          "type": "textfield",
-          "input": true,
-          "defaultValue": "shared-team-dimpact@info.nl"
         }
       ]
     },
