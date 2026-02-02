@@ -74,7 +74,7 @@ export class NotitiesComponent implements OnInit {
     this.notitieService
       .createNotitie({
         zaakUUID: this.zaakUuid,
-        tekst,
+        tekst: tekst,
         gebruikersnaamMedewerker: loggedInUser.id,
       })
       .subscribe((notitie) => {

@@ -18,7 +18,10 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { ZoekenService } from "src/app/zoeken/zoeken.service";
+import {
+  LINKABLE_ZAKEN_PAGINATION_SIZE,
+  ZoekenService,
+} from "src/app/zoeken/zoeken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
@@ -99,6 +102,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       .listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
         informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
+        page: 0,
+        rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
       })
       .subscribe({
         next: (result) => {
