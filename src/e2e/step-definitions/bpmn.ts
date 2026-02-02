@@ -279,7 +279,6 @@ Then(
   },
 );
 
-
 Then(
   "{string} sees group {string} and user {string} in the zaak data",
   { timeout: TWO_MINUTES_IN_MS },
