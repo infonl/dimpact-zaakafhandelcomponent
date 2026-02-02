@@ -111,6 +111,18 @@ export class SideNavComponent {
   get MenuState() {
     return MenuState;
   }
+
+  downloadHref(menuItem: MenuItem) {
+    console.log("Download clicked", menuItem);
+    const url = this.asHrefMenuItem(menuItem).url;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    a.target = "_self";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 }
 
 export enum MenuMode {

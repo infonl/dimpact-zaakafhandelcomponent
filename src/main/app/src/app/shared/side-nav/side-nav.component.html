@@ -53,19 +53,24 @@
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
     </mat-list-item>
     <mat-list-item
-      role="link"
+      role="button"
       *ngSwitchCase="menuItemType.HREF"
       [disabled]="menuItem.disabled"
-      [href]="asHrefMenuItem(menuItem).url"
+      [activated]="activeItem() === menuItem.title"
+      (click)="!menuItem.disabled && downloadHref(menuItem)"
     >
       <mat-icon
         [matTooltipDisabled]="menuState() === MenuState.OPEN"
         matTooltipPosition="after"
         [matTooltip]="menuItem.title | translate"
         matListItemIcon
-        >{{ menuItem.icon }}</mat-icon
       >
-      <div matListItemTitle>{{ menuItem.title | translate }}</div>
+        {{ menuItem.icon }}
+      </mat-icon>
+
+      <div matListItemTitle>
+        {{ menuItem.title | translate }}
+      </div>
     </mat-list-item>
   </ng-container>
 </mat-nav-list>
