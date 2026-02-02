@@ -43,8 +43,9 @@ repositories {
 
 buildscript {
     dependencies {
-        // enables the Smallrye OpenAPI Gradle plugin to be able to scan Kotlin metadata
-        // see: https://github.com/smallrye/smallrye-open-api/issues/2470
+        // Temporary workaround that enables the Smallrye OpenAPI Gradle plugin to be able to scan Kotlin metadata.
+        // This can be removed once this issue is fixed in a future version of Smallrye.
+        // See: https://github.com/smallrye/smallrye-open-api/pull/2471
         classpath(libs.kotlinx.metadata.jvm)
     }
 }
