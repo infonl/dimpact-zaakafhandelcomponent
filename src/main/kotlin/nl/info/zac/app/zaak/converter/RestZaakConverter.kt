@@ -5,19 +5,12 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
-import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.VESTIGING
-import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
-import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Status
-import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHeropend
@@ -31,9 +24,7 @@ import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.RESTZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
@@ -41,6 +32,7 @@ import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -51,7 +43,6 @@ import nl.info.zac.search.model.ZaakIndicatie.OPSCHORTING
 import nl.info.zac.search.model.ZaakIndicatie.VERLENGD
 import java.time.Period
 import java.util.EnumSet.noneOf
-import java.util.logging.Logger
 
 @Suppress("LongParameterList")
 class RestZaakConverter @Inject constructor(
@@ -66,12 +57,9 @@ class RestZaakConverter @Inject constructor(
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BpmnService
+    private val bpmnService: BpmnService,
+    private val identificationService: IdentificationService,
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
-    }
-
     fun toRestZaak(
         zaak: Zaak,
         zaakType: ZaakType,
@@ -139,7 +127,11 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let { createBetrokkeneIdentificatieForInitiatorRole(it) },
+            initiatorIdentificatie = initiator?.let {
+                identificationService.createBetrokkeneIdentificatieForInitiatorRole(
+                    it
+                )
+            },
             isHoofdzaak = zaak.isHoofdzaak(),
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
@@ -181,49 +173,5 @@ class RestZaakConverter @Inject constructor(
             ?.map(restGerelateerdeZaakConverter::convert)
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
-    }
-
-    private fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
-        val betrokkeneIdentificatie = initiatorRole.betrokkeneIdentificatie
-        val initiatorIdentificatieType = when (val betrokkeneType = initiatorRole.betrokkeneType) {
-            NATUURLIJK_PERSOON -> IdentificatieType.BSN
-            VESTIGING -> IdentificatieType.VN
-            // the 'niet_natuurlijk_persoon' rol type is used both for rechtspersonen ('RSIN') as well as vestigingen
-            NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
-                when {
-                    // we support 'legacy' RSIN-type initiators with only an RSIN (no KVK nor vestigings number)
-                    it.innNnpId?.isNotBlank() == true ||
-                        (it.kvkNummer?.isNotBlank() == true && it.vestigingsNummer.isNullOrBlank()) -> IdentificatieType.RSIN
-                    // as well as new 'RSIN-type' initiators with only a KVK number (but no vestigingsnummer)
-                    it.vestigingsNummer?.isNotBlank() == true -> IdentificatieType.VN
-                    else -> {
-                        LOG.warning(
-                            "Unsupported identification fields for betrokkene type: '$betrokkeneType' " +
-                                "for role with UUID: '${initiatorRole.uuid}'"
-                        )
-                        null
-                    }
-                }
-            }
-            // betrokkeneType may be null (sadly enough)
-            null -> null
-            else -> {
-                LOG.warning(
-                    "Unsupported betrokkene type: '$betrokkeneType' for role with UUID: '${initiatorRole.uuid}'"
-                )
-                null
-            }
-        }
-        return initiatorIdentificatieType?.let {
-            BetrokkeneIdentificatie(
-                type = it,
-                bsnNummer = (betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn,
-                kvkNummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.kvkNummer,
-                rsin = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.innNnpId,
-                vestigingsnummer = (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.vestigingsNummer
-                    // we also support the legacy type of vestiging role
-                    ?: (betrokkeneIdentificatie as? VestigingIdentificatie)?.vestigingsNummer
-            )
-        }
     }
 }

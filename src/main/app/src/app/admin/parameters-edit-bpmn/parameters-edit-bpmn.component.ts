@@ -55,6 +55,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected bpmnProcessDefinitions: GeneratedType<"RestBpmnProcessDefinition">[] =
     [];
   protected groepen = this.identityService.listGroups();
+  protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
@@ -135,6 +136,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       null,
       [Validators.required],
     ),
+    defaultBehandelaar:
+      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
     productaanvraagtype: this.formBuilder.control<string | null>(null),
   });
 
@@ -215,10 +218,29 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       ) || null,
     );
 
-    const { groepNaam: defaultGroepId } = this.bpmnZaakafhandelParameters;
+    const { groepNaam: defaultGroepId, defaultBehandelaarId } =
+      this.bpmnZaakafhandelParameters;
+
+    this.algemeenFormGroup.controls.defaultGroep.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((group) => {
+        if (!group) return;
+
+        this.identityService.listUsersInGroup(group.id).subscribe((users) => {
+          this.medewerkers = users;
+          const pickedUserId =
+            this.algemeenFormGroup.controls.defaultBehandelaar.value?.id;
+          const defaultUser = users.find(
+            ({ id }) => id === (pickedUserId ?? defaultBehandelaarId),
+          );
+          this.algemeenFormGroup.controls.defaultBehandelaar.setValue(
+            defaultUser ?? null,
+          );
+        });
+      });
+
     if (defaultGroepId) {
       const groups = await this.groepen.toPromise();
-
       const defaultGroup = groups?.find(({ id }) => id === defaultGroepId);
       this.algemeenFormGroup.controls.defaultGroep.setValue(
         defaultGroup ?? groups?.at(0) ?? null,
@@ -427,6 +449,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         productaanvraagtype:
           this.algemeenFormGroup.value.productaanvraagtype || null,
         groepNaam: this.algemeenFormGroup.value.defaultGroep!.id || "",
+        defaultBehandelaarId:
+          this.algemeenFormGroup.value.defaultBehandelaar?.id || null,
         betrokkeneKoppelingen:
           this.bpmnZaakafhandelParameters.betrokkeneKoppelingen,
         brpDoelbindingen: this.bpmnZaakafhandelParameters.brpDoelbindingen,

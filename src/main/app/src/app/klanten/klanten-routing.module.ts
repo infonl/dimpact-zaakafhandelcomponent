@@ -14,8 +14,13 @@ import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
 const routes: Routes = [
   {
     path: "persoon",
-    component: PersoonViewComponent,
-    resolve: { persoon: PersoonResolverService },
+    children: [
+      {
+        path: ":bsn",
+        component: PersoonViewComponent,
+        resolve: { persoon: PersoonResolverService },
+      },
+    ],
   },
   {
     path: "bedrijf",

@@ -14,7 +14,7 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RestNote(
-    var id: Long?,
+    var id: Long? = null,
     var zaakUUID: UUID,
 
     @field:JsonbProperty("tekst")
@@ -24,13 +24,13 @@ data class RestNote(
      * Date-time when the note was last modified.
      */
     @field:JsonbProperty("tijdstipLaatsteWijziging")
-    var dateTimeLastModified: ZonedDateTime?,
+    var dateTimeLastModified: ZonedDateTime? = null,
 
     @field:JsonbProperty("gebruikersnaamMedewerker")
     var employeeUsername: String,
 
     @field:JsonbProperty("voornaamAchternaamMedewerker")
-    var employeeFullname: String?,
+    var employeeFullname: String? = null,
 
     @field:JsonbProperty("bewerkenToegestaan")
     var updatingAllowed: Boolean = false

@@ -82,27 +82,35 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         return processDefinitions.first().toRestZaaktypeBpmnConfiguration()
     }
 
+    /**
+     * Creates or updates a Zaaktype BPMN configuration.
+     * In future, we should split this into two separate endpoints for create (POST) and update (PUT),
+     * each with their own data input classes.
+     */
     @POST
     @Path("{processDefinitionKey}")
-    fun createZaaktypeBpmnConfiguration(
+    fun createOrUpdateZaaktypeBpmnConfiguration(
         @NotEmpty @PathParam("processDefinitionKey") processDefinitionKey: String,
-        @Valid restZaaktypeBpmnProcessDefinition: RestZaaktypeBpmnConfiguration
+        @Valid restZaaktypeBpmnConfiguration: RestZaaktypeBpmnConfiguration
     ): RestZaaktypeBpmnConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        checkNotNull(restZaaktypeBpmnConfiguration.groepNaam) {
+            "groepNaam must not be null"
+        }
 
         val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-            restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            restZaaktypeBpmnConfiguration.zaaktypeUuid
         ) ?: ZaaktypeBpmnConfiguration()
 
         return zaaktypeBpmnConfiguration.apply {
-            id = restZaaktypeBpmnProcessDefinition.id
-            zaaktypeUuid = restZaaktypeBpmnProcessDefinition.zaaktypeUuid
+            id = restZaaktypeBpmnConfiguration.id
+            zaaktypeUuid = restZaaktypeBpmnConfiguration.zaaktypeUuid
             bpmnProcessDefinitionKey = processDefinitionKey
-            zaaktypeOmschrijving = restZaaktypeBpmnProcessDefinition.zaaktypeOmschrijving
-            productaanvraagtype = restZaaktypeBpmnProcessDefinition.productaanvraagtype
-            groepID = restZaaktypeBpmnProcessDefinition.groepNaam
-                ?: throw NullPointerException("restZaaktypeBpmnProcessDefinition.groepNaam is null")
-            creatiedatum = restZaaktypeBpmnProcessDefinition.creatiedatum ?: ZonedDateTime.now()
+            zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
+            productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
+            defaultBehandelaarId = restZaaktypeBpmnConfiguration.defaultBehandelaarId
+            groepID = restZaaktypeBpmnConfiguration.groepNaam
+            creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -111,12 +119,12 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnProcessDefinition.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
-            it.zaaktypeBrpParameters = restZaaktypeBpmnProcessDefinition.brpDoelbindingen?.toBrpDoelbindingen(it)
-            it.nietOntvankelijkResultaattype = restZaaktypeBpmnProcessDefinition.zaakNietOntvankelijkResultaattype?.id
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen.toBrpDoelbindingen(it)
+            it.nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
             it.setZaakbeeindigParameters(
                 convertRESTZaakbeeindigParameters(
-                    restZaaktypeBpmnProcessDefinition.zaakbeeindigParameters
+                    restZaaktypeBpmnConfiguration.zaakbeeindigParameters
                 )
             )
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
@@ -130,6 +138,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
             zaaktypeOmschrijving = this.zaaktypeOmschrijving,
             groepNaam = this.groepID,
+            defaultBehandelaarId = this.defaultBehandelaarId,
             productaanvraagtype = this.productaanvraagtype,
             creatiedatum = this.creatiedatum,
             zaakNietOntvankelijkResultaattype = this.nietOntvankelijkResultaattype?.let {

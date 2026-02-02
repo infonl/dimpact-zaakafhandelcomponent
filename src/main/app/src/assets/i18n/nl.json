@@ -853,6 +853,7 @@
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",
+  "msg.hint.temporary.person.id.unknown": "De gekoppelde betrokkene kan niet worden gevonden.",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.formioformulier.verwijderen.bevestigen": "Formulier '{{naam}}' verwijderen?",

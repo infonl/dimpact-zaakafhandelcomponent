@@ -316,7 +316,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe zaakType.omschrijving
                     caseDefinitionID shouldBe originalZaaktypeCmmnConfiguration.caseDefinitionID
                     groepID shouldBe originalZaaktypeCmmnConfiguration.groepID
-                    gebruikersnaamMedewerker shouldBe originalZaaktypeCmmnConfiguration.gebruikersnaamMedewerker
+                    defaultBehandelaarId shouldBe originalZaaktypeCmmnConfiguration.defaultBehandelaarId
                     einddatumGeplandWaarschuwing shouldBe originalZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe originalZaaktypeCmmnConfiguration
                         .uiterlijkeEinddatumAfdoeningWaarschuwing

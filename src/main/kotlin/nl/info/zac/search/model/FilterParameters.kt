@@ -10,5 +10,5 @@ import nl.info.zac.util.NoArgConstructor
 data class FilterParameters(
     var values: List<String>,
 
-    var inverse: Boolean
+    var inverse: Boolean = false
 )

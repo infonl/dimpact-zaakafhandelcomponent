@@ -149,7 +149,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     zaaktypeOmschrijving shouldBe "fakeOmschrijving"
                     caseDefinitionID shouldBe null
                     groepID shouldBe "fakeGroupId"
-                    gebruikersnaamMedewerker shouldBe null
+                    defaultBehandelaarId shouldBe null
                     einddatumGeplandWaarschuwing shouldBe null
                     uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe null
                     nietOntvankelijkResultaattype shouldBe restResultType.id

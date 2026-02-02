@@ -223,7 +223,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktypeCmmnConfiguration.apply {
             caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
             groepID = previousZaaktypeCmmnConfiguration.groepID
-            gebruikersnaamMedewerker = previousZaaktypeCmmnConfiguration.gebruikersnaamMedewerker
+            defaultBehandelaarId = previousZaaktypeCmmnConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = previousZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
                 zaaktype.isServicenormAvailable()
             }
