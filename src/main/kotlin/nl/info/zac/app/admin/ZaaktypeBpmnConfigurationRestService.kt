@@ -97,7 +97,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             bpmnProcessDefinitionKey = processDefinitionKey
             zaaktypeOmschrijving = restZaaktypeBpmnConfiguration.zaaktypeOmschrijving
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
-            defaultBehandelaarId = restZaaktypeBpmnProcessDefinition.defaultBehandelaarId
+            defaultBehandelaarId = restZaaktypeBpmnConfiguration.defaultBehandelaarId
             groepID = restZaaktypeBpmnConfiguration.groepNaam
             creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
@@ -108,8 +108,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 )
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(it)
             }
-            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toBetrokkeneKoppelingen(it)
-            it.zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toBrpDoelbindingen(it)
+            it.zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+            it.zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen.toBrpDoelbindingen(it)
             zaaktypeBpmnConfigurationBeheerService.storeConfiguration(it).toRestZaaktypeBpmnConfiguration()
         }
     }
