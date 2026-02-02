@@ -134,6 +134,28 @@ abstract class ZaaktypeConfiguration {
         }
     }
 
+    fun mapCompletionParameters(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.apply {
+            zaaktypeCompletionParameters = mutableSetOf()
+            previousZaaktypeConfiguration.getZaakbeeindigParameters().forEach { previousParameter ->
+                val newParameter = ZaaktypeCompletionParameters().apply {
+                    id = previousParameter.id
+                    zaaktypeConfiguration = newZaaktypeConfiguration
+                    zaakbeeindigReden = previousParameter.zaakbeeindigReden
+
+                    resultaattype = previousParameter.resultaattype
+                }
+                if (previousZaaktypeConfiguration.zaaktypeUuid != newZaaktypeConfiguration.zaaktypeUuid) {
+                    newParameter.id = null
+                }
+                zaaktypeCompletionParameters?.add(newParameter)
+            }
+        }
+    }
+
     @Suppress("TooGenericExceptionThrown")
     fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCompletionParameters =
         getZaakbeeindigParameters().firstOrNull {

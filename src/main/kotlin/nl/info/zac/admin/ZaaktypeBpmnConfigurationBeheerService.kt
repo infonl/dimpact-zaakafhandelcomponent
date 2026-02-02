@@ -29,8 +29,7 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager,
-    private val zaaktypeHelperService: ZaaktypeHelperService
+    private val entityManager: EntityManager
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -157,8 +156,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 mapBetrokkeneKoppelingen(previousConfiguration, this)
                 mapBrpDoelbindingen(previousConfiguration, this)
                 nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
-                zaaktypeHelperService.updateZaakbeeindigGegevens(previousConfiguration, zaaktype)
-                zaaktypeCompletionParameters = previousConfiguration.zaaktypeCompletionParameters
+                mapCompletionParameters(previousConfiguration, this)
             }.run(::storeConfiguration)
         }
     }
