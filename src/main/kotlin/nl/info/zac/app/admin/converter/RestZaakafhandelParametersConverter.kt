@@ -22,14 +22,14 @@ import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
-import nl.info.zac.app.admin.model.toBetrokkeneKoppelingen
-import nl.info.zac.app.admin.model.toBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
+import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
+import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -178,9 +178,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
             it.setZaakAfzenders(restZaakafhandelParameters.zaakAfzenders.toZaakAfzenders())
             it.zaaktypeBetrokkeneParameters =
-                restZaakafhandelParameters.betrokkeneKoppelingen.toBetrokkeneKoppelingen(it)
+                restZaakafhandelParameters.betrokkeneKoppelingen.toZaaktypeBetrokkenParameters(it)
             it.zaaktypeBrpParameters =
-                restZaakafhandelParameters.brpDoelbindingen.toBrpDoelbindingen(it)
+                restZaakafhandelParameters.brpDoelbindingen.toZaaktypeBrpParameters(it)
             it.zaaktypeCmmnEmailParameters =
                 restZaakafhandelParameters.automaticEmailConfirmation.toAutomaticEmailConfirmation(it)
         }

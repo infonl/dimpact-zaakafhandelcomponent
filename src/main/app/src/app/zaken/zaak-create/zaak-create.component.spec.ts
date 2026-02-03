@@ -28,6 +28,7 @@ import { of } from "rxjs";
 import { BpmnService } from "src/app/admin/bpmn.service";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
+import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -52,7 +53,7 @@ interface AnimationMock {
 describe(ZaakCreateComponent.name, () => {
   let identityService: IdentityService;
   let zakenService: ZakenService;
-  let bpmnService: BpmnService;
+  let zaakafhandelParametersService: ZaakafhandelParametersService;
   let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
@@ -142,16 +143,20 @@ describe(ZaakCreateComponent.name, () => {
         ),
     });
 
-    bpmnService = TestBed.inject(BpmnService);
-    jest.spyOn(bpmnService, "listbpmnProcessConfigurations").mockReturnValue(
-      of([
-        fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
-          bpmnProcessDefinitionKey: "bpmn-process-1",
-          groepNaam: "test-bpmn-group-id",
-          zaaktypeUuid: "uuid-test-bpmn-zaaktype-1",
-        }),
-      ]),
+    zaakafhandelParametersService = TestBed.inject(
+      ZaakafhandelParametersService,
     );
+    jest
+      .spyOn(zaakafhandelParametersService, "getZaaktypeBpmnConfiguration")
+      .mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RestZaaktypeBpmnConfiguration">>({
+            bpmnProcessDefinitionKey: "bpmn-process-1",
+            groepNaam: "test-bpmn-group-id",
+            zaaktypeUuid: "uuid-test-bpmn-zaaktype-1",
+          }),
+        ]),
+      );
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "getEnumAsSelectList").mockImplementation(
