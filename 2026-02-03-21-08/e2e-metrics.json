@@ -1,0 +1,382 @@
+{
+  "summary": {
+    "totalFeatures": 9,
+    "totalScenarios": 22,
+    "passedScenarios": 22,
+    "failedScenarios": 0,
+    "skippedScenarios": 0,
+    "totalSteps": 175,
+    "passedSteps": 175,
+    "failedSteps": 0,
+    "skippedSteps": 0,
+    "totalDuration": 498263366381,
+    "totalDurationFormatted": "8m 18s",
+    "averageScenarioDuration": "22.65s",
+    "passRate": "100.00%"
+  },
+  "features": [
+    {
+      "name": "Login",
+      "uri": "features/1-login.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to login to ZAC",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 10979389775,
+          "durationFormatted": "10.98s",
+          "steps": 5,
+          "tags": []
+        },
+        {
+          "name": "Bob wants to log out of the application after being logged in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 6556212048,
+          "durationFormatted": "6.56s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob logs back in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 6933231036,
+          "durationFormatted": "6.93s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob wants to log out of the application after being logged in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 5903819880,
+          "durationFormatted": "5.90s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob logs back in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 6865997460,
+          "durationFormatted": "6.87s",
+          "steps": 6,
+          "tags": []
+        }
+      ],
+      "totalDuration": 37238650199,
+      "passedScenarios": 5,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "37.24s"
+    },
+    {
+      "name": "Zaken toevoegen",
+      "uri": "features/2-zaken-toevoegen.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to create a new zaak",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 42905626551,
+          "durationFormatted": "42.91s",
+          "steps": 9,
+          "tags": []
+        }
+      ],
+      "totalDuration": 42905626551,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "42.91s"
+    },
+    {
+      "name": "Open Formulieren",
+      "uri": "features/3-open-formulieren.feature",
+      "scenarios": [
+        {
+          "name": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 46597078173,
+          "durationFormatted": "46.60s",
+          "steps": 8,
+          "tags": [
+            "@live-env-only"
+          ]
+        }
+      ],
+      "totalDuration": 46597078173,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "46.60s"
+    },
+    {
+      "name": "SmartDocuments",
+      "uri": "features/4-smartdocuments.feature",
+      "scenarios": [
+        {
+          "name": "Employee wants to create a new document for a zaak Using the SmartDocuments wizard",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 40478200251,
+          "durationFormatted": "40.48s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 40478200251,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "40.48s"
+    },
+    {
+      "name": "Taken toevoegen",
+      "uri": "features/5-taken-toevoegen.feature",
+      "scenarios": [
+        {
+          "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 34376188379,
+          "durationFormatted": "34.38s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 34376188379,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "34.38s"
+    },
+    {
+      "name": "Zaken verdelen / vrijgeven",
+      "uri": "features/6-zaken-verdelen-vrijgeven.feature",
+      "scenarios": [
+        {
+          "name": "Bob assigns zaken to a group and user from the list",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 15425565479,
+          "durationFormatted": "15.43s",
+          "steps": 10,
+          "tags": []
+        },
+        {
+          "name": "Bob releases zaken from the list",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 26880711235,
+          "durationFormatted": "26.88s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 42306276714,
+      "passedScenarios": 2,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "42.31s"
+    },
+    {
+      "name": "Taken verdelen / vrijgeven",
+      "uri": "features/7-taken-verdelen-vrijgeven.feature",
+      "scenarios": [
+        {
+          "name": "Bob assigns taken to a group and user from the list",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 14779988031,
+          "durationFormatted": "14.78s",
+          "steps": 10,
+          "tags": []
+        },
+        {
+          "name": "Bob releases taken",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 24058516644,
+          "durationFormatted": "24.06s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 38838504675,
+      "passedScenarios": 2,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "38.84s"
+    },
+    {
+      "name": "Personen",
+      "uri": "features/8-personen.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to view a person",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 33883251630,
+          "durationFormatted": "33.88s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob inspects person details",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 8946385982,
+          "durationFormatted": "8.95s",
+          "steps": 6,
+          "tags": []
+        }
+      ],
+      "totalDuration": 42829637612,
+      "passedScenarios": 2,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "42.83s"
+    },
+    {
+      "name": "BPMN",
+      "uri": "features/9-bpmn.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to create a new BPMN zaak",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 54622430934,
+          "durationFormatted": "54.62s",
+          "steps": 8,
+          "tags": []
+        },
+        {
+          "name": "Bob changes the assigned user and group",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 16066151461,
+          "durationFormatted": "16.07s",
+          "steps": 7,
+          "tags": []
+        },
+        {
+          "name": "Bob opens the initial task form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 15025088515,
+          "durationFormatted": "15.03s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob creates two SmartDocuments Word files",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 36909114685,
+          "durationFormatted": "36.91s",
+          "steps": 11,
+          "tags": []
+        },
+        {
+          "name": "Bob fills-in and submits the task form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 17409096372,
+          "durationFormatted": "17.41s",
+          "steps": 11,
+          "tags": []
+        },
+        {
+          "name": "Bob inspects the summary task form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 14543280745,
+          "durationFormatted": "14.54s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob confirms the data in the summary form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 18118041115,
+          "durationFormatted": "18.12s",
+          "steps": 8,
+          "tags": []
+        }
+      ],
+      "totalDuration": 172693203827,
+      "passedScenarios": 7,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "2m 52s"
+    }
+  ],
+  "slowestScenarios": [
+    {
+      "feature": "BPMN",
+      "scenario": "Bob wants to create a new BPMN zaak",
+      "duration": 54622430934,
+      "durationFormatted": "54.62s"
+    },
+    {
+      "feature": "Open Formulieren",
+      "scenario": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+      "duration": 46597078173,
+      "durationFormatted": "46.60s"
+    },
+    {
+      "feature": "Zaken toevoegen",
+      "scenario": "Bob wants to create a new zaak",
+      "duration": 42905626551,
+      "durationFormatted": "42.91s"
+    },
+    {
+      "feature": "SmartDocuments",
+      "scenario": "Employee wants to create a new document for a zaak Using the SmartDocuments wizard",
+      "duration": 40478200251,
+      "durationFormatted": "40.48s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob creates two SmartDocuments Word files",
+      "duration": 36909114685,
+      "durationFormatted": "36.91s"
+    },
+    {
+      "feature": "Taken toevoegen",
+      "scenario": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+      "duration": 34376188379,
+      "durationFormatted": "34.38s"
+    },
+    {
+      "feature": "Personen",
+      "scenario": "Bob wants to view a person",
+      "duration": 33883251630,
+      "durationFormatted": "33.88s"
+    },
+    {
+      "feature": "Zaken verdelen / vrijgeven",
+      "scenario": "Bob releases zaken from the list",
+      "duration": 26880711235,
+      "durationFormatted": "26.88s"
+    },
+    {
+      "feature": "Taken verdelen / vrijgeven",
+      "scenario": "Bob releases taken",
+      "duration": 24058516644,
+      "durationFormatted": "24.06s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob confirms the data in the summary form",
+      "duration": 18118041115,
+      "durationFormatted": "18.12s"
+    }
+  ],
+  "failedScenarios": [],
+  "timestamp": "2026-02-03T21:19:17.680Z"
+}
