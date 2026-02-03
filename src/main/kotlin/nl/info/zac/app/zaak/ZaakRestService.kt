@@ -663,12 +663,8 @@ class ZaakRestService @Inject constructor(
             }
             // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
             when (it.getConfigurationType()) {
-                CMMN -> {
-                    cmmnService.terminateCase(zaakUUID)
-                }
-                BPMN -> {
-                    bpmnService.terminateCase(zaakUUID)
-                }
+                CMMN -> cmmnService.terminateCase(zaakUUID)
+                BPMN -> bpmnService.terminateCase(zaakUUID)
             }
         }
     }

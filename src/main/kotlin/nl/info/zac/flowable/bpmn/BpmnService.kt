@@ -136,7 +136,7 @@ class BpmnService @Inject constructor(
             .singleResult()
 
     /**
-     * Terminate the case for a zaak.
+     * Terminate a case
      * This also terminates all open tasks related to the case.
      *
      * @param zaakUUID UUID of the zaak, for which the case should be terminated.

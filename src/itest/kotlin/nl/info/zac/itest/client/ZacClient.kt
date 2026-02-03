@@ -142,7 +142,7 @@ class ZacClient(
                 "id": "$nietOntvankelijkResultaattype",
                 "naam": "Geweigerd",
                 "naamGeneriek": "Geweigerd",
-                "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                "toelichting": "fakeNietOntvankelijkToelichting",
                 "vervaldatumBesluitVerplicht": false
               }
             }

@@ -26,10 +26,10 @@ class ZaaktypeHelperService @Inject constructor(
     private val ztcClientService: ZtcClientService,
 ) {
     /**
-     * Pas de ZaakbeeindigGegevens aan op basis van het gegeven zaaktype
+     * Update ZaakbeeindigGegevens based on the given zaaktype
      *
-     * @param zaaktypeConfiguration bron
-     * @param newZaaktype           het zaaktype om de resultaten van te lezen
+     * @param zaaktypeConfiguration source
+     * @param newZaaktype           zaaktype to read the results from
      */
     fun updateZaakbeeindigGegevens(
         zaaktypeConfiguration: ZaaktypeConfiguration,
@@ -38,11 +38,11 @@ class ZaaktypeHelperService @Inject constructor(
         val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
 
         zaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
-            mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
+            mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
         }
 
         zaaktypeConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            mapVorigResultaattypeOpNieuwResultaattype(
+            mapPreviousResultaattypeToNewResultaattype(
                 zaakbeeindigParameter.resultaattype,
                 newResultaattypen
             )
@@ -55,7 +55,7 @@ class ZaaktypeHelperService @Inject constructor(
         }
     }
 
-    private fun mapVorigResultaattypeOpNieuwResultaattype(
+    private fun mapPreviousResultaattypeToNewResultaattype(
         previousResultaattypeUUID: UUID,
         newResultaattypen: List<ResultaatType>,
     ): UUID? =
@@ -65,11 +65,11 @@ class ZaaktypeHelperService @Inject constructor(
             ?.extractUuid()
 
     /**
-     * Kopieren van de ZaakbeeindigGegevens van de oude ZaaktypeCmmnConfiguration naar de nieuw ZaaktypeCmmnConfiguration
+     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeCmmnConfiguration to the new ZaaktypeCmmnConfiguration
      *
-     * @param previousZaaktypeCmmnConfiguration bron
-     * @param newZaaktypeCmmnConfiguration bestemming
-     * @param newZaaktype                het nieuwe zaaktype om de resultaten van te lezen
+     * @param previousZaaktypeCmmnConfiguration source
+     * @param newZaaktypeCmmnConfiguration      destination
+     * @param newZaaktype                       new zaaktype to read the results from
      */
     fun mapZaakbeeindigGegevens(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
@@ -79,12 +79,12 @@ class ZaaktypeHelperService @Inject constructor(
         val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
         newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype =
             previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
-                mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
+                mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
             }
         val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
             .mapNotNull { zaakbeeindigParameter ->
                 zaakbeeindigParameter.resultaattype
-                    .let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
+                    .let { mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen) }
                     ?.let {
                         ZaaktypeCompletionParameters().apply {
                             zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
