@@ -20,24 +20,24 @@ import java.util.Objects
 import java.util.UUID
 
 @Entity
-@Table(schema = FlywayIntegrator.Companion.SCHEMA, name = "zaaktype_cmmn_completion_parameters")
+@Table(schema = FlywayIntegrator.Companion.SCHEMA, name = "zaaktype_completion_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.Companion.SCHEMA,
-    name = "sq_zaaktype_cmmn_completion_parameters",
-    sequenceName = "sq_zaaktype_cmmn_completion_parameters",
+    name = "sq_zaaktype_completion_parameters",
+    sequenceName = "sq_zaaktype_completion_parameters",
     allocationSize = 1
 )
 @AllOpen
-class ZaaktypeCmmnCompletionParameters : UserModifiable<ZaaktypeCmmnCompletionParameters> {
+class ZaaktypeCompletionParameters : UserModifiable<ZaaktypeCompletionParameters> {
     @Id
-    @GeneratedValue(generator = "sq_zaaktype_cmmn_completion_parameters", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "sq_zaaktype_completion_parameters", strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     var id: Long? = null
 
     @ManyToOne
     @JoinColumn(name = "zaaktype_configuration_id", referencedColumnName = "id")
     @NotNull
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 
     @ManyToOne
     @JoinColumn(name = "id_zaakbeeindigreden", referencedColumnName = "id_zaakbeeindigreden")
@@ -49,7 +49,7 @@ class ZaaktypeCmmnCompletionParameters : UserModifiable<ZaaktypeCmmnCompletionPa
     lateinit var resultaattype: UUID
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ZaaktypeCmmnCompletionParameters) return false
+        if (other !is ZaaktypeCompletionParameters) return false
         return zaakbeeindigReden.id == other.zaakbeeindigReden.id &&
             resultaattype == other.resultaattype
     }
@@ -59,15 +59,15 @@ class ZaaktypeCmmnCompletionParameters : UserModifiable<ZaaktypeCmmnCompletionPa
         return Objects.hash(zaakbeeindigReden.id, resultaattype)
     }
 
-    override fun isModifiedFrom(original: ZaaktypeCmmnCompletionParameters): Boolean {
+    override fun isModifiedFrom(original: ZaaktypeCompletionParameters): Boolean {
         return zaakbeeindigReden == original.zaakbeeindigReden && resultaattype != original.resultaattype
     }
 
-    override fun applyChanges(changes: ZaaktypeCmmnCompletionParameters) {
+    override fun applyChanges(changes: ZaaktypeCompletionParameters) {
         resultaattype = changes.resultaattype
     }
 
-    override fun resetId(): ZaaktypeCmmnCompletionParameters {
+    override fun resetId(): ZaaktypeCompletionParameters {
         id = null
         return this
     }

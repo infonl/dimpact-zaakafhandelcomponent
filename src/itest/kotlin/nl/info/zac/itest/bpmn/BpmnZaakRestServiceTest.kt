@@ -227,4 +227,41 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
+        var bpmnZaakUuid: UUID
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HttpURLConnection.HTTP_OK
+            JSONObject(responseBody).run {
+                getJSONObject("zaakdata").run {
+                    bpmnZaakUuid = getString("zaakUUID").run(UUID::fromString)
+                }
+            }
+        }
+
+        When("the case is aborted") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "${ZAC_API_URI}/zaken/zaak/$bpmnZaakUuid/afbreken",
+                requestBodyAsString = """
+                    {
+                        "zaakbeeindigRedenId": "ZAAK_NIET_ONTVANKELIJK"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            )
+            Then("the response should be a 204 HTTP response") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HttpURLConnection.HTTP_NO_CONTENT
+            }
+        }
+    }
 })

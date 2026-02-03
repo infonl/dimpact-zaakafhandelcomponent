@@ -181,4 +181,50 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A valid zaaktype UUID with an existing process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val processInstance = mockk<ProcessInstance>()
+        val processInstanceId = "fakeProcessInstanceId"
+        every {
+            processInstance.id
+        } returns processInstanceId
+        every {
+            runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaaktypeUUID.toString())
+                .singleResult()
+        } returns processInstance
+        every {
+            runtimeService.deleteProcessInstance(processInstanceId, null)
+        } returns Unit
+
+        When("Terminating the process instance by zaak UUID") {
+            bpmnService.terminateCase(zaaktypeUUID)
+
+            Then("the process instance is terminated") {
+                verify(exactly = 1) {
+                    runtimeService.deleteProcessInstance(processInstanceId, null)
+                }
+            }
+        }
+    }
+
+    Given("valid zaaktype UUID without an existing process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        every {
+            runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaaktypeUUID.toString())
+                .singleResult()
+        } returns null
+
+        When("Terminating the process instance by zaak UUID") {
+            bpmnService.terminateCase(zaaktypeUUID)
+
+            Then("the process instance is not found") {
+                verify(exactly = 0) {
+                    runtimeService.deleteProcessInstance(any(), null)
+                }
+            }
+        }
+    }
 })

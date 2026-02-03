@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
+import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
@@ -36,6 +37,7 @@ import java.util.UUID
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "configuration_type", discriminatorType = DiscriminatorType.STRING)
 @AllOpen
+@Suppress("TooManyFunctions")
 abstract class ZaaktypeConfiguration {
     companion object {
         enum class ZaaktypeConfigurationType { CMMN, BPMN }
@@ -76,6 +78,9 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "domein")
     var domein: String? = null
 
+    @Column(name = "niet_ontvankelijk_resultaattype_uuid")
+    var nietOntvankelijkResultaattype: UUID? = null
+
     @OneToOne(
         mappedBy = "zaaktypeConfiguration",
         cascade = [CascadeType.ALL],
@@ -91,6 +96,15 @@ abstract class ZaaktypeConfiguration {
         orphanRemoval = true
     )
     var zaaktypeBrpParameters: ZaaktypeBrpParameters? = null
+
+    // The set is necessary for Hibernate when you have more than one eager collection on an entity.
+    @OneToMany(
+        mappedBy = "zaaktypeConfiguration",
+        cascade = [CascadeType.ALL],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true
+    )
+    var zaaktypeCompletionParameters: MutableSet<ZaaktypeCompletionParameters>? = null
 
     abstract fun getConfigurationType(): ZaaktypeConfigurationType
 
@@ -120,6 +134,91 @@ abstract class ZaaktypeConfiguration {
             zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
             raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
             verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
+        }
+    }
+
+    fun mapCompletionParameters(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.apply {
+            zaaktypeCompletionParameters = mutableSetOf()
+            previousZaaktypeConfiguration.getZaakbeeindigParameters().forEach { previousParameter ->
+                val newParameter = ZaaktypeCompletionParameters().apply {
+                    id = previousParameter.id
+                    zaaktypeConfiguration = newZaaktypeConfiguration
+                    zaakbeeindigReden = previousParameter.zaakbeeindigReden
+
+                    resultaattype = previousParameter.resultaattype
+                }
+                // If the zaaktypeUuid has changed, this indicates the configuration is being copied.
+                // In that case, we need to reset the id to ensure a new entity is created
+                if (previousZaaktypeConfiguration.zaaktypeUuid != newZaaktypeConfiguration.zaaktypeUuid) {
+                    newParameter.id = null
+                }
+                zaaktypeCompletionParameters?.add(newParameter)
+            }
+        }
+    }
+
+    @Suppress("TooGenericExceptionThrown")
+    fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCompletionParameters =
+        getZaakbeeindigParameters().firstOrNull {
+            it.zaakbeeindigReden.id == zaakbeeindigRedenId
+        } ?: throw RuntimeException(
+            "No ZaakbeeindigParameter found for zaaktypeUUID: '$zaaktypeUuid' and zaakbeeindigRedenId: '$zaakbeeindigRedenId'"
+        )
+
+    fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
+        zaaktypeCompletionParameters ?: emptySet()
+
+    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>?) {
+        if (zaaktypeCompletionParameters == null) {
+            zaaktypeCompletionParameters = mutableSetOf()
+        }
+        desired?.forEach { setZaakbeeindigParameter(it) }
+        zaaktypeCompletionParameters?.let { completionParameters ->
+            desired?.let { d ->
+                completionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
+            }
+        }
+    }
+
+    private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
+        param.zaaktypeConfiguration = this
+        zaaktypeCompletionParameters?.let { setComponent(it, param) }
+    }
+
+    /**
+     * This method replaces the Hibernate's PersistentSet#contains that does not use overridden <code>equals</code>
+     * and <code>hashCode</code>.
+     *
+     * @param targetCollection Collection that should be checked for the existence of the candidate element.
+     * @param candidate        Candidate element to be added to the collection.
+     * @return <code>true</code> if the element is not in the collection, <code>false</code> otherwise.
+     *
+     * @see <a href=https://hibernate.atlassian.net/browse/HHH-3799>Hibernate issue</a>
+     *
+     */
+    fun <T> isElementNotInCollection(targetCollection: Collection<T>, candidate: T): Boolean =
+        targetCollection.none { it == candidate }
+
+    fun <T : UserModifiable<T>> elementToChange(
+        persistentCollection: Collection<T>,
+        changeCandidate: T
+    ): T? = persistentCollection.firstOrNull { it.isModifiedFrom(changeCandidate) }
+
+    fun <T : UserModifiable<T>> setComponent(
+        targetCollection: MutableCollection<T>,
+        candidate: T
+    ) {
+        val existingElement = elementToChange(targetCollection, candidate)
+        if (existingElement != null) {
+            existingElement.applyChanges(candidate)
+        } else {
+            if (isElementNotInCollection(targetCollection, candidate)) {
+                targetCollection.add(candidate.resetId())
+            }
         }
     }
 }
