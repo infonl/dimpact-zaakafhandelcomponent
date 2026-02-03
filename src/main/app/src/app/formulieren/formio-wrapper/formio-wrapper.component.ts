@@ -1,13 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import {
   booleanAttribute,
   Component,
+  ElementRef,
   EventEmitter,
+  inject,
   Input,
+  OnInit,
   Output,
   ViewChild,
   ViewEncapsulation,
@@ -17,6 +20,7 @@ import {
   FormioComponent,
   FormioHookOptions,
 } from "@formio/angular";
+import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 
 @Component({
   selector: "zac-formio-wrapper",
@@ -25,7 +29,7 @@ import {
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false,
 })
-export class FormioWrapperComponent {
+export class FormioWrapperComponent implements OnInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -37,6 +41,28 @@ export class FormioWrapperComponent {
 
   @ViewChild(FormioComponent, { static: false })
   formioComponent!: FormioComponent;
+
+  private elementRef = inject(ElementRef);
+  private bootstrapLoader = inject(FormioBootstrapLoaderService);
+  protected stylesLoaded = false;
+
+  async ngOnInit() {
+    await this.loadBootstrapStyles();
+    this.stylesLoaded = true;
+  }
+
+  private async loadBootstrapStyles(): Promise<void> {
+    const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
+    if (!shadowRoot) return;
+
+    try {
+      const sheet = await this.bootstrapLoader.getBootstrapStyleSheet();
+      shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
+    } catch (error) {
+      console.error("Failed to load Bootstrap CSS:", error);
+      // Allow form to render without Bootstrap styles
+    }
+  }
 
   onSubmit(event: object) {
     this.formSubmit.emit(event);

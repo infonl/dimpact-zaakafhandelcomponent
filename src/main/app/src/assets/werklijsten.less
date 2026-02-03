@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@min-column-width: 200px;
+
 .buttons {
   position: fixed;
   bottom: 15px;
@@ -17,57 +19,40 @@
   z-index: 10;
 }
 
+.mat-column-select {
+  width: 50px;
+  text-overflow: unset;
+}
+
+.mat-column-status,
 .mat-column-zaak-identificatie,
-.mat-column-zaak-identificatie_filter {
-  max-width: 150px;
-}
-
 .mat-column-zaakIdentificatie,
-.mat-column-zaakIdentificatie_filter {
-  max-width: 150px;
-}
-
 .mat-column-zaaktype,
-.mat-column-zaaktype_filter {
-  max-width: 270px;
+.mat-column-zaaktypeOmschrijving,
+.mat-column-naam,
+.mat-column-omschrijving,
+.mat-column-zaakOmschrijving,
+.mat-column-zaakToelichting,
+.mat-column-groep,
+.mat-column-behandelaar,
+.mat-column-toelichting,
+.mat-column-indicaties {
+  min-width: @min-column-width;
 }
 
 .mat-column-startdatum,
-.mat-column-startdatum_filter {
-  min-width: 150px;
-  max-width: 220px;
-}
-
+.mat-column-creatiedatum,
+.mat-column-fataledatum,
 .mat-column-einddatum,
-.mat-column-einddatum_filter {
-  min-width: 150px;
-  max-width: 220px;
-}
-
 .mat-column-uiterlijkeEinddatumAfdoening,
-.mat-column-uiterlijkeEinddatumAfdoening_filter {
-  min-width: 150px;
-  max-width: 220px;
-}
-
 .mat-column-einddatumGepland,
-.mat-column-einddatumGepland_filter {
+.mat-column-registratiedatum {
   min-width: 150px;
   max-width: 220px;
-}
-
-.mat-column-omschrijving,
-.mat-column-omschrijving_filter {
-  max-width: 300px;
-}
-
-.mat-column-toelichting,
-.mat-column-toelichting_filter {
-  max-width: 300px;
 }
 
 .mat-column-zaakToelichting,
-.mat-column-toelichting_filter {
+.mat-column-zaaktypeOmschrijving {
   max-width: 300px;
 }
 
@@ -89,28 +74,12 @@
   }
 }
 
-.mat-column-zaaktypeOmschrijving,
-.mat-column-zaaktypeOmschrijving_filter {
-  max-width: 300px;
-}
-
-.mat-column-indicaties,
-.mat-column-indicaties_filter {
-  max-width: 120px;
-}
-
-.mat-column-dagenTotFataledatum {
-  min-width: 100px;
-  max-width: 150px;
-}
-
+.mat-column-dagenTotFataledatum,
 .mat-column-dagenTotStreefdatum {
   min-width: 100px;
   max-width: 150px;
 }
 
-.mat-column-registratiedatum,
-.mat-column-registratiedatum_filter {
-  min-width: 150px;
-  max-width: 220px;
+.row-detail {
+  padding: 10px 62px;
 }
