@@ -18,8 +18,8 @@
       >
     </h3>
     <mat-divider *ngSwitchCase="menuItemType.HEADER" />
-    <mat-list-item
-      role="link"
+    <a
+      mat-list-item
       *ngSwitchCase="menuItemType.LINK"
       [disabled]="menuItem.disabled"
       [activated]="menuItem.activated"
@@ -34,9 +34,9 @@
         >{{ menuItem.icon }}</mat-icon
       >
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </mat-list-item>
-    <mat-list-item
-      role="button"
+    </a>
+    <button
+      mat-list-item
       *ngSwitchCase="menuItemType.BUTTON"
       [disabled]="menuItem.disabled"
       [activated]="activeItem() === menuItem.title"
@@ -51,27 +51,22 @@
         >{{ menuItem.icon }}</mat-icon
       >
       <div matListItemTitle>{{ menuItem.title | translate }}</div>
-    </mat-list-item>
-    <mat-list-item
-      role="button"
+    </button>
+    <a
+      mat-list-item
       *ngSwitchCase="menuItemType.HREF"
       [disabled]="menuItem.disabled"
-      [activated]="activeItem() === menuItem.title"
-      (click)="!menuItem.disabled && downloadHref(menuItem)"
+      [href]="asHrefMenuItem(menuItem).url"
     >
       <mat-icon
         [matTooltipDisabled]="menuState() === MenuState.OPEN"
         matTooltipPosition="after"
         [matTooltip]="menuItem.title | translate"
         matListItemIcon
+        >{{ menuItem.icon }}</mat-icon
       >
-        {{ menuItem.icon }}
-      </mat-icon>
-
-      <div matListItemTitle>
-        {{ menuItem.title | translate }}
-      </div>
-    </mat-list-item>
+      <div matListItemTitle>{{ menuItem.title | translate }}</div>
+    </a>
   </ng-container>
 </mat-nav-list>
 <mat-toolbar class="toolbar-footer">

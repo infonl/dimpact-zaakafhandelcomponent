@@ -92,16 +92,6 @@ export class SideNavComponent {
     buttonMenuItem.fn();
   }
 
-  downloadHref(menuItem: MenuItem) {
-    this.activeItemChange.emit(menuItem.title);
-    const url = this.asHrefMenuItem(menuItem).url;
-    const a = document.createElement("a");
-    a.href = url;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-
   asButtonMenuItem(menuItem: MenuItem): ButtonMenuItem {
     return menuItem as ButtonMenuItem;
   }
