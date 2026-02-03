@@ -319,9 +319,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected isZaaknietontvankelijkParameter(
-    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    restZaakbeeindigParameter: GeneratedType<"RESTZaakbeeindigParameter">,
   ) {
-    return parameter.zaakbeeindigReden === undefined;
+    return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
   }
 
   protected changeSelection(
