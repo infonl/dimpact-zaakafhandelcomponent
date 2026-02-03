@@ -222,7 +222,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     @GET
     @Path("zaakbeeindigredenen/{zaaktypeUUID}")
     fun listZaakbeeindigRedenenForZaaktype(
-        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
+        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
     ): List<RESTZaakbeeindigReden> =
         createHardcodedZaakTerminationReasons() + readManagedZaakTerminationReasons(zaaktypeUUID)
 
@@ -335,8 +335,10 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             }
         )
 
-    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUUID).getZaakbeeindigParameters()
-            .map { it.zaakbeeindigReden }
-            .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
+    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RESTZaakbeeindigReden> =
+        zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+            ?.getZaakbeeindigParameters()
+            ?.map { it.zaakbeeindigReden }
+            ?.let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
+            ?: emptyList()
 }
