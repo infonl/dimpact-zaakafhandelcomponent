@@ -181,7 +181,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
             every {
-                zaakVariabelenService.setCommunicatiekanaal(
+                zaakVariabelenService.setCommunicationChannel(
                     zaak.uuid,
                     restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                 )
@@ -203,7 +203,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
 
                 And("the communication channel is exposed to zaak data") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setCommunicatiekanaal(
+                        zaakVariabelenService.setCommunicationChannel(
                             zaak.uuid,
                             restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                         )

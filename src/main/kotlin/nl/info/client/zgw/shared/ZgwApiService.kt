@@ -115,38 +115,24 @@ class ZgwApiService @Inject constructor(
         )
     }
 
-    fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType {
-        return ztcClientService.readResultaattype(resultaatTypeUUID)
-    }
+    fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType = ztcClientService.readResultaattype(resultaatTypeUUID)
 
     /**
-     * End [Zaak]. Creating a new Eind [Status] for the [Zaak].
+     * Ends  [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
      * @param zaak [Zaak]
      * @param eindstatusToelichting Toelichting for the Eind [Status].
      */
     fun endZaak(zaak: Zaak, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
         val resultaattype = getResultaat(zaak.zaaktype, resultaatTypeOmschrijving)
-
         closeZaak(zaak, resultaattype.url.extractUuid(), eindstatusToelichting)
     }
 
     /**
-     * End [Zaak]. Creating a new Eind [Status] for the [Zaak].
+     * Close a [Zaak].
      *
-     * @param zaakUUID UUID of the [Zaak]
-     * @param eindstatusToelichting Toelichting for the Eind [Status].
-     */
-    fun endZaak(zaakUUID: UUID, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        endZaak(zaak, resultaatTypeOmschrijving, eindstatusToelichting)
-    }
-
-    /**
-     * Close [Zaak].
-     *
-     * This method will also process the brondatum procedure when needed for
-     * the given `Zaak.resultaattype.brondatumArchiefprocedure.afleidingswijze`.
+     * This function will also process the brondatum procedure when needed for
+     * the given [resultaatTypeUUID].
      *
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
