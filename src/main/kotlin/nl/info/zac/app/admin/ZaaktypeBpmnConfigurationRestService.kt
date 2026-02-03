@@ -110,7 +110,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
             defaultBehandelaarId = restZaaktypeBpmnConfiguration.defaultBehandelaarId
             groepID = restZaaktypeBpmnConfiguration.groepNaam
-            creatiedatum = restZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
+            creatiedatum = zaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
         }.let {
             it.productaanvraagtype?.let { productaanvraagtype ->
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
