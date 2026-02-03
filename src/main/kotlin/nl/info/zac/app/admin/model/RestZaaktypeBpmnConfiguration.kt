@@ -6,7 +6,6 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -47,32 +46,3 @@ data class RestZaaktypeBpmnConfiguration(
      */
     var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList()
 )
-
-fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
-    id = this@toZaaktypeBpmnConfiguration.id
-    zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
-    bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
-    zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
-    productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
-    defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
-    groepID = this@toZaaktypeBpmnConfiguration.groepNaam
-    creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
-    zaaktypeBetrokkeneParameters =
-        this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
-    zaaktypeBrpParameters =
-        this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-}
-
-fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
-    id = this.id,
-    zaaktypeUuid = this.zaaktypeUuid,
-    bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
-    zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-    groepNaam = this.groepID,
-    defaultBehandelaarId = this.defaultBehandelaarId,
-    productaanvraagtype = this.productaanvraagtype,
-    creatiedatum = this.creatiedatum
-).apply {
-    zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
-    zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
-}
