@@ -63,6 +63,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
 
   protected form = this.formBuilder.group({
     caseSearch: this.formBuilder.control<string | null>(null, [
+      Validators.required,
       Validators.minLength(2),
     ]),
   });
