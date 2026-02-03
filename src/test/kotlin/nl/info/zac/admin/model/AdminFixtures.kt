@@ -102,7 +102,7 @@ fun createZaaktypeCmmnConfiguration(
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaaktypeCmmnCompletionParameters: Set<ZaaktypeCmmnCompletionParameters>? = emptySet(),
+    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters>? = emptySet(),
     groupId: String? = null,
     caseDefinitionId: String = "fakeCaseDefinitionId",
     defaultBehandelaarId: String? = null,
@@ -131,7 +131,7 @@ fun createZaaktypeCmmnConfiguration(
             )
         )
         setZaakAfzenders(setOf(createZaakAfzender(zaaktypeCmmnConfiguration = this)))
-        setZaakbeeindigParameters(zaaktypeCmmnCompletionParameters)
+        setZaakbeeindigParameters(zaaktypeCompletionParameters)
         val parameters = this
         this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
             this.zaaktypeConfiguration = parameters
@@ -141,6 +141,39 @@ fun createZaaktypeCmmnConfiguration(
         }
         this.zaaktypeCmmnEmailParameters = zaaktypeCmmnEmailParameters.apply {
             this.zaaktypeCmmnConfiguration = parameters
+        }
+    }
+
+@Suppress("LongParameterList")
+fun createZaaktypeBpmnConfiguration(
+    id: Long? = 1234L,
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
+    domein: String? = "fakeDomein",
+    zaaktypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    productaanvraagtype: String? = null,
+    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters>? = emptySet(),
+    groupId: String? = null,
+    zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
+    zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
+) =
+    ZaaktypeBpmnConfiguration().apply {
+        this.id = id
+        this.creatiedatum = creationDate
+        this.domein = domein
+        this.zaaktypeUuid = zaaktypeUUID
+        this.zaaktypeOmschrijving = zaaktypeOmschrijving
+        this.productaanvraagtype = productaanvraagtype
+        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.groepID = groupId
+        setZaakbeeindigParameters(zaaktypeCompletionParameters)
+        val parameters = this
+        this.zaaktypeBetrokkeneParameters = zaaktypeBetrokkeneParameters.apply {
+            this.zaaktypeConfiguration = parameters
+        }
+        this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
+            this?.zaaktypeConfiguration = parameters
         }
     }
 

@@ -13,12 +13,17 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
+import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
+import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
+import java.util.UUID
 
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
@@ -27,12 +32,16 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val policyService = mockk<PolicyService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
+    val ztcClientService = mockk<ZtcClientService>()
+    val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
             zaaktypeBpmnConfigurationService,
             zaaktypeBpmnConfigurationBeheerService,
             zaaktypeCmmnConfigurationBeheerService,
             policyService,
+            ztcClientService,
+            zaakbeeindigParameterConverter,
         )
 
     beforeEach {
@@ -41,10 +50,17 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
     Context("Reading BPMN zaaktypes") {
         Given("BPMN zaaktype process definition is set-up") {
+            val resultaatType = createResultaatType()
+            val restResultType = resultaatType.toRestResultaatType()
+            val restZaakbeeindigParameter = createRestZaakbeeindigParameter(resultaattype = restResultType)
             every { policyService.readOverigeRechten().startenZaak } returns true
             every {
                 zaaktypeBpmnConfigurationBeheerService.listConfigurations()
             } returns listOf(zaaktypeBpmnProcessDefinition)
+            every {
+                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
+            } returns listOf(restZaakbeeindigParameter)
+            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
 
             When("reading BPMN zaaktypes") {
                 val result = zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(

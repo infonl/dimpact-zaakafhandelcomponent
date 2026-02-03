@@ -110,6 +110,7 @@ class ZacClient(
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
+        nietOntvankelijkResultaattype: UUID,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
@@ -133,6 +134,17 @@ class ZacClient(
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
                 "verwerkingWaarde": "$brpVerwerkingWaarde"
+              },
+              "zaakbeeindigParameters": [],
+              "zaakNietOntvankelijkResultaattype": {
+                "archiefNominatie": "VERNIETIGEN",
+                "archiefTermijn": "5 jaren",
+                "besluitVerplicht": false,
+                "id": "$nietOntvankelijkResultaattype",
+                "naam": "Geweigerd",
+                "naamGeneriek": "Geweigerd",
+                "toelichting": "fakeNietOntvankelijkToelichting",
+                "vervaldatumBesluitVerplicht": false
               }
             }
             """.trimIndent(),

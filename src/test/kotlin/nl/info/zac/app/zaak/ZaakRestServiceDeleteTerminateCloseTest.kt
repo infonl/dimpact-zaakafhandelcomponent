@@ -42,7 +42,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
+import nl.info.zac.admin.model.ZaaktypeCompletionParameters
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -182,15 +183,15 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
-            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+            val zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
-            } returns zaaktypeCmmnConfiguration
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+            } returns zaaktypeConfiguration
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
@@ -204,7 +205,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
-                            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!,
+                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
                             "Zaak is niet ontvankelijk"
                         )
                         cmmnService.terminateCase(zaak.uuid)
@@ -246,8 +247,8 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultTypeUUID = UUID.randomUUID()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
-                zaaktypeCmmnCompletionParameters = setOf(
-                    ZaaktypeCmmnCompletionParameters().apply {
+                zaaktypeCompletionParameters = setOf(
+                    ZaaktypeCompletionParameters().apply {
                         id = 123
                         resultaattype = resultTypeUUID
                         zaakbeeindigReden = ZaakbeeindigReden().apply {
@@ -261,7 +262,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
             every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
@@ -288,6 +289,41 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
 
                 Then("it throws an error") {
                     exception.message shouldBe "For input string: \"not a number\""
+                }
+            }
+        }
+
+        Given("A BPMN zaak and no managed zaakbeeindigreden") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaakTypeUUID = zaakType.url.extractUuid()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val zaaktypeConfiguration = createZaaktypeBpmnConfiguration()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten(afbreken = true)
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+            } returns zaaktypeConfiguration
+            every {
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
+            } just runs
+            every { bpmnService.terminateCase(zaak.uuid) } returns Unit
+
+            When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+                zaakRestService.terminateZaak(
+                    zaak.uuid,
+                    RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                )
+
+                Then("it is ended with result") {
+                    verify(exactly = 1) {
+                        zgwApiService.closeZaak(
+                            zaak,
+                            zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
+                            "Zaak is niet ontvankelijk"
+                        )
+                        bpmnService.terminateCase(zaak.uuid)
+                    }
                 }
             }
         }

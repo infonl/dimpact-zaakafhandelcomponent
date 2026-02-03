@@ -7,6 +7,8 @@ package nl.info.zac.app.admin.model
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -36,7 +38,14 @@ data class RestZaaktypeBpmnConfiguration(
 
     var betrokkeneKoppelingen: RestBetrokkeneKoppelingen? = null,
 
-    var brpDoelbindingen: RestBrpDoelbindingen? = null
+    var brpDoelbindingen: RestBrpDoelbindingen? = null,
+
+    var zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
+
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList()
 )
 
 fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
