@@ -118,7 +118,7 @@ class ZgwApiService @Inject constructor(
     fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType = ztcClientService.readResultaattype(resultaatTypeUUID)
 
     /**
-     * Ends  [Zaak]. Creating a new Eind [Status] for the [Zaak].
+     * Ends [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
      * @param zaak [Zaak]
      * @param eindstatusToelichting Toelichting for the Eind [Status].
