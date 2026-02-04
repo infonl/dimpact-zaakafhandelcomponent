@@ -92,6 +92,7 @@ fun createRestBetrokkeneKoppelingen(
     kvkKoppelen: Boolean = false
 ) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
 
+@Suppress("LongParameterList")
 fun createRestZaaktypeBpmnConfiguration(
     id: Long = 1L,
     zaaktypeUuid: UUID = UUID.randomUUID(),
