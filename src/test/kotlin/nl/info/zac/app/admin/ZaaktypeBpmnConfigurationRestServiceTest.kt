@@ -13,7 +13,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
@@ -23,6 +22,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.createZaakbeeindigReden
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
+import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
 import nl.info.zac.app.admin.model.createRestResultaattype
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.admin.model.createRestZaaktypeBpmnConfiguration
@@ -41,7 +41,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
+    val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
             zaaktypeBpmnConfigurationService,

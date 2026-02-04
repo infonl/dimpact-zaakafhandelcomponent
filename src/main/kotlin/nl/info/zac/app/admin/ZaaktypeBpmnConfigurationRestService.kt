@@ -111,7 +111,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-            setZaakbeeindigParameters(convertRESTZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters))
+            setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toRestZaakbeeindigParameters())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
             zaaktypeBpmnConfiguration

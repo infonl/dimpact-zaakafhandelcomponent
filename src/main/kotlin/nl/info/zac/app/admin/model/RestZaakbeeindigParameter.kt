@@ -5,7 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
-import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
+import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -17,7 +17,7 @@ data class RestZaakbeeindigParameter(
     val id: Long? = null,
     // TODO: both fields need to be nullable because the frontend sometimes only sets one of them,
     // I guess because there is a flow in this where first one is set and later the other?
-    val zaakbeeindigReden: RESTZaakbeeindigReden? = null,
+    val zaakbeeindigReden: RestZaakbeeindigReden? = null,
     val resultaattype: RestResultaattype? = null
 )
 
