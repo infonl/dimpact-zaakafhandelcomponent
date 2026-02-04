@@ -165,7 +165,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     restZaakafhandelParameters.userEventListenerParameters
                 )
             )
-            it.setZaakbeeindigParameters(restZaakafhandelParameters.zaakbeeindigParameters.toRestZaakbeeindigParameters())
+            it.setZaakbeeindigParameters(
+                restZaakafhandelParameters.zaakbeeindigParameters.toRestZaakbeeindigParameters()
+            )
             it.setMailtemplateKoppelingen(
                 convertRESTmailtemplateKoppelingen(
                     restZaakafhandelParameters.mailtemplateKoppelingen

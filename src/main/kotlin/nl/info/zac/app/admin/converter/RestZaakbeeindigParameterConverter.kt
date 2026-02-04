@@ -5,7 +5,6 @@
 package nl.info.zac.app.admin.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -32,4 +31,3 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
         ).toRestResultaatType()
     )
 }
-

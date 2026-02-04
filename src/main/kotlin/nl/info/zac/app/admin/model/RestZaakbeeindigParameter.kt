@@ -14,20 +14,22 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestZaakbeeindigParameter(
-    val id: Long? = null,
-    // TODO: both fields need to be nullable because the frontend sometimes only sets one of them,
-    // I guess because there is a flow in this where first one is set and later the other?
-    val zaakbeeindigReden: RestZaakbeeindigReden? = null,
-    val resultaattype: RestResultaattype? = null
+    // id is nullable to allow creation of new parameters without specifying an id
+    var id: Long? = null,
+    // unfortunately, both zaakbeeindigReden and resultaattype need to nullable currently,
+    // because the frontend only sets one of them at a time
+    var zaakbeeindigReden: RestZaakbeeindigReden? = null,
+    var resultaattype: RestResultaattype? = null
 )
 
 fun List<RestZaakbeeindigParameter>.toRestZaakbeeindigParameters() = map { it.toRestZaakbeeindigParameter() }
 
 fun RestZaakbeeindigParameter.toRestZaakbeeindigParameter() = ZaaktypeCompletionParameters().apply {
+    checkNotNull(this@toRestZaakbeeindigParameter.resultaattype) { "resultaattype cannot be null" }
+    checkNotNull(this@toRestZaakbeeindigParameter.zaakbeeindigReden) { "zaakbeeindigReden cannot be null" }
     id = this@toRestZaakbeeindigParameter.id
     zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
         this@toRestZaakbeeindigParameter.zaakbeeindigReden
     )
-    // TODO: handle null cases properly; preferably make resultaattype non-nullable
     resultaattype = this@toRestZaakbeeindigParameter.resultaattype!!.id
 }
