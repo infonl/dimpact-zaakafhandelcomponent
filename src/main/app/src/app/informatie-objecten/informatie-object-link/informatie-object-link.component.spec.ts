@@ -14,8 +14,8 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
-import { Response } from "../../shared/http/http-client";
 import { UtilService } from "../../core/service/util.service";
+import { Response } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
