@@ -177,6 +177,16 @@ fun createZaaktypeBpmnConfiguration(
         }
     }
 
+fun createZaaktypeCompletionParameters(
+    id: Long? = 1234L,
+    zaakbeeindigReden: ZaakbeeindigReden = createZaakbeeindigReden(),
+    resultaattype: UUID = UUID.randomUUID()
+) = ZaaktypeCompletionParameters().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
+}
+
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
@@ -227,4 +237,12 @@ fun createZaakAfzender(
     this.defaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
+}
+
+fun createZaakbeeindigReden(
+    id: Long? = 1234L,
+    name: String = "fakeName"
+) = ZaakbeeindigReden().apply {
+    this.id = id
+    this.naam = name
 }

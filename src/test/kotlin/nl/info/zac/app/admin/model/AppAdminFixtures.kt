@@ -2,20 +2,11 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.admin
+package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
+import net.atos.zac.app.admin.model.RestZaakbeeindigParameter
+import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
-import nl.info.zac.app.admin.model.RestBrpDoelbindingen
-import nl.info.zac.app.admin.model.RestFormioFormulierContent
-import nl.info.zac.app.admin.model.RestReferenceTable
-import nl.info.zac.app.admin.model.RestReferenceTableUpdate
-import nl.info.zac.app.admin.model.RestReferenceTableValue
-import nl.info.zac.app.admin.model.RestSmartDocuments
-import nl.info.zac.app.admin.model.RestZaakafhandelParameters
-import nl.info.zac.app.admin.model.RestZaakbeeindigParameter
-import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
 import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
 import java.util.UUID
@@ -102,6 +93,27 @@ fun createRestBetrokkeneKoppelingen(
 ) = RestBetrokkeneKoppelingen(brpKoppelen = brpKoppelen, kvkKoppelen = kvkKoppelen)
 
 @Suppress("LongParameterList")
+fun createRestZaaktypeBpmnConfiguration(
+    id: Long = 1L,
+    zaaktypeUuid: UUID = UUID.randomUUID(),
+    bpmnProcessDefinitionKey: String = "fakeProcessDefinitionKey",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    groepNaam: String? = "fakeGroupName",
+    productaanvraagtype: String? = null,
+    zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
+    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
+) = RestZaaktypeBpmnConfiguration(
+    id = id,
+    zaaktypeUuid = zaaktypeUuid,
+    bpmnProcessDefinitionKey = bpmnProcessDefinitionKey,
+    zaaktypeOmschrijving = zaaktypeOmschrijving,
+    groepNaam = groepNaam,
+    productaanvraagtype = productaanvraagtype,
+    zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
+    zaakbeeindigParameters = zaakBeeindigParameters
+)
+
+@Suppress("LongParameterList")
 fun createRestZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
     identificatie: String = "fakeIdentificatie",
@@ -129,7 +141,7 @@ fun createRestZaaktypeOverzicht(
 fun createRestZaakbeeindigReden(
     id: String = "fakeZaakbeeindigRedenId",
     name: String = "fakeZaakbeeindigRedenName"
-) = RESTZaakbeeindigReden().apply {
+) = RestZaakbeeindigReden().apply {
     this.id = id
     this.naam = name
 }
@@ -153,10 +165,10 @@ fun createRestResultaattype(
 
 fun createRestZaakbeeindigParameter(
     id: Long = 1L,
-    zaakbeeindigReden: RESTZaakbeeindigReden = createRestZaakbeeindigReden(),
+    zaakbeeindigReden: RestZaakbeeindigReden = createRestZaakbeeindigReden(),
     resultaattype: RestResultaattype = createRestResultaattype()
-) = RestZaakbeeindigParameter(
-    id = id,
-    zaakbeeindigReden = zaakbeeindigReden,
-    resultaattype = resultaattype
-)
+) = RestZaakbeeindigParameter().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
+}

@@ -119,7 +119,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
   protected showDoelbindingen = false;
-  protected zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
+  protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
 
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
@@ -375,7 +375,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private getZaakbeeindigParameter(
-    reden: GeneratedType<"RESTZaakbeeindigReden">,
+    reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
     let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
     for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {

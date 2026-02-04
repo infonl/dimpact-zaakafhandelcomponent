@@ -203,7 +203,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected formulierDefinities: GeneratedType<"RESTTaakFormulierDefinitie">[] =
     [];
   protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
-  protected zaakbeeindigRedenen: GeneratedType<"RESTZaakbeeindigReden">[] = [];
+  protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
   protected mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
   protected replyTos: GeneratedType<"RESTReplyTo">[] = [];
   protected isLoading = false;
@@ -672,7 +672,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private getZaakbeeindigParameter(
-    reden: GeneratedType<"RESTZaakbeeindigReden">,
+    reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
     let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
     for (const item of this.parameters.zaakbeeindigParameters) {

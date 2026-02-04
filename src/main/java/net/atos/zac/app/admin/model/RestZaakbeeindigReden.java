@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
-public class RESTZaakbeeindigReden {
+public class RestZaakbeeindigReden {
 
     public String id;
 
