@@ -127,8 +127,8 @@ open class ZaakVariabelenService @Inject constructor(
     fun removeUser(zaakUuid: UUID) =
         removeVariable(zaakUuid, VAR_ZAAK_USER)
 
-    fun setCommunicatiekanaal(zaakUuid: UUID, communicatiekanaal: String) =
-        setVariable(zaakUuid, VAR_ZAAK_COMMUNICATIEKANAAL, communicatiekanaal)
+    fun setCommunicationChannel(zaakUuid: UUID, communicationChannel: String) =
+        setVariable(zaakUuid, VAR_ZAAK_COMMUNICATIEKANAAL, communicationChannel)
 
     fun readZaakdata(zaakUuid: UUID) =
         findVariables(zaakUuid) ?: emptyMap()

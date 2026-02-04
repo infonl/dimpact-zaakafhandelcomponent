@@ -7,11 +7,11 @@ package nl.info.zac.admin
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -32,16 +32,17 @@ class ZaaktypeBpmnConfigurationService @Inject constructor(
         }
     }
 
-    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration) {
-        zaaktypeBpmnConfiguration.productaanvraagtype?.let {
-            zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(it)?.let { zaaktype ->
-                if (zaaktype.zaaktypeUuid != zaaktypeBpmnConfiguration.zaaktypeUuid) {
-                    LOG.info(
-                        "Productaanvraagtype '$it' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
-                    )
-                    throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
-                }
-            }
+    fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
+        productaanvraagtype: String,
+        zaaktypeUuid: UUID
+    ) = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
+        productaanvraagtype
+    )?.let { zaaktype ->
+        if (zaaktype.zaaktypeUuid != zaaktypeUuid) {
+            LOG.info(
+                "Productaanvraagtype '$productaanvraagtype' is already in use by BPMN zaaktype ${zaaktype.zaaktypeOmschrijving}"
+            )
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
         }
     }
 }

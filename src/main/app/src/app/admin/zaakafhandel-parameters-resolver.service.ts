@@ -33,7 +33,7 @@ export class ZaakafhandelParametersResolver {
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
       bpmnProcessConfigurations:
-        this.bpmnService.listbpmnProcessConfigurations(),
+        this.zaakafhandelParametersService.getZaaktypeBpmnConfiguration(),
       bpmnProcessDefinitions: this.bpmnService.listProcessDefinitions(),
       featureFlagPabcIntegration:
         this.configuratieService.readFeatureFlagPabcIntegration(),

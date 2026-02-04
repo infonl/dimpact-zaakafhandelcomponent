@@ -35,16 +35,14 @@ data class RestZaaktypeBpmnConfiguration(
 
     var defaultBehandelaarId: String? = null,
 
-    // The frontend currently requires this field to be non-null
-    var betrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
+    var betrokkeneKoppelingen: RestBetrokkeneKoppelingen? = null,
 
-    // The frontend currently requires this field to be non-null
-    var brpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen(),
+    var brpDoelbindingen: RestBrpDoelbindingen? = null,
 
     var zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
 
     /**
      * The frontend currently requires this field to be non-null
      */
-    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList(),
+    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList()
 )
