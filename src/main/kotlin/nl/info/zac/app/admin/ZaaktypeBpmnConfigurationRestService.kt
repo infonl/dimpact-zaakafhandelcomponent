@@ -26,10 +26,10 @@ import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
-import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
+import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

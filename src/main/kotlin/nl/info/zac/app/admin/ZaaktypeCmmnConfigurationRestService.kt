@@ -36,7 +36,6 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
-import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
@@ -140,17 +139,17 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             return when (it.getConfigurationType()) {
                 CMMN -> {
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-                        zaaktypeCmmnConfiguration ->
-                            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
-                                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
-                                inclusiefRelaties = true
-                            )
+                            zaaktypeCmmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
+                            zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                            inclusiefRelaties = true
+                        )
                     }
                 }
                 BPMN -> {
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
-                        zaaktypeBpmnConfiguration ->
-                            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration!!)
+                            zaaktypeBpmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration!!)
                     }
                 }
             }
