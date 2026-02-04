@@ -28,6 +28,7 @@ import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaakbeeindigParameters
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
+import nl.info.zac.app.admin.model.toZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
@@ -151,24 +152,5 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     ).apply {
         zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
         zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
-    }
-
-    private fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
-        id = this@toZaaktypeBpmnConfiguration.id
-        zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
-        bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
-        zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
-        productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
-        defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
-        groepID = this@toZaaktypeBpmnConfiguration.groepNaam
-        creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
-        zaaktypeBetrokkeneParameters =
-            this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
-        zaaktypeBrpParameters =
-            this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-        nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-        setZaakbeeindigParameters(
-            this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters.toRestZaakbeeindigParameters()
-        )
     }
 }
