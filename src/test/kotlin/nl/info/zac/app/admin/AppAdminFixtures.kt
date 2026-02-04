@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin
 
-import net.atos.zac.app.admin.model.RestZaakbeeindigParameter
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestBetrokkeneKoppelingen
@@ -15,6 +14,7 @@ import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.RestReferenceTableValue
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaakbeeindigParameter
 import nl.info.zac.app.admin.model.RestZaaktypeOverzicht
 import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate

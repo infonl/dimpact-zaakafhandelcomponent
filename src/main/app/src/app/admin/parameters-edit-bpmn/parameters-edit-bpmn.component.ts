@@ -107,13 +107,13 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: GeneratedType<"RESTZaakbeeindigParameter">[] =
+  protected zaakbeeindigParameters: GeneratedType<"RestZaakbeeindigParameter">[] =
     [];
 
   protected zaakbeeindigFormGroup = new FormGroup({});
 
   protected selection = new SelectionModel<
-    GeneratedType<"RESTZaakbeeindigParameter">
+    GeneratedType<"RestZaakbeeindigParameter">
   >(true);
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
@@ -319,14 +319,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected isZaaknietontvankelijkParameter(
-    restZaakbeeindigParameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    restZaakbeeindigParameter: GeneratedType<"RestZaakbeeindigParameter">,
   ) {
     return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
   }
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RestZaakbeeindigParameter">,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -335,7 +335,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected getZaakbeeindigControl(
-    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RestZaakbeeindigParameter">,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -354,7 +354,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private addZaakbeeindigParameter(
-    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RestZaakbeeindigParameter">,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -367,7 +367,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
   ) {
-    const parameter: GeneratedType<"RESTZaakbeeindigParameter"> = {
+    const parameter: GeneratedType<"RestZaakbeeindigParameter"> = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -377,7 +377,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RESTZaakbeeindigReden">,
   ) {
-    let parameter: GeneratedType<"RESTZaakbeeindigParameter"> | null = null;
+    let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
     for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
@@ -392,7 +392,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private updateZaakbeeindigForm(
-    parameter: GeneratedType<"RESTZaakbeeindigParameter">,
+    parameter: GeneratedType<"RestZaakbeeindigParameter">,
   ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {

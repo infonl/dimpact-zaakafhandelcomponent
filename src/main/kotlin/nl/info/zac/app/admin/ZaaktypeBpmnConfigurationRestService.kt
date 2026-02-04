@@ -23,10 +23,10 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
-import nl.info.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestZaakbeeindigParameters
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
@@ -156,10 +156,6 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         zaaktypeBrpParameters =
             this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
         nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-        setZaakbeeindigParameters(
-            convertRESTZaakbeeindigParameters(
-                this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters
-            )
-        )
+        setZaakbeeindigParameters(this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters.toRestZaakbeeindigParameters())
     }
 }

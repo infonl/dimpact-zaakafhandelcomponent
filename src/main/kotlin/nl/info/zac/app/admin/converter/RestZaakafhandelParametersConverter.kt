@@ -24,6 +24,7 @@ import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
+import nl.info.zac.app.admin.model.toRestZaakbeeindigParameters
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
@@ -164,11 +165,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     restZaakafhandelParameters.userEventListenerParameters
                 )
             )
-            it.setZaakbeeindigParameters(
-                convertRESTZaakbeeindigParameters(
-                    restZaakafhandelParameters.zaakbeeindigParameters
-                )
-            )
+            it.setZaakbeeindigParameters(restZaakafhandelParameters.zaakbeeindigParameters.toRestZaakbeeindigParameters())
             it.setMailtemplateKoppelingen(
                 convertRESTmailtemplateKoppelingen(
                     restZaakafhandelParameters.mailtemplateKoppelingen
