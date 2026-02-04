@@ -12,7 +12,7 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
+import net.atos.zac.app.admin.model.RestZaakbeeindigParameter;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters;
 
@@ -21,24 +21,24 @@ public class RESTZaakbeeindigParameterConverter {
     @Inject
     private ZtcClientService ztcClientService;
 
-    public List<RESTZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaaktypeCompletionParameters> zaakbeeindigRedenen) {
+    public List<RestZaakbeeindigParameter> convertZaakbeeindigParameters(final Set<ZaaktypeCompletionParameters> zaakbeeindigRedenen) {
         return zaakbeeindigRedenen.stream()
                 .map(this::convertZaakbeeindigParameter)
                 .toList();
     }
 
     public static List<ZaaktypeCompletionParameters> convertRESTZaakbeeindigParameters(
-            final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters
+            final List<RestZaakbeeindigParameter> restZaakbeeindigParameters
     ) {
         return restZaakbeeindigParameters.stream()
                 .map(RESTZaakbeeindigParameterConverter::convertRESTZaakbeeindigParameter)
                 .toList();
     }
 
-    private RESTZaakbeeindigParameter convertZaakbeeindigParameter(
+    private RestZaakbeeindigParameter convertZaakbeeindigParameter(
             final ZaaktypeCompletionParameters zaaktypeCompletionParameters
     ) {
-        final RESTZaakbeeindigParameter restZaakbeeindigParameter = new RESTZaakbeeindigParameter();
+        final RestZaakbeeindigParameter restZaakbeeindigParameter = new RestZaakbeeindigParameter();
         restZaakbeeindigParameter.id = zaaktypeCompletionParameters.getId();
         restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(
                 zaaktypeCompletionParameters.zaakbeeindigReden
@@ -49,7 +49,7 @@ public class RESTZaakbeeindigParameterConverter {
     }
 
     private static ZaaktypeCompletionParameters convertRESTZaakbeeindigParameter(
-            final RESTZaakbeeindigParameter restZaakbeeindigParameter
+            final RestZaakbeeindigParameter restZaakbeeindigParameter
     ) {
         final ZaaktypeCompletionParameters zaaktypeCompletionParameters = new ZaaktypeCompletionParameters();
         zaaktypeCompletionParameters.setId(restZaakbeeindigParameter.id);
