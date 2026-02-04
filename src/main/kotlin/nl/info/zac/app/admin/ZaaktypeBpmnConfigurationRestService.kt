@@ -143,7 +143,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         }
 
     private fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration(): ZaaktypeBpmnConfiguration {
-        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) ?: ZaaktypeBpmnConfiguration()
+        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid)
+            ?: ZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfiguration.apply {
             id = this@toZaaktypeBpmnConfiguration.id
             zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid

@@ -24,7 +24,7 @@ fun createZaaktypeBpmnConfiguration(
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters = createZaaktypeBrpParameters(),
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters>? = emptySet(),
+    zaaktypeCompletionParameters: Set<ZaaktypeCompletionParameters> = emptySet(),
 ) = ZaaktypeBpmnConfiguration().apply {
     this.id = id
     zaaktypeUuid?.let {
