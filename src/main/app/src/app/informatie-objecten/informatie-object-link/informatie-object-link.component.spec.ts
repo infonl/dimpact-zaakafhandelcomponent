@@ -9,13 +9,18 @@ import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { Response } from "../../shared/http/http-client";
 import { UtilService } from "../../core/service/util.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { MaterialModule } from "../../shared/material/material.module";
+import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
@@ -91,7 +96,15 @@ describe(InformatieObjectLinkComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [InformatieObjectLinkComponent],
-      imports: [TranslateModule.forRoot()],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+        MaterialModule,
+        MaterialFormBuilderModule,
+        PipesModule,
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
