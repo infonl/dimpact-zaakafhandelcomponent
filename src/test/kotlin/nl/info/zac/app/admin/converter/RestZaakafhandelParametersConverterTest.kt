@@ -72,7 +72,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns null
 
         When("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeCmmnConfiguration,
                 true
             )
@@ -182,7 +182,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
 
         When("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeBpmnConfiguration
             )
 

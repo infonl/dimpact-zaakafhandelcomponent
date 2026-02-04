@@ -41,7 +41,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
         every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
 
         When("converted to REST") {
@@ -80,7 +80,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
         } returns restZaakafhandelParameters
 
         When("converted to REST") {
