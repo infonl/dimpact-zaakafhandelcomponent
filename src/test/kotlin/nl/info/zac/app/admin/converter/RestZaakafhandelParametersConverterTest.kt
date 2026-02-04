@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -33,7 +32,7 @@ import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
-    val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
+    val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()

@@ -16,14 +16,14 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
-import net.atos.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
+import nl.info.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
@@ -49,7 +49,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService,
     private val ztcClientService: ZtcClientService,
-    private val restZaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter
+    private val restZaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {

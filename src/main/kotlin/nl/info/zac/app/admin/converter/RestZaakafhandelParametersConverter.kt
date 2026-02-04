@@ -11,8 +11,6 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
-import net.atos.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
@@ -41,7 +39,7 @@ import java.time.ZonedDateTime
 @Suppress("LongParameterList")
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
+    val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
     val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
