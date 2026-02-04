@@ -129,8 +129,8 @@ describe(InformatieObjectLinkComponent.name, () => {
       .mockImplementation(
         (key: string | string[], params?: Record<string, unknown>) => {
           if (typeof key !== "string") return key[0];
-          if (params && params["identificatie"]) {
-            return `${key} ${params["identificatie"]}`;
+          if (params && params["documentID"]) {
+            return `${key} ${params["documentID"]}`;
           }
           return key;
         },
