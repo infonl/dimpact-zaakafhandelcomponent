@@ -100,10 +100,20 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
                 zaaktypeUuid = restZaaktypeBpmnConfiguration.zaaktypeUuid
             )
         }
-        val zaaktypeBpmnConfiguration = restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
-        return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
-            zaaktypeBpmnConfiguration
-        ).toRestZaaktypeBpmnConfiguration()
+        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(
+            restZaaktypeBpmnConfiguration.zaaktypeUuid
+        )?.apply {
+            // update existing zaaktype BPMN configuration with values from REST object
+            bpmnProcessDefinitionKey = restZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+            groepID = restZaaktypeBpmnConfiguration.groepNaam
+            defaultBehandelaarId = restZaaktypeBpmnConfiguration.defaultBehandelaarId
+            productaanvraagtype = restZaaktypeBpmnConfiguration.productaanvraagtype
+            zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
+            zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
+            nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
+            setZaakbeeindigParameters(convertRESTZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters))
+        } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
+        return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(zaaktypeBpmnConfiguration).toRestZaaktypeBpmnConfiguration()
     }
 
     private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
