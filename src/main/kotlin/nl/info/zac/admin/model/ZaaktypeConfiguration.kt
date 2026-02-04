@@ -172,15 +172,13 @@ abstract class ZaaktypeConfiguration {
     fun getZaakbeeindigParameters(): Set<ZaaktypeCompletionParameters> =
         zaaktypeCompletionParameters ?: emptySet()
 
-    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>?) {
+    fun setZaakbeeindigParameters(desired: Collection<ZaaktypeCompletionParameters>) {
         if (zaaktypeCompletionParameters == null) {
             zaaktypeCompletionParameters = mutableSetOf()
         }
-        desired?.forEach { setZaakbeeindigParameter(it) }
+        desired.forEach { setZaakbeeindigParameter(it) }
         zaaktypeCompletionParameters?.let { completionParameters ->
-            desired?.let { d ->
-                completionParameters.removeIf { existing -> isElementNotInCollection(d, existing) }
-            }
+            completionParameters.removeIf { existing -> isElementNotInCollection(desired, existing) }
         }
     }
 

@@ -142,24 +142,25 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
         }
 
-    private fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
-        id = this@toZaaktypeBpmnConfiguration.id
-        zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
-        bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
-        zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
-        productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
-        defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
-        groepID = this@toZaaktypeBpmnConfiguration.groepNaam
-        creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
-        zaaktypeBetrokkeneParameters =
-            this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
-        zaaktypeBrpParameters =
-            this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
-        nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-        setZaakbeeindigParameters(
-            convertRESTZaakbeeindigParameters(
-                this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters
+    private fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration(): ZaaktypeBpmnConfiguration {
+        val zaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) ?: ZaaktypeBpmnConfiguration()
+        return zaaktypeBpmnConfiguration.apply {
+            id = this@toZaaktypeBpmnConfiguration.id
+            zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
+            bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+            zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
+            productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
+            defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
+            groepID = this@toZaaktypeBpmnConfiguration.groepNaam
+            creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
+            zaaktypeBetrokkeneParameters =
+                this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
+            zaaktypeBrpParameters =
+                this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
+            nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
+            setZaakbeeindigParameters(
+                convertRESTZaakbeeindigParameters(this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters)
             )
-        )
+        }
     }
 }
