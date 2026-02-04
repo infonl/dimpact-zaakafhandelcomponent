@@ -12,7 +12,7 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.conve
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
+import net.atos.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption

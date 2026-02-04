@@ -17,7 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
+import net.atos.zac.app.admin.converter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
