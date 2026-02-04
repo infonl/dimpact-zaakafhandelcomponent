@@ -7,7 +7,7 @@ package nl.info.zac.app.admin.converter
 import jakarta.inject.Inject
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden
-import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import net.atos.zac.app.admin.model.RestZaakbeeindigParameter
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.app.zaak.model.toRestResultaatType
@@ -17,28 +17,28 @@ class RestZaakbeeindigParameterConverter @Inject constructor(
 ) {
     fun convertZaakbeeindigParameters(
         zaakbeeindigRedenen: Set<ZaaktypeCompletionParameters>
-    ): List<RESTZaakbeeindigParameter> =
+    ): List<RestZaakbeeindigParameter> =
         zaakbeeindigRedenen.map { convertZaakbeeindigParameter(it) }
 
     private fun convertZaakbeeindigParameter(
         zaaktypeCompletionParameters: ZaaktypeCompletionParameters
-    ): RESTZaakbeeindigParameter = RESTZaakbeeindigParameter().apply {
-        id = zaaktypeCompletionParameters.id
+    ): RestZaakbeeindigParameter = RestZaakbeeindigParameter(
+        id = zaaktypeCompletionParameters.id,
         zaakbeeindigReden = convertZaakbeeindigReden(
             zaaktypeCompletionParameters.zaakbeeindigReden
-        )
+        ),
         resultaattype = ztcClientService.readResultaattype(
             zaaktypeCompletionParameters.resultaattype
         ).toRestResultaatType()
-    }
+    )
 }
 
         fun convertRESTZaakbeeindigParameters(
-            restZaakbeeindigParameters: List<RESTZaakbeeindigParameter>
+            restZaakbeeindigParameters: List<RestZaakbeeindigParameter>
         ) = restZaakbeeindigParameters.map { convertRESTZaakbeeindigParameter(it) }
 
         private fun convertRESTZaakbeeindigParameter(
-            restZaakbeeindigParameter: RESTZaakbeeindigParameter
+            restZaakbeeindigParameter: RestZaakbeeindigParameter
         ) = ZaaktypeCompletionParameters().apply {
             id = restZaakbeeindigParameter.id
             zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
