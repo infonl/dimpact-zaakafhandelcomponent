@@ -5,6 +5,7 @@
 package nl.info.zac.flowable.bpmn
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -51,7 +52,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating a zaaktype - BPMN process definition (no id)") {
+    Context("creating a zaaktype - BPMN process definition (no id)") {
         Given("A zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(id = null)
             every { entityManager.persist(zaaktypeBpmnProcessDefinition) } just Runs
@@ -75,7 +76,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating a zaaktype - BPMN process definition (existing id)") {
+    Context("updating a zaaktype - BPMN process definition (existing id)") {
         Given("An existing zaaktype - BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every {
@@ -123,7 +124,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting a zaaktype - BPMN process definition") {
+    Context("deleting a zaaktype - BPMN process definition") {
         Given("A stored zaaktype BPMN process definition relation") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
             every { entityManager.remove(zaaktypeBpmnProcessDefinition) } just Runs
@@ -140,7 +141,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a BPMN process definition by zaaktype UUID") {
+    Context("finding a BPMN process definition by zaaktype UUID") {
         Given("A valid zaaktype UUID with a corresponding BPMN process definition") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(zaaktypeUuid = zaaktypeUUID)
@@ -194,7 +195,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a BPMN process definition by productaanvraagtype") {
+    Context("finding a BPMN process definition by productaanvraagtype") {
         Given("A productaanvraagtype with a corresponding BPMN process definition") {
             val productAanvraagType = "fakeProductaanvraagtype"
             val definition = createZaaktypeBpmnConfiguration()
@@ -311,6 +312,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             val nietOntvankelijkResultaattype = UUID.randomUUID()
 
             val previousConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUuid = newZaaktypeUuid,
                 zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false),
                 nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
@@ -343,15 +345,56 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                 Then("correct copy is stored") {
                     with(configurationSlot.captured) {
                         zaaktypeUuid shouldBe newZaaktypeUuid
+                        creatiedatum shouldBe previousConfiguration.creatiedatum
                         with(zaaktypeBetrokkeneParameters!!) {
-                            kvkKoppelen shouldBe true
-                            brpKoppelen shouldBe false
+                            kvkKoppelen shouldBe previousConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
+                            brpKoppelen shouldBe previousConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
                         }
                         with(zaaktypeBrpParameters!!) {
-                            raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
+                            raadpleegWaarde shouldBe previousConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
                         }
                         nietOntvankelijkResultaattype shouldBe nietOntvankelijkResultaattype
                     }
+                }
+            }
+        }
+
+        Given("existing previous configuration with different UUID (new version)") {
+            val oldZaaktypeUuid = UUID.randomUUID()
+            val zaakType = createZaakType(uri = java.net.URI("https://example.com/zaaktypes/${UUID.randomUUID()}"))
+            val newZaaktypeUuid = zaakType.url.extractUuid()
+
+            val previousConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUuid = oldZaaktypeUuid
+            )
+
+            every { entityManager.criteriaBuilder } returns criteriaBuilder
+            every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
+            every { criteriaQuery.from(ZaaktypeBpmnConfiguration::class.java) } returns root
+            every { criteriaQuery.select(root) } returns criteriaQuery
+            every { criteriaQuery.where(predicate) } returns criteriaQuery
+            every { criteriaBuilder.equal(pathString, zaakType.omschrijving) } returns predicate
+            every { criteriaBuilder.equal(pathUuid, newZaaktypeUuid) } returns predicate
+            every { root.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME) } returns pathString
+            every { root.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns pathUuid
+            every { root.get<Any>(CREATIEDATUM_VARIABLE_NAME) } returns pathCreatieDatum
+            every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
+            every { criteriaQuery.orderBy(creatieDatumOrder) } returns criteriaQuery
+            every {
+                entityManager.createQuery(criteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull()
+            } returns previousConfiguration
+
+            val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
+            every {
+                entityManager.merge(capture(configurationSlot))
+            } returns mockk()
+
+            When("copying configuration") {
+                zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
+
+                Then("new configuration has current time as creatiedatum") {
+                    configurationSlot.captured.zaaktypeUuid shouldBe newZaaktypeUuid
+                    configurationSlot.captured.creatiedatum!! shouldBeAfter previousConfiguration.creatiedatum!!
                 }
             }
         }

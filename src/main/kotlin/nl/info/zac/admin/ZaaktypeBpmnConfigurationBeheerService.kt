@@ -145,14 +145,18 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     fun copyConfiguration(zaaktype: ZaakType) {
         // only copy settings if there is a previous configuration
         findConfiguration(zaaktype.omschrijving)?.let { previousConfiguration ->
+            val zaaktypeUuid = zaaktype.url.extractUuid()
+            // On a new zaaktype version the zaaktype UUID changes
+            val newZaaktypeVersion = (previousConfiguration.zaaktypeUuid != zaaktypeUuid)
+
             ZaaktypeBpmnConfiguration().apply {
                 id = previousConfiguration.id
-                this.zaaktypeUuid = zaaktype.url.extractUuid()
+                this.zaaktypeUuid = zaaktypeUuid
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 bpmnProcessDefinitionKey = previousConfiguration.bpmnProcessDefinitionKey
                 productaanvraagtype = previousConfiguration.productaanvraagtype
                 groepID = previousConfiguration.groepID
-                creatiedatum = ZonedDateTime.now()
+                creatiedatum = if (newZaaktypeVersion) ZonedDateTime.now() else previousConfiguration.creatiedatum
                 mapBetrokkeneKoppelingen(previousConfiguration, this)
                 mapBrpDoelbindingen(previousConfiguration, this)
                 nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
