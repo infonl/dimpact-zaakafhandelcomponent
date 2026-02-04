@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
+import net.atos.zac.app.admin.model.RestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.RestResultaattype
 import java.util.UUID
 
@@ -14,7 +15,8 @@ fun createRestZaaktypeBpmnConfiguration(
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     groepNaam: String? = "fakeGroupName",
     productaanvraagtype: String? = null,
-    resultaattype: RestResultaattype? = null
+    zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
+    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
 ) = RestZaaktypeBpmnConfiguration(
     id = id,
     zaaktypeUuid = zaaktypeUuid,
@@ -22,6 +24,6 @@ fun createRestZaaktypeBpmnConfiguration(
     zaaktypeOmschrijving = zaaktypeOmschrijving,
     groepNaam = groepNaam,
     productaanvraagtype = productaanvraagtype,
-    zaakNietOntvankelijkResultaattype = resultaattype,
-    zaakbeeindigParameters = emptyList()
+    zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
+    zaakbeeindigParameters = zaakBeeindigParameters
 )

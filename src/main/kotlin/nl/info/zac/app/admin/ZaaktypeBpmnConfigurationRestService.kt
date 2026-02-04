@@ -131,8 +131,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         )
     }
 
-    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() =
-        RestZaaktypeBpmnConfiguration(
+    private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
             id = this.id,
             zaaktypeUuid = this.zaaktypeUuid,
             bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,

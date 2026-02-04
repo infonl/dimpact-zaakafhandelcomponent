@@ -7,11 +7,11 @@ package net.atos.zac.app.admin.model;
 
 import nl.info.zac.app.zaak.model.RestResultaattype;
 
-public class RESTZaakbeeindigParameter {
+public class RestZaakbeeindigParameter {
 
     public Long id;
 
-    public RESTZaakbeeindigReden zaakbeeindigReden;
+    public RestZaakbeeindigReden zaakbeeindigReden;
 
     public RestResultaattype resultaattype;
 }

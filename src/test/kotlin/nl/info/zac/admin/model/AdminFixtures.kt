@@ -5,6 +5,7 @@
 package nl.info.zac.admin.model
 
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
+import nl.info.zac.app.admin.createRestZaakbeeindigReden
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -177,6 +178,16 @@ fun createZaaktypeBpmnConfiguration(
         }
     }
 
+fun createZaaktypeCompletionParameters(
+    id: Long? = 1234L,
+    zaakbeeindigReden: ZaakbeeindigReden = createZaakbeeindigReden(),
+    resultaattype: UUID = UUID.randomUUID()
+) = ZaaktypeCompletionParameters().apply {
+    this.id = id
+    this.zaakbeeindigReden = zaakbeeindigReden
+    this.resultaattype = resultaattype
+}
+
 fun createMailtemplateKoppelingen(
     id: Long? = 1234L,
     zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
@@ -227,4 +238,12 @@ fun createZaakAfzender(
     this.defaultMail = defaultMail
     this.mail = mail
     this.replyTo = replyTo
+}
+
+fun createZaakbeeindigReden(
+    id: Long? = 1234L,
+    name: String = "fakeName"
+) = ZaakbeeindigReden().apply {
+    this.id = id
+    this.naam = name
 }

@@ -26,7 +26,7 @@ import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTReplyTo
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
-import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
+import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -207,7 +207,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
      */
     @GET
     @Path("zaakbeeindigredenen")
-    fun listZaakbeeindigRedenen(): List<RESTZaakbeeindigReden> {
+    fun listZaakbeeindigRedenen(): List<RestZaakbeeindigReden> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
             zaaktypeCmmnConfigurationBeheerService.listZaakbeeindigRedenen()
@@ -223,7 +223,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     @Path("zaakbeeindigredenen/{zaaktypeUUID}")
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
-    ): List<RESTZaakbeeindigReden> =
+    ): List<RestZaakbeeindigReden> =
         createHardcodedZaakTerminationReasons() + readManagedZaakTerminationReasons(zaaktypeUUID)
 
     /**
@@ -329,13 +329,13 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
 
     private fun createHardcodedZaakTerminationReasons() =
         listOf(
-            RESTZaakbeeindigReden().apply {
+            RestZaakbeeindigReden().apply {
                 id = INADMISSIBLE_TERMINATION_ID
                 naam = INADMISSIBLE_TERMINATION_REASON
             }
         )
 
-    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RESTZaakbeeindigReden> =
+    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RestZaakbeeindigReden> =
         zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden }
