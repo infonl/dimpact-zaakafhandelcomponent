@@ -165,7 +165,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         Given("A valid REST zaaktype BPMN configuration for an existing zaaktype") {
             val existingZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
             val updatedZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
-                zaaktypeCompletionParameters = listOf(
+                zaaktypeCompletionParameters = setOf(
                     createZaaktypeCompletionParameters(
                         id = 1L,
                         zaakbeeindigReden = createZaakbeeindigReden(
