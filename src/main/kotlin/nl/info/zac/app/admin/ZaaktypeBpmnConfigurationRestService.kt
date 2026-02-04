@@ -35,7 +35,6 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Singleton
