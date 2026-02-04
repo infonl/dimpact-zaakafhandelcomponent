@@ -16,11 +16,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
-import { Response } from "../../shared/http/http-client";
 import { UtilService } from "../../core/service/util.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
+import { Response } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
@@ -142,8 +142,8 @@ describe(InformatieObjectLinkComponent.name, () => {
       .mockImplementation(
         (key: string | string[], params?: Record<string, unknown>) => {
           if (typeof key !== "string") return key[0];
-          if (params && params["identificatie"]) {
-            return `${key} ${params["identificatie"]}`;
+          if (params && params["documentID"]) {
+            return `${key} ${params["documentID"]}`;
           }
           return key;
         },
