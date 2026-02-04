@@ -23,6 +23,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.createZaakbeeindigReden
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
+import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.admin.model.createRestZaaktypeBpmnConfiguration
 import nl.info.zac.app.zaak.model.isBesluitVerplicht
 import nl.info.zac.app.zaak.model.isDatumKenmerkVerplicht
