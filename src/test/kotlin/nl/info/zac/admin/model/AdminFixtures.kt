@@ -5,7 +5,6 @@
 package nl.info.zac.admin.model
 
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import nl.info.zac.app.admin.createRestZaakbeeindigReden
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime

@@ -113,7 +113,9 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
             setZaakbeeindigParameters(convertRESTZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters))
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
-        return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(zaaktypeBpmnConfiguration).toRestZaaktypeBpmnConfiguration()
+        return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
+            zaaktypeBpmnConfiguration
+        ).toRestZaaktypeBpmnConfiguration()
     }
 
     private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
@@ -132,24 +134,24 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     }
 
     private fun ZaaktypeBpmnConfiguration.toRestZaaktypeBpmnConfiguration() = RestZaaktypeBpmnConfiguration(
-            id = this.id,
-            zaaktypeUuid = this.zaaktypeUuid,
-            bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
-            zaaktypeOmschrijving = this.zaaktypeOmschrijving,
-            groepNaam = this.groepID,
-            defaultBehandelaarId = this.defaultBehandelaarId,
-            productaanvraagtype = this.productaanvraagtype,
-            creatiedatum = this.creatiedatum,
-            zaakNietOntvankelijkResultaattype = this.nietOntvankelijkResultaattype?.let {
-                ztcClientService.readResultaattype(it).toRestResultaatType()
-            },
-            zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                this.getZaakbeeindigParameters()
-            )
-        ).apply {
-            zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
-            zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
-        }
+        id = this.id,
+        zaaktypeUuid = this.zaaktypeUuid,
+        bpmnProcessDefinitionKey = this.bpmnProcessDefinitionKey,
+        zaaktypeOmschrijving = this.zaaktypeOmschrijving,
+        groepNaam = this.groepID,
+        defaultBehandelaarId = this.defaultBehandelaarId,
+        productaanvraagtype = this.productaanvraagtype,
+        creatiedatum = this.creatiedatum,
+        zaakNietOntvankelijkResultaattype = this.nietOntvankelijkResultaattype?.let {
+            ztcClientService.readResultaattype(it).toRestResultaatType()
+        },
+        zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+            this.getZaakbeeindigParameters()
+        )
+    ).apply {
+        zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
+        zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
+    }
 
     private fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
         id = this@toZaaktypeBpmnConfiguration.id
