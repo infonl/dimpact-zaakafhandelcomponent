@@ -384,16 +384,25 @@ class ZaakService @Inject constructor(
             }
         }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun changeZaakDataAssignment(
         zaakUuid: UUID,
         group: Group,
         user: User?
     ) {
         if (bpmnService.isZaakProcessDriven(zaakUuid)) {
-            zaakVariabelenService.setGroup(zaakUuid, group.description)
-            user?.let {
-                zaakVariabelenService.setUser(zaakUuid, it.getFullName())
-            } ?: zaakVariabelenService.removeUser(zaakUuid)
+            try {
+                zaakVariabelenService.setGroup(zaakUuid, group.description)
+                user?.let {
+                    zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+                } ?: zaakVariabelenService.removeUser(zaakUuid)
+            } catch (ex: RuntimeException) {
+                if (ex.message?.contains("No case or process instance found for zaak with UUID") == true) {
+                    LOG.warning(ex.message)
+                } else {
+                    throw ex
+                }
+            }
         }
     }
 
