@@ -17,10 +17,10 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
+import { Response } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
-import { Response } from "../../shared/http/http-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
