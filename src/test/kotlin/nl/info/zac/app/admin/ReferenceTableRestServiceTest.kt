@@ -17,6 +17,8 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
+import nl.info.zac.app.admin.model.createRestReferenceTableUpdate
+import nl.info.zac.app.admin.model.createRestReferenceTableValue
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService

@@ -26,7 +26,7 @@ import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTReplyTo
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
-import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
+import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -116,7 +116,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { it.url.extractUuid() }
             .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-            .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, false) }
+            .map { zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, false) }
             .onEach { restZaakafhandelParameters ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
                     restZaakafhandelParameters.zaaktype.uuid
@@ -139,12 +139,17 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             return when (it.getConfigurationType()) {
                 CMMN -> {
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+                            zaaktypeCmmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
+                            zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                            inclusiefRelaties = true
+                        )
                     }
                 }
                 BPMN -> {
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
-                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeBpmnConfiguration(it!!)
+                            zaaktypeBpmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration!!)
                     }
                 }
             }
@@ -152,7 +157,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
 
         // Use CMMN ZaakafhandelParameters as default when no configuration exists yet
         return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, true)
         }
     }
 
@@ -193,7 +198,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             )
             zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
             zaaktypeCmmnConfigurationService.clearListCache()
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
                 updatedZaakafhandelParameters,
                 true
             )
@@ -207,7 +212,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
      */
     @GET
     @Path("zaakbeeindigredenen")
-    fun listZaakbeeindigRedenen(): List<RESTZaakbeeindigReden> {
+    fun listZaakbeeindigRedenen(): List<RestZaakbeeindigReden> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
             zaaktypeCmmnConfigurationBeheerService.listZaakbeeindigRedenen()
@@ -223,7 +228,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     @Path("zaakbeeindigredenen/{zaaktypeUUID}")
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
-    ): List<RESTZaakbeeindigReden> =
+    ): List<RestZaakbeeindigReden> =
         createHardcodedZaakTerminationReasons() + readManagedZaakTerminationReasons(zaaktypeUUID)
 
     /**
@@ -329,13 +334,13 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
 
     private fun createHardcodedZaakTerminationReasons() =
         listOf(
-            RESTZaakbeeindigReden().apply {
+            RestZaakbeeindigReden().apply {
                 id = INADMISSIBLE_TERMINATION_ID
                 naam = INADMISSIBLE_TERMINATION_REASON
             }
         )
 
-    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RESTZaakbeeindigReden> =
+    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID): List<RestZaakbeeindigReden> =
         zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
             ?.getZaakbeeindigParameters()
             ?.map { it.zaakbeeindigReden }

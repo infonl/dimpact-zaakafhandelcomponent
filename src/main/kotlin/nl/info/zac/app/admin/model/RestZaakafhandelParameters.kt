@@ -10,7 +10,6 @@ import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
 import net.atos.zac.app.admin.model.RESTUserEventListenerParameter
-import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
@@ -66,7 +65,7 @@ data class RestZaakafhandelParameters(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList(),
+    var zaakbeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
     /**
      * The frontend currently requires this field to be non-null
      */

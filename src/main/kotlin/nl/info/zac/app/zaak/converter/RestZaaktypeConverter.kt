@@ -48,9 +48,9 @@ class RestZaaktypeConverter @Inject constructor(
             referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaaktypeUuid.let { uuid ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(uuid)?.let {
-                    zaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(it)
+                    zaakafhandelParametersConverter.toRestZaakafhandelParameters(it)
                 } ?: zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(uuid).let {
-                    zaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(it, true)
+                    zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, true)
                 }
             }
         )

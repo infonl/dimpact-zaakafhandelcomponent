@@ -25,6 +25,8 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
@@ -98,7 +100,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             } just runs
             every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(updatedZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
 
             When("the zaakafhandelparameters are updated with a different domein") {
@@ -159,7 +161,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(createdZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
             every {
                 zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
@@ -281,7 +283,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns createRestZaakafhandelParameters()
 
         When("zaaktypeCmmnConfiguration is requested") {
@@ -295,7 +297,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                         zaaktypeCmmnConfiguration.zaaktypeUuid
                     )
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
                 }
             }
         }
@@ -311,7 +313,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
         } returns zaaktypeBpmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration)
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
         } returns createRestZaakafhandelParameters()
 
         When("zaaktypeCmmnConfiguration is requested") {
@@ -323,7 +325,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration)
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
                 }
             }
         }
@@ -339,7 +341,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns createRestZaakafhandelParameters()
 
         When("zaaktypeConfiguration is requested") {
@@ -353,7 +355,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                         zaaktypeCmmnConfiguration.zaaktypeUuid
                     )
-                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
                 }
             }
         }

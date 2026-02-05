@@ -6,7 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -44,5 +44,24 @@ data class RestZaaktypeBpmnConfiguration(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList()
+    var zaakbeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
 )
+
+fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
+    id = this@toZaaktypeBpmnConfiguration.id
+    zaaktypeUuid = this@toZaaktypeBpmnConfiguration.zaaktypeUuid
+    bpmnProcessDefinitionKey = this@toZaaktypeBpmnConfiguration.bpmnProcessDefinitionKey
+    zaaktypeOmschrijving = this@toZaaktypeBpmnConfiguration.zaaktypeOmschrijving
+    productaanvraagtype = this@toZaaktypeBpmnConfiguration.productaanvraagtype
+    defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
+    groepID = this@toZaaktypeBpmnConfiguration.groepNaam
+    creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
+    zaaktypeBetrokkeneParameters =
+        this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
+    zaaktypeBrpParameters =
+        this@toZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
+    nietOntvankelijkResultaattype = this@toZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
+    setZaakbeeindigParameters(
+        this@toZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
+    )
+}
