@@ -131,4 +131,132 @@ describe(KlantZakenTabelComponent.name, () => {
 
     expect(betrokkenheid).toEqual(["Melder", "Contactpersoon"]);
   }));
+
+  describe("getBetrokkenheid", () => {
+    it("should match betrokkene by temporaryPersonId", fakeAsync(() => {
+      const mockZaak = {
+        betrokkenen: {
+          Initiator: [mockPersoon.temporaryPersonId],
+          Behandelaar: ["other-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Initiator"]);
+    }));
+
+    it("should match betrokkene by BSN", fakeAsync(() => {
+      const mockPersoonWithBsn = fromPartial<GeneratedType<"RestPersoon">>({
+        temporaryPersonId: randomUUID(),
+        bsn: "999993896",
+        identificatieType: "BSN",
+      });
+      fixture.componentRef.setInput("klant", mockPersoonWithBsn);
+
+      const mockZaak = {
+        betrokkenen: {
+          Melder: ["999993896"],
+          Contactpersoon: ["other-bsn"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Melder"]);
+    }));
+
+    it("should match betrokkene by kvkNummer for companies", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        kvkNummer: "12345678",
+        rsin: "123456789",
+        identificatieType: "RSIN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["12345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
+      const mockZaak = {
+        betrokkenen: {
+          Initiator: [mockPersoon.temporaryPersonId],
+          Melder: [mockPersoon.temporaryPersonId],
+          Contactpersoon: [mockPersoon.temporaryPersonId],
+          Behandelaar: ["other-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Initiator", "Melder", "Contactpersoon"]);
+    }));
+
+    it("should return empty array when betrokkene has no roles in zaak", fakeAsync(() => {
+      const mockZaak = {
+        betrokkenen: {
+          Behandelaar: ["other-id"],
+          Adviseur: ["another-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual([]);
+    }));
+
+    it("should handle empty betrokkenen object", fakeAsync(() => {
+      const mockZaak = {
+        betrokkenen: {},
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual([]);
+    }));
+
+    it("should match by both temporaryPersonId and BSN when both are in different roles", fakeAsync(() => {
+      const mockPersoonWithBoth = fromPartial<GeneratedType<"RestPersoon">>({
+        temporaryPersonId: randomUUID(),
+        bsn: "999993896",
+        identificatieType: "BSN",
+      });
+      fixture.componentRef.setInput("klant", mockPersoonWithBoth);
+
+      const mockZaak = {
+        betrokkenen: {
+          Initiator: [mockPersoonWithBoth.temporaryPersonId],
+          Melder: ["999993896"],
+          Behandelaar: ["other-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Initiator", "Melder"]);
+    }));
+
+    it("should not duplicate roles when same ID appears multiple times", fakeAsync(() => {
+      const mockZaak = {
+        betrokkenen: {
+          Initiator: [mockPersoon.temporaryPersonId, "other-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should only return "Initiator" once, not duplicated
+      expect(result).toEqual(["Initiator"]);
+      expect(result.length).toBe(1);
+    }));
+  });
 });

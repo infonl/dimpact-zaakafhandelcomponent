@@ -177,6 +177,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         acc.push(rol);
       }
 
+      if (betrokkene.bsn && ids.includes(betrokkene.bsn)) {
+        acc.push(rol);
+      }
+
       if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
         acc.push(rol);
       }
