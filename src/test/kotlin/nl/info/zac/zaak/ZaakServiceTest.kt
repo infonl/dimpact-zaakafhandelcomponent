@@ -326,7 +326,7 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             } throws RuntimeException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
 
-            When("the zaak is assigned to a user and a group, but setUser return an error") {
+            When("the zaak is assigned to a user and a group, but setGroup returns an error") {
                 every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
                 zaakService.assignZaak(zaak, group.name, user.id, reason)
