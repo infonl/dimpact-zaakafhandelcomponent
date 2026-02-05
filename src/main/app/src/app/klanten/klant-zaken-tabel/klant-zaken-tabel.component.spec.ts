@@ -269,7 +269,11 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoonWithBoth.temporaryPersonId, "999993896", "other-id"],
+          Initiator: [
+            mockPersoonWithBoth.temporaryPersonId,
+            "999993896",
+            "other-id",
+          ],
         },
       } as unknown as ZaakZoekObject;
 

@@ -171,7 +171,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
       const hasMatch =
-        (betrokkene.temporaryPersonId && ids.includes(betrokkene.temporaryPersonId)) ||
+        (betrokkene.temporaryPersonId &&
+          ids.includes(betrokkene.temporaryPersonId)) ||
         (betrokkene.bsn && ids.includes(betrokkene.bsn)) ||
         (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer));
 
