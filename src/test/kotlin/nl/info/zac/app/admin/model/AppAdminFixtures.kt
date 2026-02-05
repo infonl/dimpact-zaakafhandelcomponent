@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin.model
 
-import net.atos.zac.app.admin.model.RestZaakbeeindigParameter
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.zaak.model.RestResultaattype
@@ -167,8 +166,8 @@ fun createRestZaakbeeindigParameter(
     id: Long = 1L,
     zaakbeeindigReden: RestZaakbeeindigReden = createRestZaakbeeindigReden(),
     resultaattype: RestResultaattype = createRestResultaattype()
-) = RestZaakbeeindigParameter().apply {
-    this.id = id
-    this.zaakbeeindigReden = zaakbeeindigReden
-    this.resultaattype = resultaattype
-}
+) = RestZaakbeeindigParameter(
+    id = id,
+    zaakbeeindigReden = zaakbeeindigReden,
+    resultaattype = resultaattype
+)

@@ -77,7 +77,7 @@ public class MailtemplateKoppelingRESTService {
             final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(
                     zaaktypeCmmnMailtemplateParameters);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
-                    .toRestZaaktypeCmmnConfiguration(zaaktypeCmmnMailtemplateParameters.getZaaktypeCmmnConfiguration(), false);
+                    .toRestZaakafhandelParameters(zaaktypeCmmnMailtemplateParameters.getZaaktypeCmmnConfiguration(), false);
             return restMailtemplateKoppeling;
         }).toList();
     }

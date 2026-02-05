@@ -116,7 +116,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { it.url.extractUuid() }
             .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-            .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, false) }
+            .map { zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, false) }
             .onEach { restZaakafhandelParameters ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
                     restZaakafhandelParameters.zaaktype.uuid
@@ -139,12 +139,17 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             return when (it.getConfigurationType()) {
                 CMMN -> {
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+                            zaaktypeCmmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
+                            zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
+                            inclusiefRelaties = true
+                        )
                     }
                 }
                 BPMN -> {
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
-                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeBpmnConfiguration(it!!)
+                            zaaktypeBpmnConfiguration ->
+                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration!!)
                     }
                 }
             }
@@ -152,7 +157,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
 
         // Use CMMN ZaakafhandelParameters as default when no configuration exists yet
         return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(it, true)
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, true)
         }
     }
 
@@ -193,7 +198,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             )
             zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
             zaaktypeCmmnConfigurationService.clearListCache()
-            zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
                 updatedZaakafhandelParameters,
                 true
             )

@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -33,7 +32,7 @@ import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
-    val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
+    val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
@@ -73,7 +72,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns null
 
         When("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeCmmnConfiguration,
                 true
             )
@@ -183,7 +182,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
 
         When("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(
+            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeBpmnConfiguration
             )
 

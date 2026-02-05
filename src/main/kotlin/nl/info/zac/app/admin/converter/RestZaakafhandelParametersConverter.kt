@@ -11,8 +11,6 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter
 import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter
-import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
@@ -30,6 +28,7 @@ import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
+import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -41,14 +40,14 @@ import java.time.ZonedDateTime
 @Suppress("LongParameterList")
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
+    val zaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
     val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     val smartDocumentsService: SmartDocumentsService,
 ) {
     @Suppress("LongMethod")
-    fun toRestZaaktypeCmmnConfiguration(
+    fun toRestZaakafhandelParameters(
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         inclusiefRelaties: Boolean
     ): RestZaakafhandelParameters {
@@ -97,35 +96,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         return restZaakafhandelParameters
     }
 
-    private fun RestZaakafhandelParameters.addRelatedData(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) {
-        this.caseDefinition?.let { caseDefinition ->
-            this.humanTaskParameters =
-                humanTaskParametersConverter.convertHumanTaskParametersCollection(
-                    zaaktypeCmmnConfiguration.getHumanTaskParametersCollection(),
-                    caseDefinition.humanTaskDefinitions
-                )
-            this.userEventListenerParameters = RESTUserEventListenerParametersConverter
-                .convertUserEventListenerParametersCollection(
-                    zaaktypeCmmnConfiguration.getUserEventListenerParametersCollection(),
-                    caseDefinition.userEventListenerDefinitions
-                )
-        }
-        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
-            ztcClientService.readResultaattype(it).let { resultaatType ->
-                this.zaakNietOntvankelijkResultaattype =
-                    resultaatType.toRestResultaatType()
-            }
-        }
-        this.zaakbeeindigParameters =
-            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                zaaktypeCmmnConfiguration.getZaakbeeindigParameters()
-            )
-        this.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
-            zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
-        )
-        this.zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().toRestZaakAfzenders()
-    }
-
     @Suppress("ThrowsCount")
     fun toZaaktypeCmmnConfiguration(
         restZaakafhandelParameters: RestZaakafhandelParameters
@@ -167,9 +137,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             )
             it.setZaakbeeindigParameters(
-                convertRESTZaakbeeindigParameters(
-                    restZaakafhandelParameters.zaakbeeindigParameters
-                )
+                restZaakafhandelParameters.zaakbeeindigParameters.toZaaktypeCompletionParametersList()
             )
             it.setMailtemplateKoppelingen(
                 convertRESTmailtemplateKoppelingen(
@@ -186,7 +154,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         }
 
     @Suppress("LongMethod")
-    fun toRestZaaktypeBpmnConfiguration(
+    fun toRestZaakafhandelParameters(
         zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration
     ): RestZaakafhandelParameters {
         val restZaakafhandelParameters = RestZaakafhandelParameters(
@@ -211,5 +179,34 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             )
         )
         return restZaakafhandelParameters
+    }
+
+    private fun RestZaakafhandelParameters.addRelatedData(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) {
+        this.caseDefinition?.let { caseDefinition ->
+            this.humanTaskParameters =
+                humanTaskParametersConverter.convertHumanTaskParametersCollection(
+                    zaaktypeCmmnConfiguration.getHumanTaskParametersCollection(),
+                    caseDefinition.humanTaskDefinitions
+                )
+            this.userEventListenerParameters = RESTUserEventListenerParametersConverter
+                .convertUserEventListenerParametersCollection(
+                    zaaktypeCmmnConfiguration.getUserEventListenerParametersCollection(),
+                    caseDefinition.userEventListenerDefinitions
+                )
+        }
+        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
+            ztcClientService.readResultaattype(it).let { resultaatType ->
+                this.zaakNietOntvankelijkResultaattype =
+                    resultaatType.toRestResultaatType()
+            }
+        }
+        this.zaakbeeindigParameters =
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                zaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+            )
+        this.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
+            zaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
+        )
+        this.zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().toRestZaakAfzenders()
     }
 }
