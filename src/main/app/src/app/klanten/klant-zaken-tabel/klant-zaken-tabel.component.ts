@@ -168,7 +168,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    console.log("zaak betrokkenen: ", zaak.betrokkenen)
+    console.log("zaak betrokkenen: ", zaak.betrokkenen);
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
       const hasBetrokkenheid =

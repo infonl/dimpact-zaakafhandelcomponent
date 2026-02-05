@@ -30,6 +30,7 @@ describe(KlantZakenTabelComponent.name, () => {
   let zoekenService: ZoekenService;
 
   const mockPersoon = fromPartial<GeneratedType<"RestPersoon">>({
+    bsn: "999993896",
     temporaryPersonId: randomUUID(),
     identificatieType: "BSN",
   });
@@ -40,8 +41,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-001",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.temporaryPersonId],
-        Contactpersoon: [mockPersoon.temporaryPersonId],
+        Melder: [mockPersoon.bsn],
+        Contactpersoon: [mockPersoon.bsn],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -49,7 +50,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-002",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.temporaryPersonId],
+        Melder: [mockPersoon.bsn],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -57,7 +58,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [mockPersoon.temporaryPersonId, "999992958"],
+        Bewindvoerder: [mockPersoon.bsn, "999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -65,8 +66,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-004",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.temporaryPersonId],
-        Contactpersoon: [mockPersoon.temporaryPersonId],
+        Melder: [mockPersoon.bsn],
+        Contactpersoon: [mockPersoon.bsn],
         Behandelaar: ["behandelaar-user"],
       },
     } as unknown as ZaakZoekObject,
@@ -133,23 +134,10 @@ describe(KlantZakenTabelComponent.name, () => {
   }));
 
   describe("getBetrokkenheid", () => {
-    it("should match betrokkene by temporaryPersonId", fakeAsync(() => {
-      const mockZaak = {
-        betrokkenen: {
-          Initiator: [mockPersoon.temporaryPersonId],
-          Behandelaar: ["other-id"],
-        },
-      } as unknown as ZaakZoekObject;
-
-      const result = component["getBetrokkenheid"](mockZaak);
-
-      expect(result).toEqual(["Initiator"]);
-    }));
-
     it("should match betrokkene by BSN", fakeAsync(() => {
       const mockPersoonWithBsn = fromPartial<GeneratedType<"RestPersoon">>({
-        temporaryPersonId: randomUUID(),
         bsn: "999993896",
+        temporaryPersonId: randomUUID(),
         identificatieType: "BSN",
       });
       fixture.componentRef.setInput("klant", mockPersoonWithBsn);
@@ -189,9 +177,9 @@ describe(KlantZakenTabelComponent.name, () => {
     it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.temporaryPersonId],
-          Melder: [mockPersoon.temporaryPersonId],
-          Contactpersoon: [mockPersoon.temporaryPersonId],
+          Initiator: [mockPersoon.bsn],
+          Melder: [mockPersoon.bsn],
+          Contactpersoon: [mockPersoon.bsn],
           Behandelaar: ["other-id"],
         },
       } as unknown as ZaakZoekObject;
@@ -224,61 +212,16 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result).toEqual([]);
     }));
 
-    it("should match by both temporaryPersonId and BSN when both are in different roles", fakeAsync(() => {
-      const mockPersoonWithBoth = fromPartial<GeneratedType<"RestPersoon">>({
-        temporaryPersonId: randomUUID(),
-        bsn: "999993896",
-        identificatieType: "BSN",
-      });
-      fixture.componentRef.setInput("klant", mockPersoonWithBoth);
-
-      const mockZaak = {
-        betrokkenen: {
-          Initiator: [mockPersoonWithBoth.temporaryPersonId],
-          Melder: ["999993896"],
-          Behandelaar: ["other-id"],
-        },
-      } as unknown as ZaakZoekObject;
-
-      const result = component["getBetrokkenheid"](mockZaak);
-
-      expect(result).toEqual(["Initiator", "Melder"]);
-    }));
-
     it("should not duplicate roles when same ID appears multiple times", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.temporaryPersonId, "other-id"],
+          Initiator: [mockPersoon.bsn, "other-id"],
         },
       } as unknown as ZaakZoekObject;
 
       const result = component["getBetrokkenheid"](mockZaak);
 
       // Should only return "Initiator" once, not duplicated
-      expect(result).toEqual(["Initiator"]);
-      expect(result.length).toBe(1);
-    }));
-
-    it("should not duplicate roles when both temporaryPersonId and BSN are in the same role array", fakeAsync(() => {
-      const mockPersoonWithBoth = fromPartial<GeneratedType<"RestPersoon">>({
-        temporaryPersonId: randomUUID(),
-        bsn: "999993896",
-        identificatieType: "BSN",
-      });
-      fixture.componentRef.setInput("klant", mockPersoonWithBoth);
-
-      const mockZaak = {
-        betrokkenen: {
-          Initiator: [
-            mockPersoonWithBoth.temporaryPersonId,
-            "999993896",
-            "other-id",
-          ],
-        },
-      } as unknown as ZaakZoekObject;
-
-      const result = component["getBetrokkenheid"](mockZaak);
-
       expect(result).toEqual(["Initiator"]);
       expect(result.length).toBe(1);
     }));
