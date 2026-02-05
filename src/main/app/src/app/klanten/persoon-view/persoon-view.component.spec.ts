@@ -20,7 +20,18 @@ describe(PersoonViewComponent.name, () => {
     naam: "Jan de Vries",
     bsn: "123456789",
     geboortedatum: "1990-01-15",
+    verblijfplaats: "Amsterdam",
+    telefoonnummer: "0612345678",
+    emailadres: "jan.devries@example.com",
     indicaties: [],
+  };
+
+  const mockActivatedRoute = {
+    data: of({ persoon: mockPersoon }),
+  };
+
+  const mockUtilService = {
+    setTitle: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -30,13 +41,11 @@ describe(PersoonViewComponent.name, () => {
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: {
-            data: of({ persoon: mockPersoon }),
-          },
+          useValue: mockActivatedRoute,
         },
         {
           provide: UtilService,
-          useValue: { setTitle: jest.fn() },
+          useValue: mockUtilService,
         },
       ],
     }).compileComponents();
@@ -47,14 +56,68 @@ describe(PersoonViewComponent.name, () => {
   });
 
   it("should receive persoon data from route resolver", () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const nameElement = compiled.querySelector('zac-static-text[label="naam"]');
-    expect(nameElement).toBeTruthy();
+    expect(component["persoon"]).toEqual(mockPersoon);
   });
 
-  it("should render persoon name", () => {
+  it("should render all person data fields", () => {
     const compiled = fixture.nativeElement as HTMLElement;
+
     const nameElement = compiled.querySelector('zac-static-text[label="naam"]');
     expect(nameElement).toBeTruthy();
+
+    const bsnElement = compiled.querySelector(
+      'zac-static-text[label="burgerservicenummer"]',
+    );
+    expect(bsnElement).toBeTruthy();
+
+    const geboortedatumElement = compiled.querySelector(
+      'zac-static-text[label="geboortedatum"]',
+    );
+    expect(geboortedatumElement).toBeTruthy();
+
+    const verblijfplaatsElement = compiled.querySelector(
+      'zac-static-text[label="verblijfplaats"]',
+    );
+    expect(verblijfplaatsElement).toBeTruthy();
+
+    const telefoonnummerElement = compiled.querySelector(
+      'zac-static-text[label="telefoonnummer"]',
+    );
+    expect(telefoonnummerElement).toBeTruthy();
+
+    const emailadresElement = compiled.querySelector(
+      'zac-static-text[label="emailadres"]',
+    );
+    expect(emailadresElement).toBeTruthy();
+  });
+
+  it("should render zaken table when persoon is available", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const zakenTabel = compiled.querySelector("zac-klant-zaken-tabel");
+    expect(zakenTabel).toBeTruthy();
+  });
+
+  it("should render empty zaken table", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const zakenTabel = compiled.querySelector("zac-klant-zaken-tabel");
+    const tableRows = zakenTabel?.querySelectorAll("mat-row");
+    expect(tableRows?.length).toBe(0);
+  });
+
+  it("should render contactmomenten table when persoon has BSN", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const contactmomentenTabel = compiled.querySelector(
+      "zac-klant-contactmomenten-tabel",
+    );
+    expect(contactmomentenTabel).toBeTruthy();
+  });
+
+  it("should render empty contactmomenten table", () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const contactmomentenTabel = compiled.querySelector(
+      "zac-klant-contactmomenten-tabel",
+    );
+    const tableRows = contactmomentenTabel?.querySelectorAll("mat-row");
+    expect(tableRows?.length).toBe(0);
   });
 });
