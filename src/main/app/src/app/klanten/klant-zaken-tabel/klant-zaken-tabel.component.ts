@@ -168,16 +168,14 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
+    console.log("betrokkene: ", betrokkene);
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (
-        betrokkene.temporaryPersonId &&
-        ids.includes(betrokkene.temporaryPersonId)
-      ) {
+      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
         acc.push(rol);
       }
 
-      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
+      if (betrokkene.bsn && ids.includes(betrokkene.bsn)) {
         acc.push(rol);
       }
 
