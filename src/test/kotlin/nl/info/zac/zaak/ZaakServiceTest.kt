@@ -294,7 +294,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
+        Given("a zaak exists, with a user and group already assigned, but the process instance is not found when setting zaak variables") {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val rolSlot = mutableListOf<Rol<*>>()
