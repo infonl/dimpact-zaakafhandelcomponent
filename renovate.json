@@ -13,8 +13,7 @@
     "docker:enableMajor"
   ],
   "reviewers": [
-    "team:dimpact",
-    "hsiliev"
+    "team:dimpact"
   ],
   "prConcurrentLimit": 5,
   "registryAliases": {
