@@ -21,6 +21,12 @@ export class PersoonResolverService {
   async resolve(route: ActivatedRouteSnapshot) {
     const temporaryPersonId = route.paramMap.get("temporaryPersonId")!;
 
+    if (!temporaryPersonId) {
+      throw new Error(
+        `${PersoonResolverService.name}: no 'temporaryPersonId' found in route`,
+      );
+    }
+
     return this.queryClient.ensureQueryData({
       ...this.klantenService.readPersoon(temporaryPersonId),
       retry: (count, error) => {
