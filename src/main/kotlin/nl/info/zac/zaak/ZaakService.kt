@@ -398,7 +398,7 @@ class ZaakService @Inject constructor(
                 } ?: zaakVariabelenService.removeUser(zaakUuid)
             } catch (ex: RuntimeException) {
                 if (ex.message?.contains("No case or process instance found for zaak with UUID") == true) {
-                    LOG.warning(ex.message)
+                    LOG.warning { ex.message }
                 } else {
                     throw ex
                 }
