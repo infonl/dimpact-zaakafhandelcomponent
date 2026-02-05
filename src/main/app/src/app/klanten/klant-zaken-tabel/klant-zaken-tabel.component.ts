@@ -170,18 +170,12 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
 
     return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (
-        betrokkene.temporaryPersonId &&
-        ids.includes(betrokkene.temporaryPersonId)
-      ) {
-        acc.push(rol);
-      }
+      const hasMatch =
+        (betrokkene.temporaryPersonId && ids.includes(betrokkene.temporaryPersonId)) ||
+        (betrokkene.bsn && ids.includes(betrokkene.bsn)) ||
+        (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer));
 
-      if (betrokkene.bsn && ids.includes(betrokkene.bsn)) {
-        acc.push(rol);
-      }
-
-      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
+      if (hasMatch) {
         acc.push(rol);
       }
 

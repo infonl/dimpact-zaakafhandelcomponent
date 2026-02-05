@@ -258,5 +258,25 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result).toEqual(["Initiator"]);
       expect(result.length).toBe(1);
     }));
+
+    it("should not duplicate roles when both temporaryPersonId and BSN are in the same role array", fakeAsync(() => {
+      const mockPersoonWithBoth = fromPartial<GeneratedType<"RestPersoon">>({
+        temporaryPersonId: randomUUID(),
+        bsn: "999993896",
+        identificatieType: "BSN",
+      });
+      fixture.componentRef.setInput("klant", mockPersoonWithBoth);
+
+      const mockZaak = {
+        betrokkenen: {
+          Initiator: [mockPersoonWithBoth.temporaryPersonId, "999993896", "other-id"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Initiator"]);
+      expect(result.length).toBe(1);
+    }));
   });
 });
