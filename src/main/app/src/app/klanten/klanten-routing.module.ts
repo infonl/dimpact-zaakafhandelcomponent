@@ -16,7 +16,7 @@ const routes: Routes = [
     path: "persoon",
     children: [
       {
-        path: ":bsn",
+        path: ":temporaryPersonId",
         component: PersoonViewComponent,
         resolve: { persoon: PersoonResolverService },
       },
