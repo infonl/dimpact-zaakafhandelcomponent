@@ -595,7 +595,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: docker.io/maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -646,7 +646,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: docker.io/maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -660,7 +660,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: docker.io/maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -676,7 +676,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: docker.io/maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -686,7 +686,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
+    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
     ports:
       - "8005:8080"
     volumes:
