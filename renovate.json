@@ -532,7 +532,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/redis"
+        "redis"
       ],
       "matchDatasources": [
         "docker"
