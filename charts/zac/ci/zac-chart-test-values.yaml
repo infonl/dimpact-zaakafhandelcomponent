@@ -49,6 +49,8 @@ objectenApi:
 brpApi:
   url: "https://brp.test.local"
   apiKey: "brp-api-key"
+  protocollering:
+    aanbieder: "iConnect"
 
 kvkApi:
   url: "https://kvk.test.local"
