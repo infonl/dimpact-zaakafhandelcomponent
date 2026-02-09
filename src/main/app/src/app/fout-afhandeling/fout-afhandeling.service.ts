@@ -67,7 +67,7 @@ export class FoutAfhandelingService {
     }, "");
 
     return details.length
-      ? this.openFoutDetailedDialog("Validatie fout", details)
+      ? this.openFoutDetailedDialog("Validatiefout", details)
       : throwError(() => new Error("No violations found"));
   }
 
