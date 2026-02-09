@@ -13,8 +13,7 @@
     "docker:enableMajor"
   ],
   "reviewers": [
-    "team:dimpact",
-    "hsiliev"
+    "team:dimpact"
   ],
   "prConcurrentLimit": 5,
   "registryAliases": {
@@ -114,7 +113,7 @@
         "- \\*\\*open-zaak\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/openzaak/open-zaak",
+      "depNameTemplate": "openzaak/open-zaak",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -136,7 +135,7 @@
         "- \\*\\*objects-api\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/maykinmedia/objects-api",
+      "depNameTemplate": "maykinmedia/objects-api",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -192,7 +191,7 @@
         "- \\*\\*open-klant\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/maykinmedia/open-klant",
+      "depNameTemplate": "maykinmedia/open-klant",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -280,7 +279,7 @@
         "- \\*\\*open-notificaties\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/openzaak/open-notificaties",
+      "depNameTemplate": "openzaak/open-notificaties",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -473,7 +472,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/maykinmedia/objects-api"
+        "maykinmedia/objects-api"
       ],
       "matchDatasources": [
         "docker"
@@ -485,7 +484,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/maykinmedia/objecttypes-api"
+        "maykinmedia/objecttypes-api"
       ],
       "matchDatasources": [
         "docker"
@@ -497,7 +496,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/maykinmedia/open-klant"
+        "maykinmedia/open-klant"
       ],
       "matchDatasources": [
         "docker"
@@ -509,7 +508,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/openzaak/open-zaak"
+        "openzaak/open-zaak"
       ],
       "matchDatasources": [
         "docker"
@@ -521,7 +520,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/openzaak/open-notificaties"
+        "openzaak/open-notificaties"
       ],
       "matchDatasources": [
         "docker"
@@ -533,7 +532,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/redis"
+        "redis"
       ],
       "matchDatasources": [
         "docker"
@@ -609,7 +608,7 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/eclipse-temurin"
+        "eclipse-temurin"
       ],
       "matchDatasources": [
         "docker"

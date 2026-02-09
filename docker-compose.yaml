@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
+    image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
     platform: linux/amd64
     ports:
       - "54326:5432"
@@ -96,7 +96,7 @@ services:
       - "--import-realm"
 
   openzaak-database:
-    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -119,7 +119,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
+    image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -169,7 +169,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: docker.io/openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
+    image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -185,12 +185,12 @@ services:
     profiles: [ "opennotificaties" ]
 
   redis:
-    image: redis:8.4.0@sha256:73dad4271642c5966db88db7a7585fae7cf10b685d1e48006f31e0294c29fdd7
+    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -219,7 +219,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-database:
-    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
       - "54323:5432"
     platform: linux/amd64
@@ -236,7 +236,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: docker.io/maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -250,7 +250,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: docker.io/solr:9.10.1-slim@sha256:5c50282c6e316fc3d670eb86b443dc70b1147ac0d31b76444b52be75e4b40468
+    image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -266,13 +266,13 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.13.1-static@sha256:79dc887c32be886069d9429075a541c8b0e53326251856190b84572c44702a7a
+    image: openpolicyagent/opa:1.13.1-static@sha256:79dc887c32be886069d9429075a541c8b0e53326251856190b84572c44702a7a
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
   brp-personen-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
+    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
     volumes:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
@@ -291,7 +291,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
+    image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
     platform: linux/amd64
     ports:
       - "54325:5432"
@@ -310,7 +310,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
+    image: maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -335,7 +335,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
+    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -346,7 +346,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
+    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -359,7 +359,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.13.2@sha256:8bdd64a25db911ba521a38aebf1590d96767c2d29f3e941e2f496a760bbdf47d
+    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -371,7 +371,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:1.13.1@sha256:92044e8f8e2d1ca6a62d8f40007f4d2045893fc46b18f3a5392f196f0b37880b
+    image: openpolicyagent/opa:1.13.1@sha256:92044e8f8e2d1ca6a62d8f40007f4d2045893fc46b18f3a5392f196f0b37880b
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -387,7 +387,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.145.0@sha256:8cad95dd3fe0304fbc5652373cc392be4ac915c4c210d2c425d3f1a1f7c3c3ca
+    image: otel/opentelemetry-collector:0.145.0@sha256:8cad95dd3fe0304fbc5652373cc392be4ac915c4c210d2c425d3f1a1f7c3c3ca
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -403,7 +403,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:2.10.0@sha256:d7f4c72e0bad2b42b4e7263b0addaf3f5bbc105cec6b1917eba0aae3b9b70364
+    image: grafana/tempo:2.10.0@sha256:d7f4c72e0bad2b42b4e7263b0addaf3f5bbc105cec6b1917eba0aae3b9b70364
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -417,7 +417,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
+    image: prom/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -430,7 +430,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:12.3.2@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1
+    image: grafana/grafana:12.3.2@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -453,7 +453,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.8@sha256:d556b8c7df01ba04a0e0f67dacab2c5f75a61207a51774e0654c179b83a671e1
+    image: greenmail/standalone:2.1.8@sha256:d556b8c7df01ba04a0e0f67dacab2c5f75a61207a51774e0654c179b83a671e1
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -468,7 +468,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.3-alpine@sha256:a1838d22d0917aca59dcf9b7baed4783c2d8cb17f1b8109f32fb45396cd49ef3
+    image: rabbitmq:4.2.3-alpine@sha256:f5efafa65aada6282656e2b5e61fca04de994c55559dbc1622dee0f05e3cb928
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -477,7 +477,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-database:
-    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
       - "54327:5432"
     platform: linux/amd64
@@ -498,7 +498,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
-    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -541,7 +541,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-init:
-    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -559,7 +559,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
-    image: docker.io/openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -575,7 +575,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   openarchiefbeheer-database:
-    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
@@ -686,7 +686,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: docker.io/nginxinc/nginx-unprivileged:1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
+    image: nginxinc/nginx-unprivileged:1.29.5@sha256:18649fec7f0cba6b99f796e108aaee069d65c06e498c775d05caec6092cad750
     ports:
       - "8005:8080"
     volumes:
@@ -697,7 +697,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
+    image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
     platform: linux/amd64
     ports:
       - "54329:5432"
@@ -750,7 +750,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: docker.io/postgres:17.7@sha256:bac8128cd62a35471a1e97966861aa2ac88c8d2f408767a425ae70695a607c99
+    image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
     platform: linux/amd64
     ports:
       - "54320:5432"

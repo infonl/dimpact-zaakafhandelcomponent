@@ -18,16 +18,14 @@
     "@cucumber/cucumber": "12.6.0",
     "pdf-parse": "2.4.5",
     "uniqid": "5.4.0",
-    "uuidv4": "6.2.13",
     "zod": "4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "1.58.1",
-    "@types/node": "22.19.7",
+    "@types/node": "22.19.9",
     "@types/uniqid": "5.3.4",
     "cucumber-html-reporter": "7.2.0",
-    "cucumber-pretty": "6.0.1",
-    "dotenv": "17.2.3",
+    "dotenv": "17.2.4",
     "playwright-bdd": "8.4.2",
     "ts-node": "10.9.2",
     "typescript": "5.7.2"
