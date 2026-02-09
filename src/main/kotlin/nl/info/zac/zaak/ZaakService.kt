@@ -396,8 +396,8 @@ class ZaakService @Inject constructor(
                 user?.let {
                     zaakVariabelenService.setUser(zaakUuid, it.getFullName())
                 } ?: zaakVariabelenService.removeUser(zaakUuid)
-            } catch (ex: CaseOrProcessNotFoundException) {
-                LOG.warning { ex.message }
+            } catch (exception: CaseOrProcessNotFoundException) {
+                LOG.warning { exception.message }
             }
         }
     }
