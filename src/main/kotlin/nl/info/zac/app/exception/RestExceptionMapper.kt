@@ -216,11 +216,20 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             }
         }
 
-    private fun createResponse(exception: WebApplicationException): Response =
-        Response.status(exception.response.status)
+    private fun createResponse(exception: WebApplicationException): Response {
+        val jsonErrorMessage = if (exception.cause is IllegalArgumentException) {
+            getJSONMessage(
+                errorMessage = "msg.error.invalid.argument",
+                exceptionMessage = exception.cause?.message
+            )
+        } else {
+            getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value)
+        }
+        return Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
+            .entity(jsonErrorMessage)
             .build()
+    }
 
     private fun generateResponse(
         responseStatus: Response.Status,
