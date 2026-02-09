@@ -16,7 +16,7 @@ global:
     # -- curl docker repository used throughout the chart
     repository: curlimages/curl
     # -- curl docker tag to pull
-    tag: 8.18.0@sha256:2a3ad47a2fb208f20ee041d0c7e9becc00b7ecbe683d1272c6717c71fb1e4808
+    tag: 8.18.0@sha256:d94d07ba9e7d6de898b6d96c1a072f6f8266c687af78a74f380087a0addf5d17
     pullPolicy: IfNotPresent
 
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
@@ -384,7 +384,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:3bf024f5b91b256d55fcecaa910a7f671bdd2b6bb5bb22ac6b774cc4678f2093
+      tag: 1.37.0-glibc@sha256:ba8e26a0e4dc1178f2c90ff8c4090e1ca351bf8f38b2be3052de194e7e2ad291
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -394,7 +394,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1@sha256:64485e1855605951b93f166461f7c8f86668d6a8e3ef0a8c399bc578c7575714
+      tag: 9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -557,7 +557,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.144.0@sha256:213886eb6407af91b87fa47551c3632be1a6419ff3a5114ef1e6fc364628496f"
+    tag: "0.145.0@sha256:a7343f01869071ea3f4c5e1e97df1bb1b3c4d5c77247db80e053a80b9df530c4"
   presets:
     clusterMetrics:
       enabled: false
@@ -588,7 +588,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.3@sha256:86482ae8f7cdba8d8a3a4b8142e4d14c32806c1cf6d24bb0a3c9f431af840bbd
+    tag: 1.29.5@sha256:18649fec7f0cba6b99f796e108aaee069d65c06e498c775d05caec6092cad750
   service:
     type: ClusterIP
     port: 80

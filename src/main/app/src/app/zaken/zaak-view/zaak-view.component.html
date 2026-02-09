@@ -388,10 +388,6 @@
                     [currentLocation]="zaak.zaakgeometrie"
                   ></zac-locatie-tonen>
                 </div>
-
-                <zac-locatie-tonen
-                  [currentLocation]="zaak.zaakgeometrie"
-                ></zac-locatie-tonen>
               </div>
             </mat-tab>
 
@@ -940,7 +936,6 @@
                 <ng-container matColumnDef="expandedTaakDetail">
                   <td mat-cell *matCellDef="let row" colspan="9">
                     <div
-                      class="row-detail"
                       [@detailExpand]="row.expanded ? 'expanded' : 'collapsed'"
                     >
                       <div class="flex-row flex-wrap gap-10">

@@ -155,6 +155,8 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 creatiedatum = ZonedDateTime.now()
                 mapBetrokkeneKoppelingen(previousConfiguration, this)
                 mapBrpDoelbindingen(previousConfiguration, this)
+                nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
+                mapCompletionParameters(previousConfiguration, this)
             }.run(::storeConfiguration)
         }
     }

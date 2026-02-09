@@ -18,20 +18,19 @@ data class RestBrpDoelbindingen(
     var verwerkingregisterWaarde: String? = null
 )
 
-fun ZaaktypeBrpParameters.toRestBrpDoelbindingen(): RestBrpDoelbindingen =
-    RestBrpDoelbindingen().apply {
-        id = this@toRestBrpDoelbindingen.id
-        zoekWaarde = this@toRestBrpDoelbindingen.zoekWaarde
-        raadpleegWaarde = this@toRestBrpDoelbindingen.raadpleegWaarde
-        verwerkingregisterWaarde = this@toRestBrpDoelbindingen.verwerkingregisterWaarde
-    }
+fun ZaaktypeBrpParameters.toRestBrpDoelbindingen() = RestBrpDoelbindingen().apply {
+    id = this@toRestBrpDoelbindingen.id
+    zoekWaarde = this@toRestBrpDoelbindingen.zoekWaarde
+    raadpleegWaarde = this@toRestBrpDoelbindingen.raadpleegWaarde
+    verwerkingregisterWaarde = this@toRestBrpDoelbindingen.verwerkingregisterWaarde
+}
 
-fun RestBrpDoelbindingen.toBrpDoelbindingen(
+fun RestBrpDoelbindingen.toZaaktypeBrpParameters(
     zaaktypeConfiguration: ZaaktypeConfiguration
-): ZaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
-    id = this@toBrpDoelbindingen.id
-    zoekWaarde = this@toBrpDoelbindingen.zoekWaarde
-    raadpleegWaarde = this@toBrpDoelbindingen.raadpleegWaarde
-    verwerkingregisterWaarde = this@toBrpDoelbindingen.verwerkingregisterWaarde
+) = ZaaktypeBrpParameters().apply {
+    id = this@toZaaktypeBrpParameters.id
+    zoekWaarde = this@toZaaktypeBrpParameters.zoekWaarde
+    raadpleegWaarde = this@toZaaktypeBrpParameters.raadpleegWaarde
+    verwerkingregisterWaarde = this@toZaaktypeBrpParameters.verwerkingregisterWaarde
     this.zaaktypeConfiguration = zaaktypeConfiguration
 }

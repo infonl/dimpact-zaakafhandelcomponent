@@ -24,11 +24,11 @@ fun ZaaktypeBetrokkeneParameters.toRestBetrokkeneKoppelingen(): RestBetrokkeneKo
         this@toRestBetrokkeneKoppelingen.kvkKoppelen?.let { kvkKoppelen = it }
     }
 
-fun RestBetrokkeneKoppelingen.toBetrokkeneKoppelingen(
+fun RestBetrokkeneKoppelingen.toZaaktypeBetrokkenParameters(
     zaaktypeConfiguration: ZaaktypeConfiguration
 ): ZaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
-    id = this@toBetrokkeneKoppelingen.id
-    brpKoppelen = this@toBetrokkeneKoppelingen.brpKoppelen
-    kvkKoppelen = this@toBetrokkeneKoppelingen.kvkKoppelen
+    id = this@toZaaktypeBetrokkenParameters.id
+    brpKoppelen = this@toZaaktypeBetrokkenParameters.brpKoppelen
+    kvkKoppelen = this@toZaaktypeBetrokkenParameters.kvkKoppelen
     this.zaaktypeConfiguration = zaaktypeConfiguration
 }

@@ -16,7 +16,7 @@ import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import nl.info.zac.app.admin.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.time.LocalDate
 
@@ -41,7 +41,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
         every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration, true)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
 
         When("converted to REST") {
@@ -80,7 +80,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaaktypeBpmnConfiguration(zaaktypeBpmnConfiguration)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
         } returns restZaakafhandelParameters
 
         When("converted to REST") {

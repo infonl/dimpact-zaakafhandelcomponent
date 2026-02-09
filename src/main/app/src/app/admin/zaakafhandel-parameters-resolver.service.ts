@@ -33,7 +33,7 @@ export class ZaakafhandelParametersResolver {
       zaakafhandelParameters:
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
       bpmnProcessConfigurations:
-        this.bpmnService.listbpmnProcessConfigurations(),
+        this.zaakafhandelParametersService.getZaaktypeBpmnConfiguration(),
       bpmnProcessDefinitions: this.bpmnService.listProcessDefinitions(),
       featureFlagPabcIntegration:
         this.configuratieService.readFeatureFlagPabcIntegration(),
@@ -52,12 +52,13 @@ export class ZaakafhandelParametersResolver {
           const isBpmn = !!bpmnZaakafhandelParameters;
           const isSavedZaakafhandelParameters =
             isBpmn || !!zaakafhandelParameters?.defaultGroepId; // true if zaakafhandelparameters or BPMN zaakafhandelparameters for this zaaktype has been saved before (group id initially null but set on save)
-
           return {
             zaakafhandelParameters,
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
+              zaakbeeindigParameters:
+                zaakafhandelParameters.zaakbeeindigParameters,
             },
             bpmnProcessDefinitions,
             isBpmn,

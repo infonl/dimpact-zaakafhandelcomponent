@@ -22,12 +22,16 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.policy.PolicyService
@@ -45,6 +49,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationConverter = mockk<RestZaakafhandelParametersConverter>()
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
@@ -57,6 +62,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
         zaaktypeBpmnConfigurationService = zaaktypeBpmnConfigurationService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
+        zaaktypeConfigurationService = zaaktypeConfigurationService,
         referenceTableService = referenceTableService,
         zaaktypeCmmnConfigurationConverter = zaaktypeCmmnConfigurationConverter,
         caseDefinitionConverter = caseDefinitionConverter,
@@ -94,7 +100,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             } just runs
             every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(updatedZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
 
             When("the zaakafhandelparameters are updated with a different domein") {
@@ -155,7 +161,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaaktypeCmmnConfiguration(createdZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
             every {
                 zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
@@ -262,6 +268,94 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 exception.message shouldBe null
                 verify(exactly = 0) {
                     zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
+                }
+            }
+        }
+    }
+
+    Given("Existing zaaktype configuration for CMMN") {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every {
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+        } returns createRestZaakafhandelParameters()
+
+        When("zaaktypeCmmnConfiguration is requested") {
+            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+                zaaktypeCmmnConfiguration.zaaktypeUuid
+            )
+
+            Then("the correct functions are called to retrieve the configuration") {
+                verify(exactly = 1) {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                        zaaktypeCmmnConfiguration.zaaktypeUuid
+                    )
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+                }
+            }
+        }
+    }
+
+    Given("Existing zaaktype configuration for BPMN") {
+        val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(id = null)
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeBpmnConfiguration
+        every {
+            zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeBpmnConfiguration
+        every {
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
+        } returns createRestZaakafhandelParameters()
+
+        When("zaaktypeCmmnConfiguration is requested") {
+            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+                zaaktypeBpmnConfiguration.zaaktypeUuid
+            )
+
+            Then("the correct functions are called to retrieve the configuration") {
+                verify(exactly = 1) {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
+                    zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
+                }
+            }
+        }
+    }
+
+    Given("No existing zaaktype configuration") {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(id = null)
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+        } returns null
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every {
+            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+        } returns createRestZaakafhandelParameters()
+
+        When("zaaktypeConfiguration is requested") {
+            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+                zaaktypeCmmnConfiguration.zaaktypeUuid
+            )
+
+            Then("the correct functions are called to retrieve the configuration") {
+                verify(exactly = 1) {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
+                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+                        zaaktypeCmmnConfiguration.zaaktypeUuid
+                    )
+                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
                 }
             }
         }

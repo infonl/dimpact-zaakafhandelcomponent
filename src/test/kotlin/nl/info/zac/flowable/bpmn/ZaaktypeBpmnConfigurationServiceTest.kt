@@ -35,7 +35,8 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
 
             When("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                    zaaktypeBpmnProcessDefinition
+                    zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
+                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
 
                 Then("no exception is thrown") {}
@@ -51,7 +52,8 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
 
             When("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                    zaaktypeBpmnProcessDefinition
+                    zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
+                    zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
 
                 Then("no exception is thrown") {}
@@ -68,7 +70,8 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
             When("checking if productaanvraagtype is in use") {
                 shouldThrow<InputValidationFailedException> {
                     zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
-                        zaaktypeBpmnProcessDefinition
+                        zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
+                        zaaktypeBpmnProcessDefinition.zaaktypeUuid
                     )
                 }
 

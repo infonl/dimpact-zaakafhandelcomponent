@@ -13,11 +13,9 @@ import net.atos.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaakbeeindigReden
-import nl.info.zac.admin.model.ZaaktypeCmmnCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
@@ -49,6 +47,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val zaaktypeHelperService: ZaaktypeHelperService,
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeCmmnConfigurationBeheerService::class.java.name)
@@ -166,7 +165,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             LOG.info {
                 "ZaaktypeCmmnConfiguration for zaak type with UUID $zaaktypeUuid is already published. Updating parameters data"
             }
-            updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
+            zaaktypeHelperService.updateZaakbeeindigGegevens(zaaktypeCmmnConfiguration, zaaktype)
             storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
         } else {
             val previousZaaktypeCmmnConfiguration = currentZaaktypeCmmnConfiguration(zaaktype.omschrijving)
@@ -242,7 +241,11 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
 
         mapHumanTaskParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapUserEventListenerParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        mapZaakbeeindigGegevens(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration, zaaktype)
+        zaaktypeHelperService.mapZaakbeeindigGegevens(
+            previousZaaktypeCmmnConfiguration,
+            zaaktypeCmmnConfiguration,
+            zaaktype
+        )
         mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         zaaktypeCmmnConfiguration.mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
@@ -310,64 +313,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         }
     }.toSet().let(newZaaktypeCmmnConfiguration::setUserEventListenerParametersCollection)
 
-    /**
-     * Kopieren van de ZaakbeeindigGegevens van de oude ZaaktypeCmmnConfiguration naar de nieuw ZaaktypeCmmnConfiguration
-     *
-     * @param previousZaaktypeCmmnConfiguration bron
-     * @param newZaaktypeCmmnConfiguration bestemming
-     * @param newZaaktype                het nieuwe zaaktype om de resultaten van te lezen
-     */
-    private fun mapZaakbeeindigGegevens(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktype: ZaakType
-    ) {
-        val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-        newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype =
-            previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
-                mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
-            }
-        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
-            .mapNotNull { zaakbeeindigParameter ->
-                zaakbeeindigParameter.resultaattype
-                    .let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
-                    ?.let {
-                        ZaaktypeCmmnCompletionParameters().apply {
-                            zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
-                            resultaattype = it
-                        }
-                    }
-            }.toMutableSet()
-        newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
-    }
-
-    /**
-     * Pas de ZaakbeeindigGegevens aan op basis van het gegeven zaaktype
-     *
-     * @param zaaktypeCmmnConfiguration bron
-     * @param newZaaktype                het zaaktype om de resultaten van te lezen
-     */
-    private fun updateZaakbeeindigGegevens(
-        zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktype: ZaakType
-    ) {
-        val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-
-        zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
-            mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
-        }
-
-        zaaktypeCmmnConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            mapVorigResultaattypeOpNieuwResultaattype(zaakbeeindigParameter.resultaattype, newResultaattypen)
-                ?.let {
-                    ZaaktypeCmmnCompletionParameters().apply {
-                        zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
-                        resultaattype = it
-                    }
-                }
-        }
-    }
-
     private fun mapMailtemplateKoppelingen(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
         newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
@@ -377,15 +322,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
-
-    private fun mapVorigResultaattypeOpNieuwResultaattype(
-        previousResultaattypeUUID: UUID,
-        newResultaattypen: List<ResultaatType>,
-    ): UUID? =
-        ztcClientService.readResultaattype(previousResultaattypeUUID)
-            .let { newResultaattypen.firstOrNull { it.omschrijving == it.omschrijving } }
-            ?.url
-            ?.extractUuid()
 
     private fun mapSmartDocuments(
         previousZaakafhandelUUID: UUID,

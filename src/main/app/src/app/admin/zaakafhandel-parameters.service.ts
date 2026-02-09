@@ -60,15 +60,14 @@ export class ZaakafhandelParametersService {
     return this.zacHttpClient.PUT("/rest/zaakafhandelparameters", body);
   }
 
-  updateBpmnZaakafhandelparameters(
-    processDefinitionKey: string,
-    body: PostBody<"/rest/zaaktype-bpmn-configuration/{processDefinitionKey}">,
+  getZaaktypeBpmnConfiguration() {
+    return this.zacHttpClient.GET("/rest/zaaktype-bpmn-configuration");
+  }
+
+  createOrUpdateBpmnZaakafhandelparameters(
+    body: PostBody<"/rest/zaaktype-bpmn-configuration">,
   ) {
-    return this.zacHttpClient.POST(
-      "/rest/zaaktype-bpmn-configuration/{processDefinitionKey}",
-      body,
-      { path: { processDefinitionKey } },
-    );
+    return this.zacHttpClient.POST("/rest/zaaktype-bpmn-configuration", body);
   }
 
   listFormulierDefinities() {

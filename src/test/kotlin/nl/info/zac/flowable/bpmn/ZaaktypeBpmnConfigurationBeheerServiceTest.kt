@@ -44,7 +44,8 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val zaaktypeBpmnConfigurationBeheerService =
+        ZaaktypeBpmnConfigurationBeheerService(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -307,10 +308,12 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         Given("existing previous configuration") {
             val zaakType = createZaakType()
             val newZaaktypeUuid = zaakType.url.extractUuid()
+            val nietOntvankelijkResultaattype = UUID.randomUUID()
 
             val previousConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false)
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false),
+                nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
             )
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java) } returns criteriaQuery
@@ -347,6 +350,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                         with(zaaktypeBrpParameters!!) {
                             raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
                         }
+                        nietOntvankelijkResultaattype shouldBe nietOntvankelijkResultaattype
                     }
                 }
             }

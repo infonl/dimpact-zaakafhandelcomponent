@@ -1,30 +1,28 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2024 Dimpact
+  ~ SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<formio
-  [submission]="submission"
-  [submitDone]="submissionDone"
-  [form]="form"
-  [readOnly]="readOnly"
-  language="nl"
-  [options]="{
-    disableAlerts: true,
-    i18n: {
-      en: {
-        next: 'Next',
-        previous: 'Previous',
-        submit: 'Submit',
+@if (stylesLoaded) {
+  <formio
+    [submission]="submission"
+    [submitDone]="submissionDone"
+    [form]="form"
+    [readOnly]="readOnly"
+    language="nl"
+    [options]="{
+      disableAlerts: true,
+      i18n: {
+        nl: {
+          cancel: 'Annuleren',
+          next: 'Volgende',
+          previous: 'Vorige',
+          submit: 'Indienen',
+        },
       },
-      nl: {
-        next: 'Volgende',
-        previous: 'Vorige',
-        submit: 'Indienen',
-      },
-    },
-  }"
-  (submit)="onSubmit($event)"
-  (change)="onChange($event)"
-  (customEvent)="onCustomEvent($event)"
-></formio>
+    }"
+    (submit)="onSubmit($event)"
+    (change)="onChange($event)"
+    (customEvent)="onCustomEvent($event)"
+  ></formio>
+}

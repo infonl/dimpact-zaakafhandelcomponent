@@ -152,7 +152,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     }
 
     Context("Updating a zaak") {
-
         Given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
             val changeDescription = "change description"
             val zaak = createZaak()
@@ -181,7 +180,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
             every {
-                zaakVariabelenService.setCommunicatiekanaal(
+                zaakVariabelenService.setCommunicationChannel(
                     zaak.uuid,
                     restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                 )
@@ -203,7 +202,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
 
                 And("the communication channel is exposed to zaak data") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setCommunicatiekanaal(
+                        zaakVariabelenService.setCommunicationChannel(
                             zaak.uuid,
                             restZaakEditMetRedenGegevens.zaak.communicatiekanaal!!
                         )
@@ -256,9 +255,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
-            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -280,6 +276,9 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                } returns createZaaktypeCmmnConfiguration()
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
@@ -304,9 +303,6 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
-            } returns createZaaktypeCmmnConfiguration()
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -331,6 +327,9 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                     opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
                 } returns emptyList()
                 every { eventingService.send(any<ScreenEvent>()) } just runs
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+                } returns createZaaktypeCmmnConfiguration()
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 

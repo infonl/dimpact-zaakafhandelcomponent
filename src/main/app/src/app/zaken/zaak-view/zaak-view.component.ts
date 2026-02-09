@@ -730,7 +730,7 @@ export class ZaakViewComponent
 
     const dialogData = new DialogData<
       unknown,
-      { reden: GeneratedType<"RESTZaakbeeindigReden"> }
+      { reden: GeneratedType<"RestZaakbeeindigReden"> }
     >({
       formFields: [
         new SelectFormFieldBuilder()

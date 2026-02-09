@@ -29,6 +29,7 @@ import java.util.logging.Logger
 @Transactional
 @NoArgConstructor
 @AllOpen
+@Suppress("TooManyFunctions")
 class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
@@ -133,4 +134,15 @@ class BpmnService @Inject constructor(
         runtimeService.createProcessInstanceQuery()
             .processInstanceBusinessKey(zaakUUID.toString())
             .singleResult()
+
+    /**
+     * Terminate a case
+     * This also terminates all open tasks related to the case.
+     *
+     * @param zaakUUID UUID of the zaak, for which the case should be terminated.
+     */
+    fun terminateCase(zaakUUID: UUID) =
+        findProcessInstance(zaakUUID)?.let {
+            runtimeService.deleteProcessInstance(it.id, null)
+        }
 }

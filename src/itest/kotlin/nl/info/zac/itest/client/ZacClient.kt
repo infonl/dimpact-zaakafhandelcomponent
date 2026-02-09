@@ -110,6 +110,7 @@ class ZacClient(
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
+        nietOntvankelijkResultaattype: UUID,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
@@ -117,10 +118,11 @@ class ZacClient(
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performJSONPostRequest(
-            url = "$ZAC_API_URI/zaaktype-bpmn-configuration/$bpmnProcessDefinitionKey",
+            url = "$ZAC_API_URI/zaaktype-bpmn-configuration",
             requestBodyAsString = """{ 
               "zaaktypeUuid": "$zaakTypeUuid",
               "zaaktypeOmschrijving": "$zaakTypeDescription",
+              "bpmnProcessDefinitionKey": "$bpmnProcessDefinitionKey",
               "productaanvraagtype": "$productaanvraagType",
               "groepNaam": "$defaultGroupName",
               "defaultBehandelaarId": "$defaultBehandelaarId",
@@ -132,6 +134,17 @@ class ZacClient(
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
                 "verwerkingWaarde": "$brpVerwerkingWaarde"
+              },
+              "zaakbeeindigParameters": [],
+              "zaakNietOntvankelijkResultaattype": {
+                "archiefNominatie": "VERNIETIGEN",
+                "archiefTermijn": "5 jaren",
+                "besluitVerplicht": false,
+                "id": "$nietOntvankelijkResultaattype",
+                "naam": "Geweigerd",
+                "naamGeneriek": "Geweigerd",
+                "toelichting": "fakeNietOntvankelijkToelichting",
+                "vervaldatumBesluitVerplicht": false
               }
             }
             """.trimIndent(),

@@ -323,20 +323,8 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
+        checkZaakUpdatePermissions(zaakRechten, restZaakEditMetRedenGegevens, zaak)
         assertCanAddBetrokkene(restZaakEditMetRedenGegevens.zaak, zaakType.url.extractUuid())
-        with(zaakRechten) {
-            assertPolicy(wijzigen)
-            if (
-                // do not compare LocalDate fields using identity-sensitive operators like '!=' because they are value-based
-                // see e.g., https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html
-                restZaakEditMetRedenGegevens.zaak.startdatum?.equals(zaak.startdatum) == false ||
-                restZaakEditMetRedenGegevens.zaak.einddatumGepland?.equals(zaak.einddatumGepland) == false ||
-                restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.equals(zaak.uiterlijkeEinddatumAfdoening) == false
-            ) {
-                assertPolicy(verlengenDoorlooptijd)
-                assertPolicy(wijzigenDoorlooptijd)
-            }
-        }
         restZaakEditMetRedenGegevens.zaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
@@ -352,7 +340,11 @@ class ZaakRestService @Inject constructor(
             restZaakEditMetRedenGegevens.zaak.toPatchZaak(),
             restZaakEditMetRedenGegevens.reden
         )
-        changeCommunicationChannel(zaakType, zaak, restZaakEditMetRedenGegevens, zaakUUID)
+        restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
+            if (zaakType.isConfiguredBPMNZaaktype()) {
+                updateCommunicationChannelZaakVariabele(zaak, it)
+            }
+        }
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
                 opschortenZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
@@ -643,27 +635,30 @@ class ZaakRestService @Inject constructor(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
             )
         }
-        val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
+        zaaktypeConfigurationService.readZaaktypeConfiguration(
             zaakType.url.extractUuid()
-        )
-
-        if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
-            // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
-            zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattype ->
-                terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
-            }
-        } else {
-            afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
-                zaaktypeCmmnConfiguration.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
-                    param.zaakbeeindigReden.naam?.let { naam ->
-                        terminateZaak(zaak, param.resultaattype, naam)
+        )?.let {
+            // Abort the case in OpenZaak
+            if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
+                // Use the hardcoded "niet ontvankelijk" reden that we don't manage via ZaaktypeCmmnConfiguration
+                it.nietOntvankelijkResultaattype?.let { resultaattype ->
+                    terminateZaak(zaak, resultaattype, INADMISSIBLE_TERMINATION_REASON)
+                }
+            } else {
+                afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
+                    it.readZaakbeeindigParameter(zaakbeeindigRedenId).let { param ->
+                        param.zaakbeeindigReden.naam?.let { naam ->
+                            terminateZaak(zaak, param.resultaattype, naam)
+                        }
                     }
                 }
             }
+            // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
+            when (it.getConfigurationType()) {
+                CMMN -> cmmnService.terminateCase(zaakUUID)
+                BPMN -> bpmnService.terminateCase(zaakUUID)
+            }
         }
-
-        // Terminate the case after the zaak is ended to prevent the EndCaseLifecycleListener from ending the zaak.
-        cmmnService.terminateCase(zaakUUID)
     }
 
     private fun terminateZaak(
@@ -753,19 +748,19 @@ class ZaakRestService @Inject constructor(
                 deelZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
             )
-            RelatieType.VERVOLG -> ontkoppelRelevantezaken(
+            RelatieType.VERVOLG -> ontkoppelRelevanteZaken(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 aardRelatie = AardRelatieEnum.VERVOLG,
                 explanation = restZaakUnlinkData.reden
             )
-            RelatieType.ONDERWERP -> ontkoppelRelevantezaken(
+            RelatieType.ONDERWERP -> ontkoppelRelevanteZaken(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 aardRelatie = AardRelatieEnum.ONDERWERP,
                 explanation = restZaakUnlinkData.reden
             )
-            RelatieType.BIJDRAGE -> ontkoppelRelevantezaken(
+            RelatieType.BIJDRAGE -> ontkoppelRelevanteZaken(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 aardRelatie = AardRelatieEnum.BIJDRAGE,
@@ -1093,9 +1088,9 @@ class ZaakRestService @Inject constructor(
     ) {
         restZaak.groep?.let {
             zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
+                zaak = zaak,
+                rol = zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                toelichting = AANMAKEN_ZAAK_REDEN
             )
         }
         restZaak.behandelaar?.let {
@@ -1119,6 +1114,26 @@ class ZaakRestService @Inject constructor(
         return relevanteZaken?.apply {
             if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
         } ?: listOf(relevanteZaak)
+    }
+
+    private fun checkZaakUpdatePermissions(
+        zaakRechten: ZaakRechten,
+        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens,
+        zaak: Zaak
+    ) {
+        with(zaakRechten) {
+            assertPolicy(wijzigen)
+            if (
+                // do not compare LocalDate fields using identity-sensitive operators like '!=' because they are value-based
+                // see e.g., https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html
+                restZaakEditMetRedenGegevens.zaak.startdatum?.equals(zaak.startdatum) == false ||
+                restZaakEditMetRedenGegevens.zaak.einddatumGepland?.equals(zaak.einddatumGepland) == false ||
+                restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.equals(zaak.uiterlijkeEinddatumAfdoening) == false
+            ) {
+                assertPolicy(verlengenDoorlooptijd)
+                assertPolicy(wijzigenDoorlooptijd)
+            }
+        }
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
@@ -1222,20 +1237,18 @@ class ZaakRestService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
-    private fun ontkoppelRelevantezaken(
+    private fun ontkoppelRelevanteZaken(
         zaak: Zaak,
         andereZaak: Zaak,
         aardRelatie: AardRelatieEnum,
         explanation: String
-    ) {
-        zrcClientService.patchZaak(
-            zaakUUID = zaak.uuid,
-            zaak = NillableRelevanteZakenZaakPatch(
-                relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
-            ),
-            explanation = explanation
-        )
-    }
+    ) = zrcClientService.patchZaak(
+        zaakUUID = zaak.uuid,
+        zaak = NillableRelevanteZakenZaakPatch(
+            relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+        ),
+        explanation = explanation
+    )
 
     private fun removeBetrokkene(zaakRechten: ZaakRechten, betrokkene: Rol<*>, reden: String) {
         assertPolicy(zaakRechten.verwijderenBetrokkene)
@@ -1319,25 +1332,22 @@ class ZaakRestService @Inject constructor(
     private fun ZaakType.isConfiguredBPMNZaaktype() =
         zaaktypeConfigurationService.readZaaktypeConfiguration(this.url.extractUuid())?.getConfigurationType() == BPMN
 
-    private fun changeCommunicationChannel(
-        zaakType: ZaakType,
+    /**
+     * Updates the communication channel process variable for the given BPMN zaak, unless the zaak is reopened.
+     * A reopened zaak does not have an associated BPMN process, so there is no need to update the communication channel in that case.
+     */
+    private fun updateCommunicationChannelZaakVariabele(
         zaak: Zaak,
-        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens,
-        zaakUUID: UUID
+        communicationChannel: String
     ) {
-        if (zaakType.isConfiguredBPMNZaaktype()) {
-            val statustype = zaak.status?.let {
-                ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
-            }
-            // reopened zaak does not have active execution, so no need to change communicatiekanaal
-            if (!statustype.isHeropend()) {
-                restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
-                    zaakVariabelenService.setCommunicatiekanaal(
-                        zaakUUID,
-                        it
-                    )
-                }
-            }
+        val statustype = zaak.status?.let {
+            ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
+        }
+        if (!statustype.isHeropend()) {
+            zaakVariabelenService.setCommunicationChannel(
+                zaakUuid = zaak.uuid,
+                communicationChannel = communicationChannel
+            )
         }
     }
 }
