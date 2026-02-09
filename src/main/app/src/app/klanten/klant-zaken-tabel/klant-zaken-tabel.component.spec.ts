@@ -165,7 +165,6 @@ describe(KlantZakenTabelComponent.name, () => {
       fixture.componentRef.setInput("klant", mockBedrijf);
 
       const mockZaak = {
-        uuid: "test-zaak-uuid-1",
         betrokkenen: {
           Belanghebbende: ["12345678"],
           Adviseur: ["87654321"],
