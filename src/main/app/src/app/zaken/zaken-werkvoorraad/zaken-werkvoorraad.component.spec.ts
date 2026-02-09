@@ -18,6 +18,7 @@ import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialModule } from "../../shared/material/material.module";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -37,6 +38,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         PipesModule,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
+        EmptyPipe,
       ],
       providers: [
         {

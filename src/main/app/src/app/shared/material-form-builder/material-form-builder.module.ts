@@ -58,6 +58,7 @@ import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
+import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
 import { AutocompleteComponent } from "./form-components/autocomplete/autocomplete.component";
 import { CheckboxComponent } from "./form-components/checkbox/checkbox.component";
@@ -157,6 +158,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacRadio,
     ZacForm,
     CapitalizeFirstLetterPipe,
+    EmptyPipe,
     ZacFormActions,
   ],
   imports: [
@@ -187,6 +189,7 @@ import { FormComponent } from "./form/form/form.component";
     MatMenuModule,
     MatListModule,
     MatExpansionPanelActionRow,
+    EmptyPipe,
   ],
   providers: [
     {
