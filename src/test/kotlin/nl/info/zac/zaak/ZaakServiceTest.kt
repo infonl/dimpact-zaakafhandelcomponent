@@ -23,6 +23,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
@@ -289,6 +290,81 @@ class ZaakServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.description)
                         zaakVariabelenService.removeUser(zaak.uuid)
+                    }
+                }
+            }
+        }
+
+        Given(
+            "a zaak exists, with a user and group already assigned, but the process instance is not found when setting zaak variables"
+        ) {
+            val zaak = createZaak()
+            val user = createLoggedInUser()
+            val rolSlot = mutableListOf<Rol<*>>()
+            val existingRolMedewerker = createRolMedewerker()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val existingRolGroup = createRolOrganisatorischeEenheid()
+            val reason = "fakeReason"
+
+            every { zrcClientService.updateRol(zaak, capture(rolSlot), reason) } just runs
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns existingRolMedewerker
+            every { identityService.readUser(user.id) } returns user
+            every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
+            every { identityService.readGroup(group.name) } returns group
+            every {
+                ztcClientService.readRoltype(
+                    zaak.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
+            every {
+                zaakVariabelenService.setGroup(
+                    zaak.uuid,
+                    group.description
+                )
+            } throws CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
+
+            When("the zaak is assigned to a user and a group, but setGroup returns an error") {
+                every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
+
+                zaakService.assignZaak(zaak, group.name, user.id, reason)
+
+                Then("the zaak is assigned both to the group and the user") {
+                    verify(exactly = 2) {
+                        zrcClientService.updateRol(zaak, any(), reason)
+                    }
+                    with(rolSlot[0]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
+                        with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                    with(rolSlot[1]) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID
+                        with(betrokkeneIdentificatie as OrganisatorischeEenheidIdentificatie) {
+                            identificatie shouldBe "fakeId"
+                        }
+                        this.zaak shouldBe zaak.url
+                        omschrijving shouldBe rolTypeBehandelaar.omschrijving
+                    }
+                }
+
+                And("the zaken search index is updated") {
+                    verify(exactly = 1) {
+                        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                    }
+                }
+
+                And("the zaak data is updated accordingly") {
+                    verify(exactly = 1) {
+                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
                     }
                 }
             }

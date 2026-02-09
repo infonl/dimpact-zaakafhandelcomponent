@@ -7,6 +7,8 @@ package net.atos.zac.flowable
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
+import net.atos.zac.flowable.exception.VariableNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnHistoryService
@@ -149,7 +151,7 @@ open class ZaakVariabelenService @Inject constructor(
                 .caseInstanceId(planItemInstance.caseInstanceId)
                 .includeCaseVariables()
                 .singleResult()?.caseVariables[variableName]
-            ?: throw RuntimeException(
+            ?: throw VariableNotFoundException(
                 "No variable found with name '$variableName' for case instance id '${planItemInstance.caseInstanceId}'"
             )
 
@@ -188,7 +190,7 @@ open class ZaakVariabelenService @Inject constructor(
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariable(it.id, variableName, value)
                 }
-            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUuid'")
+            ?: throw CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
     @Suppress("TooGenericExceptionThrown")
     private fun setVariables(zaakUuid: UUID, variables: Map<String, Any>) =
@@ -202,7 +204,7 @@ open class ZaakVariabelenService @Inject constructor(
                 .singleResult()?.let {
                     bpmnRuntimeService.setVariables(it.id, variables)
                 }
-            ?: throw RuntimeException("No case or process instance found for zaak with UUID: '$zaakUuid'")
+            ?: throw CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: '$zaakUuid'")
 
     private fun removeVariable(zaakUuid: UUID, variableName: String) {
         cmmnRuntimeService.createCaseInstanceQuery()
