@@ -5,7 +5,6 @@
 services:
   keycloak-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
-    platform: linux/amd64
     ports:
       - "54326:5432"
     healthcheck:
@@ -97,9 +96,10 @@ services:
 
   openzaak-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     ports:
       - "54322:5432"
-    platform: linux/amd64
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -120,6 +120,7 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
     image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -170,6 +171,7 @@ services:
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
     image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -191,7 +193,6 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
-    platform: linux/amd64
     ports:
       - "8010:8000"
     environment: &objects-env
@@ -220,9 +221,10 @@ services:
 
   objecten-api-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     ports:
       - "54323:5432"
-    platform: linux/amd64
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -237,7 +239,6 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
-    platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
     command: sh init/init.sh
@@ -251,7 +252,6 @@ services:
 
   solr:
     image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
-    platform: linux/amd64
     ports:
       - "8983:8983"
     volumes:
@@ -292,7 +292,6 @@ services:
 
   openklant-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
-    platform: linux/amd64
     ports:
       - "54325:5432"
     healthcheck:
@@ -311,6 +310,7 @@ services:
 
   openklant.local:
     image: maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -381,6 +381,7 @@ services:
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
     image: ghcr.io/eugenmayer/kontextwork-converter:1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "8083:8080"
@@ -478,9 +479,10 @@ services:
 
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     ports:
       - "54327:5432"
-    platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 10s
@@ -499,6 +501,7 @@ services:
 
   opennotificaties:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -528,8 +531,8 @@ services:
       timeout: 5s
       retries: 3
       # This should allow for enough time for migrations to run before the max
-      # retries have passed. This healthcheck in turn allows other containers
-      # to wait for the database migrations.
+      # retries have passed.
+      # This health check in turn allows other containers to wait for the database migrations.
       start_period: 30s
     ports:
       - "8003:8000"
@@ -542,6 +545,7 @@ services:
 
   opennotificaties-init:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -560,6 +564,7 @@ services:
 
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -576,6 +581,7 @@ services:
 
   openarchiefbeheer-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
@@ -596,7 +602,6 @@ services:
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
@@ -647,7 +652,6 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
@@ -661,7 +665,6 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
@@ -677,7 +680,6 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
     depends_on:
@@ -698,7 +700,6 @@ services:
 
   pabc-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
-    platform: linux/amd64
     ports:
       - "54329:5432"
     environment:
@@ -715,6 +716,7 @@ services:
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -727,6 +729,7 @@ services:
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.0.0@sha256:68749474713f7a9614e4ec10c046e70f160c1d93e19eb89e9e786fc06c7ce3cd
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -751,7 +754,6 @@ services:
 
   zac-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
-    platform: linux/amd64
     ports:
       - "54320:5432"
     healthcheck:
