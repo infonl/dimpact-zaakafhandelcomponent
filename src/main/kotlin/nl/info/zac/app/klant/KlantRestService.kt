@@ -83,24 +83,23 @@ class KlantRestService @Inject constructor(
     fun readPersoon(
         @PathParam("temporaryPersonId") requestedTemporaryPersonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
-    ) = loggedInUserInstance.get()?.id.let { userName ->
-        runBlocking {
-            val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
-            // run the two client calls concurrently in a coroutine scope,
-            // so we do not need to wait for the first call to complete
-            withContext(Dispatchers.IO) {
-                val klantPersoonDigitalAddresses =
-                    async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
-                val brpPersoon = async {
-                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
-                }
-                klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                    brpPersoon.await()?.toRestPersoon()?.apply {
-                        telefoonnummer = contactDetails.telephoneNumber
-                        emailadres = contactDetails.emailAddress
-                        temporaryPersonId = requestedTemporaryPersonId
-                    } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
-                }
+    ) = runBlocking {
+        val username = loggedInUserInstance.get().id
+        val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
+        // run the two client calls concurrently in a coroutine scope,
+        // so we do not need to wait for the first call to complete
+        withContext(Dispatchers.IO) {
+            val klantPersoonDigitalAddresses =
+                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
+            val brpPersoon = async {
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
+            }
+            klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                brpPersoon.await()?.toRestPersoon()?.apply {
+                    telefoonnummer = contactDetails.telephoneNumber
+                    emailadres = contactDetails.emailAddress
+                    temporaryPersonId = requestedTemporaryPersonId
+                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             }
         }
     }

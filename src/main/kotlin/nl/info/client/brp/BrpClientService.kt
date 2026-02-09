@@ -105,14 +105,14 @@ class BrpClientService @Inject constructor(
                     personenApi.personen(
                         personenQuery = personenQuery,
                         doelbinding = resolveDoelbinding(
-                            zaaktypeUuid,
-                            brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
+                            zaaktypeUuid = zaaktypeUuid,
+                            defaultDoelbinding = brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
                         ) {
                             it.zaaktypeBrpParameters?.raadpleegWaarde
                         },
                         verwerking = resoleVerwerkingregister(
-                            zaaktypeUuid,
-                            brpConfiguration.verwerkingregisterDefault.getOrNull()
+                            zaaktypeUuid = zaaktypeUuid,
+                            defaultVerwerkingregisterValue = brpConfiguration.verwerkingregisterDefault.getOrNull()
                         ),
                         gebruikersnaam = userName
                     )
