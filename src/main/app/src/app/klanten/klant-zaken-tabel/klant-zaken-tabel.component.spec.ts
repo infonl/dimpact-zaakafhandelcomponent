@@ -165,8 +165,29 @@ describe(KlantZakenTabelComponent.name, () => {
       fixture.componentRef.setInput("klant", mockBedrijf);
 
       const mockZaak = {
+        uuid: "test-zaak-uuid-1",
         betrokkenen: {
           Belanghebbende: ["12345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should match betrokkene by vestigingsnummer for companies", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
