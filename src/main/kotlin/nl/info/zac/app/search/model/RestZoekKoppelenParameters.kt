@@ -22,12 +22,12 @@ data class RestZoekKoppelenParameters(
     @field: Positive
     override var rows: Int,
 
-    var zaakIdentificator: String,
+    var zaakIdentificator: String?,
     var informationObjectTypeUuid: UUID
 ) : RestPageParameters
 
 fun RestZoekKoppelenParameters.toZoekParameters() = ZoekParameters(ZoekObjectType.ZAAK).apply {
     rows = this@toZoekParameters.rows
     page = this@toZoekParameters.page
-    addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, this@toZoekParameters.zaakIdentificator)
+    addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, this@toZoekParameters.zaakIdentificator!!)
 }

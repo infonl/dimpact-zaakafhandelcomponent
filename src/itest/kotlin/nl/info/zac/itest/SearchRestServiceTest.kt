@@ -33,6 +33,7 @@ import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 
@@ -560,6 +561,39 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "totaal" : 1,
                             "filters" : { }
+                        }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called with a null zaakIdentificator
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": null,
+                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+                Then(
+                    """
+                    the response returns a BAD_REQUEST with the error code for missing required parameter
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                            "message": "msg.error.search.required.parameter.missing"
                         }
                     """.trimIndent()
                 }

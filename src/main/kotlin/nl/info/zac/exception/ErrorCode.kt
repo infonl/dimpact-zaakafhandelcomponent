@@ -46,6 +46,7 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_EXPLANATION_REQUIRED("msg.error.case.explanation.required"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
+    ERROR_CODE_REQUIRED_SEARCH_PARAMETER_MISSING("msg.error.search.required.parameter.missing"),
     ERROR_CODE_USER_NOT_IN_GROUP("msg.error.user.not.in.group"),
     ERROR_CODE_USER_NOT_FOUND_IN_KEYCLOAK("msg.error.user.not.in.keycloak"),
     ERROR_CODE_GROUP_NOT_FOUND_IN_KEYCLOAK("msg.error.group.not.in.keycloak"),
