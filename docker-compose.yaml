@@ -96,8 +96,7 @@ services:
 
   openzaak-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54322:5432"
@@ -121,8 +120,7 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
     image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -173,8 +171,7 @@ services:
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
     image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -224,8 +221,7 @@ services:
 
   objecten-api-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54323:5432"
@@ -314,8 +310,7 @@ services:
 
   openklant.local:
     image: maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -386,8 +381,7 @@ services:
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
     image: ghcr.io/eugenmayer/kontextwork-converter:1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "8083:8080"
@@ -485,8 +479,7 @@ services:
 
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54327:5432"
@@ -508,8 +501,7 @@ services:
 
   opennotificaties:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -553,8 +545,7 @@ services:
 
   opennotificaties-init:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -573,8 +564,7 @@ services:
 
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -591,8 +581,7 @@ services:
 
   openarchiefbeheer-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
@@ -727,8 +716,7 @@ services:
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -741,8 +729,7 @@ services:
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.0.0@sha256:68749474713f7a9614e4ec10c046e70f160c1d93e19eb89e9e786fc06c7ce3cd
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices.
-    # This should work fine as long as you have Rosetta enabled in Docker Desktop.
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
