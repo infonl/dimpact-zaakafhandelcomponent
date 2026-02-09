@@ -318,9 +318,12 @@ class KlantRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns null
 
             When("when the person is retrieved") {
-                val exception = shouldThrow<NullPointerException> { klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid) }
+                val exception =
+                    shouldThrow<NullPointerException> { klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid) }
 
-                Then("a NullPointerException should be thrown since the logged-in user is required to retrieve a person") {
+                Then(
+                    "a NullPointerException should be thrown since the logged-in user is required to retrieve a person"
+                ) {
                     exception.message shouldBe "Cannot invoke \"nl.info.zac.authentication.LoggedInUser.getId()\" because the return value of \"jakarta.enterprise.inject.Instance.get()\" is null"
                 }
             }
