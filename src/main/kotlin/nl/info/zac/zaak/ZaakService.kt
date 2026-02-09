@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -384,7 +385,6 @@ class ZaakService @Inject constructor(
             }
         }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun changeZaakDataAssignment(
         zaakUuid: UUID,
         group: Group,
@@ -396,12 +396,8 @@ class ZaakService @Inject constructor(
                 user?.let {
                     zaakVariabelenService.setUser(zaakUuid, it.getFullName())
                 } ?: zaakVariabelenService.removeUser(zaakUuid)
-            } catch (ex: RuntimeException) {
-                if (ex.message?.contains("No case or process instance found for zaak with UUID") == true) {
-                    LOG.warning { ex.message }
-                } else {
-                    throw ex
-                }
+            } catch (ex: CaseOrProcessNotFoundException) {
+                LOG.warning { ex.message }
             }
         }
     }

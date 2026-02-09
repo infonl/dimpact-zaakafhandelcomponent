@@ -23,6 +23,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
@@ -294,7 +295,9 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak exists, with a user and group already assigned, but the process instance is not found when setting zaak variables") {
+        Given(
+            "a zaak exists, with a user and group already assigned, but the process instance is not found when setting zaak variables"
+        ) {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val rolSlot = mutableListOf<Rol<*>>()
@@ -324,7 +327,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zaak.uuid,
                     group.description
                 )
-            } throws RuntimeException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
+            } throws CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
 
             When("the zaak is assigned to a user and a group, but setGroup returns an error") {
                 every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
