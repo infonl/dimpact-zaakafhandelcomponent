@@ -29,5 +29,8 @@ data class RestZoekKoppelenParameters(
 fun RestZoekKoppelenParameters.toZoekParameters() = ZoekParameters(ZoekObjectType.ZAAK).apply {
     rows = this@toZoekParameters.rows
     page = this@toZoekParameters.page
-    addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, this@toZoekParameters.zaakIdentificator!!)
+    val identificator = requireNotNull(this@toZoekParameters.zaakIdentificator) {
+        "zaakIdentificator must not be null when converting to ZoekParameters"
+    }
+    addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, identificator)
 }
