@@ -75,7 +75,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             When("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                Then("it should return an specific error code and the exception message") {
+                Then("it should return a specific error code and the exception message") {
                     checkResponse(response, "msg.error.invalid.argument", exceptionMessage, HttpStatus.SC_BAD_REQUEST)
                 }
 
