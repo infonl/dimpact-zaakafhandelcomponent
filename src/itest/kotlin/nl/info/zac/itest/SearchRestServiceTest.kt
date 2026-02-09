@@ -598,6 +598,72 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent()
                 }
             }
+
+            When(
+                """
+                the search endpoint is called with an empty zaakIdentificator
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "",
+                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+                Then(
+                    """
+                    the response returns a BAD_REQUEST with the error code for missing required parameter
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                            "message": "msg.error.search.required.parameter.missing"
+                        }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called with a blank zaakIdentificator
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "   ",
+                            "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+                Then(
+                    """
+                    the response returns a BAD_REQUEST with the error code for missing required parameter
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                            "message": "msg.error.search.required.parameter.missing"
+                        }
+                    """.trimIndent()
+                }
+            }
         }
     }
 })
