@@ -8,12 +8,14 @@ package nl.info.zac.app.klant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jdk.internal.util.StaticProperty.userName
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.brp.model.createPersoon
@@ -293,12 +295,13 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
+            val userName = "fakeUserName"
             val temporaryPersonId = UUID.randomUUID()
             every {
                 klantClientService.findDigitalAddressesForNaturalPerson(bsn)
             } returns emptyList()
-            every { loggedInUserInstance.get() } returns null
-            every { brpClientService.retrievePersoon(bsn) } returns null
+            every { loggedInUserInstance.get().id } returns userName
+            every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
             When("when the person is retrieved") {
@@ -313,33 +316,14 @@ class KlantRestServiceTest : BehaviorSpec({
         }
 
         Given("No logged-in user is available") {
-            val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
-            val telephoneNumber = "0612345678"
-            val emailAddress = "test@example.com"
-            val digitaalAdresses = createDigitalAddresses(
-                phone = telephoneNumber,
-                email = emailAddress
-            )
-            val persoon = createPersoon(bsn = bsn)
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns digitaalAdresses
             every { loggedInUserInstance.get() } returns null
-            every { brpClientService.retrievePersoon(bsn, zaaktypeUuid) } returns persoon
-            every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
             When("when the person is retrieved") {
-                val restPersoon = klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
+                val exception = shouldThrow<NullPointerException> { klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid) }
 
-                Then("the person should be returned and should have contact details") {
-                    with(restPersoon) {
-                        this.temporaryPersonId shouldBe temporaryPersonId
-                        this.bsn shouldBe bsn
-                        this.geslacht shouldBe persoon.geslacht
-                        this.emailadres shouldBe emailAddress
-                        this.telefoonnummer shouldBe telephoneNumber
-                    }
+                Then("a NullPointerException should be thrown since the logged-in user is required to retrieve a person") {
+                    exception.message shouldBe "Cannot invoke \"nl.info.zac.authentication.LoggedInUser.getId()\" because the return value of \"jakarta.enterprise.inject.Instance.get()\" is null"
                 }
             }
         }
