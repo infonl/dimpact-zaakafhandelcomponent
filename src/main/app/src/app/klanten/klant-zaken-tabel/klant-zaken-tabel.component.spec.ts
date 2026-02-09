@@ -16,6 +16,7 @@ import { fromPartial } from "@total-typescript/shoehorn";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -83,6 +84,7 @@ describe(KlantZakenTabelComponent.name, () => {
         MatPaginatorModule,
         TranslateModule.forRoot(),
         PipesModule,
+        EmptyPipe,
       ],
       providers: [
         provideHttpClient(),

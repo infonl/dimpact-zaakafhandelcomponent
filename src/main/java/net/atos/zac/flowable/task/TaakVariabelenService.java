@@ -20,6 +20,8 @@ import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 
+import net.atos.zac.flowable.exception.VariableNotFoundException;
+
 @ApplicationScoped
 @Transactional
 public class TaakVariabelenService {
@@ -148,7 +150,7 @@ public class TaakVariabelenService {
 
     private static Object readVariable(final TaskInfo taskInfo, final String variableName) {
         return findVariable(taskInfo, variableName)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new VariableNotFoundException(
                         "No variable found with name '%s' for task with name '%s' and id '%s'"
                                 .formatted(variableName, taskInfo.getName(), taskInfo.getId())));
     }
