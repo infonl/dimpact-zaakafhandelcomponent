@@ -106,7 +106,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             When("the exception is mapped to a response") {
                 val response = restExceptionMapper.toResponse(exception)
 
-                Then("it should return the ZTC server error code and log the exception") {
+                Then("it should return the BRC server error code and log the exception") {
                     checkResponse(response, "msg.error.brc.client.exception")
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
                 }
