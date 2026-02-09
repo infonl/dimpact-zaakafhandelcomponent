@@ -5,10 +5,13 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import { regex as uuidRegex } from "uuidv4";
 import { z } from "zod";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+
+// UUID v4 regex pattern (replacement for deprecated uuidv4 package)
+const UUID_V4_REGEX =
+  /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
 
 const TWO_MINUTES_IN_MS = 120_000;
 const FORTY_SECOND_IN_MS = 40_000;
@@ -229,7 +232,7 @@ Then(
       beheerderUserId,
     );
     await expect(
-      this.page.getByRole("option", { name: uuidRegex.v4 }),
+      this.page.getByRole("option", { name: UUID_V4_REGEX }),
     ).toBeVisible({
       timeout: FORTY_SECOND_IN_MS,
     });
