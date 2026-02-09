@@ -70,7 +70,7 @@ class SearchRestService @Inject constructor(
     @Path("zaken")
     fun listZakenForInformationObjectType(@Valid restZoekKoppelenParameters: RestZoekKoppelenParameters) =
         assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
-            if (restZoekKoppelenParameters.zaakIdentificator == null) {
+            if (restZoekKoppelenParameters.zaakIdentificator.isNullOrBlank()) {
                 throw InputValidationFailedException(ERROR_CODE_REQUIRED_SEARCH_PARAMETER_MISSING)
             }
             searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
