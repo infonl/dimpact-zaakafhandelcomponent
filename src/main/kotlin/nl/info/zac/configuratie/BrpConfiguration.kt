@@ -87,12 +87,12 @@ class BrpConfiguration @Inject constructor(
     fun getVerwerkingsRegister() = verwerkingsRegister.getOrNull()
 
     override fun toString() =
-        "$ENV_VAR_BRP_API_KEY: '${apiKey.getOrNull()}', " +
-            "$ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}', " +
-            "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}', " +
-            "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}', " +
-            "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}', " +
-            "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
+        "$ENV_VAR_BRP_API_KEY: '" + if (apiKey.isPresent) "***" else "null" + "', " +
+        "$ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}', " +
+        "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}', " +
+        "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}', " +
+        "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}', " +
+        "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
 
     private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
         if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())
