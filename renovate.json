@@ -102,7 +102,7 @@
         "- \\*\\*postgis\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/postgis/postgis",
+      "depNameTemplate": "postgis/postgis",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -157,7 +157,7 @@
         "- \\*\\*openpolicyagent/opa\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/openpolicyagent/opa",
+      "depNameTemplate": "openpolicyagent/opa",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -168,7 +168,7 @@
         "- \\*\\*wiremock\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/wiremock/wiremock",
+      "depNameTemplate": "wiremock/wiremock",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -213,7 +213,7 @@
         "- \\*\\*otel/opentelemetry-collector\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/otel/opentelemetry-collector",
+      "depNameTemplate": "otel/opentelemetry-collector-contrib",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -224,7 +224,7 @@
         "- \\*\\*grafana/tempo\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/grafana/tempo",
+      "depNameTemplate": "grafana/tempo",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -235,7 +235,7 @@
         "- \\*\\*prom/prometheus\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/prom/prometheus",
+      "depNameTemplate": "prom/prometheus",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -246,7 +246,7 @@
         "- \\*\\*grafana/grafana\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/grafana/grafana",
+      "depNameTemplate": "grafana/grafana",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -257,7 +257,7 @@
         "- \\*\\*greenmail/standalone\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/greenmail/standalone",
+      "depNameTemplate": "greenmail/standalone",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -290,7 +290,7 @@
         "- \\*\\*open-archiefbeheer\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/maykinmedia/open-archiefbeheer",
+      "depNameTemplate": "maykinmedia/open-archiefbeheer",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -301,7 +301,7 @@
         "- \\*\\*nginxinc/nginx-unprivileged\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "docker.io/nginxinc/nginx-unprivileged",
+      "depNameTemplate": "nginxinc/nginx-unprivileged",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
