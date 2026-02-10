@@ -70,7 +70,7 @@ class BrpConfiguration @Inject constructor(
             }
             throwIf(brpProtocolleringProvider.getOrNull() !in SUPPORTED_PROTOCOLLERING_PROVIDERS) {
                 SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
-                    "Invalid environment variable 'BRP_PROTOCOLLERING' value '$brpProtocolleringProvider'. Supported: $it"
+                    "Invalid environment variable 'BRP_PROTOCOLLERING' value '${brpProtocolleringProvider.getOrNull()}'. Supported: $it"
                 }
             }
         }
