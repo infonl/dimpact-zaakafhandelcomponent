@@ -32,7 +32,6 @@ import java.nio.charset.StandardCharsets
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen

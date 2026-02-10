@@ -119,17 +119,17 @@ class ConfiguratieService @Inject constructor(
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
             "ZAC configuration environment variables:\n" +
-                    "- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'\n" +
-                    "- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'\n" +
-                    "- $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'\n" +
-                    "- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'\n" +
-                    "- $ENV_VAR_CONTEXT_URL: '$contextUrl'\n" +
-                    "- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'\n" +
-                    "- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'\n" +
-                    "- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'\n" +
-                    "- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'\n" +
-                    "- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'\n" +
-                    "- BRP configuration: '$brpConfiguration'\n"
+                "- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'\n" +
+                "- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'\n" +
+                "- $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'\n" +
+                "- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'\n" +
+                "- $ENV_VAR_CONTEXT_URL: '$contextUrl'\n" +
+                "- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'\n" +
+                "- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'\n" +
+                "- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'\n" +
+                "- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'\n" +
+                "- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'\n" +
+                "- BRP configuration: '$brpConfiguration'\n"
         }
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)

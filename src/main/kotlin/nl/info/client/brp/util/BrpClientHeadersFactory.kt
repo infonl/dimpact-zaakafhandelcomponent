@@ -12,7 +12,6 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.configuratie.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
-import java.util.Optional
 
 class BrpClientHeadersFactory @Inject constructor(
     private val brpConfiguration: BrpConfiguration,

@@ -49,7 +49,10 @@ class BrpConfiguration @Inject constructor(
         const val ENV_VAR_BRP_VERWERKINGSREGISTER = "BRP_VERWERKINGSREGISTER"
         const val BRP_PROTOCOLLERING_PROVIDER_2SECURE = "2Secure"
         const val BRP_PROTOCOLLERING_PROVIDER_ICONNECT = "iConnect"
-        val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf(BRP_PROTOCOLLERING_PROVIDER_ICONNECT, BRP_PROTOCOLLERING_PROVIDER_2SECURE)
+        val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf(
+            BRP_PROTOCOLLERING_PROVIDER_ICONNECT,
+            BRP_PROTOCOLLERING_PROVIDER_2SECURE
+        )
     }
 
     @PostConstruct
@@ -77,7 +80,7 @@ class BrpConfiguration @Inject constructor(
 
     fun getApiKey() = apiKey.get()
 
-        fun getOriginOIN() = originOIN.get()
+    fun getOriginOIN() = originOIN.get()
 
     fun getDoelbindingZoekMetDefault() = doelbindingZoekMetDefault.getOrNull()
 
