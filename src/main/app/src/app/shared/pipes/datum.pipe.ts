@@ -5,6 +5,7 @@
 
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 import moment from "moment";
+import "moment/locale/nl";
 
 type DateFormat =
   | "shortDate"
