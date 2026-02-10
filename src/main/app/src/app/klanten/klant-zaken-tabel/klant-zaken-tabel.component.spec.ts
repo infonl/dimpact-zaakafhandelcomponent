@@ -176,6 +176,106 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result).toEqual(["Belanghebbende"]);
     }));
 
+    it("should match betrokkene by kvkNummer when no vestigingsnummer is present", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        kvkNummer: "12345678",
+        identificatieType: "RSIN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["12345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should match betrokkene by vestigingsnummer for companies", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should prioritize vestigingsnummer over kvkNummer when both are present in same role", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678", "12345678"], // both in same role
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match the role once when vestigingsnummer matches (else-if prevents kvkNummer from also matching)
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should match both vestigingsnummer and kvkNummer when in different roles", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678"], // vestigingsnummer
+          Adviseur: ["12345678"], // kvkNummer
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match both because else-if is evaluated per role
+      expect(result).toEqual(["Belanghebbende", "Adviseur"]);
+    }));
+
+    it("should match kvkNummer when vestigingsnummer is present but not in betrokkenen", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Adviseur: ["12345678"], // only kvkNummer in betrokkenen
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match kvkNummer because vestigingsnummer is not in this role's identifiers
+      expect(result).toEqual(["Adviseur"]);
+    }));
+
     it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
