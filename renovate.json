@@ -544,6 +544,18 @@
     },
     {
       "matchPackageNames": [
+        "maykinmedia/open-archiefbeheer"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 1.2.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
         "opentelemetry-collector"
       ],
       "matchDatasources": [
