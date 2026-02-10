@@ -250,7 +250,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.createBetrokkeneKoppelingenForm();
     this.createZaakbeeindigForm();
 
-    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
+    this.showDoelbindingen = this.getBrpProtocollering(this.brpProtocollering);
     if (this.showDoelbindingen) {
       this.createBrpDoelbindingForm();
     }
@@ -290,7 +290,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       });
   }
 
-  private getProtocolering(protocolering: string) {
+  private getBrpProtocollering(protocolering: string) {
     return protocolering?.trim() === "iConnect";
   }
 

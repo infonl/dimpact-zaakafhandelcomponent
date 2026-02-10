@@ -70,13 +70,13 @@ class BrpClientService @Inject constructor(
                     personenQuery = updatedQuery,
                     doelbinding = resolveDoelbinding(
                         zaaktypeUuid,
-                        brpConfiguration.doelbindingZoekMetDefault.getOrNull()
+                        brpConfiguration.getDoelbindingZoekMetDefault()
                     ) {
                         it.zaaktypeBrpParameters?.zoekWaarde
                     },
                     verwerking = resoleVerwerkingregister(
                         zaaktypeUuid,
-                        brpConfiguration.verwerkingregisterDefault.getOrNull()
+                        brpConfiguration.getVerwerkingsRegister()
                     ),
                     gebruikersnaam = user
                 )
@@ -106,13 +106,13 @@ class BrpClientService @Inject constructor(
                         personenQuery = personenQuery,
                         doelbinding = resolveDoelbinding(
                             zaaktypeUuid = zaaktypeUuid,
-                            defaultDoelbinding = brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
+                            defaultDoelbinding = brpConfiguration.getDoelbindingRaadpleegMetDefault()
                         ) {
                             it.zaaktypeBrpParameters?.raadpleegWaarde
                         },
                         verwerking = resoleVerwerkingregister(
                             zaaktypeUuid = zaaktypeUuid,
-                            defaultVerwerkingregisterValue = brpConfiguration.verwerkingregisterDefault.getOrNull()
+                            defaultVerwerkingregisterValue = brpConfiguration.getVerwerkingsRegister()
                         ),
                         gebruikersnaam = userName
                     )

@@ -19,8 +19,8 @@ fun createBrpConfiguration(
 ) = BrpConfiguration(
     apiKey = apiKey,
     originOIN = originOin,
-    auditLogProvider = auditLogProvider,
+    brpProtocolleringProvider = auditLogProvider,
     doelbindingZoekMetDefault = doelbindingZoekMetDefault,
     doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
-    verwerkingregisterDefault = verwerkingregisterDefault
+    verwerkingsRegister = verwerkingregisterDefault
 )

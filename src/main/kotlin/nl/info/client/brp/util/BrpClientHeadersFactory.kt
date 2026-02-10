@@ -47,19 +47,13 @@ class BrpClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> =
         if (brpConfiguration.isBrpProtocolleringEnabled()) {
             clientOutgoingHeaders.apply {
-                createHeader(X_API_KEY, brpConfiguration.apiKey)
-                createHeader(X_ORIGIN_OIN, brpConfiguration.originOIN)
+                createHeader(X_API_KEY, brpConfiguration.getApiKey())
+                createHeader(X_ORIGIN_OIN, brpConfiguration.getOriginOIN())
                 createHeader(X_GEBRUIKER, getUser())
             }
         } else {
             clientOutgoingHeaders
         }.trimToMaxSize()
-
-    private fun MultivaluedMap<String, String>.createHeader(name: String, value: Optional<String>) {
-        if (value.isPresent) {
-            createHeader(name, value.get())
-        }
-    }
 
     private fun MultivaluedMap<String, String>.createHeader(name: String, value: String) {
         if (!containsKey(name)) {

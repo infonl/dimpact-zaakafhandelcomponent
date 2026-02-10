@@ -44,19 +44,19 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
         val configurationService = ConfiguratieService(
-            entityManager,
-            ztcClientService,
-            additionalAllowedFileTypes,
-            zgwApiClientMpRestUrl,
-            contextUrl,
-            gemeenteCode,
-            gemeenteNaam,
-            gemeenteMail,
-            pabcIntegration,
-            bronOrganisatie,
-            verantwoordelijkeOrganisatie,
-            catalogusDomein,
-            brpConfiguration
+            entityManager = entityManager,
+            ztcClientService = ztcClientService,
+            additionalAllowedFileTypes = additionalAllowedFileTypes,
+            zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+            contextUrl = contextUrl,
+            gemeenteCode = gemeenteCode,
+            gemeenteNaam = gemeenteNaam,
+            gemeenteMail = gemeenteMail,
+            pabcIntegration = pabcIntegration,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+            catalogusDomein = catalogusDomein,
+            brpConfiguration = brpConfiguration
         )
 
         When("zaak tonen URL is requested") {
@@ -112,19 +112,19 @@ class ConfiguratieServiceTest : BehaviorSpec({
             Then("BSN is validated") {
                 shouldThrow<IllegalArgumentException> {
                     ConfiguratieService(
-                        entityManager,
-                        ztcClientService,
-                        additionalAllowedFileTypes,
-                        zgwApiClientMpRestUrl,
-                        contextUrl,
-                        gemeenteCode,
-                        gemeenteNaam,
-                        gemeenteMail,
-                        pabcIntegration,
-                        bronOrganisatie,
-                        verantwoordelijkeOrganisatie,
-                        catalogusDomein,
-                        brpConfiguration
+                        entityManager = entityManager,
+                        ztcClientService = ztcClientService,
+                        additionalAllowedFileTypes = additionalAllowedFileTypes,
+                        zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+                        contextUrl = contextUrl,
+                        gemeenteCode = gemeenteCode,
+                        gemeenteNaam = gemeenteNaam,
+                        gemeenteMail = gemeenteMail,
+                        pabcIntegration = pabcIntegration,
+                        bronOrganisatie = bronOrganisatie,
+                        verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+                        catalogusDomein = catalogusDomein,
+                        brpConfiguration = brpConfiguration
                     )
                 }
             }
@@ -141,19 +141,19 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
         val configurationService = ConfiguratieService(
-            entityManager,
-            ztcClientService,
-            Optional.empty(),
-            zgwApiClientMpRestUrl,
-            contextUrl,
-            gemeenteCode,
-            gemeenteNaam,
-            gemeenteMail,
-            pabcIntegration,
-            bronOrganisatie,
-            verantwoordelijkeOrganisatie,
-            catalogusDomein,
-            brpConfiguration
+            entityManager = entityManager,
+            ztcClientService = ztcClientService,
+            additionalAllowedFileTypes = Optional.empty(),
+            zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+            contextUrl = contextUrl,
+            gemeenteCode = gemeenteCode,
+            gemeenteNaam = gemeenteNaam,
+            gemeenteMail = gemeenteMail,
+            pabcIntegration = pabcIntegration,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+            catalogusDomein = catalogusDomein,
+            brpConfiguration = brpConfiguration
         )
 
         When("a list of additional allowed file types are requested") {

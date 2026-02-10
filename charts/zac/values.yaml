@@ -100,6 +100,7 @@ brpApi:
   url: ""
   apiKey: ""
   protocollering:
+    # -- OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled.
     originOin: ""
     # -- Supported providers: iConnect, 2Secure
     aanbieder: "iConnect"
