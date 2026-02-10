@@ -23,10 +23,17 @@ import java.util.Optional
 import java.util.UUID
 
 class BrpClientServiceTest : BehaviorSpec({
+    val doelbindingZoekMetDefault = "fakeDoelbindingZoekMetDefault"
+    val doelbindingRaadpleegMetDefault = "fakeDoelbindingRaadpleegMetDefault"
+    val verwerkingregisterDefault = "fakeVerwerkingregisterDefault"
     val zaaktypeUuid = UUID.randomUUID()
     val personenApi: PersonenApi = mockk<PersonenApi>()
     val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService = mockk()
-    val brpConfiguration = createBrpConfiguration()
+    val brpConfiguration = createBrpConfiguration(
+        doelbindingZoekMetDefault = Optional.of(doelbindingZoekMetDefault),
+        doelbindingRaadpleegMetDefault = Optional.of(doelbindingRaadpleegMetDefault),
+        verwerkingregisterDefault = Optional.of(verwerkingregisterDefault)
+    )
     val configuredBrpClientService = BrpClientService(
         personenApi = personenApi,
         brpConfiguration = brpConfiguration,
@@ -76,7 +83,12 @@ class BrpClientServiceTest : BehaviorSpec({
 
     Given("No person for a given BSN") {
         every {
-            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault", null)
+            personenApi.personen(
+                personenQuery = any(),
+                doelbinding = doelbindingRaadpleegMetDefault,
+                verwerking = verwerkingregisterDefault,
+                gebruikersnaam = null
+            )
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = emptyList())
 
         When("find person is called with the BSN of the person") {
@@ -94,7 +106,12 @@ class BrpClientServiceTest : BehaviorSpec({
             createPersoon(bsn = "123456789")
         )
         every {
-            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault", null)
+            personenApi.personen(
+                personenQuery = any(),
+                doelbinding = doelbindingRaadpleegMetDefault,
+                verwerking = verwerkingregisterDefault,
+                gebruikersnaam = null
+            )
         } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
 
         When("find person is called with the BSN of the person") {
@@ -174,7 +191,12 @@ class BrpClientServiceTest : BehaviorSpec({
         } returns zaaktypeCmmnConfiguration
         every {
             // Since we have a processing value in Unicode, the default value is used instead
-            personenApi.personen(any(), retrievePersoonPurpose, "processingRegisterDefault@fakeZaaktypeOmschrijving", null)
+            personenApi.personen(
+                personenQuery = any(),
+                doelbinding = retrievePersoonPurpose,
+                verwerking = "$verwerkingregisterDefault@fakeZaaktypeOmschrijving",
+                gebruikersnaam = null
+            )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
@@ -255,7 +277,12 @@ class BrpClientServiceTest : BehaviorSpec({
         } returns zaaktypeCmmnConfiguration
         every {
             // We have no zaakafhandelparameter values, so the defaults are used instead
-            personenApi.personen(any(), "retrievePersoonPurpose", "processingRegisterDefault@fakeZaaktypeOmschrijving", null)
+            personenApi.personen(
+                personenQuery = any(),
+                doelbinding = doelbindingRaadpleegMetDefault,
+                verwerking = "$verwerkingregisterDefault@fakeZaaktypeOmschrijving",
+                gebruikersnaam = null
+            )
         } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
@@ -282,10 +309,10 @@ class BrpClientServiceTest : BehaviorSpec({
 
         every {
             personenApi.personen(
-                any(),
-                "retrievePersoonPurpose",
-                "processingRegisterDefault",
-                null
+                personenQuery = any(),
+                doelbinding = doelbindingRaadpleegMetDefault,
+                verwerking = verwerkingregisterDefault,
+                gebruikersnaam = null
             )
         } returns raadpleegMetBurgerservicenummerResponse
 

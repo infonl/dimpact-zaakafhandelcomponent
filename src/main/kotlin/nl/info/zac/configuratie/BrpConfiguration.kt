@@ -49,10 +49,7 @@ class BrpConfiguration @Inject constructor(
         const val ENV_VAR_BRP_VERWERKINGSREGISTER = "BRP_VERWERKINGSREGISTER"
         const val BRP_PROTOCOLLERING_PROVIDER_2SECURE = "2Secure"
         const val BRP_PROTOCOLLERING_PROVIDER_ICONNECT = "iConnect"
-        val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf(
-            BRP_PROTOCOLLERING_PROVIDER_ICONNECT,
-            BRP_PROTOCOLLERING_PROVIDER_2SECURE
-        )
+        val SUPPORTED_PROTOCOLLERING_PROVIDERS = arrayOf(BRP_PROTOCOLLERING_PROVIDER_ICONNECT, BRP_PROTOCOLLERING_PROVIDER_2SECURE)
     }
 
     @PostConstruct
@@ -78,9 +75,9 @@ class BrpConfiguration @Inject constructor(
         }
     }
 
-    fun getApiKey() = apiKey.get()
+    fun getApiKey() = apiKey.getOrNull()
 
-    fun getOriginOIN() = originOIN.get()
+        fun getOriginOIN() = originOIN.getOrNull()
 
     fun getDoelbindingZoekMetDefault() = doelbindingZoekMetDefault.getOrNull()
 
@@ -89,12 +86,12 @@ class BrpConfiguration @Inject constructor(
     fun getVerwerkingsRegister() = verwerkingsRegister.getOrNull()
 
     override fun toString() =
-        "$ENV_VAR_BRP_API_KEY: '****', " +
-            "$ENV_VAR_BRP_ORIGIN_OIN: '$originOIN', " +
-            "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '$brpProtocolleringProvider', " +
-            "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '$doelbindingZoekMetDefault', " +
-            "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '$doelbindingRaadpleegMetDefault', " +
-            "$ENV_VAR_BRP_VERWERKINGSREGISTER: '$verwerkingsRegister'"
+        "$ENV_VAR_BRP_API_KEY: '${apiKey.getOrNull()}', " +
+        "$ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}', " +
+        "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}', " +
+        "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}', " +
+        "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}', " +
+        "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
 
     private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
         if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())

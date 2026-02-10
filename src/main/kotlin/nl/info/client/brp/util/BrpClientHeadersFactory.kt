@@ -46,8 +46,8 @@ class BrpClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> =
         if (brpConfiguration.isBrpProtocolleringEnabled()) {
             clientOutgoingHeaders.apply {
-                createHeader(X_API_KEY, brpConfiguration.getApiKey())
-                createHeader(X_ORIGIN_OIN, brpConfiguration.getOriginOIN())
+                brpConfiguration.getApiKey()?.let { createHeader(X_API_KEY, it) }
+                brpConfiguration.getOriginOIN()?.let { createHeader(X_ORIGIN_OIN, it) }
                 createHeader(X_GEBRUIKER, getUser())
             }
         } else {

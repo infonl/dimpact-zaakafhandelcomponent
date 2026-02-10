@@ -129,7 +129,7 @@ class ConfiguratieService @Inject constructor(
                 "- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'\n" +
                 "- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'\n" +
                 "- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'\n" +
-                "- BRP configuration: '$brpConfiguration'\n"
+                "- BRP configuration: $brpConfiguration\n"
         }
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
