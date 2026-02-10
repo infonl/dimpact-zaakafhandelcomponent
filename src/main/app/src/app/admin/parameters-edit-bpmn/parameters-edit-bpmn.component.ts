@@ -290,8 +290,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       });
   }
 
-  private getBrpProtocollering(protocolering: string) {
-    return protocolering?.trim() === "iConnect";
+  private getBrpProtocollering(brpProtocolleringProvider: string) {
+    return brpProtocolleringProvider?.trim() === "iConnect";
   }
 
   private createBrpDoelbindingForm() {

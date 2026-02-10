@@ -10,16 +10,16 @@ import java.util.Optional
 
 @Suppress("LongParameterList")
 fun createBrpConfiguration(
-    apiKey: Optional<String> = Optional.of("apiKey"),
-    originOin: Optional<String> = Optional.of("originOin"),
-    auditLogProvider: Optional<String> = Optional.of("iConnect"),
-    doelbindingZoekMetDefault: Optional<String> = Optional.of("queryPersonenPurpose"),
-    doelbindingRaadpleegMetDefault: Optional<String> = Optional.of("retrievePersoonPurpose"),
-    verwerkingregisterDefault: Optional<String> = Optional.of("processingRegisterDefault")
+    apiKey: Optional<String> = Optional.of("fakeApiKey"),
+    originOin: Optional<String> = Optional.of("fakeOriginOin"),
+    brpProtocolleringProvider: Optional<String> = Optional.of("fakeBrpProtocolleringProvider"),
+    doelbindingZoekMetDefault: Optional<String> = Optional.of("fakeDoelbindingZoekMetDefault"),
+    doelbindingRaadpleegMetDefault: Optional<String> = Optional.of("fakeDoelbindingRaadpleegMetDefault"),
+    verwerkingregisterDefault: Optional<String> = Optional.of("fakeVerwerkingregisterDefault")
 ) = BrpConfiguration(
     apiKey = apiKey,
     originOIN = originOin,
-    brpProtocolleringProvider = auditLogProvider,
+    brpProtocolleringProvider = brpProtocolleringProvider,
     doelbindingZoekMetDefault = doelbindingZoekMetDefault,
     doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
     verwerkingsRegister = verwerkingregisterDefault

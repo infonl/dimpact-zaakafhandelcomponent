@@ -60,6 +60,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         )
 
         When("zaak tonen URL is requested") {
+            configurationService.onStartup(Any())
             val zaakTonenUrl = configurationService.zaakTonenUrl(zaakIdentificatie = "id")
 
             Then("correct url is built") {
@@ -125,7 +126,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
                         verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
                         catalogusDomein = catalogusDomein,
                         brpConfiguration = brpConfiguration
-                    )
+                    ).onStartup(Any())
                 }
             }
         }
@@ -157,6 +158,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         )
 
         When("a list of additional allowed file types are requested") {
+            configurationService.onStartup(Any())
             val fileTypes = configurationService.readAdditionalAllowedFileTypes()
 
             Then("an empty list is returned") {

@@ -235,7 +235,7 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
         val brpConfiguration = createBrpConfiguration(
-            auditLogProvider = Optional.of("2Secure")
+            brpProtocolleringProvider = Optional.of("2Secure")
         )
         val brpClientService = BrpClientService(
             personenApi = personenApi,
