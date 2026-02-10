@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.185](https://img.shields.io/badge/Version-1.0.185-informational?style=flat-square) ![AppVersion: 4.2](https://img.shields.io/badge/AppVersion-4.2-informational?style=flat-square)
+![Version: 1.0.186](https://img.shields.io/badge/Version-1.0.186-informational?style=flat-square) ![AppVersion: 4.2](https://img.shields.io/badge/AppVersion-4.2-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -64,7 +64,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
 | brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
 | brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
-| brpApi.protocollering.originOin | string | `""` |  |
+| brpApi.protocollering.originOin | string | `""` | OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled. |
 | brpApi.protocollering.verwerkingsregister | string | `"Algemeen"` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
