@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.configuratie
+package nl.info.zac.configuration
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
-import nl.info.zac.configuratie.model.Taal
+import nl.info.zac.configuration.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN
@@ -119,18 +119,18 @@ class ConfigurationService @Inject constructor(
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
             """ZAC configuration environment variables:
-            - $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
-            - $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
-            - $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
-            - $ENV_VAR_CONTEXT_URL: '$contextUrl'
-            - $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
-            - $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
-            - $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
-            - $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
-            - $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'
-            - $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'
-            - BRP configuration: $brpConfiguration
-            """.trimIndent()
+            |- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
+            |- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
+            |- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
+            |- $ENV_VAR_CONTEXT_URL: '$contextUrl'
+            |- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
+            |- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
+            |- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
+            |- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
+            |- $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'
+            |- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'
+            |$brpConfiguration
+            """.trimMargin()
         }
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)

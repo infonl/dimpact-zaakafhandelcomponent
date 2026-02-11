@@ -16,7 +16,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({

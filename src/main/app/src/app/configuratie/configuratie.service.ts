@@ -24,9 +24,8 @@ export class ConfiguratieService {
   private additionalAllowedFileTypes$?: Observable<string[]>;
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
-  private bpmnSupport$?: Observable<boolean>;
   private pabcIntegration$?: Observable<boolean>;
-  private brpProtocollering$?: Observable<string>;
+  private brpDoelbindingSetupEnabled$?: Observable<boolean>;
 
   constructor(
     private http: HttpClient,
@@ -113,17 +112,15 @@ export class ConfiguratieService {
     return this.pabcIntegration$;
   }
 
-  readBrpProtocollering(): Observable<string> {
-    if (!this.brpProtocollering$) {
-      this.brpProtocollering$ = this.http
-        .get(`${this.basepath}/brp/protocollering-provider`, {
-          responseType: "text",
-        })
+  readBrpDoelbindingSetupEnabled(): Observable<boolean> {
+    if (!this.brpDoelbindingSetupEnabled$) {
+      this.brpDoelbindingSetupEnabled$ = this.http
+        .get<boolean>(`${this.basepath}/brp/doelbinding-setup-enabled"`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
         );
     }
-    return this.brpProtocollering$;
+    return this.brpDoelbindingSetupEnabled$;
   }
 }

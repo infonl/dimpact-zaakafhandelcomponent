@@ -5,7 +5,7 @@
 
 package nl.info.client.brp.util
 
-import nl.info.zac.configuratie.BrpConfiguration
+import nl.info.zac.configuration.BrpConfiguration
 import java.util.Optional
 
 @Suppress("LongParameterList")

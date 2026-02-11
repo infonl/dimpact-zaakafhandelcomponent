@@ -23,7 +23,7 @@ import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import nl.info.client.zgw.drc.model.generated.*;
 import nl.info.client.zgw.util.ZgwClientHeadersFactory;
-import nl.info.zac.configuratie.ConfigurationService;
+import nl.info.zac.configuration.ConfigurationService;
 
 
 @ApplicationScoped

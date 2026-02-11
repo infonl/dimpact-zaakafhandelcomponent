@@ -32,7 +32,7 @@ import nl.info.zac.app.admin.model.RestReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTableUpdate
 import nl.info.zac.app.admin.model.toReferenceTable
 import nl.info.zac.app.admin.model.toReferenceTableValue
-import nl.info.zac.configuratie.ConfigurationService.Companion.COMMUNICATIEKANAAL_EFORMULIER
+import nl.info.zac.configuration.ConfigurationService.Companion.COMMUNICATIEKANAAL_EFORMULIER
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService

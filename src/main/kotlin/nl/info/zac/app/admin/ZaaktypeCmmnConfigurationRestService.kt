@@ -42,7 +42,7 @@ import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService

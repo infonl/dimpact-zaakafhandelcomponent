@@ -36,7 +36,7 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService

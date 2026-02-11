@@ -17,7 +17,7 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
 import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService

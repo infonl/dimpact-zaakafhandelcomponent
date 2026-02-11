@@ -5,8 +5,8 @@
 package nl.info.client.zgw.zrc.util
 
 import nl.info.client.zgw.ztc.model.generated.StatusType
-import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
-import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 
 /**
  * Returns `true` if the [StatusType] is not `null` and is equals to '[STATUSTYPE_OMSCHRIJVING_HEROPEND]'.

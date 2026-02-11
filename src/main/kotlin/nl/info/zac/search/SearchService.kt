@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat

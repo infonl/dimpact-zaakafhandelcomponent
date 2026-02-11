@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.configuratie
+package nl.info.zac.configuration
 
 import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
+import nl.info.zac.configuration.exception.BrpProtocolleringConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -86,17 +86,14 @@ class BrpConfiguration @Inject constructor(
 
     fun getVerwerkingsRegister() = verwerkingsregister.getOrNull()
 
-    override fun toString() =
-        "$ENV_VAR_BRP_API_KEY: '" + if (apiKey.isPresent) {
-            "***"
-        } else {
-            "null" + "', " +
-                "$ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}', " +
-                "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}', " +
-                "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}', " +
-                "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}', " +
-                "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
-        }
+    override fun toString() = """
+        |- $ENV_VAR_BRP_API_KEY: '${if (apiKey.isPresent) { "***" } else { "null" }}'
+        |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
+        |- $ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}'
+        |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}'
+        |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}'
+        |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'
+    """.trimMargin()
 
     fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 

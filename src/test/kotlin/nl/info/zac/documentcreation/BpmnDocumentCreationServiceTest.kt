@@ -20,7 +20,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.createBpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData

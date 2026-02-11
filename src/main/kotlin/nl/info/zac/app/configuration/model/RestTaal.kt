@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.configuratie.model
+package nl.info.zac.app.configuration.model
 
-import nl.info.zac.configuratie.model.Taal
+import nl.info.zac.configuration.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

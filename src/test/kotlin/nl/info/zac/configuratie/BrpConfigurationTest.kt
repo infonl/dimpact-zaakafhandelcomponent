@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
-import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
+import nl.info.zac.configuration.exception.BrpProtocolleringConfigurationException
 import java.util.Optional
 
 class BrpConfigurationTest : BehaviorSpec({
