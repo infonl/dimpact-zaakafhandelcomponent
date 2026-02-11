@@ -86,17 +86,14 @@ class BrpConfiguration @Inject constructor(
 
     fun getVerwerkingsRegister() = verwerkingsregister.getOrNull()
 
-    override fun toString() =
-        "$ENV_VAR_BRP_API_KEY: '" + if (apiKey.isPresent) {
-            "***"
-        } else {
-            "null" + "', " +
-                "$ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}', " +
-                "$ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}', " +
-                "$ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}', " +
-                "$ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}', " +
-                "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
-        }
+    override fun toString() = """
+        |- $ENV_VAR_BRP_API_KEY: '${if (apiKey.isPresent) { "***" } else { "null" }}'
+        |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
+        |- $ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}'
+        |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}'
+        |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}'
+        |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'
+    """.trimMargin()
 
     fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 
