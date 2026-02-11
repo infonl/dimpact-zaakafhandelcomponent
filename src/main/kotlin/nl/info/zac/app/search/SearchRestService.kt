@@ -24,7 +24,6 @@ import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toZoekParameters
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_REQUIRED_SEARCH_PARAMETER_MISSING
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -70,9 +69,6 @@ class SearchRestService @Inject constructor(
     @Path("zaken")
     fun listZakenForInformationObjectType(@Valid restZoekKoppelenParameters: RestZoekKoppelenParameters) =
         assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
-            if (restZoekKoppelenParameters.zaakIdentificator.isNullOrBlank()) {
-                throw InputValidationFailedException(ERROR_CODE_REQUIRED_SEARCH_PARAMETER_MISSING)
-            }
             searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
                 restZoekResultaatConverter.convert(it, buildDocumentsLinkableList(it, restZoekKoppelenParameters))
             }
