@@ -28,6 +28,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -179,6 +180,52 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
         Given("when zaak is open and toekennen policy is assigned to the logged-in user") {
             val restZaakAssignmentToLoggedInUserData = createRestZaakAssignmentToLoggedInUserData()
             val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaak = createRestZaak()
+
+            val loggedInUserId = "loggedInUserId"
+            val loggedInUser = createLoggedInUser(id = loggedInUserId)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every {
+                zaakService.assignZaak(
+                    zaak,
+                    restZaakAssignmentToLoggedInUserData.groupId,
+                    loggedInUserId,
+                    restZaakAssignmentToLoggedInUserData.reason
+                )
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+
+            When("toekennen policy is assigned to the logged-in user") {
+                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
+                val returnedRestZaak = zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
+
+                Then("the zaak is assigned both to the group and the user") {
+                    returnedRestZaak shouldBe restZaak
+                }
+            }
+
+            When("logged-in user does not have toekennen policy") {
+                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = false)
+                shouldThrow<PolicyException> {
+                    zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
+                }
+
+                Then("exception is thrown") {}
+            }
+        }
+    }
+
+    Context("Assigning a closed zaak to the logged-in user") {
+        Given("when zaak is closed and toekennen policy is assigned to the logged-in user") {
+            val restZaakAssignmentToLoggedInUserData = createRestZaakAssignmentToLoggedInUserData()
+            val zaak = createZaak()
+            // Close the zaak
+            zaak.archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
             val zaakType = createZaakType()
             val restZaak = createRestZaak()
 

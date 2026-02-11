@@ -779,7 +779,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType)
-        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        assertPolicy(zaakRechten.toekennen)
 
         zaakService.assignZaak(
             zaak,
