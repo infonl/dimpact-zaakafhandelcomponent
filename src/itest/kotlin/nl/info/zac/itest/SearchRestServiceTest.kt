@@ -593,7 +593,14 @@ class SearchRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_BAD_REQUEST
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
-                            "message": "msg.error.search.required.parameter.missing"
+                            "parameterViolations": [
+                                {
+                                    "constraintType": "PARAMETER",
+                                    "message": "msg.error.search.required.parameter.missing",
+                                    "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                                    "value": ""
+                                }
+                            ]
                         }
                     """.trimIndent()
                 }
@@ -626,7 +633,14 @@ class SearchRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_BAD_REQUEST
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
-                            "message": "msg.error.search.required.parameter.missing"
+                            "parameterViolations": [
+                                {
+                                    "constraintType": "PARAMETER",
+                                    "message": "msg.error.search.required.parameter.missing",
+                                    "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                                    "value": ""
+                                }
+                            ]
                         }
                     """.trimIndent()
                 }
@@ -659,7 +673,14 @@ class SearchRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_BAD_REQUEST
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
-                            "message": "msg.error.search.required.parameter.missing"
+                            "parameterViolations": [
+                                {
+                                    "constraintType": "PARAMETER",
+                                    "message": "msg.error.search.required.parameter.missing",
+                                    "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                                    "value": "   "
+                                }
+                            ]
                         }
                     """.trimIndent()
                 }
@@ -684,7 +705,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 )
                 Then(
                     """
-                    the response returns a BAD_REQUEST with the error code for missing required parameter
+                    the response returns a BAD_REQUEST with the error code for too short required parameter
                     """
                 ) {
                     val responseBody = response.bodyAsString
@@ -692,7 +713,14 @@ class SearchRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_BAD_REQUEST
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
-                            "message": "msg.error.search.required.parameter.missing"
+                            "parameterViolations": [
+                                {
+                                    "constraintType": "PARAMETER",
+                                    "message": "msg.error.search.parameter.too.short",
+                                    "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                                    "value": "Z"
+                                }
+                            ]
                         }
                     """.trimIndent()
                 }
