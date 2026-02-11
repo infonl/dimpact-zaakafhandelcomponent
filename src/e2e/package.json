@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
-    "@types/node": "22.19.9",
+    "@types/node": "22.19.10",
     "@types/uniqid": "5.3.4",
     "cucumber-html-reporter": "7.2.0",
     "dotenv": "17.2.4",
