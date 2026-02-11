@@ -32,7 +32,7 @@ import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.task.model.createRestTaskDocumentData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName

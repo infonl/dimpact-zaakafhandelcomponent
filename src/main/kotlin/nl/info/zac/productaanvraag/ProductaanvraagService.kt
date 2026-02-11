@@ -47,7 +47,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene

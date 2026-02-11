@@ -20,7 +20,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld

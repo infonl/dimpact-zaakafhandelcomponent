@@ -117,7 +117,7 @@ import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService

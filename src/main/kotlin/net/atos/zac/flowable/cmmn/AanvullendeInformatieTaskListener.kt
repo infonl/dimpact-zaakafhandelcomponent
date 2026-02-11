@@ -7,8 +7,8 @@ package net.atos.zac.flowable.cmmn
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
-import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener

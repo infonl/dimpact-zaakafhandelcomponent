@@ -7,7 +7,7 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
-import nl.info.zac.configuratie.ConfigurationService;
+import nl.info.zac.configuration.ConfigurationService;
 import nl.info.zac.mail.model.MailAdres;
 import nl.info.zac.mailtemplates.model.MailGegevens;
 

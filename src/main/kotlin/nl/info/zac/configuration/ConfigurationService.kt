@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.configuratie
+package nl.info.zac.configuration
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
-import nl.info.zac.configuratie.model.Taal
+import nl.info.zac.configuration.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN

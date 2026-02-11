@@ -24,7 +24,7 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.net.URI
 import java.time.ZonedDateTime

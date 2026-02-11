@@ -162,17 +162,17 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson if (FEATURE_FLAG_PABC_INTEGRATION) "true" else "false"
             }
         }
-        When("the BRP protocollering provider is retrieved") {
+        When("the 'is BRP doelbinding setup enabled' endpoint is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/brp/protocollering-provider",
+                url = "$ZAC_API_URI/configuratie/brp/is-doelbinding-setup-enabled",
                 testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
-            Then("the configured BRP protocollering provider is returned") {
+            Then("'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                responseBody shouldBe BRP_PROTOCOLLERING_ICONNECT
+                responseBody shouldBe "true"
             }
         }
     }

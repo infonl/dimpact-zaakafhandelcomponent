@@ -24,7 +24,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.zaak.model.createRestDecisionCreateData
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import java.time.LocalDate
 
 class RestDecisionConverterTest : BehaviorSpec({

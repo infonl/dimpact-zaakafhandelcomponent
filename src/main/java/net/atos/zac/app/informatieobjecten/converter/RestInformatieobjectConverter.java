@@ -5,7 +5,7 @@
 package net.atos.zac.app.informatieobjecten.converter;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.zac.app.configuratie.model.RestTaalKt.toRestTaal;
+import static nl.info.zac.app.configuration.model.RestTaalKt.toRestTaal;
 import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
 import static nl.info.zac.app.informatieobjecten.model.RestOndertekeningKt.toRestOndertekening;
 import static nl.info.zac.app.policy.model.RestDocumentRechtenKt.toRestDocumentRechten;
@@ -43,8 +43,8 @@ import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.app.task.model.RestTaskDocumentData;
 import nl.info.zac.app.zaak.model.RelatieType;
 import nl.info.zac.authentication.LoggedInUser;
-import nl.info.zac.configuratie.ConfigurationService;
-import nl.info.zac.configuratie.model.Taal;
+import nl.info.zac.configuration.ConfigurationService;
+import nl.info.zac.configuration.model.Taal;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import nl.info.zac.identity.IdentityService;

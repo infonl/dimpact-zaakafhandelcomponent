@@ -20,7 +20,7 @@ import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService

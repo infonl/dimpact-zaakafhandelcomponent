@@ -177,8 +177,8 @@ describe(ParametersEditBpmnComponent.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest
-      .spyOn(configuratieService, "readBrpProtocollering")
-      .mockReturnValue(of(""));
+      .spyOn(configuratieService, "isDoelbindingSetupEnabled")
+      .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
     fixture.detectChanges();

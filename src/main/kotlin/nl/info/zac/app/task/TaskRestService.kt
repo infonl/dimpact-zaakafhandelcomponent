@@ -59,7 +59,7 @@ import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService

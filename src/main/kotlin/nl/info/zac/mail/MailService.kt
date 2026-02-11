@@ -33,7 +33,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen

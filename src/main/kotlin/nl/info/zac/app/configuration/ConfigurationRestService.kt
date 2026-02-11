@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.configuratie
+package nl.info.zac.app.configuration
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -12,11 +12,11 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.util.JsonbUtil
-import nl.info.zac.app.configuratie.model.RestTaal
-import nl.info.zac.app.configuratie.model.toRestTaal
-import nl.info.zac.app.configuratie.model.toRestTalen
-import nl.info.zac.configuratie.BrpConfiguration.Companion.BRP_PROTOCOLLERING_PROVIDER_ICONNECT
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.app.configuration.model.RestTaal
+import nl.info.zac.app.configuration.model.toRestTaal
+import nl.info.zac.app.configuration.model.toRestTalen
+import nl.info.zac.configuration.BrpConfiguration.Companion.BRP_PROTOCOLLERING_PROVIDER_ICONNECT
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -29,7 +29,7 @@ import nl.info.zac.util.NoArgConstructor
 @Singleton
 @AllOpen
 @NoArgConstructor
-class ConfiguratieRestService @Inject constructor(
+class ConfigurationRestService @Inject constructor(
     private val configurationService: ConfigurationService
 ) {
     @GET

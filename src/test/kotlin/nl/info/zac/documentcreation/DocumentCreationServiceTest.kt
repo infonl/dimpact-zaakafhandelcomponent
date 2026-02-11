@@ -15,7 +15,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockR
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import java.time.ZonedDateTime

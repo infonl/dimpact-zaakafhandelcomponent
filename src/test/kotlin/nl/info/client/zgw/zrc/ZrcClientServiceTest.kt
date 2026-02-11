@@ -21,7 +21,7 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
-import nl.info.zac.configuratie.ConfigurationService
+import nl.info.zac.configuration.ConfigurationService
 import java.util.UUID
 
 class ZrcClientServiceTest : BehaviorSpec({

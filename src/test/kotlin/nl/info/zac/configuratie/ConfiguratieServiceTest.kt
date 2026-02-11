@@ -15,6 +15,7 @@ import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
+import nl.info.zac.configuration.ConfigurationService
 import java.net.URI
 import java.util.Optional
 import java.util.UUID

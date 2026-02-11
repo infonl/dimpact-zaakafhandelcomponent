@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.configuratie
+package nl.info.zac.configuration
 
 import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.zac.configuratie.exception.BrpProtocolleringConfigurationException
+import nl.info.zac.configuration.exception.BrpProtocolleringConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
