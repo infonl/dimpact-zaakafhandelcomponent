@@ -21,17 +21,17 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import java.util.UUID
 
 class ZrcClientServiceTest : BehaviorSpec({
     val zrcClient = mockk<ZrcClient>()
     val zgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val zrcClientService = ZrcClientService(
         zrcClient = zrcClient,
         zgwClientHeadersFactory = zgwClientHeadersFactory,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
 
     beforeEach {

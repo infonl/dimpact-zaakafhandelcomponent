@@ -43,7 +43,7 @@ import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.app.task.model.RestTaskDocumentData;
 import nl.info.zac.app.zaak.model.RelatieType;
 import nl.info.zac.authentication.LoggedInUser;
-import nl.info.zac.configuratie.ConfiguratieService;
+import nl.info.zac.configuratie.ConfigurationService;
 import nl.info.zac.configuratie.model.Taal;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
@@ -55,7 +55,7 @@ public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
 
     private BrcClientService brcClientService;
-    private ConfiguratieService configuratieService;
+    private ConfigurationService configurationService;
     private DrcClientService drcClientService;
     private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
     private IdentityService identityService;
@@ -73,7 +73,7 @@ public class RestInformatieobjectConverter {
     @Inject
     public RestInformatieobjectConverter(
             BrcClientService brcClientService,
-            ConfiguratieService configuratieService,
+            ConfigurationService configurationService,
             DrcClientService drcClientService,
             EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService,
             IdentityService identityService,
@@ -90,7 +90,7 @@ public class RestInformatieobjectConverter {
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
         this.policyService = policyService;
-        this.configuratieService = configuratieService;
+        this.configurationService = configurationService;
     }
 
     public List<RestEnkelvoudigInformatieobject> convertToREST(
@@ -151,7 +151,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getTitel();
         if (enkelvoudigInformatieObject.getBronorganisatie() != null) {
             restEnkelvoudigInformatieobject.bronorganisatie = enkelvoudigInformatieObject.getBronorganisatie()
-                    .equals(configuratieService.readBronOrganisatie()) ? null : enkelvoudigInformatieObject.getBronorganisatie();
+                    .equals(configurationService.readBronOrganisatie()) ? null : enkelvoudigInformatieObject.getBronorganisatie();
         }
         restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.getCreatiedatum();
         if (enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding() != null) {
@@ -165,7 +165,7 @@ public class RestInformatieobjectConverter {
         }
         restEnkelvoudigInformatieobject.formaat = enkelvoudigInformatieObject.getFormaat();
 
-        final Taal taal = configuratieService.findTaal(enkelvoudigInformatieObject.getTaal());
+        final Taal taal = configurationService.findTaal(enkelvoudigInformatieObject.getTaal());
         if (taal != null) {
             restEnkelvoudigInformatieobject.taal = taal.naam;
         }
@@ -207,7 +207,7 @@ public class RestInformatieobjectConverter {
             RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configuratieService.readBronOrganisatie());
+        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configurationService.readBronOrganisatie());
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
         enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(restEnkelvoudigInformatieobject.auteur);
@@ -235,11 +235,11 @@ public class RestInformatieobjectConverter {
             final RESTFileUpload bestand
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configuratieService.readBronOrganisatie());
+        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configurationService.readBronOrganisatie());
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.getDocumentTitel());
         enkelvoudigInformatieobjectWithInhoud.setAuteur(getFullName(loggedInUserInstance.get()));
-        enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
+        enkelvoudigInformatieobjectWithInhoud.setTaal(ConfigurationService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(documentData.getDocumentType().uuid).getUrl()
         );
@@ -275,7 +275,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum = informatieobject.getOntvangstdatum();
         restEnkelvoudigInformatieObjectVersieGegevens.titel = informatieobject.getTitel();
         restEnkelvoudigInformatieObjectVersieGegevens.auteur = informatieobject.getAuteur();
-        final Taal taal = configuratieService.findTaal(informatieobject.getTaal());
+        final Taal taal = configurationService.findTaal(informatieobject.getTaal());
         if (taal != null) {
             restEnkelvoudigInformatieObjectVersieGegevens.taal = toRestTaal(taal);
         }

@@ -24,7 +24,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.zaak.model.createRestDecisionCreateData
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import java.time.LocalDate
 
 class RestDecisionConverterTest : BehaviorSpec({
@@ -32,13 +32,13 @@ class RestDecisionConverterTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val restDecisionConverter = RestDecisionConverter(
         brcClientService,
         drcClientService,
         restInformatieobjectConverter,
         ztcClientService,
-        configuratieService
+        configurationService
     )
 
     beforeEach {
@@ -56,7 +56,7 @@ class RestDecisionConverterTest : BehaviorSpec({
         val besluittype = createBesluitType()
 
         every { ztcClientService.readBesluittype(decisionCreateData.besluittypeUuid) } returns besluittype
-        every { configuratieService.readVerantwoordelijkeOrganisatie() } returns "316245124"
+        every { configurationService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
         When("this data is converted to a besluit") {
             val dateNow = LocalDate.now()

@@ -61,7 +61,7 @@ import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakCreateData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
@@ -90,7 +90,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
@@ -124,7 +124,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         bpmnService = bpmnService,
         brcClientService = brcClientService,
         cmmnService = cmmnService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
@@ -198,8 +198,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         val zaakCreatedSlot = slot<Zaak>()
         val updatedRolesSlot = mutableListOf<Rol<*>>()
 
-        every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
-        every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
+        every { configurationService.readBronOrganisatie() } returns bronOrganisatie
+        every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
         every { cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null) } just runs
         every {
             inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
@@ -344,8 +344,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         val zaakCreatedSlot = slot<Zaak>()
         val updatedRolesSlot = mutableListOf<Rol<*>>()
 
-        every { configuratieService.readBronOrganisatie() } returns bronOrganisatie
-        every { configuratieService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
+        every { configurationService.readBronOrganisatie() } returns bronOrganisatie
+        every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
         every {
             bpmnService.startProcess(zaak, zaakType, zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey, zaakData)
         } just runs

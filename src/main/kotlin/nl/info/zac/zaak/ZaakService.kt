@@ -36,7 +36,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -71,7 +71,7 @@ class ZaakService @Inject constructor(
     private val indexingService: IndexingService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val bpmnService: BpmnService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val pabcClientService: PabcClientService
 ) {
     fun addBetrokkeneToZaak(
@@ -458,7 +458,7 @@ class ZaakService @Inject constructor(
         zacApplicationRole: ZacApplicationRole,
         zaaktypeUuid: UUID
     ) =
-        if (configuratieService.featureFlagPabcIntegration()) {
+        if (configurationService.featureFlagPabcIntegration()) {
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                 applicationRole = zacApplicationRole.value,

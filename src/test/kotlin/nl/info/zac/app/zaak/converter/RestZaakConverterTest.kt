@@ -38,8 +38,8 @@ import nl.info.zac.app.zaak.model.createRestDecision
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
-import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
-import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
+import nl.info.zac.configuratie.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten

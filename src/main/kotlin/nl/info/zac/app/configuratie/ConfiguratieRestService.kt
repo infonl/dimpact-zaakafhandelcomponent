@@ -15,7 +15,7 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuratie.model.RestTaal
 import nl.info.zac.app.configuratie.model.toRestTaal
 import nl.info.zac.app.configuratie.model.toRestTalen
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -29,37 +29,37 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class ConfiguratieRestService @Inject constructor(
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     @GET
     @Path("feature-flags/pabc-integration")
-    fun featureFlagPabcIntegration(): Boolean = configuratieService.featureFlagPabcIntegration()
+    fun featureFlagPabcIntegration(): Boolean = configurationService.featureFlagPabcIntegration()
 
     @GET
     @Path("talen")
-    fun listTalen(): List<RestTaal> = configuratieService.listTalen().toRestTalen()
+    fun listTalen(): List<RestTaal> = configurationService.listTalen().toRestTalen()
 
     @GET
     @Path("talen/default")
-    fun readDefaultTaal(): RestTaal? = configuratieService.findDefaultTaal()?.toRestTaal()
+    fun readDefaultTaal(): RestTaal? = configurationService.findDefaultTaal()?.toRestTaal()
 
     @GET
     @Path("max-file-size-mb")
-    fun readMaxFileSizeMB(): Long = configuratieService.readMaxFileSizeMB()
+    fun readMaxFileSizeMB(): Long = configurationService.readMaxFileSizeMB()
 
     @GET
     @Path("additional-allowed-file-types")
-    fun readAdditionalAllowedFileTypes(): List<String> = configuratieService.readAdditionalAllowedFileTypes()
+    fun readAdditionalAllowedFileTypes(): List<String> = configurationService.readAdditionalAllowedFileTypes()
 
     @GET
     @Path("gemeente/code")
-    fun readGemeenteCode(): String = JsonbUtil.JSONB.toJson(configuratieService.readGemeenteCode())
+    fun readGemeenteCode(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteCode())
 
     @GET
     @Path("gemeente")
-    fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configuratieService.readGemeenteNaam())
+    fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteNaam())
 
     @GET
     @Path("brp/protocollering-provider")
-    fun readBrpProtocolleringProvider(): String = configuratieService.readBrpConfiguration().readBrpProtocolleringProvider()
+    fun readBrpProtocolleringProvider(): String = configurationService.readBrpConfiguration().readBrpProtocolleringProvider()
 }

@@ -410,15 +410,15 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
 
-    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
+    this.showDoelbindingen = this.getBrpProtocollering(this.brpProtocollering);
     if (this.showDoelbindingen) {
       this.createBrpDoelbindingForm();
     }
     this.createAutomatischeOntvangstbevestigingForm();
   }
 
-  private getProtocolering(protocolering: string) {
-    return protocolering?.trim() === "iConnect";
+  private getBrpProtocollering(brpProtocolleringProvider: string) {
+    return brpProtocolleringProvider?.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(

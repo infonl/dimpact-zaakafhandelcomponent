@@ -25,7 +25,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.PolicyService
@@ -68,7 +68,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
         titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
         beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-        omschrijvingVoorwaardenGebruiksrechten = ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
     ).also {
         taskId?.let { taskId ->
             addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)

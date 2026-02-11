@@ -57,7 +57,7 @@ import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -80,7 +80,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
@@ -114,7 +114,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         bpmnService = bpmnService,
         brcClientService = brcClientService,
         cmmnService = cmmnService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,

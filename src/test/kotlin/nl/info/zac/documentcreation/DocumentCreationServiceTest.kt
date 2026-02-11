@@ -15,7 +15,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockR
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import java.time.ZonedDateTime
@@ -25,12 +25,12 @@ class DocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
-    val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
+    val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         documentCreationDataConverter = documentCreationDataConverter,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
 
     beforeEach {
@@ -100,7 +100,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
     Given("SmartDocuments wizard finished execution") {
         val contextUrl = "https://example.com"
-        every { configuratieService.readContextUrl() } returns contextUrl
+        every { configurationService.readContextUrl() } returns contextUrl
 
         When("SmartDocuments finish page URL is requested") {
             val finishPageUrl = documentCreationService.documentCreationFinishPageUrl(
