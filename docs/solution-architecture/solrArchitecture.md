@@ -12,20 +12,14 @@ ZAC requires that the `zac` Solr core is available. If it is not, ZAC will fail 
 
 ## Solr indexing flow
 
-The most standard flow for Solr indexing in ZAC is as follows:
+The standard flow for Solr indexing in ZAC is as follows:
 
 1. ZAC either receives a specific notification from Open Notifications for data
 which is part of the Solr index (e.g. a new zaak is created) or ZAC internally identified that certain
 data in the Solr index is stale and needs to be re-indexed (e.g. a task is created).
-2. ZAC indicates that the Solr index needs to be re-indexed for the data object in question (e.g. zaak, task).
-Internally this process is known as 'mark object for indexing'. Technically ZAC does this by writing a
-record in the `zoek_index` database table (a somewhat misleading name, because this is not a search index).
-3. The actual Solr indexing is done when the ZAC search indexing REST endpoint is called
-(for the data object type in question and for a certain maximum amount of objects).
-This is normally done by a Kubernetes cronjob which runs every once in a while (e.g. every minute).
-   1. ZAC will now reindex all data objects that were previously 'marked for reindexing'
+2. ZAC indexes the relevant data in Solr.
 
-This is illustrated in the following sequence diagram:
+This is illustrated in the following sequence diagram showing the example of a new zaak being created:
 
 ```mermaid
 sequenceDiagram
@@ -33,13 +27,18 @@ sequenceDiagram
     box ZAC landscape
     participant ZAC
     participant Solr
-    participant KuberbetesCronjob
     end
 
     OpenNotificaties->>+ZAC: New zaak created
-    ZAC->>+ZAC: Mark zaak for re-indexing
-    KuberbetesCronjob->>+ZAC: Call ZAC search indexing REST endpoint
-    ZAC->>+Solr: Re-index zaak data
+    ZAC->>+Solr: Index zaak data
 ```
 
+## Reindexing
 
+Besides the standard flow for Solr indexing, ZAC also has a 'reindexing' feature, which can be used to reindex all data in the Solr index.
+This can be useful in case of issues with the Solr index, or when the Solr schema has been updated and all data needs to be reindexed to be compatible with the new schema.
+
+When the reindexing feature is triggered, ZAC will first delete all data in the Solr index and then reindex all relevant data from Open Zaak and ZAC-internal data.
+Be aware that this can take considerable time, depending on the amount of data that needs to be indexed.
+
+Reindexing can be using the [reindexing script](../../scripts/solr/reindex-zac-solr-data.sh) or be calling the indexing ZAC API endpoint directly.
