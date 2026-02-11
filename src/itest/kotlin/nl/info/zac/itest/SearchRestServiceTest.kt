@@ -625,7 +625,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 )
                 Then(
                     """
-                    the response returns a BAD_REQUEST with the error code for missing required parameter
+                    the response returns a BAD_REQUEST with both error codes (empty string violates both @NotBlank and @Size)
                     """
                 ) {
                     val responseBody = response.bodyAsString
@@ -634,6 +634,12 @@ class SearchRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         {
                             "parameterViolations": [
+                                {
+                                    "constraintType": "PARAMETER",
+                                    "message": "msg.error.search.parameter.too-short",
+                                    "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                                    "value": ""
+                                },
                                 {
                                     "constraintType": "PARAMETER",
                                     "message": "msg.error.search.required.parameter.missing",
@@ -716,7 +722,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "parameterViolations": [
                                 {
                                     "constraintType": "PARAMETER",
-                                    "message": "msg.error.search.parameter.too.short",
+                                    "message": "msg.error.search.parameter.too-short",
                                     "path": "listZakenForInformationObjectType.arg0.zaakIdentificator",
                                     "value": "Z"
                                 }

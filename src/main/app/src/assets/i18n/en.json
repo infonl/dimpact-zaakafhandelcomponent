@@ -852,7 +852,7 @@
   "msg.error.bad.brp.protocollering.configuration": "Invalid BRP Protocollering configuration.",
   "msg.error.extension.period.invalid": "Invalid extension period.",
   "msg.error.search.required.parameter.missing": "A required search parameter is missing.",
-  "msg.error.search.parameter.too.short": "A search parameter is too short.",
+  "msg.error.search.parameter.too-short": "A search parameter is too short.",
   "msg.hint.kvk.unknown": "Re-link the involved party with a known CoC-number.",
   "msg.hint.kvk.outdated": "The registered involved is not found at the CoC.",
   "msg.hint.kvk.other-error": "An error occurred while retrieving the KvK data",

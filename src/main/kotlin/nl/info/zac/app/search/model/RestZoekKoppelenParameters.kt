@@ -27,7 +27,7 @@ data class RestZoekKoppelenParameters(
     // ErrorCode.ERROR_CODE_REQUIRED_SEARCH_PARAMETER_MISSING
     @field: NotBlank(message = "msg.error.search.required.parameter.missing")
     // ErrorCode.ERROR_CODE_SEARCH_PARAMETER_TOO_SHORT
-    @field: Size(min = 2, message = "msg.error.search.parameter.too.short")
+    @field: Size(min = 2, message = "msg.error.search.parameter.too-short")
     var zaakIdentificator: String? = null,
 
     var informationObjectTypeUuid: UUID
