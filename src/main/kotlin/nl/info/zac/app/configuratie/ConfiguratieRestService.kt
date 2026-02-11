@@ -15,6 +15,7 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuratie.model.RestTaal
 import nl.info.zac.app.configuratie.model.toRestTaal
 import nl.info.zac.app.configuratie.model.toRestTalen
+import nl.info.zac.configuratie.BrpConfiguration.Companion.BRP_PROTOCOLLERING_PROVIDER_ICONNECT
 import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -59,7 +60,12 @@ class ConfiguratieRestService @Inject constructor(
     @Path("gemeente")
     fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteNaam())
 
+    /**
+     * Returns whether the doelbinding setup for BRP protocollering is enabled,
+     * which is the case when the protocollering provider is set to 'iConnect'.
+     */
     @GET
-    @Path("brp/protocollering-provider")
-    fun readBrpProtocolleringProvider(): String = configurationService.readBrpConfiguration().readBrpProtocolleringProvider()
+    @Path("brp/is-doelbinding-setup-enabled")
+    fun isBrpDoelbindingSetupEnabled(): Boolean =
+        BRP_PROTOCOLLERING_PROVIDER_ICONNECT == configurationService.readBrpConfiguration().readBrpProtocolleringProvider()
 }
