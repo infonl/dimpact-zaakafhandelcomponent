@@ -35,10 +35,12 @@ sequenceDiagram
 
 ## Reindexing
 
-Besides the standard flow for Solr indexing, ZAC also has a 'reindexing' feature, which can be used to reindex all data in the Solr index.
-This can be useful in case of issues with the Solr index, or when the Solr schema has been updated and all data needs to be reindexed to be compatible with the new schema.
+Besides the standard flow for Solr indexing, ZAC also has a 'reindexing' feature, which can be used to (re)build Solr index data per 'ZAC Solr data type' (zaken, taken, documents). 
+By running this for all supported data types, you effectively reindex all data in the `zac` Solr core.
+This can be useful in case of issues with the Solr index, or when the Solr schema has been updated and all data for one or more types needs to be reindexed to be compatible with the new schema.
 
-When the reindexing feature is triggered, ZAC will first delete all data in the Solr index and then reindex all relevant data from Open Zaak and ZAC-internal data.
-Be aware that this can take considerable time, depending on the amount of data that needs to be indexed.
+When the reindexing feature is triggered for a specific data type, ZAC will first delete all data in the Solr index that belong to that type and then reindex the corresponding data from Open Zaak and ZAC-internal data.
+Be aware that this can take considerable time, depending on the amount of data that needs to be indexed for the selected type(s).
 
-Reindexing can be using the [reindexing script](../../scripts/solr/reindex-zac-solr-data.sh) or be calling the indexing ZAC API endpoint directly.
+Reindexing can be started by using the [reindexing script](../../scripts/solr/reindex-zac-solr-data.sh) or by calling the internal ZAC reindex API endpoint directly. 
+The script invokes this endpoint once per data type and the endpoint is protected with an `X-API-KEY` header, which the script also requires and forwards.
