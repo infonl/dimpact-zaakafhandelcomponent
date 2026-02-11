@@ -13,9 +13,9 @@ fun createTaal(
     name: String,
     local: String
 ) = Taal().apply {
-        this.id = id
-        this.code = code
-        this.naam = naam
-        this.name = name
-        this.local = local
-    }
+    this.id = id
+    this.code = code
+    this.naam = naam
+    this.name = name
+    this.local = local
+}

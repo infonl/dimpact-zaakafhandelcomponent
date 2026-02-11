@@ -176,7 +176,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-                 isDoelbindingSetupEnabled,
+          isDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
         ]) => {

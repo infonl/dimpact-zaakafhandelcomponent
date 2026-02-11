@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
@@ -168,7 +167,9 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
-            Then("'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration") {
+            Then(
+                "'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration"
+            ) {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

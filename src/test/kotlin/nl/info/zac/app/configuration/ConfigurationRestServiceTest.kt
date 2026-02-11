@@ -12,7 +12,6 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.configuration.model.Taal
 
 class ConfigurationRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
