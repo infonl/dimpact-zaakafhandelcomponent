@@ -28,7 +28,7 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConfiguratieService @Inject constructor(
+class ConfigurationService @Inject constructor(
     private val brpConfiguration: BrpConfiguration,
 
     private val entityManager: EntityManager,
@@ -111,25 +111,26 @@ class ConfiguratieService @Inject constructor(
          */
         const val MAX_FILE_SIZE_MB: Int = 80
 
-        private val LOG = Logger.getLogger(ConfiguratieService::class.java.name)
+        private val LOG = Logger.getLogger(ConfigurationService::class.java.name)
     }
 
     private lateinit var catalogusURI: URI
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
-            "ZAC configuration environment variables:\n" +
-                "- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'\n" +
-                "- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'\n" +
-                "- $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'\n" +
-                "- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'\n" +
-                "- $ENV_VAR_CONTEXT_URL: '$contextUrl'\n" +
-                "- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'\n" +
-                "- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'\n" +
-                "- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'\n" +
-                "- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'\n" +
-                "- $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'\n" +
-                "- BRP configuration: $brpConfiguration\n"
+            """ZAC configuration environment variables:
+            - $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
+            - $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
+            - $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
+            - $ENV_VAR_CONTEXT_URL: '$contextUrl'
+            - $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
+            - $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
+            - $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
+            - $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
+            - $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'
+            - $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'
+            - BRP configuration: $brpConfiguration
+            """.trimIndent()
         }
         bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
         verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)

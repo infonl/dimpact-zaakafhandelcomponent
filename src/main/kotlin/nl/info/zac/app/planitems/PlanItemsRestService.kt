@@ -33,7 +33,7 @@ import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
@@ -73,7 +73,7 @@ class PlanItemsRestService @Inject constructor(
     private var zgwApiService: ZgwApiService,
     private var indexingService: IndexingService,
     private var mailService: MailService,
-    private var configuratieService: ConfiguratieService,
+    private var configurationService: ConfigurationService,
     private var mailTemplateService: MailTemplateService,
     private var policyService: PolicyService,
     private var suspensionZaakHelper: SuspensionZaakHelper,
@@ -166,7 +166,7 @@ class PlanItemsRestService @Inject constructor(
                 .firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readMailtemplate(mail)
 
-            val afzender = configuratieService.readGemeenteNaam()
+            val afzender = configurationService.readGemeenteNaam()
             TaakVariabelenService.setMailBody(
                 taakdata,
                 mailService.sendMail(

@@ -23,7 +23,7 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
@@ -60,7 +60,7 @@ class PolicyService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
     private val zrcClientService: ZrcClientService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     /**
      * Read 'overige' permissions.
@@ -75,7 +75,7 @@ class PolicyService @Inject constructor(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
                     zaaktype = zaaktypeDescription,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -104,7 +104,7 @@ class PolicyService @Inject constructor(
                 ZaakInput(
                     loggedInUser = loggedInUserInstance.get(),
                     zaakData = zaakData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -127,7 +127,7 @@ class PolicyService @Inject constructor(
                 ZaakInput(
                     loggedInUser = loggedInUserInstance.get(),
                     zaakData = zaakData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -158,7 +158,7 @@ class PolicyService @Inject constructor(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
                     documentData = documentData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -178,7 +178,7 @@ class PolicyService @Inject constructor(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
                     documentData = documentData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -202,7 +202,7 @@ class PolicyService @Inject constructor(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
                     taakData = taakData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -217,7 +217,7 @@ class PolicyService @Inject constructor(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
                     taakData = taakData,
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -228,7 +228,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -238,7 +238,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configuratieService.featureFlagPabcIntegration()
+                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -248,7 +248,7 @@ class PolicyService @Inject constructor(
             "since a user is always authorised for a zaaktype _for specific application roles_."
     )
     fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
-        if (configuratieService.featureFlagPabcIntegration()) {
+        if (configurationService.featureFlagPabcIntegration()) {
             true
         } else {
             loggedInUserInstance.get().isAuthorisedForZaaktype(zaakTypeOmschrijving)

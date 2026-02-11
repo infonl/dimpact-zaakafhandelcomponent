@@ -30,7 +30,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.model.ZaakIndicatie
@@ -170,7 +170,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaakObjectenList = emptyList<Zaakobject>()
         val zaakStatus = createZaakStatus()
         val zaakStatusType = createStatusType().apply {
-            omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
+            omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND
         }
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator

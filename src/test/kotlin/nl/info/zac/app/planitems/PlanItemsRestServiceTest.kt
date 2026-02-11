@@ -36,7 +36,7 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
@@ -65,7 +65,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
@@ -80,7 +80,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zgwApiService,
         indexingService,
         mailService,
-        configuratieService,
+        configurationService,
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
@@ -384,7 +384,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
-            every { configuratieService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
             every { mailService.sendMail(any(), any()) } returns "body"
             every {
@@ -455,7 +455,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
-            every { configuratieService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
             every { mailService.sendMail(any(), any()) } returns "body"
             every {

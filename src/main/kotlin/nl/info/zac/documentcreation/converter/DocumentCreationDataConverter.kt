@@ -41,7 +41,7 @@ import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -64,7 +64,7 @@ class DocumentCreationDataConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     companion object {
         const val DATE_FORMAT: String = "dd-MM-yyyy"
@@ -208,11 +208,11 @@ class DocumentCreationDataConverter @Inject constructor(
         creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-        bronorganisatie = configuratieService.readBronOrganisatie()
+        bronorganisatie = configurationService.readBronOrganisatie()
         creatiedatum = creationDate.toLocalDate()
         titel = title
         auteur = userName
-        taal = ConfiguratieService.TAAL_NEDERLANDS
+        taal = ConfigurationService.TAAL_NEDERLANDS
         beschrijving = description
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR

@@ -32,7 +32,7 @@ import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.task.model.createRestTaskDocumentData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
@@ -46,7 +46,7 @@ import java.util.UUID
 
 class RestInformatieobjectConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val identityService = mockk<IdentityService>()
@@ -57,7 +57,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val restInformatieobjectConverter = RestInformatieobjectConverter(
         brcClientService,
-        configuratieService,
+        configurationService,
         drcClientService,
         enkelvoudigInformatieObjectLockService,
         identityService,
@@ -80,7 +80,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
         } returns providedInformatieObjectType
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
+        every { configurationService.readBronOrganisatie() } returns "123443210"
 
         When("convert is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
@@ -125,7 +125,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
+        every { configurationService.readBronOrganisatie() } returns "123443210"
 
         When("convert zaak object is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertEnkelvoudigInformatieObject(
@@ -165,7 +165,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
         } returns true
         every {
-            configuratieService.findTaal(any())
+            configurationService.findTaal(any())
         } returns null
         every {
             ztcClientService.readInformatieobjecttype(any<URI>())

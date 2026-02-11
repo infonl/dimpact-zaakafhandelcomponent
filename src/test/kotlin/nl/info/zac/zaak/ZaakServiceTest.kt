@@ -52,7 +52,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -69,7 +69,7 @@ import java.util.UUID
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
@@ -89,7 +89,7 @@ class ZaakServiceTest : BehaviorSpec({
         indexingService = indexingService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         bpmnService = bpmnService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         pabcClientService = pabcClientService
     )
     val explanation = "fakeExplanation"
@@ -411,7 +411,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.name) } returns true
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
@@ -499,7 +499,7 @@ class ZaakServiceTest : BehaviorSpec({
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
             } returns listOf(pabcGroupRepresentation)
             every { eventingService.send(any<ScreenEvent>()) } just Runs
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.name) } returns true
 
             When(
@@ -619,7 +619,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every { configuratieService.featureFlagPabcIntegration() } returns true
+                every { configurationService.featureFlagPabcIntegration() } returns true
             }
 
             When(
@@ -673,7 +673,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
             every { identityService.isUserInGroup(user.id, groupWithAllDomains.name) } returns true
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -723,7 +723,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
             every { identityService.isUserInGroup(user.id, groupWithDomain.name) } returns true
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -766,7 +766,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
             every { identityService.isUserInGroup(user.id, groupWithNoDomain.name) } returns true
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -829,7 +829,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
             every { identityService.isUserInGroup(user.id, group.name) } returns true
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("the assign zaken function is called") {
                 zaakService.assignZaken(
@@ -1178,7 +1178,7 @@ class ZaakServiceTest : BehaviorSpec({
                 status = URI(statusUuid.toString())
             )
             val statusType = createStatusType().apply {
-                omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
+                omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING
             }
             val status = createZaakStatus(
                 statusUuid,
@@ -1213,7 +1213,7 @@ class ZaakServiceTest : BehaviorSpec({
                 status = URI(statusUuid.toString())
             )
             val statusType = createStatusType().apply {
-                omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
+                omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND
             }
             val status = createZaakStatus(
                 uuid = statusUuid,

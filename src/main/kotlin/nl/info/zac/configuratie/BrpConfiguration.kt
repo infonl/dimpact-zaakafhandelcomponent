@@ -98,10 +98,6 @@ class BrpConfiguration @Inject constructor(
                 "$ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'"
         }
 
-    private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
-        if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())
-    }
-
     fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
 
     fun readBrpProtocolleringProvider(): String =
@@ -110,4 +106,8 @@ class BrpConfiguration @Inject constructor(
         } else {
             ""
         }
+
+    private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
+        if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())
+    }
 }

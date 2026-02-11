@@ -43,7 +43,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
-        val configurationService = ConfiguratieService(
+        val configurationService = ConfigurationService(
             entityManager = entityManager,
             ztcClientService = ztcClientService,
             additionalAllowedFileTypes = additionalAllowedFileTypes,
@@ -112,7 +112,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         When("configuration service is initialized") {
             Then("BSN is validated") {
                 shouldThrow<IllegalArgumentException> {
-                    ConfiguratieService(
+                    ConfigurationService(
                         entityManager = entityManager,
                         ztcClientService = ztcClientService,
                         additionalAllowedFileTypes = additionalAllowedFileTypes,
@@ -141,7 +141,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val catalogusDomein = "ALG"
         val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
-        val configurationService = ConfiguratieService(
+        val configurationService = ConfigurationService(
             entityManager = entityManager,
             ztcClientService = ztcClientService,
             additionalAllowedFileTypes = Optional.empty(),

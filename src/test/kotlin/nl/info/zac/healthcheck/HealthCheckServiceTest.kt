@@ -24,7 +24,7 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.net.URI
 import java.time.ZonedDateTime
@@ -64,14 +64,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
-            createStatusType(volgnummer = 1, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE),
-            createStatusType(volgnummer = 2, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING),
-            createStatusType(volgnummer = 3, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND),
+            createStatusType(volgnummer = 1, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_INTAKE),
+            createStatusType(volgnummer = 2, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING),
+            createStatusType(volgnummer = 3, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND),
             createStatusType(
                 volgnummer = 4,
-                omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+                omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
             ),
-            createStatusType(volgnummer = 5, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND),
+            createStatusType(volgnummer = 5, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AFGEROND),
         )
         every {
             ztcClientService.readResultaattypen(zaaktypeUri)
@@ -91,7 +91,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttypen(zaaktypeUri)
         } returns listOf(
-            createInformatieObjectType(omschrijving = ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
+            createInformatieObjectType(omschrijving = ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
         )
         every {
             referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name)
@@ -171,14 +171,14 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.readStatustypen(zaaktypeUri)
         } returns listOf(
-            createStatusType(volgnummer = 1, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE),
-            createStatusType(volgnummer = 2, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING),
-            createStatusType(volgnummer = 3, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND),
+            createStatusType(volgnummer = 1, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_INTAKE),
+            createStatusType(volgnummer = 2, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING),
+            createStatusType(volgnummer = 3, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND),
             createStatusType(
                 volgnummer = 4,
-                omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+                omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
             ),
-            createStatusType(volgnummer = 5, omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND),
+            createStatusType(volgnummer = 5, omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_AFGEROND),
         )
         every {
             ztcClientService.readResultaattypen(zaaktypeUri)
@@ -196,7 +196,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttypen(zaaktypeUri)
         } returns listOf(
-            createInformatieObjectType(omschrijving = ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
+            createInformatieObjectType(omschrijving = ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL)
         )
         every {
             referenceTableService.readReferenceTable(SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE.name)

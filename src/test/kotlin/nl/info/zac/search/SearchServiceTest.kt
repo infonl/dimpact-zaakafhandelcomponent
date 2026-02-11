@@ -18,7 +18,7 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.app.search.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
@@ -52,12 +52,12 @@ class SearchServiceTest : BehaviorSpec({
     } returns solrUrl
 
     val solrClient = mockk<Http2SolrClient>()
-    var configuratieService = mockk<ConfiguratieService>()
+    var configurationService = mockk<ConfigurationService>()
     mockkConstructor(Http2SolrClient.Builder::class)
     every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val loggedInUser = mockk<LoggedInUser>()
-    val zoekService = SearchService(loggedInUserInstance, configuratieService)
+    val zoekService = SearchService(loggedInUserInstance, configurationService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -78,7 +78,7 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configuratieService.featureFlagPabcIntegration() } returns false
+        every { configurationService.featureFlagPabcIntegration() } returns false
         every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
@@ -170,7 +170,7 @@ class SearchServiceTest : BehaviorSpec({
         val taakZoekObject1 = mockk<TaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configuratieService.featureFlagPabcIntegration() } returns false
+        every { configurationService.featureFlagPabcIntegration() } returns false
         every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
         every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
@@ -250,7 +250,7 @@ class SearchServiceTest : BehaviorSpec({
         val documentZoekObject1 = mockk<DocumentZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configuratieService.featureFlagPabcIntegration() } returns false
+        every { configurationService.featureFlagPabcIntegration() } returns false
         every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
         every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
@@ -316,7 +316,7 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configuratieService.featureFlagPabcIntegration() } returns true
+        every { configurationService.featureFlagPabcIntegration() } returns true
         every { loggedInUser.applicationRolesPerZaaktype } returns mapOf(
             zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
         )
@@ -400,7 +400,7 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configuratieService.featureFlagPabcIntegration() } returns false
+        every { configurationService.featureFlagPabcIntegration() } returns false
         every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList

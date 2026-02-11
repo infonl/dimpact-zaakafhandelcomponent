@@ -23,14 +23,14 @@ import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import nl.info.client.zgw.drc.model.generated.*;
 import nl.info.client.zgw.util.ZgwClientHeadersFactory;
-import nl.info.zac.configuratie.ConfiguratieService;
+import nl.info.zac.configuratie.ConfigurationService;
 
 
 @ApplicationScoped
 public class DrcClientService {
     private DrcClient drcClient;
     private ZgwClientHeadersFactory zgwClientHeadersFactory;
-    private ConfiguratieService configuratieService;
+    private ConfigurationService configurationService;
 
     /**
      * No-arg constructor for CDI.
@@ -42,11 +42,11 @@ public class DrcClientService {
     public DrcClientService(
             @RestClient final DrcClient drcClient,
             final ZgwClientHeadersFactory zgwClientHeadersFactory,
-            final ConfiguratieService configuratieService
+            final ConfigurationService configurationService
     ) {
         this.drcClient = drcClient;
         this.zgwClientHeadersFactory = zgwClientHeadersFactory;
-        this.configuratieService = configuratieService;
+        this.configurationService = configurationService;
     }
 
     /**
@@ -68,7 +68,7 @@ public class DrcClientService {
      * @return {@link EnkelvoudigInformatieObject}. Never 'null'!
      */
     public EnkelvoudigInformatieObject readEnkelvoudigInformatieobject(final URI enkelvoudigInformatieobjectURI) {
-        validateZgwApiUri(enkelvoudigInformatieobjectURI, configuratieService.readZgwApiClientMpRestUrl());
+        validateZgwApiUri(enkelvoudigInformatieobjectURI, configurationService.readZgwApiClientMpRestUrl());
         return readEnkelvoudigInformatieobject(extractUuid(enkelvoudigInformatieobjectURI));
     }
 
