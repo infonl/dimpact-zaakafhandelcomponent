@@ -15,7 +15,7 @@ import io.mockk.verify
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createBuildInformation
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
@@ -27,12 +27,12 @@ import java.util.UUID
 
 class HealthCheckRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val healthCheckService = mockk<HealthCheckService>()
     val policyService = mockk<PolicyService>()
     val healthCheckRestService = HealthCheckRestService(
         ztcClientService = ztcClientService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         healthCheckService = healthCheckService,
         policyService = policyService
     )
@@ -51,7 +51,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             createZaaktypeInrichtingscheck(zaaktype = zaaktypen[1], statustypeIntakeAanwezig = false)
         )
         every { policyService.readOverigeRechten().beheren } returns true
-        every { configuratieService.readDefaultCatalogusURI() } returns catalogusURI
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns zaaktypen
         zaaktypen.forEachIndexed { index, zaaktype ->
             every { healthCheckService.controleerZaaktype(zaaktypen[index].url) } returns zaaktypeInrichtingschecks[index]
@@ -83,7 +83,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     Given("No zaaktypes are available") {
         val catalogusURI = URI("https://example.com/catalogs/${UUID.randomUUID()}")
         every { policyService.readOverigeRechten().beheren } returns true
-        every { configuratieService.readDefaultCatalogusURI() } returns catalogusURI
+        every { configurationService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns emptyList()
 
         When("listZaaktypeInrichtingschecks is called") {

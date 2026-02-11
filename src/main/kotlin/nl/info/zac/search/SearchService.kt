@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
@@ -40,7 +40,7 @@ import java.time.format.DateTimeFormatter.ISO_INSTANT
 @NoArgConstructor
 class SearchService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     companion object {
         private lateinit var solrClient: SolrClient
@@ -174,7 +174,7 @@ class SearchService @Inject constructor(
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
         // signaleringen job does not have a logged-in user so check if logged-in user is present
         loggedInUserInstance.get()?.let { loggedInUser ->
-            if (configuratieService.featureFlagPabcIntegration()) {
+            if (configurationService.featureFlagPabcIntegration()) {
                 // PABC enabled: build the filterQuery from per‑zaaktype mappings (keys)
                 val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
                 val filterQuery = if (allowedZaaktypen.isEmpty()) {

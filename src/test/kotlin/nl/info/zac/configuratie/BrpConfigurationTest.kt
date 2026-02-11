@@ -56,7 +56,7 @@ class BrpConfigurationTest : BehaviorSpec({
         }
 
         Given("No default audit log provider configured") {
-            val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.empty())
+            val brpConfiguration = createBrpConfiguration(brpProtocolleringProvider = Optional.empty())
 
             When("configuration is validated by Weld") {
                 val exception = shouldThrow<BrpProtocolleringConfigurationException> {
@@ -69,7 +69,7 @@ class BrpConfigurationTest : BehaviorSpec({
         }
 
         Given("Invalid BRP audit log provider specified") {
-            val brpConfiguration = createBrpConfiguration(auditLogProvider = Optional.of("FakeProvider"))
+            val brpConfiguration = createBrpConfiguration(brpProtocolleringProvider = Optional.of("FakeProvider"))
 
             When("configuration is validated by Weld") {
                 val exception = shouldThrow<BrpProtocolleringConfigurationException> {

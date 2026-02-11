@@ -5,6 +5,8 @@
 package nl.info.zac.configuratie
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.Initialized
+import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
@@ -26,47 +28,58 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConfiguratieService @Inject constructor(
+class ConfigurationService @Inject constructor(
+    private val brpConfiguration: BrpConfiguration,
+
     private val entityManager: EntityManager,
 
-    ztcClientService: ZtcClientService,
+    private val ztcClientService: ZtcClientService,
 
-    @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES")
+    @ConfigProperty(name = ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES)
     private val additionalAllowedFileTypes: Optional<String>,
 
-    @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
-    private val zgwApiClientMpRestUrl: String,
+    @ConfigProperty(name = ENV_VAR_BRON_ORGANISATIE_RSIN)
+    private val bronOrganisatie: String,
+
+    @ConfigProperty(name = ENV_VAR_CATALOGUS_DOMEIN, defaultValue = "ALG")
+    private val catalogusDomein: String,
 
     /**
      * Base URL of the zaakafhandelcomponent: protocol, host, port and context (no trailing slash)
      */
-    @ConfigProperty(name = "CONTEXT_URL")
+    @ConfigProperty(name = ENV_VAR_CONTEXT_URL)
     private val contextUrl: String,
 
-    @ConfigProperty(name = "GEMEENTE_CODE")
+    @ConfigProperty(name = ENV_VAR_GEMEENTE_CODE)
     private val gemeenteCode: String,
 
-    @ConfigProperty(name = "GEMEENTE_NAAM")
+    @ConfigProperty(name = ENV_VAR_GEMEENTE_NAAM)
     private val gemeenteNaam: String,
 
-    @ConfigProperty(name = "GEMEENTE_MAIL")
+    @ConfigProperty(name = ENV_VAR_GEMEENTE_MAIL)
     private val gemeenteMail: String,
 
-    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION")
+    @ConfigProperty(name = ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION)
     private val pabcIntegration: Boolean,
 
-    @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
-    private val bronOrganisatie: String,
-
-    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE_RSIN")
+    @ConfigProperty(name = ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
     private val verantwoordelijkeOrganisatie: String,
 
-    @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
-    private val catalogusDomein: String,
-
-    private val brpConfiguration: BrpConfiguration
+    @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
+    private val zgwApiClientMpRestUrl: String
 ) {
     companion object {
+        const val ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES = "ADDITIONAL_ALLOWED_FILE_TYPES"
+        const val ENV_VAR_BRON_ORGANISATIE_RSIN = "BRON_ORGANISATIE_RSIN"
+        const val ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN = "VERANTWOORDELIJKE_ORGANISATIE_RSIN"
+        const val ENV_VAR_CATALOGUS_DOMEIN = "CATALOGUS_DOMEIN"
+        const val ENV_VAR_CONTEXT_URL = "CONTEXT_URL"
+        const val ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION = "FEATURE_FLAG_PABC_INTEGRATION"
+        const val ENV_VAR_GEMEENTE_MAIL = "GEMEENTE_MAIL"
+        const val ENV_VAR_GEMEENTE_NAAM = "GEMEENTE_NAAM"
+        const val ENV_VAR_GEMEENTE_CODE = "GEMEENTE_CODE"
+        const val ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL"
+
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
         const val OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN = "geen"
 
@@ -89,8 +102,6 @@ class ConfiguratieService @Inject constructor(
 
         const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
 
-        const val ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL"
-
         /**
          * Maximum file size in MB for file uploads.
          *
@@ -100,18 +111,31 @@ class ConfiguratieService @Inject constructor(
          */
         const val MAX_FILE_SIZE_MB: Int = 80
 
-        private val LOG = Logger.getLogger(ConfiguratieService::class.java.name)
+        private val LOG = Logger.getLogger(ConfigurationService::class.java.name)
     }
 
-    init {
-        bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
-        verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
+    private lateinit var catalogusURI: URI
 
-        LOG.info { "PABC feature flag: $pabcIntegration" }
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
+        LOG.info {
+            """ZAC configuration environment variables:
+            - $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
+            - $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
+            - $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
+            - $ENV_VAR_CONTEXT_URL: '$contextUrl'
+            - $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
+            - $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
+            - $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
+            - $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
+            - $ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN: '$verantwoordelijkeOrganisatie'
+            - $ENV_VAR_ZGW_API_CLIENT_MP_REST_URL: '$zgwApiClientMpRestUrl'
+            - BRP configuration: $brpConfiguration
+            """.trimIndent()
+        }
+        bronOrganisatie.validateRSIN(ENV_VAR_BRON_ORGANISATIE_RSIN)
+        verantwoordelijkeOrganisatie.validateRSIN(ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
+        catalogusURI = ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein }).url
     }
-
-    private var catalogusURI: URI =
-        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein }).url
 
     fun listTalen(): List<Taal> {
         val query = entityManager.criteriaBuilder.createQuery(Taal::class.java)
