@@ -22,5 +22,5 @@ fun createBrpConfiguration(
     brpProtocolleringProvider = brpProtocolleringProvider,
     doelbindingZoekMetDefault = doelbindingZoekMetDefault,
     doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
-    verwerkingsRegister = verwerkingregisterDefault
+    verwerkingsregister = verwerkingregisterDefault
 )

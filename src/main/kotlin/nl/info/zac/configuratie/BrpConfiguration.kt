@@ -38,7 +38,7 @@ class BrpConfiguration @Inject constructor(
     private val doelbindingRaadpleegMetDefault: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER)
-    private val verwerkingsRegister: Optional<String>
+    private val verwerkingsregister: Optional<String>
 ) {
     companion object {
         const val ENV_VAR_BRP_API_KEY = "BRP_API_KEY"
@@ -62,7 +62,7 @@ class BrpConfiguration @Inject constructor(
             throwIf(!doelbindingRaadpleegMetDefault.isPresent) {
                 "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_ORIGIN_OIN is set"
             }
-            throwIf(!verwerkingsRegister.isPresent) {
+            throwIf(!verwerkingsregister.isPresent) {
                 "BRP_VERWERKINGSREGISTER environment variable is required when BRP_ORIGIN_OIN is set"
             }
             throwIf(!brpProtocolleringProvider.isPresent) {
@@ -84,7 +84,7 @@ class BrpConfiguration @Inject constructor(
 
     fun getDoelbindingRaadpleegMetDefault() = doelbindingRaadpleegMetDefault.getOrNull()
 
-    fun getVerwerkingsRegister() = verwerkingsRegister.getOrNull()
+    fun getVerwerkingsRegister() = verwerkingsregister.getOrNull()
 
     override fun toString() =
         "$ENV_VAR_BRP_API_KEY: '" + if (apiKey.isPresent) {
