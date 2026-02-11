@@ -177,7 +177,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.isBrpDoelbindingSetupEnabled()
+            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return true") {
                 result shouldBe true
@@ -191,7 +191,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.isBrpDoelbindingSetupEnabled()
+            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return false") {
                 result shouldBe false
@@ -205,7 +205,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.isBrpDoelbindingSetupEnabled()
+            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return false") {
                 result shouldBe false
@@ -219,7 +219,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.isBrpDoelbindingSetupEnabled()
+            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return false") {
                 result shouldBe false

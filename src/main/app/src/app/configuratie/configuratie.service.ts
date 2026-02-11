@@ -25,7 +25,7 @@ export class ConfiguratieService {
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
   private pabcIntegration$?: Observable<boolean>;
-  private isDoelbindingSetupEnabled$?: Observable<boolean>;
+  private brpDoelbindingSetupEnabled$?: Observable<boolean>;
 
   constructor(
     private http: HttpClient,
@@ -112,15 +112,15 @@ export class ConfiguratieService {
     return this.pabcIntegration$;
   }
 
-  isDoelbindingSetupEnabled(): Observable<boolean> {
-    if (!this.isDoelbindingSetupEnabled$) {
-      this.isDoelbindingSetupEnabled$ = this.http
-        .get<boolean>(`${this.basepath}/brp/is-doelbinding-setup-enabled`)
+  readBrpDoelbindingSetupEnabled(): Observable<boolean> {
+    if (!this.brpDoelbindingSetupEnabled$) {
+      this.brpDoelbindingSetupEnabled$ = this.http
+        .get<boolean>(`${this.basepath}/brp/doelbinding-setup-enabled"`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
         );
     }
-    return this.isDoelbindingSetupEnabled$;
+    return this.brpDoelbindingSetupEnabled$;
   }
 }

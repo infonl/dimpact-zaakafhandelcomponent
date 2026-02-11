@@ -65,7 +65,7 @@ class ConfigurationRestService @Inject constructor(
      * which is the case when the protocollering provider is set to 'iConnect'.
      */
     @GET
-    @Path("brp/is-doelbinding-setup-enabled")
-    fun isBrpDoelbindingSetupEnabled(): Boolean =
+    @Path("brp/doelbinding-setup-enabled")
+    fun readBrpDoelbindingSetupEnabled(): Boolean =
         BRP_PROTOCOLLERING_PROVIDER_ICONNECT == configurationService.readBrpConfiguration().readBrpProtocolleringProvider()
 }

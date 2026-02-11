@@ -199,7 +199,7 @@ describe(ParametersEditCmmnComponent.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest
-      .spyOn(configuratieService, "isDoelbindingSetupEnabled")
+      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
       .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);

@@ -210,7 +210,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
   protected brpProcessingValues: string[] = [];
-  protected isDoelbindingSetupEnabled = false;
+  protected brpDoelbindingSetupEnabled = false;
 
   constructor(
     public readonly utilService: UtilService,
@@ -259,7 +259,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
-        configuratieService.isDoelbindingSetupEnabled(),
+        configuratieService.readBrpDoelbindingSetupEnabled(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -272,7 +272,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-          isDoelbindingSetupEnabled,
+          brpDoelbindingSetupEnabled,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -284,7 +284,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.isDoelbindingSetupEnabled = isDoelbindingSetupEnabled;
+          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           await this.createForm();
         },
       );
@@ -409,7 +409,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
 
-    if (this.isDoelbindingSetupEnabled) {
+    if (this.brpDoelbindingSetupEnabled) {
       this.createBrpDoelbindingForm();
     }
     this.createAutomatischeOntvangstbevestigingForm();

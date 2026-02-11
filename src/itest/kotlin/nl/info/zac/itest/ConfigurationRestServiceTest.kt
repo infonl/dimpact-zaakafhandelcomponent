@@ -162,7 +162,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the 'is BRP doelbinding setup enabled' endpoint is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/brp/is-doelbinding-setup-enabled",
+                url = "$ZAC_API_URI/configuratie/brp/doelbinding-setup-enabled",
                 testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 

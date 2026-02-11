@@ -123,7 +123,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
   protected brpProcessingValues: string[] = [];
-  protected isDoelbindingSetupEnabled = false;
+  protected brpDoelbindingSetupEnabled = false;
 
   algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
@@ -166,7 +166,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
-        configuratieService.isDoelbindingSetupEnabled(),
+        configuratieService.readBrpDoelbindingSetupEnabled(),
         this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
         this.zaakafhandelParametersService.listResultaattypes(
           this.bpmnZaakafhandelParameters.zaaktype.uuid,
@@ -176,14 +176,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-          isDoelbindingSetupEnabled,
+          brpDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.isDoelbindingSetupEnabled = isDoelbindingSetupEnabled;
+          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.resultaattypes = resultaattypes;
           await this.createForm();
@@ -249,7 +249,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.createBetrokkeneKoppelingenForm();
     this.createZaakbeeindigForm();
 
-    if (this.isDoelbindingSetupEnabled) {
+    if (this.brpDoelbindingSetupEnabled) {
       this.createBrpDoelbindingForm();
     }
   }
