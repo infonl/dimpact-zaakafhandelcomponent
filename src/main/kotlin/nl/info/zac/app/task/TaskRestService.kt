@@ -59,7 +59,7 @@ import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
@@ -345,8 +345,8 @@ class TaskRestService @Inject constructor(
                                 zaak,
                                 enkelvoudigInformatieObjectCreateLockRequest,
                                 enkelvoudigInformatieObjectCreateLockRequest.titel,
-                                ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT,
-                                ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                                ConfigurationService.OMSCHRIJVING_TAAK_DOCUMENT,
+                                ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                             )
                             taakdata.replace(
                                 key,

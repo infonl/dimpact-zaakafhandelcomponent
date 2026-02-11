@@ -10,7 +10,7 @@ import jakarta.inject.Named
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -35,7 +35,7 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
 
     @ConfigProperty(name = "AUTH_RESOURCE")
     private val zacKeycloakClientId: String,
@@ -66,7 +66,7 @@ class IdentityService @Inject constructor(
         [listGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
     )
     fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
-        if (configuratieService.featureFlagPabcIntegration()) {
+        if (configurationService.featureFlagPabcIntegration()) {
             // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
             // In future once the PABC feature flag has been removed this should be refactored

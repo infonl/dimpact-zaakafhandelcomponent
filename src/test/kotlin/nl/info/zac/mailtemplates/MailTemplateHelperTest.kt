@@ -32,7 +32,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import java.net.URI
 import java.time.LocalDate
@@ -40,7 +40,7 @@ import java.util.UUID
 
 class MailTemplateHelperTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val identityService = mockk<IdentityService>()
     val kvkClientService = mockk<KvkClientService>()
     val zgwApiService = mockk<ZgwApiService>()
@@ -48,7 +48,7 @@ class MailTemplateHelperTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val mailTemplateHelper = MailTemplateHelper(
         brpClientService,
-        configuratieService,
+        configurationService,
         identityService,
         kvkClientService,
         zgwApiService,
@@ -59,7 +59,7 @@ class MailTemplateHelperTest : BehaviorSpec({
     Context("The 'GEMEENTE' variable can be resolved from a string") {
         Given("A text containing the {GEMEENTE} placeholder") {
             val gemeenteNaam = "fakeGemeenteNaam"
-            every { configuratieService.readGemeenteNaam() } returns gemeenteNaam
+            every { configurationService.readGemeenteNaam() } returns gemeenteNaam
 
             When("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
@@ -71,7 +71,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         }
 
         Given("A text without the {GEMEENTE} placeholder") {
-            every { configuratieService.readGemeenteNaam() } returns "fakeGemeenteNaam"
+            every { configurationService.readGemeenteNaam() } returns "fakeGemeenteNaam"
 
             When("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("fakeText")
@@ -83,7 +83,7 @@ class MailTemplateHelperTest : BehaviorSpec({
         }
 
         Given("An gemeente name with HTML special characters") {
-            every { configuratieService.readGemeenteNaam() } returns "\"fake\" &amp; \"gemeente naam\""
+            every { configurationService.readGemeenteNaam() } returns "\"fake\" &amp; \"gemeente naam\""
 
             When("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
@@ -123,7 +123,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 )
             )
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
-            every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
@@ -191,7 +191,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 )
             )
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
-            every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
@@ -242,7 +242,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 verblijfplaats = null
             )
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
-            every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
@@ -282,7 +282,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             )
             val resultaatItem = createResultaatItem()
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
-            every { configuratieService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
@@ -309,7 +309,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             )
             val documentUriString = "https://example.com/fakeUrl/$enkelvoudigInformatieobjectUUID"
             every {
-                configuratieService.informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID)
+                configurationService.informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID)
             } returns URI(documentUriString)
 
             When("resolveVariabelen is called with a text containing placeholders") {

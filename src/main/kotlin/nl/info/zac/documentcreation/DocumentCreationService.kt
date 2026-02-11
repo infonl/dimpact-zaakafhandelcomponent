@@ -11,7 +11,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
@@ -29,7 +29,7 @@ class DocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
     private val documentCreationDataConverter: DocumentCreationDataConverter,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
 ) {
     companion object {
         private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
@@ -78,7 +78,7 @@ class DocumentCreationService @Inject constructor(
         userName: String
     ): UriBuilder =
         UriBuilder
-            .fromUri(configuratieService.readContextUrl())
+            .fromUri(configurationService.readContextUrl())
             .queryParam("title", title)
             .queryParam("userName", userName)
             .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
@@ -95,7 +95,7 @@ class DocumentCreationService @Inject constructor(
         result: String
     ): URI =
         UriBuilder
-            .fromUri(configuratieService.readContextUrl())
+            .fromUri(configurationService.readContextUrl())
             .path(SMART_DOCUMENTS_WIZARD_FINISH_PAGE)
             .queryParam("zaak", zaakId)
             .apply {

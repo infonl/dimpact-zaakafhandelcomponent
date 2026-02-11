@@ -117,7 +117,7 @@ import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuratie.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -152,7 +152,7 @@ class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
     private val brcClientService: BrcClientService,
     private val cmmnService: CMMNService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val decisionService: DecisionService,
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -295,8 +295,8 @@ class ZaakRestService @Inject constructor(
         restZaak.einddatumGepland?.let {
             zaakType.isServicenormAvailable() || throw DueDateNotAllowed()
         }
-        val bronOrganisatie = configuratieService.readBronOrganisatie()
-        val verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
+        val bronOrganisatie = configurationService.readBronOrganisatie()
+        val verantwoordelijkeOrganisatie = configurationService.readVerantwoordelijkeOrganisatie()
         val zaak = restZaak.toZaak(
             zaaktype = zaakType,
             bronOrganisatie = bronOrganisatie,
@@ -511,7 +511,7 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaaktypes-for-creation")
     fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
-        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter {
                 policyService.readOverigeRechten(it.omschrijving).startenZaak &&
                     policyService.isAuthorisedForZaaktype(it.omschrijving)
@@ -679,7 +679,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(!zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType).heropenen)
         zgwApiService.createStatusForZaak(
             zaak,
-            ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
+            ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
             heropenenGegevens.reden
         )
         zaak.resultaat?.let {
@@ -1280,7 +1280,7 @@ class ZaakRestService @Inject constructor(
 
     private fun resolveSpecialMail(specialMail: ZaaktypeCmmnZaakafzenderParameters.SpecialMail) =
         when (specialMail) {
-            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configuratieService.readGemeenteMail()
+            ZaaktypeCmmnZaakafzenderParameters.SpecialMail.GEMEENTE -> configurationService.readGemeenteMail()
             ZaaktypeCmmnZaakafzenderParameters.SpecialMail.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
