@@ -24,7 +24,6 @@ import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toZoekParameters
-import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.SearchService
