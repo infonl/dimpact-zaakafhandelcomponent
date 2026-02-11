@@ -115,7 +115,7 @@ export class ConfiguratieService {
   readBrpDoelbindingSetupEnabled(): Observable<boolean> {
     if (!this.brpDoelbindingSetupEnabled$) {
       this.brpDoelbindingSetupEnabled$ = this.http
-        .get<boolean>(`${this.basepath}/brp/doelbinding-setup-enabled"`)
+        .get<boolean>(`${this.basepath}/brp/doelbinding-setup-enabled`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
