@@ -57,6 +57,7 @@ describe(InformatieObjectAddComponent.name, () => {
     fromPartial<GeneratedType<"RestInformatieobjecttype">>({
       uuid: "456",
       omschrijving: "Test Type",
+      vertrouwelijkheidaanduiding: "INTERN",
     }),
   ];
 
@@ -116,6 +117,7 @@ describe(InformatieObjectAddComponent.name, () => {
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
+        VertrouwelijkaanduidingToTranslationKeyPipe,
         {
           provide: MatDrawer,
           useValue: mockSideNav,
