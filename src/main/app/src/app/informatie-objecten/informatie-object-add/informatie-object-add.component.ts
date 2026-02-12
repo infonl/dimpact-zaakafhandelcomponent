@@ -20,8 +20,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { TranslateService } from "@ngx-translate/core";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @Component({
   selector: "zac-informatie-object-add",
@@ -35,11 +33,7 @@ export class InformatieObjectAddComponent {
   private readonly utilService = inject(UtilService);
   private readonly configuratieService = inject(ConfiguratieService);
   private readonly identityService = inject(IdentityService);
-  private readonly translateService = inject(TranslateService);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly vertrouwelijkaanduidingToTranslationKeyPipe = inject(
-    VertrouwelijkaanduidingToTranslationKeyPipe,
-  );
 
   protected readonly infoObject =
     input<GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">>();
@@ -209,12 +203,9 @@ export class InformatieObjectAddComponent {
         this.form.controls.vertrouwelijkheidaanduiding.setValue(
           this.vertrouwelijkheidsAanduidingen.find(
             (option) =>
-              option.label ===
-              this.translateService.instant(
-                this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                  value.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">,
-                ),
-              ),
+              Vertrouwelijkheidaanduiding[
+                option.value as keyof typeof Vertrouwelijkheidaanduiding
+              ] === value.vertrouwelijkheidaanduiding,
           ) ?? null,
         );
       });
