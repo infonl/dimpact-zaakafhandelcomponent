@@ -5,6 +5,9 @@
 services:
   keycloak-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
+    # Explicitly request the ARM64 version of the image on Apple Silicon devices, since the postgres image does not have a manifest that automatically serves the correct architecture.
+    # If we don't do this, Docker will try to run the AMD64 version of the image using emulation on ARM hardware, which results in poor performance.
+    platform: linux/arm64/v8
     ports:
       - "54326:5432"
     healthcheck:
@@ -252,6 +255,9 @@ services:
 
   solr:
     image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
+    # Explicitly request the ARM64 version of the image on Apple Silicon devices, since the postgres image does not have a manifest that automatically serves the correct architecture.
+    # If we don't do this, Docker will try to run the AMD64 version of the image using emulation on ARM hardware, which results in poor performance.
+    platform: linux/arm64/v8
     ports:
       - "8983:8983"
     volumes:
@@ -292,6 +298,9 @@ services:
 
   openklant-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
+    # Explicitly request the ARM64 version of the image on Apple Silicon devices, since the postgres image does not have a manifest that automatically serves the correct architecture.
+    # If we don't do this, Docker will try to run the AMD64 version of the image using emulation on ARM hardware, which results in poor performance.
+    platform: linux/arm64/v8
     ports:
       - "54325:5432"
     healthcheck:
@@ -700,6 +709,9 @@ services:
 
   pabc-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
+    # Explicitly request the ARM64 version of the image on Apple Silicon devices, since the postgres image does not have a manifest that automatically serves the correct architecture.
+    # If we don't do this, Docker will try to run the AMD64 version of the image using emulation on ARM hardware, which results in poor performance.
+    platform: linux/arm64/v8
     ports:
       - "54329:5432"
     environment:
@@ -754,6 +766,9 @@ services:
 
   zac-database:
     image: postgres:17.7@sha256:2006493727bd5277eece187319af1ef82b4cf82cf4fc1ed00da0775b646ac2a4
+    # Explicitly request the ARM64 version of the image on Apple Silicon devices, since the postgres image does not have a manifest that automatically serves the correct architecture.
+    # If we don't do this, Docker will try to run the AMD64 version of the image using emulation on ARM hardware, which results in poor performance.
+    platform: linux/arm64/v8
     ports:
       - "54320:5432"
     healthcheck:
