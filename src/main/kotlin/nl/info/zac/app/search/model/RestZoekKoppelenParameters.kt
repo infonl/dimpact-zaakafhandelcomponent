@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
 import nl.info.zac.app.shared.RestPageParameters
@@ -19,15 +20,17 @@ data class RestZoekKoppelenParameters(
     @field:PositiveOrZero
     override var page: Int,
 
-    @field: Positive
+    @field:Positive
     override var rows: Int,
 
+    @field:NotBlank
     var zaakIdentificator: String,
+
     var informationObjectTypeUuid: UUID
 ) : RestPageParameters
 
 fun RestZoekKoppelenParameters.toZoekParameters() = ZoekParameters(ZoekObjectType.ZAAK).apply {
-    rows = this@toZoekParameters.rows
-    page = this@toZoekParameters.page
+    this.rows = this@toZoekParameters.rows
+    this.start = this@toZoekParameters.page
     addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, this@toZoekParameters.zaakIdentificator)
 }
