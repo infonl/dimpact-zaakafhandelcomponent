@@ -59,6 +59,16 @@ describe(InformatieObjectAddComponent.name, () => {
       omschrijving: "Test Type",
       vertrouwelijkheidaanduiding: "INTERN",
     }),
+    fromPartial<GeneratedType<"RestInformatieobjecttype">>({
+      uuid: "789",
+      omschrijving: "Confidential Type",
+      vertrouwelijkheidaanduiding: "CONFIDENTIEEL",
+    }),
+    fromPartial<GeneratedType<"RestInformatieobjecttype">>({
+      uuid: "101",
+      omschrijving: "Public Type",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
+    }),
   ];
 
   const mockTalen = [
@@ -348,6 +358,28 @@ describe(InformatieObjectAddComponent.name, () => {
 
       const formDataEntries = Object.fromEntries(formData.entries());
       expect(formDataEntries.bestandsnaam).toBe(emlFile.name);
+    });
+  });
+
+  describe("Automatic vertrouwelijkheidaanduiding selection", () => {
+    it("should set vertrouwelijkheidaanduiding to 'intern' when informatieobjectType with INTERN is selected", () => {
+      component["form"].controls.informatieobjectType.setValue(
+        mockInformatieObjectTypes[0],
+      );
+
+      const selectedValue =
+        component["form"].controls.vertrouwelijkheidaanduiding.value;
+      expect(selectedValue?.value).toBe("intern");
+    });
+
+    it("should set vertrouwelijkheidaanduiding to 'confidentieel' when informatieobjectType with CONFIDENTIEEL is selected", () => {
+      component["form"].controls.informatieobjectType.setValue(
+        mockInformatieObjectTypes[1],
+      );
+
+      const selectedValue =
+        component["form"].controls.vertrouwelijkheidaanduiding.value;
+      expect(selectedValue?.value).toBe("confidentieel");
     });
   });
 });
