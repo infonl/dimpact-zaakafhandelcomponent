@@ -192,6 +192,23 @@ export class InformatieObjectAddComponent {
           value?.name?.replace(/\.[^/.]+$/, "") || "",
         );
       });
+
+    this.form.controls.informatieobjectType.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        if (!value) {
+          return;
+        }
+
+        this.form.controls.vertrouwelijkheidaanduiding.setValue(
+          this.vertrouwelijkheidsAanduidingen.find(
+            (option) =>
+              Vertrouwelijkheidaanduiding[
+                option.value as keyof typeof Vertrouwelijkheidaanduiding
+              ] === value.vertrouwelijkheidaanduiding,
+          ) ?? null,
+        );
+      });
   }
 
   private toInformatieobjectFormData(
