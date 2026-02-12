@@ -80,10 +80,7 @@ export class MailCreateComponent implements OnInit {
     this.zakenService
       .listAfzendersVoorZaak(this.zaak().uuid)
       .subscribe((afzenders) => {
-        this.verzenderOptions = afzenders.map((afzender) => ({
-          ...afzender,
-          suffix: afzender.suffix ?? "",
-        }));
+        this.verzenderOptions = afzenders;
       });
 
     this.mailtemplateService

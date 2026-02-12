@@ -32,7 +32,7 @@ export class ZacSelect<
     const suffix = this.suffix();
     if (!suffix) return null;
     if (suffix in option) return option[suffix];
-
+    if (suffix === "suffix") return null;
     return suffix;
   };
 }
