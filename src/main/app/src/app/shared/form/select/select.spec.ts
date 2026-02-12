@@ -93,40 +93,12 @@ describe(ZacSelect.name, () => {
       expect(result).toBeNull();
     });
 
-    it("should return null when suffix input equals 'suffix'", () => {
-      componentRef.setInput("suffix", "suffix");
-      fixture.detectChanges();
-
-      const result = component["displaySuffix"](testOption);
-      expect(result).toBeNull();
-    });
-
     it("should return the value of the key when suffix is a key of the option", () => {
       componentRef.setInput("suffix", "unit");
       fixture.detectChanges();
 
       const result = component["displaySuffix"](testOption);
       expect(result).toBe("kg");
-    });
-
-    it("should return the suffix string when the key doesn't exist on the option", () => {
-      const optionWithoutUnit: TestOption = {
-        id: 2,
-        name: "Option without unit",
-      };
-      componentRef.setInput("suffix", "unit");
-      fixture.detectChanges();
-
-      const result = component["displaySuffix"](optionWithoutUnit);
-      expect(result).toBe("unit");
-    });
-
-    it("should return the suffix string when suffix is not a key of the option", () => {
-      componentRef.setInput("suffix", "custom-suffix");
-      fixture.detectChanges();
-
-      const result = component["displaySuffix"](testOption);
-      expect(result).toBe("custom-suffix");
     });
 
     it("should return the value of the 'id' key when suffix is 'id'", () => {
@@ -178,21 +150,6 @@ describe(ZacSelect.name, () => {
       const result = component["displaySuffix"](testOption);
       expect(result).toBe(1);
       expect(typeof result).toBe("number");
-    });
-
-    it("should return the value when suffix is 'suffix' but option has a suffix property", () => {
-      const optionWithSuffix: TestOption = {
-        id: 5,
-        name: "Option with suffix",
-        suffix: "some-suffix-value",
-      };
-      componentRef.setInput("suffix", "suffix");
-      fixture.detectChanges();
-
-      // The check `suffix in option` happens before `suffix === "suffix"`,
-      // so it returns the value of option["suffix"]
-      const result = component["displaySuffix"](optionWithSuffix);
-      expect(result).toBe("some-suffix-value");
     });
   });
 });

@@ -30,9 +30,8 @@ export class ZacSelect<
 
   protected displaySuffix = (option: Option) => {
     const suffix = this.suffix();
-    if (!suffix) return null;
-    if (suffix in option) return option[suffix];
-    if (suffix === "suffix") return null;
-    return suffix;
+    if (suffix && suffix in option) return option[suffix];
+
+    return null;
   };
 }
