@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.8@sha256:5be49f2625d42a4ce42e1dc28288d5523343c2f5561589143fe03a14fffe0deb
+    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
     ports:
       - "54326:5432"
     healthcheck:
@@ -291,7 +291,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.8@sha256:5be49f2625d42a4ce42e1dc28288d5523343c2f5561589143fe03a14fffe0deb
+    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
     ports:
       - "54325:5432"
     healthcheck:
@@ -699,7 +699,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.8@sha256:5be49f2625d42a4ce42e1dc28288d5523343c2f5561589143fe03a14fffe0deb
+    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
     ports:
       - "54329:5432"
     environment:
@@ -753,7 +753,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.8@sha256:5be49f2625d42a4ce42e1dc28288d5523343c2f5561589143fe03a14fffe0deb
+    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
     ports:
       - "54320:5432"
     healthcheck:
