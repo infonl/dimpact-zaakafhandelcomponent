@@ -6,6 +6,7 @@ package nl.info.zac.app.util.interceptor
 
 import jakarta.json.Json
 import jakarta.json.JsonArray
+import jakarta.json.JsonException
 import jakarta.json.JsonObject
 import jakarta.json.JsonValue
 import jakarta.ws.rs.WebApplicationException
@@ -49,11 +50,11 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
             val filteredJson = removeNulls(jsonValue)
             val filteredJsonString = filteredJson.toString()
             context.inputStream = ByteArrayInputStream(filteredJsonString.toByteArray(StandardCharsets.UTF_8))
-            context.proceed()
-        } catch (exception: Exception) {
-            LOG.log(Level.WARNING, "Exception while reading from reader", exception)
+        } catch (jsonException: JsonException) {
+            LOG.log(Level.WARNING, "JSON exception while reading from reader", jsonException)
             // If JSON parsing fails, let the original stream through for proper error handling
             context.inputStream = ByteArrayInputStream(jsonString.toByteArray(StandardCharsets.UTF_8))
+        } finally {
             context.proceed()
         }
     }

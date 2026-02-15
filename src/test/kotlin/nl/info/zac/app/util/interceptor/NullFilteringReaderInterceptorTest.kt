@@ -38,7 +38,8 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
 
         When("the JSON contains explicit null values in an object") {
             val jsonWithNulls = """{"fakeKey1":"fakeValue1","fakeKey2":null,"fakeKey3":"fakeValue3"}"""
-            every { context.inputStream } returns ByteArrayInputStream(jsonWithNulls.toByteArray(StandardCharsets.UTF_8))
+            every { context.inputStream } returns
+                ByteArrayInputStream(jsonWithNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
@@ -52,7 +53,8 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
 
         When("the JSON contains nested objects with null values") {
             val jsonWithNestedNulls = """{"fakeKey1":{"fakeKey2":"fakeValue2","fakeKey3":null},"fakeKey4":true}"""
-            every { context.inputStream } returns ByteArrayInputStream(jsonWithNestedNulls.toByteArray(StandardCharsets.UTF_8))
+            every { context.inputStream } returns
+                ByteArrayInputStream(jsonWithNestedNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
@@ -65,7 +67,8 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
 
         When("the JSON contains arrays with null values") {
             val jsonWithArrayNulls = """{"fakeArray":[1,null,3],"fakeKey1":"fakeValue1"}"""
-            every { context.inputStream } returns ByteArrayInputStream(jsonWithArrayNulls.toByteArray(StandardCharsets.UTF_8))
+            every { context.inputStream } returns
+                ByteArrayInputStream(jsonWithArrayNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
@@ -131,7 +134,8 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         var capturedInputStream: String? = null
 
         every { context.mediaType } returns MediaType.APPLICATION_JSON_TYPE
-        every { context.inputStream } returns ByteArrayInputStream("invalid json{".toByteArray(StandardCharsets.UTF_8))
+        every { context.inputStream } returns
+            ByteArrayInputStream("invalid json{".toByteArray(StandardCharsets.UTF_8))
         every { context.inputStream = capture(inputStreamSlot) } answers {
             capturedInputStream = inputStreamSlot.captured.bufferedReader(StandardCharsets.UTF_8).readText()
         }
