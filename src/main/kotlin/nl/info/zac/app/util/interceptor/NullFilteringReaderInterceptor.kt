@@ -32,6 +32,7 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
         private val LOG = Logger.getLogger(NullFilteringReaderInterceptor::class.java.name)
     }
 
+    @Suppress("ReturnCount")
     override fun aroundReadFrom(context: ReaderInterceptorContext): Any {
         if (context.mediaType?.toString()?.contains(MediaType.APPLICATION_JSON) != true) {
             return context.proceed()

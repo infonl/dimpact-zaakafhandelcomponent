@@ -224,7 +224,9 @@ class SearchRestServiceTest : BehaviorSpec({
             zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
         )
         val zaakType = createZaakType(
-            informatieObjectTypen = listOf(URI("https://example.com/informatieobjecttype/$differentInformationObjectTypeUuid"))
+            informatieObjectTypen = listOf(
+                URI("https://example.com/informatieobjecttype/$differentInformationObjectTypeUuid")
+            )
         )
         val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()
 
@@ -296,4 +298,3 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 })
-
