@@ -9,7 +9,6 @@ import jakarta.json.JsonArray
 import jakarta.json.JsonException
 import jakarta.json.JsonObject
 import jakarta.json.JsonValue
-import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.ext.Provider
 import jakarta.ws.rs.ext.ReaderInterceptor
@@ -33,10 +32,9 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
         private val LOG = Logger.getLogger(NullFilteringReaderInterceptor::class.java.name)
     }
 
-    @Throws(WebApplicationException::class)
+    @Suppress("ReturnCount")
     override fun aroundReadFrom(context: ReaderInterceptorContext): Any? {
-        val mediaType = context.mediaType
-        if (mediaType?.toString()?.contains(MediaType.APPLICATION_JSON) != true) {
+        if (context.mediaType?.toString()?.contains(MediaType.APPLICATION_JSON) != true) {
             return context.proceed()
         }
         val jsonString = context.inputStream.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
