@@ -21,6 +21,14 @@ import nl.info.zac.app.search.converter.RestZoekResultaatConverter
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
+import nl.info.zac.app.search.model.createRestZoekKoppelenParameters
+import nl.info.zac.app.search.model.createRestZoekParameters
+import nl.info.zac.app.search.model.createRestZoekResultaatForDocumentZoekObjects
+import nl.info.zac.app.search.model.createRestZoekResultaatForTaakZoekObjects
+import nl.info.zac.app.search.model.createRestZoekResultaatForZaakKoppelenZoekObjects
+import nl.info.zac.app.search.model.createRestZoekResultaatForZaakZoekObjects
+import nl.info.zac.app.search.model.createZoekParameters
+import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechten

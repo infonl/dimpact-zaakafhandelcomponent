@@ -1,19 +1,9 @@
 /*
- *
- *  * SPDX-FileCopyrightText: 2025 INFO.nl
- *  * SPDX-License-Identifier: EUPL-1.2+
- *
+ * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.search
+package nl.info.zac.app.search.model
 
-import nl.info.zac.app.search.model.RestDatumRange
-import nl.info.zac.app.search.model.RestDocumentZoekObject
-import nl.info.zac.app.search.model.RestTaakZoekObject
-import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
-import nl.info.zac.app.search.model.RestZaakZoekObject
-import nl.info.zac.app.search.model.RestZoekKoppelenParameters
-import nl.info.zac.app.search.model.RestZoekParameters
-import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters

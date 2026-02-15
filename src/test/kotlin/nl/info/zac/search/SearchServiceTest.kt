@@ -16,7 +16,7 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.slot
 import jakarta.enterprise.inject.Instance
-import nl.info.zac.app.search.createZoekParameters
+import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.model.DatumRange
