@@ -31,6 +31,6 @@ data class RestZoekKoppelenParameters(
 
 fun RestZoekKoppelenParameters.toZoekParameters() = ZoekParameters(ZoekObjectType.ZAAK).apply {
     this.rows = this@toZoekParameters.rows
-    this.start = this@toZoekParameters.page
+    this.start = this@toZoekParameters.page * this@toZoekParameters.rows
     addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, this@toZoekParameters.zaakIdentificator)
 }
