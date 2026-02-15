@@ -218,7 +218,7 @@ class SearchRestServiceTest : BehaviorSpec({
             informationObjectTypeUuid = informationObjectTypeUuid
         )
         val zaakZoekObject = createZaakZoekObject(identificatie = zaakIdentification)
-        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val zoekResultaat = createZoekResultaatForZaakZoekObjecten(listOf(zaakZoekObject), 1)
         val zaak = createZaak(
             identificatie = zaakIdentification,
             zaaktypeUri = URI("https://example.com/zaaktype/$zaaktypeUuid")
