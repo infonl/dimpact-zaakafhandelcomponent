@@ -55,12 +55,12 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
     }
 
     private fun JsonValue.removeNullValues(): JsonValue = when (this.valueType) {
-        JsonValue.ValueType.OBJECT -> this.asJsonObject().removeNullValues()
-        JsonValue.ValueType.ARRAY -> this.asJsonArray().removeNullValues()
+        JsonValue.ValueType.OBJECT -> this.asJsonObject().removeNullValuesFromObject()
+        JsonValue.ValueType.ARRAY -> this.asJsonArray().removeNullValuesFromArray()
         else -> this
     }
 
-    private fun JsonObject.removeNullValues(): JsonObject {
+    private fun JsonObject.removeNullValuesFromObject(): JsonObject {
         val builder = Json.createObjectBuilder()
         this.forEach { (key, value) ->
             if (value.valueType != JsonValue.ValueType.NULL) {
@@ -70,7 +70,7 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
         return builder.build()
     }
 
-    private fun JsonArray.removeNullValues(): JsonArray {
+    private fun JsonArray.removeNullValuesFromArray(): JsonArray {
         val builder = Json.createArrayBuilder()
         this.forEach { value ->
             if (value.valueType != JsonValue.ValueType.NULL) {
