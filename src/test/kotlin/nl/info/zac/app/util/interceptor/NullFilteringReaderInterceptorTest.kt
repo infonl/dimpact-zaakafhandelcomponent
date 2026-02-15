@@ -37,41 +37,41 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         every { context.proceed() } returns Unit
 
         When("the JSON contains explicit null values in an object") {
-            val jsonWithNulls = """{"name":"John","age":null,"city":"Amsterdam"}"""
+            val jsonWithNulls = """{"fakeKey1":"fakeValue1","fakeKey2":null,"fakeKey3":"fakeValue3"}"""
             every { context.inputStream } returns ByteArrayInputStream(jsonWithNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
             Then("the null values should be removed") {
                 capturedInputStream shouldNotContain "null"
-                capturedInputStream shouldContain "\"name\":\"John\""
-                capturedInputStream shouldContain "\"city\":\"Amsterdam\""
-                capturedInputStream shouldNotContain "\"age\""
+                capturedInputStream shouldContain "\"fakeKey1\":\"fakeValue1\""
+                capturedInputStream shouldContain "\"fakeKey3\":\"fakeValue3\""
+                capturedInputStream shouldNotContain "\"fakeKey2\""
             }
         }
 
         When("the JSON contains nested objects with null values") {
-            val jsonWithNestedNulls = """{"user":{"name":"John","email":null},"active":true}"""
+            val jsonWithNestedNulls = """{"fakeKey1":{"fakeKey2":"fakeValue2","fakeKey3":null},"fakeKey4":true}"""
             every { context.inputStream } returns ByteArrayInputStream(jsonWithNestedNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
             Then("the nested null values should be removed") {
                 capturedInputStream shouldNotContain "null"
-                capturedInputStream shouldContain "\"name\":\"John\""
-                capturedInputStream shouldNotContain "\"email\""
+                capturedInputStream shouldContain "\"fakeKey2\":\"fakeValue2\""
+                capturedInputStream shouldNotContain "\"fakeKey3\""
             }
         }
 
         When("the JSON contains arrays with null values") {
-            val jsonWithArrayNulls = """{"items":[1,null,3],"name":"test"}"""
+            val jsonWithArrayNulls = """{"fakeArray":[1,null,3],"fakeKey1":"fakeValue1"}"""
             every { context.inputStream } returns ByteArrayInputStream(jsonWithArrayNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
             Then("the null values in arrays should be removed") {
                 capturedInputStream shouldNotContain "null"
-                capturedInputStream shouldContain "\"items\":[1,3]"
+                capturedInputStream shouldContain "\"fakeArray\":[1,3]"
             }
         }
     }
@@ -81,10 +81,7 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         var proceedCalled = false
 
         every { context.mediaType } returns MediaType.TEXT_PLAIN_TYPE
-        every { context.proceed() } answers {
-            proceedCalled = true
-            Unit
-        }
+        every { context.proceed() } answers { proceedCalled = true }
 
         When("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
