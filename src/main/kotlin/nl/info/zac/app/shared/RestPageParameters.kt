@@ -8,10 +8,10 @@ interface RestPageParameters {
     /**
      * The search result page requested, starting at 0.
      */
-    val page: Int
+    var page: Int
 
     /**
      * The number of search result rows requested.
      */
-    val rows: Int
+    var rows: Int
 }
