@@ -36,19 +36,16 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
     @Throws(WebApplicationException::class)
     override fun aroundReadFrom(context: ReaderInterceptorContext): Any? {
         val mediaType = context.mediaType
-        if (mediaType == null || !mediaType.toString().contains(MediaType.APPLICATION_JSON)) {
+        if (mediaType?.toString()?.contains(MediaType.APPLICATION_JSON) != true) {
             return context.proceed()
         }
-        val inputStream = context.inputStream
-        val jsonString = inputStream.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
+        val jsonString = context.inputStream.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
         if (jsonString.isBlank()) {
             return context.proceed()
         }
         return try {
-            val jsonReader = Json.createReader(jsonString.reader())
-            val jsonValue = jsonReader.readValue()
-            val filteredJson = removeNulls(jsonValue)
-            val filteredJsonString = filteredJson.toString()
+            val jsonValue = Json.createReader(jsonString.reader()).readValue()
+            val filteredJsonString = removeNullValues(jsonValue).toString()
             context.inputStream = ByteArrayInputStream(filteredJsonString.toByteArray(StandardCharsets.UTF_8))
         } catch (jsonException: JsonException) {
             LOG.log(Level.WARNING, "JSON exception while reading from reader", jsonException)
@@ -59,29 +56,27 @@ class NullFilteringReaderInterceptor : ReaderInterceptor {
         }
     }
 
-    private fun removeNulls(jsonValue: JsonValue): JsonValue = when (jsonValue.valueType) {
-        JsonValue.ValueType.OBJECT -> removeNullsFromObject(jsonValue.asJsonObject())
-        JsonValue.ValueType.ARRAY -> removeNullsFromArray(jsonValue.asJsonArray())
+    private fun removeNullValues(jsonValue: JsonValue): JsonValue = when (jsonValue.valueType) {
+        JsonValue.ValueType.OBJECT -> removeNullsValuesFromObject(jsonValue.asJsonObject())
+        JsonValue.ValueType.ARRAY -> removeNullsValuesFromArray(jsonValue.asJsonArray())
         else -> jsonValue
     }
 
-    private fun removeNullsFromObject(jsonObject: JsonObject): JsonObject {
-        val builder = Json.createObjectBuilder()
-        jsonObject.forEach { (key, value) ->
-            if (value.valueType != JsonValue.ValueType.NULL) {
-                builder.add(key, removeNulls(value))
+    private fun removeNullsValuesFromObject(jsonObject: JsonObject): JsonObject =
+        Json.createObjectBuilder().apply {
+            jsonObject.forEach { (key, value) ->
+                if (value.valueType != JsonValue.ValueType.NULL) {
+                    add(key, removeNullValues(value))
+                }
             }
-        }
-        return builder.build()
-    }
+        }.build()
 
-    private fun removeNullsFromArray(jsonArray: JsonArray): JsonArray {
-        val builder = Json.createArrayBuilder()
-        jsonArray.forEach { value ->
-            if (value.valueType != JsonValue.ValueType.NULL) {
-                builder.add(removeNulls(value))
+    private fun removeNullsValuesFromArray(jsonArray: JsonArray): JsonArray =
+        Json.createArrayBuilder().apply {
+            jsonArray.forEach { value ->
+                if (value.valueType != JsonValue.ValueType.NULL) {
+                    add(removeNullValues(value))
+                }
             }
-        }
-        return builder.build()
-    }
+        }.build()
 }
