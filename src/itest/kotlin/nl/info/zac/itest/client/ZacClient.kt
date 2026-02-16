@@ -162,8 +162,8 @@ class ZacClient(
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingWaarde: String = "Algemeen",
-        automaticEmailConfirmationSender: String = "sender@example.com",
         automaticEmailConfirmationReply: String = "reply@example.com",
+        fatalDateWarningWindow: Int? = null,
         testUser: TestUser
     ): ResponseContent {
         logger.info {
@@ -290,7 +290,22 @@ class ZacClient(
                 }
               ],
               "valide": false,
-              "zaakAfzenders": [],
+              "zaakAfzenders": [
+              {
+                 "defaultMail": true,
+                 "mail": "GEMEENTE",
+                 "speciaal": true,
+                 "index": 0,
+                 "replyTo": "GEMEENTE"
+                },
+                {
+                  "defaultMail": false,
+                  "mail": "MEDEWERKER",
+                  "speciaal": true,
+                  "index": 1,
+                  "replyTo": null
+                }
+              ],
               "zaakbeeindigParameters": [],
               "zaaktype": {
                 "beginGeldigheid": "2023-09-21",
@@ -359,7 +374,7 @@ class ZacClient(
               "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
-              "uiterlijkeEinddatumAfdoeningWaarschuwing": null,
+              "uiterlijkeEinddatumAfdoeningWaarschuwing": $fatalDateWarningWindow,
               "productaanvraagtype": "$productaanvraagType",
               "zaakNietOntvankelijkResultaattype": {
                 "archiefNominatie": "VERNIETIGEN",
@@ -381,12 +396,12 @@ class ZacClient(
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
-                "verwerkingWaarde": "$brpVerwerkingWaarde"
+                "verwerkingregisterWaarde": "$brpVerwerkingWaarde"
               },
               "automaticEmailConfirmation": {
                 "enabled": true,
                 "templateName": "Ontvangstbevestiging",
-                "emailSender": "$automaticEmailConfirmationSender",
+                "emailSender": "GEMEENTE",
                 "emailReply": "$automaticEmailConfirmationReply"
               }
             }

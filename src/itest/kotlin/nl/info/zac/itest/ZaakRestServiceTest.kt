@@ -73,6 +73,7 @@ import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -1059,6 +1060,36 @@ class ZaakRestServiceTest : BehaviorSpec({
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Context("Listing zaak warnings") {
+        Given(
+            """
+            A zaak with an planned fatal date that is after today but before the 'fatal date warning window'
+            of the related zaaktype
+            """
+        ) {
+            val yesterday = ZonedDateTime.now().minusDays(1)
+            val (_, zaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                startDate = yesterday,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            )
+
+            When("the 'list zaak warnings' endpoint is called for the zaak") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/waarschuwing",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                )
+                Then("the response should be a 200 HTTP response with the expected zaak warnings") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    // TODO: change zaak fatal date so that it triggers a warning
+                    responseBody shouldEqualJson """[]"""
                 }
             }
         }
