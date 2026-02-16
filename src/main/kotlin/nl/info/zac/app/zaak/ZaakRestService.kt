@@ -478,6 +478,9 @@ class ZaakRestService @Inject constructor(
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()
+        // retrieve all CMMN zaaktype configurations to determine the warning dates for the zaaktypes
+        // note that this can take considerable time if there are many zaaktypes, especially if the zaaktype configuration cache
+        // is empty
         zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
             zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
                 zaaktypeCmmnConfiguration.zaaktypeUuid.let { uuid ->
