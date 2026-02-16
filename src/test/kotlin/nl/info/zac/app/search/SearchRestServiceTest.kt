@@ -283,7 +283,7 @@ class SearchRestServiceTest : BehaviorSpec({
             zaakIdentificator = zaakIdentification,
             informationObjectTypeUuid = informationObjectTypeUuid
         )
-        val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
+        val zoekResultaat = createZoekResultaatForZaakZoekObjecten(items = emptyList(), count = 0)
         val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
