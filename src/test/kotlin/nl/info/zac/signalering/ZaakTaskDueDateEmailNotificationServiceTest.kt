@@ -21,7 +21,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
+import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.createZaakZoekObject
