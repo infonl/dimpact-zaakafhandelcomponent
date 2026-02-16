@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -36,6 +37,7 @@ import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.net.URI
@@ -169,11 +171,11 @@ class SearchRestServiceTest : BehaviorSpec({
     }
 
     Given("A request to list zaken for information object type") {
-        val zaakIdentification = "ZAAK-2024-00001"
+        val zaakIdentification = "fakeZaakIdentification"
         val informationObjectTypeUuid = UUID.randomUUID()
         val zaaktypeUuid = UUID.randomUUID()
         val restZoekKoppelenParameters = RestZoekKoppelenParameters(
-            page = 0,
+            page = 2,
             rows = 10,
             zaakIdentificator = zaakIdentification,
             informationObjectTypeUuid = informationObjectTypeUuid
@@ -188,9 +190,10 @@ class SearchRestServiceTest : BehaviorSpec({
             informatieObjectTypen = listOf(URI("https://example.com/informatieobjecttype/$informationObjectTypeUuid"))
         )
         val restZoekResultaat = mockk<RestZoekResultaat<RestZaakKoppelenZoekObject>>()
+        val zoekParametersSlot = slot<ZoekParameters>()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
-        every { searchService.zoek(any<ZoekParameters>()) } returns zoekResultaat
+        every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
         every { zrcClientService.readZaakByID(zaakIdentification) } returns zaak
         every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
         every { restZoekResultaatConverter.convert(zoekResultaat, listOf(true)) } returns restZoekResultaat
@@ -209,6 +212,10 @@ class SearchRestServiceTest : BehaviorSpec({
                     zrcClientService.readZaakByID(zaakIdentification)
                     ztcClientService.readZaaktype(zaaktypeUuid)
                     restZoekResultaatConverter.convert(zoekResultaat, listOf(true))
+                }
+                with(zoekParametersSlot.captured) {
+                    this.rows shouldBe 10
+                    this.start shouldBe 2 * 10
                 }
             }
         }
