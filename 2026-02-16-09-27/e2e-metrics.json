@@ -1,0 +1,474 @@
+{
+  "summary": {
+    "totalFeatures": 9,
+    "totalScenarios": 22,
+    "passedScenarios": 9,
+    "failedScenarios": 13,
+    "skippedScenarios": 0,
+    "totalSteps": 175,
+    "passedSteps": 90,
+    "failedSteps": 13,
+    "skippedSteps": 72,
+    "totalDuration": 596710357083,
+    "totalDurationFormatted": "9m 56s",
+    "averageScenarioDuration": "27.12s",
+    "passRate": "40.91%"
+  },
+  "features": [
+    {
+      "name": "Login",
+      "uri": "features/1-login.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to login to ZAC",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 6741999750,
+          "durationFormatted": "6.74s",
+          "steps": 5,
+          "tags": []
+        },
+        {
+          "name": "Bob wants to log out of the application after being logged in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 4264828126,
+          "durationFormatted": "4.26s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob logs back in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 4855674386,
+          "durationFormatted": "4.86s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob wants to log out of the application after being logged in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 4600955810,
+          "durationFormatted": "4.60s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob logs back in",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 4822849743,
+          "durationFormatted": "4.82s",
+          "steps": 6,
+          "tags": []
+        }
+      ],
+      "totalDuration": 25286307815,
+      "passedScenarios": 5,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "25.29s"
+    },
+    {
+      "name": "Zaken toevoegen",
+      "uri": "features/2-zaken-toevoegen.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to create a new zaak",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 33901480881,
+          "durationFormatted": "33.90s",
+          "steps": 9,
+          "tags": []
+        }
+      ],
+      "totalDuration": 33901480881,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "33.90s"
+    },
+    {
+      "name": "Open Formulieren",
+      "uri": "features/3-open-formulieren.feature",
+      "scenarios": [
+        {
+          "name": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 46889876598,
+          "durationFormatted": "46.89s",
+          "steps": 8,
+          "tags": [
+            "@live-env-only"
+          ]
+        }
+      ],
+      "totalDuration": 46889876598,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "46.89s"
+    },
+    {
+      "name": "SmartDocuments",
+      "uri": "features/4-smartdocuments.feature",
+      "scenarios": [
+        {
+          "name": "Employee wants to create a new document for a zaak Using the SmartDocuments wizard",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 31566504220,
+          "durationFormatted": "31.57s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 31566504220,
+      "passedScenarios": 1,
+      "failedScenarios": 0,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "31.57s"
+    },
+    {
+      "name": "Taken toevoegen",
+      "uri": "features/5-taken-toevoegen.feature",
+      "scenarios": [
+        {
+          "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 35820385628,
+          "durationFormatted": "35.82s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 35820385628,
+      "passedScenarios": 0,
+      "failedScenarios": 1,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "35.82s"
+    },
+    {
+      "name": "Zaken verdelen / vrijgeven",
+      "uri": "features/6-zaken-verdelen-vrijgeven.feature",
+      "scenarios": [
+        {
+          "name": "Bob assigns zaken to a group and user from the list",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36735443885,
+          "durationFormatted": "36.74s",
+          "steps": 10,
+          "tags": []
+        },
+        {
+          "name": "Bob releases zaken from the list",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36184271080,
+          "durationFormatted": "36.18s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 72919714965,
+      "passedScenarios": 0,
+      "failedScenarios": 2,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "1m 12s"
+    },
+    {
+      "name": "Taken verdelen / vrijgeven",
+      "uri": "features/7-taken-verdelen-vrijgeven.feature",
+      "scenarios": [
+        {
+          "name": "Bob assigns taken to a group and user from the list",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36494821306,
+          "durationFormatted": "36.49s",
+          "steps": 10,
+          "tags": []
+        },
+        {
+          "name": "Bob releases taken",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36362038124,
+          "durationFormatted": "36.36s",
+          "steps": 10,
+          "tags": []
+        }
+      ],
+      "totalDuration": 72856859430,
+      "passedScenarios": 0,
+      "failedScenarios": 2,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "1m 12s"
+    },
+    {
+      "name": "Personen",
+      "uri": "features/8-personen.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to view a person",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36947159326,
+          "durationFormatted": "36.95s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob inspects person details",
+          "type": "scenario",
+          "status": "passed",
+          "duration": 8015478122,
+          "durationFormatted": "8.02s",
+          "steps": 6,
+          "tags": []
+        }
+      ],
+      "totalDuration": 44962637448,
+      "passedScenarios": 1,
+      "failedScenarios": 1,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "44.96s"
+    },
+    {
+      "name": "BPMN",
+      "uri": "features/9-bpmn.feature",
+      "scenarios": [
+        {
+          "name": "Bob wants to create a new BPMN zaak",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 35680739358,
+          "durationFormatted": "35.68s",
+          "steps": 8,
+          "tags": []
+        },
+        {
+          "name": "Bob changes the assigned user and group",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 15200324608,
+          "durationFormatted": "15.20s",
+          "steps": 7,
+          "tags": []
+        },
+        {
+          "name": "Bob opens the initial task form",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 35437527221,
+          "durationFormatted": "35.44s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob creates two SmartDocuments Word files",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36237599431,
+          "durationFormatted": "36.24s",
+          "steps": 11,
+          "tags": []
+        },
+        {
+          "name": "Bob fills-in and submits the task form",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36385479637,
+          "durationFormatted": "36.39s",
+          "steps": 11,
+          "tags": []
+        },
+        {
+          "name": "Bob inspects the summary task form",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36988031519,
+          "durationFormatted": "36.99s",
+          "steps": 6,
+          "tags": []
+        },
+        {
+          "name": "Bob confirms the data in the summary form",
+          "type": "scenario",
+          "status": "failed",
+          "duration": 36576888324,
+          "durationFormatted": "36.58s",
+          "steps": 8,
+          "tags": []
+        }
+      ],
+      "totalDuration": 232506590098,
+      "passedScenarios": 0,
+      "failedScenarios": 7,
+      "skippedScenarios": 0,
+      "totalDurationFormatted": "3m 52s"
+    }
+  ],
+  "slowestScenarios": [
+    {
+      "feature": "Open Formulieren",
+      "scenario": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+      "duration": 46889876598,
+      "durationFormatted": "46.89s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob inspects the summary task form",
+      "duration": 36988031519,
+      "durationFormatted": "36.99s"
+    },
+    {
+      "feature": "Personen",
+      "scenario": "Bob wants to view a person",
+      "duration": 36947159326,
+      "durationFormatted": "36.95s"
+    },
+    {
+      "feature": "Zaken verdelen / vrijgeven",
+      "scenario": "Bob assigns zaken to a group and user from the list",
+      "duration": 36735443885,
+      "durationFormatted": "36.74s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob confirms the data in the summary form",
+      "duration": 36576888324,
+      "durationFormatted": "36.58s"
+    },
+    {
+      "feature": "Taken verdelen / vrijgeven",
+      "scenario": "Bob assigns taken to a group and user from the list",
+      "duration": 36494821306,
+      "durationFormatted": "36.49s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob fills-in and submits the task form",
+      "duration": 36385479637,
+      "durationFormatted": "36.39s"
+    },
+    {
+      "feature": "Taken verdelen / vrijgeven",
+      "scenario": "Bob releases taken",
+      "duration": 36362038124,
+      "durationFormatted": "36.36s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob creates two SmartDocuments Word files",
+      "duration": 36237599431,
+      "durationFormatted": "36.24s"
+    },
+    {
+      "feature": "Zaken verdelen / vrijgeven",
+      "scenario": "Bob releases zaken from the list",
+      "duration": 36184271080,
+      "durationFormatted": "36.18s"
+    }
+  ],
+  "failedScenarios": [
+    {
+      "feature": "Taken toevoegen",
+      "scenario": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "35.82s"
+    },
+    {
+      "feature": "Zaken verdelen / vrijgeven",
+      "scenario": "Bob assigns zaken to a group and user from the list",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.74s"
+    },
+    {
+      "feature": "Zaken verdelen / vrijgeven",
+      "scenario": "Bob releases zaken from the list",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.18s"
+    },
+    {
+      "feature": "Taken verdelen / vrijgeven",
+      "scenario": "Bob assigns taken to a group and user from the list",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.49s"
+    },
+    {
+      "feature": "Taken verdelen / vrijgeven",
+      "scenario": "Bob releases taken",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.36s"
+    },
+    {
+      "feature": "Personen",
+      "scenario": "Bob wants to view a person",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.95s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob wants to create a new BPMN zaak",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "35.68s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob changes the assigned user and group",
+      "step": "\"Bob\" sees group \"Test groep B\" and user \"Test User2\" in the zaak data",
+      "error": "Error: expect(locator).toHaveValue(expected) failed",
+      "duration": "15.20s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob opens the initial task form",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "35.44s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob creates two SmartDocuments Word files",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.24s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob fills-in and submits the task form",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.39s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob inspects the summary task form",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.99s"
+    },
+    {
+      "feature": "BPMN",
+      "scenario": "Bob confirms the data in the summary form",
+      "step": "\"Bob\" is logged in to zac",
+      "error": "locator.waitFor: Timeout 30000ms exceeded.",
+      "duration": "36.58s"
+    }
+  ],
+  "timestamp": "2026-02-16T09:39:55.355Z"
+}
