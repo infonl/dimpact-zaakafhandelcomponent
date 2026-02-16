@@ -12,12 +12,17 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.log
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -47,20 +52,22 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
     val searchService = mockk<SearchService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val zaakKoppelenRestService = ZaakKoppelenRestService(
         policyService = policyService,
         searchService = searchService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        loggedInUserInstance = loggedInUserInstance
     )
 
     override fun isolationMode() = IsolationMode.InstancePerTest
 
-    fun checkIfRequiredServicesAreInvoked(sourceZaak: Zaak, targetZaak: ZaakZoekObject) {
+    fun checkIfRequiredServicesAreInvoked(sourceZaak: Zaak, targetZaak: ZaakZoekObject, loggedInUser: LoggedInUser) {
         verify(exactly = 1) {
             zrcClientService.readZaak(sourceZaak.uuid)
             searchService.zoek(any())
-            policyService.readZaakRechten(sourceZaak)
+            policyService.readZaakRechten(sourceZaak, loggedInUser)
             policyService.readZaakRechtenForZaakZoekObject(targetZaak)
         }
     }
@@ -77,7 +84,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -87,13 +93,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(sourceZaak).koppelen } returns true
+            every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK is called") {
                 every {
@@ -125,7 +132,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid))
                     }
@@ -162,7 +169,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(sourceZaak.zaaktype)
                     }
@@ -176,7 +183,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -187,13 +193,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(sourceZaak).koppelen } returns true
+            every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -221,7 +228,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -251,7 +258,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
@@ -262,7 +269,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -273,13 +279,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(sourceZaak).koppelen } returns true
+            every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -307,7 +314,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject,)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -337,21 +344,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
 
         Given("A source hoofdzaak and target hoofdzaak") {
             val deelzakenTypeUuid = UUID.randomUUID()
-
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -362,13 +367,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(hoofdzaak).koppelen } returns true
+            every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -396,7 +402,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -426,21 +432,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
 
         Given("A source hoofdzaak and target deelzaak") {
             val deelzakenTypeUuid = UUID.randomUUID()
-
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -451,13 +455,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(hoofdzaak).koppelen } returns true
+            every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -485,7 +490,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -515,21 +520,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
 
         Given("A source hoofdzaak and target not linked zaak") {
             val deelzakenTypeUuid = UUID.randomUUID()
-
             val hoofdzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
                 deelzaken = listOf(URI("https://example.com/deelzaak/$deelzakenTypeUuid"))
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -539,13 +542,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 zaaktypeUuid = zaakZoekObjectTypeUuid,
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(hoofdzaak).koppelen } returns true
+            every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -573,7 +577,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -607,7 +611,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(hoofdzaak.zaaktype)
                     }
@@ -617,14 +621,12 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
 
         Given("A source deelzaak and target hoofdzaak") {
             val deelzaakUuid = UUID.randomUUID()
-
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -635,13 +637,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = HOOFDZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(deelzaak).koppelen } returns true
+            every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -669,7 +672,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -699,21 +702,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
 
         Given("A source deelzaak and target deelzaak") {
             val deelzaakUuid = UUID.randomUUID()
-
             val deelzaak = createZaak(
                 identificatie = "ZAAK-2000-00001",
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
                 zaaktypeUri = zaakTypeURI,
                 hoofdzaakUri = URI("https://example.com/deelzaak/$deelzaakUuid")
             )
-
             val zaakZoekObject = createZaakZoekObject(
                 type = ZAAK,
                 zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
@@ -724,13 +725,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
                 indicatie = DEELZAAK
             )
-
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
             every { searchService.zoek(any()) } returns zoekResultaat
-            every { policyService.readZaakRechten(deelzaak).koppelen } returns true
+            every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -758,7 +760,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -788,7 +790,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }
@@ -814,11 +816,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             )
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
             val zoekParametersSlot = slot<ZoekParameters>()
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
             every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
-            every { policyService.readZaakRechten(deelzaak).koppelen } returns true
+            every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("findLinkableZaken with HOOFDZAAK link is called") {
                 val result = zaakKoppelenRestService.findLinkableZaken(
@@ -852,7 +856,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
 
@@ -882,7 +886,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject)
+                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
                 }
             }
         }

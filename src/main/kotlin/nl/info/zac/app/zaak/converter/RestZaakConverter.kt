@@ -31,6 +31,7 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
@@ -119,7 +120,7 @@ class RestZaakConverter @Inject constructor(
             // so we use [Period.parse] to convert the duration string to a [Period] object
             duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
             redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
-            gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
+            gerelateerdeZaken = toRestGerelateerdeZaken(zaak, zaakRechten),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
             communicatiekanaal = zaak.communicatiekanaalNaam,
@@ -155,22 +156,23 @@ class RestZaakConverter @Inject constructor(
         )
     }
 
-    private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
+    private fun toRestGerelateerdeZaken(zaak: Zaak, zaakrechten: ZaakRechten): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 restGerelateerdeZaakConverter.convert(
                     zaak = zrcClientService.readZaak(it),
-                    relatieType = RelatieType.HOOFDZAAK
+                    relatieType = RelatieType.HOOFDZAAK,
+                    zaakrechten = zaakrechten
                 )
             )
         }
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
-            ?.map { restGerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
+            ?.map { restGerelateerdeZaakConverter.convert(it, zaakrechten, RelatieType.DEELZAAK) }
             ?.forEach(gerelateerdeZaken::add)
         zaak.relevanteAndereZaken
-            ?.map(restGerelateerdeZaakConverter::convert)
+            ?.map{ restGerelateerdeZaakConverter.convert(it, zaakrechten) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

@@ -124,7 +124,11 @@ class TaskRestService @Inject constructor(
     @GET
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
+        val loggedInUser = loggedInUserInstance.get()
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        assertPolicy(
+            policyService.readZaakRechten(zaak, loggedInUser).lezen
+        )
         return taskService.listTasksForZaak(zaakUUID).let(restTaskConverter::convert)
     }
 

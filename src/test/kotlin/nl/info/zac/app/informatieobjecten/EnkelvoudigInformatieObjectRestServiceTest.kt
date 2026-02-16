@@ -40,7 +40,6 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
-import nl.info.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
@@ -49,8 +48,10 @@ import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createDocumentRechten
@@ -78,7 +79,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
-    val zaakInformatieobjectConverter = mockk<RestZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -91,7 +91,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         inboxDocumentenService = inboxDocumentenService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
         eventingService = eventingService,
-        restZaakInformatieobjectConverter = zaakInformatieobjectConverter,
         restInformatieobjectConverter = restInformatieobjectConverter,
         restInformatieobjecttypeConverter = restInformatieobjecttypeConverter,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
@@ -114,6 +113,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val restFileUpload = createRestFileUpload()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -128,11 +128,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectData
             )
         } returns zaakInformatieobject
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When(
             "the enkelvoudig informatieobject update is done by a role that is allowed to change the zaak"
         ) {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
 
@@ -158,7 +159,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         When(
             "the enkelvoudig informatieobject update is triggered but the ZGW client service throws an exception"
         ) {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
             every {
@@ -188,7 +189,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
 
         When("the enkelvoudig informatieobject is updated") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
             restEnkelvoudigInformatieobject.file = restFileUpload.file
@@ -214,7 +215,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
 
         When("enkelvoudig informatieobject is updated by a user that has no access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
@@ -241,6 +242,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
         every {
@@ -255,11 +257,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             restInformatieobjectConverter.convertToREST(zaakInformatieobject)
         } returns responseRestEnkelvoudigInformatieobject
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When(
             "the enkelvoudig informatieobject is updated by a role that is allowed to change the zaak"
         ) {
-            every { policyService.readZaakRechten(closedZaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(closedZaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
 
@@ -423,9 +426,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 URI("https://example.com/$informatieobjectUUID"),
             )
         )
+        val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
         every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
         every {
             restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
@@ -435,6 +439,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID)
         } returns besluitType
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the list of enkelvoudig informatieobject is requested") {
             val returnedRestEnkelvoudigInformatieobjecten =
@@ -589,16 +594,19 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 formaat = "application/pdf"
             )
         )
+        val loggedInUser = createLoggedInUser()
+
         enkelvoudigInformatieObjectUuids.forEachIndexed { index, informatieObjectUuid ->
             every {
                 drcClientService.readEnkelvoudigInformatieobject(informatieObjectUuid)
             } returns enkelvoudigeInformatieobjecten[index]
         }
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every { policyService.readZaakRechten(zaak).wijzigen } returns true
+        every { policyService.readZaakRechten(zaak, loggedInUser).wijzigen } returns true
         every {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(any(), any(), any())
         } just Runs
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("sendDocument is called") {
             enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
@@ -620,11 +628,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             informatieobjecten = enkelvoudigInformatieObjectUuids
         )
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val loggedInUser = createLoggedInUser()
         every {
             drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuids[0])
         } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
-        every { policyService.readZaakRechten(zaak).wijzigen } returns false
+        every { policyService.readZaakRechten(zaak, loggedInUser).wijzigen } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("sendDocument is called") {
             Then("an exception is thrown") {

@@ -326,12 +326,14 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     type = IdentificatieType.BSN
                 )
             )
+            val loggedInUser = createLoggedInUser()
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
             every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaak is read") {
                 val returnedRestZaak = zaakRestService.readZaak(zaakUUID)
@@ -398,10 +400,12 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 rolNietNatuurlijkPersoonWithRSIN,
                 rolNatuurlijkPersoonWithoutIdentificatie
             )
+            val loggedInUser = createLoggedInUser()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
             every { identificationService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)

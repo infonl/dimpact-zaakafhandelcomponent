@@ -15,7 +15,9 @@ import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.ZaakRechten
 
 @Suppress("LongParameterList")
 class RestZaakOverzichtConverter @Inject constructor(
@@ -28,9 +30,9 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
 ) {
-    fun convert(zaak: Zaak): RestZaakOverzicht {
+    fun convert(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
         return RestZaakOverzicht(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,
@@ -52,9 +54,9 @@ class RestZaakOverzichtConverter @Inject constructor(
         )
     }
 
-    fun convertForDisplay(zaak: Zaak): RestZaakOverzicht {
+    fun convertForDisplay(zaak: Zaak, loggedInUser: LoggedInUser): RestZaakOverzicht {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak, zaakType)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
         ).apply {

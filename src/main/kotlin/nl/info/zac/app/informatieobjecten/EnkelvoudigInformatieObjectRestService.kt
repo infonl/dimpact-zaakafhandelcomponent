@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
@@ -49,10 +50,11 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
-import nl.info.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
+import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
@@ -82,7 +84,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
-    private val restZaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
@@ -136,7 +137,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
-            assertPolicy(policyService.readZaakRechten(zaak).lezen)
+            assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).lezen)
             var enkelvoudigInformatieobjectenVoorZaak = listEnkelvoudigInformatieobjectenVoorZaak(zaak)
             if (zoekParameters.gekoppeldeZaakDocumenten) {
                 enkelvoudigInformatieobjectenVoorZaak.addAll(listGekoppeldeZaakInformatieObjectenVoorZaak(zaak))
@@ -158,7 +159,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("zaakUuid") zaakUuid: UUID
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zrcClientService.readZaak(zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak).lezen)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).lezen)
         return zrcClientService.listZaakinformatieobjecten(zaak)
             .map { it.informatieobject }
             .map(drcClientService::readEnkelvoudigInformatieobject)
@@ -172,7 +173,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val informatieobjecten = restDocumentVerzendGegevens.informatieobjecten
             .map(drcClientService::readEnkelvoudigInformatieobject)
         val zaak = zrcClientService.readZaak(restDocumentVerzendGegevens.zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).wijzigen)
         informatieobjecten.forEach { assertPolicy(isVerzendenToegestaan(it)) }
         informatieobjecten.forEach {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
@@ -193,7 +194,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @Valid @MultipartForm restEnkelvoudigInformatieobject: RestEnkelvoudigInformatieobject
     ): RestEnkelvoudigInformatieobject {
         val zaak = zrcClientService.readZaak(zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak).toevoegenDocument)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).toevoegenDocument)
 
         val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
             restInformatieobjectConverter::convertEnkelvoudigInformatieObject
@@ -217,7 +218,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID)
         assertPolicy(
             policyService.readDocumentRechten(informatieobject, targetZaak).verplaatsen &&
-                policyService.readZaakRechten(targetZaak).wijzigen
+                policyService.readZaakRechten(targetZaak, loggedInUserInstance.get()).wijzigen
         )
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
@@ -270,7 +271,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         .let(drcClientService::readEnkelvoudigInformatieobject)
         .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)
-        .map(restZaakInformatieobjectConverter::toRestZaakInformatieobject)
+        .map(::toRestZaakInformatieobject)
 
     @GET
     @Path("informatieobject/{uuid}/edit")
@@ -555,4 +556,24 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         ).let(restInformatieobjectConverter::convertToREST)
+
+    private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject): RestZaakInformatieobject {
+        val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
+        val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUserInstance.get())
+        return RestZaakInformatieobject(
+            zaakIdentificatie = zaak.getIdentificatie(),
+            zaakRechten = zaakrechten.toRestZaakRechten(),
+            zaakStartDatum = takeIf { zaakrechten.lezen }?.let { zaak.getStartdatum() },
+            zaakEinddatumGepland = takeIf { zaakrechten.lezen }?.let { zaak.getEinddatumGepland() },
+            zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.getOmschrijving() },
+            zaakStatus = takeIf { zaakrechten.lezen }?.let {
+                zaak.getStatus()?.let { statusUri ->
+                    val status = zrcClientService.readStatus(statusUri)
+                    val statustype = ztcClientService.readStatustype(status.getStatustype())
+                    toRestZaakStatus(statustype, status)
+                }
+            }
+        )
+    }
 }
