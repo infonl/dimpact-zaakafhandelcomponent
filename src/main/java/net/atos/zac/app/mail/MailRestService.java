@@ -73,8 +73,9 @@ public class MailRestService {
             @PathParam("zaakUuid") final UUID zaakUUID,
             final RESTMailGegevens restMailGegevens
     ) {
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).getVersturenEmail());
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).getVersturenEmail());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
     }
 
