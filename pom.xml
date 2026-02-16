@@ -35,7 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
-        <wildfly.version>39.0.1.Final</wildfly.version>
+        <wildfly.version>39.0.0.Final</wildfly.version>
         <wildfly-maven-plugin.version>5.1.5.Final</wildfly-maven-plugin.version>
         <wildfly-datasources-galleon-pack.version>11.3.0.Final</wildfly-datasources-galleon-pack.version>
         <wildfly-cloud-galleon-pack.version>9.0.0.Final</wildfly-cloud-galleon-pack.version>
