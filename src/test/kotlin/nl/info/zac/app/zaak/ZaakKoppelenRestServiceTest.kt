@@ -21,8 +21,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.identity.model.createUser
-import nl.info.zac.log.log
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -132,7 +130,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid))
                     }
@@ -169,7 +171,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(sourceZaak.zaaktype)
                     }
@@ -228,7 +234,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -258,7 +268,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -314,7 +328,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -344,7 +362,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = sourceZaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -402,7 +424,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -432,7 +458,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -490,7 +520,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -520,7 +554,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -577,7 +615,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -611,7 +653,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = hoofdzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = hoofdzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                     verify(exactly = 1) {
                         ztcClientService.readZaaktype(hoofdzaak.zaaktype)
                     }
@@ -672,7 +718,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -702,7 +752,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -760,7 +814,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -790,7 +848,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }
@@ -856,7 +918,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
 
@@ -886,7 +952,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
                 }
 
                 And("required services should've be invoked") {
-                    checkIfRequiredServicesAreInvoked(sourceZaak = deelzaak, targetZaak = zaakZoekObject, loggedInUser = loggedInUser)
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = deelzaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
                 }
             }
         }

@@ -31,7 +31,6 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
-import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
@@ -172,7 +171,7 @@ class RestZaakConverter @Inject constructor(
             ?.map { restGerelateerdeZaakConverter.convert(it, zaakrechten, RelatieType.DEELZAAK) }
             ?.forEach(gerelateerdeZaken::add)
         zaak.relevanteAndereZaken
-            ?.map{ restGerelateerdeZaakConverter.convert(it, zaakrechten) }
+            ?.map { restGerelateerdeZaakConverter.convert(it, zaakrechten) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

@@ -265,7 +265,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
                     }
                 )
             )
-             val loggedInUser = createLoggedInUser()
+            val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)

@@ -17,7 +17,6 @@ import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.output.ZaakRechten
 
 @Suppress("LongParameterList")
 class RestZaakOverzichtConverter @Inject constructor(

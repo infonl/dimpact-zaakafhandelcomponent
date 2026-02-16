@@ -87,7 +87,8 @@ public class MailRestService {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
         var ontvangstbevestigingVerstuurd = Boolean.TRUE.equals(zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()));
-        assertPolicy(!ontvangstbevestigingVerstuurd && policyService.readZaakRechten(zaak, loggedInUser).getVersturenOntvangstbevestiging());
+        assertPolicy(!ontvangstbevestigingVerstuurd && policyService.readZaakRechten(zaak, loggedInUser)
+                .getVersturenOntvangstbevestiging());
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }

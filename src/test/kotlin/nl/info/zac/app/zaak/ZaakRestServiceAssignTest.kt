@@ -168,7 +168,9 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             }
 
             When("toekennen policy is missing") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = false)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakRestService.assignZaak(restZaakAssignmentData)
                 }
@@ -212,7 +214,9 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             }
 
             When("logged-in user does not have toekennen policy") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = false)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
                 }
@@ -258,7 +262,9 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             }
 
             When("logged-in user does not have toekennen policy") {
-                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = false)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
                 }
