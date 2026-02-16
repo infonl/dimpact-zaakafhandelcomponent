@@ -223,7 +223,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 zaak.url
             )
         } just runs
-        every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
         every {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
@@ -373,7 +373,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 zaak.url
             )
         } just runs
-        every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
         every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
         every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
@@ -467,6 +467,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -490,6 +491,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -513,6 +515,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<DueDateNotAllowed> {
@@ -541,6 +544,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns zaaktypeCmmnConfiguration
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
 
             val exception = shouldThrow<BetrokkeneNotAllowedException> {
                 zaakRestService.createZaak(zaakAanmaakGegevens)

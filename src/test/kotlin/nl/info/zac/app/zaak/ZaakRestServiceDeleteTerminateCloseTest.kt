@@ -165,7 +165,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { zrcClientService.deleteRol(any(), any()) } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the initiator is deleted") {

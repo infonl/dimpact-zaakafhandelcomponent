@@ -155,7 +155,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
                     restZaakAssignmentData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("toekennen policy is assigned to the user") {
@@ -202,7 +202,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
                     restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
 
             When("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -250,7 +250,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
                     restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
 
             When("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
