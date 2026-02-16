@@ -37,7 +37,6 @@ import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
-import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.net.URI
