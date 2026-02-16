@@ -8,6 +8,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   inject,
   Input,
   OnInit,
@@ -38,6 +39,16 @@ export class FormioWrapperComponent implements OnInit {
   @Output() formChange = new EventEmitter<{ data: unknown }>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+  @HostListener("click", ["$event"])
+  onClickInside(event: MouseEvent) {
+    const path = event.composedPath() as HTMLElement[];
+    const isClickInsideChoicesWidget = path.some((element) => {
+      return element.classList && element.classList.contains("choices");
+    });
+    if (isClickInsideChoicesWidget) {
+      event.stopPropagation();
+    }
+  }
 
   @ViewChild(FormioComponent, { static: false })
   formioComponent!: FormioComponent;
