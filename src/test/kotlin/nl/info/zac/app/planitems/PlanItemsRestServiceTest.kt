@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.enterprise.inject.Instance
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
@@ -36,6 +37,8 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -70,6 +73,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val planItemsRESTService = PlanItemsRestService(
         zaakVariabelenService,
@@ -84,7 +88,8 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
-        restMailGegevensConverter
+        restMailGegevensConverter,
+        loggedInUserInstance
     )
 
     val planItemInstanceId = "fakePlanItemInstanceId"
@@ -111,6 +116,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -128,9 +134,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     zaak.uuid
                 )
             } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started from user that has access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
 
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
@@ -146,7 +153,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
 
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
                     planItemsRESTService.doHumanTaskplanItem(
@@ -172,10 +179,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
@@ -193,6 +201,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every {
                 suspensionZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
             } returns opgeschorteZaak
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started from user with access") {
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
@@ -219,12 +228,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started") {
                 shouldThrow<InputValidationFailedException> {
@@ -252,11 +263,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("http://example.com/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+            val loggedInUser = createLoggedInUser()
 
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfigurationMock
@@ -267,7 +279,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 createHumanTaskParameters().apply {
                     doorlooptijd = 10
                 }
-
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -280,6 +291,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started") {
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
@@ -312,11 +324,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
+            val loggedInUser = createLoggedInUser()
 
             every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfigurationMock
@@ -342,6 +355,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started") {
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
@@ -378,6 +392,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -399,9 +414,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started from user that has access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
 
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
@@ -424,7 +440,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
 
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
                 val exception = shouldThrow<PolicyException> {
                     planItemsRESTService.doHumanTaskplanItem(
                         restHumanTaskData
@@ -449,6 +465,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
+            val loggedInUser = createLoggedInUser()
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -470,9 +487,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A human task plan item is started from user that has access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
 
                 planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
 
@@ -495,7 +513,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
 
             When("the enkelvoudig informatieobject is updated by a user that has no access") {
-                every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+                every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
                 val exception = shouldThrow<PolicyException> {
                     planItemsRESTService.doHumanTaskplanItem(
                         restHumanTaskData
@@ -520,9 +538,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 resultaattypeUuid = UUID.randomUUID(),
             )
             restUserEventListenerData.planItemInstanceId = planItemInstanceId
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 startenTaak = true,
                 versturenEmail = true
             )
@@ -530,6 +549,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
             every { mailService.sendMail(mailGegevens, any()) } returns ""
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("A user event to settle the zaak and send a corresponding email is planned") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -549,11 +569,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val resultaattypeUuid = UUID.randomUUID()
             val datumkenmerk = "testDatumkenmerk"
             val brondatumEigenschap = "20231201"
-
             val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
                 afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
             }
             brondatumArchiefprocedure.datumkenmerk = datumkenmerk
+            val loggedInUser = createLoggedInUser()
 
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
@@ -564,8 +584,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the user event listener plan item is processed") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -587,10 +608,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 resultaattypeUuid = resultaattypeUuid,
                 restMailGegevens = null
             )
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called to close the zaak") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -615,10 +638,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             ).apply {
                 this.resultaatToelichting = resultaatToelichting
             }
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called to handle zaak afhandelen") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -640,9 +665,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             ).apply {
                 this.resultaattypeUuid = null
             }
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called without resultaattypeUuid") {
                 val exception = shouldThrow<InputValidationFailedException> {
@@ -675,14 +702,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 this.resultaatToelichting = resultaatToelichting
                 this.planItemInstanceId = planItemInstanceId
             }
-
             val intakeAfrondenZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaak.zaaktype.extractUuid(),
                 nietOntvankelijkResultaattype = nietOntvankelijkResultaattypeUuid
             )
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
@@ -692,6 +719,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
             } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -720,12 +748,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 this.zaakOntvankelijk = true
                 this.planItemInstanceId = planItemInstanceId
             }
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, true) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called for intake afronden with zaak ontvankelijk") {
                 planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
@@ -754,21 +784,22 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 this.zaakOntvankelijk = false
                 this.planItemInstanceId = planItemInstanceId
             }
-
             val geenResultaattypeZaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaak.zaaktype.extractUuid()
             ).apply {
                 this.nietOntvankelijkResultaattype = null
             }
+            val loggedInUser = createLoggedInUser()
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
             } returns geenResultaattypeZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When(
                 "doUserEventListenerPlanItem is called for intake afronden with zaak not ontvankelijk but no resultaattype"

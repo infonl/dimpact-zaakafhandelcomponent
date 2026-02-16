@@ -107,11 +107,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
             every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("the returned zaakrechten are correct") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -157,11 +156,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -196,11 +194,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
             every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -235,11 +232,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
             every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -270,8 +266,8 @@ class PolicyServiceTest : BehaviorSpec({
             val expectedZaakRechten = createZaakRechten()
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
             every { configurationService.featureFlagPabcIntegration() } returns true
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
 
             When("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)

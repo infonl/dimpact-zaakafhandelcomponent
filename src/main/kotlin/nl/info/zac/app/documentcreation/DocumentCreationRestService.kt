@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.documentcreation
 
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
@@ -26,6 +27,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
@@ -55,7 +57,8 @@ class DocumentCreationRestService @Inject constructor(
     private val bpmnDocumentCreationService: BpmnDocumentCreationService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val flowableTaskService: FlowableTaskService
+    private val flowableTaskService: FlowableTaskService,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -74,7 +77,7 @@ class DocumentCreationRestService @Inject constructor(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also { zaak ->
-            assertPolicy(policyService.readZaakRechten(zaak).creerenDocument)
+            assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).creerenDocument)
             restDocumentCreationAttendedData.taskId?.let {
                 val task = flowableTaskService.findOpenTask(it)
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")

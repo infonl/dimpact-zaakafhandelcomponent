@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak
 
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
@@ -24,6 +25,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
@@ -53,8 +55,8 @@ class ZaakKoppelenRestService @Inject constructor(
     private val searchService: SearchService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-
     @GET
     @Path("{zaakUuid}/zoek-koppelbare-zaken")
     @Suppress("UnusedParameter")
@@ -64,16 +66,19 @@ class ZaakKoppelenRestService @Inject constructor(
         @QueryParam("relationType") relationType: RelatieType,
         @QueryParam("page") @DefaultValue("0") page: Int,
         @QueryParam("rows") @DefaultValue("10") rows: Int
-    ) =
-        zrcClientService.readZaak(zaakUuid).let { zaak ->
-            filterSearchResults(
-                searchService.zoek(
-                    buildZoekParameters(zaak, zoekZaakIdentifier, page, rows)
-                ),
-                zaak,
-                relationType
-            )
-        }
+    ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
+        val loggedInUser = loggedInUserInstance.get()
+        val zaak = zrcClientService.readZaak(zaakUuid)
+        val searchResults = searchService.zoek(
+            zoekParameters = buildZoekParameters(zaak, zoekZaakIdentifier, page, rows)
+        )
+        return filterSearchResults(
+            searchResults = searchResults,
+            zaak = zaak,
+            relationType = relationType,
+            loggedInUser = loggedInUser
+        )
+    }
 
     private fun buildZoekParameters(
         zaak: Zaak,
@@ -101,13 +106,19 @@ class ZaakKoppelenRestService @Inject constructor(
     private fun filterSearchResults(
         searchResults: ZoekResultaat<out ZoekObject>,
         zaak: Zaak,
-        relationType: RelatieType
+        relationType: RelatieType,
+        loggedInUser: LoggedInUser
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> =
         RestZoekResultaat(
             searchResults.items.map {
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
-                    isLinkable(sourceZaak = zaak, targetZaak = zaakZoekObject, relationType = relationType)
+                    isLinkable(
+                        sourceZaak = zaak,
+                        targetZaak = zaakZoekObject,
+                        relationType = relationType,
+                        loggedInUser = loggedInUser
+                    )
                 )
             },
             searchResults.count
@@ -116,10 +127,11 @@ class ZaakKoppelenRestService @Inject constructor(
     private fun isLinkable(
         sourceZaak: Zaak,
         targetZaak: ZaakZoekObject,
-        relationType: RelatieType
+        relationType: RelatieType,
+        loggedInUser: LoggedInUser
     ) =
         (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
-            sourceZaak.hasLinkRights() &&
+            sourceZaak.hasLinkRights(loggedInUser) &&
             targetZaak.hasLinkRights() &&
             sourceZaak.isLinkableTo(targetZaak, relationType) &&
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
@@ -132,7 +144,10 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
 
-    private fun Zaak.hasLinkRights() = policyService.readZaakRechten(this).koppelen
+    private fun Zaak.hasLinkRights(loggedInUser: LoggedInUser) = policyService.readZaakRechten(
+        this,
+        loggedInUser
+    ).koppelen
 
     private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
         when (relationType) {

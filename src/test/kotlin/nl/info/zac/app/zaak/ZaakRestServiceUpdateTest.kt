@@ -55,6 +55,7 @@ import nl.info.zac.app.zaak.model.createRestZaakDataUpdate
 import nl.info.zac.app.zaak.model.createRestZaakInitiatorGegevens
 import nl.info.zac.app.zaak.model.createRestZaakLocatieGegevens
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -167,15 +168,16 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val patchedRestZaak = createRestZaak()
             val task = mockk<Task>()
             val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
             every { task.id } returns "id"
             every { eventingService.send(any<ScreenEvent>()) } just runs
-            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten) } returns patchedRestZaak
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns patchedRestZaak
             every {
                 identityService.validateIfUserIsInGroup(restZaakCreateData.behandelaar!!.id, restZaakCreateData.groep!!.id)
             } just runs
@@ -188,6 +190,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns zaaktypeBpmnConfiguration
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("zaak final date is set to a later date") {
                 every {
@@ -223,15 +226,17 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaakType = createZaakType()
             val restZaakCreateData = createRestZaakCreateData()
             val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, changeDescription)
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { identityService.validateIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("zaak update is requested") {
                 shouldThrow<InputValidationFailedException> {
@@ -250,11 +255,13 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val restZaakCreateData =
                 createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
             val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -272,9 +279,9 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 )
                 val restZaak = createRestZaak()
                 val zaakRechten = createZaakRechten()
-                every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
+                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten, loggedInUser) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
@@ -298,11 +305,13 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val restZaakCreateData =
                 createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
             val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
@@ -319,9 +328,9 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                     uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
                 )
                 val zaakRechten = createZaakRechten()
-                every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
-                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten) } returns restZaak
+                every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten, loggedInUser) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
                 every {
                     opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
@@ -347,14 +356,16 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaakRechten = createZaakRechten()
             val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
             val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns createZaaktypeCmmnConfiguration()
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("zaak update is requested with a new final date") {
                 val exception = shouldThrow<DueDateNotAllowed> {
@@ -382,12 +393,15 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val updatedZaak = createZaak()
             val updatedRestZaak = createRestZaak()
             val patchZaakSlot = slot<Zaak>()
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            val loggedInUser = createLoggedInUser()
+
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
-            every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten) } returns updatedRestZaak
+            every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser) } returns updatedRestZaak
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("a zaak location is added to the zaak") {
                 val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
@@ -420,12 +434,15 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val updatedZaak = createZaak()
             val updatedRestZaak = createRestZaak()
             val patchZaakSlot = slot<Zaak>()
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            val loggedInUser = createLoggedInUser()
+
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
-            every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten) } returns updatedRestZaak
+            every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser) } returns updatedRestZaak
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaak location is deleted") {
                 val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
@@ -452,17 +469,20 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens()
             val rolMedewerker = createRolMedewerker()
             val restZaak = createRestZaak()
+            val loggedInUser = createLoggedInUser()
+
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
             } returns Pair(zaak, zaakType)
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { zrcClientService.deleteRol(any(), any()) } just runs
             every { zaakService.addInitiatorToZaak(any(), any(), any(), any()) } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
             every {
                 identificationService.replaceKeyWithBsn(restZaakInitiatorGegevens.betrokkeneIdentificatie.temporaryPersonId!!)
             } returns bsn
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("an initiator is updated") {
                 val updatedRestZaak = zaakRestService.updateInitiator(restZaakInitiatorGegevens)
@@ -498,12 +518,13 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
             } returns Pair(zaak, zaakType)
             every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
                 zaakService.addInitiatorToZaak(
                     IdentificatieType.VN,
@@ -512,7 +533,8 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                     any()
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the initiator is updated") {
                 zaakRestService.updateInitiator(
@@ -564,12 +586,13 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
             } returns Pair(zaak, zaakType)
             every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
                 zaakService.addInitiatorToZaak(
                     IdentificatieType.RSIN,
@@ -578,7 +601,8 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                     any()
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns createRestZaak()
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the initiator is updated") {
                 zaakRestService.updateInitiator(
@@ -610,12 +634,14 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser()
 
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakInitiatorGegevens.zaakUUID)
             } returns Pair(zaak, zaakType)
             every { zgwApiService.findInitiatorRoleForZaak(any()) } returns null
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the initiator is updated without a required KVK nummer") {
                 val exception = shouldThrow<IllegalArgumentException> {
@@ -639,13 +665,16 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaakRechten = createZaakRechten(toevoegenInitiatorPersoon = true)
             val rolMedewerker = createRolMedewerker()
             val restZaak = createRestZaak()
+            val loggedInUser = createLoggedInUser()
+
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid)
             } returns Pair(zaak, zaakType)
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { zrcClientService.deleteRol(any(), any()) } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the initiator is deleted") {
                 val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("fake reason"))
@@ -666,11 +695,14 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakdataMap = slot<Map<String, Any>>()
+            val loggedInUser = createLoggedInUser()
+
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(restZaakDataUpdate.uuid)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, capture(zaakdataMap)) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaakdata is requested to be updated") {
                 zaakRestService.updateZaakdata(restZaakDataUpdate)

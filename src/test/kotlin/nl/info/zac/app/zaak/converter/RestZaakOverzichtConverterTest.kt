@@ -17,6 +17,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createZaakRechten
 
@@ -47,12 +48,13 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
     Given("A zaak") {
         val zaak = createZaak()
         val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
 
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-        every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
+        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
 
         When("converted to dashboard version of RestZaakOverzicht") {
-            val result = restZaakOverzichtConverter.convertForDisplay(zaak)
+            val result = restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser)
 
             Then("it contains only the minimal set of properties") {
                 with(result) {

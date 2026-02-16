@@ -197,6 +197,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
         val zaakCreatedSlot = slot<Zaak>()
         val updatedRolesSlot = mutableListOf<Rol<*>>()
+        val loggedInUser = createLoggedInUser()
 
         every { configurationService.readBronOrganisatie() } returns bronOrganisatie
         every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
@@ -222,7 +223,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 zaak.url
             )
         } just runs
-        every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
         every {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
@@ -249,6 +250,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 explanation = "Aanmaken zaak"
             )
         } just runs
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When(
             """
@@ -261,7 +263,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readOverigeRechten(zaakType.omschrijving)
             } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
-                policyService.readZaakRechten(zaak, zaakType)
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
             every {
@@ -343,6 +345,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         val verantwoordelijkeOrganisatie = "fakeVerantwoordelijkeOrganisatie"
         val zaakCreatedSlot = slot<Zaak>()
         val updatedRolesSlot = mutableListOf<Rol<*>>()
+        val loggedInUser = createLoggedInUser()
 
         every { configurationService.readBronOrganisatie() } returns bronOrganisatie
         every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
@@ -370,7 +373,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 zaak.url
             )
         } just runs
-        every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
         every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
         every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
@@ -395,6 +398,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             )
         } just runs
         every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When(
             """
@@ -407,7 +411,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
                 policyService.readOverigeRechten(zaakType.omschrijving)
             } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
-                policyService.readZaakRechten(zaak, zaakType)
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
             every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
             every {
@@ -463,6 +467,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -486,6 +491,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -509,6 +515,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
         every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
             val exception = shouldThrow<DueDateNotAllowed> {
@@ -537,6 +544,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             every {
                 zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
             } returns zaaktypeCmmnConfiguration
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
 
             val exception = shouldThrow<BetrokkeneNotAllowedException> {
                 zaakRestService.createZaak(zaakAanmaakGegevens)

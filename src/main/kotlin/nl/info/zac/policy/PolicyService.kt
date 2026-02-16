@@ -80,12 +80,12 @@ class PolicyService @Inject constructor(
             )
         ).result
 
-    fun readZaakRechten(zaak: Zaak): ZaakRechten {
+    fun readZaakRechten(zaak: Zaak, loggedInUser: LoggedInUser): ZaakRechten {
         val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
-        return readZaakRechten(zaak, zaakType)
+        return readZaakRechten(zaak, zaakType, loggedInUser)
     }
 
-    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType): ZaakRechten {
+    fun readZaakRechten(zaak: Zaak, zaaktype: ZaakType, loggedInUser: LoggedInUser): ZaakRechten {
         val statusType = zaak.status?.let {
             zrcClientService.readStatus(it).statustype
                 .let(ztcClientService::readStatustype)
@@ -102,7 +102,7 @@ class PolicyService @Inject constructor(
         return evaluationClient.readZaakRechten(
             RuleQuery(
                 ZaakInput(
-                    loggedInUser = loggedInUserInstance.get(),
+                    loggedInUser = loggedInUser,
                     zaakData = zaakData,
                     featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
