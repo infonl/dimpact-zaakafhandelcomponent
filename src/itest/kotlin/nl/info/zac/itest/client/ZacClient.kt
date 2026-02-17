@@ -295,14 +295,12 @@ class ZacClient(
                  "defaultMail": true,
                  "mail": "GEMEENTE",
                  "speciaal": true,
-                 "index": 0,
                  "replyTo": "GEMEENTE"
                 },
                 {
                   "defaultMail": false,
                   "mail": "MEDEWERKER",
                   "speciaal": true,
-                  "index": 1,
                   "replyTo": null
                 }
               ],
