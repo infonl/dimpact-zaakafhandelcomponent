@@ -13,7 +13,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.1
 - **otel/opentelemetry-collector-contrib**: 0.145.0
-- **grafana/tempo**: 2.10.0
+- **grafana/tempo**: 2.10.1
 - **prom/prometheus**: v3.9.1
 - **grafana/grafana**: 12.3.3
 - **greenmail/standalone**: 2.1.8
