@@ -1068,28 +1068,89 @@ class ZaakRestServiceTest : BehaviorSpec({
     Context("Listing zaak warnings") {
         Given(
             """
-            A zaak with an planned fatal date that is after today but before the 'fatal date warning window'
-            of the related zaaktype
+            A zaak that is assigned to myself, with an planned fatal date set on tomorrow 
+            which is before today plus the 'fatal date warning window' of the related zaaktype plus one day
             """
         ) {
-            val yesterday = ZonedDateTime.now().minusDays(1)
-            val (_, zaakUuid) = zaakHelper.createZaak(
+            val today = ZonedDateTime.now()
+            val yesterday = today.minusDays(1)
+            val tomorrow = today.plusDays(1)
+            val zaakDescription = "itestZaakDescription-${System.currentTimeMillis()}"
+            val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaakDescription = zaakDescription,
                 startDate = yesterday,
+                group = BEHANDELAARS_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+                behandelaarName = BEHANDELAAR_DOMAIN_TEST_1.displayName
+            )
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "uiterlijkeEinddatumAfdoening": "$tomorrow"                
+                        },
+                        "reden": "fakeReason"
+                    }
+                """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
+            response.code shouldBe HTTP_OK
 
             When("the 'list zaak warnings' endpoint is called for the zaak") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/waarschuwing",
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
-                Then("the response should be a 200 HTTP response with the expected zaak warnings") {
+                Then("the response should be a 200 HTTP response with the expected zaak") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    // TODO: change zaak fatal date so that it triggers a warning
-                    responseBody shouldEqualJson """[]"""
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        [ {
+                          "behandelaar" : {
+                            "id" : "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                            "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
+                          },
+                          "groep" : {
+                            "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                            "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                          },
+                          "identificatie" : "$zaakIdentification",
+                          "omschrijving" : "$zaakDescription",
+                          "openstaandeTaken" : {
+                            "aantalOpenstaandeTaken" : 0,
+                            "taakNamen" : [ ]
+                          },
+                          "rechten" : {
+                            "afbreken" : true,
+                            "behandelen" : true,
+                            "bekijkenZaakdata" : false,
+                            "creerenDocument" : true,
+                            "heropenen" : false,
+                            "lezen" : true,
+                            "toekennen" : true,
+                            "toevoegenBagObject" : true,
+                            "toevoegenBetrokkeneBedrijf" : true,
+                            "toevoegenBetrokkenePersoon" : true,
+                            "toevoegenInitiatorBedrijf" : true,
+                            "toevoegenInitiatorPersoon" : true,
+                            "versturenEmail" : true,
+                            "versturenOntvangstbevestiging" : true,
+                            "verwijderenBetrokkene" : true,
+                            "verwijderenInitiator" : true,
+                            "wijzigen" : true,
+                            "wijzigenDoorlooptijd" : true,
+                            "wijzigenLocatie" : true
+                          },
+                          "startdatum" : "$yesterday",
+                          "status" : "Intake",
+                          "uiterlijkeEinddatumAfdoening" : "$tomorrow",
+                          "zaaktype" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        } ]                                               
+                    """
                 }
             }
         }
