@@ -10,17 +10,7 @@
     [form]="form"
     [readOnly]="readOnly"
     language="nl"
-    [options]="{
-      disableAlerts: true,
-      i18n: {
-        nl: {
-          cancel: 'Annuleren',
-          next: 'Volgende',
-          previous: 'Vorige',
-          submit: 'Indienen',
-        },
-      },
-    }"
+    [options]="formioOptions"
     (submit)="onSubmit($event)"
     (change)="onChange($event)"
     (customEvent)="onCustomEvent($event)"

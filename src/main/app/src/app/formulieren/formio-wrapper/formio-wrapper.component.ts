@@ -80,6 +80,21 @@ export class FormioWrapperComponent implements OnInit {
       this.createDocument.emit(event);
     }
   }
+
+  protected get formioOptions() {
+    return {
+      disableAlerts: true,
+      i18n: {
+        nl: {
+          cancel: "Annuleren",
+          next: "Volgende",
+          previous: "Vorige",
+          submit: "Indienen",
+        },
+      },
+      ...this.options,
+    };
+  }
 }
 
 export interface FormioCustomEvent {
