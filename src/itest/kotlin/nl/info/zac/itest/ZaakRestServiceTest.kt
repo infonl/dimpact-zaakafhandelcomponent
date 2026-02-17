@@ -74,6 +74,7 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -1145,9 +1146,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "wijzigenDoorlooptijd" : true,
                             "wijzigenLocatie" : true
                           },
-                          "startdatum" : "$yesterday",
+                          "startdatum" : "${yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                           "status" : "Intake",
-                          "uiterlijkeEinddatumAfdoening" : "$tomorrow",
+                          "uiterlijkeEinddatumAfdoening" : "${tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                           "zaaktype" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
                         } ]                                               
                     """
