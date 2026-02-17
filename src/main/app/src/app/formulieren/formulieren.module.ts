@@ -4,7 +4,7 @@
  */
 
 import { NgModule } from "@angular/core";
-import { FormioModule } from "@formio/angular";
+import { FormioAppConfig, FormioModule } from "@formio/angular";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { SharedModule } from "../shared/shared.module";
@@ -24,6 +24,15 @@ import { DocumentenFormulierVeldComponent } from "./formulier/velden/documenten/
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     FormioModule,
+  ],
+  providers: [
+    {
+      provide: FormioAppConfig,
+      useValue: {
+        appUrl: "",
+        apiUrl: "",
+      },
+    },
   ],
 })
 export class FormulierenModule {}
