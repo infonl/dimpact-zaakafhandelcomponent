@@ -130,6 +130,74 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
                     }
 
                     result.totaal shouldBe 1
+                    result.resultaten.size shouldBe 0
+                }
+            }
+
+            When("listing multiple inbox documents where only some have missing informatieobjects") {
+                val werklijstRechten = createWerklijstRechten(inbox = true)
+                val restListParameters = RESTInboxDocumentListParameters()
+                val listParameters = InboxDocumentListParameters()
+
+                // Create 3 documents
+                val inboxDocumentUUID1 = UUID.randomUUID()
+                val inboxDocument1 = createInboxDocument(uuid = inboxDocumentUUID1)
+
+                val inboxDocumentUUID2 = UUID.randomUUID()
+                val inboxDocument2 = createInboxDocument(uuid = inboxDocumentUUID2)
+
+                val inboxDocumentUUID3 = UUID.randomUUID()
+                val inboxDocument3 = createInboxDocument(uuid = inboxDocumentUUID3)
+
+                val informatieobjectTypeUUID1 = UUID.randomUUID()
+                val enkelvoudigInformatieObject1 = createEnkelvoudigInformatieObject().apply {
+                    setInformatieobjecttype(URI("https://example.com/informatieobjecttypen/$informatieobjectTypeUUID1"))
+                }
+
+                val informatieobjectTypeUUID3 = UUID.randomUUID()
+                val enkelvoudigInformatieObject3 = createEnkelvoudigInformatieObject().apply {
+                    setInformatieobjecttype(URI("https://example.com/informatieobjecttypen/$informatieobjectTypeUUID3"))
+                }
+
+                every { policyService.readWerklijstRechten() } returns werklijstRechten
+                every { listParametersConverter.convert(restListParameters) } returns listParameters
+                every {
+                    inboxDocumentenService.list(listParameters)
+                } returns listOf(inboxDocument1, inboxDocument2, inboxDocument3)
+                every { inboxDocumentenService.count(listParameters) } returns 3
+
+                // First document returns successfully
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID1)
+                } returns enkelvoudigInformatieObject1
+
+                // Second document throws NotFoundException
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID2)
+                } throws NotFoundException("Informatieobject not found")
+
+                // Third document returns successfully
+                every {
+                    drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID3)
+                } returns enkelvoudigInformatieObject3
+
+                Then("it should remove the missing document from the list and return the others") {
+                    val result = inboxDocumentenRESTService.listInboxDocuments(restListParameters)
+
+                    verify(exactly = 1) {
+                        policyService.readWerklijstRechten()
+                        listParametersConverter.convert(restListParameters)
+                        inboxDocumentenService.list(listParameters)
+                        inboxDocumentenService.count(listParameters)
+                        drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID1)
+                        drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID2)
+                        drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID3)
+                    }
+
+                    // Total count should still be 3 as it comes from the service
+                    result.totaal shouldBe 3
+                    // But the actual list should only contain 2 documents (the ones that were successfully retrieved)
+                    result.resultaten.size shouldBe 2
                 }
             }
         }
