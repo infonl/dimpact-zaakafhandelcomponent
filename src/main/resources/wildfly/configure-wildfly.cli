@@ -26,7 +26,7 @@ data-source add \
     --use-java-context=true \
     --statistics-enabled=${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}
 
-# Add system property to enable the usage of JsonB
+# Enable the usage of JSON-B for RESTEasy and disable the default preference for Jackson.
 /system-property=resteasy.preferJacksonOverJsonB:add(value=false)
 
 # Enlarge Undertow max POST size
@@ -39,9 +39,10 @@ data-source add \
 
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
     # This sets the max post size accepted by the RESTEasy framework in WildFly
-    # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads. This value corresponds with 120MB using the Base 2 format.
+    # NOTE: This needs to set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
+    # This value corresponds to 120MB using the Base 2 format.
     "dev.resteasy.entity.file.threshold" = "125829120B", \
-    # We currently only export traces to the Open Telemetry Collector and not logs or metrics.
+    # We only export traces to the Open Telemetry Collector and not logs or metrics.
     "otel.traces.exporter" = "otlp", \
     "otel.metrics.exporter" = "none", \
     "otel.logs.exporter" = "none", \
@@ -59,6 +60,10 @@ data-source add \
 /subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:fakeDefaultUsername},password=${env.SMTP_PASSWORD:fakeDefaultPassword})
 
 # Logging configuration
+
+# Suppress 'SRCFG01008: The value jakarta.ejb.EJBException has been converted by a Boolean Converter to "false"' WARN log messages
+# These warnings are a known quirk from SmallRye Config when running in WildFly with MicroProfile REST Client and do not indicate a problem in our code.
+/subsystem=logging/logger=io.smallrye.config:add(level=ERROR)
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data
