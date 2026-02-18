@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 - 2024-2025 Dimpact
+ * SPDX-FileCopyrightText: 2022 - 2024-2025 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
