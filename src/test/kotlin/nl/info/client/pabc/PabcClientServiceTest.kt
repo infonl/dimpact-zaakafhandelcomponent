@@ -115,7 +115,7 @@ class PabcClientServiceTest : BehaviorSpec({
             val applicationRolesResponse = createApplicationRolesResponse()
             every {
                 pabcClient.getApplicationRolesPerEntityType(
-                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_NON_EXISTING_FUNCTIONAL_ROLE") }
+                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
                 )
             } returns applicationRolesResponse
 
@@ -125,7 +125,7 @@ class PabcClientServiceTest : BehaviorSpec({
                 Then("it should call getApplicationRoles with the non-existing functional role") {
                     verify(exactly = 1) {
                         pabcClient.getApplicationRolesPerEntityType(
-                            GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_NON_EXISTING_FUNCTIONAL_ROLE") }
+                            GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
                         )
                     }
                 }
@@ -136,7 +136,7 @@ class PabcClientServiceTest : BehaviorSpec({
             val runtimeException = RuntimeException("fakeExceptionMessage")
             every {
                 pabcClient.getApplicationRolesPerEntityType(
-                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_NON_EXISTING_FUNCTIONAL_ROLE") }
+                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
                 )
             } throws runtimeException
 

@@ -22,7 +22,7 @@ class PabcClientService @Inject constructor(
     @RestClient private val pabcClient: PabcClient
 ) {
     companion object {
-        private const val NON_EXISTING_FUNCTIONAL_ROLE = "FAKE_NON_EXISTING_FUNCTIONAL_ROLE"
+        private const val FAKE_FUNCTIONAL_ROLE = "FAKE_FUNCTIONAL_ROLE"
     }
 
     fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse =
@@ -46,12 +46,12 @@ class PabcClientService @Inject constructor(
     ).groups
 
     /**
-     * Attempt to call the PABC API on application startup, using a (most likely) non-existing functional role,
+     * Attempt to call the PABC API on application startup, using a (most likely non-existing) fake functional role,
      * to ensure that the PABC API is available and properly configured.
      * If the PABC API is not available or not properly configured,
      * this will result in an exception being thrown on application startup,
      * which will prevent ZAC from starting up successfully.
      */
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
-        getApplicationRoles(listOf(NON_EXISTING_FUNCTIONAL_ROLE))
+        getApplicationRoles(listOf(FAKE_FUNCTIONAL_ROLE))
 }
