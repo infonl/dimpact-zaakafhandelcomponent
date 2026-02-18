@@ -73,7 +73,7 @@ Run `./gradlew spotlessApply detektApply` before committing backend changes.
 ## Architecture
 
 ### Backend
-- **Runtime**: WildFly 39 (bootable JAR via Galleon provisioning) with Jakarta EE
+- **Runtime**: WildFly (bootable JAR via Galleon provisioning) with Jakarta EE
 - **Language**: Kotlin (primary); any Java code encountered should be converted to Kotlin, not modified
 - **DI**: Weld CDI with **constructor-based injection** (not field injection)
 - **Logging**: Use lambda syntax — `logger.debug { "Value: $value" }` — to avoid unnecessary string interpolation
@@ -115,10 +115,11 @@ class MyServiceTest : BehaviorSpec({
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
 /*
- * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-FileCopyrightText: <YEAR> INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
+Replace `<YEAR>` with the current year.
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` if not already present.
 
