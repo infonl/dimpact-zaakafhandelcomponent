@@ -45,10 +45,9 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
      * Build the Keycloak admin client on application startup, so that we find out early if there are any configuration issues.
      */
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
-        LOG.info(
-            "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
-                "client id: '$zacAdminClientId', client secret: '*******'"
-        )
+        LOG.info {
+            "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', client id: '$zacAdminClientId', client secret: '*******'"
+        }
         realmResource = KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
             .realm(realmName)
