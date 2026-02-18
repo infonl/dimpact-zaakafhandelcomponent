@@ -88,7 +88,7 @@ Legacy Java: `src/main/java/` (convert to Kotlin when touching)
 Generated API clients: `src/generated/` (from OpenAPI specs — do not edit manually)
 
 ### Frontend
-- **Framework**: Angular 19 with TypeScript strict mode
+- **Framework**: Angular with TypeScript strict mode
 - **Data fetching**: TanStack Query (preferred over Angular Resource or NgRx)
 - **Forms**: Form.io integration
 - **Testing**: Jest with Testing Library (accessibility-first selectors)
