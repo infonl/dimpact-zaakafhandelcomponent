@@ -19,7 +19,7 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 
 class PabcClientServiceTest : BehaviorSpec({
     val pabcClient = mockk<PabcClient>()
-    val pabcClientService = PabcClientService(pabcClient)
+    val pabcClientService = PabcClientService(pabcClient, true)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -97,7 +97,7 @@ class PabcClientServiceTest : BehaviorSpec({
     }
 
     Context("Application startup behavior") {
-        Given("The PABC client is available and properly configured") {
+        Given("PABC integration is enabled, the PABC client is available and properly configured") {
             val applicationRolesResponse = createApplicationRolesResponse()
             every {
                 pabcClient.getApplicationRolesPerEntityType(
@@ -118,7 +118,11 @@ class PabcClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A RuntimeException is thrown when the PABC client is called on application startup") {
+        Given("""
+                PABC integration is enabled, and a RuntimeException is thrown when the PABC client is called
+                on application startup
+                """
+        ) {
             val runtimeException = RuntimeException("fakeExceptionMessage")
             every {
                 pabcClient.getApplicationRolesPerEntityType(
@@ -133,6 +137,20 @@ class PabcClientServiceTest : BehaviorSpec({
 
                 Then("it should pass on the RuntimeException") {
                     exception shouldBe runtimeException
+                }
+            }
+        }
+
+        Given("PABC integration is disabled") {
+            val pabcClientService = PabcClientService(pabcClient, false)
+
+            When("onStartup is called") {
+                pabcClientService.onStartup(Any())
+
+                Then("it should not call the PABC client") {
+                    verify(exactly = 0) {
+                        pabcClient.getApplicationRolesPerEntityType(any())
+                    }
                 }
             }
         }

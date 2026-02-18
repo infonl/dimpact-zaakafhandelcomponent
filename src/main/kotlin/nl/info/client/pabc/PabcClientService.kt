@@ -13,16 +13,23 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.client.pabc.model.generated.GroupRepresentation
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.logging.Logger
+import kotlin.jvm.java
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
 class PabcClientService @Inject constructor(
-    @RestClient private val pabcClient: PabcClient
+    @RestClient private val pabcClient: PabcClient,
+
+    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
+    private val pabcIntegrationEnabled: Boolean
 ) {
     companion object {
         private const val FAKE_FUNCTIONAL_ROLE = "FAKE_FUNCTIONAL_ROLE"
+        private val LOG = Logger.getLogger(PabcClientService::class.java.name)
     }
 
     fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse =
@@ -52,6 +59,12 @@ class PabcClientService @Inject constructor(
      * this will result in an exception being thrown on application startup,
      * which will prevent ZAC from starting up successfully.
      */
-    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
-        getApplicationRoles(listOf(FAKE_FUNCTIONAL_ROLE))
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
+        if (pabcIntegrationEnabled) {
+            LOG.info { "PABC integration is enabled, attempting to call the PABC API to verify connectivity and configuration" }
+            getApplicationRoles(listOf(FAKE_FUNCTIONAL_ROLE))
+        } else {
+            LOG.info { "PABC integration is disabled, not attempting to call the PABC API" }
+        }
+    }
 }
