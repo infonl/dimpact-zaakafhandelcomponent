@@ -27,14 +27,7 @@ class PabcClientServiceTest : BehaviorSpec({
 
     Context("Getting application roles") {
         Given("A PABC application roles response for a certain PABC request") {
-            val applicationName = "fakeApplicationName"
-            val entityTypeId = "fakeEntityTypeId"
-            val entityTypeType = "fakeEntityTypeType"
-            val applicationRolesResponse = createApplicationRolesResponse(
-                id = entityTypeId,
-                applicationName = applicationName,
-                type = entityTypeType,
-            )
+            val applicationRolesResponse = createApplicationRolesResponse()
             val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
             val functionalRoles = listOf("fakeRole1", "fakeRole2")
             every {
@@ -47,13 +40,6 @@ class PabcClientServiceTest : BehaviorSpec({
                 Then("it should invoke the client with the given roles") {
                     result shouldBe applicationRolesResponse
                     getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe functionalRoles
-                    with(result.results[0]) {
-                        entityType.id shouldBe entityTypeId
-                        entityType.type shouldBe entityTypeType
-                        applicationRoles.forEach {
-                            it.application shouldBe applicationName
-                        }
-                    }
                 }
             }
         }
@@ -63,7 +49,7 @@ class PabcClientServiceTest : BehaviorSpec({
         Given("A valid application role and zaaktype description") {
             val applicationRole = "validRole"
             val zaaktypeDescription = "validZaaktype"
-            val groupRepresentation = createPabcGroupRepresentation("groupId", "groupName")
+            val groupRepresentation = createPabcGroupRepresentation()
             every {
                 pabcClient.getGroupsByApplicationRoleAndEntityType(
                     applicationName = APPLICATION_NAME_ZAC,
@@ -86,8 +72,8 @@ class PabcClientServiceTest : BehaviorSpec({
         }
 
         Given("The PABC client throws an RuntimeException when getting groups by application role and zaaktype") {
-            val applicationRole = "invalidRole"
-            val zaaktypeDescription = "invalidZaaktype"
+            val applicationRole = "fakeApplicationRole"
+            val zaaktypeDescription = "fakeZaaktypeDescription"
             val runtimeException = RuntimeException("fakeExceptionMessage")
             every {
                 pabcClient.getGroupsByApplicationRoleAndEntityType(
