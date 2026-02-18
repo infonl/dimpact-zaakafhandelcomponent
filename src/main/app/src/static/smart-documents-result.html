@@ -10,7 +10,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
@@ -220,68 +223,68 @@
       // Inject fonts immediately
       injectFonts();
 
-      (function() {
+      (function () {
         function executePageLogic() {
-        const urlParams = new URLSearchParams(window.location.search);
+          const urlParams = new URLSearchParams(window.location.search);
 
-        // Sanitize all query parameters
-        const zaakValue = sanitizeInput(urlParams.get("zaak"));
-        const taakValue = sanitizeInput(urlParams.get("taak"));
-        const docValue = sanitizeInput(urlParams.get("doc"));
-        let resultValue = sanitizeInput(urlParams.get("result"));
-        resultValue = resultValue.toLowerCase();
+          // Sanitize all query parameters
+          const zaakValue = sanitizeInput(urlParams.get("zaak"));
+          const taakValue = sanitizeInput(urlParams.get("taak"));
+          const docValue = sanitizeInput(urlParams.get("doc"));
+          let resultValue = sanitizeInput(urlParams.get("result"));
+          resultValue = resultValue.toLowerCase();
 
-        const language = getBrowserLanguage();
+          const language = getBrowserLanguage();
 
-        // When document is added to a task, 'taak' AND 'zaak' query vars are both in, but task should be mentioned. So let 'taak' prevail
-        const nameValue = taakValue || zaakValue;
+          // When document is added to a task, 'taak' AND 'zaak' query vars are both in, but task should be mentioned. So let 'taak' prevail
+          const nameValue = taakValue || zaakValue;
 
-        const typeValue = getTypeValue(zaakValue, taakValue, language);
+          const typeValue = getTypeValue(zaakValue, taakValue, language);
 
-        // Validate and set finalResultValue
-        const VALID_RESULTS = ["success", "failure", "cancelled"];
-        const finalResultValue = VALID_RESULTS.includes(resultValue)
-          ? resultValue
-          : "unknown";
+          // Validate and set finalResultValue
+          const VALID_RESULTS = ["success", "failure", "cancelled"];
+          const finalResultValue = VALID_RESULTS.includes(resultValue)
+            ? resultValue
+            : "unknown";
 
-        // Set the document and layout title
-        if (typeValue) {
-          const pageTitle = `${capitalize(typeValue)} | ${nameValue}`;
-          document.title = pageTitle;
-          document.getElementById("layout-title").textContent = pageTitle;
-        } else {
-          return displayError(language);
-        }
+          // Set the document and layout title
+          if (typeValue) {
+            const pageTitle = `${capitalize(typeValue)} | ${nameValue}`;
+            document.title = pageTitle;
+            document.getElementById("layout-title").textContent = pageTitle;
+          } else {
+            return displayError(language);
+          }
 
-        // set waiting text before handling language labels
-        document.getElementById("wizard-result-test").textContent =
-          language === "nl"
-            ? "Wachten op resultaat..."
-            : "Waiting for result...";
+          // set waiting text before handling language labels
+          document.getElementById("wizard-result-test").textContent =
+            language === "nl"
+              ? "Wachten op resultaat..."
+              : "Waiting for result...";
 
-        // Fetch the labels and update content based on language
-        fetchLabels(language, typeValue, nameValue, docValue)
-          .then((fetchedLabels) => {
-            if (
-              fetchedLabels?.result[finalResultValue] &&
-              fetchedLabels?.subText[finalResultValue]
-            ) {
-              updatePageContent(
-                finalResultValue,
-                fetchedLabels.result[finalResultValue],
-                fetchedLabels.subText[finalResultValue],
-              );
-            } else {
+          // Fetch the labels and update content based on language
+          fetchLabels(language, typeValue, nameValue, docValue)
+            .then((fetchedLabels) => {
+              if (
+                fetchedLabels?.result[finalResultValue] &&
+                fetchedLabels?.subText[finalResultValue]
+              ) {
+                updatePageContent(
+                  finalResultValue,
+                  fetchedLabels.result[finalResultValue],
+                  fetchedLabels.subText[finalResultValue],
+                );
+              } else {
+                displayError(language);
+              }
+            })
+            .catch(() => {
               displayError(language);
-            }
-          })
-          .catch(() => {
-            displayError(language);
-          });
+            });
         }
 
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', executePageLogic);
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", executePageLogic);
         } else {
           executePageLogic();
         }
