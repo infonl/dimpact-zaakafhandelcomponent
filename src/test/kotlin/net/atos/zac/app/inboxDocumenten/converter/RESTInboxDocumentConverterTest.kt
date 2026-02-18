@@ -33,13 +33,14 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
             val bestandsnaam = "document.pdf"
             val informatieobjectTypeUUID = UUID.randomUUID()
 
-            val inboxDocument = createInboxDocument(uuid = documentUUID).apply {
-                id = documentId
-                enkelvoudiginformatieobjectID = documentID
-                this.titel = titel
-                this.creatiedatum = creatiedatum
-                this.bestandsnaam = bestandsnaam
-            }
+            val inboxDocument = createInboxDocument(
+                uuid = documentUUID,
+                id = documentId,
+                enkelvoudiginformatieobjectID = documentID,
+                titel = titel,
+                creatiedatum = creatiedatum,
+                bestandsnaam = bestandsnaam
+            )
 
             When("convert is called with the document and informatieobjecttype UUID") {
                 val result = RESTInboxDocumentConverter.convert(inboxDocument, informatieobjectTypeUUID)
@@ -100,10 +101,10 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
         Given("An inbox document with special characters in fields") {
             val specialTitel = "Document: Test & Validation <2025>"
             val specialBestandsnaam = "file-name_with.special#chars.pdf"
-            val inboxDocument = createInboxDocument().apply {
-                titel = specialTitel
+            val inboxDocument = createInboxDocument(
+                titel = specialTitel,
                 bestandsnaam = specialBestandsnaam
-            }
+            )
             val informatieobjectTypeUUID = UUID.randomUUID()
 
             When("convert is called") {
@@ -119,15 +120,18 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
     Context("List conversion with valid UUIDs") {
         Given("Multiple inbox documents with corresponding informatieobjecttype UUIDs") {
-            val doc1 = createInboxDocument(UUID.randomUUID()).apply {
+            val doc1 = createInboxDocument(
+                UUID.randomUUID(),
                 id = 1L
-            }
-            val doc2 = createInboxDocument(UUID.randomUUID()).apply {
+            )
+            val doc2 = createInboxDocument(
+                UUID.randomUUID(),
                 id = 2L
-            }
-            val doc3 = createInboxDocument(UUID.randomUUID()).apply {
+            )
+            val doc3 = createInboxDocument(
+                UUID.randomUUID(),
                 id = 3L
-            }
+            )
 
             val uuid1 = UUID.randomUUID()
             val uuid2 = UUID.randomUUID()
@@ -187,22 +191,22 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
     Context("List conversion with null UUIDs") {
         Given("Documents where some informatieobjecttype UUIDs are null") {
-            val doc1 = createInboxDocument().apply {
-                id = 1L
+            val doc1 = createInboxDocument(
+                id = 1L,
                 titel = "Doc1"
-            }
-            val doc2 = createInboxDocument().apply {
-                id = 2L
+            )
+            val doc2 = createInboxDocument(
+                id = 2L,
                 titel = "Doc2"
-            }
-            val doc3 = createInboxDocument().apply {
-                id = 3L
+            )
+            val doc3 = createInboxDocument(
+                id = 3L,
                 titel = "Doc3"
-            }
-            val doc4 = createInboxDocument().apply {
-                id = 4L
+            )
+            val doc4 = createInboxDocument(
+                id = 4L,
                 titel = "Doc4"
-            }
+            )
 
             val uuid1 = UUID.randomUUID()
             val uuid3 = UUID.randomUUID()
@@ -227,12 +231,12 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
         }
 
         Given("All informatieobjecttype UUIDs are null") {
-            val doc1 = createInboxDocument().apply {
+            val doc1 = createInboxDocument(
                 id = 1L
-            }
-            val doc2 = createInboxDocument().apply {
+            )
+            val doc2 = createInboxDocument(
                 id = 2L
-            }
+            )
 
             val documents = listOf(doc1, doc2)
             val uuids = listOf<UUID?>(null, null)
@@ -247,15 +251,15 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
         }
 
         Given("First and last UUIDs are null") {
-            val doc1 = createInboxDocument().apply {
+            val doc1 = createInboxDocument(
                 id = 1L
-            }
-            val doc2 = createInboxDocument().apply {
+            )
+            val doc2 = createInboxDocument(
                 id = 2L
-            }
-            val doc3 = createInboxDocument().apply {
+            )
+            val doc3 = createInboxDocument(
                 id = 3L
-            }
+            )
 
             val uuid2 = UUID.randomUUID()
 
@@ -277,10 +281,10 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
     Context("List conversion edge cases") {
         Given("Many documents with alternating null and valid UUIDs") {
             val documents = (1..10).map { i ->
-                createInboxDocument().apply {
-                    id = i.toLong()
+                createInboxDocument(
+                    id = i.toLong(),
                     titel = "Document $i"
-                }
+                )
             }
             val uuids = (1..10).map { i ->
                 if (i % 2 == 0) UUID.randomUUID() else null
@@ -301,15 +305,15 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
             val date2 = LocalDate.of(2025, 6, 15)
             val date3 = LocalDate.of(2025, 12, 31)
 
-            val doc1 = createInboxDocument().apply {
+            val doc1 = createInboxDocument(
                 creatiedatum = date1
-            }
-            val doc2 = createInboxDocument().apply {
+            )
+            val doc2 = createInboxDocument(
                 creatiedatum = date2
-            }
-            val doc3 = createInboxDocument().apply {
+            )
+            val doc3 = createInboxDocument(
                 creatiedatum = date3
-            }
+            )
 
             val uuid = UUID.randomUUID()
 
@@ -389,7 +393,7 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
             val testIds = listOf(0L, 1L, 999L, Long.MAX_VALUE)
 
             testIds.forEach { idValue ->
-                val document = createInboxDocument().apply { id = idValue }
+                val document = createInboxDocument(id = idValue)
                 val uuid = UUID.randomUUID()
 
                 When("convert is called with ID $idValue") {
@@ -410,11 +414,11 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
             )
 
             testCases.forEach { (titel, bestandsnaam, documentID) ->
-                val document = createInboxDocument().apply {
-                    this.titel = titel
-                    this.bestandsnaam = bestandsnaam
-                    this.enkelvoudiginformatieobjectID = documentID
-                }
+                val document = createInboxDocument(
+                    titel = titel,
+                    bestandsnaam = bestandsnaam,
+                    enkelvoudiginformatieobjectID = documentID
+                )
                 val uuid = UUID.randomUUID()
 
                 When("convert is called with titel='$titel'") {
