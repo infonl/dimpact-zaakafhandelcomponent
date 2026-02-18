@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.187](https://img.shields.io/badge/Version-1.0.187-informational?style=flat-square) ![AppVersion: 4.2](https://img.shields.io/badge/AppVersion-4.2-informational?style=flat-square)
+![Version: 1.0.188](https://img.shields.io/badge/Version-1.0.188-informational?style=flat-square) ![AppVersion: 4.2](https://img.shields.io/badge/AppVersion-4.2-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -218,7 +218,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.13.1-static@sha256:79dc887c32be886069d9429075a541c8b0e53326251856190b84572c44702a7a"` |  |
+| opa.image.tag | string | `"1.13.2-static@sha256:649113d3bfefc6ae2ab0520ff71c73550f2447913c1a4802d967199fb55ad6cd"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
