@@ -5,6 +5,8 @@
 package nl.info.client.pabc
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.Initialized
+import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
@@ -19,12 +21,14 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 class PabcClientService @Inject constructor(
     @RestClient private val pabcClient: PabcClient
 ) {
-    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse {
-        val applicationRolesRequest = GetApplicationRolesRequest().apply {
-            functionalRoleNames = functionalRoles
-        }
-        return pabcClient.getApplicationRolesPerEntityType(applicationRolesRequest)
+    companion object {
+        private const val NON_EXISTING_FUNCTIONAL_ROLE = "FAKE_NON_EXISTING_FUNCTIONAL_ROLE"
     }
+
+    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse =
+        pabcClient.getApplicationRolesPerEntityType(
+            GetApplicationRolesRequest().apply { functionalRoleNames = functionalRoles }
+        )
 
     /**
      * Returns the list of groups that are authorised for the given ZAC application role and zaaktype description.
@@ -40,4 +44,14 @@ class PabcClientService @Inject constructor(
         entityTypeId = zaaktypeDescription,
         entityType = ENTITY_TYPE_ZAAKTYPE
     ).groups
+
+    /**
+     * Attempt to call the PABC API on application startup, using a (most likely) non-existing functional role,
+     * to ensure that the PABC API is available and properly configured.
+     * If the PABC API is not available or not properly configured,
+     * this will result in an exception being thrown on application startup,
+     * which will prevent ZAC from starting up successfully.
+     */
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) =
+        getApplicationRoles(listOf(NON_EXISTING_FUNCTIONAL_ROLE))
 }
