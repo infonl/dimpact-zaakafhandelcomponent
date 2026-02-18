@@ -118,7 +118,8 @@ class PabcClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("""
+        Given(
+            """
                 PABC integration is enabled, and a RuntimeException is thrown when the PABC client is called
                 on application startup
                 """
