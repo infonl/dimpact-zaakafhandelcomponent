@@ -42,7 +42,8 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     private lateinit var realmResource: RealmResource
 
     /**
-     * Build the Keycloak admin client on application startup, so that we find out early if there are any configuration issues.
+     * Build the Keycloak admin client on application startup,
+     * so that we find out early if there are any configuration issues.
      */
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
@@ -61,5 +62,10 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
 
     @Produces
     @Named("keycloakZacRealmResource")
-    fun getRealmResource(): RealmResource = realmResource
+    fun getRealmResource(): RealmResource {
+        check(this::realmResource.isInitialized) {
+            "Keycloak realm resource has not been initialized. Check application startup logs for errors."
+        }
+        return realmResource
+    }
 }
