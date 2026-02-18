@@ -5,10 +5,12 @@
 
 package nl.info.client.keycloak
 
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.Initialized
+import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import jakarta.inject.Singleton
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -19,7 +21,7 @@ import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
-@Singleton
+@ApplicationScoped
 class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @ConfigProperty(name = "AUTH_SERVER")
     private val keycloakUrl: String,
@@ -37,14 +39,17 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
         private val LOG = Logger.getLogger(KeycloakEmployeesAdminClientConfiguration::class.java.name)
     }
 
-    @Produces
-    @Named("keycloakZacRealmResource")
-    fun build(): RealmResource {
+    private lateinit var realmResource: RealmResource
+
+    /**
+     * Build the Keycloak admin client on application startup, so that we find out early if there are any configuration issues.
+     */
+    fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info(
             "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
                 "client id: '$zacAdminClientId', client secret: '*******'"
         )
-        return KeycloakBuilder.builder()
+        realmResource = KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
             .realm(realmName)
             .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
@@ -53,4 +58,8 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
             .build()
             .realm(realmName)
     }
+
+    @Produces
+    @Named("keycloakZacRealmResource")
+    fun getRealmResource(): RealmResource = realmResource
 }
