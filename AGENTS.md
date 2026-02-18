@@ -6,7 +6,7 @@ This file provides generic guidance to AI tools when working with code in this r
 
 Dimpact Zaakafhandelcomponent (ZAC) is a Dutch case management workflow component ("zaakafhandelcomponent") to be used in the context of "zaakgericht werken".
 It is mainly built for municipalities but can be used by any organization that needs to manage cases and workflows.
-It has a Kotlin/Jakarta EE backend running on WildFly and an Angular frontend. 
+It has a Kotlin/Jakarta EE backend running on WildFly and an Angular frontend.
 It also has old Java code that is being gradually converted to Kotlin.
 The project uses Gradle for build automation and has a strong emphasis on type safety, test coverage, and clean architecture.
 
