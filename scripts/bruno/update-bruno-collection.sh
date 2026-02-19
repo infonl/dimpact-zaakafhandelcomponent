@@ -20,5 +20,5 @@ cd ../..
 ./gradlew generateOpenApiSpec
 
 cd ${cwd}
-# Generate a new ZAC API Bruno collection, copying certain parts from the last previous collection.
+# generate a new ZAC API Bruno collection, copying the generic configuration and environments from the previous collection
 node update-from-openapi.js ./collections ../../build/generated/openapi/META-INF/openapi/openapi.json
