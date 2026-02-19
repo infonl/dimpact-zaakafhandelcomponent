@@ -10,7 +10,7 @@ See: [Bruno website](https://www.usebruno.com/).
 Then:
 1. Open the Bruno application.
 2. Click on "Open collection" and select the (most recent) ZAC Bruno collection subfolder in the `/scripts/bruno/collections` folder.
-3. Select the environment you wish to connect to.
+3. Select the environment you wish to connect to. If you want to connect to the INFO TEST environment, you will need to set the `keycloakClientSecret` variable first.
 4. Select the collection and open the `Auth` tab.
 5. At the bottom click on `Get Access Token`.
 6. You should now be directed to the ZAC login page. After logging in you should be redirected back to Bruno and see that the access token has been updated in the environment.
