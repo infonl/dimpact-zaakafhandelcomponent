@@ -82,8 +82,8 @@ public class InboxDocumentenRESTService {
         } catch (NotFoundException e) {
             LOG.warning(
                     String.format(
-                            "Error reading informatieobjecttype for inbox-document with id '%s' and informatieobject-UUID '%s'. Error: %s",
-                            inboxDocument.getId(), inboxDocument.getEnkelvoudiginformatieobjectUUID(), e.getMessage()
+                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'. Error: %s",
+                            inboxDocument.getId(), e.getMessage()
                     )
             );
         }
