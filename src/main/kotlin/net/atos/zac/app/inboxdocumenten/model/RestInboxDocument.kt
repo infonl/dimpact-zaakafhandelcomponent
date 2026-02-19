@@ -16,13 +16,13 @@ data class RestInboxDocument(
     var id: Long = 0,
     var enkelvoudiginformatieobjectUUID: UUID? = null,
     var enkelvoudiginformatieobjectID: String? = null,
-    var informatieobjectTypeUUID: UUID? = null,
+    var informatieobjectTypeUUID: UUID,
     var creatiedatum: LocalDate? = null,
     var titel: String? = null,
     var bestandsnaam: String? = null
 )
 
-fun InboxDocument.convertToRestInboxDocument(informatieobjectTypeUUID: UUID?) =
+fun InboxDocument.convertToRestInboxDocument(informatieobjectTypeUUID: UUID) =
     RestInboxDocument(
         id = this.id,
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
@@ -39,8 +39,9 @@ fun List<InboxDocument>.convertToRestInboxDocuments(
     val list: MutableList<RestInboxDocument> = ArrayList()
     for (index in this.indices) {
         // Skip documents for which we don't have an informatieobjectTypeUUID
-        if (informatieobjectTypeUUIDs[index] == null) continue
-        list.add(this[index].convertToRestInboxDocument(informatieobjectTypeUUIDs[index]))
+        informatieobjectTypeUUIDs[index]?.let {
+            list.add(this[index].convertToRestInboxDocument(it))
+        }
     }
     return list
 }
