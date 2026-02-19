@@ -14,7 +14,7 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class RESTInboxDocumentListParametersConverter :
-    RESTListParametersConverter<InboxDocumentListParameters?, RESTInboxDocumentListParameters?>() {
+    RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters>() {
     override fun doConvert(
         listParameters: InboxDocumentListParameters?,
         restListParameters: RESTInboxDocumentListParameters?
