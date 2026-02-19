@@ -6,7 +6,11 @@ package net.atos.zac.app.inboxdocumenten.model
 
 import net.atos.zac.app.shared.RESTListParameters
 import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
+@AllOpen
+@NoArgConstructor
 class RESTInboxDocumentListParameters : RESTListParameters() {
     var titel: String? = null
 

@@ -6,8 +6,12 @@ package net.atos.zac.app.inboxdocumenten.converter
 
 import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocument
 import net.atos.zac.documenten.model.InboxDocument
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
+@AllOpen
+@NoArgConstructor
 object RESTInboxDocumentConverter {
     fun convert(document: InboxDocument, informatieobjectTypeUUID: UUID?): RESTInboxDocument {
         val restDocument = RESTInboxDocument()

@@ -4,9 +4,13 @@
  */
 package net.atos.zac.app.inboxdocumenten.model
 
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 
+@AllOpen
+@NoArgConstructor
 class RESTInboxDocument {
     var id: Long = 0
 
