@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.inboxdocumenten
@@ -16,10 +16,10 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentConverter
 import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentListParametersConverter
 import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocument
 import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters
+import net.atos.zac.app.inboxdocumenten.model.convertToRESTInboxDocuments
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocument
@@ -58,7 +58,7 @@ class InboxDocumentenRESTService @Inject constructor(
         val informationObjectTypeUUIDs = inboxDocuments.stream()
             .map<UUID?> { inboxDocument: InboxDocument? -> this.getInformatieobjectTypeUUID(inboxDocument!!) }.toList()
         return RESTResultaat<RESTInboxDocument?>(
-            RESTInboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
+            inboxDocuments.convertToRESTInboxDocuments(informationObjectTypeUUIDs),
             inboxDocumentenService.count(listParameters).toLong()
         )
     }
