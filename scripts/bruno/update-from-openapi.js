@@ -71,30 +71,6 @@ async function fetchFromUrl(url) {
 }
 
 /**
- * Convert HTTP method to Bruno format
- */
-function normalizeMethod(method) {
-    return method.toLowerCase();
-}
-
-/**
- * Convert OpenAPI parameter to Bruno format
- */
-function convertParameter(param) {
-    const brunoParam = {
-        name: param.name,
-        value: param.example || param.default || '',
-        enabled: param.required || false
-    };
-
-    if (param.description) {
-        brunoParam.description = param.description;
-    }
-
-    return brunoParam;
-}
-
-/**
  * Generate a default value from an OpenAPI schema
  */
 function generateDefaultFromSchema(schema, openApiSpec, visited = new Set()) {
@@ -525,7 +501,7 @@ function convertOpenApiToBruno(openApiSpec, options = {}) {
 /**
  * Create new Bruno collection with OpenAPI data
  */
-function updateFromOpanapi(parentFolder, openApiSpec, options = {}) {
+function updateFromOpenapi(parentFolder, openApiSpec, options = {}) {
     const { dryRun = false, organizeByTags = false } = options;
 
     // Ensure parent folder exists
@@ -714,7 +690,7 @@ ${colors.bright}Note:${colors.reset}
         log(`  Version: ${openApiSpec.info?.version || 'Unknown'}\n`);
 
         // Create new collection
-        const result = updateFromOpanapi(parentFolder, openApiSpec, options);
+        const result = updateFromOpenapi(parentFolder, openApiSpec, options);
 
         log(`\n${colors.bright}${colors.green}✓ Collection Created${colors.reset}`, 'bright');
         log(`  Name: ${result.collectionName}`);
@@ -742,9 +718,3 @@ ${colors.bright}Note:${colors.reset}
 if (require.main === module) {
     main();
 }
-
-module.exports = {
-    updateBrunoCollection: updateFromOpanapi,
-    convertOpenApiToBruno,
-    fetchFromUrl
-};
