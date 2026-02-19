@@ -9,7 +9,7 @@ See: [Bruno website](https://www.usebruno.com/).
 
 Then:
 1. Open the Bruno application.
-2. Click on "Open collection" and select the (most recent) ZAC Bruno collection subfolder in the `/scriptc/bruno/collections` folder.
+2. Click on "Open collection" and select the (most recent) ZAC Bruno collection subfolder in the `/scripts/bruno/collections` folder.
 3. Select the environment you wish to connect to.
 4. Select the collection and open the `Auth` tab.
 5. At the bottom click on `Get Access Token`.
