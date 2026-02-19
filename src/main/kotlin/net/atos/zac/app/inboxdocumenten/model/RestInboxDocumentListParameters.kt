@@ -11,7 +11,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-class RESTInboxDocumentListParameters : RESTListParameters() {
+class RestInboxDocumentListParameters : RESTListParameters() {
     var titel: String? = null
 
     var identificatie: String? = null

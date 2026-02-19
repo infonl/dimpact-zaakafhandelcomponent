@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.inboxdocumenten.converter
 
-import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters
+import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
 import net.atos.zac.app.shared.RESTListParametersConverter
 import net.atos.zac.documenten.model.InboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
@@ -13,11 +13,11 @@ import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-class RESTInboxDocumentListParametersConverter :
-    RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters>() {
+class RestInboxDocumentListParametersConverter :
+    RESTListParametersConverter<InboxDocumentListParameters, RestInboxDocumentListParameters>() {
     override fun doConvert(
         listParameters: InboxDocumentListParameters?,
-        restListParameters: RESTInboxDocumentListParameters?
+        restListParameters: RestInboxDocumentListParameters?
     ) {
         if (listParameters == null || restListParameters == null) return
 

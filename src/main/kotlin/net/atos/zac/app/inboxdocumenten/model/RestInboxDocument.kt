@@ -12,7 +12,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTInboxDocument(
+data class RestInboxDocument(
     var id: Long = 0,
     var enkelvoudiginformatieobjectUUID: UUID? = null,
     var enkelvoudiginformatieobjectID: String? = null,
@@ -22,8 +22,8 @@ data class RESTInboxDocument(
     var bestandsnaam: String? = null
 )
 
-fun InboxDocument.convertToRESTInboxDocument(informatieobjectTypeUUID: UUID?) =
-    RESTInboxDocument(
+fun InboxDocument.convertToRestInboxDocument(informatieobjectTypeUUID: UUID?) =
+    RestInboxDocument(
         id = this.id,
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
         enkelvoudiginformatieobjectID = this.enkelvoudiginformatieobjectID,
@@ -33,14 +33,14 @@ fun InboxDocument.convertToRESTInboxDocument(informatieobjectTypeUUID: UUID?) =
         bestandsnaam = this.bestandsnaam
     )
 
-fun List<InboxDocument>.convertToRESTInboxDocuments(
+fun List<InboxDocument>.convertToRestInboxDocuments(
     informatieobjectTypeUUIDs: List<UUID?>
-): MutableList<RESTInboxDocument> {
-    val list: MutableList<RESTInboxDocument> = ArrayList()
+): List<RestInboxDocument> {
+    val list: MutableList<RestInboxDocument> = ArrayList()
     for (index in this.indices) {
         // Skip documents for which we don't have an informatieobjectTypeUUID
         if (informatieobjectTypeUUIDs[index] == null) continue
-        list.add(this[index].convertToRESTInboxDocument(informatieobjectTypeUUIDs[index]))
+        list.add(this[index].convertToRestInboxDocument(informatieobjectTypeUUIDs[index]))
     }
     return list
 }
