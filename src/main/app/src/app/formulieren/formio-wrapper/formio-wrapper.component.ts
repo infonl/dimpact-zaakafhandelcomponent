@@ -73,11 +73,15 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
     Object.defineProperty(document, "activeElement", {
       get() {
-        let el = origDescriptor.get!.call(document);
-        while (el && el.shadowRoot && el.shadowRoot.activeElement) {
-          el = el.shadowRoot.activeElement;
+        let element = origDescriptor.get!.call(document);
+        while (
+          element &&
+          element.shadowRoot &&
+          element.shadowRoot.activeElement
+        ) {
+          element = element.shadowRoot.activeElement;
         }
-        return el;
+        return element;
       },
       configurable: true,
     });
