@@ -65,15 +65,20 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // Getting the document.activeElement from the Shadow DOM - Date field text-mask relies on this to determine if the input is focused
-    const origDescriptor = Object.getOwnPropertyDescriptor(
+    const originalActiveElementGetter = Object.getOwnPropertyDescriptor(
       Document.prototype,
       "activeElement",
-    );
-    if (!origDescriptor?.get) return;
+    )?.get;
+
+    if (
+      !originalActiveElementGetter ||
+      typeof originalActiveElementGetter !== "function"
+    )
+      return;
 
     Object.defineProperty(document, "activeElement", {
       get() {
-        let element = origDescriptor.get!.call(document);
+        let element = originalActiveElementGetter.call(document);
         while (
           element &&
           element.shadowRoot &&
