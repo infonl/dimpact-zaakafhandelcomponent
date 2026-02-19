@@ -80,11 +80,13 @@ public class InboxDocumentenRESTService {
             );
             return extractUuid(informatieobject.getInformatieobjecttype());
         } catch (NotFoundException e) {
-            LOG.warning(
+            LOG.log(
+                    Level.WARNING,
                     String.format(
-                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'. Error: %s",
-                            inboxDocument.getId(), e.getMessage()
-                    )
+                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'.,
+                            inboxDocument.getId()
+                    ),
+                    e
             );
         }
         return null;
