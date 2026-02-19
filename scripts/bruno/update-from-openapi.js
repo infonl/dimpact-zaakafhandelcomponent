@@ -157,7 +157,7 @@ function generateBrunoRequest(operationId, method, urlPath, operation, servers =
 
     // Determine auth mode
     // INFO.nl: we always use inherit mode for auth, and define the authorisation configuration globally in the collection.bru file.
-    const authInfo = { mode: 'inherit' }
+    const authInfo = { mode: 'inherit' };
     // determineAuthMode(operation, openApiSpec);
 
     // Build query parameters
