@@ -30,6 +30,7 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @Singleton
@@ -51,13 +52,13 @@ class InboxDocumentenRESTService @Inject constructor(
 
     @PUT
     @Path("")
-    fun listInboxDocuments(restListParameters: RESTInboxDocumentListParameters?): RESTResultaat<RESTInboxDocument?> {
+    fun listInboxDocuments(restListParameters: RESTInboxDocumentListParameters?): RESTResultaat<RESTInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
         val inboxDocuments = inboxDocumentenService.list(listParameters)
         val informationObjectTypeUUIDs = inboxDocuments.stream()
             .map<UUID?> { inboxDocument: InboxDocument? -> this.getInformatieobjectTypeUUID(inboxDocument!!) }.toList()
-        return RESTResultaat<RESTInboxDocument?>(
+        return RESTResultaat<RESTInboxDocument>(
             inboxDocuments.convertToRESTInboxDocuments(informationObjectTypeUUIDs),
             inboxDocumentenService.count(listParameters).toLong()
         )
@@ -70,8 +71,8 @@ class InboxDocumentenRESTService @Inject constructor(
             )
             return informatieobject.getInformatieobjecttype().extractUuid()
         } catch (notFoundException: NotFoundException) {
-            LOG.warning {
-                "Error reading EnkelvoudigInformatieobject for inbox-document with id '${inboxDocument.id}'." +
+            LOG.log(Level.WARNING, notFoundException) {
+                "Error reading EnkelvoudigInformatieobject for inbox-document with id '${inboxDocument.id}'. " +
                     "Error: ${notFoundException.message}"
             }
         }
@@ -94,8 +95,8 @@ class InboxDocumentenRESTService @Inject constructor(
         )
         if (!zaakInformatieobjecten.isEmpty()) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
-            LOG.warning {
-                "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd." +
+            LOG.log(Level.WARNING) {
+                "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd. " +
                     "Reden: informatieobject '${enkelvoudigInformatieobject.identificatie}' is gekoppeld aan zaak '$zaakUuid'."
             }
         } else {
