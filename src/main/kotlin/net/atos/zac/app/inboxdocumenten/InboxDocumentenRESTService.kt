@@ -67,12 +67,13 @@ class InboxDocumentenRESTService @Inject constructor(
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
         try {
             val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                inboxDocument.getEnkelvoudiginformatieobjectUUID()
+                inboxDocument.enkelvoudiginformatieobjectUUID
             )
             return informatieobject.getInformatieobjecttype().extractUuid()
         } catch (notFoundException: NotFoundException) {
             LOG.log(Level.WARNING, notFoundException) {
-                "Error reading EnkelvoudigInformatieobject for inbox-document with id '${inboxDocument.id}'. " +
+                "Error reading EnkelvoudigInformatieobject for inbox-document with id '${inboxDocument.id}' " +
+                    "and uuid '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
                     "Error: ${notFoundException.message}"
             }
         }
