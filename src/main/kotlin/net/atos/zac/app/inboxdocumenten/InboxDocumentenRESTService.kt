@@ -27,6 +27,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -34,6 +36,8 @@ import java.util.logging.Logger
 @Path("inboxdocumenten")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@AllOpen
+@NoArgConstructor
 class InboxDocumentenRESTService @Inject constructor(
     private var inboxDocumentenService: InboxDocumentenService,
     private var drcClientService: DrcClientService,
