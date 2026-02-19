@@ -397,10 +397,11 @@ function openInBruno(collectionPath) {
     if (process.platform === 'darwin') {
         spawn('open', ['-a', 'Bruno', collectionPath], { detached: true, stdio: 'ignore' });
     } else if (process.platform === 'win32') {
-        spawn('cmd', ['/c', 'start', 'bruno', collectionPath], { detached: true, stdio: 'ignore' });
+        // On Windows, launch Bruno directly without using cmd.exe
+        spawn('bruno', [collectionPath], { detached: true, stdio: 'ignore', shell: false });
     } else {
-        // Linux
-        spawn('bruno', [collectionPath], { detached: true, stdio: 'ignore' });
+        // Linux and other Unix-like systems
+        spawn('bruno', [collectionPath], { detached: true, stdio: 'ignore', shell: false });
     }
 }
 
