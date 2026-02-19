@@ -1,0 +1,15 @@
+meta {
+  name: listTasksForZaak
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/taken/zaak/:zaakUUID
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaakUUID: {zaakUUID}
+}

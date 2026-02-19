@@ -1,0 +1,11 @@
+meta {
+  name: listUsers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/identity/users
+  body: none
+  auth: inherit
+}

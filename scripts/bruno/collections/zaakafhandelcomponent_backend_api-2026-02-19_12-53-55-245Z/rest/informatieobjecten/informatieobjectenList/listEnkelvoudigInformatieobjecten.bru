@@ -1,0 +1,20 @@
+meta {
+  name: listEnkelvoudigInformatieobjecten
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobjectenList
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "informatieobjectUUIDs": [],
+    "zaakUUID": "",
+    "besluittypeUUID": {},
+    "gekoppeldeZaakDocumenten": false
+  }
+}

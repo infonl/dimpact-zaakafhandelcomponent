@@ -1,0 +1,15 @@
+meta {
+  name: listHumanTaskPlanItems
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/planitems/zaak/:uuid/humanTaskPlanItems
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}

@@ -1,0 +1,22 @@
+meta {
+  name: deleteEnkelvoudigInformatieObject
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid
+  body: json
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "zaakUuid": "",
+    "reden": ""
+  }
+}

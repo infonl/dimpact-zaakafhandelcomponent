@@ -1,0 +1,16 @@
+meta {
+  name: read
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/bag/:type/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+  type: {type}
+}

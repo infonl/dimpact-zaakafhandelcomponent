@@ -1,0 +1,15 @@
+meta {
+  name: readVestigingsprofiel
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/vestigingsprofiel/:vestigingsnummer
+  body: none
+  auth: inherit
+}
+
+params:path {
+  vestigingsnummer: {vestigingsnummer}
+}

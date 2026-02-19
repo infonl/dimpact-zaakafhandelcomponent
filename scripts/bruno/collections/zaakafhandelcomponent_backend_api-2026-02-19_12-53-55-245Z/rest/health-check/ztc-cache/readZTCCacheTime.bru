@@ -1,0 +1,11 @@
+meta {
+  name: readZTCCacheTime
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/health-check/ztc-cache
+  body: none
+  auth: inherit
+}
