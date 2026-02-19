@@ -1,7 +1,0 @@
-info:
-  name: roltype
-  type: folder
-  seq: 7
-
-request:
-  auth: inherit

@@ -1,7 +1,0 @@
-info:
-  name: notities
-  type: folder
-  seq: 22
-
-request:
-  auth: inherit

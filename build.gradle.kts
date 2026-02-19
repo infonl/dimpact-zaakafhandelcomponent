@@ -352,7 +352,6 @@ smallryeOpenApi {
     schemaFilename.set("META-INF/openapi/openapi")
     operationIdStrategy.set(OperationIdStrategy.METHOD)
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
-    securitySchemeName.set("bearerAuth")
     outputFileTypeFilter.set("JSON")
 }
 

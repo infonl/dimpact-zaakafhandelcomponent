@@ -1,7 +1,0 @@
-info:
-  name: "{systeemnaam}"
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

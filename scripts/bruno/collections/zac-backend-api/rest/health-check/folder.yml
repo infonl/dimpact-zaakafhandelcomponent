@@ -1,7 +1,0 @@
-info:
-  name: health-check
-  type: folder
-  seq: 11
-
-request:
-  auth: inherit

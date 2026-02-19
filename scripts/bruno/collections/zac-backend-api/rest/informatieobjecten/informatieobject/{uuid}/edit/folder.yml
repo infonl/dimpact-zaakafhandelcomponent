@@ -1,7 +1,0 @@
-info:
-  name: edit
-  type: folder
-  seq: 3
-
-request:
-  auth: inherit

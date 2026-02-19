@@ -1,7 +1,0 @@
-info:
-  name: tabel-gegevens
-  type: folder
-  seq: 3
-
-request:
-  auth: inherit

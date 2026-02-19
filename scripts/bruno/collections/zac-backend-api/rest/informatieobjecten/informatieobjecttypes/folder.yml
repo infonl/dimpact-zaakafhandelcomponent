@@ -1,7 +1,0 @@
-info:
-  name: informatieobjecttypes
-  type: folder
-  seq: 5
-
-request:
-  auth: inherit

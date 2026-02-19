@@ -1,7 +1,0 @@
-info:
-  name: person
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

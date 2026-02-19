@@ -1,7 +1,0 @@
-info:
-  name: smartdocuments-templates-mapping
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

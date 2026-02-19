@@ -1,7 +1,0 @@
-info:
-  name: verlenging
-  type: folder
-  seq: 8
-
-request:
-  auth: inherit

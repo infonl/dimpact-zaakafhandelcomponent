@@ -1,7 +1,0 @@
-info:
-  name: brp-doelbinding-zoek-waarde
-  type: folder
-  seq: 3
-
-request:
-  auth: inherit

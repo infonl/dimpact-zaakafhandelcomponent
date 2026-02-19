@@ -1,7 +1,0 @@
-info:
-  name: klanten
-  type: folder
-  seq: 18
-
-request:
-  auth: inherit

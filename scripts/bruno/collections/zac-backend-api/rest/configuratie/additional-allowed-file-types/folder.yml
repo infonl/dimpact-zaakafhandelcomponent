@@ -1,7 +1,0 @@
-info:
-  name: additional-allowed-file-types
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

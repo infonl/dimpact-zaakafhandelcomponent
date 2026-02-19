@@ -1,7 +1,0 @@
-info:
-  name: zaak
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

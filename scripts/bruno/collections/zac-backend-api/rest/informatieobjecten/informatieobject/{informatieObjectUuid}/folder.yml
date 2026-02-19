@@ -1,7 +1,0 @@
-info:
-  name: "{informatieObjectUuid}"
-  type: folder
-  seq: 4
-
-request:
-  auth: inherit

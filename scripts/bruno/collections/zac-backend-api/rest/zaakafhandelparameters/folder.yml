@@ -1,7 +1,0 @@
-info:
-  name: zaakafhandelparameters
-  type: folder
-  seq: 29
-
-request:
-  auth: inherit

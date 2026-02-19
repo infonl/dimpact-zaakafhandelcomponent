@@ -1,7 +1,0 @@
-info:
-  name: zip
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

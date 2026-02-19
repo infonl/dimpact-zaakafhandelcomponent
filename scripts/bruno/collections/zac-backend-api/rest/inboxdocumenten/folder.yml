@@ -1,7 +1,0 @@
-info:
-  name: inboxdocumenten
-  type: folder
-  seq: 14
-
-request:
-  auth: inherit

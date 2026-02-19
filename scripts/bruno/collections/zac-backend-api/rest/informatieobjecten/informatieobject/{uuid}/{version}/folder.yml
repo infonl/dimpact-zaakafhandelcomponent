@@ -1,7 +1,0 @@
-info:
-  name: "{version}"
-  type: folder
-  seq: 11
-
-request:
-  auth: inherit

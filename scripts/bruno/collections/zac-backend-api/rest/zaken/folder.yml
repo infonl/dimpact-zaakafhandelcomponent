@@ -1,7 +1,0 @@
-info:
-  name: zaken
-  type: folder
-  seq: 31
-
-request:
-  auth: inherit

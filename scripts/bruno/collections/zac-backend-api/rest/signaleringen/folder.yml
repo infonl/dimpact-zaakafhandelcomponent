@@ -1,7 +1,0 @@
-info:
-  name: signaleringen
-  type: folder
-  seq: 27
-
-request:
-  auth: inherit

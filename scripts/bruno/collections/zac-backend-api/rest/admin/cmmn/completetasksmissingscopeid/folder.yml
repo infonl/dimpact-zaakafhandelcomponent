@@ -1,7 +1,0 @@
-info:
-  name: completetasksmissingscopeid
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

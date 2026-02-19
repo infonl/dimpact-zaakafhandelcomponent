@@ -1,7 +1,0 @@
-info:
-  name: internal
-  type: folder
-  seq: 17
-
-request:
-  auth: inherit
