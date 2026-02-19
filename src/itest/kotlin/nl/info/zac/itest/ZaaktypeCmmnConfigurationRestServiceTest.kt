@@ -74,6 +74,21 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "afrondenMail" : "BESCHIKBAAR_UIT",
+                       "automaticEmailConfirmation": {
+                         "emailReply": "reply@example.com",
+                         "emailSender": "GEMEENTE",
+                         "enabled": true,
+                         "templateName": "Ontvangstbevestiging"
+                      },
+                      "betrokkeneKoppelingen": {
+                        "brpKoppelen": true,
+                        "kvkKoppelen": true
+                      },
+                      "brpDoelbindingen": {
+                        "raadpleegWaarde": "BRPACT-AlgemeneTaken",
+                        "verwerkingregisterWaarde": "Algemeen",
+                        "zoekWaarde": "BRPACT-ZoekenAlgemeen"
+                      },
                       "caseDefinition" : {
                         "humanTaskDefinitions" : [ {
                           "defaultFormulierDefinitie" : "AANVULLENDE_INFORMATIE",
@@ -210,6 +225,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         "enabledForZaaktype" : true,
                         "enabledGlobally" : true
                       },
+                      "uiterlijkeEinddatumAfdoeningWaarschuwing": 1,
                       "userEventListenerParameters" : [ {
                         "id" : "INTAKE_AFRONDEN",
                         "naam" : "Intake afronden"
@@ -219,8 +235,9 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                       } ],
                       "valide" : true,
                       "zaakAfzenders" : [ {
-                        "defaultMail" : false,
+                        "defaultMail" : true,
                         "mail" : "GEMEENTE",
+                        "replyTo" : "GEMEENTE",
                         "speciaal" : true
                       }, {
                         "defaultMail" : false,
@@ -231,6 +248,14 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         "archiefNominatie" : "VERNIETIGEN",
                         "archiefTermijn" : "5 jaren",
                         "besluitVerplicht" : false,
+                        "bronArchiefprocedure": {
+                          "afleidingswijze": "afgehandeld",
+                          "datumkenmerk": "",
+                          "einddatumBekend": false,
+                          "objecttype": "",
+                          "registratie": ""
+                        },
+                        "datumKenmerkVerplicht": false,
                         "id" : "$RESULTAAT_TYPE_GEWEIGERD_UUID",
                         "naam" : "Geweigerd",
                         "naamGeneriek" : "Geweigerd",

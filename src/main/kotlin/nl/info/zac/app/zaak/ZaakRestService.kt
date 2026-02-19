@@ -485,14 +485,14 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("waarschuwing")
-    fun listZaakWaarschuwingen(): List<RestZaakOverzicht> {
+    fun listZaakWarnings(): List<RestZaakOverzicht> {
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()
-        // retrieve all CMMN zaaktype configurations to determine the warning dates for the zaaktypes
-        // note that this can take considerable time if there are many zaaktypes, especially if the zaaktype configuration cache
-        // is empty
+        // Retrieve all CMMN zaaktype configurations to determine the warning dates for the zaaktypes.
+        // Note that this can take considerable time if there are many zaaktypes,
+        // especially if the zaaktype configuration cache is empty.
         zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
             zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->
                 zaaktypeCmmnConfiguration.zaaktypeUuid.let { uuid ->
@@ -511,20 +511,21 @@ class ZaakRestService @Inject constructor(
         return zrcClientService.listZaken(zaakListParameters).results()
             .filter { it.isOpen() }
             .filter {
-                isWaarschuwing(
-                    it,
-                    vandaag,
-                    einddatumGeplandWaarschuwing,
-                    uiterlijkeEinddatumAfdoeningWaarschuwing
+                isZaakWarning(
+                    zaak = it,
+                    today = vandaag,
+                    zaaktypeFatalDateWarningWindows = einddatumGeplandWaarschuwing,
+                    uiterlijkeEinddatumAfdoeningWaarschuwing = uiterlijkeEinddatumAfdoeningWaarschuwing
                 )
             }
-            .map { restZaakOverzichtConverter.convert(it, loggedInUser) }
+            .map { restZaakOverzichtConverter.convert(zaak = it, loggedInUser = loggedInUser) }
     }
 
     @GET
     @Path("zaaktypes-for-creation")
     fun listZaaktypesForZaakCreation(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+            .asSequence()
             .filter {
                 policyService.readOverigeRechten(it.omschrijving).startenZaak &&
                     policyService.isAuthorisedForZaaktype(it.omschrijving)
@@ -538,6 +539,7 @@ class ZaakRestService @Inject constructor(
                     healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map(restZaaktypeConverter::convert)
+            .toList()
 
     @PUT
     @Path("zaakdata")
@@ -1159,35 +1161,35 @@ class ZaakRestService @Inject constructor(
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
-    private fun isWaarschuwing(
+    private fun isZaakWarning(
         zaak: Zaak,
-        vandaag: LocalDate,
-        einddatumGeplandWaarschuwing: Map<UUID, LocalDate>,
+        today: LocalDate,
+        zaaktypeFatalDateWarningWindows: Map<UUID, LocalDate>,
         uiterlijkeEinddatumAfdoeningWaarschuwing: Map<UUID, LocalDate>
     ): Boolean {
         val zaaktypeUUID = zaak.zaaktype.extractUuid()
         return (
             zaak.einddatumGepland != null &&
-                isWaarschuwing(
-                    vandaag,
-                    zaak.einddatumGepland,
-                    einddatumGeplandWaarschuwing[zaaktypeUUID]
+                isWarning(
+                    today = today,
+                    date = zaak.einddatumGepland,
+                    warningDate = zaaktypeFatalDateWarningWindows[zaaktypeUUID]
                 )
             ) ||
-            isWaarschuwing(
-                vandaag,
-                zaak.uiterlijkeEinddatumAfdoening,
-                uiterlijkeEinddatumAfdoeningWaarschuwing[zaaktypeUUID]
+            isWarning(
+                today = today,
+                date = zaak.uiterlijkeEinddatumAfdoening,
+                warningDate = uiterlijkeEinddatumAfdoeningWaarschuwing[zaaktypeUUID]
             )
     }
 
-    private fun isWaarschuwing(
-        vandaag: LocalDate,
-        datum: LocalDate,
-        datumWaarschuwing: LocalDate?
-    ) = datumWaarschuwing != null &&
-        !datum.isBefore(vandaag) &&
-        datum.isBefore(datumWaarschuwing)
+    private fun isWarning(
+        today: LocalDate,
+        date: LocalDate,
+        warningDate: LocalDate?
+    ) = warningDate != null &&
+        !date.isBefore(today) &&
+        date.isBefore(warningDate)
 
     private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
         zrcClientService.patchZaak(

@@ -190,7 +190,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "afrondenMail": "BESCHIKBAAR_UIT",
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
-                          "emailSender": "sender@example.com",
+                          "emailSender": "GEMEENTE",
                           "enabled": true,
                           "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
@@ -258,7 +258,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "afrondenMail": "BESCHIKBAAR_UIT",
                         "automaticEmailConfirmation": {
                           "emailReply": "reply@example.com",
-                          "emailSender": "sender@example.com",
+                          "emailSender": "GEMEENTE",
                           "enabled": true,
                           "templateName": "$MAIL_TEMPLATE_TAAK_ONTVANGSTBEVESTIGING_NAME"
                         },
