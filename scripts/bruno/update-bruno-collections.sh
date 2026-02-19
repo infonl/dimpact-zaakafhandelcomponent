@@ -19,5 +19,5 @@ help()
 # Generate ZAC API Bruno collection
 bru import openapi \
   --source ../../build/generated/openapi/META-INF/openapi/openapi.yaml \
-  --output-file collections/zac-backend-api-bruno-collection. \
+  --output collections/zac-backend-api \
   --collection-name "ZAC Backend API"
