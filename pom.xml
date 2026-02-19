@@ -77,6 +77,9 @@
                         <layer>microprofile-telemetry</layer>
                         <layer>postgresql-driver</layer>
                         <layer>cloud-server</layer>
+                        <!-- uncomment to enable the WildFly Web Console (typically for local monitoring purposes) -->
+                        <!-- see the `install-wildfly.sh` script for details -->
+                        <!--<layer>web-console</layer> -->
                     </layers>
                     <excludedLayers>
                         <layer>deployment-scanner</layer>
