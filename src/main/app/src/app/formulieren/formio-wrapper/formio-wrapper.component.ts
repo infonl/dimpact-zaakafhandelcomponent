@@ -40,6 +40,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   @Output() formChange = new EventEmitter<{ data: unknown }>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
     const path = event.composedPath() as HTMLElement[];
@@ -58,12 +59,16 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   private bootstrapLoader = inject(FormioBootstrapLoaderService);
   protected stylesLoaded = false;
 
+  private static activeElementPatched = false;
+
   async ngOnInit() {
     await this.loadBootstrapStyles();
     this.stylesLoaded = true;
   }
 
   ngAfterViewInit() {
+    if (FormioWrapperComponent.activeElementPatched) return;
+
     // Getting the document.activeElement from the Shadow DOM - Date field text-mask relies on this to determine if the input is focused
     const originalActiveElementGetter = Object.getOwnPropertyDescriptor(
       Document.prototype,
@@ -90,6 +95,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
       },
       configurable: true,
     });
+    FormioWrapperComponent.activeElementPatched = true;
   }
 
   private async loadBootstrapStyles(): Promise<void> {
