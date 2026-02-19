@@ -512,7 +512,7 @@ function updateFromOpenapi(parentFolder, openApiSpec, options = {}) {
     log(`Collection: ${brunoJson.name}`, 'bright');
 
     // Convert OpenAPI to Bruno structure
-    const { requests, baseUrl, servers, info } = convertOpenApiToBruno(openApiSpec, { organizeByTags });
+    const { requests, servers } = convertOpenApiToBruno(openApiSpec, { organizeByTags });
     log(`Found ${requests.length} endpoints in OpenAPI spec`, 'blue');
     log(`Organization: ${organizeByTags ? 'by tags' : 'by path'}`, 'blue');
 
