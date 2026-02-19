@@ -4,6 +4,7 @@
  */
 
 import {
+  AfterViewInit,
   booleanAttribute,
   Component,
   ElementRef,
@@ -30,7 +31,7 @@ import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service"
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false,
 })
-export class FormioWrapperComponent implements OnInit {
+export class FormioWrapperComponent implements OnInit, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -62,6 +63,26 @@ export class FormioWrapperComponent implements OnInit {
     this.stylesLoaded = true;
   }
 
+  ngAfterViewInit() {
+    // Getting the document.activeElement from the Shadow DOM - Date field text-mask relies on this to determine if the input is focused
+    const origDescriptor = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "activeElement",
+    );
+    if (!origDescriptor?.get) return;
+
+    Object.defineProperty(document, "activeElement", {
+      get() {
+        let el = origDescriptor.get!.call(document);
+        while (el && el.shadowRoot && el.shadowRoot.activeElement) {
+          el = el.shadowRoot.activeElement;
+        }
+        return el;
+      },
+      configurable: true,
+    });
+  }
+
   private async loadBootstrapStyles(): Promise<void> {
     const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
     if (!shadowRoot) return;
@@ -70,8 +91,8 @@ export class FormioWrapperComponent implements OnInit {
       const sheet = await this.bootstrapLoader.getBootstrapStyleSheet();
       shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
     } catch (error) {
-      console.error("Failed to load Bootstrap CSS:", error);
       // Allow form to render without Bootstrap styles
+      console.error("Failed to load Bootstrap CSS:", error);
     }
   }
 
