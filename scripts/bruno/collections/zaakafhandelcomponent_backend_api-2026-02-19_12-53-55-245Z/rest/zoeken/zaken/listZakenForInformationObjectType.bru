@@ -1,0 +1,20 @@
+meta {
+  name: listZakenForInformationObjectType
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zoeken/zaken
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "page": 0,
+    "rows": 0,
+    "zaakIdentificator": "",
+    "informationObjectTypeUuid": ""
+  }
+}

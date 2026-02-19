@@ -1,0 +1,21 @@
+meta {
+  name: updateUserSignaleringInstellingen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/signaleringen/instellingen
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "",
+    "type": "",
+    "subjecttype": "",
+    "dashboard": "",
+    "mail": ""
+  }
+}

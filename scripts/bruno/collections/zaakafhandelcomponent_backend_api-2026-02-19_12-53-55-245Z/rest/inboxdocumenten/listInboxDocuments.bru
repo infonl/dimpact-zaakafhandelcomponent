@@ -1,0 +1,26 @@
+meta {
+  name: listInboxDocuments
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/inboxdocumenten
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "sort": "",
+    "order": "",
+    "page": 0,
+    "maxResults": 0,
+    "titel": "",
+    "identificatie": "",
+    "creatiedatum": {
+      "van": "",
+      "tot": ""
+    }
+  }
+}

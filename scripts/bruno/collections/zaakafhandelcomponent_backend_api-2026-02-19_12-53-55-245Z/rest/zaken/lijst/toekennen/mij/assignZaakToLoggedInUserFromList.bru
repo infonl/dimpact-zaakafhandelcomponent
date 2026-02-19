@@ -1,0 +1,19 @@
+meta {
+  name: assignZaakToLoggedInUserFromList
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/lijst/toekennen/mij
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUUID": "",
+    "groepId": "",
+    "reden": ""
+  }
+}

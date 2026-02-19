@@ -1,0 +1,21 @@
+meta {
+  name: assignFromList
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/lijst/verdelen
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "uuids": [],
+    "groepId": "",
+    "behandelaarGebruikersnaam": "",
+    "reden": "",
+    "screenEventResourceId": ""
+  }
+}

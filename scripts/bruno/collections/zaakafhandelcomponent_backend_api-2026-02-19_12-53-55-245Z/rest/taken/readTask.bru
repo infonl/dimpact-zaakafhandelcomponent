@@ -1,0 +1,15 @@
+meta {
+  name: readTask
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/taken/:taskId
+  body: none
+  auth: none
+}
+
+params:path {
+  taskId: {taskId}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: findFormDefinition
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/formulierdefinities/runtime/:systeemnaam
+  body: none
+  auth: none
+}
+
+params:path {
+  systeemnaam: {systeemnaam}
+}

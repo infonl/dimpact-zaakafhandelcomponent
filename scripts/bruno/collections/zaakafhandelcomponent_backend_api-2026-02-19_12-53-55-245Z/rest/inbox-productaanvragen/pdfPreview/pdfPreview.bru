@@ -1,0 +1,15 @@
+meta {
+  name: pdfPreview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/inbox-productaanvragen/:uuid/pdfPreview
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}

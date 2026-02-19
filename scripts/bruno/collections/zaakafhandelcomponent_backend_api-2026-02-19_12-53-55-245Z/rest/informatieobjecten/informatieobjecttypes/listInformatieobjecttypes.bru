@@ -1,0 +1,15 @@
+meta {
+  name: listInformatieobjecttypes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobjecttypes/:zaakTypeUuid
+  body: none
+  auth: none
+}
+
+params:path {
+  zaakTypeUuid: {zaakTypeUuid}
+}

@@ -1,0 +1,19 @@
+meta {
+  name: releaseZakenFromList
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/lijst/vrijgeven
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "uuids": [],
+    "reden": "",
+    "screenEventResourceId": ""
+  }
+}

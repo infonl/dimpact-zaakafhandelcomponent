@@ -1,0 +1,15 @@
+meta {
+  name: deleteInboxDocument
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/inboxdocumenten/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {id}
+}

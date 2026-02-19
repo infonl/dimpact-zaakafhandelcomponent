@@ -1,0 +1,15 @@
+meta {
+  name: listBesluittypes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/besluittypes/:zaaktypeUUID
+  body: none
+  auth: none
+}
+
+params:path {
+  zaaktypeUUID: {zaaktypeUUID}
+}

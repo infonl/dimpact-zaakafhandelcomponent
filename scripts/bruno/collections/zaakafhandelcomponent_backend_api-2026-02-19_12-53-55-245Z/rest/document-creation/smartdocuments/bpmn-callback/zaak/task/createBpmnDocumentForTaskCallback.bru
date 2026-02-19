@@ -1,0 +1,24 @@
+meta {
+  name: createBpmnDocumentForTaskCallback
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/document-creation/smartdocuments/bpmn-callback/zaak/:zaakUuid/task/:taskId
+  body: none
+  auth: none
+}
+
+params:path {
+  taskId: {taskId}
+  zaakUuid: {zaakUuid}
+}
+
+query {
+  creationDate: 
+  description: 
+  informatieobjecttypeUuid: 
+  title: 
+  userName: 
+}

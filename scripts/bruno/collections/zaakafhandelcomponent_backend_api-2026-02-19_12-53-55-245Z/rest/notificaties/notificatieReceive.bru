@@ -1,0 +1,23 @@
+meta {
+  name: notificatieReceive
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/notificaties
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "kanaal": "",
+    "hoofdObject": "",
+    "resource": "",
+    "resourceUrl": "",
+    "actie": "",
+    "aanmaakdatum": "",
+    "kenmerken": ""
+  }
+}

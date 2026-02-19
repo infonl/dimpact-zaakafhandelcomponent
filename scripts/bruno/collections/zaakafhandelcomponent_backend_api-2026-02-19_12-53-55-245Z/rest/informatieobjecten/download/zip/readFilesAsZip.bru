@@ -1,0 +1,15 @@
+meta {
+  name: readFilesAsZip
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/download/zip
+  body: json
+  auth: none
+}
+
+body:json {
+  []
+}

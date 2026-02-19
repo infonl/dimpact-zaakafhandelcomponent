@@ -1,0 +1,16 @@
+meta {
+  name: readEnkelvoudigInformatieobjectVersion
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/versie/:uuid/:version
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+  version: {version}
+}

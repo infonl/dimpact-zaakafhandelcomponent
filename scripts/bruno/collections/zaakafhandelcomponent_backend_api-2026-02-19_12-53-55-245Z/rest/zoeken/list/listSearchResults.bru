@@ -1,0 +1,28 @@
+meta {
+  name: listSearchResults
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zoeken/list
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "page": 0,
+    "rows": 0,
+    "type": "",
+    "zoeken": "",
+    "filters": "",
+    "datums": "",
+    "sorteerVeld": "",
+    "sorteerRichting": "",
+    "alleenMijnZaken": false,
+    "alleenOpenstaandeZaken": false,
+    "alleenAfgeslotenZaken": false,
+    "alleenMijnTaken": false
+  }
+}

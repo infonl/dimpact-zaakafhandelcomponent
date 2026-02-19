@@ -1,0 +1,18 @@
+meta {
+  name: doProcessTaskplanItem
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/planitems/doProcessTaskPlanItem
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "planItemInstanceId": "",
+    "data": {}
+  }
+}

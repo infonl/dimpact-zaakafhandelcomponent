@@ -1,0 +1,16 @@
+meta {
+  name: preview
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid/:versie/preview
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+  versie: {versie}
+}

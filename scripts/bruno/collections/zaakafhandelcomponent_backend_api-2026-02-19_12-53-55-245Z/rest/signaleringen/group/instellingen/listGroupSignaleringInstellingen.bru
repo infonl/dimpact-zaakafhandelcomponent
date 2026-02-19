@@ -1,0 +1,15 @@
+meta {
+  name: listGroupSignaleringInstellingen
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/signaleringen/group/:groupId/instellingen
+  body: none
+  auth: none
+}
+
+params:path {
+  groupId: {groupId}
+}

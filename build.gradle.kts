@@ -352,7 +352,8 @@ smallryeOpenApi {
     schemaFilename.set("META-INF/openapi/openapi")
     operationIdStrategy.set(OperationIdStrategy.METHOD)
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
-    outputFileTypeFilter.set("YAML")
+    securitySchemeName.set("bearerAuth")
+    outputFileTypeFilter.set("JSON")
 }
 
 configure<SpotlessExtension> {

@@ -1,0 +1,21 @@
+meta {
+  name: deleteDashboardCard
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/dasboardcard
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": 0,
+    "cardId": "",
+    "signaleringType": "",
+    "column": 0,
+    "row": 0
+  }
+}

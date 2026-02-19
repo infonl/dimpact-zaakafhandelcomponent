@@ -1,0 +1,32 @@
+meta {
+  name: doHumanTaskplanItem
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/planitems/doHumanTaskPlanItem
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "planItemInstanceId": "",
+    "groep": {
+      "id": "",
+      "naam": ""
+    },
+    "medewerker": {
+      "id": "",
+      "naam": ""
+    },
+    "fataledatum": "",
+    "toelichting": "",
+    "taakdata": "",
+    "taakStuurGegevens": {
+      "sendMail": false,
+      "mail": ""
+    }
+  }
+}

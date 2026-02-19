@@ -1,0 +1,32 @@
+meta {
+  name: listDetachedDocuments
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/ontkoppeldedocumenten
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "sort": "",
+    "order": "",
+    "page": 0,
+    "maxResults": 0,
+    "titel": "",
+    "reden": "",
+    "creatiedatum": {
+      "van": "",
+      "tot": ""
+    },
+    "ontkoppeldDoor": {
+      "id": "",
+      "naam": ""
+    },
+    "ontkoppeldOp": {},
+    "zaakID": ""
+  }
+}

@@ -1,0 +1,107 @@
+meta {
+  name: createOrUpdateZaaktypeBpmnConfiguration
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/zaaktype-bpmn-configuration
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "",
+    "zaaktypeUuid": "",
+    "zaaktypeOmschrijving": "",
+    "bpmnProcessDefinitionKey": "",
+    "productaanvraagtype": "",
+    "groepNaam": "",
+    "creatiedatum": "",
+    "defaultBehandelaarId": "",
+    "betrokkeneKoppelingen": {
+      "id": "",
+      "zaakafhandelParameters": {
+        "id": "",
+        "zaaktype": {
+          "uuid": "",
+          "identificatie": "",
+          "doel": "",
+          "omschrijving": "",
+          "servicenorm": false,
+          "versiedatum": "",
+          "beginGeldigheid": "",
+          "eindeGeldigheid": "",
+          "vertrouwelijkheidaanduiding": "",
+          "nuGeldig": false
+        },
+        "caseDefinition": {
+          "key": "",
+          "naam": "",
+          "humanTaskDefinitions": [],
+          "userEventListenerDefinitions": []
+        },
+        "defaultBehandelaarId": "",
+        "defaultGroepId": "",
+        "einddatumGeplandWaarschuwing": "",
+        "uiterlijkeEinddatumAfdoeningWaarschuwing": "",
+        "creatiedatum": "",
+        "zaakNietOntvankelijkResultaattype": {
+          "id": "",
+          "naam": "",
+          "naamGeneriek": "",
+          "vervaldatumBesluitVerplicht": false,
+          "datumKenmerkVerplicht": false,
+          "besluitVerplicht": false,
+          "toelichting": "",
+          "archiefNominatie": "",
+          "archiefTermijn": "",
+          "selectielijst": "",
+          "bronArchiefprocedure": {
+            "afleidingswijze": "",
+            "datumkenmerk": "",
+            "einddatumBekend": false,
+            "objecttype": "",
+            "registratie": "",
+            "procestermijn": ""
+          }
+        },
+        "intakeMail": "",
+        "afrondenMail": {},
+        "productaanvraagtype": "",
+        "domein": "",
+        "valide": false,
+        "humanTaskParameters": [],
+        "userEventListenerParameters": [],
+        "mailtemplateKoppelingen": [],
+        "automaticEmailConfirmation": {
+          "id": "",
+          "enabled": false,
+          "templateName": "",
+          "emailSender": "",
+          "emailReply": ""
+        },
+        "betrokkeneKoppelingen": {},
+        "zaakbeeindigParameters": [],
+        "brpDoelbindingen": {
+          "id": "",
+          "zaakafhandelParameters": {},
+          "zoekWaarde": "",
+          "raadpleegWaarde": "",
+          "verwerkingregisterWaarde": ""
+        },
+        "zaakAfzenders": [],
+        "smartDocuments": {
+          "enabledGlobally": false,
+          "enabledForZaaktype": false
+        }
+      },
+      "brpKoppelen": false,
+      "kvkKoppelen": false
+    },
+    "brpDoelbindingen": {},
+    "zaakNietOntvankelijkResultaattype": {},
+    "zaakbeeindigParameters": []
+  }
+}

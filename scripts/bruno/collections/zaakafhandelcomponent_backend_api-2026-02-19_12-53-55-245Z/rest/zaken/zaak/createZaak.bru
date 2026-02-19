@@ -1,0 +1,163 @@
+meta {
+  name: createZaak
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/zaken/zaak
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaak": {
+      "behandelaar": {
+        "id": "",
+        "naam": ""
+      },
+      "bronorganisatie": "",
+      "communicatiekanaal": "",
+      "einddatumGepland": "",
+      "einddatum": {},
+      "gerelateerdeZaken": "",
+      "groep": {
+        "id": "",
+        "naam": ""
+      },
+      "initiatorIdentificatie": {
+        "type": "",
+        "bsn": "",
+        "temporaryPersonId": "",
+        "kvkNummer": "",
+        "rsin": "",
+        "vestigingsnummer": ""
+      },
+      "omschrijving": "",
+      "publicatiedatum": {},
+      "registratiedatum": {},
+      "startdatum": {},
+      "toelichting": "",
+      "uiterlijkeEinddatumAfdoening": {},
+      "vertrouwelijkheidaanduiding": "",
+      "zaakgeometrie": {
+        "type": "",
+        "point": {
+          "longitude": 0,
+          "latitude": 0
+        },
+        "polygon": "",
+        "geometrycollection": ""
+      },
+      "zaaktype": {
+        "uuid": {},
+        "identificatie": "",
+        "doel": "",
+        "omschrijving": "",
+        "referentieproces": "",
+        "servicenorm": "",
+        "versiedatum": {},
+        "beginGeldigheid": {},
+        "eindeGeldigheid": {},
+        "vertrouwelijkheidaanduiding": "",
+        "nuGeldig": "",
+        "opschortingMogelijk": "",
+        "verlengingMogelijk": "",
+        "verlengingstermijn": "",
+        "zaaktypeRelaties": "",
+        "informatieobjecttypes": "",
+        "zaakafhandelparameters": {
+          "id": "",
+          "zaaktype": {
+            "uuid": "",
+            "identificatie": "",
+            "doel": "",
+            "omschrijving": "",
+            "servicenorm": false,
+            "versiedatum": "",
+            "beginGeldigheid": "",
+            "eindeGeldigheid": "",
+            "vertrouwelijkheidaanduiding": {},
+            "nuGeldig": false
+          },
+          "caseDefinition": {
+            "key": "",
+            "naam": "",
+            "humanTaskDefinitions": [],
+            "userEventListenerDefinitions": []
+          },
+          "defaultBehandelaarId": "",
+          "defaultGroepId": "",
+          "einddatumGeplandWaarschuwing": "",
+          "uiterlijkeEinddatumAfdoeningWaarschuwing": "",
+          "creatiedatum": "",
+          "zaakNietOntvankelijkResultaattype": {
+            "id": "",
+            "naam": "",
+            "naamGeneriek": "",
+            "vervaldatumBesluitVerplicht": false,
+            "datumKenmerkVerplicht": false,
+            "besluitVerplicht": false,
+            "toelichting": "",
+            "archiefNominatie": "",
+            "archiefTermijn": "",
+            "selectielijst": "",
+            "bronArchiefprocedure": {
+              "afleidingswijze": "",
+              "datumkenmerk": "",
+              "einddatumBekend": false,
+              "objecttype": "",
+              "registratie": "",
+              "procestermijn": ""
+            }
+          },
+          "intakeMail": "",
+          "afrondenMail": {},
+          "productaanvraagtype": "",
+          "domein": "",
+          "valide": false,
+          "humanTaskParameters": [],
+          "userEventListenerParameters": [],
+          "mailtemplateKoppelingen": [],
+          "automaticEmailConfirmation": {
+            "id": "",
+            "enabled": false,
+            "templateName": "",
+            "emailSender": "",
+            "emailReply": ""
+          },
+          "betrokkeneKoppelingen": {
+            "id": "",
+            "zaakafhandelParameters": {},
+            "brpKoppelen": false,
+            "kvkKoppelen": false
+          },
+          "zaakbeeindigParameters": [],
+          "brpDoelbindingen": {
+            "id": "",
+            "zaakafhandelParameters": {},
+            "zoekWaarde": "",
+            "raadpleegWaarde": "",
+            "verwerkingregisterWaarde": ""
+          },
+          "zaakAfzenders": [],
+          "smartDocuments": {
+            "enabledGlobally": false,
+            "enabledForZaaktype": false
+          }
+        }
+      }
+    },
+    "inboxProductaanvraag": {
+      "id": 0,
+      "productaanvraagObjectUUID": {},
+      "aanvraagdocumentUUID": {},
+      "aantalBijlagen": 0,
+      "type": "",
+      "ontvangstdatum": "",
+      "initiatorID": ""
+    },
+    "bagObjecten": ""
+  }
+}

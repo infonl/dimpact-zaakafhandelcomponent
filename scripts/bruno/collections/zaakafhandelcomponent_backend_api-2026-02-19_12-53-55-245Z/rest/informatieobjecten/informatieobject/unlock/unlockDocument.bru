@@ -1,0 +1,19 @@
+meta {
+  name: unlockDocument
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid/unlock
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+query {
+  zaak: 
+}

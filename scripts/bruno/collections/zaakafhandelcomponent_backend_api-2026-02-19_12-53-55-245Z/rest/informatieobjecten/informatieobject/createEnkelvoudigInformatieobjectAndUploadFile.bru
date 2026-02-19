@@ -1,0 +1,20 @@
+meta {
+  name: createEnkelvoudigInformatieobjectAndUploadFile
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:zaakUuid/:documentReferenceId
+  body: form-urlencoded
+  auth: none
+}
+
+params:path {
+  documentReferenceId: {documentReferenceId}
+  zaakUuid: {zaakUuid}
+}
+
+query {
+  taakObject: 
+}

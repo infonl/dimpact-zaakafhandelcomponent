@@ -1,0 +1,15 @@
+meta {
+  name: readVestigingByVestigingsnummer
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/vestiging/:vestigingsnummer
+  body: none
+  auth: none
+}
+
+params:path {
+  vestigingsnummer: {vestigingsnummer}
+}

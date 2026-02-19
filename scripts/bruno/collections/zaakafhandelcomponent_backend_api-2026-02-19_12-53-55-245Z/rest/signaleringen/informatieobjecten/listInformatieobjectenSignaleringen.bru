@@ -1,0 +1,15 @@
+meta {
+  name: listInformatieobjectenSignaleringen
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/signaleringen/informatieobjecten/:type
+  body: none
+  auth: none
+}
+
+params:path {
+  type: {type}
+}

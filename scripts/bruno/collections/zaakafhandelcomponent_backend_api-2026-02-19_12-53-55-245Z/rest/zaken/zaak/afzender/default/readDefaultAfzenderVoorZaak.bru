@@ -1,0 +1,15 @@
+meta {
+  name: readDefaultAfzenderVoorZaak
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/zaak/:uuid/afzender/default
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}

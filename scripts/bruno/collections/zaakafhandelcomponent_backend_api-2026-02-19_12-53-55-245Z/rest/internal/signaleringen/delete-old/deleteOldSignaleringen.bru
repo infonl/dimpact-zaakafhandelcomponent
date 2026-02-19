@@ -1,0 +1,11 @@
+meta {
+  name: deleteOldSignaleringen
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/internal/signaleringen/delete-old
+  body: none
+  auth: none
+}

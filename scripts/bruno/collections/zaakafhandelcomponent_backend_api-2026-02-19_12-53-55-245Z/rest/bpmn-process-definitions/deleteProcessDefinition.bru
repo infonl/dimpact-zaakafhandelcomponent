@@ -1,0 +1,15 @@
+meta {
+  name: deleteProcessDefinition
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/bpmn-process-definitions/:key
+  body: none
+  auth: none
+}
+
+params:path {
+  key: {key}
+}

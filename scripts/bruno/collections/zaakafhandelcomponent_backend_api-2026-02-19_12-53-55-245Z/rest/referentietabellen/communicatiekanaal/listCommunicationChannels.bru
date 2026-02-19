@@ -1,0 +1,15 @@
+meta {
+  name: listCommunicationChannels
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/referentietabellen/communicatiekanaal/:inclusiefEFormulier
+  body: none
+  auth: none
+}
+
+params:path {
+  inclusiefEFormulier: {inclusiefEFormulier}
+}

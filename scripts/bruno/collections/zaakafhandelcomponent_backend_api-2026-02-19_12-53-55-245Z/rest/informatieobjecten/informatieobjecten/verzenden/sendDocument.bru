@@ -1,0 +1,20 @@
+meta {
+  name: sendDocument
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobjecten/verzenden
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUuid": "",
+    "verzenddatum": "",
+    "informatieobjecten": [],
+    "toelichting": ""
+  }
+}

@@ -1,0 +1,15 @@
+meta {
+  name: reindex
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/internal/indexeren/herindexeren/:type
+  body: none
+  auth: none
+}
+
+params:path {
+  type: {type}
+}

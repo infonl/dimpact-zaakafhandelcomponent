@@ -1,0 +1,21 @@
+meta {
+  name: assignTasksFromList
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/taken/lijst/verdelen
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "taken": [],
+    "groepId": "",
+    "behandelaarGebruikersnaam": "",
+    "reden": "",
+    "screenEventResourceId": ""
+  }
+}

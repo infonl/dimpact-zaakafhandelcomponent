@@ -1,0 +1,20 @@
+meta {
+  name: assignZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/toekennen
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUUID": "",
+    "groepId": "",
+    "behandelaarGebruikersnaam": "",
+    "reden": ""
+  }
+}

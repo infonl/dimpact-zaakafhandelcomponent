@@ -1,0 +1,18 @@
+meta {
+  name: createFormulier
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/formio-formulieren
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filename": "",
+    "content": ""
+  }
+}

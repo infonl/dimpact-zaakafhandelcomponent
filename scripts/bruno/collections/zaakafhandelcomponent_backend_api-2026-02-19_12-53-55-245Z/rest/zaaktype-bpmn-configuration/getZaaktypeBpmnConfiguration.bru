@@ -1,0 +1,15 @@
+meta {
+  name: getZaaktypeBpmnConfiguration
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaaktype-bpmn-configuration/:processDefinitionKey
+  body: none
+  auth: none
+}
+
+params:path {
+  processDefinitionKey: {processDefinitionKey}
+}

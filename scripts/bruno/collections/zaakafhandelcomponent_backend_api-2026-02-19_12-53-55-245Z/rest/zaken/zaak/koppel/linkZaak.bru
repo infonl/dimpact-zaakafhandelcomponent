@@ -1,0 +1,20 @@
+meta {
+  name: linkZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/koppel
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUuid": "",
+    "teKoppelenZaakUuid": {},
+    "relatieType": "",
+    "reverseRelatieType": {}
+  }
+}

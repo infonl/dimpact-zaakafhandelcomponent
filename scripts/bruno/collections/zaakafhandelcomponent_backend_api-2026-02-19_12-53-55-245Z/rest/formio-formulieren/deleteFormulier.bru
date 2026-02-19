@@ -1,0 +1,15 @@
+meta {
+  name: deleteFormulier
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/formio-formulieren/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {id}
+}

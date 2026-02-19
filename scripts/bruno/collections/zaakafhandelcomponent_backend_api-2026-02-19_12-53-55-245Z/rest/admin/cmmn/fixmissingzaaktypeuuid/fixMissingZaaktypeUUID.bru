@@ -1,0 +1,15 @@
+meta {
+  name: fixMissingZaaktypeUUID
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/admin/cmmn/fixmissingzaaktypeuuid/:zaaktypeuuid
+  body: none
+  auth: none
+}
+
+params:path {
+  zaaktypeuuid: {zaaktypeuuid}
+}

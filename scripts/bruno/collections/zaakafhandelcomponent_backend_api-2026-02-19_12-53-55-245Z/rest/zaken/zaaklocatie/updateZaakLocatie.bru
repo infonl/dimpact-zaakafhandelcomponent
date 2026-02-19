@@ -1,0 +1,30 @@
+meta {
+  name: updateZaakLocatie
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/:uuid/zaaklocatie
+  body: json
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "geometrie": {
+      "type": "",
+      "point": {
+        "longitude": 0,
+        "latitude": 0
+      },
+      "polygon": "",
+      "geometrycollection": ""
+    },
+    "reden": ""
+  }
+}

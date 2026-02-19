@@ -1,0 +1,15 @@
+meta {
+  name: readZaaktypeConfiguration
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaakafhandelparameters/:zaaktypeUUID
+  body: none
+  auth: none
+}
+
+params:path {
+  zaaktypeUUID: {zaaktypeUUID}
+}

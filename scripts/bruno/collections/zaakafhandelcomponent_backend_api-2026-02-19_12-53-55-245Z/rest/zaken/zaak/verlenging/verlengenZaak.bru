@@ -1,0 +1,25 @@
+meta {
+  name: verlengenZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/:uuid/verlenging
+  body: json
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "redenVerlenging": "",
+    "duurDagen": 0,
+    "takenVerlengen": false,
+    "einddatumGepland": "",
+    "uiterlijkeEinddatumAfdoening": {}
+  }
+}

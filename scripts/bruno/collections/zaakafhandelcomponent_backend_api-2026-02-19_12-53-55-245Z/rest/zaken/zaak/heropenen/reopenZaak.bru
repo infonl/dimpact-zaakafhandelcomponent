@@ -1,0 +1,21 @@
+meta {
+  name: reopenZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/:uuid/heropenen
+  body: json
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "reden": ""
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: assignTaskToLoggedInUser
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/taken/toekennen/mij
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "taakId": "",
+    "zaakUuid": "",
+    "groepId": "",
+    "behandelaarId": "",
+    "reden": ""
+  }
+}

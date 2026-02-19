@@ -1,0 +1,25 @@
+meta {
+  name: updateGroupSignaleringInstellingen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/signaleringen/group/:groupId/instellingen
+  body: json
+  auth: none
+}
+
+params:path {
+  groupId: {groupId}
+}
+
+body:json {
+  {
+    "id": "",
+    "type": "",
+    "subjecttype": "",
+    "dashboard": "",
+    "mail": ""
+  }
+}

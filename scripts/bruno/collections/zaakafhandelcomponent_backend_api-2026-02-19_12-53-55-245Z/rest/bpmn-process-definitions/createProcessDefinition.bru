@@ -1,0 +1,18 @@
+meta {
+  name: createProcessDefinition
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/bpmn-process-definitions
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filename": "",
+    "content": ""
+  }
+}

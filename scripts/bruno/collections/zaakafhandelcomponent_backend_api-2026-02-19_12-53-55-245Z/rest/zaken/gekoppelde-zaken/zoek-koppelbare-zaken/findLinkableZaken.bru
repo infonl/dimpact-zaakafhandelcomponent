@@ -1,0 +1,22 @@
+meta {
+  name: findLinkableZaken
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/gekoppelde-zaken/:zaakUuid/zoek-koppelbare-zaken
+  body: none
+  auth: none
+}
+
+params:path {
+  zaakUuid: {zaakUuid}
+}
+
+query {
+  page: 
+  relationType: 
+  rows: 
+  zoekZaakIdentifier: 
+}

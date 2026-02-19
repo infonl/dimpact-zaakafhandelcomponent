@@ -1,0 +1,32 @@
+meta {
+  name: doUserEventListenerPlanItem
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/planitems/doUserEventListenerPlanItem
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUuid": "",
+    "planItemInstanceId": "",
+    "actie": "",
+    "zaakOntvankelijk": false,
+    "resultaatToelichting": "",
+    "resultaattypeUuid": {},
+    "restMailGegevens": {
+      "verzender": "",
+      "ontvanger": "",
+      "replyTo": "",
+      "onderwerp": "",
+      "body": "",
+      "bijlagen": "",
+      "createDocumentFromMail": false
+    },
+    "brondatumEigenschap": ""
+  }
+}

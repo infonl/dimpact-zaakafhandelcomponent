@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "zaakafhandelcomponent_backend_api-2026-02-19_12-53-55-245Z",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

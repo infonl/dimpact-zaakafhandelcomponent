@@ -1,0 +1,19 @@
+meta {
+  name: listContactmomenten
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/klanten/contactmomenten
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "bsn": "",
+    "vestigingsnummer": "",
+    "page": 0
+  }
+}

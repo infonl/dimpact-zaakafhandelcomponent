@@ -1,0 +1,20 @@
+meta {
+  name: unlinkZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/ontkoppel
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zaakUuid": "",
+    "gekoppeldeZaakIdentificatie": "",
+    "relatieType": "",
+    "reden": ""
+  }
+}

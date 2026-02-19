@@ -1,0 +1,15 @@
+meta {
+  name: listHistorie
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid/historie
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}

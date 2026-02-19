@@ -1,0 +1,26 @@
+meta {
+  name: updateInitiator
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/initiator
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "betrokkeneIdentificatie": {
+      "type": "",
+      "bsn": "",
+      "temporaryPersonId": "",
+      "kvkNummer": "",
+      "rsin": "",
+      "vestigingsnummer": ""
+    },
+    "toelichting": "",
+    "zaakUUID": {}
+  }
+}

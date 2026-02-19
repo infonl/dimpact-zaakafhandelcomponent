@@ -1,0 +1,19 @@
+meta {
+  name: releaseTaskFromList
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/taken/lijst/vrijgeven
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "taken": [],
+    "reden": "",
+    "screenEventResourceId": ""
+  }
+}

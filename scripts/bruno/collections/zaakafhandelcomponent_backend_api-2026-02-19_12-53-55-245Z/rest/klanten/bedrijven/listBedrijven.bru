@@ -1,0 +1,23 @@
+meta {
+  name: listBedrijven
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/klanten/bedrijven
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "kvkNummer": "",
+    "vestigingsnummer": "",
+    "rsin": "",
+    "naam": "",
+    "postcode": "",
+    "huisnummer": "",
+    "type": ""
+  }
+}

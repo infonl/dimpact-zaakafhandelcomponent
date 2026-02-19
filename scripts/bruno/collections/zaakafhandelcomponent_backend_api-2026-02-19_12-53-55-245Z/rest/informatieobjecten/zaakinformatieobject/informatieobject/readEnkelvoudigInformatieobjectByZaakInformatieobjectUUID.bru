@@ -1,0 +1,15 @@
+meta {
+  name: readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/zaakinformatieobject/:uuid/informatieobject
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}

@@ -1,0 +1,19 @@
+meta {
+  name: get
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/:job-id
+  body: none
+  auth: none
+}
+
+params:path {
+  job-id: {job-id}
+}
+
+query {
+  wait: 
+}

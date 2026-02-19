@@ -1,0 +1,15 @@
+meta {
+  name: listProcessTaskPlanItems
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/planitems/zaak/:uuid/processTaskPlanItems
+  body: none
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}

@@ -1,0 +1,21 @@
+meta {
+  name: deleteBetrokkene
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/zaken/betrokkene/:uuid
+  body: json
+  auth: none
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "reden": ""
+  }
+}

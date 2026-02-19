@@ -1,0 +1,22 @@
+meta {
+  name: setZoekopdrachtActief
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht/actief
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": 0,
+    "lijstID": "",
+    "actief": false,
+    "creatiedatum": "",
+    "naam": "",
+    "json": ""
+  }
+}
