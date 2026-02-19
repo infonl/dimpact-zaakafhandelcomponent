@@ -35,8 +35,8 @@ fun InboxDocument.convertToRESTInboxDocument(informatieobjectTypeUUID: UUID?) =
 
 fun List<InboxDocument>.convertToRESTInboxDocuments(
     informatieobjectTypeUUIDs: List<UUID?>
-): MutableList<RESTInboxDocument?> {
-    val list: MutableList<RESTInboxDocument?> = ArrayList()
+): MutableList<RESTInboxDocument> {
+    val list: MutableList<RESTInboxDocument> = ArrayList()
     for (index in this.indices) {
         // Skip documents for which we don't have an informatieobjectTypeUUID
         if (informatieobjectTypeUUIDs[index] == null) continue
