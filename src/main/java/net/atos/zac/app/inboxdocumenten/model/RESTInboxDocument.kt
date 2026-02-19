@@ -2,25 +2,23 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.inboxdocumenten.model
 
-package net.atos.zac.app.inboxdocumenten.model;
+import java.time.LocalDate
+import java.util.UUID
 
-import java.time.LocalDate;
-import java.util.UUID;
+class RESTInboxDocument {
+    var id: Long = 0
 
-public class RESTInboxDocument {
+    var enkelvoudiginformatieobjectUUID: UUID? = null
 
-    public long id;
+    var enkelvoudiginformatieobjectID: String? = null
 
-    public UUID enkelvoudiginformatieobjectUUID;
+    var informatieobjectTypeUUID: UUID? = null
 
-    public String enkelvoudiginformatieobjectID;
+    var creatiedatum: LocalDate? = null
 
-    public UUID informatieobjectTypeUUID;
+    var titel: String? = null
 
-    public LocalDate creatiedatum;
-
-    public String titel;
-
-    public String bestandsnaam;
+    var bestandsnaam: String? = null
 }

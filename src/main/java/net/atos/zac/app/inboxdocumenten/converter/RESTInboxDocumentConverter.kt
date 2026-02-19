@@ -2,43 +2,40 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.inboxdocumenten.converter;
+package net.atos.zac.app.inboxdocumenten.converter
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocument
+import net.atos.zac.documenten.model.InboxDocument
+import java.util.UUID
 
-import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocument;
-import net.atos.zac.documenten.model.InboxDocument;
-
-public class RESTInboxDocumentConverter {
-
-    public static RESTInboxDocument convert(final InboxDocument document, final UUID informatieobjectTypeUUID) {
-        final RESTInboxDocument restDocument = new RESTInboxDocument();
-        restDocument.id = document.getId();
-        restDocument.enkelvoudiginformatieobjectUUID = document.getEnkelvoudiginformatieobjectUUID();
-        restDocument.enkelvoudiginformatieobjectID = document.getEnkelvoudiginformatieobjectID();
-        restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
-        restDocument.titel = document.getTitel();
-        restDocument.creatiedatum = document.getCreatiedatum();
-        restDocument.bestandsnaam = document.getBestandsnaam();
-        return restDocument;
+object RESTInboxDocumentConverter {
+    fun convert(document: InboxDocument, informatieobjectTypeUUID: UUID?): RESTInboxDocument {
+        val restDocument = RESTInboxDocument()
+        restDocument.id = document.getId()
+        restDocument.enkelvoudiginformatieobjectUUID = document.enkelvoudiginformatieobjectUUID
+        restDocument.enkelvoudiginformatieobjectID = document.enkelvoudiginformatieobjectID
+        restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID
+        restDocument.titel = document.titel
+        restDocument.creatiedatum = document.creatiedatum
+        restDocument.bestandsnaam = document.bestandsnaam
+        return restDocument
     }
 
-    public static List<RESTInboxDocument> convert(
-            final List<InboxDocument> documenten,
-            final List<UUID> informatieobjectTypeUUIDs
-    ) {
-        List<RESTInboxDocument> list = new ArrayList<>();
-        for (int index = 0; index < documenten.size(); index++) {
+    fun convert(
+        documenten: List<InboxDocument?>,
+        informatieobjectTypeUUIDs: List<UUID?>
+    ): MutableList<RESTInboxDocument?> {
+        val list: MutableList<RESTInboxDocument?> = ArrayList<RESTInboxDocument?>()
+        for (index in documenten.indices) {
             // Skip documents for which we don't have an informatieobjectTypeUUID
-            if (informatieobjectTypeUUIDs.get(index) == null)
-                continue;
-            list.add(convert(
-                    documenten.get(index),
+            if (informatieobjectTypeUUIDs.get(index) == null) continue
+            list.add(
+                convert(
+                    documenten[index]!!,
                     informatieobjectTypeUUIDs.get(index)
-            ));
+                )
+            )
         }
-        return list;
+        return list
     }
 }

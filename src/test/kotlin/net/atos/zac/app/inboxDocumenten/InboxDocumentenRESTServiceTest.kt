@@ -38,30 +38,13 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
     val listParametersConverter = mockk<RESTInboxDocumentListParametersConverter>()
     val policyService = mockk<PolicyService>()
 
-    val inboxDocumentenRESTService = InboxDocumentenRESTService().apply {
-        val service = this
-        // Use reflection to set private fields since this is a Java class with field injection
-        javaClass.getDeclaredField("inboxDocumentenService").apply {
-            isAccessible = true
-            set(service, inboxDocumentenService)
-        }
-        javaClass.getDeclaredField("drcClientService").apply {
-            isAccessible = true
-            set(service, drcClientService)
-        }
-        javaClass.getDeclaredField("zrcClientService").apply {
-            isAccessible = true
-            set(service, zrcClientService)
-        }
-        javaClass.getDeclaredField("listParametersConverter").apply {
-            isAccessible = true
-            set(service, listParametersConverter)
-        }
-        javaClass.getDeclaredField("policyService").apply {
-            isAccessible = true
-            set(service, policyService)
-        }
-    }
+    val inboxDocumentenRESTService = InboxDocumentenRESTService(
+        inboxDocumentenService,
+        drcClientService,
+        zrcClientService,
+        listParametersConverter,
+        policyService
+    )
 
     afterEach {
         clearMocks(

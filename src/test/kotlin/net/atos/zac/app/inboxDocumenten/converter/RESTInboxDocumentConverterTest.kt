@@ -148,14 +148,14 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                 }
 
                 And("each result should have the correct mapping") {
-                    results[0].id shouldBe 1L
-                    results[0].informatieobjectTypeUUID shouldBe uuid1
+                    results[0]?.id shouldBe 1L
+                    results[0]?.informatieobjectTypeUUID shouldBe uuid1
 
-                    results[1].id shouldBe 2L
-                    results[1].informatieobjectTypeUUID shouldBe uuid2
+                    results[1]?.id shouldBe 2L
+                    results[1]?.informatieobjectTypeUUID shouldBe uuid2
 
-                    results[2].id shouldBe 3L
-                    results[2].informatieobjectTypeUUID shouldBe uuid3
+                    results[2]?.id shouldBe 3L
+                    results[2]?.informatieobjectTypeUUID shouldBe uuid3
                 }
             }
         }
@@ -182,8 +182,8 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
                 Then("the result should contain one converted document") {
                     results shouldHaveSize 1
-                    results[0].id shouldBe document.id
-                    results[0].informatieobjectTypeUUID shouldBe uuid
+                    results[0]?.id shouldBe document.id
+                    results[0]?.informatieobjectTypeUUID shouldBe uuid
                 }
             }
         }
@@ -222,10 +222,10 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                 }
 
                 And("the correct documents should be converted") {
-                    results.map { it.id } shouldContainExactly listOf(1L, 3L)
-                    results.map { it.titel } shouldContainExactly listOf("Doc1", "Doc3")
-                    results[0].informatieobjectTypeUUID shouldBe uuid1
-                    results[1].informatieobjectTypeUUID shouldBe uuid3
+                    results.map { it?.id } shouldContainExactly listOf(1L, 3L)
+                    results.map { it?.titel } shouldContainExactly listOf("Doc1", "Doc3")
+                    results[0]?.informatieobjectTypeUUID shouldBe uuid1
+                    results[1]?.informatieobjectTypeUUID shouldBe uuid3
                 }
             }
         }
@@ -271,8 +271,8 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
                 Then("only the middle document should be converted") {
                     results shouldHaveSize 1
-                    results[0].id shouldBe 2L
-                    results[0].informatieobjectTypeUUID shouldBe uuid2
+                    results[0]?.id shouldBe 2L
+                    results[0]?.informatieobjectTypeUUID shouldBe uuid2
                 }
             }
         }
@@ -295,7 +295,7 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
 
                 Then("only even-indexed documents should be converted") {
                     results shouldHaveSize 5
-                    results.map { it.id } shouldContainExactly listOf(2L, 4L, 6L, 8L, 10L)
+                    results.map { it?.id } shouldContainExactly listOf(2L, 4L, 6L, 8L, 10L)
                 }
             }
         }
@@ -324,9 +324,9 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                 val results = RESTInboxDocumentConverter.convert(documents, uuids)
 
                 Then("all dates should be correctly preserved") {
-                    results[0].creatiedatum shouldBe date1
-                    results[1].creatiedatum shouldBe date2
-                    results[2].creatiedatum shouldBe date3
+                    results[0]?.creatiedatum shouldBe date1
+                    results[1]?.creatiedatum shouldBe date2
+                    results[2]?.creatiedatum shouldBe date3
                 }
             }
         }
@@ -347,13 +347,13 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                 Then("both results should be identical") {
                     listResult shouldHaveSize 1
 
-                    listResult[0].id shouldBe singleResult.id
-                    listResult[0].enkelvoudiginformatieobjectUUID shouldBe singleResult.enkelvoudiginformatieobjectUUID
-                    listResult[0].enkelvoudiginformatieobjectID shouldBe singleResult.enkelvoudiginformatieobjectID
-                    listResult[0].informatieobjectTypeUUID shouldBe singleResult.informatieobjectTypeUUID
-                    listResult[0].titel shouldBe singleResult.titel
-                    listResult[0].creatiedatum shouldBe singleResult.creatiedatum
-                    listResult[0].bestandsnaam shouldBe singleResult.bestandsnaam
+                    listResult[0]?.id shouldBe singleResult.id
+                    listResult[0]?.enkelvoudiginformatieobjectUUID shouldBe singleResult.enkelvoudiginformatieobjectUUID
+                    listResult[0]?.enkelvoudiginformatieobjectID shouldBe singleResult.enkelvoudiginformatieobjectID
+                    listResult[0]?.informatieobjectTypeUUID shouldBe singleResult.informatieobjectTypeUUID
+                    listResult[0]?.titel shouldBe singleResult.titel
+                    listResult[0]?.creatiedatum shouldBe singleResult.creatiedatum
+                    listResult[0]?.bestandsnaam shouldBe singleResult.bestandsnaam
                 }
             }
         }
@@ -379,9 +379,9 @@ class RESTInboxDocumentConverterTest : BehaviorSpec({
                     listResults shouldHaveSize 3
 
                     singleResults.forEachIndexed { index, singleResult ->
-                        listResults[index].id shouldBe singleResult.id
-                        listResults[index].informatieobjectTypeUUID shouldBe singleResult.informatieobjectTypeUUID
-                        listResults[index].titel shouldBe singleResult.titel
+                        listResults[index]?.id shouldBe singleResult.id
+                        listResults[index]?.informatieobjectTypeUUID shouldBe singleResult.informatieobjectTypeUUID
+                        listResults[index]?.titel shouldBe singleResult.titel
                     }
                 }
             }

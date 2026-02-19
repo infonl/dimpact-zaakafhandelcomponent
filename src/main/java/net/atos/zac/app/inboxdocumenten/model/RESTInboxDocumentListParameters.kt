@@ -2,17 +2,15 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.inboxdocumenten.model
 
-package net.atos.zac.app.inboxdocumenten.model;
+import net.atos.zac.app.shared.RESTListParameters
+import nl.info.zac.app.search.model.RestDatumRange
 
-import net.atos.zac.app.shared.RESTListParameters;
-import nl.info.zac.app.search.model.RestDatumRange;
+class RESTInboxDocumentListParameters : RESTListParameters() {
+    var titel: String? = null
 
-public class RESTInboxDocumentListParameters extends RESTListParameters {
-    public String titel;
+    var identificatie: String? = null
 
-    public String identificatie;
-
-    public RestDatumRange creatiedatum;
-
+    var creatiedatum: RestDatumRange? = null
 }

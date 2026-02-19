@@ -2,29 +2,31 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.inboxdocumenten.converter
 
-package net.atos.zac.app.inboxdocumenten.converter;
+import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters
+import net.atos.zac.app.shared.RESTListParametersConverter
+import net.atos.zac.documenten.model.InboxDocumentListParameters
+import nl.info.zac.search.model.DatumRange
 
-import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters;
-import net.atos.zac.app.shared.RESTListParametersConverter;
-import net.atos.zac.documenten.model.InboxDocumentListParameters;
-import nl.info.zac.search.model.DatumRange;
+class RESTInboxDocumentListParametersConverter :
+    RESTListParametersConverter<InboxDocumentListParameters?, RESTInboxDocumentListParameters?>() {
+    override fun doConvert(
+        listParameters: InboxDocumentListParameters?,
+        restListParameters: RESTInboxDocumentListParameters?
+    ) {
+        if (listParameters == null || restListParameters == null) return
 
-public class RESTInboxDocumentListParametersConverter extends
-                                                      RESTListParametersConverter<InboxDocumentListParameters, RESTInboxDocumentListParameters> {
-
-    @Override
-    protected void doConvert(final InboxDocumentListParameters listParameters, final RESTInboxDocumentListParameters restListParameters) {
-        listParameters.setIdentificatie(restListParameters.identificatie);
-        listParameters.setTitel(restListParameters.titel);
-        if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
-            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.getVan(), restListParameters.creatiedatum
-                    .getTot()));
+        listParameters.identificatie = restListParameters.identificatie
+        listParameters.titel = restListParameters.titel
+        restListParameters.creatiedatum?.let { creatiedatum ->
+            if (creatiedatum.hasValue()) {
+                listParameters.creatiedatum = DatumRange(creatiedatum.van, creatiedatum.tot)
+            }
         }
     }
 
-    @Override
-    protected InboxDocumentListParameters getListParameters() {
-        return new InboxDocumentListParameters();
+    override fun getListParameters(): InboxDocumentListParameters {
+        return InboxDocumentListParameters()
     }
 }
