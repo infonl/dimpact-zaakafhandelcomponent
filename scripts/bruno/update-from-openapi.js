@@ -149,54 +149,6 @@ function generateDefaultFromSchema(schema, openApiSpec, visited = new Set()) {
 }
 
 /**
- * Determine auth mode from OpenAPI operation
- */
-function determineAuthMode(operation, openApiSpec) {
-    // Check if operation has security requirements
-    const security = operation.security || openApiSpec.security || [];
-
-    if (security.length === 0) {
-        return { mode: 'none' };
-    }
-
-    // Get the first security requirement
-    const securityScheme = security[0];
-    const schemeName = Object.keys(securityScheme)[0];
-
-    if (!schemeName) {
-        return { mode: 'none' };
-    }
-
-    // Look up the security scheme definition
-    const securitySchemes = openApiSpec.components?.securitySchemes || {};
-    const schemeDefinition = securitySchemes[schemeName];
-
-    if (!schemeDefinition) {
-        return { mode: 'inherit' };
-    }
-
-    // Map OpenAPI security types to Bruno auth modes
-    switch (schemeDefinition.type) {
-        case 'http':
-            if (schemeDefinition.scheme === 'bearer') {
-                return { mode: 'bearer', tokenVar: 'token' };
-            } else if (schemeDefinition.scheme === 'basic') {
-                return { mode: 'basic' };
-            }
-            return { mode: 'inherit' };
-
-        case 'apiKey':
-            return { mode: 'inherit' }; // Handle via headers
-
-        case 'oauth2':
-            return { mode: 'oauth2' };
-
-        default:
-            return { mode: 'inherit' };
-    }
-}
-
-/**
  * Generate Bruno request file content
  */
 function generateBrunoRequest(operationId, method, urlPath, operation, servers = [], openApiSpec = {}) {
