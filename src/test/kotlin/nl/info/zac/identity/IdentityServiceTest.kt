@@ -17,7 +17,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -30,13 +30,13 @@ class IdentityServiceTest : BehaviorSpec({
     val zacKeycloakClientId = "fakeZacKeycloakClientId"
     val realmResource = mockk<RealmResource>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val pabcClientService = mockk<PabcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         zacKeycloakClientId = zacKeycloakClientId,
         pabcClientService = pabcClientService,
         ztcClientService = ztcClientService
@@ -330,7 +330,7 @@ class IdentityServiceTest : BehaviorSpec({
                 name = "fakeGroupId2",
                 description = null
             )
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
@@ -382,7 +382,7 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
             } returns listOf(groupRepresentation1, groupRepresentation2)
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domeinRole
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
@@ -414,7 +414,7 @@ class IdentityServiceTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
             } returns "domein_elk_zaaktype"
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
@@ -432,7 +432,7 @@ class IdentityServiceTest : BehaviorSpec({
             val domain = "anyDomain"
             every { realmResource.groups().groups("", 0, Integer.MAX_VALUE, false) } returns emptyList()
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domain
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)

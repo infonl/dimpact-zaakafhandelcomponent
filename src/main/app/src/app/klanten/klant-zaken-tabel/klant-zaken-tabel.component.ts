@@ -138,7 +138,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
     this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
-      betrokkene.bsn ?? betrokkene.kvkNummer ?? "";
+      betrokkene.bsn ??
+      betrokkene.vestigingsnummer ??
+      betrokkene.kvkNummer ??
+      "";
   }
 
   ngAfterViewInit() {
@@ -168,19 +171,30 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    console.log("betrokkene: ", betrokkene);
 
-    return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
-        acc.push(rol);
-      }
+    return Object.entries(zaak.betrokkenen || {}).reduce<string[]>(
+      (acc, [rol, identifiers]) => {
+        const identifierList = identifiers as string[];
+        if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
+          acc.push(rol);
+        }
 
-      if (betrokkene.bsn && ids.includes(betrokkene.bsn)) {
-        acc.push(rol);
-      }
+        if (
+          betrokkene.vestigingsnummer &&
+          identifierList.includes(betrokkene.vestigingsnummer)
+        ) {
+          acc.push(rol);
+        } else if (
+          betrokkene.kvkNummer &&
+          identifierList.includes(betrokkene.kvkNummer)
+        ) {
+          acc.push(rol);
+        }
 
-      return acc;
-    }, [] as string[]);
+        return acc;
+      },
+      [],
+    );
   }
 
   protected filtersChanged() {

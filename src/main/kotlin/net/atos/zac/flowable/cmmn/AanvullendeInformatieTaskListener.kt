@@ -7,7 +7,8 @@ package net.atos.zac.flowable.cmmn
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener
@@ -47,7 +48,7 @@ class AanvullendeInformatieTaskListener : TaskListener {
     private fun createdEvent(subScopeId: String) {
         updateZaakStatusForTask(
             getPlanItemInstance(subScopeId),
-            ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+            STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
         )
     }
 
@@ -55,7 +56,7 @@ class AanvullendeInformatieTaskListener : TaskListener {
         if (numberOfAdditionalInfoTasks(scopeId) == 1) {
             updateZaakStatusForTask(
                 getPlanItemInstance(subScopeId),
-                ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+                STATUSTYPE_OMSCHRIJVING_INTAKE
             )
         }
     }

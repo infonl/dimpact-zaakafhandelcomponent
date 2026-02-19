@@ -118,13 +118,12 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
-  protected showDoelbindingen = false;
   protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
 
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
   protected brpProcessingValues: string[] = [];
-  protected brpProtocollering: string = "";
+  protected brpDoelbindingSetupEnabled = false;
 
   algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
@@ -167,7 +166,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
-        configuratieService.readBrpProtocollering(),
+        configuratieService.readBrpDoelbindingSetupEnabled(),
         this.zaakafhandelParametersService.listZaakbeeindigRedenen(),
         this.zaakafhandelParametersService.listResultaattypes(
           this.bpmnZaakafhandelParameters.zaaktype.uuid,
@@ -177,14 +176,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-          brpProtocollering,
+          brpDoelbindingSetupEnabled,
           zaakbeeindigRedenen,
           resultaattypes,
         ]) => {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.brpProtocollering = brpProtocollering;
+          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.resultaattypes = resultaattypes;
           await this.createForm();
@@ -250,8 +249,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.createBetrokkeneKoppelingenForm();
     this.createZaakbeeindigForm();
 
-    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
-    if (this.showDoelbindingen) {
+    if (this.brpDoelbindingSetupEnabled) {
       this.createBrpDoelbindingForm();
     }
   }
@@ -288,10 +286,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
         this.brpDoelbindingenFormGroup.reset();
       });
-  }
-
-  private getProtocolering(protocolering: string) {
-    return protocolering?.trim() === "iConnect";
   }
 
   private createBrpDoelbindingForm() {

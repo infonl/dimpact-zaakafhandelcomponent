@@ -23,9 +23,9 @@ import org.jboss.resteasy.core.Headers
 import java.util.Optional
 
 class BrpClientHeadersFactoryTest : BehaviorSpec({
-    val apiKey = "apiKey"
-    val originOin = "originOin"
-    val purpose = "purpose"
+    val apiKey = "fakeApiKey"
+    val originOin = "fakeOriginOin"
+    val purpose = "fakePurpose"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     beforeEach {
@@ -51,7 +51,7 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
     Given("originOIN is present and a valid user exists") {
         every { loggedInUserInstance.get().id } returns "username"
 
-        val brpConfiguration = createBrpConfiguration()
+        val brpConfiguration = createBrpConfiguration(apiKey = Optional.of(apiKey))
         val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance)
 
         When("headers are updated") {

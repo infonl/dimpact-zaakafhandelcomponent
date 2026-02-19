@@ -34,6 +34,7 @@ module.exports = {
           },
         ],
         "@angular-eslint/use-lifecycle-interface": "error",
+        "@angular-eslint/prefer-standalone": "warn",
       },
     },
     {

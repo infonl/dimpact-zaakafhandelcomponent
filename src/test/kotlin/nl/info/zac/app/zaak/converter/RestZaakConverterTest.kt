@@ -38,8 +38,9 @@ import nl.info.zac.app.zaak.model.createRestDecision
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
-import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
-import nl.info.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
@@ -110,6 +111,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
+        val loggedInUser = createLoggedInUser()
 
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
@@ -131,7 +133,7 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
 
         When("converting a zaak to a rest zaak") {
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -174,6 +176,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
@@ -195,7 +198,7 @@ class RestZaakConverterTest : BehaviorSpec({
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -236,6 +239,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
@@ -257,7 +261,7 @@ class RestZaakConverterTest : BehaviorSpec({
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
-            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, status, statusType)
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
             Then("the zaak should be converted correctly") {
                 with(restZaak) {
@@ -282,6 +286,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
@@ -326,7 +331,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid)
                 } returns testCase.ontvangstbevestigingVerstuurd
 
-                val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten)
+                val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
                 Then(
                     """

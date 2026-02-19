@@ -10,12 +10,14 @@ import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -65,17 +67,30 @@ public class InboxDocumentenRESTService {
         assertPolicy(policyService.readWerklijstRechten().getInbox());
         final InboxDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         var inboxDocuments = inboxDocumentenService.list(listParameters);
-        var informationObjectTypeUUIDs = inboxDocuments.stream().map(
-                inboxDocument -> extractUuid(
-                        drcClientService
-                                .readEnkelvoudigInformatieobject(inboxDocument.getEnkelvoudiginformatieobjectUUID())
-                                .getInformatieobjecttype()
-                )
-        ).toList();
+        var informationObjectTypeUUIDs = inboxDocuments.stream().map(this::getInformatieobjectTypeUUID).toList();
         return new RESTResultaat<>(
                 RESTInboxDocumentConverter.convert(inboxDocuments, informationObjectTypeUUIDs),
                 inboxDocumentenService.count(listParameters)
         );
+    }
+
+    private UUID getInformatieobjectTypeUUID(final InboxDocument inboxDocument) {
+        try {
+            final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                    inboxDocument.getEnkelvoudiginformatieobjectUUID()
+            );
+            return extractUuid(informatieobject.getInformatieobjecttype());
+        } catch (NotFoundException e) {
+            LOG.log(
+                    Level.WARNING,
+                    String.format(
+                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'.",
+                            inboxDocument.getId()
+                    ),
+                    e
+            );
+        }
+        return null;
     }
 
     @DELETE

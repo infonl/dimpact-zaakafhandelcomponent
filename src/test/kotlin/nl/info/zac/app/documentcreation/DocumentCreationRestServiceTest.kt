@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import jakarta.enterprise.inject.Instance
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
@@ -22,6 +23,8 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
@@ -46,6 +49,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val bpmnService = mockk<BpmnService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
@@ -53,7 +57,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         bpmnDocumentCreationService = bpmnDocumentCreationService,
         zrcClientService = zrcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        flowableTaskService = flowableTaskService
+        flowableTaskService = flowableTaskService,
+        loggedInUserInstance = loggedInUserInstance
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -74,6 +79,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
         val documentCreationDataAttended = slot<CmmnDocumentCreationDataAttended>()
+        val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
@@ -85,9 +91,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         every {
             bpmnService.isZaakProcessDriven(any())
         } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("createDocument is called by a role that is allowed to change the zaak") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
@@ -111,7 +118,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called by a role that is not allowed to create documents for tasks") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
@@ -127,7 +134,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called for a task that is not opened") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns null
@@ -142,7 +149,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called by a user that has no access") {
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
@@ -155,7 +162,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
         When("createDocument is called with disabled document creation") {
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task

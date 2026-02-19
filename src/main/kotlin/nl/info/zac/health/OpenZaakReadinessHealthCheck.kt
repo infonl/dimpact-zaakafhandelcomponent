@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
@@ -21,13 +21,13 @@ import java.time.LocalDateTime
 @AllOpen
 class OpenZaakReadinessHealthCheck @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) : HealthCheck {
 
     @WithSpan(value = "GET OpenZaakReadinessHealthCheck")
     override fun call(): HealthCheckResponse =
         try {
-            configuratieService.readCatalogusDomein()
+            configurationService.readCatalogusDomein()
                 .let { domein -> CatalogusListParameters().also { it.domein = domein } }
                 .let(ztcClientService::listCatalogus)
             HealthCheckResponse.up(OpenZaakReadinessHealthCheck::class.java.name)

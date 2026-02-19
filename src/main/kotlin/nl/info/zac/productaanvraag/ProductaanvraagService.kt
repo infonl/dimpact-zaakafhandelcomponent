@@ -47,7 +47,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -84,7 +84,7 @@ class ProductaanvraagService @Inject constructor(
     private val cmmnService: CMMNService,
     private val bpmnService: BpmnService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
 
     companion object {
@@ -739,9 +739,9 @@ class ProductaanvraagService @Inject constructor(
         return Zaak().apply {
             this.zaaktype = zaakType.url
             startdatum = productaanvraagObject.record.startAt
-            bronorganisatie = configuratieService.readBronOrganisatie()
-            communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
-            verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
+            bronorganisatie = configurationService.readBronOrganisatie()
+            communicatiekanaalNaam = ConfigurationService.COMMUNICATIEKANAAL_EFORMULIER
+            verantwoordelijkeOrganisatie = configurationService.readBronOrganisatie()
             productaanvraagDimpact.zaakgegevens?.let { zaakgegevens ->
                 // note that ZAC currently only supports 'POINT' zaakgeometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {

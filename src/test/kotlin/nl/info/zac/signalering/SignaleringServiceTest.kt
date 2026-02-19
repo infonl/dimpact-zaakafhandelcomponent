@@ -41,6 +41,7 @@ import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
@@ -69,7 +70,6 @@ class SignaleringServiceTest : BehaviorSpec({
     val pathTarget = mockk<Path<Any>>()
     val query = mockk<Query>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val user = mockk<LoggedInUser>()
     val criteriaQuery = mockk<CriteriaQuery<Signalering>>()
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
@@ -167,23 +167,20 @@ class SignaleringServiceTest : BehaviorSpec({
     }
 
     Given("A zaken signalering of type ZAAK_OP_NAAM") {
-        val id = "id"
         val signalering = createSignalering()
         val zaak = createZaak()
         val restZaakOverzicht = createRESTZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
         val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
-
-        every { loggedInUserInstance.get() } returns user
-        every { user.id } returns id
+        val loggedInUser = createLoggedInUser()
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
 
         every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
         every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
-        every { criteriaBuilder.equal(pathTarget, id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
         every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
         every { criteriaBuilder.desc(pathTijdstip) } returns order
@@ -207,12 +204,13 @@ class SignaleringServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns listOf(signalering)
 
         every { zrcClientService.readZaak(UUID.fromString(signalering.subject)) } returns zaak
-        every { restZaakOverzichtConverter.convertForDisplay(zaak) } returns restZaakOverzicht
+        every { restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser) } returns restZaakOverzicht
 
         When("listing first page of zaken signaleringen") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
-                restPageParameters
+                restPageParameters,
+                loggedInUser
             )
 
             Then("paging is used to return the signalering") {

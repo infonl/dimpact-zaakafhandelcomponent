@@ -6,7 +6,7 @@
 import { DatumPipe } from "./datum.pipe";
 
 describe("DatumPipe", () => {
-  const pipe = new DatumPipe("nl");
+  const pipe = new DatumPipe("nl-NL");
 
   it.each([
     ["2021-06-23T00:00:00Z", "short", "23\u201106\u20112021 02:00"],

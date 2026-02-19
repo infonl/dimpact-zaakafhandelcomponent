@@ -33,7 +33,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.input.DocumentInput
@@ -59,7 +59,7 @@ class PolicyServiceTest : BehaviorSpec({
     val opaEvaluationClient = mockk<OpaEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val loggedInUser = createLoggedInUser()
     val policyService = PolicyService(
         loggedInUserInstance,
@@ -67,7 +67,7 @@ class PolicyServiceTest : BehaviorSpec({
         ztcClientService,
         enkelvoudigInformatieObjectLockService,
         zrcClientService,
-        configuratieService
+        configurationService
     )
 
     beforeEach {
@@ -107,11 +107,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("the returned zaakrechten are correct") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -157,11 +156,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -188,7 +186,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
-            val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE)
+            val statusType = createStatusType(omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_INTAKE)
             val expectedZaakRechten = createZaakRechten()
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -196,11 +194,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -227,7 +224,7 @@ class PolicyServiceTest : BehaviorSpec({
             )
             val zaakType = createZaakType()
             val zaakStatus = createZaakStatus()
-            val statusType = createStatusType(omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND)
+            val statusType = createStatusType(omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND)
             val expectedZaakRechten = createZaakRechten()
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
 
@@ -235,11 +232,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("policy rights are requested") {
-                val zaakRechten = policyService.readZaakRechten(zaak)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
                 Then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
@@ -270,8 +266,8 @@ class PolicyServiceTest : BehaviorSpec({
             val expectedZaakRechten = createZaakRechten()
             val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
 
             When("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
@@ -320,7 +316,7 @@ class PolicyServiceTest : BehaviorSpec({
                 expectedTaakRechten
             )
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("task policy rights are requested for the task") {
                 val taskPermissions = policyService.readTaakRechten(testTask)
@@ -370,7 +366,7 @@ class PolicyServiceTest : BehaviorSpec({
                 expectedTaakRechten
             )
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("task policy rights are requested for the task search object") {
                 val taskPermissions = policyService.readTaakRechten(taakZoekObject)
@@ -418,7 +414,7 @@ class PolicyServiceTest : BehaviorSpec({
                 opaEvaluationClient.readWerklijstRechten(capture(ruleQuerySlot))
             } returns RuleResponse(expectedWerklijstRechten)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("the werklijst rechten are requested") {
                 val werklijstRechten = policyService.readWerklijstRechten()
@@ -447,7 +443,7 @@ class PolicyServiceTest : BehaviorSpec({
                 opaEvaluationClient.readWerklijstRechten(capture(ruleQuerySlot))
             } returns RuleResponse(expectedWerklijstRechten)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("the werklijst rechten are requested") {
                 val werklijstRechten = policyService.readWerklijstRechten()
@@ -487,7 +483,7 @@ class PolicyServiceTest : BehaviorSpec({
                 expectedDocumentRights
             )
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
@@ -543,7 +539,7 @@ class PolicyServiceTest : BehaviorSpec({
                 opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot))
             } returns RuleResponse(expectedDocumentRights)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
@@ -588,7 +584,7 @@ class PolicyServiceTest : BehaviorSpec({
                 expectedDocumentRights
             )
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
@@ -638,7 +634,7 @@ class PolicyServiceTest : BehaviorSpec({
                 opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot))
             } returns RuleResponse(expectedDocumentRights)
             every { loggedInUserInstance.get() } returns loggedInUser
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
@@ -688,7 +684,7 @@ class PolicyServiceTest : BehaviorSpec({
             val expected = createOverigeRechten()
             every { loggedInUserInstance.get() } returns loggedInUserWithMappings
             every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
-            every { configuratieService.featureFlagPabcIntegration() } returns true
+            every { configurationService.featureFlagPabcIntegration() } returns true
 
             When("calling readOverigeRechten with a zaaktype") {
                 val actual = policyService.readOverigeRechten(zaaktype)
@@ -725,7 +721,7 @@ class PolicyServiceTest : BehaviorSpec({
             val expected = createOverigeRechten()
             every { loggedInUserInstance.get() } returns loggedInUserLegacy
             every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
-            every { configuratieService.featureFlagPabcIntegration() } returns false
+            every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("calling readOverigeRechten without a zaaktype") {
                 val actual = policyService.readOverigeRechten(null)

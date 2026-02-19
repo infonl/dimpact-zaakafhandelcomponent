@@ -20,7 +20,7 @@ import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
@@ -30,14 +30,14 @@ import nl.info.zac.zaak.ZaakService
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({
     val klantClientService = mockk<KlantClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val zaakService = mockk<ZaakService>()
     val mailService = mockk<MailService>()
     val mailTemplateService = mockk<MailTemplateService>()
 
     val productaanvraagEmailService = ProductaanvraagEmailService(
         klantClientService,
-        configuratieService,
+        configurationService,
         zaakService,
         mailService,
         mailTemplateService
@@ -123,8 +123,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
 
-        every { configuratieService.readGemeenteMail() } returns councilEmailAddress
-        every { configuratieService.readGemeenteNaam() } returns councilName
+        every { configurationService.readGemeenteMail() } returns councilEmailAddress
+        every { configurationService.readGemeenteNaam() } returns councilName
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 

@@ -48,7 +48,7 @@ import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
@@ -77,7 +77,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
@@ -111,7 +111,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         bpmnService = bpmnService,
         brcClientService = brcClientService,
         cmmnService = cmmnService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
@@ -181,7 +181,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration()
             }
-            every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+            every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
 
             When("the zaaktypes are requested") {
                 val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
@@ -247,7 +247,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 }
 
-                every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+                every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
                 When("the zaaktypes are listed") {
@@ -326,12 +326,14 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     type = IdentificatieType.BSN
                 )
             )
+            val loggedInUser = createLoggedInUser()
             every {
                 zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
             } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns zaakRechten
-            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten) } returns restZaak
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
             every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaak is read") {
                 val returnedRestZaak = zaakRestService.readZaak(zaakUUID)
@@ -398,10 +400,12 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 rolNietNatuurlijkPersoonWithRSIN,
                 rolNatuurlijkPersoonWithoutIdentificatie
             )
+            val loggedInUser = createLoggedInUser()
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechten()
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { zaakService.listBetrokkenenforZaak(zaak) } returns betrokkeneRoles
             every { identificationService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
@@ -463,7 +467,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { configuratieService.readGemeenteMail() } returns "fake-gemeente@example.com"
+            every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 email = "fake-medewerker@example.com"
             )
@@ -531,7 +535,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
-            every { configuratieService.readGemeenteMail() } returns "fake-gemeente@example.com"
+            every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns createLoggedInUser(
                 email = "fake-medewerker@example.com"
             )

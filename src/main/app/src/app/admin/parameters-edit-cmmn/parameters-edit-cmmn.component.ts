@@ -64,7 +64,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected isSavedZaakafhandelParameters: boolean = false;
   protected featureFlagPabcIntegration: boolean = false;
-  protected showDoelbindingen: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -211,7 +210,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected brpConsultingValues: string[] = [];
   protected brpSearchValues: string[] = [];
   protected brpProcessingValues: string[] = [];
-  protected brpProtocollering: string = "";
+  protected brpDoelbindingSetupEnabled = false;
 
   constructor(
     public readonly utilService: UtilService,
@@ -260,7 +259,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         referentieTabelService.listBrpSearchValues(),
         referentieTabelService.listBrpViewValues(),
         referentieTabelService.listBrpProcessingValues(),
-        configuratieService.readBrpProtocollering(),
+        configuratieService.readBrpDoelbindingSetupEnabled(),
       ]).subscribe(
         async ([
           formulierDefinities,
@@ -273,7 +272,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           brpSearchValues,
           brpViewValues,
           brpProcessingValues,
-          brpProtocollering,
+          brpDoelbindingSetupEnabled,
         ]) => {
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -285,7 +284,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           this.brpSearchValues = brpSearchValues;
           this.brpConsultingValues = brpViewValues;
           this.brpProcessingValues = brpProcessingValues;
-          this.brpProtocollering = brpProtocollering;
+          this.brpDoelbindingSetupEnabled = brpDoelbindingSetupEnabled;
           await this.createForm();
         },
       );
@@ -410,15 +409,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
 
-    this.showDoelbindingen = this.getProtocolering(this.brpProtocollering);
-    if (this.showDoelbindingen) {
+    if (this.brpDoelbindingSetupEnabled) {
       this.createBrpDoelbindingForm();
     }
     this.createAutomatischeOntvangstbevestigingForm();
-  }
-
-  private getProtocolering(protocolering: string) {
-    return protocolering?.trim() === "iConnect";
   }
 
   protected isHumanTaskParameterValid(

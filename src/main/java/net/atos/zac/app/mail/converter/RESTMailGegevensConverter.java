@@ -7,19 +7,19 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
-import nl.info.zac.configuratie.ConfiguratieService;
+import nl.info.zac.configuration.ConfigurationService;
 import nl.info.zac.mail.model.MailAdres;
 import nl.info.zac.mailtemplates.model.MailGegevens;
 
 public class RESTMailGegevensConverter {
 
     @Inject
-    private ConfiguratieService configuratieService;
+    private ConfigurationService configurationService;
 
     public MailGegevens convert(final RESTMailGegevens restMailGegevens) {
         // Note that most of the actual conversion happens in the constructor.
         // Please do not move it here, because MailGegevens do not always get constructed here.
-        final String afzender = configuratieService.readGemeenteNaam();
+        final String afzender = configurationService.readGemeenteNaam();
         return new MailGegevens(
                 new MailAdres(restMailGegevens.verzender, afzender),
                 new MailAdres(restMailGegevens.ontvanger, null),

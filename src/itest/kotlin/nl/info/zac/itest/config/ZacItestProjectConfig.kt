@@ -461,6 +461,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
             // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
             domein = DOMEIN_TEST_1,
+            fatalDateWarningWindow = 1,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString
@@ -472,7 +473,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
             zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
-            automaticEmailConfirmationSender = "GEMEENTE",
             testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
             val responseBody = response.bodyAsString

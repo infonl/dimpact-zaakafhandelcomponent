@@ -4,6 +4,7 @@
  */
 package nl.info.zac.shared.helper
 
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -14,6 +15,7 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -30,6 +32,7 @@ class SuspensionZaakHelper @Inject constructor(
     private var zrcClientService: ZrcClientService,
     private var zaakVariabelenService: ZaakVariabelenService,
     private val flowableTaskService: FlowableTaskService,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private const val SUSPENSION = "Opschorting"
@@ -38,7 +41,8 @@ class SuspensionZaakHelper @Inject constructor(
     }
 
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
-        assertPolicy(policyService.readZaakRechten(zaak).opschorten)
+        val loggedInUser = loggedInUserInstance.get()
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).opschorten)
         assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
 
         val zaakUUID = zaak.uuid
@@ -58,7 +62,8 @@ class SuspensionZaakHelper @Inject constructor(
     }
 
     fun resumeZaak(zaak: Zaak, resumeReason: String?, resumeDate: ZonedDateTime = ZonedDateTime.now()): Zaak {
-        assertPolicy(policyService.readZaakRechten(zaak).hervatten)
+        val loggedInUser = loggedInUserInstance.get()
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).hervatten)
         assertPolicy(zaak.isOpgeschort())
 
         val zaakUuid = zaak.uuid
@@ -87,7 +92,8 @@ class SuspensionZaakHelper @Inject constructor(
     }
 
     fun extendZaakFatalDate(zaak: Zaak, numberOfDays: Long, description: String?): Zaak {
-        policyService.readZaakRechten(zaak).let {
+        val loggedInUser = loggedInUserInstance.get()
+        policyService.readZaakRechten(zaak, loggedInUser).let {
             assertPolicy(it.wijzigen)
             assertPolicy(it.verlengenDoorlooptijd)
         }

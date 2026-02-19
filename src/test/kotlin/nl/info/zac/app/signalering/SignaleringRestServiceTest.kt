@@ -19,6 +19,7 @@ import nl.info.zac.app.signalering.exception.SignaleringException
 import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.policy.PolicyService
@@ -52,11 +53,13 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val numberOfElements = 11
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
         val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
+        val loggedInUser = createLoggedInUser()
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
         every {
-            signaleringService.listZakenSignaleringenPage(signaleringType, restPageParameters)
+            signaleringService.listZakenSignaleringenPage(signaleringType, restPageParameters, loggedInUser)
         } returns restZaakOverzichtList
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("listing zaken signaleringen with proper page parameters") {
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)

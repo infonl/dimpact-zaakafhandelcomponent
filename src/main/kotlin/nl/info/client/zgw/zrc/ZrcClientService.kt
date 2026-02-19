@@ -29,7 +29,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakBijwerken
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -46,7 +46,7 @@ class ZrcClientService @Inject constructor(
 
     private val zgwClientHeadersFactory: ZgwClientHeadersFactory,
 
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     fun createRol(rol: Rol<*>) = createRol(rol, null)
 
@@ -91,7 +91,7 @@ class ZrcClientService @Inject constructor(
     fun readZaak(zaakUUID: UUID): Zaak = zrcClient.zaakRead(zaakUUID)
 
     fun readZaak(zaakURI: URI): Zaak {
-        validateZgwApiUri(zaakURI, configuratieService.readZgwApiClientMpRestUrl())
+        validateZgwApiUri(zaakURI, configurationService.readZgwApiClientMpRestUrl())
         return readZaak(zaakURI.extractUuid())
     }
 
@@ -113,19 +113,19 @@ class ZrcClientService @Inject constructor(
     }
 
     fun readRol(rolURI: URI): Rol<*> {
-        validateZgwApiUri(rolURI, configuratieService.readZgwApiClientMpRestUrl())
+        validateZgwApiUri(rolURI, configurationService.readZgwApiClientMpRestUrl())
         return readRol(rolURI.extractUuid())
     }
 
     fun readRol(rolUUID: UUID): Rol<*> = zrcClient.rolRead(rolUUID)
 
     fun readResultaat(resultaatURI: URI): Resultaat {
-        validateZgwApiUri(resultaatURI, configuratieService.readZgwApiClientMpRestUrl())
+        validateZgwApiUri(resultaatURI, configurationService.readZgwApiClientMpRestUrl())
         return zrcClient.resultaatRead(resultaatURI.extractUuid())
     }
 
     fun readStatus(statusURI: URI): Status {
-        validateZgwApiUri(statusURI, configuratieService.readZgwApiClientMpRestUrl())
+        validateZgwApiUri(statusURI, configurationService.readZgwApiClientMpRestUrl())
         return zrcClient.statusRead(statusURI.extractUuid())
     }
 

@@ -27,7 +27,7 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
@@ -41,7 +41,7 @@ import java.util.UUID
 
 class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
@@ -56,7 +56,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationRestService = ZaaktypeCmmnConfigurationRestService(
         ztcClientService = ztcClientService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         cmmnService = cmmnService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,

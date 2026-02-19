@@ -46,7 +46,9 @@ class ZaakHelper(
         group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01,
         indexZaak: Boolean = false,
-        testUser: TestUser
+        testUser: TestUser,
+        behandelaarId: String? = null,
+        behandelaarName: String? = null
     ): Pair<String, UUID> {
         var zaakIdentification: String
         var zaakUuid: UUID
@@ -57,6 +59,8 @@ class ZaakHelper(
             groupName = group.description,
             startDate = startDate,
             testUser = testUser,
+            behandelaarId = behandelaarId,
+            behandelaarName = behandelaarName
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK

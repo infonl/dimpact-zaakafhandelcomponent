@@ -29,7 +29,7 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.createMailGegevens
@@ -38,7 +38,7 @@ import java.net.URI
 import java.util.Properties
 
 class MailServiceTest : BehaviorSpec({
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val drcClientService = mockk<DrcClientService>()
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZgwApiService>()
@@ -46,7 +46,7 @@ class MailServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val mailService = MailService(
-        configuratieService,
+        configurationService,
         zgwApiService,
         ztcClientService,
         drcClientService,
@@ -94,7 +94,7 @@ class MailServiceTest : BehaviorSpec({
         mockkStatic(Transport::class)
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
+        every { configurationService.readBronOrganisatie() } returns "123443210"
 
         When("the send mail function is invoked") {
             val body = mailService.sendMail(mailGegevens, bronnen)

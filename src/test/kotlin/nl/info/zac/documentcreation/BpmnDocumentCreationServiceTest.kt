@@ -20,7 +20,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.createBpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData
@@ -40,12 +40,12 @@ class BpmnDocumentCreationServiceTest : BehaviorSpec({
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
-    val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
+    val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         documentCreationDataConverter = documentCreationDataConverter,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
     val bpmnDocumentCreationService = BpmnDocumentCreationService(
         smartDocumentsService = smartDocumentsService,
@@ -89,7 +89,7 @@ class BpmnDocumentCreationServiceTest : BehaviorSpec({
         every {
             smartDocumentsService.createDocumentAttended(capture(dataSlot), capture(smartDocumentSlot))
         } returns documentCreationAttendedResponse
-        every { configuratieService.readContextUrl() } returns contextUrl
+        every { configurationService.readContextUrl() } returns contextUrl
 
         When("the 'create document attended' method is called") {
             val documentCreationResponse = bpmnDocumentCreationService.createBpmnDocumentAttended(documentCreationData)
@@ -141,7 +141,7 @@ class BpmnDocumentCreationServiceTest : BehaviorSpec({
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
 
-        every { configuratieService.readContextUrl() } returns contextUrl
+        every { configurationService.readContextUrl() } returns contextUrl
 
         When("Document creation URL is requested without taak id") {
             val exception = shouldThrow<IllegalArgumentException> {

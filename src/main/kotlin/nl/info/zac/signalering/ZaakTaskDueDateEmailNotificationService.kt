@@ -20,7 +20,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
@@ -43,7 +43,7 @@ import java.util.logging.Logger
 @AllOpen
 class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val signaleringService: SignaleringService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val searchService: SearchService,
@@ -85,7 +85,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun sendZaakDueDateEmailNotifications() {
         val signaleringVerzendInfo = SignaleringVerzendInfo()
         LOG.info("Sending zaak due date email notifications...")
-        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaaktype.url.extractUuid()

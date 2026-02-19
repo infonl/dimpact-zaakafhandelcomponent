@@ -28,6 +28,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
@@ -42,7 +43,7 @@ import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -67,7 +68,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val drcClientService = mockk<DrcClientService>()
     val eventingService = mockk<EventingService>()
@@ -101,7 +102,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
         bpmnService = bpmnService,
         brcClientService = brcClientService,
         cmmnService = cmmnService,
-        configuratieService = configuratieService,
+        configurationService = configurationService,
         decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
@@ -143,6 +144,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val restZaak = createRestZaak()
+            val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
             every {
@@ -153,10 +155,11 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
                     restZaakAssignmentData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("toekennen policy is assigned to the user") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
                 val returnedRestZaak = zaakRestService.assignZaak(restZaakAssignmentData)
 
                 Then("expected response is prepared") {
@@ -165,7 +168,9 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             }
 
             When("toekennen policy is missing") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = false)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakRestService.assignZaak(restZaakAssignmentData)
                 }
@@ -197,10 +202,10 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
                     restZaakAssignmentToLoggedInUserData.reason
                 )
             } just runs
-            every { restZaakConverter.toRestZaak(zaak, zaakType, any()) } returns restZaak
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
 
             When("toekennen policy is assigned to the logged-in user") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = true)
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
                 val returnedRestZaak = zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
 
                 Then("the zaak is assigned both to the group and the user") {
@@ -209,7 +214,57 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
             }
 
             When("logged-in user does not have toekennen policy") {
-                every { policyService.readZaakRechten(zaak, zaakType) } returns createZaakRechtenAllDeny(toekennen = false)
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
+                shouldThrow<PolicyException> {
+                    zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
+                }
+
+                Then("exception is thrown") {}
+            }
+        }
+    }
+
+    Context("Assigning a closed zaak to the logged-in user") {
+        Given("when zaak is closed and toekennen policy is assigned to the logged-in user") {
+            val restZaakAssignmentToLoggedInUserData = createRestZaakAssignmentToLoggedInUserData()
+            val zaak = createZaak()
+            // Close the zaak
+            zaak.archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
+            val zaakType = createZaakType()
+            val restZaak = createRestZaak()
+
+            val loggedInUserId = "loggedInUserId"
+            val loggedInUser = createLoggedInUser(id = loggedInUserId)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
+            } returns Pair(zaak, zaakType)
+            every {
+                zaakService.assignZaak(
+                    zaak,
+                    restZaakAssignmentToLoggedInUserData.groupId,
+                    loggedInUserId,
+                    restZaakAssignmentToLoggedInUserData.reason
+                )
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+
+            When("toekennen policy is assigned to the logged-in user") {
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
+                val returnedRestZaak = zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
+
+                Then("the zaak is assigned both to the group and the user") {
+                    returnedRestZaak shouldBe restZaak
+                }
+            }
+
+            When("logged-in user does not have toekennen policy") {
+                every {
+                    policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+                } returns createZaakRechtenAllDeny(toekennen = false)
                 shouldThrow<PolicyException> {
                     zaakRestService.assignZaakToLoggedInUser(restZaakAssignmentToLoggedInUserData)
                 }

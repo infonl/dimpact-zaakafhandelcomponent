@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
 import nl.info.client.zgw.drc.model.generated.StatusEnum;
-import nl.info.zac.app.configuratie.model.RestTaal;
+import nl.info.zac.app.configuration.model.RestTaal;
 
 public class RestEnkelvoudigInformatieObjectVersieGegevens extends RestEnkelvoudigInformatieFileUpload {
 

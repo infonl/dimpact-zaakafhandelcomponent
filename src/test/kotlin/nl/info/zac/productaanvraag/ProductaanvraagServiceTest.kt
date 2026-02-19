@@ -48,7 +48,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
@@ -77,7 +77,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val bpmnService = mockk<BpmnService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
         zgwApiService = zgwApiService,
@@ -93,7 +93,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         cmmnService = cmmnService,
         bpmnService = bpmnService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
 
     beforeEach {
@@ -315,7 +315,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -455,7 +455,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -589,7 +589,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -702,7 +702,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfiguration
                 )
             } just runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -799,7 +799,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfiguration
                 )
             } just runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -889,7 +889,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -970,7 +970,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                     createdZaak,
@@ -1157,7 +1157,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     )
                 } returns createdZaakInformatieobject
                 every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-                every { configuratieService.readBronOrganisatie() } returns "123443210"
+                every { configurationService.readBronOrganisatie() } returns "123443210"
                 every {
                     zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                         productAanvraagType
@@ -1294,7 +1294,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zrcClientService.createZaakInformatieobject(any(), any())
             } throws RuntimeException("Failed to create zaakinformatieobject!")
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupId) } returns group
             every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns behandelaarRolType
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
@@ -1537,7 +1537,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
                 ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
@@ -1624,7 +1624,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
-            every { configuratieService.readBronOrganisatie() } returns "123443210"
+            every { configurationService.readBronOrganisatie() } returns "123443210"
             every {
                 productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(
                     createdZaak,

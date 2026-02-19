@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
@@ -35,7 +36,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -70,7 +71,7 @@ class ZaakService @Inject constructor(
     private val indexingService: IndexingService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val bpmnService: BpmnService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val pabcClientService: PabcClientService
 ) {
     fun addBetrokkeneToZaak(
@@ -390,10 +391,14 @@ class ZaakService @Inject constructor(
         user: User?
     ) {
         if (bpmnService.isZaakProcessDriven(zaakUuid)) {
-            zaakVariabelenService.setGroup(zaakUuid, group.description)
-            user?.let {
-                zaakVariabelenService.setUser(zaakUuid, it.getFullName())
-            } ?: zaakVariabelenService.removeUser(zaakUuid)
+            try {
+                zaakVariabelenService.setGroup(zaakUuid, group.description)
+                user?.let {
+                    zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+                } ?: zaakVariabelenService.removeUser(zaakUuid)
+            } catch (exception: CaseOrProcessNotFoundException) {
+                LOG.warning { exception.message }
+            }
         }
     }
 
@@ -453,7 +458,7 @@ class ZaakService @Inject constructor(
         zacApplicationRole: ZacApplicationRole,
         zaaktypeUuid: UUID
     ) =
-        if (configuratieService.featureFlagPabcIntegration()) {
+        if (configurationService.featureFlagPabcIntegration()) {
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                 applicationRole = zacApplicationRole.value,

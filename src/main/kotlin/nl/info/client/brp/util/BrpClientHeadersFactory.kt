@@ -10,9 +10,8 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
-import nl.info.zac.configuratie.BrpConfiguration
+import nl.info.zac.configuration.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
-import java.util.Optional
 
 class BrpClientHeadersFactory @Inject constructor(
     private val brpConfiguration: BrpConfiguration,
@@ -47,19 +46,13 @@ class BrpClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> =
         if (brpConfiguration.isBrpProtocolleringEnabled()) {
             clientOutgoingHeaders.apply {
-                createHeader(X_API_KEY, brpConfiguration.apiKey)
-                createHeader(X_ORIGIN_OIN, brpConfiguration.originOIN)
+                brpConfiguration.getApiKey()?.let { createHeader(X_API_KEY, it) }
+                brpConfiguration.getOriginOIN()?.let { createHeader(X_ORIGIN_OIN, it) }
                 createHeader(X_GEBRUIKER, getUser())
             }
         } else {
             clientOutgoingHeaders
         }.trimToMaxSize()
-
-    private fun MultivaluedMap<String, String>.createHeader(name: String, value: Optional<String>) {
-        if (value.isPresent) {
-            createHeader(name, value.get())
-        }
-    }
 
     private fun MultivaluedMap<String, String>.createHeader(name: String, value: String) {
         if (!containsKey(name)) {
