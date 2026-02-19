@@ -1,0 +1,34 @@
+info:
+  name: download Process Diagram
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/zaken/:uuid/procesdiagram"
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zaken/:uuid/procesdiagram"
+      method: GET
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      body:
+        type: text
+        data: ""

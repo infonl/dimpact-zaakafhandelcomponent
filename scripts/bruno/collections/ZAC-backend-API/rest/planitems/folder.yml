@@ -1,0 +1,7 @@
+info:
+  name: planitems
+  type: folder
+  seq: 24
+
+request:
+  auth: inherit

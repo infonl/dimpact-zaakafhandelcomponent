@@ -1,0 +1,7 @@
+info:
+  name: behandelaar-groups
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

@@ -1,0 +1,48 @@
+info:
+  name: ontkoppel Informatie Object
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/zaken/zaakinformatieobjecten/ontkoppel"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "zaakUUID": "0C10B986-32df-Be76-7756-F0e0dB6fCc79",
+        "documentUUID": "53fAbDcD-1b67-5b6b-1Df3-afdBC653c1bE",
+        "reden": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/zaken/zaakinformatieobjecten/ontkoppel"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "zaakUUID": "0C10B986-32df-Be76-7756-F0e0dB6fCc79",
+            "documentUUID": "53fAbDcD-1b67-5b6b-1Df3-afdBC653c1bE",
+            "reden": "string"
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

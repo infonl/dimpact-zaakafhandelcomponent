@@ -1,0 +1,127 @@
+info:
+  name: list Search Results
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/zoeken/list"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "page": 6077,
+        "rows": 7529,
+        "type": null,
+        "zoeken": {
+          "key_0": "string",
+          "key_1": "string"
+        },
+        "filters": null,
+        "datums": null,
+        "sorteerVeld": "INFORMATIEOBJECT_CREATIEDATUM",
+        "sorteerRichting": null,
+        "alleenMijnZaken": true,
+        "alleenOpenstaandeZaken": true,
+        "alleenAfgeslotenZaken": false,
+        "alleenMijnTaken": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zoeken/list"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "page": 6077,
+            "rows": 7529,
+            "type": null,
+            "zoeken": {
+              "key_0": "string",
+              "key_1": "string"
+            },
+            "filters": null,
+            "datums": null,
+            "sorteerVeld": "INFORMATIEOBJECT_CREATIEDATUM",
+            "sorteerRichting": null,
+            "alleenMijnZaken": true,
+            "alleenOpenstaandeZaken": true,
+            "alleenAfgeslotenZaken": false,
+            "alleenMijnTaken": false
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "resultaten": [
+              {
+                "id": "string",
+                "type": null,
+                "identificatie": "string"
+              },
+              {
+                "id": "string",
+                "type": null,
+                "identificatie": null
+              }
+            ],
+            "filters": {
+              "key_0": [
+                {
+                  "naam": "string",
+                  "aantal": 4154
+                },
+                {
+                  "naam": "string",
+                  "aantal": 1792
+                }
+              ],
+              "key_1": [
+                {
+                  "naam": "string",
+                  "aantal": 7126
+                },
+                {
+                  "naam": "string",
+                  "aantal": 4392
+                }
+              ],
+              "key_2": [
+                {
+                  "naam": "string",
+                  "aantal": 8363
+                },
+                {
+                  "naam": "string",
+                  "aantal": 8057
+                }
+              ]
+            },
+            "totaal": 6353,
+            "foutmelding": "string"
+          }

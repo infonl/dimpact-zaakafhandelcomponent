@@ -1,0 +1,184 @@
+info:
+  name: intrekken Besluit
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/zaken/besluit/intrekken"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "besluitUuid": "B1f48572-D770-E1c7-2A2c-FB2Dcc13a7Bb",
+        "reden": "*",
+        "vervalreden": "0",
+        "vervaldatum": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zaken/besluit/intrekken"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "besluitUuid": "B1f48572-D770-E1c7-2A2c-FB2Dcc13a7Bb",
+            "reden": "*",
+            "vervalreden": "0",
+            "vervaldatum": null
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "url": "http://zzQrqIIoILTSIyk.blqNL-dTI-BGynyceZ5gsIcxSV+R6+oWZl8aCjZubbTRuZzuX+4BFtlDdK+L6RBo0sqqbw",
+            "uuid": "Ebc7AdA3-ae51-4e1c-1d59-FDB6D8FdabFD",
+            "identificatie": null,
+            "datum": "1949-08-17",
+            "besluittype": {
+              "id": "EDbE9afF-9aBC-1FbF-b861-C1DFFEfD5cB8",
+              "naam": "string",
+              "toelichting": "string",
+              "informatieobjecttypen": [
+                "http://tUoE.hpEZ2t",
+                "https://IalDWRyQbzdQSo.dnvsKfhS2MxMtylhJWsiz-psSADH1207w+CTRjA6AiNszY5E9rMEBmVE"
+              ],
+              "publication": {
+                "enabled": true,
+                "publicationTerm": null,
+                "publicationTermDays": null,
+                "responseTerm": null,
+                "responseTermDays": null
+              }
+            },
+            "ingangsdatum": null,
+            "vervaldatum": null,
+            "vervalreden": "INGETROKKEN_OVERHEID",
+            "publicationDate": "1966-12-15",
+            "lastResponseDate": null,
+            "isIngetrokken": false,
+            "toelichting": "string",
+            "zaakUuid": "3F59d888-a06b-F92B-eefF-317e33eeabEF",
+            "informatieobjecten": [
+              {
+                "titel": "string",
+                "informatieobjectTypeUUID": "5D42b7bf-59bA-E0bd-d0e6-BeDE9aD8caF6",
+                "file": "string",
+                "bestandsnaam": "string",
+                "uuid": "1Da4B55D-BA41-8fea-56AD-AF154FDB1c47",
+                "identificatie": "string",
+                "beschrijving": "string",
+                "creatiedatum": "1971-12-21",
+                "registratiedatumTijd": "1991-07-31T11:00:34.544Z",
+                "ontvangstdatum": "1979-08-30",
+                "verzenddatum": "1956-10-06",
+                "bronorganisatie": "string",
+                "vertrouwelijkheidaanduiding": "string",
+                "auteur": "string",
+                "status": "GEARCHIVEERD",
+                "formaat": "string",
+                "bestandsomvang": 9735,
+                "taal": "string",
+                "versie": 4823,
+                "informatieobjectTypeOmschrijving": "string",
+                "link": "string",
+                "ondertekening": {
+                  "soort": "string",
+                  "datum": "1983-10-30"
+                },
+                "indicatieGebruiksrecht": true,
+                "gelockedDoor": {
+                  "id": "string",
+                  "naam": "string"
+                },
+                "isBesluitDocument": false,
+                "rechten": {
+                  "lezen": false,
+                  "wijzigen": true,
+                  "verwijderen": false,
+                  "vergrendelen": false,
+                  "ontgrendelen": false,
+                  "ondertekenen": true,
+                  "toevoegenNieuweVersie": false,
+                  "converteren": true
+                },
+                "indicaties": [
+                  "ONDERTEKEND",
+                  "VERGRENDELD"
+                ]
+              },
+              {
+                "titel": "string",
+                "informatieobjectTypeUUID": "9aF4CF20-BEaF-33b3-2FDE-06fAF18eE6b0",
+                "file": "string",
+                "bestandsnaam": "string",
+                "uuid": "fbC235e5-Cd69-f1E6-7710-cecBFa3606F2",
+                "identificatie": "string",
+                "beschrijving": "string",
+                "creatiedatum": "2022-03-27",
+                "registratiedatumTijd": "1955-11-08T11:47:16.684Z",
+                "ontvangstdatum": "1969-10-08",
+                "verzenddatum": "2004-01-05",
+                "bronorganisatie": "string",
+                "vertrouwelijkheidaanduiding": "string",
+                "auteur": "string",
+                "status": "GEARCHIVEERD",
+                "formaat": "string",
+                "bestandsomvang": 3290,
+                "taal": "string",
+                "versie": 5506,
+                "informatieobjectTypeOmschrijving": "string",
+                "link": "string",
+                "ondertekening": {
+                  "soort": "string",
+                  "datum": "2016-03-14"
+                },
+                "indicatieGebruiksrecht": false,
+                "gelockedDoor": {
+                  "id": "string",
+                  "naam": "string"
+                },
+                "isBesluitDocument": false,
+                "rechten": {
+                  "lezen": true,
+                  "wijzigen": false,
+                  "verwijderen": false,
+                  "vergrendelen": false,
+                  "ontgrendelen": true,
+                  "ondertekenen": true,
+                  "toevoegenNieuweVersie": true,
+                  "converteren": true
+                },
+                "indicaties": [
+                  "ONDERTEKEND",
+                  "GEBRUIKSRECHT"
+                ]
+              }
+            ],
+            "ingetrokken": true
+          }

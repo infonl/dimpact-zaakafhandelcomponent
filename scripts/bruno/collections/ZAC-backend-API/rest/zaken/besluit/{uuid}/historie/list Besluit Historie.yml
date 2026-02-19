@@ -1,0 +1,65 @@
+info:
+  name: list Besluit Historie
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/zaken/besluit/:uuid/historie"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zaken/besluit/:uuid/historie"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "attribuutLabel": "string",
+              "oudeWaarde": null,
+              "nieuweWaarde": "string",
+              "datumTijd": "1993-11-11T23:51:06.209Z",
+              "door": "string",
+              "applicatie": null,
+              "toelichting": null,
+              "actie": "AANGEMAAKT"
+            },
+            {
+              "attribuutLabel": "string",
+              "oudeWaarde": null,
+              "nieuweWaarde": "string",
+              "datumTijd": "1952-12-22T09:47:53.315Z",
+              "door": "string",
+              "applicatie": null,
+              "toelichting": "string",
+              "actie": "AANGEMAAKT"
+            }
+          ]

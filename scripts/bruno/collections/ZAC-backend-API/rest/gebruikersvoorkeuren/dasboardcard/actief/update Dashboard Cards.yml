@@ -1,0 +1,93 @@
+info:
+  name: update Dashboard Cards
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/gebruikersvoorkeuren/dasboardcard/actief"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      [
+        {
+          "id": 8045,
+          "cardId": "MIJN_ZAKEN_WAARSCHUWING",
+          "signaleringType": "TAAK_OP_NAAM",
+          "column": 4014,
+          "row": 2910
+        },
+        {
+          "id": 9519,
+          "cardId": "MIJN_TAKEN_NIEUW",
+          "signaleringType": "TAAK_VERLOPEN",
+          "column": 4974,
+          "row": 332
+        }
+      ]
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/gebruikersvoorkeuren/dasboardcard/actief"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": 8045,
+              "cardId": "MIJN_ZAKEN_WAARSCHUWING",
+              "signaleringType": "TAAK_OP_NAAM",
+              "column": 4014,
+              "row": 2910
+            },
+            {
+              "id": 9519,
+              "cardId": "MIJN_TAKEN_NIEUW",
+              "signaleringType": "TAAK_VERLOPEN",
+              "column": 4974,
+              "row": 332
+            }
+          ]
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": 8045,
+              "cardId": "MIJN_ZAKEN_WAARSCHUWING",
+              "signaleringType": "TAAK_OP_NAAM",
+              "column": 4014,
+              "row": 2910
+            },
+            {
+              "id": 9519,
+              "cardId": "MIJN_TAKEN_NIEUW",
+              "signaleringType": "TAAK_VERLOPEN",
+              "column": 4974,
+              "row": 332
+            }
+          ]

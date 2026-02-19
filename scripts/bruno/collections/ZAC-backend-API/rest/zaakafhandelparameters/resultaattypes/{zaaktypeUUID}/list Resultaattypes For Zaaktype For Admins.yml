@@ -1,0 +1,85 @@
+info:
+  name: list Resultaattypes For Zaaktype For Admins
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/zaakafhandelparameters/resultaattypes/:zaaktypeUUID"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: zaaktypeUUID
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zaakafhandelparameters/resultaattypes/:zaaktypeUUID"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: zaaktypeUUID
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "CAf4b7A7-7FFD-8ccc-AD92-5a102cDf6D5E",
+              "naam": null,
+              "naamGeneriek": "string",
+              "vervaldatumBesluitVerplicht": true,
+              "datumKenmerkVerplicht": true,
+              "besluitVerplicht": false,
+              "toelichting": null,
+              "archiefNominatie": null,
+              "archiefTermijn": null,
+              "selectielijst": "string",
+              "bronArchiefprocedure": {
+                "afleidingswijze": "HOOFDZAAK",
+                "datumkenmerk": "string",
+                "einddatumBekend": true,
+                "objecttype": "OVERIGE",
+                "registratie": "string",
+                "procestermijn": "string"
+              }
+            },
+            {
+              "id": "3CD23FE7-715E-3321-7db3-97fF297fEecA",
+              "naam": null,
+              "naamGeneriek": "string",
+              "vervaldatumBesluitVerplicht": false,
+              "datumKenmerkVerplicht": false,
+              "besluitVerplicht": true,
+              "toelichting": null,
+              "archiefNominatie": "string",
+              "archiefTermijn": null,
+              "selectielijst": null,
+              "bronArchiefprocedure": {
+                "afleidingswijze": "TERMIJN",
+                "datumkenmerk": "string",
+                "einddatumBekend": false,
+                "objecttype": "TERREIN_GEBOUWD_OBJECT",
+                "registratie": "string",
+                "procestermijn": "string"
+              }
+            }
+          ]

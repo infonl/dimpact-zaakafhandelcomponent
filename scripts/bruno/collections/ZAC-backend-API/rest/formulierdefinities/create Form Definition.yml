@@ -1,0 +1,165 @@
+info:
+  name: create Form Definition
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/formulierdefinities"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "veldDefinities": [
+          {
+            "id": null,
+            "systeemnaam": "string",
+            "volgorde": 7686,
+            "label": null,
+            "veldtype": "MEDEWERKER_KEUZELIJST",
+            "beschrijving": "string",
+            "helptekst": null,
+            "verplicht": true,
+            "defaultWaarde": null,
+            "meerkeuzeOpties": null,
+            "validaties": [
+              "string",
+              "string"
+            ]
+          },
+          {
+            "id": 6488,
+            "systeemnaam": "string",
+            "volgorde": 2357,
+            "label": null,
+            "veldtype": "KEUZELIJST",
+            "beschrijving": "string",
+            "helptekst": null,
+            "verplicht": false,
+            "defaultWaarde": null,
+            "meerkeuzeOpties": "string",
+            "validaties": null
+          }
+        ],
+        "id": null,
+        "systeemnaam": null,
+        "naam": "string",
+        "beschrijving": null,
+        "uitleg": "string",
+        "creatiedatum": "2019-01-08T04:47:37.626Z",
+        "wijzigingsdatum": "1970-03-21T00:00:26.803Z"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/formulierdefinities"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "veldDefinities": [
+              {
+                "id": null,
+                "systeemnaam": "string",
+                "volgorde": 7686,
+                "label": null,
+                "veldtype": "MEDEWERKER_KEUZELIJST",
+                "beschrijving": "string",
+                "helptekst": null,
+                "verplicht": true,
+                "defaultWaarde": null,
+                "meerkeuzeOpties": null,
+                "validaties": [
+                  "string",
+                  "string"
+                ]
+              },
+              {
+                "id": 6488,
+                "systeemnaam": "string",
+                "volgorde": 2357,
+                "label": null,
+                "veldtype": "KEUZELIJST",
+                "beschrijving": "string",
+                "helptekst": null,
+                "verplicht": false,
+                "defaultWaarde": null,
+                "meerkeuzeOpties": "string",
+                "validaties": null
+              }
+            ],
+            "id": null,
+            "systeemnaam": null,
+            "naam": "string",
+            "beschrijving": null,
+            "uitleg": "string",
+            "creatiedatum": "2019-01-08T04:47:37.626Z",
+            "wijzigingsdatum": "1970-03-21T00:00:26.803Z"
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "veldDefinities": [
+              {
+                "id": null,
+                "systeemnaam": "string",
+                "volgorde": 7686,
+                "label": null,
+                "veldtype": "MEDEWERKER_KEUZELIJST",
+                "beschrijving": "string",
+                "helptekst": null,
+                "verplicht": true,
+                "defaultWaarde": null,
+                "meerkeuzeOpties": null,
+                "validaties": [
+                  "string",
+                  "string"
+                ]
+              },
+              {
+                "id": 6488,
+                "systeemnaam": "string",
+                "volgorde": 2357,
+                "label": null,
+                "veldtype": "KEUZELIJST",
+                "beschrijving": "string",
+                "helptekst": null,
+                "verplicht": false,
+                "defaultWaarde": null,
+                "meerkeuzeOpties": "string",
+                "validaties": null
+              }
+            ],
+            "id": null,
+            "systeemnaam": null,
+            "naam": "string",
+            "beschrijving": null,
+            "uitleg": "string",
+            "creatiedatum": "2019-01-08T04:47:37.626Z",
+            "wijzigingsdatum": "1970-03-21T00:00:26.803Z"
+          }

@@ -1,0 +1,42 @@
+opencollection: 1.0.0
+
+info:
+  name: Zaakafhandelcomponent backend API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: oauth2
+    flow: authorization_code
+    authorizationUrl: "{{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/auth"
+    accessTokenUrl: "{{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/token"
+    callbackUrl: "{{baseUrl}}"
+    credentials:
+      clientId: zaakafhandelcomponent
+      clientSecret: "{{keycloakClientSecret}}"
+      placement: basic_auth_header
+    scope: openid
+    pkce:
+      disabled: true
+    tokenConfig:
+      placement:
+        header: Bearer
+    settings:
+      autoFetchToken: true
+      autoRefreshToken: false
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

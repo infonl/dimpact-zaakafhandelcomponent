@@ -1,0 +1,7 @@
+info:
+  name: smartdocuments
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit

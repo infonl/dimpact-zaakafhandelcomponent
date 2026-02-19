@@ -1,0 +1,179 @@
+info:
+  name: list Zaak Waarschuwingen
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/zaken/waarschuwing"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/zaken/waarschuwing"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "identificatie": null,
+              "toelichting": null,
+              "omschrijving": null,
+              "uuid": "fBc2DdE7-16bF-bbdB-a29b-667cABbF58bD",
+              "startdatum": "2000-11-03",
+              "einddatum": "2007-01-17",
+              "zaaktype": "string",
+              "status": "string",
+              "behandelaar": {
+                "id": "string",
+                "naam": "string"
+              },
+              "einddatumGepland": "1964-12-31",
+              "uiterlijkeEinddatumAfdoening": "1984-12-27",
+              "groep": {
+                "id": "string",
+                "naam": "string"
+              },
+              "resultaat": {
+                "toelichting": null,
+                "resultaattype": {
+                  "id": "AAbd7CE1-Ae4f-6485-BC9d-a8F7B02C033a",
+                  "naam": "string",
+                  "naamGeneriek": null,
+                  "vervaldatumBesluitVerplicht": true,
+                  "datumKenmerkVerplicht": true,
+                  "besluitVerplicht": true,
+                  "toelichting": null,
+                  "archiefNominatie": "string",
+                  "archiefTermijn": "string",
+                  "selectielijst": null,
+                  "bronArchiefprocedure": {
+                    "afleidingswijze": "EIGENSCHAP",
+                    "datumkenmerk": "string",
+                    "einddatumBekend": true,
+                    "objecttype": "OPENBARE_RUIMTE",
+                    "registratie": "string",
+                    "procestermijn": "string"
+                  }
+                }
+              },
+              "openstaandeTaken": {
+                "taakNamen": [
+                  "string",
+                  "string"
+                ],
+                "aantalOpenstaandeTaken": 1386
+              },
+              "rechten": {
+                "lezen": false,
+                "wijzigen": true,
+                "toekennen": true,
+                "behandelen": false,
+                "afbreken": false,
+                "heropenen": false,
+                "bekijkenZaakdata": true,
+                "wijzigenDoorlooptijd": false,
+                "toevoegenBagObject": true,
+                "toevoegenBetrokkeneBedrijf": true,
+                "toevoegenBetrokkenePersoon": false,
+                "toevoegenInitiatorBedrijf": false,
+                "toevoegenInitiatorPersoon": false,
+                "versturenOntvangstbevestiging": true,
+                "verwijderenBetrokkene": true,
+                "verwijderenInitiator": true,
+                "creerenDocument": false,
+                "versturenEmail": true,
+                "wijzigenLocatie": false
+              }
+            },
+            {
+              "identificatie": null,
+              "toelichting": null,
+              "omschrijving": null,
+              "uuid": "acE8D4f6-cb58-FA64-39c8-fD6BddBbeaCb",
+              "startdatum": "1975-11-14",
+              "einddatum": "1982-12-07",
+              "zaaktype": "string",
+              "status": "string",
+              "behandelaar": {
+                "id": "string",
+                "naam": "string"
+              },
+              "einddatumGepland": "1970-12-31",
+              "uiterlijkeEinddatumAfdoening": "1956-05-07",
+              "groep": {
+                "id": "string",
+                "naam": "string"
+              },
+              "resultaat": {
+                "toelichting": null,
+                "resultaattype": {
+                  "id": "1B2F8fcF-937a-1efe-dD9D-A6ead29D1fF1",
+                  "naam": "string",
+                  "naamGeneriek": "string",
+                  "vervaldatumBesluitVerplicht": true,
+                  "datumKenmerkVerplicht": false,
+                  "besluitVerplicht": false,
+                  "toelichting": null,
+                  "archiefNominatie": null,
+                  "archiefTermijn": "string",
+                  "selectielijst": "string",
+                  "bronArchiefprocedure": {
+                    "afleidingswijze": "GERELATEERDE_ZAAK",
+                    "datumkenmerk": "string",
+                    "einddatumBekend": true,
+                    "objecttype": "ORGANISATORISCHE_EENHEID",
+                    "registratie": "string",
+                    "procestermijn": "string"
+                  }
+                }
+              },
+              "openstaandeTaken": {
+                "taakNamen": [
+                  "string",
+                  "string"
+                ],
+                "aantalOpenstaandeTaken": 9861
+              },
+              "rechten": {
+                "lezen": true,
+                "wijzigen": true,
+                "toekennen": true,
+                "behandelen": true,
+                "afbreken": false,
+                "heropenen": true,
+                "bekijkenZaakdata": true,
+                "wijzigenDoorlooptijd": false,
+                "toevoegenBagObject": true,
+                "toevoegenBetrokkeneBedrijf": false,
+                "toevoegenBetrokkenePersoon": false,
+                "toevoegenInitiatorBedrijf": true,
+                "toevoegenInitiatorPersoon": false,
+                "versturenOntvangstbevestiging": false,
+                "verwijderenBetrokkene": false,
+                "verwijderenInitiator": false,
+                "creerenDocument": false,
+                "versturenEmail": true,
+                "wijzigenLocatie": true
+              }
+            }
+          ]

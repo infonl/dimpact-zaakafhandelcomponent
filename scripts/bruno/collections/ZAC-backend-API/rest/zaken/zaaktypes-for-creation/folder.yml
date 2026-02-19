@@ -1,0 +1,7 @@
+info:
+  name: zaaktypes-for-creation
+  type: folder
+  seq: 15
+
+request:
+  auth: inherit

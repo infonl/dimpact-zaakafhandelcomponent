@@ -1,0 +1,63 @@
+info:
+  name: list Notes
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/notities/zaken/:uuid"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/notities/zaken/:uuid"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "zaakUUID": "DfEDea8e-Bae9-7Fc4-EE41-D1b902353689",
+              "tekst": "string",
+              "gebruikersnaamMedewerker": "string",
+              "id": null,
+              "tijdstipLaatsteWijziging": "1999-03-06T16:48:51.407Z",
+              "voornaamAchternaamMedewerker": "string",
+              "bewerkenToegestaan": false
+            },
+            {
+              "zaakUUID": "BA951C0F-c8EB-6A83-178e-2DDA0Ef7a5e6",
+              "tekst": "string",
+              "gebruikersnaamMedewerker": "string",
+              "id": 7090,
+              "tijdstipLaatsteWijziging": "1947-12-15T07:29:22.334Z",
+              "voornaamAchternaamMedewerker": "string",
+              "bewerkenToegestaan": false
+            }
+          ]

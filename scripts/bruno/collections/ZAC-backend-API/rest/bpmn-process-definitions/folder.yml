@@ -1,0 +1,7 @@
+info:
+  name: bpmn-process-definitions
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit

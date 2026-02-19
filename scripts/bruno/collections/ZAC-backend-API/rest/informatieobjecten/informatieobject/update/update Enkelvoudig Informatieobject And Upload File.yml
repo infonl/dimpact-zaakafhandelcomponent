@@ -1,0 +1,182 @@
+info:
+  name: update Enkelvoudig Informatieobject And Upload File
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/update"
+  headers:
+    - name: Content-Type
+      value: multipart/form-data
+    - name: Accept
+      value: application/json
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value: []
+      - name: bestandsnaam
+        type: text
+        value: string
+      - name: uuid
+        type: text
+        value: 83a2ae7F-cf77-AcaD-a75f-189FBFdaeFd3
+      - name: zaakUuid
+        type: text
+        value: cdACeBb5-23fF-d67E-9706-a41Ee964bAfB
+      - name: titel
+        type: text
+        value: string
+      - name: vertrouwelijkheidaanduiding
+        type: text
+        value: string
+      - name: auteur
+        type: text
+        value: string
+      - name: status
+        type: text
+        value: GEARCHIVEERD
+      - name: taal
+        type: text
+        value: "[object Object]"
+      - name: formaat
+        type: text
+        value: string
+      - name: beschrijving
+        type: text
+        value: string
+      - name: verzenddatum
+        type: text
+        value: 2014-07-19
+      - name: ontvangstdatum
+        type: text
+        value: 1973-10-19
+      - name: toelichting
+        type: text
+        value: string
+      - name: informatieobjectTypeUUID
+        type: text
+        value: 5e5Cdeee-AFd6-ad28-dFa1-FBABD6B867aC
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/update"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: multipart/form-data
+        - name: Accept
+          value: application/json
+      body:
+        type: multipart-form
+        data:
+          - name: file
+            type: file
+            value: []
+          - name: bestandsnaam
+            type: text
+            value: string
+          - name: uuid
+            type: text
+            value: 83a2ae7F-cf77-AcaD-a75f-189FBFdaeFd3
+          - name: zaakUuid
+            type: text
+            value: cdACeBb5-23fF-d67E-9706-a41Ee964bAfB
+          - name: titel
+            type: text
+            value: string
+          - name: vertrouwelijkheidaanduiding
+            type: text
+            value: string
+          - name: auteur
+            type: text
+            value: string
+          - name: status
+            type: text
+            value: GEARCHIVEERD
+          - name: taal
+            type: text
+            value: "[object Object]"
+          - name: formaat
+            type: text
+            value: string
+          - name: beschrijving
+            type: text
+            value: string
+          - name: verzenddatum
+            type: text
+            value: 2014-07-19
+          - name: ontvangstdatum
+            type: text
+            value: 1973-10-19
+          - name: toelichting
+            type: text
+            value: string
+          - name: informatieobjectTypeUUID
+            type: text
+            value: 5e5Cdeee-AFd6-ad28-dFa1-FBABD6B867aC
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "titel": "string",
+            "informatieobjectTypeUUID": "cdE845c9-8CBD-af4f-5Cf2-bbd9641B678b",
+            "file": "string",
+            "bestandsnaam": "string",
+            "uuid": "1Adb68ef-9229-FBce-0aA8-0fABcf7A40Bc",
+            "identificatie": "string",
+            "beschrijving": "string",
+            "creatiedatum": "1980-07-18",
+            "registratiedatumTijd": "1964-07-04T11:27:35.183Z",
+            "ontvangstdatum": "1966-02-13",
+            "verzenddatum": "1980-06-13",
+            "bronorganisatie": "string",
+            "vertrouwelijkheidaanduiding": "string",
+            "auteur": "string",
+            "status": "DEFINITIEF",
+            "formaat": "string",
+            "bestandsomvang": 609,
+            "taal": "string",
+            "versie": 4098,
+            "informatieobjectTypeOmschrijving": "string",
+            "link": "string",
+            "ondertekening": {
+              "soort": "string",
+              "datum": "1950-03-16"
+            },
+            "indicatieGebruiksrecht": false,
+            "gelockedDoor": {
+              "id": "string",
+              "naam": "string"
+            },
+            "isBesluitDocument": true,
+            "rechten": {
+              "lezen": true,
+              "wijzigen": true,
+              "verwijderen": true,
+              "vergrendelen": false,
+              "ontgrendelen": false,
+              "ondertekenen": true,
+              "toevoegenNieuweVersie": true,
+              "converteren": true
+            },
+            "indicaties": [
+              "VERGRENDELD",
+              "BESLUIT"
+            ]
+          }

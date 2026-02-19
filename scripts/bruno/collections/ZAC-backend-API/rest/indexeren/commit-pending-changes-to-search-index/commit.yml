@@ -1,0 +1,26 @@
+info:
+  name: commit
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/indexeren/commit-pending-changes-to-search-index"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: Created
+    request:
+      url: "{{baseUrl}}/rest/indexeren/commit-pending-changes-to-search-index"
+      method: POST
+    response:
+      statusText: "201"
+      body:
+        type: text
+        data: ""

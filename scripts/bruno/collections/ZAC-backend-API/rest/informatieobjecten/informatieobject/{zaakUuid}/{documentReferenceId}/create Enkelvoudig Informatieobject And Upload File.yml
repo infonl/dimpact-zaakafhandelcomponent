@@ -1,0 +1,262 @@
+info:
+  name: create Enkelvoudig Informatieobject And Upload File
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/:zaakUuid/:documentReferenceId?taakObject=true"
+  headers:
+    - name: Content-Type
+      value: multipart/form-data
+    - name: Accept
+      value: application/json
+  params:
+    - name: taakObject
+      value: "true"
+      type: query
+    - name: zaakUuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+    - name: documentReferenceId
+      value: string
+      type: path
+  body:
+    type: multipart-form
+    data:
+      - name: titel
+        type: text
+        value: string
+      - name: file
+        type: file
+        value: []
+      - name: bestandsnaam
+        type: text
+        value: string
+      - name: identificatie
+        type: text
+        value: string
+      - name: beschrijving
+        type: text
+        value: string
+      - name: creatiedatum
+        type: text
+        value: 1967-12-19
+      - name: registratiedatumTijd
+        type: text
+        value: 1989-01-11T07:19:15.735Z
+      - name: ontvangstdatum
+        type: text
+        value: 1955-03-13
+      - name: verzenddatum
+        type: text
+        value: 1959-07-15
+      - name: bronorganisatie
+        type: text
+        value: string
+      - name: vertrouwelijkheidaanduiding
+        type: text
+        value: string
+      - name: auteur
+        type: text
+        value: string
+      - name: status
+        type: text
+        value: TER_VASTSTELLING
+      - name: formaat
+        type: text
+        value: string
+      - name: bestandsomvang
+        type: text
+        value: "6887"
+      - name: taal
+        type: text
+        value: string
+      - name: versie
+        type: text
+        value: "6482"
+      - name: informatieobjectTypeUUID
+        type: text
+        value: b798Ffb4-EEe2-E48c-DA35-ECf604e5D460
+      - name: informatieobjectTypeOmschrijving
+        type: text
+        value: string
+      - name: link
+        type: text
+        value: string
+      - name: ondertekening
+        type: text
+        value: "[object Object]"
+      - name: indicatieGebruiksrecht
+        type: text
+        value: "false"
+      - name: gelockedDoor
+        type: text
+        value: "[object Object]"
+      - name: isBesluitDocument
+        type: text
+        value: "true"
+      - name: rechten
+        type: text
+        value: "[object Object]"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/:zaakUuid/:documentReferenceId?taakObject=true"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: multipart/form-data
+        - name: Accept
+          value: application/json
+      params:
+        - name: taakObject
+          value: "true"
+          type: query
+        - name: documentReferenceId
+          value: string
+          type: path
+        - name: zaakUuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+      body:
+        type: multipart-form
+        data:
+          - name: titel
+            type: text
+            value: string
+          - name: file
+            type: file
+            value: []
+          - name: bestandsnaam
+            type: text
+            value: string
+          - name: identificatie
+            type: text
+            value: string
+          - name: beschrijving
+            type: text
+            value: string
+          - name: creatiedatum
+            type: text
+            value: 1967-12-19
+          - name: registratiedatumTijd
+            type: text
+            value: 1989-01-11T07:19:15.735Z
+          - name: ontvangstdatum
+            type: text
+            value: 1955-03-13
+          - name: verzenddatum
+            type: text
+            value: 1959-07-15
+          - name: bronorganisatie
+            type: text
+            value: string
+          - name: vertrouwelijkheidaanduiding
+            type: text
+            value: string
+          - name: auteur
+            type: text
+            value: string
+          - name: status
+            type: text
+            value: TER_VASTSTELLING
+          - name: formaat
+            type: text
+            value: string
+          - name: bestandsomvang
+            type: text
+            value: "6887"
+          - name: taal
+            type: text
+            value: string
+          - name: versie
+            type: text
+            value: "6482"
+          - name: informatieobjectTypeUUID
+            type: text
+            value: b798Ffb4-EEe2-E48c-DA35-ECf604e5D460
+          - name: informatieobjectTypeOmschrijving
+            type: text
+            value: string
+          - name: link
+            type: text
+            value: string
+          - name: ondertekening
+            type: text
+            value: "[object Object]"
+          - name: indicatieGebruiksrecht
+            type: text
+            value: "false"
+          - name: gelockedDoor
+            type: text
+            value: "[object Object]"
+          - name: isBesluitDocument
+            type: text
+            value: "true"
+          - name: rechten
+            type: text
+            value: "[object Object]"
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "titel": "string",
+            "informatieobjectTypeUUID": "C6Fb8fAa-B20C-Feef-af70-DdB8a4fd9F50",
+            "file": "string",
+            "bestandsnaam": "string",
+            "uuid": "e6ddbf58-EC80-ce42-909F-A4fe0fFCE8ca",
+            "identificatie": "string",
+            "beschrijving": "string",
+            "creatiedatum": "1961-02-01",
+            "registratiedatumTijd": "1951-04-17T17:12:57.166Z",
+            "ontvangstdatum": "1980-05-27",
+            "verzenddatum": "2025-06-12",
+            "bronorganisatie": "string",
+            "vertrouwelijkheidaanduiding": "string",
+            "auteur": "string",
+            "status": "GEARCHIVEERD",
+            "formaat": "string",
+            "bestandsomvang": 8303,
+            "taal": "string",
+            "versie": 9170,
+            "informatieobjectTypeOmschrijving": "string",
+            "link": "string",
+            "ondertekening": {
+              "soort": "string",
+              "datum": "2002-12-02"
+            },
+            "indicatieGebruiksrecht": true,
+            "gelockedDoor": {
+              "id": "string",
+              "naam": "string"
+            },
+            "isBesluitDocument": false,
+            "rechten": {
+              "lezen": false,
+              "wijzigen": false,
+              "verwijderen": true,
+              "vergrendelen": true,
+              "ontgrendelen": false,
+              "ondertekenen": true,
+              "toevoegenNieuweVersie": false,
+              "converteren": false
+            },
+            "indicaties": [
+              "GEBRUIKSRECHT",
+              "VERGRENDELD"
+            ]
+          }

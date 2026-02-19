@@ -1,0 +1,75 @@
+info:
+  name: list Contactmomenten
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/klanten/contactmomenten"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "bsn": null,
+        "vestigingsnummer": "string",
+        "page": 81
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/klanten/contactmomenten"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "bsn": null,
+            "vestigingsnummer": "string",
+            "page": 81
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "resultaten": [
+              {
+                "registratiedatum": "1959-09-03T01:44:46.670Z",
+                "kanaal": null,
+                "tekst": "string",
+                "initiatiefnemer": "string",
+                "medewerker": null
+              },
+              {
+                "registratiedatum": "1987-11-30T05:13:08.064Z",
+                "kanaal": "string",
+                "tekst": null,
+                "initiatiefnemer": "string",
+                "medewerker": "string"
+              }
+            ],
+            "totaal": 8365,
+            "foutmelding": "string"
+          }

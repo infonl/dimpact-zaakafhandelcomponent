@@ -1,0 +1,45 @@
+info:
+  name: list Groups
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/identity/groups"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/identity/groups"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "string",
+              "naam": "string"
+            },
+            {
+              "id": "string",
+              "naam": "string"
+            }
+          ]

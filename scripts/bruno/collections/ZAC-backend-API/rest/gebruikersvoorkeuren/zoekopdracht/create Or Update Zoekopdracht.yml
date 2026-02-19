@@ -1,0 +1,69 @@
+info:
+  name: create Or Update Zoekopdracht
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "id": 3947,
+        "lijstID": "INBOX_PRODUCTAANVRAGEN",
+        "actief": false,
+        "creatiedatum": "1948-10-15",
+        "naam": "string",
+        "json": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": 3947,
+            "lijstID": "INBOX_PRODUCTAANVRAGEN",
+            "actief": false,
+            "creatiedatum": "1948-10-15",
+            "naam": "string",
+            "json": "string"
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": 3947,
+            "lijstID": "INBOX_PRODUCTAANVRAGEN",
+            "actief": false,
+            "creatiedatum": "1948-10-15",
+            "naam": "string",
+            "json": "string"
+          }

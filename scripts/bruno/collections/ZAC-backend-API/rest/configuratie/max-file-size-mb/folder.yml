@@ -1,0 +1,7 @@
+info:
+  name: max-file-size-mb
+  type: folder
+  seq: 5
+
+request:
+  auth: inherit

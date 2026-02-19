@@ -1,0 +1,52 @@
+info:
+  name: terminate Zaak
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/rest/zaken/zaak/:uuid/afbreken"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "zaakbeeindigRedenId": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/zaken/zaak/:uuid/afbreken"
+      method: PATCH
+      headers:
+        - name: Content-Type
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "zaakbeeindigRedenId": "string"
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

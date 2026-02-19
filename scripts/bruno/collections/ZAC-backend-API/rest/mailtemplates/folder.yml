@@ -1,0 +1,7 @@
+info:
+  name: mailtemplates
+  type: folder
+  seq: 20
+
+request:
+  auth: inherit

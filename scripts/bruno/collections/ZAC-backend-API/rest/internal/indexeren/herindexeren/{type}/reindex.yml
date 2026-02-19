@@ -1,0 +1,34 @@
+info:
+  name: reindex
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/internal/indexeren/herindexeren/:type"
+  params:
+    - name: type
+      value: TAAK
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/internal/indexeren/herindexeren/:type"
+      method: GET
+      params:
+        - name: type
+          value: TAAK
+          type: path
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

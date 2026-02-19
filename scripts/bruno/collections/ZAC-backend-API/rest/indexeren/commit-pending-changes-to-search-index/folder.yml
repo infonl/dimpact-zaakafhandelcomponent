@@ -1,0 +1,7 @@
+info:
+  name: commit-pending-changes-to-search-index
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

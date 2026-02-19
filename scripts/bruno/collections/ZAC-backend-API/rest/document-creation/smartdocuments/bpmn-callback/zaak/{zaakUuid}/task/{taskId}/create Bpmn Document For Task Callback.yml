@@ -1,0 +1,70 @@
+info:
+  name: create Bpmn Document For Task Callback
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/document-creation/smartdocuments/bpmn-callback/zaak/:zaakUuid/task/:taskId?creationDate=2022-03-10T12:15:50-04:00&description=string&informatieobjecttypeUuid=e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77&title=string&userName=string"
+  params:
+    - name: creationDate
+      value: 2022-03-10T12:15:50-04:00
+      type: query
+    - name: description
+      value: string
+      type: query
+    - name: informatieobjecttypeUuid
+      value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+      type: query
+    - name: title
+      value: string
+      type: query
+    - name: userName
+      value: string
+      type: query
+    - name: zaakUuid
+      value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+      type: path
+    - name: taskId
+      value: string
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/document-creation/smartdocuments/bpmn-callback/zaak/:zaakUuid/task/:taskId?creationDate=2022-03-10T12:15:50-04:00&description=string&informatieobjecttypeUuid=e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77&title=string&userName=string"
+      method: POST
+      params:
+        - name: creationDate
+          value: 2022-03-10T12:15:50-04:00
+          type: query
+        - name: description
+          value: string
+          type: query
+        - name: informatieobjecttypeUuid
+          value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+          type: query
+        - name: title
+          value: string
+          type: query
+        - name: userName
+          value: string
+          type: query
+        - name: taskId
+          value: string
+          type: path
+        - name: zaakUuid
+          value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+          type: path
+    response:
+      statusText: "200"
+      body:
+        type: text
+        data: ""

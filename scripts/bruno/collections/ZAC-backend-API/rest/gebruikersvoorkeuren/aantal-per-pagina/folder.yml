@@ -1,0 +1,7 @@
+info:
+  name: aantal-per-pagina
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

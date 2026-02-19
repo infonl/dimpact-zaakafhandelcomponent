@@ -1,0 +1,54 @@
+info:
+  name: set Zoekopdracht Actief
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht/actief"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "id": 3947,
+        "lijstID": "INBOX_PRODUCTAANVRAGEN",
+        "actief": false,
+        "creatiedatum": "1948-10-15",
+        "naam": "string",
+        "json": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht/actief"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": 3947,
+            "lijstID": "INBOX_PRODUCTAANVRAGEN",
+            "actief": false,
+            "creatiedatum": "1948-10-15",
+            "naam": "string",
+            "json": "string"
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

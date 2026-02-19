@@ -1,0 +1,57 @@
+info:
+  name: list Informatieobjecttypes
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecttypes/:zaakTypeUuid"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: zaakTypeUuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecttypes/:zaakTypeUuid"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: zaakTypeUuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "uuid": "9C95f86f-fdAE-b78e-3386-0D8A5FfDce9F",
+              "omschrijving": "string",
+              "vertrouwelijkheidaanduiding": "string",
+              "concept": true
+            },
+            {
+              "uuid": "5Eb23F2C-3EeC-85FD-A6bD-d3EBbdDDC968",
+              "omschrijving": "string",
+              "vertrouwelijkheidaanduiding": "string",
+              "concept": false
+            }
+          ]

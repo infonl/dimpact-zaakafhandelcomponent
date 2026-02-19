@@ -1,0 +1,83 @@
+info:
+  name: list Bag Objects For Zaak
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/bag/zaak/:zaakUuid"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: zaakUuid
+      value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/bag/zaak/:zaakUuid"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: zaakUuid
+          value: e9bE2eef-FB5E-5A64-DDa1-4BBdd5720f77
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "uuid": "98b7a602-Fd83-A4cA-17a6-5FA47A33B5DA",
+              "zaakUuid": "bAb6ECDC-dfDa-5DaF-a4a6-fEa333dcA3eb",
+              "zaakobject": {
+                "url": "http://RLSxjyaiZfCrrEkQjHJSi.vvuV2pdttv26,iRWiTHQiDiKFbKnpl6g398ptrInvJa68SXXh8G93R8RiC2W",
+                "identificatie": "string",
+                "geconstateerd": true,
+                "bagObjectType": "WOONPLAATS",
+                "omschrijving": "string"
+              },
+              "redenWijzigen": "string",
+              "bagObject": {
+                "url": "https://ojlzqCLcrMfJLYW.mniasbrJpwmQoXza17eKX8SRv6RuSJ9BewwkwGPreXH9h",
+                "identificatie": "string",
+                "geconstateerd": false,
+                "bagObjectType": "ADRES",
+                "omschrijving": "string"
+              }
+            },
+            {
+              "uuid": "CacB76aA-DD7c-a4BC-3adD-904FDdFfCDD4",
+              "zaakUuid": "a2E480D3-58F8-Faba-96c2-eB5E58A7f04e",
+              "zaakobject": {
+                "url": "http://WHjwrzIvXvRmyuemQwrCKUbjOGuPfw.ynXh289fPNhx41s0svUN9ebEEp8MkLZfxLSLYdzthQa",
+                "identificatie": "string",
+                "geconstateerd": false,
+                "bagObjectType": "OPENBARE_RUIMTE",
+                "omschrijving": "string"
+              },
+              "redenWijzigen": "string",
+              "bagObject": {
+                "url": "https://SDwUMUQNRsLivpfAgxuoYQfovpRi.xbngcP3IUuRSh8Mz1CrE0IOXolOa2VMCb7mc",
+                "identificatie": "string",
+                "geconstateerd": true,
+                "bagObjectType": "OPENBARE_RUIMTE",
+                "omschrijving": "string"
+              }
+            }
+          ]

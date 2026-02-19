@@ -1,0 +1,139 @@
+info:
+  name: list Enkelvoudig Informatieobjecten Voor Verzenden
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecten/zaak/:zaakUuid/teVerzenden"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: zaakUuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecten/zaak/:zaakUuid/teVerzenden"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: zaakUuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "titel": "string",
+              "informatieobjectTypeUUID": "282bfAdC-BF93-bCEf-65A6-3b19DCE9Dccd",
+              "file": "string",
+              "bestandsnaam": "string",
+              "uuid": "76c9E6EC-CF36-c9dd-874A-9F326A6D955F",
+              "identificatie": "string",
+              "beschrijving": "string",
+              "creatiedatum": "2012-09-11",
+              "registratiedatumTijd": "1950-07-05T21:38:37.846Z",
+              "ontvangstdatum": "2009-08-10",
+              "verzenddatum": "1986-09-17",
+              "bronorganisatie": "string",
+              "vertrouwelijkheidaanduiding": "string",
+              "auteur": "string",
+              "status": "TER_VASTSTELLING",
+              "formaat": "string",
+              "bestandsomvang": 5306,
+              "taal": "string",
+              "versie": 7362,
+              "informatieobjectTypeOmschrijving": "string",
+              "link": "string",
+              "ondertekening": {
+                "soort": "string",
+                "datum": "2002-09-23"
+              },
+              "indicatieGebruiksrecht": true,
+              "gelockedDoor": {
+                "id": "string",
+                "naam": "string"
+              },
+              "isBesluitDocument": true,
+              "rechten": {
+                "lezen": true,
+                "wijzigen": false,
+                "verwijderen": false,
+                "vergrendelen": false,
+                "ontgrendelen": true,
+                "ondertekenen": false,
+                "toevoegenNieuweVersie": false,
+                "converteren": true
+              },
+              "indicaties": [
+                "ONDERTEKEND",
+                "VERGRENDELD"
+              ]
+            },
+            {
+              "titel": "string",
+              "informatieobjectTypeUUID": "EfF68C38-91Ff-5f3b-fAc2-1094F85eEe9F",
+              "file": "string",
+              "bestandsnaam": "string",
+              "uuid": "6bBFeFca-F6C8-7Af6-2fba-b7F8D2c082C8",
+              "identificatie": "string",
+              "beschrijving": "string",
+              "creatiedatum": "1975-04-07",
+              "registratiedatumTijd": "1998-08-07T02:09:31.594Z",
+              "ontvangstdatum": "1990-11-05",
+              "verzenddatum": "1984-07-22",
+              "bronorganisatie": "string",
+              "vertrouwelijkheidaanduiding": "string",
+              "auteur": "string",
+              "status": "TER_VASTSTELLING",
+              "formaat": "string",
+              "bestandsomvang": 9703,
+              "taal": "string",
+              "versie": 1773,
+              "informatieobjectTypeOmschrijving": "string",
+              "link": "string",
+              "ondertekening": {
+                "soort": "string",
+                "datum": "2007-03-31"
+              },
+              "indicatieGebruiksrecht": true,
+              "gelockedDoor": {
+                "id": "string",
+                "naam": "string"
+              },
+              "isBesluitDocument": false,
+              "rechten": {
+                "lezen": false,
+                "wijzigen": true,
+                "verwijderen": true,
+                "vergrendelen": false,
+                "ontgrendelen": true,
+                "ondertekenen": false,
+                "toevoegenNieuweVersie": false,
+                "converteren": false
+              },
+              "indicaties": [
+                "GEBRUIKSRECHT",
+                "VERZONDEN"
+              ]
+            }
+          ]

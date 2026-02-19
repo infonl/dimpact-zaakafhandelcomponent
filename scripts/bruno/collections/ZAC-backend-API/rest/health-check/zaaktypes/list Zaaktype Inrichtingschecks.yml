@@ -1,0 +1,97 @@
+info:
+  name: list Zaaktype Inrichtingschecks
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/health-check/zaaktypes"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/health-check/zaaktypes"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "zaaktype": {
+                "uuid": "A73aa2aA-3a57-F95c-b4DF-3cf7Fb1eA68c",
+                "identificatie": null,
+                "doel": "string",
+                "omschrijving": null,
+                "servicenorm": false,
+                "versiedatum": null,
+                "beginGeldigheid": null,
+                "eindeGeldigheid": null,
+                "vertrouwelijkheidaanduiding": "ZEER_GEHEIM",
+                "nuGeldig": true
+              },
+              "statustypeIntakeAanwezig": false,
+              "statustypeInBehandelingAanwezig": true,
+              "statustypeHeropendAanwezig": true,
+              "statustypeAanvullendeInformatieVereist": true,
+              "statustypeAfgerondAanwezig": true,
+              "statustypeAfgerondLaatsteVolgnummer": false,
+              "resultaattypeAanwezig": true,
+              "aantalInitiatorroltypen": 687,
+              "aantalBehandelaarroltypen": 291,
+              "rolOverigeAanwezig": false,
+              "informatieobjecttypeEmailAanwezig": false,
+              "besluittypeAanwezig": true,
+              "resultaattypesMetVerplichtBesluit": null,
+              "zaakafhandelParametersValide": true,
+              "brpInstellingenCorrect": true,
+              "valide": false
+            },
+            {
+              "zaaktype": {
+                "uuid": "1Bbde8e2-2db2-0FcB-c72D-523F02Fc01fb",
+                "identificatie": "string",
+                "doel": "string",
+                "omschrijving": "string",
+                "servicenorm": false,
+                "versiedatum": "1964-11-30",
+                "beginGeldigheid": null,
+                "eindeGeldigheid": "1993-01-24",
+                "vertrouwelijkheidaanduiding": "VERTROUWELIJK",
+                "nuGeldig": true
+              },
+              "statustypeIntakeAanwezig": true,
+              "statustypeInBehandelingAanwezig": false,
+              "statustypeHeropendAanwezig": true,
+              "statustypeAanvullendeInformatieVereist": false,
+              "statustypeAfgerondAanwezig": false,
+              "statustypeAfgerondLaatsteVolgnummer": true,
+              "resultaattypeAanwezig": false,
+              "aantalInitiatorroltypen": 5048,
+              "aantalBehandelaarroltypen": 7475,
+              "rolOverigeAanwezig": false,
+              "informatieobjecttypeEmailAanwezig": false,
+              "besluittypeAanwezig": true,
+              "resultaattypesMetVerplichtBesluit": null,
+              "zaakafhandelParametersValide": false,
+              "brpInstellingenCorrect": true,
+              "valide": false
+            }
+          ]

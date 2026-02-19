@@ -1,0 +1,52 @@
+info:
+  name: verplaats Enkelvoudig Informatieobject
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/verplaats"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "INBOX_DOCUMENTEN": "string",
+        "ONTKOPPELDE_DOCUMENTEN": "string",
+        "documentUUID": "8CfBCAc3-cF5c-6eE2-797e-90ff75AEd8bC",
+        "bron": "string",
+        "nieuweZaakID": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: Created
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/verplaats"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "INBOX_DOCUMENTEN": "string",
+            "ONTKOPPELDE_DOCUMENTEN": "string",
+            "documentUUID": "8CfBCAc3-cF5c-6eE2-797e-90ff75AEd8bC",
+            "bron": "string",
+            "nieuweZaakID": "string"
+          }
+    response:
+      statusText: "201"
+      body:
+        type: text
+        data: ""

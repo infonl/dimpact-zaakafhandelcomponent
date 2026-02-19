@@ -1,0 +1,76 @@
+info:
+  name: delete
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/rest/bag"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "uuid": "42745748-1DAf-A3cE-DACe-DF60dCf3cD06",
+        "zaakUuid": "4Da2bF2a-9E9a-c8eB-E8d8-ba86cB3abC1c",
+        "zaakobject": {
+          "url": "https://xFDCGdQRPLXUXymJTtduugrwF.mxkBOUt-3bR+bJm+joEkd5yIiLUqSzvJFdVKeV",
+          "identificatie": "string",
+          "geconstateerd": true,
+          "bagObjectType": "PAND",
+          "omschrijving": "string"
+        },
+        "redenWijzigen": "string",
+        "bagObject": {
+          "url": "https://rjqHKeKJxfoxiw.yqoEE9,93N",
+          "identificatie": "string",
+          "geconstateerd": true,
+          "bagObjectType": "NUMMERAANDUIDING",
+          "omschrijving": "string"
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/bag"
+      method: DELETE
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "uuid": "42745748-1DAf-A3cE-DACe-DF60dCf3cD06",
+            "zaakUuid": "4Da2bF2a-9E9a-c8eB-E8d8-ba86cB3abC1c",
+            "zaakobject": {
+              "url": "https://xFDCGdQRPLXUXymJTtduugrwF.mxkBOUt-3bR+bJm+joEkd5yIiLUqSzvJFdVKeV",
+              "identificatie": "string",
+              "geconstateerd": true,
+              "bagObjectType": "PAND",
+              "omschrijving": "string"
+            },
+            "redenWijzigen": "string",
+            "bagObject": {
+              "url": "https://rjqHKeKJxfoxiw.yqoEE9,93N",
+              "identificatie": "string",
+              "geconstateerd": true,
+              "bagObjectType": "NUMMERAANDUIDING",
+              "omschrijving": "string"
+            }
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

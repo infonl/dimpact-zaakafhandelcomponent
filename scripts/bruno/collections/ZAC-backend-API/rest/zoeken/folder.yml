@@ -1,0 +1,7 @@
+info:
+  name: zoeken
+  type: folder
+  seq: 32
+
+request:
+  auth: inherit

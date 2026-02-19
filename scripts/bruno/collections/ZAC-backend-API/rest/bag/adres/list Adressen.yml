@@ -1,0 +1,410 @@
+info:
+  name: list Adressen
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/bag/adres"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "type": "NUMMERAANDUIDING",
+        "trefwoorden": "string",
+        "postcode": "string",
+        "huisnummer": 610
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/bag/adres"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "type": "NUMMERAANDUIDING",
+            "trefwoorden": "string",
+            "postcode": "string",
+            "huisnummer": 610
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "resultaten": [
+              {
+                "url": "http://fZKYBrZcPFrsiQMLGcIrZ.ulbBRDWW,xHcUbTFn,8GykAjMp2bM+.wEQTcwF9zR+dib+FpTWWOm165KHMolSFF",
+                "identificatie": "string",
+                "geconstateerd": false,
+                "postcode": "string",
+                "huisnummerWeergave": "string",
+                "huisnummer": 9147,
+                "huisletter": "string",
+                "huisnummertoevoeging": "string",
+                "openbareRuimteNaam": "string",
+                "woonplaatsNaam": "string",
+                "openbareRuimte": {
+                  "url": "https://jylfJQcFwJHjs.sdjTiQ0MLxh,iNL67K0nIoNjO.JN7CDu5mCW1ffRqL2gORcaMlq5,.TNQUUoQ",
+                  "identificatie": "string",
+                  "geconstateerd": true,
+                  "naam": "string",
+                  "type": "LANDSCHAPPELIJK_GEBIED",
+                  "typeWeergave": "string",
+                  "status": "NAAMGEVING_INGETROKKEN",
+                  "woonplaatsNaam": "string",
+                  "woonplaats": {
+                    "url": "http://gwchYxJDoXvLvRBMmuCSsvYMAZsbKe.hoqbSnaMHuNBPdr,wOZgtyekEsgka4OKMgXoNaj,.LmkkWHY,uaXlg5VViNuxscz+vO2",
+                    "identificatie": "string",
+                    "geconstateerd": false,
+                    "naam": "string",
+                    "status": "WOONPLAATS_INGETROKKEN",
+                    "bagObjectType": "OPENBARE_RUIMTE",
+                    "omschrijving": "string"
+                  },
+                  "bagObjectType": "NUMMERAANDUIDING",
+                  "omschrijving": "string"
+                },
+                "nummeraanduiding": {
+                  "url": "https://JUpG.ampdqsGLuA7SV+Q1GbNMjul6lNGwI2QMlix-pLczI.H5j59MKWrAyPxDJ,XHifc",
+                  "identificatie": "string",
+                  "geconstateerd": false,
+                  "huisnummerWeergave": "string",
+                  "huisnummer": 6996,
+                  "huisletter": "string",
+                  "huisnummertoevoeging": "string",
+                  "postcode": "string",
+                  "typeAdresseerbaarObject": "VERBLIJFSOBJECT",
+                  "status": "NAAMGEVING_UITGEGEVEN",
+                  "woonplaats": {
+                    "url": "http://UYouHsUtrrvQkeBuDoHR.vqlzjrGvCd3KPRyqihq-pes+P,4hmw.rPl3tDSRaIv",
+                    "identificatie": "string",
+                    "geconstateerd": false,
+                    "naam": "string",
+                    "status": "WOONPLAATS_INGETROKKEN",
+                    "bagObjectType": "ADRESSEERBAAR_OBJECT",
+                    "omschrijving": "string"
+                  },
+                  "openbareRuimte": {
+                    "url": "http://SkofkGPLQVzyIOx.joq6hjAxW3uDBEsbWDTef",
+                    "identificatie": "string",
+                    "geconstateerd": true,
+                    "naam": "string",
+                    "type": "ADMINISTRATIEF_GEBIED",
+                    "typeWeergave": "string",
+                    "status": "NAAMGEVING_INGETROKKEN",
+                    "woonplaatsNaam": "string",
+                    "woonplaats": {
+                      "url": "http://rYfBzPqi.otvzMM8tnvSwSJrTi7dU6DuV5btMWo",
+                      "identificatie": "string",
+                      "geconstateerd": false,
+                      "naam": "string",
+                      "status": "WOONPLAATS_AANGEWEZEN",
+                      "bagObjectType": "WOONPLAATS",
+                      "omschrijving": "string"
+                    },
+                    "bagObjectType": "NUMMERAANDUIDING",
+                    "omschrijving": "string"
+                  },
+                  "bagObjectType": "ADRES",
+                  "omschrijving": "string"
+                },
+                "woonplaats": {
+                  "url": "http://EZoTYmFPjCjJSoBuSGv.sgttVD3UC1+yU8jEZDjHFjduxzvVu.Esoop83O8HfDBH",
+                  "identificatie": "string",
+                  "geconstateerd": false,
+                  "naam": "string",
+                  "status": "WOONPLAATS_AANGEWEZEN",
+                  "bagObjectType": "ADRES",
+                  "omschrijving": "string"
+                },
+                "adresseerbaarObject": {
+                  "url": "http://nP.kgcv3CSlmi+XTvLnCGT-A1",
+                  "identificatie": "string",
+                  "geconstateerd": true,
+                  "typeAdresseerbaarObject": "VERBLIJFSOBJECT",
+                  "status": "string",
+                  "vboDoel": "string",
+                  "vboOppervlakte": 2481,
+                  "geometry": {
+                    "type": "string",
+                    "point": null,
+                    "geometrycollection": null
+                  },
+                  "bagObjectType": "OPENBARE_RUIMTE",
+                  "omschrijving": "string"
+                },
+                "panden": [
+                  {
+                    "url": "https://IntdQVlEOghWtTULPPlBwaHFEm.zvolXvb4GFgdyRE.AX9PTLk",
+                    "identificatie": "string",
+                    "geconstateerd": true,
+                    "oorspronkelijkBouwjaar": "string",
+                    "status": "VERBOUWING_PAND",
+                    "statusWeergave": "string",
+                    "geometry": {
+                      "type": "string",
+                      "point": {
+                        "longitude": 2145.736660495203,
+                        "latitude": 6714.616251876478
+                      },
+                      "polygon": null,
+                      "geometrycollection": [
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        },
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        }
+                      ]
+                    },
+                    "bagObjectType": "OPENBARE_RUIMTE",
+                    "omschrijving": "string"
+                  },
+                  {
+                    "url": "https://qEuAwCfqiYs.gmjtEogHJKebvmS5.AnHyTBrVsbSVXseNC7VC",
+                    "identificatie": "string",
+                    "geconstateerd": false,
+                    "oorspronkelijkBouwjaar": "string",
+                    "status": "BOUW_GESTART",
+                    "statusWeergave": "string",
+                    "geometry": {
+                      "type": "string",
+                      "point": {
+                        "longitude": 6106.692684679744,
+                        "latitude": 1813.109016547918
+                      },
+                      "polygon": null,
+                      "geometrycollection": [
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        },
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        }
+                      ]
+                    },
+                    "bagObjectType": "WOONPLAATS",
+                    "omschrijving": "string"
+                  }
+                ],
+                "bagObjectType": "NUMMERAANDUIDING",
+                "omschrijving": "string",
+                "geometry": {
+                  "type": "string",
+                  "point": null,
+                  "geometrycollection": [
+                    {
+                      "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                    },
+                    {
+                      "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "http://SyVpxUHCFCkdsjXIQMdpQKcxZTbHIxD.pahyyUnU2GNNCdrnnf5F",
+                "identificatie": "string",
+                "geconstateerd": true,
+                "postcode": "string",
+                "huisnummerWeergave": "string",
+                "huisnummer": 637,
+                "huisletter": "string",
+                "huisnummertoevoeging": "string",
+                "openbareRuimteNaam": "string",
+                "woonplaatsNaam": "string",
+                "openbareRuimte": {
+                  "url": "http://OAABc.dnurRsxe0SoksKcunuKq6JbIw.JoOS+MHUy2.HS0mpe1t2EKI",
+                  "identificatie": "string",
+                  "geconstateerd": true,
+                  "naam": "string",
+                  "type": "LANDSCHAPPELIJK_GEBIED",
+                  "typeWeergave": "string",
+                  "status": "NAAMGEVING_INGETROKKEN",
+                  "woonplaatsNaam": "string",
+                  "woonplaats": {
+                    "url": "http://GWiXkNMLLHTmtOQFOcmlVROUnS.xdlI52JBUMgubrRS1,gEsP.OYLEnWQpZb9WuPTCtEaLTn",
+                    "identificatie": "string",
+                    "geconstateerd": false,
+                    "naam": "string",
+                    "status": "WOONPLAATS_INGETROKKEN",
+                    "bagObjectType": "WOONPLAATS",
+                    "omschrijving": "string"
+                  },
+                  "bagObjectType": "WOONPLAATS",
+                  "omschrijving": "string"
+                },
+                "nummeraanduiding": {
+                  "url": "http://uNEIchGxSdAqTKwYpBCeZm.iwaqoulD4rlG3.0stHIVf5PnAukKk9hrrgZTDgm",
+                  "identificatie": "string",
+                  "geconstateerd": false,
+                  "huisnummerWeergave": "string",
+                  "huisnummer": 1607,
+                  "huisletter": "string",
+                  "huisnummertoevoeging": "string",
+                  "postcode": "string",
+                  "typeAdresseerbaarObject": "VERBLIJFSOBJECT",
+                  "status": "NAAMGEVING_UITGEGEVEN",
+                  "woonplaats": {
+                    "url": "https://liLETqRoRjPEV.bolW6yy5YnQ",
+                    "identificatie": "string",
+                    "geconstateerd": true,
+                    "naam": "string",
+                    "status": "WOONPLAATS_AANGEWEZEN",
+                    "bagObjectType": "PAND",
+                    "omschrijving": "string"
+                  },
+                  "openbareRuimte": {
+                    "url": "http://ibQyBfnLExLox.lzMNct+s1.xxyU0kCXANUJmDcj9PnBEsgmNKldpba4d.vd3,I",
+                    "identificatie": "string",
+                    "geconstateerd": true,
+                    "naam": "string",
+                    "type": "ADMINISTRATIEF_GEBIED",
+                    "typeWeergave": "string",
+                    "status": "NAAMGEVING_UITGEGEVEN",
+                    "woonplaatsNaam": "string",
+                    "woonplaats": {
+                      "url": "http://jZLQDcSOvRYuJUaVQZCtcklJJBn.halL83,3bY1",
+                      "identificatie": "string",
+                      "geconstateerd": false,
+                      "naam": "string",
+                      "status": "WOONPLAATS_INGETROKKEN",
+                      "bagObjectType": "PAND",
+                      "omschrijving": "string"
+                    },
+                    "bagObjectType": "ADRES",
+                    "omschrijving": "string"
+                  },
+                  "bagObjectType": "ADRESSEERBAAR_OBJECT",
+                  "omschrijving": "string"
+                },
+                "woonplaats": {
+                  "url": "https://OrAYvVcNkMGVn.dzjg5z",
+                  "identificatie": "string",
+                  "geconstateerd": true,
+                  "naam": "string",
+                  "status": "WOONPLAATS_AANGEWEZEN",
+                  "bagObjectType": "ADRES",
+                  "omschrijving": "string"
+                },
+                "adresseerbaarObject": {
+                  "url": "http://MQhOcm.lgJYxWARDwtCLKN",
+                  "identificatie": "string",
+                  "geconstateerd": true,
+                  "typeAdresseerbaarObject": "STANDPLAATS",
+                  "status": "string",
+                  "vboDoel": "string",
+                  "vboOppervlakte": 3504,
+                  "geometry": {
+                    "type": "string",
+                    "point": {
+                      "longitude": 6499.236177192205,
+                      "latitude": 793.9884843629042
+                    },
+                    "geometrycollection": [
+                      {
+                        "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                      },
+                      {
+                        "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                      }
+                    ]
+                  },
+                  "bagObjectType": "WOONPLAATS",
+                  "omschrijving": "string"
+                },
+                "panden": [
+                  {
+                    "url": "http://nrf.unGl9jAQvDUiUmkhLWnt8R6xk",
+                    "identificatie": "string",
+                    "geconstateerd": true,
+                    "oorspronkelijkBouwjaar": "string",
+                    "status": "NIET_GEREALISEERD_PAND",
+                    "statusWeergave": "string",
+                    "geometry": {
+                      "type": "string",
+                      "point": null,
+                      "polygon": null,
+                      "geometrycollection": [
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        },
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        }
+                      ]
+                    },
+                    "bagObjectType": "ADRES",
+                    "omschrijving": "string"
+                  },
+                  {
+                    "url": "https://gXEzIySIjnQsCGtQYjTkLnlmJnelBhU.sqmkO.7OkMNvy8uhBVYdkp34iisE-,nm4iUFshGkfXb6bmfdX156vLzYy",
+                    "identificatie": "string",
+                    "geconstateerd": false,
+                    "oorspronkelijkBouwjaar": "string",
+                    "status": "PAND_IN_GEBRUIK_NIET_INGEMETEN_",
+                    "statusWeergave": "string",
+                    "geometry": {
+                      "type": "string",
+                      "point": {
+                        "longitude": 7559.788021913192,
+                        "latitude": 6546.070838517681
+                      },
+                      "geometrycollection": [
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        },
+                        {
+                          "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                        }
+                      ]
+                    },
+                    "bagObjectType": "PAND",
+                    "omschrijving": "string"
+                  }
+                ],
+                "bagObjectType": "OPENBARE_RUIMTE",
+                "omschrijving": "string",
+                "geometry": {
+                  "type": "string",
+                  "point": null,
+                  "polygon": null,
+                  "geometrycollection": [
+                    {
+                      "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                    },
+                    {
+                      "value": "<Circular reference to #/components/schemas/RestGeometry detected>"
+                    }
+                  ]
+                }
+              }
+            ],
+            "totaal": 7431,
+            "foutmelding": "string"
+          }

@@ -1,0 +1,7 @@
+info:
+  name: smartdocuments-template-group
+  type: folder
+  seq: 6
+
+request:
+  auth: inherit

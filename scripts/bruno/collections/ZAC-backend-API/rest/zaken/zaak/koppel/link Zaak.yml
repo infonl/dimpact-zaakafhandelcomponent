@@ -1,0 +1,50 @@
+info:
+  name: link Zaak
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/rest/zaken/zaak/koppel"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "zaakUuid": "2Fedd6A4-D110-2F0F-e3e4-daF6FaDAA590",
+        "teKoppelenZaakUuid": "f7FB47AC-21a5-4C81-D5bE-43e0c9D357BE",
+        "relatieType": "DEELZAAK",
+        "reverseRelatieType": "HOOFDZAAK"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/zaken/zaak/koppel"
+      method: PATCH
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "zaakUuid": "2Fedd6A4-D110-2F0F-e3e4-daF6FaDAA590",
+            "teKoppelenZaakUuid": "f7FB47AC-21a5-4C81-D5bE-43e0c9D357BE",
+            "relatieType": "DEELZAAK",
+            "reverseRelatieType": "HOOFDZAAK"
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

@@ -1,0 +1,56 @@
+info:
+  name: send Document
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecten/verzenden"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "zaakUuid": "3ec258EA-C08B-Ac4E-1fCe-5db2F85aeeCA",
+        "verzenddatum": "1998-01-04",
+        "informatieobjecten": [
+          "369A61c4-093e-Fcb4-abfa-dc3fCAB8bb71",
+          "C6795d00-8efD-59EC-a1a7-398Da3cF5Bcc"
+        ],
+        "toelichting": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: Created
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobjecten/verzenden"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "zaakUuid": "3ec258EA-C08B-Ac4E-1fCe-5db2F85aeeCA",
+            "verzenddatum": "1998-01-04",
+            "informatieobjecten": [
+              "369A61c4-093e-Fcb4-abfa-dc3fCAB8bb71",
+              "C6795d00-8efD-59EC-a1a7-398Da3cF5Bcc"
+            ],
+            "toelichting": "string"
+          }
+    response:
+      statusText: "201"
+      body:
+        type: text
+        data: ""

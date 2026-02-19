@@ -1,0 +1,233 @@
+info:
+  name: list Tasks For Zaak
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/taken/zaak/:zaakUUID"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: zaakUUID
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/taken/zaak/:zaakUUID"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: zaakUUID
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "zaakUuid": "BcEF76E3-4d13-AedB-3d2d-6C614f749a8A",
+              "zaakIdentificatie": "string",
+              "tabellen": {
+                "key_0": [
+                  "string",
+                  "string"
+                ],
+                "key_1": [
+                  "string",
+                  "string"
+                ],
+                "key_2": [
+                  "string",
+                  "string"
+                ]
+              },
+              "rechten": {
+                "lezen": false,
+                "wijzigen": false,
+                "toekennen": true,
+                "toevoegenDocument": false
+              },
+              "id": null,
+              "naam": null,
+              "toelichting": "string",
+              "creatiedatumTijd": "1984-09-24T19:38:06.844Z",
+              "toekenningsdatumTijd": "1963-07-23T19:50:35.519Z",
+              "fataledatum": "2024-10-29",
+              "behandelaar": {
+                "id": "string",
+                "naam": "string"
+              },
+              "groep": {
+                "id": "string",
+                "naam": "string"
+              },
+              "zaaktypeOmschrijving": null,
+              "zaaktypeUUID": "0D01FEDE-f87b-6801-3EEA-bAC3eDaB4fd4",
+              "status": "NIET_TOEGEKEND",
+              "formulierDefinitieId": "string",
+              "formulierDefinitie": {
+                "veldDefinities": [
+                  {
+                    "id": 5167,
+                    "systeemnaam": "string",
+                    "volgorde": 2719,
+                    "label": "string",
+                    "veldtype": "MEDEWERKER_KEUZELIJST",
+                    "beschrijving": null,
+                    "helptekst": null,
+                    "verplicht": true,
+                    "defaultWaarde": null,
+                    "meerkeuzeOpties": null,
+                    "validaties": [
+                      "string",
+                      "string"
+                    ]
+                  },
+                  {
+                    "id": null,
+                    "systeemnaam": null,
+                    "volgorde": 8461,
+                    "label": null,
+                    "veldtype": "DATUM",
+                    "beschrijving": null,
+                    "helptekst": "string",
+                    "verplicht": false,
+                    "defaultWaarde": null,
+                    "meerkeuzeOpties": "string",
+                    "validaties": null
+                  }
+                ],
+                "id": 7681,
+                "systeemnaam": "string",
+                "naam": null,
+                "beschrijving": null,
+                "uitleg": "string",
+                "creatiedatum": "1946-07-28T13:19:54.689Z",
+                "wijzigingsdatum": "1974-03-28T17:50:19.823Z"
+              },
+              "formioFormulier": {
+                "key_0": {
+                  "valueType": "ARRAY"
+                }
+              },
+              "taakdata": {
+                "key_0": false,
+                "key_1": 863.9131433533454
+              },
+              "taakinformatie": null,
+              "taakdocumenten": [
+                "D3EE8367-DEBF-bD27-02af-cFc8BfDD9BF2",
+                "E46a34A2-7dFc-BBCf-CFC8-E24f1aeB69b0"
+              ]
+            },
+            {
+              "zaakUuid": "485508DC-15dB-2B57-8149-63EEEeaFF4cB",
+              "zaakIdentificatie": "string",
+              "tabellen": {
+                "key_0": [
+                  "string",
+                  "string"
+                ],
+                "key_1": [
+                  "string",
+                  "string"
+                ]
+              },
+              "rechten": {
+                "lezen": false,
+                "wijzigen": true,
+                "toekennen": true,
+                "toevoegenDocument": false
+              },
+              "id": null,
+              "naam": "string",
+              "toelichting": "string",
+              "creatiedatumTijd": "2024-02-04T12:08:12.175Z",
+              "toekenningsdatumTijd": "2014-04-14T06:58:12.390Z",
+              "fataledatum": "2025-09-20",
+              "behandelaar": {
+                "id": "string",
+                "naam": "string"
+              },
+              "groep": {
+                "id": "string",
+                "naam": "string"
+              },
+              "zaaktypeOmschrijving": "string",
+              "zaaktypeUUID": "C3BDA263-1f03-f0DD-e6Ca-CfDEca354058",
+              "status": "AFGEROND",
+              "formulierDefinitieId": "string",
+              "formulierDefinitie": {
+                "veldDefinities": [
+                  {
+                    "id": 8226,
+                    "systeemnaam": "string",
+                    "volgorde": 6796,
+                    "label": null,
+                    "veldtype": "GROEP_KEUZELIJST",
+                    "beschrijving": "string",
+                    "helptekst": null,
+                    "verplicht": false,
+                    "defaultWaarde": "string",
+                    "meerkeuzeOpties": "string",
+                    "validaties": null
+                  },
+                  {
+                    "id": null,
+                    "systeemnaam": "string",
+                    "volgorde": 4889,
+                    "label": null,
+                    "veldtype": "DOCUMENTEN_LIJST",
+                    "beschrijving": null,
+                    "helptekst": null,
+                    "verplicht": false,
+                    "defaultWaarde": null,
+                    "meerkeuzeOpties": "string",
+                    "validaties": [
+                      "string",
+                      "string"
+                    ]
+                  }
+                ],
+                "id": 1008,
+                "systeemnaam": "string",
+                "naam": "string",
+                "beschrijving": null,
+                "uitleg": null,
+                "creatiedatum": "2024-09-17T05:00:40.363Z",
+                "wijzigingsdatum": null
+              },
+              "formioFormulier": null,
+              "taakdata": {
+                "key_0": 8105.002680119555,
+                "key_1": false,
+                "key_2": 9606,
+                "key_3": "string"
+              },
+              "taakinformatie": {
+                "key_0": "string"
+              },
+              "taakdocumenten": [
+                "98CA6C54-411E-2049-eD07-f56Ef2a82Aec",
+                "9CF3aa51-8E1c-E555-Ca61-27bee2a20b2B"
+              ]
+            }
+          ]

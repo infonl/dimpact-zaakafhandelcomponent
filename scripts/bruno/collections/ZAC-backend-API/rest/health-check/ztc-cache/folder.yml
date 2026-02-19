@@ -1,0 +1,7 @@
+info:
+  name: ztc-cache
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit

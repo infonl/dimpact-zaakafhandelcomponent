@@ -1,0 +1,52 @@
+info:
+  name: do Process Taskplan Item
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/rest/planitems/doProcessTaskPlanItem"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "planItemInstanceId": "string",
+        "data": {
+          "key_0": 2349.17762968921,
+          "key_1": 862.0294257187954
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: Created
+    request:
+      url: "{{baseUrl}}/rest/planitems/doProcessTaskPlanItem"
+      method: POST
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "planItemInstanceId": "string",
+            "data": {
+              "key_0": 2349.17762968921,
+              "key_1": 862.0294257187954
+            }
+          }
+    response:
+      statusText: "201"
+      body:
+        type: text
+        data: ""

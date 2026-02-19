@@ -1,0 +1,61 @@
+info:
+  name: listkoppelbare Mailtemplates
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/beheer/mailtemplates/koppelbaar"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/beheer/mailtemplates/koppelbaar"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "mailTemplateNaam": "`",
+              "onderwerp": "N",
+              "body": "+",
+              "mail": "TAAK_AANVULLENDE_INFORMATIE",
+              "id": 7791,
+              "variabelen": [
+                "ZAAK_OMSCHRIJVING",
+                "ZAAK_STATUS"
+              ],
+              "defaultMailtemplate": false
+            },
+            {
+              "mailTemplateNaam": "@",
+              "onderwerp": "Y",
+              "body": "i",
+              "mail": "SIGNALERING_ZAAK_OP_NAAM",
+              "id": 5962,
+              "variabelen": [
+                "ZAAK_URL",
+                "TAAK_URL"
+              ],
+              "defaultMailtemplate": true
+            }
+          ]

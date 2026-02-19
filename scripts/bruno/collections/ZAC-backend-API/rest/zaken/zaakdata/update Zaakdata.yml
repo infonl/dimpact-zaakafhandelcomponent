@@ -1,0 +1,50 @@
+info:
+  name: update Zaakdata
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/zaken/zaakdata"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "uuid": "8faD5c8D-cfD5-3D6e-5BC0-94D5f65c8F00",
+        "zaakdata": {
+          "key_0": 1101.8064705066076
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: No Content
+    request:
+      url: "{{baseUrl}}/rest/zaken/zaakdata"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "uuid": "8faD5c8D-cfD5-3D6e-5BC0-94D5f65c8F00",
+            "zaakdata": {
+              "key_0": 1101.8064705066076
+            }
+          }
+    response:
+      statusText: "204"
+      body:
+        type: text
+        data: ""

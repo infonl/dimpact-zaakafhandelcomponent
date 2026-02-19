@@ -1,0 +1,7 @@
+info:
+  name: zaaktype-bpmn-configuration
+  type: folder
+  seq: 30
+
+request:
+  auth: inherit

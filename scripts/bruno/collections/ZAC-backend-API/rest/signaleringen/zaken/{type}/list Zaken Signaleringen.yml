@@ -1,0 +1,156 @@
+info:
+  name: list Zaken Signaleringen
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/signaleringen/zaken/:type"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  params:
+    - name: type
+      value: ZAAK_DOCUMENT_TOEGEVOEGD
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "page": 7360,
+        "rows": 3833
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/signaleringen/zaken/:type"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      params:
+        - name: type
+          value: ZAAK_DOCUMENT_TOEGEVOEGD
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "page": 7360,
+            "rows": 3833
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "resultaten": [
+              {
+                "identificatie": null,
+                "toelichting": null,
+                "omschrijving": "string",
+                "uuid": "40B4cEbD-c4aC-1706-e933-cd7d69eb1B4e",
+                "startdatum": null,
+                "einddatum": "1983-07-18",
+                "zaaktype": null,
+                "status": null,
+                "behandelaar": {
+                  "id": "string",
+                  "naam": "string"
+                },
+                "einddatumGepland": "1968-11-27",
+                "uiterlijkeEinddatumAfdoening": null,
+                "groep": {
+                  "id": "string",
+                  "naam": "string"
+                },
+                "resultaat": {
+                  "toelichting": null,
+                  "resultaattype": null
+                },
+                "openstaandeTaken": {
+                  "taakNamen": null,
+                  "aantalOpenstaandeTaken": 8562
+                },
+                "rechten": {
+                  "lezen": false,
+                  "wijzigen": true,
+                  "toekennen": false,
+                  "behandelen": false,
+                  "afbreken": false,
+                  "heropenen": false,
+                  "bekijkenZaakdata": false,
+                  "wijzigenDoorlooptijd": true,
+                  "toevoegenBagObject": true,
+                  "toevoegenBetrokkeneBedrijf": false,
+                  "toevoegenBetrokkenePersoon": false,
+                  "toevoegenInitiatorBedrijf": true,
+                  "toevoegenInitiatorPersoon": false,
+                  "versturenOntvangstbevestiging": false,
+                  "verwijderenBetrokkene": false,
+                  "verwijderenInitiator": false,
+                  "creerenDocument": false,
+                  "versturenEmail": true,
+                  "wijzigenLocatie": true
+                }
+              },
+              {
+                "identificatie": "string",
+                "toelichting": "string",
+                "omschrijving": "string",
+                "uuid": null,
+                "startdatum": null,
+                "einddatum": null,
+                "zaaktype": "string",
+                "status": "string",
+                "behandelaar": null,
+                "einddatumGepland": "1981-12-04",
+                "uiterlijkeEinddatumAfdoening": null,
+                "groep": null,
+                "resultaat": {
+                  "toelichting": null,
+                  "resultaattype": null
+                },
+                "openstaandeTaken": null,
+                "rechten": {
+                  "lezen": true,
+                  "wijzigen": false,
+                  "toekennen": false,
+                  "behandelen": false,
+                  "afbreken": false,
+                  "heropenen": true,
+                  "bekijkenZaakdata": true,
+                  "wijzigenDoorlooptijd": true,
+                  "toevoegenBagObject": false,
+                  "toevoegenBetrokkeneBedrijf": false,
+                  "toevoegenBetrokkenePersoon": false,
+                  "toevoegenInitiatorBedrijf": true,
+                  "toevoegenInitiatorPersoon": false,
+                  "versturenOntvangstbevestiging": false,
+                  "verwijderenBetrokkene": true,
+                  "verwijderenInitiator": true,
+                  "creerenDocument": true,
+                  "versturenEmail": false,
+                  "wijzigenLocatie": true
+                }
+              }
+            ],
+            "totaal": 1711,
+            "foutmelding": "string"
+          }

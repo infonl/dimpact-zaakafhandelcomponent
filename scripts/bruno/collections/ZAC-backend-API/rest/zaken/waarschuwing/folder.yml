@@ -1,0 +1,7 @@
+info:
+  name: waarschuwing
+  type: folder
+  seq: 11
+
+request:
+  auth: inherit

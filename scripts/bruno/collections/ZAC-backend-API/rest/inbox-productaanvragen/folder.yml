@@ -1,0 +1,7 @@
+info:
+  name: inbox-productaanvragen
+  type: folder
+  seq: 13
+
+request:
+  auth: inherit

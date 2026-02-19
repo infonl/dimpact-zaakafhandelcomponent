@@ -1,0 +1,54 @@
+info:
+  name: delete Enkelvoudig Informatie Object
+  type: http
+  seq: 13
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "zaakUuid": "b330335D-b5ba-989b-d546-23B03D4AC449",
+        "reden": "string"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid"
+      method: DELETE
+      headers:
+        - name: Content-Type
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "zaakUuid": "b330335D-b5ba-989b-d546-23B03D4AC449",
+            "reden": "string"
+          }
+    response:
+      statusText: "200"
+      body:
+        type: text
+        data: ""

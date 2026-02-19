@@ -1,0 +1,51 @@
+info:
+  name: list Talen
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/configuratie/talen"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/configuratie/talen"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "string",
+              "code": "string",
+              "naam": "string",
+              "name": "string",
+              "local": "string"
+            },
+            {
+              "id": "string",
+              "code": "string",
+              "naam": "string",
+              "name": "string",
+              "local": "string"
+            }
+          ]

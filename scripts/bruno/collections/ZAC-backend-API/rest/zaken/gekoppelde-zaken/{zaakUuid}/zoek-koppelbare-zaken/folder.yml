@@ -1,0 +1,7 @@
+info:
+  name: zoek-koppelbare-zaken
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

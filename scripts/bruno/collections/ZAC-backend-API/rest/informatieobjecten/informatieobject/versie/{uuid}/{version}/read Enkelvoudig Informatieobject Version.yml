@@ -1,0 +1,96 @@
+info:
+  name: read Enkelvoudig Informatieobject Version
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/versie/:uuid/:version"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+    - name: version
+      value: "5353"
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/informatieobject/versie/:uuid/:version"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+        - name: version
+          value: "5353"
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "titel": "string",
+            "informatieobjectTypeUUID": "cdE845c9-8CBD-af4f-5Cf2-bbd9641B678b",
+            "file": "string",
+            "bestandsnaam": "string",
+            "uuid": "1Adb68ef-9229-FBce-0aA8-0fABcf7A40Bc",
+            "identificatie": "string",
+            "beschrijving": "string",
+            "creatiedatum": "1980-07-18",
+            "registratiedatumTijd": "1964-07-04T11:27:35.183Z",
+            "ontvangstdatum": "1966-02-13",
+            "verzenddatum": "1980-06-13",
+            "bronorganisatie": "string",
+            "vertrouwelijkheidaanduiding": "string",
+            "auteur": "string",
+            "status": "DEFINITIEF",
+            "formaat": "string",
+            "bestandsomvang": 609,
+            "taal": "string",
+            "versie": 4098,
+            "informatieobjectTypeOmschrijving": "string",
+            "link": "string",
+            "ondertekening": {
+              "soort": "string",
+              "datum": "1950-03-16"
+            },
+            "indicatieGebruiksrecht": false,
+            "gelockedDoor": {
+              "id": "string",
+              "naam": "string"
+            },
+            "isBesluitDocument": true,
+            "rechten": {
+              "lezen": true,
+              "wijzigen": true,
+              "verwijderen": true,
+              "vergrendelen": false,
+              "ontgrendelen": false,
+              "ondertekenen": true,
+              "toevoegenNieuweVersie": true,
+              "converteren": true
+            },
+            "indicaties": [
+              "VERGRENDELD",
+              "BESLUIT"
+            ]
+          }

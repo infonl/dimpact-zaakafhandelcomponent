@@ -1,0 +1,7 @@
+info:
+  name: betrokkene
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit

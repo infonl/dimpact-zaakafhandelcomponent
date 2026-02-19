@@ -1,0 +1,7 @@
+info:
+  name: indexeren
+  type: folder
+  seq: 15
+
+request:
+  auth: inherit

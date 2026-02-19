@@ -1,0 +1,7 @@
+info:
+  name: historie
+  type: folder
+  seq: 6
+
+request:
+  auth: inherit

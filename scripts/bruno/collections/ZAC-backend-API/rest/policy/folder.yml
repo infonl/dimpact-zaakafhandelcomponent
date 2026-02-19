@@ -1,0 +1,7 @@
+info:
+  name: policy
+  type: folder
+  seq: 25
+
+request:
+  auth: inherit

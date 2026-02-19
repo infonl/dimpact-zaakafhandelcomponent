@@ -1,0 +1,90 @@
+info:
+  name: read Enkelvoudig Informatieobject By Zaak Informatieobject UUID
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rest/informatieobjecten/zaakinformatieobject/:uuid/informatieobject"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: uuid
+      value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/informatieobjecten/zaakinformatieobject/:uuid/informatieobject"
+      method: GET
+      headers:
+        - name: Accept
+          value: application/json
+      params:
+        - name: uuid
+          value: AA5faCaf-7E8e-7A0d-6CCB-9C5CE42FC9Fe
+          type: path
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "titel": "string",
+            "informatieobjectTypeUUID": "C6Fb8fAa-B20C-Feef-af70-DdB8a4fd9F50",
+            "file": "string",
+            "bestandsnaam": "string",
+            "uuid": "e6ddbf58-EC80-ce42-909F-A4fe0fFCE8ca",
+            "identificatie": "string",
+            "beschrijving": "string",
+            "creatiedatum": "1961-02-01",
+            "registratiedatumTijd": "1951-04-17T17:12:57.166Z",
+            "ontvangstdatum": "1980-05-27",
+            "verzenddatum": "2025-06-12",
+            "bronorganisatie": "string",
+            "vertrouwelijkheidaanduiding": "string",
+            "auteur": "string",
+            "status": "GEARCHIVEERD",
+            "formaat": "string",
+            "bestandsomvang": 8303,
+            "taal": "string",
+            "versie": 9170,
+            "informatieobjectTypeOmschrijving": "string",
+            "link": "string",
+            "ondertekening": {
+              "soort": "string",
+              "datum": "2002-12-02"
+            },
+            "indicatieGebruiksrecht": true,
+            "gelockedDoor": {
+              "id": "string",
+              "naam": "string"
+            },
+            "isBesluitDocument": false,
+            "rechten": {
+              "lezen": false,
+              "wijzigen": false,
+              "verwijderen": true,
+              "vergrendelen": true,
+              "ontgrendelen": false,
+              "ondertekenen": true,
+              "toevoegenNieuweVersie": false,
+              "converteren": false
+            },
+            "indicaties": [
+              "GEBRUIKSRECHT",
+              "VERGRENDELD"
+            ]
+          }

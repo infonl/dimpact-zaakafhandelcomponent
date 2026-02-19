@@ -1,0 +1,82 @@
+info:
+  name: update Group Signalering Instellingen
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/signaleringen/group/:groupId/instellingen"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  params:
+    - name: groupId
+      value: string
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "type": "ZAAK_OP_NAAM",
+        "id": null,
+        "subjecttype": null,
+        "dashboard": false,
+        "mail": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/signaleringen/group/:groupId/instellingen"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      params:
+        - name: groupId
+          value: string
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "type": "ZAAK_OP_NAAM",
+            "id": null,
+            "subjecttype": null,
+            "dashboard": false,
+            "mail": null
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "type": {
+              "subjecttype": "ZAAK",
+              "id": "string",
+              "type": "ZAAK_DOCUMENT_TOEGEVOEGD"
+            },
+            "id": 6484,
+            "groep": "string",
+            "medewerker": "string",
+            "dashboard": true,
+            "mail": false,
+            "ownerType": "GROUP",
+            "empty": false,
+            "valid": false
+          }

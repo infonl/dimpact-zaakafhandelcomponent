@@ -1,0 +1,93 @@
+info:
+  name: list Inbox Documents
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rest/inboxdocumenten"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "sort": "string",
+        "order": "string",
+        "page": 4453,
+        "maxResults": 1044,
+        "titel": "string",
+        "identificatie": "string",
+        "creatiedatum": {
+          "van": "1959-09-09",
+          "tot": "1958-05-05"
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: OK
+    request:
+      url: "{{baseUrl}}/rest/inboxdocumenten"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+        - name: Accept
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sort": "string",
+            "order": "string",
+            "page": 4453,
+            "maxResults": 1044,
+            "titel": "string",
+            "identificatie": "string",
+            "creatiedatum": {
+              "van": "1959-09-09",
+              "tot": "1958-05-05"
+            }
+          }
+    response:
+      statusText: "200"
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "resultaten": [
+              {
+                "id": 987,
+                "enkelvoudiginformatieobjectUUID": "5cb86dBa-cecF-3E66-4Bac-Fdb3e553A81F",
+                "enkelvoudiginformatieobjectID": "string",
+                "informatieobjectTypeUUID": "c82188cA-93B4-A18A-FA83-E9F0ccdFeB4D",
+                "creatiedatum": "1957-04-28",
+                "titel": "string",
+                "bestandsnaam": "string"
+              },
+              {
+                "id": 2988,
+                "enkelvoudiginformatieobjectUUID": "c90dE9BF-ADde-fc0D-C75B-b3FCE4FD2f79",
+                "enkelvoudiginformatieobjectID": "string",
+                "informatieobjectTypeUUID": "907a2Aec-471d-BfFb-f571-aceF3F0AAC8B",
+                "creatiedatum": "2024-03-09",
+                "titel": "string",
+                "bestandsnaam": "string"
+              }
+            ],
+            "totaal": 1734,
+            "foutmelding": "string"
+          }

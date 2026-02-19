@@ -1,0 +1,7 @@
+info:
+  name: send-signaleringen
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit
