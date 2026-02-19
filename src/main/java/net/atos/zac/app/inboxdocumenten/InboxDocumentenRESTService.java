@@ -10,6 +10,7 @@ import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
@@ -83,7 +84,7 @@ public class InboxDocumentenRESTService {
             LOG.log(
                     Level.WARNING,
                     String.format(
-                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'.,
+                            "Error reading EnkelvoudigInformatieobject from Open Zaak for inbox-document with id '%s'.",
                             inboxDocument.getId()
                     ),
                     e
