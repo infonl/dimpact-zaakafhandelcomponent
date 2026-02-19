@@ -83,6 +83,14 @@ describe(FormioWrapperComponent.name, () => {
       await expect(component.ngOnInit()).resolves.not.toThrow();
     });
 
+    it("should set stylesLoaded to true after initialization", async () => {
+      expect(component["stylesLoaded"]).toBe(false);
+
+      await component.ngOnInit();
+
+      expect(component["stylesLoaded"]).toBe(true);
+    });
+
     it("should handle errors gracefully", async () => {
       const consoleSpy = jest.spyOn(console, "error").mockImplementation();
       jest
@@ -155,6 +163,35 @@ describe(FormioWrapperComponent.name, () => {
 
       // Should not crash and should not stop propagation
       expect(event.stopPropagation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("ngAfterViewInit should patch document.activeElement correctly", () => {
+    let originalActiveElement: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      originalActiveElement = Object.getOwnPropertyDescriptor(
+        Document.prototype,
+        "activeElement",
+      );
+
+      FormioWrapperComponent["activeElementPatched"] = false;
+    });
+
+    afterEach(() => {
+      if (originalActiveElement) {
+        Object.defineProperty(document, "activeElement", originalActiveElement);
+      }
+      FormioWrapperComponent["activeElementPatched"] = false;
+    });
+
+    it("should patch document.activeElement only once", () => {
+      component.ngAfterViewInit();
+      expect(FormioWrapperComponent["activeElementPatched"]).toBe(true);
+
+      const spy = jest.spyOn(Object, "defineProperty");
+      component.ngAfterViewInit();
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });
