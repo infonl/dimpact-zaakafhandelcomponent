@@ -72,7 +72,7 @@ class InboxDocumentenRestService @Inject constructor(
             return informatieobject.getInformatieobjecttype().extractUuid()
         } catch (notFoundException: NotFoundException) {
             LOG.log(Level.WARNING, notFoundException) {
-                "Error reading EnkelvoudigInformatieobject for inbox-document with id '${inboxDocument.id}' " +
+                "Error reading EnkelvoudigInformatieobject for InboxDocument with id '${inboxDocument.id}' " +
                     "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
                     "Error: ${notFoundException.message}"
             }
@@ -97,8 +97,9 @@ class InboxDocumentenRestService @Inject constructor(
         if (!zaakInformatieobjecten.isEmpty()) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
             LOG.log(Level.WARNING) {
-                "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd. " +
-                    "Reden: informatieobject '${enkelvoudigInformatieobject.identificatie}' is gekoppeld aan zaak '$zaakUuid'."
+                "Deleted InboxDocument but not the informatieobject. " +
+                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
+                    "to zaak '$zaakUuid'."
             }
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
