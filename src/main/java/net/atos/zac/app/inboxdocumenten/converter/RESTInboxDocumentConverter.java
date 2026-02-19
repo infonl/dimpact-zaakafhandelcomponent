@@ -31,6 +31,9 @@ public class RESTInboxDocumentConverter {
     ) {
         List<RESTInboxDocument> list = new ArrayList<>();
         for (int index = 0; index < documenten.size(); index++) {
+            // Skip documents for which we don't have an informatieobjectTypeUUID
+            if (informatieobjectTypeUUIDs.get(index) == null)
+                continue;
             list.add(convert(
                     documenten.get(index),
                     informatieobjectTypeUUIDs.get(index)
