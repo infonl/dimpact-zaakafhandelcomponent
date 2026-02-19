@@ -9,7 +9,7 @@ set -e
 
 help()
 {
-   echo "(Re)generates the ZAC backend OpenAPI specification a then generates a Bruno collection based on this."
+   echo "(Re)generates the ZAC backend OpenAPI specification and then generates a Bruno collection based on this."
    echo "This script is based on https://gist.github.com/brian-arms/36117243233f7d65105d5a19abe9928c with some modifications to fit our needs."
 }
 
