@@ -19,7 +19,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
 import net.atos.zac.app.inboxdocumenten.model.RestInboxDocument
 import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
-import net.atos.zac.app.inboxdocumenten.model.convertToRestInboxDocuments
+import net.atos.zac.app.inboxdocumenten.model.toRestInboxDocuments
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocument
@@ -59,7 +59,7 @@ class InboxDocumentenRestService @Inject constructor(
         val informationObjectTypeUUIDs = inboxDocuments.stream()
             .map<UUID> { inboxDocument: InboxDocument -> this.getInformatieobjectTypeUUID(inboxDocument) }.toList()
         return RESTResultaat<RestInboxDocument>(
-            inboxDocuments.convertToRestInboxDocuments(informationObjectTypeUUIDs),
+            inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
             inboxDocumentenService.count(listParameters).toLong()
         )
     }
