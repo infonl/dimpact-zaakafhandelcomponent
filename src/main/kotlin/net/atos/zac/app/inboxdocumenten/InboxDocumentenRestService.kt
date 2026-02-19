@@ -55,8 +55,7 @@ class InboxDocumentenRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
         val inboxDocuments = inboxDocumentenService.list(listParameters)
-        val informationObjectTypeUUIDs = inboxDocuments.stream()
-            .map<UUID> { inboxDocument: InboxDocument -> this.getInformatieobjectTypeUUID(inboxDocument) }.toList()
+        val informationObjectTypeUUIDs = inboxDocuments.stream().map(::getInformatieobjectTypeUUID).toList()
         return RESTResultaat<RestInboxDocument>(
             inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
             inboxDocumentenService.count(listParameters).toLong()
