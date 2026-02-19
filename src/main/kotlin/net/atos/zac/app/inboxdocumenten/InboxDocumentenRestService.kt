@@ -15,7 +15,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
 import net.atos.zac.app.inboxdocumenten.model.RestInboxDocument
 import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
@@ -91,7 +90,7 @@ class InboxDocumentenRestService @Inject constructor(
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
             inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
         )
-        val zaakInformatieobjecten: List<ZaakInformatieobject> = zrcClientService.listZaakinformatieobjecten(
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
         )
         if (!zaakInformatieobjecten.isEmpty()) {
