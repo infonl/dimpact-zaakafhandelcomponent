@@ -45,6 +45,17 @@ constructor(
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
+
+        /**
+         * Paths that should skip session processing to prevent session invalidation.
+         * These are unauthenticated endpoints that might be called in popup windows
+         * that share cookies with the parent window.
+         */
+        private val SESSION_SKIP_PATHS = listOf(
+            "/rest/document-creation/smartdocuments/cmmn-callback/",
+            "/rest/document-creation/smartdocuments/bpmn-callback/",
+            "/static/smart-documents-result.html"
+        )
     }
 
     override fun doFilter(
@@ -55,6 +66,17 @@ constructor(
         servletRequest as HttpServletRequest
         servletResponse as HttpServletResponse
 
+        val requestPath = servletRequest.requestURI.removePrefix(servletRequest.contextPath)
+
+        // Skip session processing for SmartDocuments callback endpoints.
+        // These are accessed in a popup window that shares cookies with the parent window.
+        // Processing these requests could invalidate the parent window's session.
+        if (SESSION_SKIP_PATHS.any { requestPath.startsWith(it) }) {
+            LOG.info { "Skipping session processing for SmartDocuments path: $requestPath" }
+            filterChain.doFilter(servletRequest, servletResponse)
+            return
+        }
+
         servletRequest.userPrincipal?.let { userPrincipal ->
             val httpSession = servletRequest.getSession(true)
 
@@ -63,7 +85,8 @@ constructor(
                     LOG.info {
                         "Invalidating HTTP session of user '${loggedInUser.id}' " +
                             "on context path '${servletRequest.servletContext.contextPath}'. " +
-                            "Creating new session for user with user principal name '${userPrincipal.name}'."
+                            "Creating new session for user with user principal name '${userPrincipal.name}'. " +
+                            "Request path: $requestPath"
                     }
                     httpSession.invalidate()
                     setLoggedInUserOnHttpSession(
@@ -72,7 +95,12 @@ constructor(
                     )
                 }
             } ?: run {
-                // no logged-in user in session
+                // no logged-in user in session - this means either a new session or session was cleared
+                LOG.info {
+                    "No logged-in user found in session for path: $requestPath. " +
+                        "Session ID: ${httpSession.id}, isNew: ${httpSession.isNew}. " +
+                        "Setting up user: ${userPrincipal.name}"
+                }
                 setLoggedInUserOnHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
             }
         }
