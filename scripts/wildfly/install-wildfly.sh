@@ -36,6 +36,6 @@ galleon.sh install org.wildfly:wildfly-datasources-galleon-pack:"$WILDFLY_DATASO
 # You will need to run this install-wildfly.sh script again after making this change to install the layer.
 # - creating an admin userid/password combination by running: `$WILDFLY_SERVER_DIR/bin/add-user.sh --user admin --group admin`
 #   (you will be prompted to choose a strong, unique password; this example is intended for local admin use only)
-# The web console can then be accessed at port 9990.
+# The web console can then be accessed at http://localhost:9990/console (or via your configured host/port).
 #
 # HTTP sessions can be monitored in the web console by going to Runtime -> Web -> Deployment -> zaakafhandelcomponent.war -> Enable statistics -> View -> Sessions.
