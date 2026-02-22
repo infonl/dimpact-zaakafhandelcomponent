@@ -32,7 +32,7 @@ galleon.sh install org.wildfly:wildfly-datasources-galleon-pack:"$WILDFLY_DATASO
 "$WILDFLY_SERVER_DIR"/bin/jboss-cli.sh --file=install-wildfly.cli
 
 # The WildFly Web Console can be enabled by:
-# - adding the `web-console` layer to list of WildFly layers to be installed in our pom.xml file.
+# - adding the `web-console` layer to the list of WildFly layers to be installed in our pom.xml file.
 # You will need to run this install-wildfly.sh script again after making this change to install the layer.
 # - creating an admin userid/password combination by running: `$WILDFLY_SERVER_DIR/bin/add-user.sh --user admin --group admin`
 #   (you will be prompted to choose a strong, unique password; this example is intended for local admin use only)
