@@ -11,7 +11,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import nl.info.client.pabc.model.createApplicationRolesResponse
 import nl.info.client.pabc.model.createGetGroupsByApplicationRoleAndEntityTypeResponse
 import nl.info.client.pabc.model.createPabcGroupRepresentation
@@ -19,7 +18,7 @@ import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 
 class PabcClientServiceTest : BehaviorSpec({
     val pabcClient = mockk<PabcClient>()
-    val pabcClientService = PabcClientService(pabcClient, true)
+    val pabcClientService = PabcClientService(pabcClient)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -91,67 +90,6 @@ class PabcClientServiceTest : BehaviorSpec({
 
                 Then("it should pass on the RuntimeException") {
                     exception shouldBe runtimeException
-                }
-            }
-        }
-    }
-
-    Context("Application startup behavior") {
-        Given("PABC integration is enabled, the PABC client is available and properly configured") {
-            val applicationRolesResponse = createApplicationRolesResponse()
-            every {
-                pabcClient.getApplicationRolesPerEntityType(
-                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
-                )
-            } returns applicationRolesResponse
-
-            When("onStartup is called") {
-                pabcClientService.onStartup(Any())
-
-                Then("it should call getApplicationRoles with the non-existing functional role") {
-                    verify(exactly = 1) {
-                        pabcClient.getApplicationRolesPerEntityType(
-                            GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
-                        )
-                    }
-                }
-            }
-        }
-
-        Given(
-            """
-                PABC integration is enabled, and a RuntimeException is thrown when the PABC client is called
-                on application startup
-                """
-        ) {
-            val runtimeException = RuntimeException("fakeExceptionMessage")
-            every {
-                pabcClient.getApplicationRolesPerEntityType(
-                    GetApplicationRolesRequest().apply { functionalRoleNames = listOf("FAKE_FUNCTIONAL_ROLE") }
-                )
-            } throws runtimeException
-
-            When("onStartup is called") {
-                val exception = shouldThrow<RuntimeException> {
-                    pabcClientService.onStartup(Any())
-                }
-
-                Then("it should pass on the RuntimeException") {
-                    exception shouldBe runtimeException
-                }
-            }
-        }
-
-        Given("PABC integration is disabled") {
-            val pabcClientService = PabcClientService(pabcClient, false)
-
-            When("onStartup is called") {
-                pabcClientService.onStartup(Any())
-
-                Then("it should not call the PABC client") {
-                    verify(exactly = 0) {
-                        pabcClient.getApplicationRolesPerEntityType(any())
-                    }
                 }
             }
         }
