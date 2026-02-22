@@ -79,7 +79,7 @@
                         <layer>cloud-server</layer>
                         <!-- uncomment to enable the WildFly Web Console (typically for local monitoring purposes) -->
                         <!-- see the `install-wildfly.sh` script for details -->
-                        <!--<layer>web-console</layer> -->
+                        <!-- web-console layer: add a 'web-console' layer entry here to enable the WildFly Web Console -->
                     </layers>
                     <excludedLayers>
                         <layer>deployment-scanner</layer>
