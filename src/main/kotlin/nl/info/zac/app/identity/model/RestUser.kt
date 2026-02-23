@@ -19,8 +19,8 @@ data class RestUser(
 
 fun User.toRestUser() =
     RestUser(
-        this.id,
-        this.getFullName()
+        id = this.id,
+        naam = this.getFullName()
     )
 
 fun List<User>.toRestUsers(): List<RestUser> =
