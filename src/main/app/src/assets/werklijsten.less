@@ -83,3 +83,11 @@
 .row-detail {
   padding: 10px 62px;
 }
+
+.mat-mdc-table {
+  & .mat-mdc-table-sticky {
+    // fix for the full table column, when loading and selecting a new page,
+    // preventing the background from being transparent temporarily and showing the content behind it
+    background-color: var(--mat-table-background-color, white);
+  }
+}
