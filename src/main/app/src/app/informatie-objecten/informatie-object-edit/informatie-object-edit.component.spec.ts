@@ -410,6 +410,7 @@ describe(InformatieObjectEditComponent.name, () => {
     describe("when file is uploaded", () => {
       it("should enable submit button when file is selected", async () => {
         component["form"].controls.bestand.setValue(mockFile);
+        component["form"].controls.bestand.markAsDirty();
         fixture.detectChanges();
 
         const submitButton = await loader.getHarness(
@@ -421,6 +422,7 @@ describe(InformatieObjectEditComponent.name, () => {
 
       it("should disable submit button when file is removed", async () => {
         component["form"].controls.bestand.setValue(mockFile);
+        component["form"].controls.bestand.markAsDirty();
         fixture.detectChanges();
 
         const submitButton = await loader.getHarness(
@@ -429,6 +431,7 @@ describe(InformatieObjectEditComponent.name, () => {
         expect(await submitButton.isDisabled()).toBe(false);
 
         component["form"].controls.bestand.setValue(null);
+        component["form"].markAsPristine();
         fixture.detectChanges();
 
         expect(await submitButton.isDisabled()).toBe(true);

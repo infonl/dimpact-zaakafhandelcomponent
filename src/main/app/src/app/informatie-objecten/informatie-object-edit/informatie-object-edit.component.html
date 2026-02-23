@@ -70,9 +70,7 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="
-          !form.valid || (!form.controls.bestand.value && !form.dirty)
-        "
+        [disabled]="!form.valid || !form.dirty"
       >
         {{ "actie.toevoegen" | translate }}
       </button>
