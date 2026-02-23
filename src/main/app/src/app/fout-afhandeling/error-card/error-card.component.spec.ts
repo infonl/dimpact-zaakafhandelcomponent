@@ -64,18 +64,14 @@ describe(ErrorCardComponent.name, () => {
   });
 
   it("should override defaults with route data", () => {
-    const routeData = new BehaviorSubject<Data>({
+    (activatedRoute.data as BehaviorSubject<Data>).next({
       title: "route.title",
       text: "route.text",
       iconName: "warning",
     });
 
-    (activatedRoute.data as BehaviorSubject<Data>) = routeData;
-
-    const newComponent = new ErrorCardComponent(activatedRoute);
-
-    expect(newComponent.title).toBe("route.title");
-    expect(newComponent.text).toBe("route.text");
-    expect(newComponent.iconName).toBe("warning");
+    expect(component.title).toBe("route.title");
+    expect(component.text).toBe("route.text");
+    expect(component.iconName).toBe("warning");
   });
 });

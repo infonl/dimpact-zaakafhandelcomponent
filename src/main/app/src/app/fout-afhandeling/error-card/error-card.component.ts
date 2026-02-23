@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatCard, MatCardContent } from "@angular/material/card";
 import { MatIcon } from "@angular/material/icon";
 import { ActivatedRoute } from "@angular/router";
@@ -21,11 +22,13 @@ export class ErrorCardComponent {
   @Input() text?: string = "";
   @Input() iconName?: string = "indeterminate_question_box";
 
-  constructor(private readonly route: ActivatedRoute) {
-    this.route.data.subscribe((data) => {
-      if (data.title) this.title = data.title;
-      if (data.text) this.text = data.text;
-      if (data.iconName) this.iconName = data.iconName;
-    });
+  constructor() {
+    inject(ActivatedRoute)
+      .data.pipe(takeUntilDestroyed())
+      .subscribe((data) => {
+        if (data.title) this.title = data.title;
+        if (data.text) this.text = data.text;
+        if (data.iconName) this.iconName = data.iconName;
+      });
   }
 }
