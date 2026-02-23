@@ -84,6 +84,6 @@ val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_BEHAND
 val COORDINATORS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_COORDINATORS_TEST_1 else OLD_IAM_TEST_GROUP_COORDINATORS
 val RECORDMANAGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RECORDMANAGERS_TEST_1 else OLD_IAM_TEST_GROUP_RECORD_MANAGERS
 
-// these BPMN test groups are also defined in the BPMN integration test process and BPMN form.io task forms
-val BPMN_TEST_GROUP_1 = TestGroup(name = "test-group-1", description = "BPMN Test Group 1")
-val BPMN_TEST_GROUP_2 = TestGroup(name = "test-group-2", description = "BPMN Test Group 2")
+// these BPMN test assignees and groups are also defined in the BPMN integration test process and BPMN form.io task forms
+val BPMN_TEST_BEHANDELAAR_1 = TestGroup(name = "test-behandelaar-1", description = "BPMN test behandelaar 1")
+val BPMN_TEST_GROUP_1 = TestGroup(name = "test-group-1", description = "BPMN test group 1")
