@@ -1,0 +1,16 @@
+meta {
+  name: readVestigingByVestigingsnummerAndKvkNummer
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/vestiging/:vestigingsnummer/:kvkNummer
+  body: none
+  auth: inherit
+}
+
+params:path {
+  kvkNummer: {kvkNummer}
+  vestigingsnummer: {vestigingsnummer}
+}

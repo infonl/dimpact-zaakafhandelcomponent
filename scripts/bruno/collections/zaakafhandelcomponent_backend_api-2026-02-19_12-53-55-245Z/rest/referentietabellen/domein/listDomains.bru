@@ -1,0 +1,11 @@
+meta {
+  name: listDomains
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/referentietabellen/domein
+  body: none
+  auth: inherit
+}

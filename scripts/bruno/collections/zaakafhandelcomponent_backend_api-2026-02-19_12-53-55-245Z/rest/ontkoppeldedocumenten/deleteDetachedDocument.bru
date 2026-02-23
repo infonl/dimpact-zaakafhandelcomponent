@@ -1,0 +1,15 @@
+meta {
+  name: deleteDetachedDocument
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/ontkoppeldedocumenten/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

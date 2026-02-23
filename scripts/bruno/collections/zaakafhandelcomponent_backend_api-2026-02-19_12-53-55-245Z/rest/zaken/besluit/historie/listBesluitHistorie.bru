@@ -1,0 +1,15 @@
+meta {
+  name: listBesluitHistorie
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/besluit/:uuid/historie
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}

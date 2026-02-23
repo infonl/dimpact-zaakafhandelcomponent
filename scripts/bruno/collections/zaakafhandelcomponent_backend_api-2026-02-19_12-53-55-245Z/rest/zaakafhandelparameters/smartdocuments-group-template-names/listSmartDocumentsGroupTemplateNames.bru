@@ -1,0 +1,17 @@
+meta {
+  name: listSmartDocumentsGroupTemplateNames
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaakafhandelparameters/smartdocuments-group-template-names
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "path": []
+  }
+}

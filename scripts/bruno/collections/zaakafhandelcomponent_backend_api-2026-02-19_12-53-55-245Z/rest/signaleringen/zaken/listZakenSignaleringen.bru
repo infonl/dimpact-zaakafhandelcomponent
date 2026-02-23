@@ -1,0 +1,22 @@
+meta {
+  name: listZakenSignaleringen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/signaleringen/zaken/:type
+  body: json
+  auth: inherit
+}
+
+params:path {
+  type: {type}
+}
+
+body:json {
+  {
+    "page": 0,
+    "rows": 0
+  }
+}

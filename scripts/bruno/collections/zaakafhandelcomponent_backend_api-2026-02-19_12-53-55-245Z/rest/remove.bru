@@ -1,0 +1,15 @@
+meta {
+  name: remove
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/:job-id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  job-id: {job-id}
+}

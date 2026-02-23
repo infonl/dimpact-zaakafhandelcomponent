@@ -352,7 +352,7 @@ smallryeOpenApi {
     schemaFilename.set("META-INF/openapi/openapi")
     operationIdStrategy.set(OperationIdStrategy.METHOD)
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
-    outputFileTypeFilter.set("YAML")
+    outputFileTypeFilter.set("JSON")
 }
 
 configure<SpotlessExtension> {
@@ -866,10 +866,11 @@ tasks {
             "npx",
             "@redocly/cli",
             "build-docs",
-            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"),
+            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.json"),
             "-o",
             file("build/generated/zac-api-docs/index.html")
         )
+        outputs.cacheIf { false }
     }
 
     register<Maven>("cleanMaven") {
