@@ -401,8 +401,9 @@
       "matchDatasources": [
         "docker"
       ],
+      "allowedVersions": "< 1.1.0",
       "description": [
-        "Group PABC migrations and API updates into a single PR"
+        "Group PABC migrations and API updates into a single PR. Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
