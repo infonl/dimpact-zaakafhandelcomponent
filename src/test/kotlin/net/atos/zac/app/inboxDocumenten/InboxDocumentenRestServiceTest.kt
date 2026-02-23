@@ -14,9 +14,9 @@ import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.inboxdocumenten.InboxDocumentenRESTService
-import net.atos.zac.app.inboxdocumenten.converter.RESTInboxDocumentListParametersConverter
-import net.atos.zac.app.inboxdocumenten.model.RESTInboxDocumentListParameters
+import net.atos.zac.app.inboxdocumenten.InboxDocumentenRestService
+import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
+import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocumentListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -31,37 +31,20 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
-class InboxDocumentenRESTServiceTest : BehaviorSpec({
+class InboxDocumentenRestServiceTest : BehaviorSpec({
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val listParametersConverter = mockk<RESTInboxDocumentListParametersConverter>()
+    val listParametersConverter = mockk<RestInboxDocumentListParametersConverter>()
     val policyService = mockk<PolicyService>()
 
-    val inboxDocumentenRESTService = InboxDocumentenRESTService().apply {
-        val service = this
-        // Use reflection to set private fields since this is a Java class with field injection
-        javaClass.getDeclaredField("inboxDocumentenService").apply {
-            isAccessible = true
-            set(service, inboxDocumentenService)
-        }
-        javaClass.getDeclaredField("drcClientService").apply {
-            isAccessible = true
-            set(service, drcClientService)
-        }
-        javaClass.getDeclaredField("zrcClientService").apply {
-            isAccessible = true
-            set(service, zrcClientService)
-        }
-        javaClass.getDeclaredField("listParametersConverter").apply {
-            isAccessible = true
-            set(service, listParametersConverter)
-        }
-        javaClass.getDeclaredField("policyService").apply {
-            isAccessible = true
-            set(service, policyService)
-        }
-    }
+    val inboxDocumentenRESTService = InboxDocumentenRestService(
+        inboxDocumentenService,
+        drcClientService,
+        zrcClientService,
+        listParametersConverter,
+        policyService
+    )
 
     afterEach {
         clearMocks(
@@ -77,7 +60,7 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
         Given("A user with inbox permissions") {
             When("listing inbox documents with valid parameters") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
-                val restListParameters = RESTInboxDocumentListParameters()
+                val restListParameters = RestInboxDocumentListParameters()
                 val listParameters = InboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
                 val inboxDocument = createInboxDocument(uuid = inboxDocumentUUID)
@@ -109,7 +92,7 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
 
             When("listing inbox documents where informatieobject is not found") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
-                val restListParameters = RESTInboxDocumentListParameters()
+                val restListParameters = RestInboxDocumentListParameters()
                 val listParameters = InboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
                 val inboxDocument = createInboxDocument(uuid = inboxDocumentUUID)
@@ -136,7 +119,7 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
 
             When("listing multiple inbox documents where only some have missing informatieobjects") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
-                val restListParameters = RESTInboxDocumentListParameters()
+                val restListParameters = RestInboxDocumentListParameters()
                 val listParameters = InboxDocumentListParameters()
 
                 // Create 3 documents
@@ -205,7 +188,7 @@ class InboxDocumentenRESTServiceTest : BehaviorSpec({
         Given("A user without inbox permissions") {
             When("attempting to list inbox documents") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
-                val restListParameters = RESTInboxDocumentListParameters()
+                val restListParameters = RestInboxDocumentListParameters()
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
