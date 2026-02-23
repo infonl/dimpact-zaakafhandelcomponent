@@ -11,7 +11,7 @@ import { CanMatch, Route, UrlSegment } from "@angular/router";
 })
 export class PersoonResolverGuard implements CanMatch {
   private readonly uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i; //allowing UUID version (v1–v8)
 
   canMatch(_route: Route, segments: UrlSegment[]): boolean {
     const temporaryPersonId = segments[0]?.path;
