@@ -4,34 +4,18 @@
  */
 
 import { Injectable } from "@angular/core";
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from "@angular/router";
+import { CanMatch, Route, UrlSegment } from "@angular/router";
 
 @Injectable({
   providedIn: "root",
 })
-export class PersoonResolverGuard implements CanActivate {
+export class PersoonResolverGuard implements CanMatch {
   private readonly uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-  constructor(private router: Router) {}
-
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    _state: RouterStateSnapshot,
-  ): UrlTree | boolean {
-    const temporaryPersonId = route.paramMap.get("temporaryPersonId");
-
-    if (!temporaryPersonId || !this.isValidUuid(temporaryPersonId)) {
-      return this.router.createUrlTree(["/persoon"]);
-    }
-
-    return true;
+  canMatch(_route: Route, segments: UrlSegment[]): boolean {
+    const temporaryPersonId = segments[0]?.path;
+    return !!temporaryPersonId && this.isValidUuid(temporaryPersonId);
   }
 
   private isValidUuid(value: string): boolean {

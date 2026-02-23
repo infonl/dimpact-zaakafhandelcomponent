@@ -19,9 +19,18 @@ const routes: Routes = [
     children: [
       {
         path: ":temporaryPersonId",
-        canActivate: [PersoonResolverGuard],
+        canMatch: [PersoonResolverGuard],
         component: PersoonViewComponent,
         resolve: { persoon: PersoonResolverService },
+      },
+      {
+        path: ":temporaryPersonId",
+        component: ErrorCardComponent,
+        data: {
+          title: "error-card.persoon.title.geen-data",
+          text: "error-card.persoon.text.geen-data",
+          iconName: "person_off",
+        },
       },
       {
         path: "",
