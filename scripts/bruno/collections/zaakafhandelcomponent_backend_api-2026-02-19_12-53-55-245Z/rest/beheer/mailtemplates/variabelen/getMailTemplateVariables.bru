@@ -1,0 +1,15 @@
+meta {
+  name: getMailTemplateVariables
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/beheer/mailtemplates/variabelen/:mail
+  body: none
+  auth: inherit
+}
+
+params:path {
+  mail: {mail}
+}

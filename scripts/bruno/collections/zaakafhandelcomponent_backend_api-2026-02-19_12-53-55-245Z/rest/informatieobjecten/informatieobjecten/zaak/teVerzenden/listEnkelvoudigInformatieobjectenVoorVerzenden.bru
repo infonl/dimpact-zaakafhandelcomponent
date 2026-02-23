@@ -1,0 +1,15 @@
+meta {
+  name: listEnkelvoudigInformatieobjectenVoorVerzenden
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobjecten/zaak/:zaakUuid/teVerzenden
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaakUuid: {zaakUuid}
+}

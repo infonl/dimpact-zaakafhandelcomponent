@@ -1,0 +1,24 @@
+meta {
+  name: createCmmnDocumentForZaakCallback
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/document-creation/smartdocuments/cmmn-callback/zaak/:zaakUuid
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaakUuid: {zaakUuid}
+}
+
+query {
+  creationDate: 
+  description: 
+  templateGroupId: 
+  templateId: 
+  title: 
+  userName: 
+}

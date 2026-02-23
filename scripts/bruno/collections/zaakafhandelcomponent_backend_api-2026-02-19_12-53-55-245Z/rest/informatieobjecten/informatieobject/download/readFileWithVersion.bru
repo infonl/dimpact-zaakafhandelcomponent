@@ -1,0 +1,16 @@
+meta {
+  name: readFileWithVersion
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid/:version/download
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+  version: {version}
+}

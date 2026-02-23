@@ -199,7 +199,7 @@ To use our shared Postman collection you need to be a member of our Zaakafhandel
 ##### Import ZAC OpenAPI spec
 
 1. Make sure your locally cloned ZAC Git repo is up-to-date, and you have recently run a build (see [INSTALL.md](INSTALL.md) for instructions).
-2. In Postman select ‘File - Import’ and select [the generated OpenAPI YAML spec file](../../build/generated/openapi/META-INF/openapi/openapi.yaml).
+2. In Postman select ‘File - Import’ and select the generated OpenAPI spec file in the `../../build/generated/openapi/META-INF/openapi` folder.
 3. Select to create a new Postman Collection.
 
 ##### Create environment(s)

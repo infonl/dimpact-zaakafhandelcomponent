@@ -1,0 +1,15 @@
+meta {
+  name: listZoekopdrachten
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht/:lijstID
+  body: none
+  auth: inherit
+}
+
+params:path {
+  lijstID: {lijstID}
+}
