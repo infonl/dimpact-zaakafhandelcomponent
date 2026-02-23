@@ -194,8 +194,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "${BPMN_TEST_GROUP_2.name}",
-                        "naam" : "${BPMN_TEST_GROUP_2.description}"
+                        "id" : "${BPMN_TEST_GROUP_1.description}",
+                        "naam" : "${BPMN_TEST_GROUP_1.description}"
                       },
                       "behandelaar" : {
                         "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
