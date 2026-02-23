@@ -5,13 +5,13 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
+import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
-import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
-import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 
 const routes: Routes = [
   {

@@ -4,9 +4,9 @@
  */
 
 import { Component, Input } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
 import { MatCard, MatCardContent } from "@angular/material/card";
 import { MatIcon } from "@angular/material/icon";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
