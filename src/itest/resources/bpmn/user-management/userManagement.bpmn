@@ -13,7 +13,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <userTask id="hardCoded" name="Hard coded" flowable:assignee="Invisible Man" flowable:candidateGroups="Superheroes" flowable:formKey="hardCoded" flowable:formFieldValidation="false">
+    <userTask id="hardCoded" name="Hard coded" flowable:assignee="BPMN test behandelaar 1" flowable:candidateGroups="BPMN test group 1" flowable:formKey="hardCoded" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
