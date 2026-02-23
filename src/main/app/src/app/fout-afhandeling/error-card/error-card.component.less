@@ -9,17 +9,22 @@
   margin: 100px 0;
 }
 
-.error-card {
+mat-card {
   flex: 0 1 auto;
   max-width: 600px;
   text-align: center;
   padding: 32px;
+}
 
-  mat-card-content {
-    mat-icon {
-      font-size: 80px;
-      height: 80px;
-      width: 80px;
-    }
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  mat-icon {
+    font-size: 80px;
+    height: 80px;
+    width: 80px;
   }
 }
