@@ -13,6 +13,8 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BPMN_TEST_GROUP_1
+import nl.info.zac.itest.config.BPMN_TEST_GROUP_2
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME
@@ -38,7 +40,6 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
-
     val afterThirtySeconds = eventuallyConfig {
         duration = 30.seconds
         interval = 500.milliseconds
@@ -103,10 +104,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             )
 
             Then("task user and group are the zaak defaults") {
+                // currently BPMN sets the behandelaar display name and group description fields in the task data
+                // and not the respective id fields
                 taskData shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "groep" : {
-                    "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                    "id" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
                     "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
                   },
                   "behandelaar" : {
@@ -122,6 +125,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_DOMAIN_TEST_1)
 
             Then("the next task is assigned a hard-coded user and group") {
+                // currently BPMN sets the behandelaar display name and group description fields in the task data
+                // and not the respective id fields
                 getTaskData(
                     zaakIdentificatie = zaakIdentificatie!!,
                     bpmnZaakUuid = bpmnZaakUuid,
@@ -130,12 +135,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "Superheroes",
-                        "naam" : "Superheroes"
+                        "id" : "${BPMN_TEST_GROUP_1.description}",
+                        "naam" : "${BPMN_TEST_GROUP_1.description}"
                       },
                       "behandelaar" : {
-                        "id" : "Invisible Man",
-                        "naam" : "Invisible Man"
+                        "id" : "${BPMN_TEST_GROUP_2.description}",
+                        "naam" : "${BPMN_TEST_GROUP_2.description}"
                       }
                     }                    
                 """.trimIndent()
@@ -165,8 +170,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}",
-                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.name}"
+                        "id" : "${RECORDMANAGERS_DOMAIN_TEST_1.description}",
+                        "naam" : "${RECORDMANAGERS_DOMAIN_TEST_1.description}"
                       },
                       "behandelaar" : {
                         "id" : "${RECORDMANAGER_DOMAIN_TEST_1.displayName}",
@@ -189,8 +194,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "Superheroes",
-                        "naam" : "Superheroes"
+                        "id" : "${BPMN_TEST_GROUP_2.name}",
+                        "naam" : "${BPMN_TEST_GROUP_2.description}"
                       },
                       "behandelaar" : {
                         "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
