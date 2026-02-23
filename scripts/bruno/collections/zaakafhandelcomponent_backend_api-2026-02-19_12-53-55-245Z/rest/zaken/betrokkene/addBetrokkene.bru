@@ -1,0 +1,27 @@
+meta {
+  name: addBetrokkene
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/zaken/betrokkene
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "zaakUUID": "",
+    "roltypeUUID": {},
+    "roltoelichting": "",
+    "betrokkeneIdentificatie": {
+      "type": "",
+      "bsn": "",
+      "temporaryPersonId": {},
+      "kvkNummer": "",
+      "rsin": "",
+      "vestigingsnummer": ""
+    }
+  }
+}

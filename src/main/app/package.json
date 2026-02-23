@@ -19,7 +19,7 @@
     "test:report": "ng test --coverage",
     "lint": "ng lint",
     "lint:unused": "npx ngx-unused . -p tsconfig.json",
-    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
+    "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.json -o ./src/generated/types/zac-openapi-types.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -69,8 +69,8 @@
     "@total-typescript/shoehorn": "0.1.2",
     "@types/jest": "29.5.14",
     "@types/node": "22.19.11",
-    "@typescript-eslint/eslint-plugin": "8.55.0",
-    "@typescript-eslint/parser": "8.55.0",
+    "@typescript-eslint/eslint-plugin": "8.56.0",
+    "@typescript-eslint/parser": "8.56.0",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",

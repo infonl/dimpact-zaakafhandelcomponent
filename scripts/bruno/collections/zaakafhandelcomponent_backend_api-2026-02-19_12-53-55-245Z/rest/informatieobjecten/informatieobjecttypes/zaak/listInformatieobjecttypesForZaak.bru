@@ -1,0 +1,15 @@
+meta {
+  name: listInformatieobjecttypesForZaak
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobjecttypes/zaak/:zaakUuid
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaakUuid: {zaakUuid}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: deleteNote
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/notities/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

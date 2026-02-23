@@ -1,0 +1,22 @@
+meta {
+  name: createReferenceTable
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/referentietabellen
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "",
+    "code": "",
+    "naam": "",
+    "systeem": false,
+    "aantalWaarden": 0,
+    "waarden": []
+  }
+}

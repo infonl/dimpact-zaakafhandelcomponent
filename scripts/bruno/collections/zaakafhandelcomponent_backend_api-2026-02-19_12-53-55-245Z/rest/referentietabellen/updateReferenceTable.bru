@@ -1,0 +1,23 @@
+meta {
+  name: updateReferenceTable
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/referentietabellen/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}
+
+body:json {
+  {
+    "naam": "",
+    "code": "",
+    "waarden": []
+  }
+}
