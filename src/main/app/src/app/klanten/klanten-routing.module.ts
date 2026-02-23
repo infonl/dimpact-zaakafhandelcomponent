@@ -10,6 +10,8 @@ import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service"
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
+import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
+import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 
 const routes: Routes = [
   {
@@ -17,8 +19,18 @@ const routes: Routes = [
     children: [
       {
         path: ":temporaryPersonId",
+        canActivate: [PersoonResolverGuard],
         component: PersoonViewComponent,
         resolve: { persoon: PersoonResolverService },
+      },
+      {
+        path: "",
+        component: ErrorCardComponent,
+        data: {
+          title: "error-card.persoon.title.geen-data",
+          text: "error-card.persoon.text.geen-data",
+          iconName: "person_off",
+        },
       },
     ],
   },
