@@ -64,7 +64,7 @@ class BrpClientHeadersFactory @Inject constructor(
         onEach { keyValuePair ->
             val maxSize = if (keyValuePair.key == X_GEBRUIKER) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
             keyValuePair.value?.let { valuesList ->
-                valuesList.onEachIndexed { index, value ->
+                val _ = valuesList.onEachIndexed { index, value ->
                     valuesList[index] = value.take(maxSize)
                 }
             }

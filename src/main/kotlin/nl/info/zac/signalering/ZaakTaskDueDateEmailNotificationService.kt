@@ -86,7 +86,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         val signaleringVerzendInfo = SignaleringVerzendInfo()
         LOG.info("Sending zaak due date email notifications...")
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
-            .map { zaaktype ->
+            .forEach { zaaktype ->
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                     zaaktype.url.extractUuid()
                 ).let { parameters ->

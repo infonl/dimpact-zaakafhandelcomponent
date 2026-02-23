@@ -41,17 +41,16 @@ class ZaaktypeHelperService @Inject constructor(
             mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
         }
 
-        zaaktypeConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
+        val _ = zaaktypeConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
             mapPreviousResultaattypeToNewResultaattype(
                 zaakbeeindigParameter.resultaattype,
                 newResultaattypen
-            )
-                ?.let {
-                    ZaaktypeCompletionParameters().apply {
-                        zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
-                        resultaattype = it
-                    }
+            )?.let {
+                ZaaktypeCompletionParameters().apply {
+                    zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
+                    resultaattype = it
                 }
+            }
         }
     }
 
