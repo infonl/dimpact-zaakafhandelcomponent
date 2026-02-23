@@ -5,12 +5,10 @@
 
 <mat-card>
   <mat-card-content>
-    <div class="error-content">
-      <mat-icon color="primary" outline>{{ iconName }}</mat-icon>
-      <h2>{{ title | translate }}</h2>
-      @if (text) {
-        <p>{{ text | translate }}</p>
-      }
-    </div>
+    <mat-icon color="primary" outline>{{ iconName }}</mat-icon>
+    <h2>{{ title | translate }}</h2>
+    @if (text) {
+      <p>{{ text | translate }}</p>
+    }
   </mat-card-content>
 </mat-card>
