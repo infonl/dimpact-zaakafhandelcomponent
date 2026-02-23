@@ -51,6 +51,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
     )
 
     Given("A behandelaar is logged in and a BPMN type zaak has been created") {
+        blockingTest = true
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
         zacClient.createZaak(

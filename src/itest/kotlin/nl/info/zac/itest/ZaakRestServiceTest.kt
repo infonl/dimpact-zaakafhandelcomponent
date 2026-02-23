@@ -770,6 +770,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             and a coordinator authorized for the zaaktypes of these zaken is logged in
         """
         ) {
+            blockingTest = true
             zaak1UUID = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
                 testUser = COORDINATOR_DOMAIN_TEST_1

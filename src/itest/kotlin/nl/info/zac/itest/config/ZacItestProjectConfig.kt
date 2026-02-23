@@ -11,6 +11,7 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
+import io.kotest.engine.concurrency.SpecExecutionMode
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -142,6 +143,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * and do not depend on each other's side effects.
      */
     override val specExecutionOrder = SpecExecutionOrder.Random
+
+    /**
+     * Run the integration tests concurrently to speed up the test execution.
+     * Integration tests that cannot be run concurrently should be marked using `blockingTest = true`.
+     * See: https://kotest.io/docs/framework/concurrency6.html
+     */
+    override val specExecutionMode = SpecExecutionMode.Concurrent
 
     override suspend fun beforeProject() {
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }

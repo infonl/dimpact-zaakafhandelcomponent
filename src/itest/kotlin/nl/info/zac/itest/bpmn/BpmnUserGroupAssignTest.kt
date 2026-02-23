@@ -68,6 +68,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
     }
 
     Given("A behandelaar is logged in") {
+        blockingTest = true
         var bpmnZaakUuid: UUID? = null
         var zaakIdentificatie: String? = null
 

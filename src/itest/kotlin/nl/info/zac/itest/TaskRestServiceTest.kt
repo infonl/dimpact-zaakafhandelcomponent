@@ -175,6 +175,7 @@ class TaskRestServiceTest : BehaviorSpec({
             and a coordinator authorised for this zaaktype is logged in
         """.trimMargin()
     ) {
+        blockingTest = true
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +

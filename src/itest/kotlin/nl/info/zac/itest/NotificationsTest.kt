@@ -610,6 +610,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
+        blockingTest = true
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
                 "\"subscriptionType\":\"CREATE\"," +
