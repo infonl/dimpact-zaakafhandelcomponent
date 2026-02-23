@@ -5,8 +5,8 @@
 
 <mat-card>
   <mat-card-content>
-    <mat-icon color="primary" outline>{{ iconName }}</mat-icon>
-    <h2>{{ title | translate }}</h2>
+    <mat-icon color="primary" outlined>{{ iconName }}</mat-icon>
+    <h2>{{ title || "error-card.title.default" | translate }}</h2>
     @if (text) {
       <p>{{ text | translate }}</p>
     }

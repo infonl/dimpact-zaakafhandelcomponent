@@ -5,12 +5,15 @@
 
 <mat-card>
   <mat-card-content>
-    <mat-icon color="primary" outline>error</mat-icon>
-    <h2>{{ "error-card.title.default" | translate }}</h2>
-    <h3>{{ foutmelding }}</h3>
-    <h4>{{ bericht }}</h4>
-    <h4 *ngFor="let serverErrorText of serverErrorTexts | async">
-      {{ serverErrorText }}
-    </h4>
+    <mat-icon color="primary" outlined>error</mat-icon>
+    <h2>{{ foutmelding || "error-card.title.default" | translate }}</h2>
+    @if (bericht) {
+      <p>{{ bericht }}</p>
+    }
+    @if ((serverErrorTexts | async)?.length ?? 0 > 0) {
+      <p *ngFor="let serverErrorText of serverErrorTexts | async">
+        {{ serverErrorText }}
+      </p>
+    }
   </mat-card-content>
 </mat-card>
