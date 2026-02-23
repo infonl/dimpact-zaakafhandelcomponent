@@ -41,6 +41,7 @@ class ZaaktypeHelperService @Inject constructor(
             mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
         }
 
+        // ignore the return value for now; this code may not work properly and will be improved in future
         val _ = zaaktypeConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
             mapPreviousResultaattypeToNewResultaattype(
                 zaakbeeindigParameter.resultaattype,
