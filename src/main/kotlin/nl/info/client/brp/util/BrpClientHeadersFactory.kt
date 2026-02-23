@@ -15,7 +15,7 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
 class BrpClientHeadersFactory @Inject constructor(
     private val brpConfiguration: BrpConfiguration,
-    private var loggedInUserInstance: Instance<LoggedInUser>,
+    private val loggedInUserInstance: Instance<LoggedInUser>,
 ) : ClientHeadersFactory {
 
     companion object {
@@ -43,31 +43,25 @@ class BrpClientHeadersFactory @Inject constructor(
     override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
-    ): MultivaluedMap<String, String> =
+    ): MultivaluedMap<String, String> {
         if (brpConfiguration.isBrpProtocolleringEnabled()) {
             clientOutgoingHeaders.apply {
-                brpConfiguration.getApiKey()?.let { createHeader(X_API_KEY, it) }
-                brpConfiguration.getOriginOIN()?.let { createHeader(X_ORIGIN_OIN, it) }
-                createHeader(X_GEBRUIKER, getUser())
+                brpConfiguration.getApiKey()?.let { addHeader(X_API_KEY, it) }
+                brpConfiguration.getOriginOIN()?.let { addHeader(X_ORIGIN_OIN, it) }
+                addHeader(X_GEBRUIKER, getUser())
             }
-        } else {
-            clientOutgoingHeaders
-        }.trimToMaxSize()
-
-    private fun MultivaluedMap<String, String>.createHeader(name: String, value: String) {
-        if (!containsKey(name)) {
-            add(name, value)
         }
+        return clientOutgoingHeaders.trimHeadersToMaxSize()
     }
 
-    private fun MultivaluedMap<String, String>.trimToMaxSize() =
-        onEach { keyValuePair ->
-            val maxSize = if (keyValuePair.key == X_GEBRUIKER) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
-            keyValuePair.value?.let { valuesList ->
-                val _ = valuesList.onEachIndexed { index, value ->
-                    valuesList[index] = value.take(maxSize)
-                }
-            }
+    private fun MultivaluedMap<String, String>.addHeader(name: String, value: String) {
+        if (!containsKey(name)) add(name, value)
+    }
+
+    private fun MultivaluedMap<String, String>.trimHeadersToMaxSize() =
+        onEach { (key, values) ->
+            val maxSize = if (key == X_GEBRUIKER) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
+            values?.replaceAll { it.take(maxSize) }
         }
 
     private fun getUser(): String =
