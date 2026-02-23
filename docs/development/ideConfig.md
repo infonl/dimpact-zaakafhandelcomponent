@@ -56,6 +56,9 @@
 
 See [observability architecture](../solution-architecture/observabilityArchitecture.md) for more details on Open Telemetry tracing and metrics in ZAC.
 
+See [install-wildfly.sh](../../scripts/wildfly/install-wildfly.sh) for instructions on how to enable the WildFly Web Console,
+e.g. for local monitoring purposes.
+
 #### KVK integration
 The KVK integration of ZAC is based on the [KVK API](https://developers.kvk.nl/).
 By default, (depending on your environment variables; see below) ZAC integrates with the [KVK test environment](https://developers.kvk.nl/documentation/testing).
