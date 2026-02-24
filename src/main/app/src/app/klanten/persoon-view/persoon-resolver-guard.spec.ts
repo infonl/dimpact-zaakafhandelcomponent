@@ -29,9 +29,9 @@ describe(PersoonResolverGuard.name, () => {
     });
 
     it("should return false for a plain string that is not a UUID", () => {
-      expect(
-        guard.canMatch(fromPartial({}), toSegments("not-a-uuid")),
-      ).toBe(false);
+      expect(guard.canMatch(fromPartial({}), toSegments("not-a-uuid"))).toBe(
+        false,
+      );
     });
 
     it("should return false for a numeric string", () => {
@@ -51,10 +51,7 @@ describe(PersoonResolverGuard.name, () => {
 
     it("should return false for a UUID missing a section", () => {
       expect(
-        guard.canMatch(
-          fromPartial({}),
-          toSegments("1438529a-eb41-4ff9-ac98"),
-        ),
+        guard.canMatch(fromPartial({}), toSegments("1438529a-eb41-4ff9-ac98")),
       ).toBe(false);
     });
 
