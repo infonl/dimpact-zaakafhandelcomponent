@@ -485,12 +485,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             } just Runs
 
-            val resp = enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
-                informatieobjectUUID,
-                zaak.uuid
-            )
-            Then("the response should be ok") {
-                resp.status shouldBe 200
+            Then("the response should be no content") {
+                enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
+                    informatieobjectUUID,
+                    zaak.uuid
+                )
             }
         }
         When("the enkelvoudig informatieobject is converted but an exception was thrown") {
@@ -501,15 +500,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             } throws EnkelvoudigInformatieObjectConversionException()
 
-            val resp = try {
-                enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(informatieobjectUUID, zaak.uuid)
-            } catch (e: Exception) {
-                RestExceptionMapper().toResponse(e)
-            }
-
             Then("the response should be an error message") {
-                resp.status shouldBe 400
-                val entity = resp.entity as String
+                val exception = shouldThrow<EnkelvoudigInformatieObjectConversionException> {
+                    enkelvoudigInformatieObjectRestService.convertInformatieObjectToPDF(
+                        informatieobjectUUID,
+                        zaak.uuid
+                    )
+                }
+                val response = RestExceptionMapper().toResponse(exception)
+                response.status shouldBe 400
+                val entity = response.entity as String
                 entity shouldContain """"message":"msg.error.convert.not.possible""""
             }
         }
