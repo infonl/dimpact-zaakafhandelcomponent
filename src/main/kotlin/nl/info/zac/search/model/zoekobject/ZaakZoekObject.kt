@@ -174,7 +174,10 @@ data class ZaakZoekObject(
     }
 
     fun addBetrokkene(rol: String, identificatie: String) {
-        val key = "$ZAAK_BETROKKENE_PREFIX$rol"
+        // Replace spaces with underscores in the role name to create a valid Solr field name
+        // Solr interprets spaces as field separators, so we need to sanitize the field name
+        val sanitizedRol = rol.replace(" ", "_")
+        val key = "$ZAAK_BETROKKENE_PREFIX$sanitizedRol"
         betrokkenen = betrokkenen ?: mutableMapOf()
         betrokkenen!!.getOrPut(key) { mutableListOf() }.add(identificatie)
     }

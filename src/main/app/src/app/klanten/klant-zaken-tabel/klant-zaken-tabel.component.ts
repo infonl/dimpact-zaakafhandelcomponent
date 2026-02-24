@@ -176,25 +176,41 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       (acc, [rol, identifiers]) => {
         const identifierList = identifiers as string[];
         if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
-          acc.push(rol);
+          acc.push(this.fromBetrokkeneFieldName(rol));
         }
 
         if (
           betrokkene.vestigingsnummer &&
           identifierList.includes(betrokkene.vestigingsnummer)
         ) {
-          acc.push(rol);
+          acc.push(this.fromBetrokkeneFieldName(rol));
         } else if (
           betrokkene.kvkNummer &&
           identifierList.includes(betrokkene.kvkNummer)
         ) {
-          acc.push(rol);
+          acc.push(this.fromBetrokkeneFieldName(rol));
         }
-
         return acc;
       },
       [],
     );
+  }
+
+  /**
+   * Converts a betrokkene role name to a Solr field name by replacing spaces with underscores.
+   * Solr interprets spaces as field separators, so field names cannot contain spaces.
+   */
+  protected toBetrokkeneFieldName(betrokkene: string): string {
+    return "zaak_betrokkene_" + betrokkene.replace(/ /g, "_");
+  }
+
+  /**
+   * Converts a Solr field name back to a human-readable betrokkene role name
+   * by replacing underscores with spaces.
+   * Note: The zaak_betrokkene_ prefix is already removed by the backend in toRestZaakZoekObject.
+   */
+  private fromBetrokkeneFieldName(fieldName: string): string {
+    return fieldName.replace(/_/g, " ");
   }
 
   protected filtersChanged() {

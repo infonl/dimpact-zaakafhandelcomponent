@@ -54,7 +54,7 @@
                 @if (distinctRoltypenQuery.data(); as data) {
                   <mat-option
                     *ngFor="let betrokkene of data"
-                    [value]="'zaak_betrokkene_' + betrokkene"
+                    [value]="toBetrokkeneFieldName(betrokkene)"
                   >
                     {{ betrokkene }}
                   </mat-option>

@@ -78,11 +78,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             rolType = createRolType(omschrijving = "fake_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "fake_role_adviseur"),
+            rolType = createRolType(omschrijving = "fake role adviseur"),
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
+            rolType = createRolType(omschrijving = "fake role belanghebbende"),
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
@@ -128,12 +128,13 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     locatie shouldBe null
                     with(betrokkenen!!) {
                         size shouldBe rollenZaak.size
+                        // Role names with spaces should have underscores in the Solr field name
                         this shouldContain Pair(
-                            "zaak_betrokkene_${rolAdviseur.omschrijving}",
+                            "zaak_betrokkene_fake_role_adviseur",
                             listOf(rolAdviseur.identificatienummer!!)
                         )
                         this shouldContain Pair(
-                            "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
+                            "zaak_betrokkene_fake_role_belanghebbende",
                             listOf(rolBelanghebbende.identificatienummer!!)
                         )
                     }
@@ -156,11 +157,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             rolType = createRolType(omschrijving = "fake_role_initiator")
         )
         val rolAdviseur = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "fake_role_adviseur"),
+            rolType = createRolType(omschrijving = "fake role adviseur"),
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnAdviseur")
         )
         val rolBelanghebbende = createRolNatuurlijkPersoon(
-            rolType = createRolType(omschrijving = "fake_role_belanghebbende"),
+            rolType = createRolType(omschrijving = "fake role belanghebbende"),
             natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = "fakeBsnBelanghebbende")
 
         )
@@ -208,12 +209,13 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
                     with(betrokkenen!!) {
                         size shouldBe rollenZaak.size
+                        // Role names with spaces should have underscores in the Solr field name
                         this shouldContain Pair(
-                            "zaak_betrokkene_${rolAdviseur.omschrijving}",
+                            "zaak_betrokkene_fake_role_adviseur",
                             listOf(rolAdviseur.identificatienummer!!)
                         )
                         this shouldContain Pair(
-                            "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
+                            "zaak_betrokkene_fake_role_belanghebbende",
                             listOf(rolBelanghebbende.identificatienummer!!)
                         )
                     }
