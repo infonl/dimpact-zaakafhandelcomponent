@@ -23,6 +23,7 @@ import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
@@ -34,11 +35,13 @@ import java.util.UUID
 class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
+    val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
+        historyService,
         processEngine,
         zaaktypeBpmnConfigurationBeheerService
     )
@@ -224,6 +227,134 @@ class BpmnServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     runtimeService.deleteProcessInstance(any(), null)
                 }
+            }
+        }
+    }
+
+    Given("process definition key with current or historic process instances") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        every {
+            historyService.createHistoricProcessInstanceQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .count()
+        } returns 2
+
+        When("checking it has process instances by process definition key") {
+            val result = bpmnService.hasProcessInstances(processDefinitionKey)
+
+            Then("true is returned") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("process definition key without current or historic process instances") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        every {
+            historyService.createHistoricProcessInstanceQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .count()
+        } returns 0
+
+        When("checking it has process instances by process definition key") {
+            val result = bpmnService.hasProcessInstances(processDefinitionKey)
+
+            Then("true is returned") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("process definition key with linked configurations") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
+        every {
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+        } returns linkedProcessDefinitionKeys
+
+        When("checking it has process instances by process definition key") {
+            val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
+
+            Then("true is returned") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("process definition key without linked configurations") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
+        every {
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+        } returns linkedProcessDefinitionKeys
+
+        When("checking it has process instances by process definition key") {
+            val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
+
+            Then("false is returned") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("process definition key with current or historic process instances and linked configurations not checked") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        every {
+            historyService.createHistoricProcessInstanceQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .count()
+        } returns 3
+
+        When("checking the process instances is in use by process definition key") {
+            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+
+            Then("true is returned") {
+                result shouldBe true
+                verify(exactly = 0) {
+                    zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+                }
+            }
+        }
+    }
+
+    Given("process definition key with no current or historic process instances and linked configurations") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        every {
+            historyService.createHistoricProcessInstanceQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .count()
+        } returns 0
+        val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
+        every {
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+        } returns linkedProcessDefinitionKeys
+
+        When("checking the process instances is in use by process definition key") {
+            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+
+            Then("true is returned") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("process definition key with no current or historic process instances and no linked configurations") {
+        val processDefinitionKey = "fakeProcessDefinitionKey"
+        every {
+            historyService.createHistoricProcessInstanceQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .count()
+        } returns 0
+        val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
+        every {
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+        } returns linkedProcessDefinitionKeys
+
+        When("checking the process instances is in use by process definition key") {
+            val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
+
+            Then("false is returned") {
+                result shouldBe false
             }
         }
     }

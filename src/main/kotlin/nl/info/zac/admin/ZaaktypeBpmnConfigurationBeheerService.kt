@@ -13,6 +13,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.BPMN_PROCESS_DEFINITION_KEY
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -114,6 +115,19 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java)
+                entityManager.createQuery(query).resultList
+            }
+        }
+
+    /**
+     * Returns a list of unique BPMN process definition keys
+     */
+    fun findUniqueBpmnProcessDefinitionKeys(): List<String> =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(String::class.java).let { query ->
+                query.from(ZaaktypeBpmnConfiguration::class.java).let { root ->
+                    query.select(root.get(BPMN_PROCESS_DEFINITION_KEY)).distinct(true)
+                }
                 entityManager.createQuery(query).resultList
             }
         }

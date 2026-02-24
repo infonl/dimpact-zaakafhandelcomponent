@@ -157,6 +157,7 @@ fun createZaaktypeBpmnConfiguration(
     groupId: String? = null,
     zaaktypeBetrokkeneParameters: ZaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(),
     zaaktypeBrpParameters: ZaaktypeBrpParameters? = createZaaktypeBrpParameters(),
+    bpmnProcessDefinitionKey: String? = null,
 ) =
     ZaaktypeBpmnConfiguration().apply {
         this.id = id
@@ -174,6 +175,9 @@ fun createZaaktypeBpmnConfiguration(
         }
         this.zaaktypeBrpParameters = zaaktypeBrpParameters.apply {
             this?.zaaktypeConfiguration = parameters
+        }
+        bpmnProcessDefinitionKey?.let {
+            this.bpmnProcessDefinitionKey = it
         }
     }
 

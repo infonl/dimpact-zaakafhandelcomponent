@@ -15,6 +15,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
@@ -33,6 +34,7 @@ import java.util.logging.Logger
 class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
+    private val historyService: HistoryService,
     private val processEngine: ProcessEngine,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
@@ -145,4 +147,31 @@ class BpmnService @Inject constructor(
         findProcessInstance(zaakUUID)?.let {
             runtimeService.deleteProcessInstance(it.id, null)
         }
+
+    /**
+     * Returns if a process definition has current or historic process instances
+     * linked to it
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun hasProcessInstances(processDefinitionKey: String) =
+        historyService.createHistoricProcessInstanceQuery()
+            .processDefinitionKey(processDefinitionKey)
+            .count() > 0
+
+    /**
+     * Returns if a process definition has zaakafhandelparameters linked to it
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun hasLinkedConfiguration(processDefinitionKey: String) =
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys().contains(processDefinitionKey)
+
+    /**
+     * Returns if a process definition is in use
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun isProcessDefinitionInUse(processDefinitionKey: String) =
+        hasProcessInstances(processDefinitionKey) || hasLinkedConfiguration(processDefinitionKey)
 }

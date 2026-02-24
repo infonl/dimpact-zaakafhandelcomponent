@@ -15,6 +15,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.Response.Status
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -35,7 +36,15 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     fun listProcessDefinitions(): List<RestBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return bpmnService.listProcessDefinitions()
-            .map { RestBpmnProcessDefinition(it.id, it.name, it.version, it.key) }
+            .map {
+                RestBpmnProcessDefinition(
+                    it.id,
+                    it.name,
+                    it.version,
+                    it.key,
+                    bpmnService.isProcessDefinitionInUse(it.key)
+                )
+            }
     }
 
     @POST
@@ -49,6 +58,11 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     @Path("{key}")
     fun deleteProcessDefinition(@PathParam("key") key: String): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        if (bpmnService.isProcessDefinitionInUse(key)) {
+            return Response.status(Status.BAD_REQUEST)
+                .entity(mapOf("message" to "Process definition '$key' cannot be deleted as it is in use"))
+                .build()
+        }
         bpmnService.deleteProcessDefinition(key)
         return Response.noContent().build()
     }
