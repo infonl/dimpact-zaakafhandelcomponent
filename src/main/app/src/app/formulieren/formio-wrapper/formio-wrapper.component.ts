@@ -4,6 +4,7 @@
  */
 
 import {
+  AfterViewInit,
   booleanAttribute,
   Component,
   ElementRef,
@@ -30,7 +31,7 @@ import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service"
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false,
 })
-export class FormioWrapperComponent implements OnInit {
+export class FormioWrapperComponent implements OnInit, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -39,6 +40,7 @@ export class FormioWrapperComponent implements OnInit {
   @Output() formChange = new EventEmitter<{ data: unknown }>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
     const path = event.composedPath() as HTMLElement[];
@@ -57,9 +59,43 @@ export class FormioWrapperComponent implements OnInit {
   private bootstrapLoader = inject(FormioBootstrapLoaderService);
   protected stylesLoaded = false;
 
+  private static activeElementPatched = false;
+
   async ngOnInit() {
     await this.loadBootstrapStyles();
     this.stylesLoaded = true;
+  }
+
+  ngAfterViewInit() {
+    if (FormioWrapperComponent.activeElementPatched) return;
+
+    // Getting the document.activeElement from the Shadow DOM - Date field text-mask relies on this to determine if the input is focused
+    const originalActiveElementGetter = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "activeElement",
+    )?.get;
+
+    if (
+      !originalActiveElementGetter ||
+      typeof originalActiveElementGetter !== "function"
+    )
+      return;
+
+    Object.defineProperty(document, "activeElement", {
+      get() {
+        let element = originalActiveElementGetter.call(document);
+        while (
+          element &&
+          element.shadowRoot &&
+          element.shadowRoot.activeElement
+        ) {
+          element = element.shadowRoot.activeElement;
+        }
+        return element;
+      },
+      configurable: true,
+    });
+    FormioWrapperComponent.activeElementPatched = true;
   }
 
   private async loadBootstrapStyles(): Promise<void> {
@@ -70,8 +106,8 @@ export class FormioWrapperComponent implements OnInit {
       const sheet = await this.bootstrapLoader.getBootstrapStyleSheet();
       shadowRoot.adoptedStyleSheets = [sheet, ...shadowRoot.adoptedStyleSheets];
     } catch (error) {
-      console.error("Failed to load Bootstrap CSS:", error);
       // Allow form to render without Bootstrap styles
+      console.error("Failed to load Bootstrap CSS:", error);
     }
   }
 
