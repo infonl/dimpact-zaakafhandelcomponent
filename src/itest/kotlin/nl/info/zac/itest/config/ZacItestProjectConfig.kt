@@ -144,13 +144,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      */
     override val specExecutionOrder = SpecExecutionOrder.Random
 
-    /**
-     * Run the integration tests concurrently to speed up the test execution.
-     * Integration tests that cannot be run concurrently should be marked using `blockingTest = true`.
-     * See: https://kotest.io/docs/framework/concurrency6.html
-     */
-    override val specExecutionMode = SpecExecutionMode.Concurrent
-
     override suspend fun beforeProject() {
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
         try {
