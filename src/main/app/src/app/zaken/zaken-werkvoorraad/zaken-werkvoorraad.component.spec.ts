@@ -49,7 +49,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
                 aantalPerPagina: 10,
                 pageSizeOptions: [10, 25, 50],
                 werklijstRechten:
-                  {} satisfies GeneratedType<"RestWerklijstRechten">,
+                  fromPartial<GeneratedType<"RestWerklijstRechten">>({}),
               },
             }),
           },
