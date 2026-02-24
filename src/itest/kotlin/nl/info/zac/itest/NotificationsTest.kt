@@ -77,6 +77,7 @@ import kotlin.time.toJavaDuration
  */
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
+    blockingTest = true
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
@@ -610,7 +611,6 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
-        blockingTest = true
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
                 "\"subscriptionType\":\"CREATE\"," +
