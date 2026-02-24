@@ -11,7 +11,7 @@ You can run them separately using the following command:
 
 ## Integration tests
 
-Our integration tests use the [TestContainers framework](https://testcontainers.com/) together
+Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
 with our [Docker Compose set-up](installDockerCompose.md) to run all required services (Keycloak, Open Zaak, etc)
 as well as ZAC itself as a Docker container.
 This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
@@ -64,6 +64,17 @@ The following steps can help you debug failing integration tests:
       Do a `docker ps` to find the container in question since they have dynamic names in our integration tests.
       2.  Continue running until the second breakpoint is reached. In most cases you can find out from the logs what the issue is.
       3.  When the integration tests are on a breakpoint you can also do manual testing in the ZAC user interface from a browser to troubleshoot.
+
+### Parallel execution of integration tests
+
+The integration are set up run in parallel. 
+Specific integration tests that cannot be run in parallel (typically because they use certain asynchronous functionality) need to be have the following line of code inside the test class (or spec):
+
+```kotlin
+    blockingTest = true
+```
+
+See [Kotest concurrency](https://kotest.io/docs/framework/concurrency6.html) for details.
 
 ## End-to-end (e2e) tests
 

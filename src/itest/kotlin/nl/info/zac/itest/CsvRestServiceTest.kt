@@ -26,6 +26,7 @@ const val CSV_FIELD_ARCHIEF_NOMINATIE = "archiefNominatie"
 const val CSV_FIELD_OBJECT_ID = "objectId"
 
 class CsvRestServiceTest : BehaviorSpec({
+    blockingTest = true
     val itestHttpClient = ItestHttpClient()
     val zaakHelper = ZaakHelper(ZacClient(itestHttpClient))
     val logger = KotlinLogging.logger {}

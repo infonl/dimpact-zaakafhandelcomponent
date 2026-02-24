@@ -40,6 +40,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class TaskRestServiceTest : BehaviorSpec({
+    blockingTest = true
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)

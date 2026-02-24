@@ -24,6 +24,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 class ZaakRestServiceHistoryTest : BehaviorSpec({
+    blockingTest = true
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
