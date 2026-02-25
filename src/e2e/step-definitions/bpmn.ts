@@ -175,7 +175,9 @@ When(
   "{string} submits the filled-in form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByRole("button", { name: "Submit Form", exact: true });
+    await this.page
+      .getByRole("button", { name: "Submit Form", exact: true })
+      .click();
   },
 );
 
