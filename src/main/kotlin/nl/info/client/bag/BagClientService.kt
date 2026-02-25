@@ -41,8 +41,8 @@ class BagClientService @Inject constructor(
     fun readAdres(nummeraanduidingIdentificatie: String): AdresIOHal =
         adresApi.bevraagAdressenMetNumId(nummeraanduidingIdentificatie, ADRES_EXPAND, null)
 
-    fun readWoonplaats(woonplaatswIdentificatie: String): WoonplaatsIOHal =
-        woonplaatsApi.woonplaatsIdentificatie(woonplaatswIdentificatie, null, null, null, null, null)
+    fun readWoonplaats(woonplaatsIdentificatie: String): WoonplaatsIOHal =
+        woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
 
     fun readNummeraanduiding(nummeraanduidingIdentificatie: String): NummeraanduidingIOHal =
         nummeraanduidingApi.nummeraanduidingIdentificatie(
