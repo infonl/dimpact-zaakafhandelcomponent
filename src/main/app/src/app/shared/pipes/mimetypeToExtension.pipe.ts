@@ -11,18 +11,18 @@ import {
 
 @Pipe({
   name: "mimetypeToExtension",
-  standalone: true,
 })
 export class MimetypeToExtensionPipe implements PipeTransform {
   fileFormatExtesions = FileFormatExtensionMapping;
 
   transform(mimetype: string): string {
-    const isMimetypeSupported = Object.keys(this.fileFormatExtesions).includes(
-      mimetype as FileFormat,
-    );
-    if (!isMimetypeSupported) {
+    if (!this.isSupportedMimeType(mimetype)) {
       return mimetype;
     }
     return this.fileFormatExtesions[mimetype];
+  }
+
+  private isSupportedMimeType(mimetype: string): mimetype is FileFormat {
+    return Object.keys(this.fileFormatExtesions).includes(mimetype);
   }
 }
