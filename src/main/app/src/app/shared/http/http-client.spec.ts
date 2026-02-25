@@ -112,7 +112,7 @@ describe(HttpClient.name, () => {
         "/rest/informatieobjecten/informatieobject/123/convert?zaak=123",
       );
       expect(req.request.method).toEqual("POST");
-      req.flush(null);
+      req.flush(null, { status: 204, statusText: "No Content" });
       httpTestingController.verify();
     });
   });
