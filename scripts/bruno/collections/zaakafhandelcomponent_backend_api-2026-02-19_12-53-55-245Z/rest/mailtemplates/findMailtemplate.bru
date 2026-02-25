@@ -1,0 +1,16 @@
+meta {
+  name: findMailtemplate
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/mailtemplates/:mailtemplateEnum/:zaakUUID
+  body: none
+  auth: inherit
+}
+
+params:path {
+  mailtemplateEnum: {mailtemplateEnum}
+  zaakUUID: {zaakUUID}
+}

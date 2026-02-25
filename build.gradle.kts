@@ -352,7 +352,7 @@ smallryeOpenApi {
     schemaFilename.set("META-INF/openapi/openapi")
     operationIdStrategy.set(OperationIdStrategy.METHOD)
     duplicateOperationIdBehavior.set(DuplicateOperationIdBehavior.FAIL)
-    outputFileTypeFilter.set("YAML")
+    outputFileTypeFilter.set("JSON")
 }
 
 configure<SpotlessExtension> {
@@ -499,7 +499,11 @@ tasks {
 
         compilerOptions {
             // see: https://youtrack.jetbrains.com/issue/KT-73255
-            freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+            // Enable the experimental return value checker so that we can use the `@CheckReturnValue` annotation
+            // in our codebase to report on unused return values.
+            // see: https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker
+            freeCompilerArgs.add("-Xreturn-value-checker=check")
         }
     }
 
@@ -866,10 +870,11 @@ tasks {
             "npx",
             "@redocly/cli",
             "build-docs",
-            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.yaml"),
+            file("$rootDir/build/generated/openapi/META-INF/openapi/openapi.json"),
             "-o",
             file("build/generated/zac-api-docs/index.html")
         )
+        outputs.cacheIf { false }
     }
 
     register<Maven>("cleanMaven") {

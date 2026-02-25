@@ -1,0 +1,15 @@
+meta {
+  name: readTabelGegevens
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/tabel-gegevens/:werklijst
+  body: none
+  auth: inherit
+}
+
+params:path {
+  werklijst: {werklijst}
+}

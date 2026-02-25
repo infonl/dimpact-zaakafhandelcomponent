@@ -1,0 +1,15 @@
+meta {
+  name: listTakenSignaleringen
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/signaleringen/taken/:type
+  body: none
+  auth: inherit
+}
+
+params:path {
+  type: {type}
+}

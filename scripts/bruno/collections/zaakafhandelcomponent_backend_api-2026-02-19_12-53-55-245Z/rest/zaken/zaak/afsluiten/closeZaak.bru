@@ -1,0 +1,23 @@
+meta {
+  name: closeZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/:uuid/afsluiten
+  body: json
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "reden": "",
+    "resultaattypeUuid": "",
+    "brondatumEigenschap": ""
+  }
+}

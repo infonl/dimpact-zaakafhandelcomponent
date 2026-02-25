@@ -1,0 +1,15 @@
+meta {
+  name: updateDashboardCards
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/dasboardcard/actief
+  body: json
+  auth: inherit
+}
+
+body:json {
+  []
+}

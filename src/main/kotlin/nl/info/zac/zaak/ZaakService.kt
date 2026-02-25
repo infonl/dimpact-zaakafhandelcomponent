@@ -153,9 +153,9 @@ class ZaakService @Inject constructor(
                 )
             }
         zakenToSkip
-            .onEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
+            .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
         zakenAssignedList
-            .onEach { zaak ->
+            .forEach { zaak ->
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
                 user?.let {
                     zrcClientService.updateRol(zaak, bepaalRolMedewerker(it, zaak), explanation)

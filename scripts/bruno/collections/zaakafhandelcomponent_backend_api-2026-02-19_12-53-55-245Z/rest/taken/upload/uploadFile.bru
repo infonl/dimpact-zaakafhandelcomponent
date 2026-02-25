@@ -1,0 +1,16 @@
+meta {
+  name: uploadFile
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/taken/upload/:uuid/:field
+  body: form-urlencoded
+  auth: inherit
+}
+
+params:path {
+  field: {field}
+  uuid: {uuid}
+}

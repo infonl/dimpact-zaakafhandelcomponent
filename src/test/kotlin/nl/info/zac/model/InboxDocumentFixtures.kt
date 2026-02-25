@@ -9,13 +9,19 @@ import net.atos.zac.documenten.model.InboxDocument
 import java.time.LocalDate
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createInboxDocument(
-    uuid: UUID = UUID.randomUUID()
+    uuid: UUID = UUID.randomUUID(),
+    id: Long = 1L,
+    enkelvoudiginformatieobjectID: String = "DOC-123",
+    titel: String = "fakeTitel",
+    creatiedatum: LocalDate = LocalDate.now(),
+    bestandsnaam: String = "test.pdf",
 ) = InboxDocument().apply {
-    id = 1L
+    this.id = id
     enkelvoudiginformatieobjectUUID = uuid
-    enkelvoudiginformatieobjectID = "DOC-123"
-    titel = "fakeTitel"
-    creatiedatum = LocalDate.now()
-    bestandsnaam = "test.pdf"
+    this.enkelvoudiginformatieobjectID = enkelvoudiginformatieobjectID
+    this.titel = titel
+    this.creatiedatum = creatiedatum
+    this.bestandsnaam = bestandsnaam
 }

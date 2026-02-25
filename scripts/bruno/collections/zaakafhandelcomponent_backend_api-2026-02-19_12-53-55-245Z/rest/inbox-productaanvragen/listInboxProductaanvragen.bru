@@ -1,0 +1,26 @@
+meta {
+  name: listInboxProductaanvragen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/inbox-productaanvragen
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "sort": "",
+    "order": "",
+    "page": 0,
+    "maxResults": 0,
+    "type": "",
+    "ontvangstdatum": {
+      "van": "",
+      "tot": ""
+    },
+    "initiatorID": ""
+  }
+}

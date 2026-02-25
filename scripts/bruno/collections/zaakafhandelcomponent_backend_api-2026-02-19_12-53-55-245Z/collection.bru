@@ -1,0 +1,26 @@
+meta {
+  name: Zaakafhandelcomponent backend API
+}
+
+auth {
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: {{baseUrl}}
+  authorization_url: {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/auth
+  access_token_url: {{keycloakBaseUrl}}/realms/zaakafhandelcomponent/protocol/openid-connect/token
+  refresh_token_url: 
+  client_id: zaakafhandelcomponent
+  client_secret: {{keycloakClientSecret}}
+  scope: openid
+  state: 
+  pkce: false
+  credentials_placement: basic_auth_header
+  credentials_id: credentials
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: false
+}

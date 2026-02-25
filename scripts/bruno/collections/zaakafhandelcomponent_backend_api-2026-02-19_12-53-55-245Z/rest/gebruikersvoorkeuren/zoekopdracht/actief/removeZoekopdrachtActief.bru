@@ -1,0 +1,15 @@
+meta {
+  name: removeZoekopdrachtActief
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/zoekopdracht/:werklijst/actief
+  body: none
+  auth: inherit
+}
+
+params:path {
+  werklijst: {werklijst}
+}

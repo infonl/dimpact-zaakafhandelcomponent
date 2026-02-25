@@ -1,0 +1,25 @@
+meta {
+  name: opschortenZaak
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/zaken/zaak/:uuid/opschorting
+  body: json
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+body:json {
+  {
+    "indicatieOpschorting": false,
+    "redenOpschorting": "",
+    "duurDagen": 0,
+    "einddatumGepland": "",
+    "uiterlijkeEinddatumAfdoening": {}
+  }
+}

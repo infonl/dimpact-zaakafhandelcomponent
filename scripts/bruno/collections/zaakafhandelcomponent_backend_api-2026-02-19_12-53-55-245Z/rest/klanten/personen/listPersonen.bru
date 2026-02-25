@@ -1,0 +1,29 @@
+meta {
+  name: listPersonen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/klanten/personen
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-ZAAKTYPE-UUID: 
+}
+
+body:json {
+  {
+    "bsn": "",
+    "geslachtsnaam": "",
+    "voornamen": "",
+    "voorvoegsel": "",
+    "geboortedatum": "",
+    "gemeenteVanInschrijving": "",
+    "postcode": "",
+    "huisnummer": "",
+    "straat": ""
+  }
+}
