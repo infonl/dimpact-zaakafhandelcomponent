@@ -107,7 +107,6 @@ class BagClientService @Inject constructor(
 - `Optional<T>` → nullable `T?`
 - Static constants → `companion object` or top-level `const val`
 - `Collections.emptyList()` → `emptyList()`
-- Logging: `Logger.getLogger(X.class)` → `logger {}` (KotlinLogging)
 
 **f) Model/POJO classes** — convert to `data class` where applicable, or plain Kotlin class:
 ```kotlin
@@ -120,6 +119,22 @@ data class MyModel(val field1: String, val field2: Int)
 **g) Interfaces** — straightforward, remove `public` modifier and semicolons
 
 **h) Kotlin imports** — swap Java stdlib imports for Kotlin equivalents
+
+**i) Bean field annotations** - prefix bean field annotations with `@field:` to ensure they apply to the generated field. For example:
+convert this:
+```java
+@QueryParam("fakeFieldName")
+```
+to this
+```kotlin
+@field:QueryParam("fakeFieldName")
+```
+
+**j) Use named parameters** — when calling methods with multiple parameters, use named arguments for clarity:
+```kotlin
+// Java: someMethod(x, y, z);
+// Kotlin: someMethod(x = x, y = y, z = z)
+```
 
 ### Step 5 — Update All Call Sites
 
