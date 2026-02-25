@@ -35,6 +35,10 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     @GET
     fun listProcessDefinitions(): List<RestBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        val uniqueBpmnProcessDefinitionKeysFromProcessInstances =
+            bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
+        val uniqueBpmnProcessDefinitionKeysFromConfigurations =
+            bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations()
         return bpmnService.listProcessDefinitions()
             .map {
                 RestBpmnProcessDefinition(
@@ -42,7 +46,8 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                     it.name,
                     it.version,
                     it.key,
-                    bpmnService.isProcessDefinitionInUse(it.key)
+                    uniqueBpmnProcessDefinitionKeysFromProcessInstances.contains(it.key) ||
+                        uniqueBpmnProcessDefinitionKeysFromConfigurations.contains(it.key)
                 )
             }
     }

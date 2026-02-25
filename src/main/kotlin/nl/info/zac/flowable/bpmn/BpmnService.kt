@@ -149,6 +149,21 @@ class BpmnService @Inject constructor(
         }
 
     /**
+     * Returns a list of unique BPMN process definition keys used in process instances
+     */
+    fun findUniqueBpmnProcessDefinitionKeysFromProcessInstances() =
+        historyService.createHistoricProcessInstanceQuery().list()
+            .map {
+                it.processDefinitionKey
+            }.toSet()
+
+    /**
+     * Returns a list of unique BPMN process definition keys used in configurations
+     */
+    fun findUniqueBpmnProcessDefinitionKeysFromConfigurations() =
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+
+    /**
      * Returns if a process definition has current or historic process instances
      * linked to it
      *

@@ -19,6 +19,7 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_UUID
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
@@ -227,6 +228,23 @@ class BpmnServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     runtimeService.deleteProcessInstance(any(), null)
                 }
+            }
+        }
+    }
+
+    Given("Process definitions") {
+        val historyProcessInstance1 = createHistoricProcessInstance(processDefinitionKey = "fakeKey1")
+        val historyProcessInstance2 = createHistoricProcessInstance(processDefinitionKey = "fakeKey2")
+        val historyProcessInstance3 = createHistoricProcessInstance(processDefinitionKey = "fakeKey1")
+        every {
+            historyService.createHistoricProcessInstanceQuery().list()
+        } returns listOf(historyProcessInstance1, historyProcessInstance2, historyProcessInstance3)
+
+        When("Returning a list of unique BPMN process definition keys used in process instances") {
+            val result = bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
+
+            Then("the unique BPMN process definition keys are returned") {
+                result shouldBe setOf("fakeKey1", "fakeKey2")
             }
         }
     }
