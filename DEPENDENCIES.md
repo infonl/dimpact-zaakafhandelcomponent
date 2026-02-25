@@ -11,7 +11,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.13.2-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
-- **kontextwork-converter**: 1.8.1
+- **kontextwork-converter**: 1.8.2
 - **otel/opentelemetry-collector-contrib**: 0.145.0
 - **grafana/tempo**: 2.10.1
 - **prom/prometheus**: v3.9.1
