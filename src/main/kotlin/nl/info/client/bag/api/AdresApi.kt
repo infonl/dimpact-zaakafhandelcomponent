@@ -9,7 +9,6 @@ import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import net.atos.zac.util.MediaTypes
@@ -30,19 +29,16 @@ import java.time.temporal.ChronoUnit
 @RegisterClientHeaders(BagClientHeadersFactory::class)
 @RegisterProvider(BagResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/adressen")
 interface AdresApi {
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     fun bevraagAdressen(@BeanParam parameters: BevraagAdressenParameters): AdresIOHalCollection
 
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     fun bevraagAdressenMetNumId(
         @PathParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String,
         @QueryParam("expand") expand: String?,
@@ -51,8 +47,6 @@ interface AdresApi {
 
     @GET
     @Path("/zoek")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     fun zoek(
         @QueryParam("zoek") zoek: String?,
         @QueryParam("page") @DefaultValue("1") page: Int?,

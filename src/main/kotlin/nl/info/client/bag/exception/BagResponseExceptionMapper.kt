@@ -14,5 +14,5 @@ class BagResponseExceptionMapper : ResponseExceptionMapper<RuntimeException> {
         status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
     override fun toThrowable(response: Response): RuntimeException =
-        RuntimeException("Server response from BAG: ${response.status} (${response.statusInfo})")
+        BagRuntimeException("Server response from BAG: ${response.status} (${response.statusInfo})")
 }

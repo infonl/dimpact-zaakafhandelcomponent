@@ -9,52 +9,52 @@ import jakarta.ws.rs.QueryParam
 
 class BevraagAdressenParameters {
 
-    @QueryParam("zoekresultaatIdentificatie")
+    @field:QueryParam("zoekresultaatIdentificatie")
     var zoekresultaatIdentificatie: String? = null
 
-    @QueryParam("postcode")
+    @field:QueryParam("postcode")
     var postcode: String? = null
 
-    @QueryParam("huisnummer")
+    @field:QueryParam("huisnummer")
     var huisnummer: Int? = null
 
-    @QueryParam("huisnummertoevoeging")
+    @field:QueryParam("huisnummertoevoeging")
     var huisnummertoevoeging: String? = null
 
-    @QueryParam("huisletter")
+    @field:QueryParam("huisletter")
     var huisletter: String? = null
 
-    @QueryParam("exacteMatch")
-    @DefaultValue("false")
+    @field:QueryParam("exacteMatch")
+    @field:DefaultValue("false")
     var exacteMatch: Boolean = false
 
-    @QueryParam("adresseerbaarObjectIdentificatie")
+    @field:QueryParam("adresseerbaarObjectIdentificatie")
     var adresseerbaarObjectIdentificatie: String? = null
 
-    @QueryParam("woonplaatsNaam")
+    @field:QueryParam("woonplaatsNaam")
     var woonplaatsNaam: String? = null
 
-    @QueryParam("openbareRuimteNaam")
+    @field:QueryParam("openbareRuimteNaam")
     var openbareRuimteNaam: String? = null
 
-    @QueryParam("pandIdentificatie")
+    @field:QueryParam("pandIdentificatie")
     var pandIdentificatie: String? = null
 
-    @QueryParam("expand")
+    @field:QueryParam("expand")
     var expand: String? = null
 
-    @QueryParam("page")
-    @DefaultValue("1")
+    @field:QueryParam("page")
+    @field:DefaultValue("1")
     var page: Int = 1
 
-    @QueryParam("pageSize")
-    @DefaultValue("20")
+    @field:QueryParam("pageSize")
+    @field:DefaultValue("20")
     var pageSize: Int = 20
 
-    @QueryParam("q")
+    @field:QueryParam("q")
     var q: String? = null
 
-    @QueryParam("inclusiefEindStatus")
-    @DefaultValue("false")
+    @field:QueryParam("inclusiefEindStatus")
+    @field:DefaultValue("false")
     var inclusiefEindStatus: Boolean = false
 }

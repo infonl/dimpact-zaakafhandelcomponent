@@ -9,7 +9,6 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import net.atos.zac.util.MediaTypes
@@ -43,7 +42,6 @@ interface AdresseerbaarObjectApi {
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun bevragenAdresseerbaarObject(
         @PathParam("adresseerbaarObjectIdentificatie") adresseerbaarObjectIdentificatie: String,
@@ -57,7 +55,6 @@ interface AdresseerbaarObjectApi {
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}/lvc")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     fun bevragenAdresseerbaarObjectLvc(
         @PathParam("adresseerbaarObjectIdentificatie") adresseerbaarObjectIdentificatie: String,
         @QueryParam("geheleLvc") @DefaultValue("false") geheleLvc: Boolean?,
@@ -66,7 +63,6 @@ interface AdresseerbaarObjectApi {
 
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
-    @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekAdresseerbareObjecten(
         @QueryParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String?,

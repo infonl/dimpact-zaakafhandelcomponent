@@ -10,7 +10,9 @@ import jakarta.json.bind.JsonbConfig
 import jakarta.ws.rs.ext.ContextResolver
 
 class JsonbConfiguration : ContextResolver<Jsonb> {
-    private val jsonb: Jsonb = JsonbBuilder.create(
+    private val jsonb: Jsonb
+
+    init {
         JsonbConfig().withAdapters(
             IndicatieEnumAdapter(),
             StatusNaamgevingEnumAdapter(),
@@ -20,8 +22,10 @@ class JsonbConfiguration : ContextResolver<Jsonb> {
             TypeAdresseerbaarObjectEnumAdapter(),
             GebruiksdoelEnumAdapter(),
             TypeOpenbareRuimteEnumAdapter()
-        )
-    )
+        ).let {
+            jsonb = JsonbBuilder.create(it)
+        }
+    }
 
     override fun getContext(type: Class<*>): Jsonb = jsonb
 }
