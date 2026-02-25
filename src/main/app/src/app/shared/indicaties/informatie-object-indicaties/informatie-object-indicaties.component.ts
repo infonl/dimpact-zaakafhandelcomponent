@@ -16,7 +16,6 @@ import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
-  standalone: true,
   imports: [MaterialModule, TranslateModule, PipesModule, CommonModule],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],

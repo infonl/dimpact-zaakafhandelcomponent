@@ -13,7 +13,6 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
 
 @Component({
   selector: "zac-klant-koppel",
-  standalone: true,
   imports: [
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,

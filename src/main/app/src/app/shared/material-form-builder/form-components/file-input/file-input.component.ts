@@ -104,7 +104,6 @@ import { MatFileInput } from "./file-input-control";
       </mat-form-field>
     </div>
   `,
-  standalone: true,
   imports: [
     MatInputModule,
     MatIconModule,
