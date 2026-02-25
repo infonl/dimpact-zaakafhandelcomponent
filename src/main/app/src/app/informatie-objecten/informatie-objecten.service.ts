@@ -227,7 +227,9 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(body: PostBody<"/rest/informatieobjecten/download/zip">): Observable<Blob> {
+  getZIPDownload(
+    body: PostBody<"/rest/informatieobjecten/download/zip">,
+  ): Observable<Blob> {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/download/zip",
       body,
@@ -283,14 +285,19 @@ export class InformatieObjectenService {
     );
   }
 
-  convertInformatieObjectToPDF(uuid: string, zaakUuid: string): Observable<void> {
-    return this.zacHttpClient.POST(
-      "/rest/informatieobjecten/informatieobject/{uuid}/convert",
-      undefined as never,
-      {
-        path: { uuid },
-        query: { zaak: zaakUuid },
-      },
-    ).pipe(map(() => void 0));
+  convertInformatieObjectToPDF(
+    uuid: string,
+    zaakUuid: string,
+  ): Observable<void> {
+    return this.zacHttpClient
+      .POST(
+        "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+        undefined as never,
+        {
+          path: { uuid },
+          query: { zaak: zaakUuid },
+        },
+      )
+      .pipe(map(() => void 0));
   }
 }
