@@ -176,7 +176,7 @@ When(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page
-      .getByRole("button", { name: "submitButtonAriaLabel" })
+      .getByRole("button", { name: "Submit Form", exact: true })
       .click();
   },
 );
