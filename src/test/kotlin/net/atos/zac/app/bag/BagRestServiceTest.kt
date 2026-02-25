@@ -12,10 +12,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import net.atos.zac.app.bag.model.BAGObjectType
 import nl.info.client.bag.BagClientService
 import nl.info.client.bag.model.BevraagAdressenParameters
 import nl.info.client.bag.model.createAdresIOHal
-import net.atos.zac.app.bag.model.BAGObjectType
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService

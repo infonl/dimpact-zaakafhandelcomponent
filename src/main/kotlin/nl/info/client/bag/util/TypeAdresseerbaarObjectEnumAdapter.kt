@@ -8,6 +8,8 @@ import jakarta.json.bind.adapter.JsonbAdapter
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 
 class TypeAdresseerbaarObjectEnumAdapter : JsonbAdapter<TypeAdresseerbaarObject, String> {
-    override fun adaptToJson(typeAdresseerbaarObject: TypeAdresseerbaarObject): String = typeAdresseerbaarObject.toString()
+    override fun adaptToJson(
+        typeAdresseerbaarObject: TypeAdresseerbaarObject
+    ): String = typeAdresseerbaarObject.toString()
     override fun adaptFromJson(json: String): TypeAdresseerbaarObject = TypeAdresseerbaarObject.fromValue(json)
 }

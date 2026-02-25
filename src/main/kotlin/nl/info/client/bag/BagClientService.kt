@@ -46,7 +46,11 @@ class BagClientService @Inject constructor(
 
     fun readNummeraanduiding(nummeraanduidingIdentificatie: String): NummeraanduidingIOHal =
         nummeraanduidingApi.nummeraanduidingIdentificatie(
-            nummeraanduidingIdentificatie, null, null, NUMMERAANDUIDING_EXPAND, null
+            nummeraanduidingIdentificatie,
+            null,
+            null,
+            NUMMERAANDUIDING_EXPAND,
+            null
         )
 
     fun readPand(pandIdentificatie: String): PandIOHal =
@@ -54,7 +58,11 @@ class BagClientService @Inject constructor(
 
     fun readOpenbareRuimte(openbareRuimeIdentificatie: String): OpenbareRuimteIOHal =
         openbareRuimteApi.openbareruimteIdentificatie(
-            openbareRuimeIdentificatie, null, null, OPENBARE_RUIMTE_EXPAND, null
+            openbareRuimeIdentificatie,
+            null,
+            null,
+            OPENBARE_RUIMTE_EXPAND,
+            null
         )
 
     fun listAdressen(parameters: BevraagAdressenParameters): List<AdresIOHal> {

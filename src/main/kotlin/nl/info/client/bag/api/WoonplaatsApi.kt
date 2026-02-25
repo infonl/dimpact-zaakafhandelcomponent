@@ -64,7 +64,7 @@ interface WoonplaatsApi {
         @QueryParam("geldigOp") geldigOp: LocalDate?,
         @QueryParam("beschikbaarOp") beschikbaarOp: OffsetDateTime?,
         @QueryParam("expand") expand: String?,
-        @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) acceptCrs: String,
+        @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) acceptCrs: String?,
         @QueryParam("huidig") @DefaultValue("false") huidig: Boolean?
     ): WoonplaatsIOHal
 

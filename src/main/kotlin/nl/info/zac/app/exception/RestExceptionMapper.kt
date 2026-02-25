@@ -12,12 +12,12 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
-import nl.info.client.bag.BagClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
+import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
