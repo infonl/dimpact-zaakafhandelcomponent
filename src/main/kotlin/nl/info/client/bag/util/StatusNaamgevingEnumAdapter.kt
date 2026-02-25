@@ -1,23 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.bag.util
 
-package net.atos.client.bag.util;
+import jakarta.json.bind.adapter.JsonbAdapter
+import nl.info.client.bag.model.generated.StatusNaamgeving
 
-import jakarta.json.bind.adapter.JsonbAdapter;
-
-import nl.info.client.bag.model.generated.StatusNaamgeving;
-
-public class StatusNaamgevingEnumAdapter implements JsonbAdapter<StatusNaamgeving, String> {
-
-    @Override
-    public String adaptToJson(final StatusNaamgeving statusNaamgeving) {
-        return statusNaamgeving.toString();
-    }
-
-    @Override
-    public StatusNaamgeving adaptFromJson(final String json) {
-        return StatusNaamgeving.fromValue(json);
-    }
+class StatusNaamgevingEnumAdapter : JsonbAdapter<StatusNaamgeving, String> {
+    override fun adaptToJson(statusNaamgeving: StatusNaamgeving): String = statusNaamgeving.toString()
+    override fun adaptFromJson(json: String): StatusNaamgeving = StatusNaamgeving.fromValue(json)
 }

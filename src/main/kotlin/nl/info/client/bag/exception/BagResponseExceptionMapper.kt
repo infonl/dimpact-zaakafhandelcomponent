@@ -1,31 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.bag.exception
 
-package net.atos.client.bag.exception;
+import jakarta.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.core.Response
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
+class BagResponseExceptionMapper : ResponseExceptionMapper<RuntimeException> {
 
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
+        status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
-
-public class BagResponseExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
-
-    @Override
-    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return status >= Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-    }
-
-    @Override
-    public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(
-                String.format(
-                        "Server response from BAG: %d (%s)",
-                        response.getStatus(),
-                        response.getStatusInfo()
-                )
-        );
-    }
+    override fun toThrowable(response: Response): RuntimeException =
+        RuntimeException("Server response from BAG: ${response.status} (${response.statusInfo})")
 }

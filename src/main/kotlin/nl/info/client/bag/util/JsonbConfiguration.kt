@@ -1,35 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.bag.util
 
-package net.atos.client.bag.util;
+import jakarta.json.bind.Jsonb
+import jakarta.json.bind.JsonbBuilder
+import jakarta.json.bind.JsonbConfig
+import jakarta.ws.rs.ext.ContextResolver
 
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
-import jakarta.json.bind.JsonbConfig;
-import jakarta.ws.rs.ext.ContextResolver;
+class JsonbConfiguration : ContextResolver<Jsonb> {
+    private val jsonb: Jsonb = JsonbBuilder.create(
+        JsonbConfig().withAdapters(
+            IndicatieEnumAdapter(),
+            StatusNaamgevingEnumAdapter(),
+            StatusPandEnumAdapter(),
+            StatusWoonplaatsEnumAdapter(),
+            StatusVerblijfsobjectEnumAdapter(),
+            TypeAdresseerbaarObjectEnumAdapter(),
+            GebruiksdoelEnumAdapter(),
+            TypeOpenbareRuimteEnumAdapter()
+        )
+    )
 
-
-public class JsonbConfiguration implements ContextResolver<Jsonb> {
-
-    private Jsonb jsonb;
-
-    public JsonbConfiguration() {
-        final JsonbConfig jsonbConfig = new JsonbConfig().withAdapters(
-                new IndicatieEnumAdapter(),
-                new StatusNaamgevingEnumAdapter(),
-                new StatusPandEnumAdapter(),
-                new StatusWoonplaatsEnumAdapter(),
-                new StatusVerblijfsobjectEnumAdapter(),
-                new TypeAdresseerbaarObjectEnumAdapter(),
-                new GebruiksdoelEnumAdapter(),
-                new TypeOpenbareRuimteEnumAdapter());
-        jsonb = JsonbBuilder.create(jsonbConfig);
-    }
-
-    @Override
-    public Jsonb getContext(Class<?> type) {
-        return jsonb;
-    }
+    override fun getContext(type: Class<*>): Jsonb = jsonb
 }

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.bag.model
+package nl.info.client.bag.model
 
 import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded

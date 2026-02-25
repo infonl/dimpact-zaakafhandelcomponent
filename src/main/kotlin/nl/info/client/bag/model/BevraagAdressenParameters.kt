@@ -1,181 +1,60 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.bag.model
 
-package net.atos.client.bag.model;
+import jakarta.ws.rs.DefaultValue
+import jakarta.ws.rs.QueryParam
 
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.QueryParam;
-
-public class BevraagAdressenParameters {
+class BevraagAdressenParameters {
 
     @QueryParam("zoekresultaatIdentificatie")
-    String zoekresultaatIdentificatie;
+    var zoekresultaatIdentificatie: String? = null
 
     @QueryParam("postcode")
-    String postcode;
+    var postcode: String? = null
 
     @QueryParam("huisnummer")
-    Integer huisnummer;
+    var huisnummer: Int? = null
 
     @QueryParam("huisnummertoevoeging")
-    String huisnummertoevoeging;
+    var huisnummertoevoeging: String? = null
 
     @QueryParam("huisletter")
-    String huisletter;
+    var huisletter: String? = null
 
     @QueryParam("exacteMatch")
     @DefaultValue("false")
-    Boolean exacteMatch;
+    var exacteMatch: Boolean = false
 
     @QueryParam("adresseerbaarObjectIdentificatie")
-    String adresseerbaarObjectIdentificatie;
+    var adresseerbaarObjectIdentificatie: String? = null
 
     @QueryParam("woonplaatsNaam")
-    String woonplaatsNaam;
+    var woonplaatsNaam: String? = null
 
     @QueryParam("openbareRuimteNaam")
-    String openbareRuimteNaam;
+    var openbareRuimteNaam: String? = null
 
     @QueryParam("pandIdentificatie")
-    String pandIdentificatie;
+    var pandIdentificatie: String? = null
 
     @QueryParam("expand")
-    String expand;
+    var expand: String? = null
 
     @QueryParam("page")
     @DefaultValue("1")
-    Integer page;
+    var page: Int = 1
 
     @QueryParam("pageSize")
     @DefaultValue("20")
-    Integer pageSize;
+    var pageSize: Int = 20
 
     @QueryParam("q")
-    String q;
+    var q: String? = null
 
     @QueryParam("inclusiefEindStatus")
     @DefaultValue("false")
-    Boolean inclusiefEindStatus;
-
-    public String getZoekresultaatIdentificatie() {
-        return zoekresultaatIdentificatie;
-    }
-
-    public void setZoekresultaatIdentificatie(final String zoekresultaatIdentificatie) {
-        this.zoekresultaatIdentificatie = zoekresultaatIdentificatie;
-    }
-
-    public String getPostcode() {
-        return postcode;
-    }
-
-    public void setPostcode(final String postcode) {
-        this.postcode = postcode;
-    }
-
-    public Integer getHuisnummer() {
-        return huisnummer;
-    }
-
-    public void setHuisnummer(final Integer huisnummer) {
-        this.huisnummer = huisnummer;
-    }
-
-    public String getHuisnummertoevoeging() {
-        return huisnummertoevoeging;
-    }
-
-    public void setHuisnummertoevoeging(final String huisnummertoevoeging) {
-        this.huisnummertoevoeging = huisnummertoevoeging;
-    }
-
-    public String getHuisletter() {
-        return huisletter;
-    }
-
-    public void setHuisletter(final String huisletter) {
-        this.huisletter = huisletter;
-    }
-
-    public Boolean getExacteMatch() {
-        return exacteMatch;
-    }
-
-    public void setExacteMatch(final Boolean exacteMatch) {
-        this.exacteMatch = exacteMatch;
-    }
-
-    public String getAdresseerbaarObjectIdentificatie() {
-        return adresseerbaarObjectIdentificatie;
-    }
-
-    public void setAdresseerbaarObjectIdentificatie(final String adresseerbaarObjectIdentificatie) {
-        this.adresseerbaarObjectIdentificatie = adresseerbaarObjectIdentificatie;
-    }
-
-    public String getWoonplaatsNaam() {
-        return woonplaatsNaam;
-    }
-
-    public void setWoonplaatsNaam(final String woonplaatsNaam) {
-        this.woonplaatsNaam = woonplaatsNaam;
-    }
-
-    public String getOpenbareRuimteNaam() {
-        return openbareRuimteNaam;
-    }
-
-    public void setOpenbareRuimteNaam(final String openbareRuimteNaam) {
-        this.openbareRuimteNaam = openbareRuimteNaam;
-    }
-
-    public String getPandIdentificatie() {
-        return pandIdentificatie;
-    }
-
-    public void setPandIdentificatie(final String pandIdentificatie) {
-        this.pandIdentificatie = pandIdentificatie;
-    }
-
-    public String getExpand() {
-        return expand;
-    }
-
-    public void setExpand(final String expand) {
-        this.expand = expand;
-    }
-
-    public Integer getPage() {
-        return page;
-    }
-
-    public void setPage(final Integer page) {
-        this.page = page;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(final Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public String getQ() {
-        return q;
-    }
-
-    public void setQ(final String q) {
-        this.q = q;
-    }
-
-    public Boolean getInclusiefEindStatus() {
-        return inclusiefEindStatus;
-    }
-
-    public void setInclusiefEindStatus(final Boolean inclusiefEindStatus) {
-        this.inclusiefEindStatus = inclusiefEindStatus;
-    }
+    var inclusiefEindStatus: Boolean = false
 }

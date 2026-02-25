@@ -1,23 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.bag.util
 
-package net.atos.client.bag.util;
+import jakarta.json.bind.adapter.JsonbAdapter
+import nl.info.client.bag.model.generated.StatusWoonplaats
 
-import jakarta.json.bind.adapter.JsonbAdapter;
-
-import nl.info.client.bag.model.generated.StatusWoonplaats;
-
-public class StatusWoonplaatsEnumAdapter implements JsonbAdapter<StatusWoonplaats, String> {
-
-    @Override
-    public String adaptToJson(final StatusWoonplaats statusWoonplaats) {
-        return statusWoonplaats.toString();
-    }
-
-    @Override
-    public StatusWoonplaats adaptFromJson(final String json) {
-        return StatusWoonplaats.fromValue(json);
-    }
+class StatusWoonplaatsEnumAdapter : JsonbAdapter<StatusWoonplaats, String> {
+    override fun adaptToJson(statusWoonplaats: StatusWoonplaats): String = statusWoonplaats.toString()
+    override fun adaptFromJson(json: String): StatusWoonplaats = StatusWoonplaats.fromValue(json)
 }
