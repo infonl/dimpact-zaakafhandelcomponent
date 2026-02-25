@@ -39,30 +39,47 @@ class BagClientService @Inject constructor(
     }
 
     fun readAdres(nummeraanduidingIdentificatie: String): AdresIOHal =
-        adresApi.bevraagAdressenMetNumId(nummeraanduidingIdentificatie, ADRES_EXPAND, null)
+        adresApi.bevraagAdressenMetNumId(
+            nummeraanduidingIdentificatie = nummeraanduidingIdentificatie,
+            expand = ADRES_EXPAND,
+            inclusiefEindStatus = null
+        )
 
     fun readWoonplaats(woonplaatsIdentificatie: String): WoonplaatsIOHal =
-        woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
+        woonplaatsApi.woonplaatsIdentificatie(
+            identificatie = woonplaatsIdentificatie,
+            geldigOp = null,
+            beschikbaarOp = null,
+            expand = null,
+            acceptCrs = null,
+            huidig = null
+        )
 
     fun readNummeraanduiding(nummeraanduidingIdentificatie: String): NummeraanduidingIOHal =
         nummeraanduidingApi.nummeraanduidingIdentificatie(
-            nummeraanduidingIdentificatie,
-            null,
-            null,
-            NUMMERAANDUIDING_EXPAND,
-            null
+            nummeraanduidingIdentificatie = nummeraanduidingIdentificatie,
+            geldigOp = null,
+            beschikbaarOp = null,
+            expand = NUMMERAANDUIDING_EXPAND,
+            huidig = null
         )
 
     fun readPand(pandIdentificatie: String): PandIOHal =
-        pandApi.pandIdentificatie(pandIdentificatie, null, null, DEFAULT_CRS, null)
+        pandApi.pandIdentificatie(
+            identificatie = pandIdentificatie,
+            geldigOp = null,
+            beschikbaarOp = null,
+            acceptCrs = DEFAULT_CRS,
+            huidig = null
+        )
 
     fun readOpenbareRuimte(openbareRuimteIdentificatie: String): OpenbareRuimteIOHal =
         openbareRuimteApi.openbareruimteIdentificatie(
-            openbareRuimteIdentificatie,
-            null,
-            null,
-            OPENBARE_RUIMTE_EXPAND,
-            null
+            openbareRuimteIdentificatie = openbareRuimteIdentificatie,
+            geldigOp = null,
+            beschikbaarOp = null,
+            expand = OPENBARE_RUIMTE_EXPAND,
+            huidig = null
         )
 
     fun listAdressen(parameters: BevraagAdressenParameters): List<AdresIOHal> {
