@@ -87,7 +87,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 
 Search for all files that still import the old package:
 ```bash
-grep -r "net\.atos\.<subpath>" src/ --include="*.java" --include="*.kt" -l
+grep -r "import net\.atos\." src/ --include="*.java" --include="*.kt" -l
 ```
 Update imports in every found file (Java callers use the same `nl.info.*` import).
 
