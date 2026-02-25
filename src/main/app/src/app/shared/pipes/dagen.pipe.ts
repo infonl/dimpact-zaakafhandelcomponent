@@ -9,6 +9,7 @@ import moment from "moment";
 
 @Pipe({
   name: "dagen",
+  standalone: true,
 })
 export class DagenPipe implements PipeTransform {
   constructor(private translate: TranslateService) {}
