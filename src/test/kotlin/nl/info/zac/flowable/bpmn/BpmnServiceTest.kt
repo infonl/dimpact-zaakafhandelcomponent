@@ -259,7 +259,7 @@ class BpmnServiceTest : BehaviorSpec({
         When("checking it has process instances by process definition key") {
             val result = bpmnService.hasProcessInstances(processDefinitionKey)
 
-            Then("true is returned") {
+            Then("false is returned") {
                 result shouldBe false
             }
         }
@@ -272,7 +272,7 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
         } returns linkedProcessDefinitionKeys
 
-        When("checking it has process instances by process definition key") {
+        When("checking it has linked configurations by process definition key") {
             val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
 
             Then("true is returned") {
@@ -288,7 +288,7 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
         } returns linkedProcessDefinitionKeys
 
-        When("checking it has process instances by process definition key") {
+        When("checking it has linked configurations by process definition key") {
             val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
 
             Then("false is returned") {
@@ -305,7 +305,7 @@ class BpmnServiceTest : BehaviorSpec({
                 .count()
         } returns 3
 
-        When("checking the process instances is in use by process definition key") {
+        When("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             Then("true is returned") {
@@ -329,7 +329,7 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
         } returns linkedProcessDefinitionKeys
 
-        When("checking the process instances is in use by process definition key") {
+        When("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             Then("true is returned") {
@@ -350,7 +350,7 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
         } returns linkedProcessDefinitionKeys
 
-        When("checking the process instances is in use by process definition key") {
+        When("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
             Then("false is returned") {
