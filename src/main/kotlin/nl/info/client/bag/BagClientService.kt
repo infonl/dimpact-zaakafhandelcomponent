@@ -56,9 +56,9 @@ class BagClientService @Inject constructor(
     fun readPand(pandIdentificatie: String): PandIOHal =
         pandApi.pandIdentificatie(pandIdentificatie, null, null, DEFAULT_CRS, null)
 
-    fun readOpenbareRuimte(openbareRuimeIdentificatie: String): OpenbareRuimteIOHal =
+    fun readOpenbareRuimte(openbareRuimteIdentificatie: String): OpenbareRuimteIOHal =
         openbareRuimteApi.openbareruimteIdentificatie(
-            openbareRuimeIdentificatie,
+            openbareRuimteIdentificatie,
             null,
             null,
             OPENBARE_RUIMTE_EXPAND,
