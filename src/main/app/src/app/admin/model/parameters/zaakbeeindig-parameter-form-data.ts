@@ -6,13 +6,22 @@
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
 /**
- * Converts internal form data to the API type for sending to the backend.
- * Validates that required fields are present.
- *
- * @throws Error if required fields are missing
+ * Form data type for zaakbeeindig parameters during editing.
+ * - zaakbeeindigReden is optional for the "zaak niet ontvankelijk" special case
+ * - resultaattype is optional until user selects one from dropdown
+ */
+export type ZaakbeeindigParameterFormData = {
+  id?: number | null;
+  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden"> | null;
+  resultaattype?: GeneratedType<"RestResultaattype"> | null;
+};
+
+/**
+ * Converts form data to the API type for saving to backend.
+ * Only called for regular zaakbeeindig parameters (not zaaknietontvankelijk).
  */
 export function toRestZaakbeeindigParameter(
-  formData: GeneratedType<"RestZaakbeeindigParameter">,
+  formData: ZaakbeeindigParameterFormData,
 ): GeneratedType<"RestZaakbeeindigParameter"> {
   if (!formData.zaakbeeindigReden) {
     throw new Error("zaakbeeindigReden is required");
@@ -25,18 +34,5 @@ export function toRestZaakbeeindigParameter(
     id: formData.id,
     zaakbeeindigReden: formData.zaakbeeindigReden,
     resultaattype: formData.resultaattype,
-  };
-}
-
-/**
- * Converts API type to internal form data for editing.
- */
-export function fromRestZaakbeeindigParameter(
-  apiData: GeneratedType<"RestZaakbeeindigParameter">,
-): GeneratedType<"RestZaakbeeindigParameter"> {
-  return {
-    id: apiData.id,
-    zaakbeeindigReden: apiData.zaakbeeindigReden,
-    resultaattype: apiData.resultaattype,
   };
 }

@@ -44,7 +44,7 @@ import {
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
 import {
-  fromRestZaakbeeindigParameter,
+  ZaakbeeindigParameterFormData,
   toRestZaakbeeindigParameter,
 } from "../model/parameters/zaakbeeindig-parameter-form-data";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -103,8 +103,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
   userEventListenerParameters: GeneratedType<"RESTUserEventListenerParameter">[] =
     [];
-  zaakbeeindigParameters: GeneratedType<"RestZaakbeeindigParameter">[] = [];
-  selection = new SelectionModel<GeneratedType<"RestZaakbeeindigParameter">>(true);
+  zaakbeeindigParameters: ZaakbeeindigParameterFormData[] = [];
+  selection = new SelectionModel<ZaakbeeindigParameterFormData>(true);
   zaakAfzenders: string[] = [];
   zaakAfzendersDataSource = new MatTableDataSource<
     GeneratedType<"RestZaakAfzender">
@@ -641,13 +641,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected isZaaknietontvankelijkParameter(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: ZaakbeeindigParameterFormData,
   ) {
     return parameter.zaakbeeindigReden === undefined;
   }
 
   private addZaakbeeindigParameter(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: ZaakbeeindigParameterFormData,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -659,8 +659,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">,
-  ): GeneratedType<"RestZaakbeeindigParameter"> {
-    const parameter: GeneratedType<"RestZaakbeeindigParameter"> = {
+  ): ZaakbeeindigParameterFormData {
+    const parameter: ZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -669,11 +669,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
-  ): GeneratedType<"RestZaakbeeindigParameter"> {
-    let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
+  ): ZaakbeeindigParameterFormData {
+    let parameter: ZaakbeeindigParameterFormData | null = null;
     for (const item of this.parameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
-        parameter = fromRestZaakbeeindigParameter(item);
+        parameter = item;
         this.selection.select(parameter);
         break;
       }
@@ -685,7 +685,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return parameter;
   }
 
-  private updateZaakbeeindigForm(parameter: GeneratedType<"RestZaakbeeindigParameter">) {
+  private updateZaakbeeindigForm(parameter: ZaakbeeindigParameterFormData) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
@@ -697,7 +697,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: ZaakbeeindigParameterFormData,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -813,7 +813,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected getZaakbeeindigControl(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: ZaakbeeindigParameterFormData,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
