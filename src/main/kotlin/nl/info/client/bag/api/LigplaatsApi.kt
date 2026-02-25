@@ -43,6 +43,7 @@ interface LigplaatsApi {
     @Consumes(APPLICATION_JSON)
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun ligplaatsGeometrie(
         pointGeoJSON: PointGeoJSON,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -57,6 +58,7 @@ interface LigplaatsApi {
     @Path("/{identificatie}")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun ligplaatsIdentificatie(
         @PathParam("identificatie") identificatie: String,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -90,6 +92,7 @@ interface LigplaatsApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekLigplaatsen(
         @QueryParam("geldigOp") geldigOp: LocalDate?,
         @QueryParam("beschikbaarOp") beschikbaarOp: OffsetDateTime?,

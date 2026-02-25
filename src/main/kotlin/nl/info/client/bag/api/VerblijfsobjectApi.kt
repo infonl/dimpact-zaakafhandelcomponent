@@ -41,6 +41,7 @@ interface VerblijfsobjectApi {
     @Path("/{identificatie}")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun verblijfsobjectIdentificatie(
         @PathParam("identificatie") identificatie: String,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -74,6 +75,7 @@ interface VerblijfsobjectApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekVerblijfsobjecten(
         @QueryParam("pandIdentificatie") pandIdentificatie: String?,
         @QueryParam("huidig") @DefaultValue("false") huidig: Boolean?,

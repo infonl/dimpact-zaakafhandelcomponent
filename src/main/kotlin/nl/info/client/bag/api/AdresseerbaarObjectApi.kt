@@ -44,6 +44,7 @@ interface AdresseerbaarObjectApi {
     @Path("/{adresseerbaarObjectIdentificatie}")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun bevragenAdresseerbaarObject(
         @PathParam("adresseerbaarObjectIdentificatie") adresseerbaarObjectIdentificatie: String,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -66,6 +67,7 @@ interface AdresseerbaarObjectApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekAdresseerbareObjecten(
         @QueryParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String?,
         @QueryParam("huidig") @DefaultValue("false") huidig: Boolean?,

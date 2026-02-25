@@ -47,6 +47,7 @@ interface PandApi {
     @Consumes(APPLICATION_JSON)
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun pandGeometrie(
         pointGeoJSON: PointGeoJSON,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -92,6 +93,7 @@ interface PandApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekPanden(
         @QueryParam("geldigOp") geldigOp: LocalDate?,
         @QueryParam("beschikbaarOp") beschikbaarOp: OffsetDateTime?,

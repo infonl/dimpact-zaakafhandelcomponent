@@ -68,6 +68,7 @@ interface NummeraanduidingApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekNummeraanduiding(
         @QueryParam("postcode") postcode: String?,
         @QueryParam("huisnummer") huisnummer: Int?,

@@ -45,6 +45,7 @@ interface WoonplaatsApi {
     @Consumes(APPLICATION_JSON)
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun woonplaatsGeometrie(
         pointGeoJSON: PointGeoJSON,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -59,6 +60,7 @@ interface WoonplaatsApi {
     @Path("/{identificatie}")
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun woonplaatsIdentificatie(
         @PathParam("identificatie") identificatie: String,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
@@ -94,6 +96,7 @@ interface WoonplaatsApi {
     @GET
     @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
+    @Suppress("LongParameterList")
     fun zoekWoonplaatsen(
         @QueryParam("naam") naam: String?,
         @QueryParam("geldigOp") geldigOp: LocalDate?,
