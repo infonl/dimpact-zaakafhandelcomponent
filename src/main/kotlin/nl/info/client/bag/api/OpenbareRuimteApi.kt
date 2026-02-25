@@ -32,11 +32,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/openbareruimten")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface OpenbareRuimteApi {
 
     @GET
     @Path("/{openbareRuimteIdentificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun openbareruimteIdentificatie(
         @PathParam("openbareRuimteIdentificatie") openbareRuimteIdentificatie: String,
@@ -48,7 +48,6 @@ interface OpenbareRuimteApi {
 
     @GET
     @Path("/{openbareRuimteIdentificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun openbareruimteIdentificatieVoorkomen(
         @PathParam("openbareRuimteIdentificatie") openbareRuimteIdentificatie: String,
@@ -58,7 +57,6 @@ interface OpenbareRuimteApi {
 
     @GET
     @Path("/{openbareRuimteIdentificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun openbareruimteLvcIdentificatie(
         @PathParam("openbareRuimteIdentificatie") openbareRuimteIdentificatie: String,
@@ -66,7 +64,6 @@ interface OpenbareRuimteApi {
     ): OpenbareRuimteIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekOpenbareRuimten(

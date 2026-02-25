@@ -37,11 +37,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(BagResponseExceptionMapper::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/ligplaatsen")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface LigplaatsApi {
 
     @POST
     @Consumes(APPLICATION_JSON)
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun ligplaatsGeometrie(
@@ -56,7 +56,6 @@ interface LigplaatsApi {
 
     @GET
     @Path("/{identificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun ligplaatsIdentificatie(
@@ -70,7 +69,6 @@ interface LigplaatsApi {
 
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun ligplaatsIdentificatieVoorkomen(
         @PathParam("identificatie") identificatie: String,
@@ -81,7 +79,6 @@ interface LigplaatsApi {
 
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun ligplaatsLvcIdentificatie(
         @PathParam("identificatie") identificatie: String,
@@ -90,7 +87,6 @@ interface LigplaatsApi {
     ): LigplaatsIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekLigplaatsen(

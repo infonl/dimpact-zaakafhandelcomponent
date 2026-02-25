@@ -28,11 +28,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(BagResponseExceptionMapper::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/bronhouders")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface BronhouderApi {
 
     @GET
     @Path("/{identificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun bevragenBronhouder(
         @PathParam("identificatie") identificatie: String,
@@ -42,7 +42,6 @@ interface BronhouderApi {
 
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun bronhouderIdentificatieVoorkomen(
         @PathParam("identificatie") identificatie: String,
@@ -51,7 +50,6 @@ interface BronhouderApi {
     ): BronhouderHal
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun zoekBronhouder(
         @QueryParam("woonplaatsIdentificatie") woonplaatsIdentificatie: String?,

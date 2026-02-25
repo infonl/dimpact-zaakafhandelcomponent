@@ -35,11 +35,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(BagResponseExceptionMapper::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/verblijfsobjecten")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface VerblijfsobjectApi {
 
     @GET
     @Path("/{identificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun verblijfsobjectIdentificatie(
@@ -53,7 +53,6 @@ interface VerblijfsobjectApi {
 
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun verblijfsobjectIdentificatieVoorkomen(
         @PathParam("identificatie") identificatie: String,
@@ -64,7 +63,6 @@ interface VerblijfsobjectApi {
 
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun verblijfsobjectLvcIdentificatie(
         @PathParam("identificatie") identificatie: String,
@@ -73,7 +71,6 @@ interface VerblijfsobjectApi {
     ): VerblijfsobjectIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekVerblijfsobjecten(

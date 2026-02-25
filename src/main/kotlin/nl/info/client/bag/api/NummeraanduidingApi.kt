@@ -32,11 +32,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/nummeraanduidingen")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface NummeraanduidingApi {
 
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun nummeraanduidingIdentificatie(
         @PathParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String,
@@ -48,7 +48,6 @@ interface NummeraanduidingApi {
 
     @GET
     @Path("/{nummeraanduidingIdentificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun nummeraanduidingIdentificatieVoorkomen(
         @PathParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String,
@@ -58,7 +57,6 @@ interface NummeraanduidingApi {
 
     @GET
     @Path("/{nummeraanduidingIdentificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun nummeraanduidingLvcIdentificatie(
         @PathParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String,
@@ -66,7 +64,6 @@ interface NummeraanduidingApi {
     ): NummeraanduidingIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekNummeraanduiding(

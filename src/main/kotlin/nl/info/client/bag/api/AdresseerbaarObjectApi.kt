@@ -37,11 +37,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/adresseerbareobjecten")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface AdresseerbaarObjectApi {
 
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Suppress("LongParameterList")
     fun bevragenAdresseerbaarObject(
         @PathParam("adresseerbaarObjectIdentificatie") adresseerbaarObjectIdentificatie: String,
@@ -54,7 +54,6 @@ interface AdresseerbaarObjectApi {
 
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     fun bevragenAdresseerbaarObjectLvc(
         @PathParam("adresseerbaarObjectIdentificatie") adresseerbaarObjectIdentificatie: String,
         @QueryParam("geheleLvc") @DefaultValue("false") geheleLvc: Boolean?,
@@ -62,7 +61,6 @@ interface AdresseerbaarObjectApi {
     ): AdresseerbaarObjectLvcIOHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Suppress("LongParameterList")
     fun zoekAdresseerbareObjecten(
         @QueryParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String?,

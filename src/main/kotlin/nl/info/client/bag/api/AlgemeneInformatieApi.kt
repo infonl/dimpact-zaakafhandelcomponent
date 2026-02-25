@@ -23,10 +23,10 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(BagResponseExceptionMapper::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/info")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface AlgemeneInformatieApi {
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun getInfo(): APIInfo
 }

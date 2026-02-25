@@ -41,11 +41,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/panden")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface PandApi {
 
     @POST
     @Consumes(APPLICATION_JSON)
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun pandGeometrie(
@@ -59,7 +59,6 @@ interface PandApi {
 
     @GET
     @Path("/{identificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun pandIdentificatie(
         @PathParam("identificatie") identificatie: String,
@@ -71,7 +70,6 @@ interface PandApi {
 
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun pandIdentificatieVoorkomen(
         @PathParam("identificatie") identificatie: String,
@@ -82,7 +80,6 @@ interface PandApi {
 
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun pandLvcIdentificatie(
         @PathParam("identificatie") identificatie: String,
@@ -91,7 +88,6 @@ interface PandApi {
     ): PandIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekPanden(

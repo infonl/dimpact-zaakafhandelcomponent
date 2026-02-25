@@ -39,11 +39,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/woonplaatsen")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface WoonplaatsApi {
 
     @POST
     @Consumes(APPLICATION_JSON)
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun woonplaatsGeometrie(
@@ -58,7 +58,6 @@ interface WoonplaatsApi {
 
     @GET
     @Path("/{identificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun woonplaatsIdentificatie(
@@ -72,7 +71,6 @@ interface WoonplaatsApi {
 
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun woonplaatsIdentificatieVoorkomen(
         @PathParam("identificatie") identificatie: String,
@@ -84,7 +82,6 @@ interface WoonplaatsApi {
 
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun woonplaatsLvcIdentificatie(
         @PathParam("identificatie") identificatie: String,
@@ -94,7 +91,6 @@ interface WoonplaatsApi {
     ): WoonplaatsIOLvcHalCollection
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekWoonplaatsen(

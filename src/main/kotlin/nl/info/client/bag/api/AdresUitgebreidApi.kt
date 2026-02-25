@@ -31,11 +31,11 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(JsonbConfiguration::class)
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 @Path("/adressenuitgebreid")
+@Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
 interface AdresUitgebreidApi {
 
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     fun bevraagAdresUitgebreidMetNumId(
         @PathParam("nummeraanduidingIdentificatie") nummeraanduidingIdentificatie: String,
@@ -44,7 +44,6 @@ interface AdresUitgebreidApi {
     ): AdresUitgebreidHal
 
     @GET
-    @Produces(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
     @Throws(ProcessingException::class)
     @Suppress("LongParameterList")
     fun zoekAdresUitgebreid(
