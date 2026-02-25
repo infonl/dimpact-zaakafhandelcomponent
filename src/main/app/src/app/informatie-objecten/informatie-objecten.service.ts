@@ -30,7 +30,7 @@ export class InformatieObjectenService {
       "/rest/informatieobjecten/informatieobject/{uuid}",
       {
         path: { uuid },
-        query: { zaak: zaakUuid },
+        query: { zaak: zaakUuid ?? null },
       },
     );
   }
