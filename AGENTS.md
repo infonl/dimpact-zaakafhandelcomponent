@@ -129,6 +129,11 @@ When modifying an existing file that already has an SPDX header, add `, <YEAR> I
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 
+## Git branch conventions
+When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes. 
+Replace `PZ-XXX` with the relevant Jira ticket number.
+The branch name convention `renovate/` is reserved for automated dependency updates by Renovate and should not be used for manual branches.
+
 ## Key Configuration Files
 - `.env.example` — all environment variables with descriptions
 - `docker-compose.yaml` — full local stack definition
