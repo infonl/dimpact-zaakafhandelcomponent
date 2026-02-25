@@ -4,7 +4,6 @@
  */
 package nl.info.client.bag.model
 
-import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.QueryParam
 
 class BevraagAdressenParameters {
@@ -25,8 +24,7 @@ class BevraagAdressenParameters {
     var huisletter: String? = null
 
     @field:QueryParam("exacteMatch")
-    @field:DefaultValue("false")
-    var exacteMatch: Boolean = false
+    var exacteMatch: Boolean? = null
 
     @field:QueryParam("adresseerbaarObjectIdentificatie")
     var adresseerbaarObjectIdentificatie: String? = null
@@ -44,17 +42,14 @@ class BevraagAdressenParameters {
     var expand: String? = null
 
     @field:QueryParam("page")
-    @field:DefaultValue("1")
-    var page: Int = 1
+    var page: Int? = null
 
     @field:QueryParam("pageSize")
-    @field:DefaultValue("20")
-    var pageSize: Int = 20
+    var pageSize: Int? = null
 
     @field:QueryParam("q")
     var q: String? = null
 
     @field:QueryParam("inclusiefEindStatus")
-    @field:DefaultValue("false")
-    var inclusiefEindStatus: Boolean = false
+    var inclusiefEindStatus: Boolean? = null
 }
