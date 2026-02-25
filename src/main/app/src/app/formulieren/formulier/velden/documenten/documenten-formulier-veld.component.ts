@@ -14,6 +14,7 @@ import {
 } from "../../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { IndicatiesLayout } from "src/app/shared/indicaties/indicaties.component";
 
 @Component({
   selector: "zac-documenten-formulier-veld",
@@ -46,6 +47,8 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   selection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
+
+  readonly indicatiesLayout = IndicatiesLayout;
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,
