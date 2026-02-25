@@ -5,12 +5,6 @@
 
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
-export interface ZaakbeeindigParameterFormData {
-  id?: number | null;
-  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden"> | null;
-  resultaattype?: GeneratedType<"RestResultaattype"> | null;
-}
-
 /**
  * Converts internal form data to the API type for sending to the backend.
  * Validates that required fields are present.
@@ -18,7 +12,7 @@ export interface ZaakbeeindigParameterFormData {
  * @throws Error if required fields are missing
  */
 export function toRestZaakbeeindigParameter(
-  formData: ZaakbeeindigParameterFormData,
+  formData: GeneratedType<"RestZaakbeeindigParameter">,
 ): GeneratedType<"RestZaakbeeindigParameter"> {
   if (!formData.zaakbeeindigReden) {
     throw new Error("zaakbeeindigReden is required");
@@ -39,7 +33,7 @@ export function toRestZaakbeeindigParameter(
  */
 export function fromRestZaakbeeindigParameter(
   apiData: GeneratedType<"RestZaakbeeindigParameter">,
-): ZaakbeeindigParameterFormData {
+): GeneratedType<"RestZaakbeeindigParameter"> {
   return {
     id: apiData.id,
     zaakbeeindigReden: apiData.zaakbeeindigReden,
