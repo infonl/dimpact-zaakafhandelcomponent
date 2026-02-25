@@ -59,7 +59,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         When("Returning the unique BPMN process definition keys") {
             val keys = zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
 
-            Then("Gives a list of two unique BPM process definition keys") {
+            Then("Gives a list of two unique BPMN process definition keys") {
                 keys shouldContainAllInAnyOrder uniqueBpmnProcessDefinitionKeys
             }
         }
