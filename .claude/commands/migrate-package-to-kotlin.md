@@ -66,7 +66,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - `Optional<T>` → nullable `T?`; `Optional.of(x)` / `Optional.empty()` → `x` / `null`
 - `Collections.emptyList()` / `Collections.emptyMap()` → `emptyList()` / `emptyMap()`
 - Stream chains → Kotlin collection operations: `.stream().map(this::fn).toList()` → `.map(::fn)`
-- Logging: `Logger.getLogger(X.class)` → `private val logger = KotlinLogging.logger {}`; `logger.debug("v: " + v)` → `logger.debug { "v: $v" }`
+- Logging: keep `java.util.logging.Logger` with the existing pattern, e.g. `Logger.getLogger(X.class)` → `companion object { private val LOG = Logger.getLogger(Foo::class.java.name) }`; `LOG.fine("v: " + v)` → `LOG.fine { "v: $v" }` (or the existing lambda/Supplier style used in the codebase)
 
 **f) Model/POJO classes** → `data class` with constructor parameters where all fields are conceptually immutable; plain `class` with `var` fields when mutability is needed (e.g. JAX-RS `@BeanParam` beans).
 
