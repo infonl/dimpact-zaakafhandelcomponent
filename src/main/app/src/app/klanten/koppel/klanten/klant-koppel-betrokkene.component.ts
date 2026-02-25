@@ -24,6 +24,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
 
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
+  standalone: true,
   imports: [
     SharedModule,
     TranslateModule,

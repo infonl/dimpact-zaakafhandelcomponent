@@ -13,6 +13,7 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 
 @Component({
   selector: "zac-klant-koppel-initiator-persoon",
+  standalone: true,
   imports: [
     SharedModule,
     TranslateModule,
