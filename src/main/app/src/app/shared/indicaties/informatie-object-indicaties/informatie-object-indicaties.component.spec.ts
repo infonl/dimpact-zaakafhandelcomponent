@@ -3,13 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CommonModule } from "@angular/common";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { SimpleChange, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { GeneratedType } from "../../utils/generated-types";
-import { IndicatiesLayout } from "../indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "./informatie-object-indicaties.component";
 
 const indicatieIcons: Record<GeneratedType<"DocumentIndicatie">, string> = {
