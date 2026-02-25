@@ -471,7 +471,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun convertInformatieObjectToPDF(
         @PathParam("uuid") enkelvoudigInformatieobjectUUID: UUID,
         @QueryParam("zaak") zaakUUID: UUID
-    ) {
+    ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readDocumentRechten(document, zaak).converteren)
@@ -479,6 +479,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             document,
             enkelvoudigInformatieobjectUUID
         )
+        return Response.noContent().build()
     }
 
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
