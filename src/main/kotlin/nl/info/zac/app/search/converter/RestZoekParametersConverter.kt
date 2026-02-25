@@ -57,10 +57,7 @@ class RestZoekParametersConverter @Inject constructor(
                 if (ZOEK_VELDEN.contains(key)) {
                     zoekParameters.addZoekVeld(ZoekVeld.valueOf(key), value)
                 } else if (key.startsWith(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX)) {
-                    // Replace spaces with underscores in the field name to match the indexed field names
-                    // Solr interprets spaces as field separators, so we need to sanitize the field name
-                    val sanitizedKey = key.replace(" ", "_")
-                    zoekParameters.addFilterQuery(sanitizedKey, value)
+                    zoekParameters.addFilterQuery(key, value)
                 }
             }
         }
