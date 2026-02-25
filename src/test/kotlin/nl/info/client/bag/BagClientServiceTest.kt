@@ -18,6 +18,9 @@ import nl.info.client.bag.api.WoonplaatsApi
 import nl.info.client.bag.model.createAdresIOHal
 import nl.info.client.bag.model.createAdresIOHalCollectionEmbedded
 import nl.info.client.bag.model.createBevraagAdressenParameters
+import nl.info.client.bag.model.createNummeraanduidingIOHal
+import nl.info.client.bag.model.createOpenbareRuimteIOHal
+import nl.info.client.bag.model.createPandIOHal
 import nl.info.client.bag.model.createWoonplaatsIOHal
 
 class BagClientServiceTest : BehaviorSpec({
@@ -74,6 +77,75 @@ class BagClientServiceTest : BehaviorSpec({
                 returnedWoonplaatsIOHal shouldBe woonplaatsIOHal
                 verify(exactly = 1) {
                     woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
+                }
+            }
+        }
+    }
+
+    Given("A nummeraanduidingIdentificatie for readNummeraanduiding") {
+        val nummeraanduidingIdentificatie = "fakeNummeraanduidingId"
+        val nummeraanduidingIOHal = createNummeraanduidingIOHal()
+        every {
+            nummeraanduidingApi.nummeraanduidingIdentificatie(
+                nummeraanduidingIdentificatie,
+                null,
+                null,
+                "ligtAanOpenbareRuimte, ligtInWoonplaats",
+                null
+            )
+        } returns nummeraanduidingIOHal
+
+        When("readNummeraanduiding is called") {
+            val returnedNummeraanduidingIOHal = bagClientService.readNummeraanduiding(nummeraanduidingIdentificatie)
+
+            Then("it should call the nummeraanduiding API and return the expected NummeraanduidingIOHal") {
+                returnedNummeraanduidingIOHal shouldBe nummeraanduidingIOHal
+                verify(exactly = 1) {
+                    nummeraanduidingApi.nummeraanduidingIdentificatie(any(), any(), any(), any(), any())
+                }
+            }
+        }
+    }
+
+    Given("A pandIdentificatie") {
+        val pandIdentificatie = "fakePandId"
+        val pandIOHal = createPandIOHal()
+        every {
+            pandApi.pandIdentificatie(pandIdentificatie, null, null, "epsg:28992", null)
+        } returns pandIOHal
+
+        When("readPand is called") {
+            val returnedPandIOHal = bagClientService.readPand(pandIdentificatie)
+
+            Then("it should call the pand API and return the expected PandIOHal") {
+                returnedPandIOHal shouldBe pandIOHal
+                verify(exactly = 1) {
+                    pandApi.pandIdentificatie(any(), any(), any(), any(), any())
+                }
+            }
+        }
+    }
+
+    Given("An openbareRuimteIdentificatie") {
+        val openbareRuimteIdentificatie = "fakeOpenbareRuimteId"
+        val openbareRuimteIOHal = createOpenbareRuimteIOHal()
+        every {
+            openbareRuimteApi.openbareruimteIdentificatie(
+                openbareRuimteIdentificatie,
+                null,
+                null,
+                "ligtInWoonplaats",
+                null
+            )
+        } returns openbareRuimteIOHal
+
+        When("readOpenbareRuimte is called") {
+            val returnedOpenbareRuimteIOHal = bagClientService.readOpenbareRuimte(openbareRuimteIdentificatie)
+
+            Then("it should call the openbare ruimte API and return the expected OpenbareRuimteIOHal") {
+                returnedOpenbareRuimteIOHal shouldBe openbareRuimteIOHal
+                verify(exactly = 1) {
+                    openbareRuimteApi.openbareruimteIdentificatie(any(), any(), any(), any(), any())
                 }
             }
         }

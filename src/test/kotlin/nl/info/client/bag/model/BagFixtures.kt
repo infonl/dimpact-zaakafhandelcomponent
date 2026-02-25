@@ -8,6 +8,12 @@ import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded
 import nl.info.client.bag.model.generated.AdresIOLinks
 import nl.info.client.bag.model.generated.HalLink
+import nl.info.client.bag.model.generated.Nummeraanduiding
+import nl.info.client.bag.model.generated.NummeraanduidingIOHal
+import nl.info.client.bag.model.generated.OpenbareRuimte
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
+import nl.info.client.bag.model.generated.Pand
+import nl.info.client.bag.model.generated.PandIOHal
 import nl.info.client.bag.model.generated.Woonplaats
 import nl.info.client.bag.model.generated.WoonplaatsIOHal
 import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
@@ -63,6 +69,42 @@ fun createWoonplaatsIOHal(
     woonplaats: Woonplaats = createWoonplaats()
 ) = WoonplaatsIOHal().apply {
     this.woonplaats = woonplaats
+}
+
+fun createNummeraanduiding(
+    huisnummer: Int = 123
+) = Nummeraanduiding().apply {
+    this.huisnummer = huisnummer
+}
+
+fun createNummeraanduidingIOHal(
+    nummeraanduiding: Nummeraanduiding = createNummeraanduiding()
+) = NummeraanduidingIOHal().apply {
+    this.nummeraanduiding = nummeraanduiding
+}
+
+fun createPand(
+    oorspronkelijkBouwjaar: String = "2000"
+) = Pand().apply {
+    this.oorspronkelijkBouwjaar = oorspronkelijkBouwjaar
+}
+
+fun createPandIOHal(
+    pand: Pand = createPand()
+) = PandIOHal().apply {
+    this.pand = pand
+}
+
+fun createOpenbareRuimte(
+    naam: String = "fakeOpenbareRuimteNaam"
+) = OpenbareRuimte().apply {
+    this.naam = naam
+}
+
+fun createOpenbareRuimteIOHal(
+    openbareRuimte: OpenbareRuimte = createOpenbareRuimte()
+) = OpenbareRuimteIOHal().apply {
+    this.openbareRuimte = openbareRuimte
 }
 
 fun createWoonplaatsIOHalBasis(
