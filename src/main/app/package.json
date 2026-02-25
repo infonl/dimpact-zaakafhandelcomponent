@@ -81,7 +81,7 @@
     "less": "4.5.1",
     "openapi-typescript": "7.13.0",
     "ts-node": "10.9.2",
-    "typescript": "5.8.3",
+    "typescript": "5.9.3",
     "whatwg-fetch": "3.6.20"
   }
 }
