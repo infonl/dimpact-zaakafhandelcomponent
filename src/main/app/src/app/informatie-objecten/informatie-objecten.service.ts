@@ -227,14 +227,14 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(body: PostBody<"/rest/informatieobjecten/download/zip">) {
+  getZIPDownload(body: PostBody<"/rest/informatieobjecten/download/zip">): Observable<Blob> {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/download/zip",
       body,
       {
         responseType: "blob",
       } as Record<string, unknown>,
-    );
+    ) as unknown as Observable<Blob>;
   }
 
   getPreviewUrl(uuid: string, versie?: number | null): string {
