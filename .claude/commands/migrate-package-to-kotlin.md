@@ -39,10 +39,10 @@ At this point the `.kt` files still contain Java source — that is intentional 
 
 Edit every `.kt` file in the target directory. Apply these transformations:
 
-**a) SPDX header** — ensure the current year `2026` and `INFO.nl` appear:
+**a) SPDX header** — preserve existing holders/years and add the current year and `INFO.nl`, for example:
 ```kotlin
 /*
- * SPDX-FileCopyrightText: <original year> Atos, 2026 INFO.nl
+ * SPDX-FileCopyrightText: <original holders/years>, <CURRENT_YEAR> INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
