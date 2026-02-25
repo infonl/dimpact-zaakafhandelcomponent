@@ -8,6 +8,7 @@ import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { GeneratedType } from "../../utils/generated-types";
+import { IndicatiesLayout } from "../indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "./informatie-object-indicaties.component";
 
 const indicatieMetadata: {
@@ -70,6 +71,15 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
+
+  it.each(Object.values(IndicatiesLayout))(
+    "layout %s wordt geaccepteerd als input",
+    (layout) => {
+      component.layout = layout;
+
+      expect(component.layout).toBe(layout);
+    },
+  );
 
   it("should have empty indicaties when no inputs are provided", () => {
     component.ngOnChanges({} as SimpleChanges);
