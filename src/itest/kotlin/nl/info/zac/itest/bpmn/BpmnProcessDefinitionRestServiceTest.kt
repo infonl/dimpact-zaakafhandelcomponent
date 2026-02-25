@@ -63,8 +63,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
-                response.bodyAsString shouldBe
-                    "{\"message\":\"Process definition 'itProcessDefinition' cannot be deleted as it is in use\"}"
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "message": "Process definition 'itProcessDefinition' cannot be deleted as it is in use"
+                    }
+                """.trimIndent()
             }
         }
     }
