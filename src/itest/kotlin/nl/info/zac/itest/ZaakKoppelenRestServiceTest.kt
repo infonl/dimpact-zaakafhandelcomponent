@@ -25,7 +25,6 @@ private const val ROWS_DEFAULT = 10
 private const val PAGE_DEFAULT = 0
 
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
-    blockingTest = true
     val itestHttpClient = ItestHttpClient()
     val zaakHelper = ZaakHelper(ZacClient(itestHttpClient))
     val logger = KotlinLogging.logger {}

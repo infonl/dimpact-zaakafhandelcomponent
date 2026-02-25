@@ -77,7 +77,6 @@ import kotlin.time.toJavaDuration
  */
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
-    blockingTest = true
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
