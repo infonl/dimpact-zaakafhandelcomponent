@@ -8,13 +8,13 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatTableDataSource } from "@angular/material/table";
 import { of } from "rxjs";
+import { IndicatiesLayout } from "src/app/shared/indicaties/indicaties.component";
 import {
   mapDocumentenToString,
   mapStringToDocumentenStrings,
 } from "../../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
-import { IndicatiesLayout } from "src/app/shared/indicaties/indicaties.component";
 
 @Component({
   selector: "zac-documenten-formulier-veld",
