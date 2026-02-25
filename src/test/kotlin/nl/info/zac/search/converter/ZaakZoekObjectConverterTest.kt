@@ -128,7 +128,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     locatie shouldBe null
                     with(betrokkenen!!) {
                         size shouldBe rollenZaak.size
-                        // Role names with spaces should have underscores in the Solr field name
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolAdviseur.omschrijving}",
                             listOf(rolAdviseur.identificatienummer!!)
