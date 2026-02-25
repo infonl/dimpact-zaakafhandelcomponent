@@ -11,7 +11,7 @@ You can run them separately using the following command:
 
 ## Integration tests
 
-Our integration tests use the [TestContainers framework](https://testcontainers.com/) together
+Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
 with our [Docker Compose set-up](installDockerCompose.md) to run all required services (Keycloak, Open Zaak, etc)
 as well as ZAC itself as a Docker container.
 This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of

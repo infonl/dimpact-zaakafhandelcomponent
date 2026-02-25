@@ -3,16 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-@if (stylesLoaded) {
+@if (form && stylesLoaded) {
   <formio
     [submission]="submission"
     [submitDone]="submissionDone"
     [form]="form"
     [readOnly]="readOnly"
-    language="nl"
     [options]="{
       disableAlerts: true,
       i18n: {
+        language: 'nl',
         nl: {
           cancel: 'Annuleren',
           next: 'Volgende',
