@@ -83,6 +83,22 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 
 **j) Adapters / small utility classes** — convert straightforwardly; `implements JsonbAdapter<A, B>` → `: JsonbAdapter<A, B>`.
 
+**k) Bean field annotations** - prefix bean field annotations with `@field:` to ensure they apply to the generated field. For example:
+convert this:
+```java
+@QueryParam("fakeFieldName")
+```
+to this
+```kotlin
+@field:QueryParam("fakeFieldName")
+```
+
+**l) Use named parameters** — when calling methods with multiple parameters, use named arguments for clarity:
+```kotlin
+// Java: someMethod(x, y, z);
+// Kotlin: someMethod(x = x, y = y, z = z)
+```
+
 ## Step 5 — Update all call sites
 
 Search for all files that still import the old package:
