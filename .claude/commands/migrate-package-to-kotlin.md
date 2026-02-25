@@ -95,7 +95,7 @@ Update imports in every found file (Java callers use the same `nl.info.*` import
 
 Run:
 ```bash
-./gradlew compileKotlin
+./gradlew compileKotlin compileJava
 ```
 Fix any type errors (common: nullable/non-null mismatches, missing `@Suppress` annotations).
 
