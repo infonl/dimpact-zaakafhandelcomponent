@@ -65,7 +65,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_BAD_REQUEST
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
-                      "message": "Process definition 'itProcessDefinition' cannot be deleted as it is in use"
+                      "message": "BPMN process definition 'itProcessDefinition' cannot be deleted as it is in use"
                     }
                 """.trimIndent()
             }
