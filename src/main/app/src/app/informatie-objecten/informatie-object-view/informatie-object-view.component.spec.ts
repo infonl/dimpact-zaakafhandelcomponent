@@ -14,6 +14,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { fromPartial } from "@total-typescript/shoehorn";
 import { of, ReplaySubject } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -48,28 +49,29 @@ describe(InformatieObjectViewComponent.name, () => {
     }>(1),
   };
 
-  const zaak: GeneratedType<"RestZaak"> = {
+  const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-001",
     identificatie: "test",
     indicaties: [],
     omschrijving: "test omschrijving",
     vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
-    rechten: {},
-    zaaktype: {
+    rechten: fromPartial<GeneratedType<"RestZaakRechten">>({}),
+    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "zaaktype-001",
-    },
-  };
+    }),
+  });
 
-  const enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> =
-    {
-      uuid: "enkelvoudig-informatieobject-001",
-      informatieobjectTypeUUID: "test-uuid",
-      indicaties: [],
-      titel: "test informatieobject",
-      vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
-      rechten: {},
-      formaat: FileFormat.DOCX,
-    };
+  const enkelvoudigInformatieobject = fromPartial<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >({
+    uuid: "enkelvoudig-informatieobject-001",
+    informatieobjectTypeUUID: "test-uuid",
+    indicaties: [],
+    titel: "test informatieobject",
+    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+    rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({}),
+    formaat: FileFormat.DOCX,
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -154,9 +156,9 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            rechten: {
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               toevoegenNieuweVersie: false,
-            },
+            }),
           }),
         );
       mockActivatedRoute.data.next({
@@ -177,9 +179,9 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            rechten: {
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               toevoegenNieuweVersie: true,
-            },
+            }),
           }),
         );
       mockActivatedRoute.data.next({
@@ -204,9 +206,9 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            rechten: {
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               converteren: true,
-            },
+            }),
           }),
         );
       mockActivatedRoute.data.next({
@@ -227,9 +229,9 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            rechten: {
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               converteren: false,
-            },
+            }),
           }),
         );
       mockActivatedRoute.data.next({
@@ -250,9 +252,9 @@ describe(InformatieObjectViewComponent.name, () => {
         .mockReturnValue(
           of({
             ...enkelvoudigInformatieobject,
-            rechten: {
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
               converteren: true,
-            },
+            }),
           }),
         );
       mockActivatedRoute.data.next({

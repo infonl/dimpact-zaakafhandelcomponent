@@ -5,6 +5,7 @@
 
 import { Injectable } from "@angular/core";
 import moment from "moment";
+import { map, Observable } from "rxjs";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -29,7 +30,7 @@ export class InformatieObjectenService {
       "/rest/informatieobjecten/informatieobject/{uuid}",
       {
         path: { uuid },
-        query: { zaak: zaakUuid },
+        query: { zaak: zaakUuid ?? null },
       },
     );
   }
@@ -226,14 +227,16 @@ export class InformatieObjectenService {
     return `${this.basepath}/informatieobject/${uuid}/download`;
   }
 
-  getZIPDownload(body: PostBody<"/rest/informatieobjecten/download/zip">) {
+  getZIPDownload(
+    body: PostBody<"/rest/informatieobjecten/download/zip">,
+  ): Observable<Blob> {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/download/zip",
       body,
       {
         responseType: "blob",
       } as Record<string, unknown>,
-    );
+    ) as unknown as Observable<Blob>;
   }
 
   getPreviewUrl(uuid: string, versie?: number | null): string {
@@ -282,14 +285,19 @@ export class InformatieObjectenService {
     );
   }
 
-  convertInformatieObjectToPDF(uuid: string, zaakUuid: string) {
-    return this.zacHttpClient.POST(
-      "/rest/informatieobjecten/informatieobject/{uuid}/convert",
-      undefined as never,
-      {
-        path: { uuid },
-        query: { zaak: zaakUuid },
-      },
-    );
+  convertInformatieObjectToPDF(
+    uuid: string,
+    zaakUuid: string,
+  ): Observable<void> {
+    return this.zacHttpClient
+      .POST(
+        "/rest/informatieobjecten/informatieobject/{uuid}/convert",
+        undefined as never,
+        {
+          path: { uuid },
+          query: { zaak: zaakUuid },
+        },
+      )
+      .pipe(map(() => void 0));
   }
 }
