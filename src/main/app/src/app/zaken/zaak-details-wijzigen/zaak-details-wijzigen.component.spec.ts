@@ -20,9 +20,9 @@ import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
-import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen.component";
 
