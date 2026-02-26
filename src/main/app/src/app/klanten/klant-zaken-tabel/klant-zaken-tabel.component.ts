@@ -68,7 +68,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   protected init: boolean = false;
   protected inclusiefAfgerondeZaken = new FormControl(false);
-  protected betrokkeneSelectControl = new FormControl<ZoekVeld | null>(null);
+  protected betrokkeneSelectControl = new FormControl<string | null>(null);
   private laatsteBetrokkenheid?: string | null = null;
 
   protected distinctRoltypenQuery = injectQuery(() => ({
@@ -77,11 +77,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       lastValueFrom(
         this.klantenService.listRoltypen().pipe(
           map((typen) => {
-            return [
-              ...new Set(
-                typen.map(({ naam }) => this.fromBetrokkeneFieldName(naam!)),
-              ),
-            ];
+            return [...new Set(typen.map(({ naam }) => naam))];
           }),
         ),
       ),
@@ -99,7 +95,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
     }
     if (this.betrokkeneSelectControl.value) {
-      this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value);
+      const fieldName = this.toBetrokkeneFieldName(
+        this.betrokkeneSelectControl.value,
+      );
+      this.setZoekParameterBetrokkenheid(fieldName);
     }
 
     this.updateActieveFilters();
@@ -138,7 +137,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.changeDetectorRef.detectChanges();
   }
 
-  private setZoekParameterBetrokkenheid(betrokkenheid: ZoekVeld) {
+  private setZoekParameterBetrokkenheid(betrokkenheid: string) {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
     this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
