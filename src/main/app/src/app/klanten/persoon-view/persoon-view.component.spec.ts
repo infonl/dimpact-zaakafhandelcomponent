@@ -36,8 +36,8 @@ describe(PersoonViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PersoonViewComponent, DatumPipe],
-      imports: [TranslateModule.forRoot()],
+      declarations: [PersoonViewComponent],
+      imports: [TranslateModule.forRoot(), DatumPipe],
       providers: [
         {
           provide: ActivatedRoute,
