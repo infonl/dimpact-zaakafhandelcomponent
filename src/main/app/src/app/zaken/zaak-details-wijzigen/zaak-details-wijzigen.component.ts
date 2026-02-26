@@ -90,8 +90,8 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const dateChangesAllowed = Boolean(
       !this.zaak.isProcesGestuurd &&
-      this.zaak.rechten.wijzigen &&
-      this.zaak.rechten.wijzigenDoorlooptijd,
+        this.zaak.rechten.wijzigen &&
+        this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
