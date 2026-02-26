@@ -133,7 +133,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private setZoekParameterBetrokkenheid(betrokkenheid: string) {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))] =
+    this.zoekParameters.zoeken[
+      (this.laatsteBetrokkenheid =
+        this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))
+    ] =
       betrokkene.bsn ??
       betrokkene.vestigingsnummer ??
       betrokkene.kvkNummer ??
@@ -192,11 +195,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     );
   }
 
-
   protected setBetrokkeneFieldToSolrKeyName(betrokkene: string): string {
-   return betrokkene ? "zaak_betrokkene_" + betrokkene.replace(/ /g, "_") : ZoekVeld.ZAAK_BETROKKENEN
+    return betrokkene
+      ? "zaak_betrokkene_" + betrokkene.replace(/ /g, "_")
+      : ZoekVeld.ZAAK_BETROKKENEN;
   }
-
 
   private makeSolrKeyNameReadableBetrokkeneType(fieldName: string): string {
     return fieldName.replace(/_/g, " ");
