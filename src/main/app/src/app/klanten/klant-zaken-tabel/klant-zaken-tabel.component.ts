@@ -212,7 +212,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
    * by replacing underscores with spaces.
    * Note: The zaak_betrokkene_ prefix is already removed by the backend in toRestZaakZoekObject.
    */
-  private fromBetrokkeneFieldName(fieldName: string): string {
+  private makeSolrKeyNameReadabkeBetrokkeneType(fieldName: string): string {
     return fieldName.replace(/_/g, " ");
   }
 
