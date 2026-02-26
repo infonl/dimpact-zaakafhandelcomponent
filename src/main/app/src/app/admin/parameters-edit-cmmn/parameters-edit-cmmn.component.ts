@@ -44,8 +44,8 @@ import {
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
 import {
-  ZaakbeeindigParameterFormData,
   toRestZaakbeeindigParameter,
+  ZaakbeeindigParameterFormData,
 } from "../model/parameters/zaakbeeindig-parameter-form-data";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
