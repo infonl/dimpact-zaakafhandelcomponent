@@ -1,30 +1,26 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+@file:Suppress("PackageName")
 
-package net.atos.client.or.object;
+package nl.info.client.or.`object`
 
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION
+import jakarta.ws.rs.core.MultivaluedMap
+import org.eclipse.microprofile.config.ConfigProvider
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
-import jakarta.ws.rs.core.MultivaluedMap;
+class ObjectsClientHeadersFactory : ClientHeadersFactory {
+    companion object {
+        private val TOKEN = ConfigProvider.getConfig().getValue("objects.api.token", String::class.java)
+    }
 
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
-
-/**
- *
- */
-public class ObjectsClientHeadersFactory implements ClientHeadersFactory {
-
-    private static final String TOKEN = ConfigProvider.getConfig().getValue("objects.api.token", String.class);
-
-    @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders
-    ) {
-        clientOutgoingHeaders.add(AUTHORIZATION, String.format("Token %s", TOKEN));
-        return clientOutgoingHeaders;
+    override fun update(
+        incomingHeaders: MultivaluedMap<String, String>,
+        clientOutgoingHeaders: MultivaluedMap<String, String>
+    ): MultivaluedMap<String, String> {
+        clientOutgoingHeaders.add(AUTHORIZATION, "Token $TOKEN")
+        return clientOutgoingHeaders
     }
 }

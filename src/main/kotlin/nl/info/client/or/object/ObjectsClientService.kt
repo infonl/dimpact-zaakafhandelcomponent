@@ -2,42 +2,23 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.or.object;
+@file:Suppress("PackageName")
 
-import java.util.UUID;
+package nl.info.client.or.`object`
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import nl.info.client.or.objects.model.generated.ModelObject;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.UUID
 
 @ApplicationScoped
-public class ObjectsClientService {
-    private ObjectsClient objectsClient;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public ObjectsClientService() {
-    }
-
-    @Inject
-    public ObjectsClientService(
-            @RestClient ObjectsClient objectsClient
-    ) {
-        this.objectsClient = objectsClient;
-    }
-
-    /**
-     * Read {@link ModelObject} via its UUID.
-     * Throws a RuntimeException if the {@link ModelObject} can not be read.
-     *
-     * @param object UUID of {@link ModelObject}.
-     * @return {@link ModelObject}. Never 'null'!
-     */
-    public ModelObject readObject(final UUID object) {
-        return objectsClient.objectRead(object);
-    }
+@NoArgConstructor
+@AllOpen
+class ObjectsClientService @Inject constructor(
+    @RestClient private val objectsClient: ObjectsClient
+) {
+    fun readObject(objectUUID: UUID): ModelObject = objectsClient.objectRead(objectUUID = objectUUID)
 }
