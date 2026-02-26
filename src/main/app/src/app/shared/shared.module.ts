@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -70,10 +70,10 @@ import { VersionComponent } from "./version/version.component";
     ZaakIndicatiesComponent,
     ZaakdataComponent,
     VersionComponent,
-    SortPipe,
     ZacNarrowMatCheckboxDirective,
   ],
   imports: [
+    SortPipe,
     FormsModule,
     BrowserAnimationsModule,
     RouterModule,

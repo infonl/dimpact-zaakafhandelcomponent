@@ -8,7 +8,7 @@ import { KB_IN_BYTES, MB_IN_BYTES } from "../utils/constants";
 
 @Pipe({
   name: "bestandsomvang",
-  standalone: false,
+  standalone: true,
 })
 export class BestandsomvangPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}

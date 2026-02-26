@@ -6,7 +6,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 @Pipe({
   name: "capitalizeFirstLetter",
-  standalone: false,
+  standalone: true,
 })
 export class CapitalizeFirstLetterPipe implements PipeTransform {
   transform(value: string | null): string | null {
