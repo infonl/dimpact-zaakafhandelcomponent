@@ -84,7 +84,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       const taakZoekObject = fromPartial<TaakZoekObject>({
         id: "taak1",
         rechten: { toekennen: true },
-        groepNaam: "groupA",
+        groepID: "groupA",
         behandelaarGebruikersnaam: user,
       });
 

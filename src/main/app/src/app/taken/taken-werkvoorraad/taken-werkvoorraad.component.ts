@@ -112,7 +112,7 @@ export class TakenWerkvoorraadComponent
     if (!loggedInUser) return false;
     if (loggedInUser.id === taakZoekObject.behandelaarGebruikersnaam)
       return false;
-    return loggedInUser.groupIds?.includes(taakZoekObject.groepNaam) ?? false;
+    return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
 
   assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
