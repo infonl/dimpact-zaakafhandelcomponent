@@ -19,9 +19,13 @@ import nl.info.zac.util.AllOpen
 @PrimaryKeyJoinColumn(name = "id")
 @AllOpen
 class ZaaktypeBpmnConfiguration : ZaaktypeConfiguration() {
+    companion object {
+        val BPMN_PROCESS_DEFINITION_KEY = ZaaktypeBpmnConfiguration::bpmnProcessDefinitionKey.name
+    }
+
     @NotBlank
     @Column(name = "bpmn_process_definition_key")
     lateinit var bpmnProcessDefinitionKey: String
 
-    override fun getConfigurationType() = Companion.ZaaktypeConfigurationType.BPMN
+    override fun getConfigurationType() = ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 }
