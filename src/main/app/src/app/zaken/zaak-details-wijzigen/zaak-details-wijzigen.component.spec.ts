@@ -15,12 +15,14 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
+import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen.component";
 
@@ -201,6 +203,117 @@ describe(CaseDetailsEditComponent.name, () => {
       );
       expect(await dateInputs[0].isDisabled()).toBe(true); // startdatum
       expect(await dateInputs[2].isDisabled()).toBe(true); // uiterlijkeEinddatumAfdoening
+    });
+  });
+
+  describe("date validation", () => {
+    const zaakWithAllDates = (startdatum: string) => ({
+      startdatum,
+      einddatumGepland: "2024-01-20",
+      uiterlijkeEinddatumAfdoening: "2024-01-30",
+      zaaktype: {
+        uuid: "zaaktype-123",
+        omschrijving: "Test zaaktype",
+        servicenorm: 30,
+      },
+    });
+
+    describe("start-na-streef: startdatum after einddatumGepland", () => {
+      it("sets error on startdatum when startdatum changes to after einddatumGepland", () => {
+        renderComponent(zaakWithAllDates("2024-01-10"));
+
+        component["form"].controls.startdatum.setValue(moment("2024-01-25"));
+
+        expect(component["form"].controls.startdatum.errors).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.start-na-streef",
+          ),
+        );
+      });
+
+      it("sets error on einddatumGepland when einddatumGepland changes to before startdatum", () => {
+        renderComponent(zaakWithAllDates("2024-01-10"));
+
+        component["form"].controls.einddatumGepland.setValue(
+          moment("2024-01-05"),
+        );
+
+        expect(component["form"].controls.einddatumGepland.errors).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.start-na-streef",
+          ),
+        );
+      });
+    });
+
+    describe("start-na-fatale: startdatum after uiterlijkeEinddatumAfdoening", () => {
+      it("sets error on startdatum when startdatum changes to after uiterlijkeEinddatumAfdoening", () => {
+        renderComponent(zaakWithAllDates("2024-01-10"));
+
+        component["form"].controls.startdatum.setValue(moment("2024-02-01"));
+
+        expect(component["form"].controls.startdatum.errors).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.start-na-fatale",
+          ),
+        );
+      });
+
+      it("sets error on uiterlijkeEinddatumAfdoening when it changes to before startdatum", () => {
+        renderComponent({
+          startdatum: "2024-01-20",
+          uiterlijkeEinddatumAfdoening: "2024-02-01",
+          zaaktype: {
+            uuid: "zaaktype-123",
+            omschrijving: "Test zaaktype",
+            servicenorm: 30,
+          },
+        });
+
+        component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
+          moment("2024-01-15"),
+        );
+
+        expect(
+          component["form"].controls.uiterlijkeEinddatumAfdoening.errors,
+        ).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.start-na-fatale",
+          ),
+        );
+      });
+    });
+
+    describe("streef-na-fatale: einddatumGepland after uiterlijkeEinddatumAfdoening", () => {
+      it("sets error on einddatumGepland when it changes to after uiterlijkeEinddatumAfdoening", () => {
+        renderComponent(zaakWithAllDates("2024-01-01"));
+
+        component["form"].controls.einddatumGepland.setValue(
+          moment("2024-02-01"),
+        );
+
+        expect(component["form"].controls.einddatumGepland.errors).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.streef-na-fatale",
+          ),
+        );
+      });
+
+      it("sets error on uiterlijkeEinddatumAfdoening when it changes to before einddatumGepland", () => {
+        renderComponent(zaakWithAllDates("2024-01-01"));
+
+        component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
+          moment("2024-01-15"),
+        );
+
+        expect(
+          component["form"].controls.uiterlijkeEinddatumAfdoening.errors,
+        ).toEqual(
+          FormHelper.CustomErrorMessage(
+            "msg.error.date.invalid.datum.streef-na-fatale",
+          ),
+        );
+      });
     });
   });
 });

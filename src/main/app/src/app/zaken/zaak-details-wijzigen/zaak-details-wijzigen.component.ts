@@ -90,8 +90,8 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const dateChangesAllowed = Boolean(
       !this.zaak.isProcesGestuurd &&
-        this.zaak.rechten.wijzigen &&
-        this.zaak.rechten.wijzigenDoorlooptijd,
+      this.zaak.rechten.wijzigen &&
+      this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
@@ -202,18 +202,24 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
 
     this.form.controls.startdatum.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(this.validateDates.bind(this));
+      .subscribe(() => this.validateDates("startdatum"));
     this.form.controls.einddatumGepland.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(this.validateDates.bind(this));
+      .subscribe(() => this.validateDates("einddatumGepland"));
     this.form.controls.uiterlijkeEinddatumAfdoening.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(this.validateDates.bind(this));
+      .subscribe(() => this.validateDates("uiterlijkeEinddatumAfdoening"));
   }
 
-  private validateDates() {
+  private validateDates(
+    changedField:
+      | "startdatum"
+      | "einddatumGepland"
+      | "uiterlijkeEinddatumAfdoening",
+  ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();
+    const changedControl = this.form.controls[changedField];
 
     this.form.controls.startdatum.setErrors(null);
     this.form.controls.einddatumGepland.setErrors(null);
@@ -224,7 +230,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       einddatumGepland &&
       moment(startdatum).isAfter(moment(einddatumGepland))
     ) {
-      this.form.controls.startdatum.setErrors(
+      changedControl.setErrors(
         FormHelper.CustomErrorMessage(
           "msg.error.date.invalid.datum.start-na-streef",
         ),
@@ -236,7 +242,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       uiterlijkeEinddatumAfdoening &&
       startdatum.isAfter(moment(uiterlijkeEinddatumAfdoening))
     ) {
-      this.form.controls.startdatum.setErrors(
+      changedControl.setErrors(
         FormHelper.CustomErrorMessage(
           "msg.error.date.invalid.datum.start-na-fatale",
         ),
@@ -248,7 +254,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       uiterlijkeEinddatumAfdoening &&
       moment(einddatumGepland).isAfter(moment(uiterlijkeEinddatumAfdoening))
     ) {
-      this.form.controls.einddatumGepland.setErrors(
+      changedControl.setErrors(
         FormHelper.CustomErrorMessage(
           "msg.error.date.invalid.datum.streef-na-fatale",
         ),
