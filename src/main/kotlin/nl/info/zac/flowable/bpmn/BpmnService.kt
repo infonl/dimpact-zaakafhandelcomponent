@@ -158,10 +158,10 @@ class BpmnService @Inject constructor(
             .toSet()
 
     /**
-     * Returns a list of unique BPMN process definition keys used in configurations
+     * Returns a list of unique BPMN process definition keys used in zaaktype BPMN configurations
      */
     fun findUniqueBpmnProcessDefinitionKeysFromConfigurations() =
-        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys().toSet()
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations().toSet()
 
     /**
      * Returns if a process definition has current or historic process instances
@@ -175,12 +175,13 @@ class BpmnService @Inject constructor(
             .count() > 0
 
     /**
-     * Returns if a process definition has zaakafhandelparameters linked to it
+     * Returns if a process definition has zaaktype BPMN configurations linked to it
      *
      * @param processDefinitionKey Process definition key
      */
-    fun hasLinkedConfiguration(processDefinitionKey: String) =
-        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys().contains(processDefinitionKey)
+    fun hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey: String) =
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            .contains(processDefinitionKey)
 
     /**
      * Returns if a process definition is in use
@@ -188,5 +189,5 @@ class BpmnService @Inject constructor(
      * @param processDefinitionKey Process definition key
      */
     fun isProcessDefinitionInUse(processDefinitionKey: String) =
-        hasProcessInstances(processDefinitionKey) || hasLinkedConfiguration(processDefinitionKey)
+        hasProcessInstances(processDefinitionKey) || hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 }

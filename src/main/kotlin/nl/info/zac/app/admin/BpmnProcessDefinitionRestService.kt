@@ -65,7 +65,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         if (bpmnService.isProcessDefinitionInUse(key)) {
             return Response.status(Status.BAD_REQUEST)
-                .entity(mapOf("message" to "Process definition '$key' cannot be deleted as it is in use"))
+                .entity(mapOf("message" to "BPMN process definition '$key' cannot be deleted as it is in use"))
                 .build()
         }
         bpmnService.deleteProcessDefinition(key)

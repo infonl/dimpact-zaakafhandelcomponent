@@ -120,9 +120,9 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
         }
 
     /**
-     * Returns a list of unique BPMN process definition keys
+     * Returns a list of unique BPMN process definition keys that are used in zaaktype BPMN configurations.
      */
-    fun findUniqueBpmnProcessDefinitionKeys(): List<String> =
+    fun findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations(): List<String> =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(String::class.java).let { query ->
                 query.from(ZaaktypeBpmnConfiguration::class.java).let { root ->

@@ -287,11 +287,11 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
         When("checking it has linked configurations by process definition key") {
-            val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
+            val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
             Then("true is returned") {
                 result shouldBe true
@@ -303,11 +303,11 @@ class BpmnServiceTest : BehaviorSpec({
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
         When("checking it has linked configurations by process definition key") {
-            val result = bpmnService.hasLinkedConfiguration(processDefinitionKey)
+            val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
             Then("false is returned") {
                 result shouldBe false
@@ -329,7 +329,7 @@ class BpmnServiceTest : BehaviorSpec({
             Then("true is returned") {
                 result shouldBe true
                 verify(exactly = 0) {
-                    zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+                    zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
                 }
             }
         }
@@ -344,7 +344,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
         When("checking the process definition is in use by process definition key") {
@@ -365,7 +365,7 @@ class BpmnServiceTest : BehaviorSpec({
         } returns 0
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
-            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeys()
+            zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
         When("checking the process definition is in use by process definition key") {
