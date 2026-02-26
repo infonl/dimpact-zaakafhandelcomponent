@@ -94,18 +94,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     if (this.laatsteBetrokkenheid) {
       delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
     }
-    if (this.betrokkeneSelectControl.value) {
-      const fieldName = this.parseBetrokkeneeFieldToSolrKeyName(
-        this.betrokkeneSelectControl.value,
-      );
-      this.setZoekParameterBetrokkenheid(fieldName);
-    }
+
+    this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value!);
 
     this.updateActieveFilters();
 
-    if (!this.betrokkeneSelectControl.value) {
-      this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
-    }
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = this.sort
@@ -140,7 +133,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   private setZoekParameterBetrokkenheid(betrokkenheid: string) {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
+    this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))] =
       betrokkene.bsn ??
       betrokkene.vestigingsnummer ??
       betrokkene.kvkNummer ??
@@ -179,19 +172,19 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       (acc, [rol, identifiers]) => {
         const identifierList = identifiers as string[];
         if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
-          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }
 
         if (
           betrokkene.vestigingsnummer &&
           identifierList.includes(betrokkene.vestigingsnummer)
         ) {
-          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         } else if (
           betrokkene.kvkNummer &&
           identifierList.includes(betrokkene.kvkNummer)
         ) {
-          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }
         return acc;
       },
@@ -199,20 +192,13 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     );
   }
 
-  /**
-   * Converts a betrokkene role name to a Solr field name by replacing spaces with underscores.
-   * Solr interprets spaces as field separators, so field names cannot contain spaces.
-   */
-  protected parseBetrokkeneeFieldToSolrKeyName(betrokkene: string): string {
-    return "zaak_betrokkene_" + betrokkene.replace(/ /g, "_");
+
+  protected setBetrokkeneFieldToSolrKeyName(betrokkene: string): string {
+   return betrokkene ? "zaak_betrokkene_" + betrokkene.replace(/ /g, "_") : ZoekVeld.ZAAK_BETROKKENEN
   }
 
-  /**
-   * Converts a Solr field name back to a human-readable betrokkene role name
-   * by replacing underscores with spaces.
-   * Note: The zaak_betrokkene_ prefix is already removed by the backend in toRestZaakZoekObject.
-   */
-  private makeSolrKeyNameReadabkeBetrokkeneType(fieldName: string): string {
+
+  private makeSolrKeyNameReadableBetrokkeneType(fieldName: string): string {
     return fieldName.replace(/_/g, " ");
   }
 

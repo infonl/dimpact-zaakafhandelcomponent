@@ -329,7 +329,7 @@ describe(KlantZakenTabelComponent.name, () => {
     }));
   });
 
-  describe("toBetrokkeneFieldName", () => {
+  describe("setBetrokkeneFieldToSolrKeyName", () => {
     it.each([
       ["Behandelaar", "zaak_betrokkene_Behandelaar"],
       ["Melder", "zaak_betrokkene_Melder"],
@@ -337,7 +337,7 @@ describe(KlantZakenTabelComponent.name, () => {
     ])(
       "should convert simple role name '%s' to field name '%s'",
       (input, expected) => {
-        expect(component["toBetrokkeneFieldName"](input)).toBe(expected);
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(expected);
       },
     );
 
@@ -351,22 +351,22 @@ describe(KlantZakenTabelComponent.name, () => {
     ])(
       "should convert role name with spaces '%s' to field name '%s'",
       (input, expected) => {
-        expect(component["toBetrokkeneFieldName"](input)).toBe(expected);
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(expected);
       },
     );
 
-    it("should handle empty string", () => {
-      expect(component["toBetrokkeneFieldName"]("")).toBe("zaak_betrokkene_");
+    it("should handle an empty search", () => {
+      expect(component["setBetrokkeneFieldToSolrKeyName"]("")).toBe("ZAAK_BETROKKENEN");
     });
 
     it("should handle role name that already has underscores", () => {
-      expect(component["toBetrokkeneFieldName"]("Rol_Met_Underscores")).toBe(
+      expect(component["setBetrokkeneFieldToSolrKeyName"]("Rol_Met_Underscores")).toBe(
         "zaak_betrokkene_Rol_Met_Underscores",
       );
     });
   });
 
-  describe("fromBetrokkeneFieldName", () => {
+  describe("makeSolrKeyNameReadableBetrokkeneType", () => {
     it.each([
       ["Behandelaar", "Behandelaar"],
       ["Melder", "Melder"],
@@ -374,7 +374,7 @@ describe(KlantZakenTabelComponent.name, () => {
     ])(
       "should keep simple role name '%s' unchanged as '%s'",
       (input, expected) => {
-        expect(component["fromBetrokkeneFieldName"](input)).toBe(expected);
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(expected);
       },
     );
 
@@ -385,12 +385,12 @@ describe(KlantZakenTabelComponent.name, () => {
     ])(
       "should convert field name with underscores '%s' to human-readable '%s'",
       (input, expected) => {
-        expect(component["fromBetrokkeneFieldName"](input)).toBe(expected);
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(expected);
       },
     );
 
     it("should handle empty string", () => {
-      expect(component["fromBetrokkeneFieldName"]("")).toBe("");
+      expect(component["makeSolrKeyNameReadableBetrokkeneType"]("")).toBe("");
     });
   });
 
@@ -403,10 +403,10 @@ describe(KlantZakenTabelComponent.name, () => {
     ])(
       "should convert '%s' to field name and back to original (minus prefix)",
       (original) => {
-        const fieldName = component["toBetrokkeneFieldName"](original);
+        const fieldName = component["setBetrokkeneFieldToSolrKeyName"](original);
         // Remove the prefix before converting back
         const withoutPrefix = fieldName.replace("zaak_betrokkene_", "");
-        const result = component["fromBetrokkeneFieldName"](withoutPrefix);
+        const result = component["makeSolrKeyNameReadableBetrokkeneType"](withoutPrefix);
         expect(result).toBe(original);
       },
     );
