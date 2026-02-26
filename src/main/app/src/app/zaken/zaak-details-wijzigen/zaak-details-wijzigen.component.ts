@@ -261,9 +261,19 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (!changedControl.errors) {
-      changedControl.updateValueAndValidity({ emitEvent: false });
-    }
+    [
+      this.form.controls.startdatum,
+      this.form.controls.einddatumGepland,
+      this.form.controls.uiterlijkeEinddatumAfdoening,
+    ].forEach((control) => {
+      if (!control.errors) {
+        control.updateValueAndValidity({ emitEvent: false });
+      }
+    });
+
+    // reset() clears dirty/touched state, so mat-error would not show even if the
+    // control is invalid. Re-mark dirty so Angular Material renders the error message.
+    changedControl.markAsDirty({ onlySelf: true });
   }
 
   protected async onSubmit(form: typeof this.form) {
