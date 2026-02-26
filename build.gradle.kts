@@ -41,6 +41,15 @@ repositories {
     maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
+buildscript {
+    dependencies {
+        // Temporary workaround that enables the Smallrye OpenAPI Gradle plugin to be able to scan Kotlin metadata.
+        // This can be removed once this issue is fixed in a future version of Smallrye.
+        // See: https://github.com/smallrye/smallrye-open-api/pull/2471
+        classpath(libs.kotlinx.metadata.jvm)
+    }
+}
+
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
@@ -499,7 +508,11 @@ tasks {
 
         compilerOptions {
             // see: https://youtrack.jetbrains.com/issue/KT-73255
-            freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+            // Enable the experimental return value checker so that we can use the `@CheckReturnValue` annotation
+            // in our codebase to report on unused return values.
+            // see: https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker
+            freeCompilerArgs.add("-Xreturn-value-checker=check")
         }
     }
 

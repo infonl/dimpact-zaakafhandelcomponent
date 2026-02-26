@@ -625,8 +625,8 @@ class ProductaanvraagService @Inject constructor(
                 it
             )
         }
-        productaanvraagDimpact.bijlagen?.runCatching {
-            pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = this, zaakUrl = zaak.url)
+        productaanvraagDimpact.bijlagen?.let {
+            pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = it, zaakUrl = zaak.url)
         }
     }
 

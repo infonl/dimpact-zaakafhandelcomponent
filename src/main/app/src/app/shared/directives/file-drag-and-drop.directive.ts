@@ -13,7 +13,6 @@ import {
 
 @Directive({
   selector: "[DropZone]",
-  standalone: true,
 })
 export class FileDragAndDropDirective {
   @Output() fileDropped = new EventEmitter<FileList>();

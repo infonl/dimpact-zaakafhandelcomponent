@@ -182,11 +182,9 @@ class ZaakKoppelenRestService @Inject constructor(
             // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
                 // target zaak's zaaktype is allowed in source zaak as deelzaak
-                this.zaaktypeUuid?.let { uuid ->
-                    ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
-                        it.toString().contains(uuid)
-                    }
-                } ?: false
+                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
+                    it.toString().contains(this.zaaktypeUuid)
+                }
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
             )

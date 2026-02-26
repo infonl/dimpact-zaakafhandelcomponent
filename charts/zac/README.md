@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.190](https://img.shields.io/badge/Version-1.0.190-informational?style=flat-square) ![AppVersion: 4.3](https://img.shields.io/badge/AppVersion-4.3-informational?style=flat-square)
+![Version: 1.0.192](https://img.shields.io/badge/Version-1.0.192-informational?style=flat-square) ![AppVersion: 4.3](https://img.shields.io/badge/AppVersion-4.3-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.145.0 |
+| @opentelemetry | opentelemetry-collector | 0.146.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -198,7 +198,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a"` |  |
+| office_converter.image.tag | string | `"1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |

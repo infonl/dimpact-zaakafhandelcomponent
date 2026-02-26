@@ -32,7 +32,9 @@ private fun convertTemplateGroupToStringRepresentation(
     arrayOf(parent, "group.${group.id}.${group.name}").filterNotNull().joinToString(".").let { groupString ->
         mutableSetOf(groupString).apply {
             group.templates?.mapTo(this) { "$groupString.template.${it.id}.${it.name}" }
-            group.groups?.map { addAll(convertTemplateGroupToStringRepresentation(it, groupString)) }
+            group.groups?.forEach {
+                addAll(convertTemplateGroupToStringRepresentation(it, groupString))
+            }
         }
     }
 
