@@ -316,4 +316,31 @@ describe(CaseDetailsEditComponent.name, () => {
       });
     });
   });
+
+  describe("submit button validity after date changes", () => {
+    it("form is invalid when startdatum is cleared", () => {
+      renderComponent();
+
+      component["form"].controls.startdatum.reset();
+
+      expect(component["form"].valid).toBe(false);
+    });
+
+    it("form is invalid when a date violation exists", () => {
+      renderComponent({
+        startdatum: "2024-01-10",
+        einddatumGepland: "2024-01-20",
+        uiterlijkeEinddatumAfdoening: "2024-01-30",
+        zaaktype: {
+          uuid: "zaaktype-123",
+          omschrijving: "Test zaaktype",
+          servicenorm: 30,
+        },
+      });
+
+      component["form"].controls.startdatum.setValue(moment("2024-01-25"));
+
+      expect(component["form"].valid).toBe(false);
+    });
+  });
 });
