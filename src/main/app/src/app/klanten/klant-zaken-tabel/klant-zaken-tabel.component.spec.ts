@@ -342,7 +342,10 @@ describe(KlantZakenTabelComponent.name, () => {
     );
 
     it.each([
-      ["Belanghebbende Met Spaties", "zaak_betrokkene_Belanghebbende_Met_Spaties"],
+      [
+        "Belanghebbende Met Spaties",
+        "zaak_betrokkene_Belanghebbende_Met_Spaties",
+      ],
       ["Rol Met Veel Spaties", "zaak_betrokkene_Rol_Met_Veel_Spaties"],
       ["A B C", "zaak_betrokkene_A_B_C"],
     ])(
