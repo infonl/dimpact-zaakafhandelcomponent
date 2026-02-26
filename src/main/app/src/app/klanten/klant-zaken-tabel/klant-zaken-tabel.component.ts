@@ -77,7 +77,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       lastValueFrom(
         this.klantenService.listRoltypen().pipe(
           map((typen) => {
-            return [...new Set(typen.map(({ naam }) => naam))];
+            return [
+              ...new Set(
+                typen.map(({ naam }) => this.fromBetrokkeneFieldName(naam!)),
+              ),
+            ];
           }),
         ),
       ),
