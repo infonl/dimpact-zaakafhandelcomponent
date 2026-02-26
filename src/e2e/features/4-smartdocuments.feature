@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 # 
+@smart-documents
 Feature: SmartDocuments
 
   Scenario: Employee wants to create a new document for a zaak Using the SmartDocuments wizard
