@@ -10,13 +10,14 @@ import {
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ActivatedRoute, Data, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
+import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -29,6 +30,23 @@ describe(TakenWerkvoorraadComponent.name, () => {
   let component: TakenWerkvoorraadComponent;
   let fixture: ComponentFixture<TakenWerkvoorraadComponent>;
   let identityService: IdentityService;
+
+  const mockTabelGegevens: TabelGegevens = {
+    aantalPerPagina: 10,
+    pageSizeOptions: [10, 25, 50],
+    werklijstRechten: fromPartial<GeneratedType<"RestWerklijstRechten">>({
+      zakenTakenVerdelen: true,
+      zakenTakenExporteren: true,
+    }),
+  };
+
+  const mockRouteData: Data = {
+    tabelGegevens: mockTabelGegevens,
+  };
+
+  const mockActivatedRoute = fromPartial<ActivatedRoute>({
+    data: of(mockRouteData),
+  });
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -44,18 +62,7 @@ describe(TakenWerkvoorraadComponent.name, () => {
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: {
-            data: of({
-              tabelGegevens: {
-                aantalPerPagina: 10,
-                pageSizeOptions: [10, 25, 50],
-                werklijstRechten: {
-                  zakenTakenVerdelen: true,
-                  zakenTakenExporteren: true,
-                } satisfies GeneratedType<"RestWerklijstRechten">,
-              },
-            }),
-          },
+          useValue: mockActivatedRoute,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -89,6 +96,41 @@ describe(TakenWerkvoorraadComponent.name, () => {
       });
 
       expect(component.showAssignToMe(taakZoekObject)).toBe(expectation);
+    });
+
+    it("returns false when taakZoekObject.rechten.toekennen is false", () => {
+      const taakZoekObject = fromPartial<TaakZoekObject>({
+        id: "taak-no-assign",
+        rechten: { toekennen: false },
+        groepNaam: "groupA",
+        behandelaarGebruikersnaam: "user2",
+      });
+      expect(component.showAssignToMe(taakZoekObject)).toBe(false);
+    });
+    it.each([null, undefined])(
+      "returns false when loggedInUser is %s",
+      (loggedInUser) => {
+        testQueryClient.setQueryData(
+          identityService.readLoggedInUser().queryKey,
+          loggedInUser as undefined,
+        );
+        const taakZoekObject = fromPartial<TaakZoekObject>({
+          id: "taak-no-user",
+          rechten: { toekennen: true },
+          groepNaam: "groupA",
+          behandelaarGebruikersnaam: "user2",
+        });
+        expect(component.showAssignToMe(taakZoekObject)).toBe(false);
+      },
+    );
+    it("returns false when the user is not in the task's group", () => {
+      const taakZoekObject = fromPartial<TaakZoekObject>({
+        id: "taak-other-group",
+        rechten: { toekennen: true },
+        groepNaam: "groupC",
+        behandelaarGebruikersnaam: "user2",
+      });
+      expect(component.showAssignToMe(taakZoekObject)).toBe(false);
     });
   });
 
