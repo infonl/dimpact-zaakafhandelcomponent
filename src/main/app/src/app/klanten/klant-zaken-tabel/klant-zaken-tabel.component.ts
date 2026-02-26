@@ -95,7 +95,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
     }
     if (this.betrokkeneSelectControl.value) {
-      const fieldName = this.toBetrokkeneFieldName(
+      const fieldName = this.parseBetrokkeneeFieldToSolrKeyName(
         this.betrokkeneSelectControl.value,
       );
       this.setZoekParameterBetrokkenheid(fieldName);
@@ -179,19 +179,19 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       (acc, [rol, identifiers]) => {
         const identifierList = identifiers as string[];
         if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
-          acc.push(this.fromBetrokkeneFieldName(rol));
+          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
         }
 
         if (
           betrokkene.vestigingsnummer &&
           identifierList.includes(betrokkene.vestigingsnummer)
         ) {
-          acc.push(this.fromBetrokkeneFieldName(rol));
+          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
         } else if (
           betrokkene.kvkNummer &&
           identifierList.includes(betrokkene.kvkNummer)
         ) {
-          acc.push(this.fromBetrokkeneFieldName(rol));
+          acc.push(this.makeSolrKeyNameReadabkeBetrokkeneType(rol));
         }
         return acc;
       },
