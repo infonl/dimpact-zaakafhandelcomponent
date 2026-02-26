@@ -1,7 +1,8 @@
 # 
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
-# 
+#
+@zaken-verdelen-vrijgeven
 Feature: Zaken verdelen / vrijgeven
 
   Scenario: Bob assigns zaken to a group and user from the list

@@ -26,7 +26,11 @@ world_params='{"urls": { "zac": "'$ZAC_URL'", "openForms": "'$OPEN_FORMS_URL'"},
 
 echo "Run your Playwright tests ..."
 if [ "$EXCLUDE_LIVE_SCENARIO_TAGS" = "true" ]; then
-    npm run e2e:run -- --world-parameters "$world_params" --tags "not @live-env-only"
+    npm run e2e:run -- --world-parameters "$world_params" --tags "not @live-env-only $TAGS"
 else
-    npm run e2e:run -- --world-parameters "$world_params"
+    if [ -n "$TAGS" ]; then
+      npm run e2e:run -- --world-parameters "$world_params" --tags "$TAGS"
+    else
+      npm run e2e:run -- --world-parameters "$world_params"
+    fi
 fi

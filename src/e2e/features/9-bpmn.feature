@@ -1,7 +1,8 @@
 # 
 # SPDX-FileCopyrightText: 2025 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
-# 
+#
+@bpmn
 Feature: BPMN
 
   Scenario: Bob wants to create a new BPMN zaak
