@@ -203,7 +203,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
    * Converts a betrokkene role name to a Solr field name by replacing spaces with underscores.
    * Solr interprets spaces as field separators, so field names cannot contain spaces.
    */
-  protected toBetrokkeneFieldName(betrokkene: string): string {
+  protected parseBetrokkeneeFieldToSolrKeyName(betrokkene: string): string {
     return "zaak_betrokkene_" + betrokkene.replace(/ /g, "_");
   }
 
