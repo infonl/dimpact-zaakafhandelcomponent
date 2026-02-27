@@ -4,7 +4,7 @@
  */
 @file:Suppress("PackageName")
 
-package net.atos.client.or.`object`.model
+package nl.info.client.or.`object`.model
 
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.or.objects.model.generated.ObjectRecord

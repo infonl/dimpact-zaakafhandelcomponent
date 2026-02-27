@@ -123,7 +123,7 @@ All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
 Replace `<YEAR>` with the current year.
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
-When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` if not already present.
+When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
