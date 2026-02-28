@@ -24,7 +24,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 - **open-zaak**: 1.26.0
 - **objects-api**: 3.3.1
-- **open-klant**: 2.13.0
+- **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
 - **pabc-migrations**: 1.0.0
