@@ -359,7 +359,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("a CMMN case process should be started") {
+                And("the productaanvraag emakl service should be called to send a confirmation of receipt email") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
