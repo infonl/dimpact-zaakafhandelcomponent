@@ -373,7 +373,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ): ZaakbeeindigParameterFormData {
     let parameter: ZaakbeeindigParameterFormData | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ?? []) {
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??
+      []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);

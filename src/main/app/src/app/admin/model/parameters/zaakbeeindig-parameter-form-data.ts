@@ -24,10 +24,10 @@ export function toRestZaakbeeindigParameter(
   formData: ZaakbeeindigParameterFormData,
 ): GeneratedType<"RestZaakbeeindigParameter"> | null {
   if (!formData.zaakbeeindigReden) {
-      return null
+    return null;
   }
   if (!formData.resultaattype) {
-      return null
+    return null;
   }
 
   return {
