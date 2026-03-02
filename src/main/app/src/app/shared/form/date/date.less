@@ -5,36 +5,33 @@
 
 :host {
   ::ng-deep .mat-mdc-text-field-wrapper:has(input[type="date"]) {
-    .mat-mdc-form-field-infix::after {
-      content: " ";
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: var(--mdc-icon-button-icon-size, 24px);
-      height: 100%;
-      background-color: var(
-        --mdc-filled-text-field-container-color,
-        var(--mat-app-surface-variant)
-      );
+    // Webkit/Blink (Chrome, Edge, Safari): hide native calendar icon directly
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      display: none;
     }
 
-    &:not(:has(input[disabled])) {
-      &:hover {
+    // Firefox: no CSS pseudo-element available, so cover the native icon with an overlay
+    @supports not selector(input::-webkit-calendar-picker-indicator) {
+      .mat-mdc-form-field-infix::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: var(--mdc-icon-button-icon-size, 24px);
+        height: 100%;
+        background-color: var(--mdc-filled-text-field-container-color);
+      }
+
+      &:not(:has(input[disabled])):hover {
         .mat-mdc-form-field-infix::after {
-          background-color: var(
-            --mdc-filled-text-field-container-color-hover,
-            var(--mat-app-surface-variant)
-          );
+          background-color: var(--mdc-filled-text-field-container-color-hover);
         }
       }
-    }
 
-    &.mdc-text-field--focused {
-      .mat-mdc-form-field-infix::after {
-        background-color: var(
-          --mdc-filled-text-field-container-color-active,
-          var(--mat-app-surface-variant)
-        );
+      &.mdc-text-field--focused {
+        .mat-mdc-form-field-infix::after {
+          background-color: var(--mdc-filled-text-field-container-color-active);
+        }
       }
     }
   }
