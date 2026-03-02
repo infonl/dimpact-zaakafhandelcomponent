@@ -69,7 +69,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
