@@ -4,14 +4,14 @@
  */
 @file:Suppress("PackageName")
 
-package net.atos.client.or.`object`
+package nl.info.client.or.`object`
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.or.`object`.model.createModelObject
+import nl.info.client.or.`object`.model.createModelObject
 
 class ObjectsClientServiceTest : BehaviorSpec({
     val objectsClient = mockk<ObjectsClient>()

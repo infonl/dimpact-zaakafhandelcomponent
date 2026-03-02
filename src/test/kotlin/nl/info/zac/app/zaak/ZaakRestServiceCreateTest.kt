@@ -18,8 +18,6 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
-import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -30,6 +28,8 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
+import nl.info.client.or.`object`.ObjectsClientService
+import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
@@ -207,7 +207,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
@@ -353,11 +353,11 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             bpmnService.startProcess(zaak, zaakType, zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey, zaakData)
         } just runs
         every {
-            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
+            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag!!.id)
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {

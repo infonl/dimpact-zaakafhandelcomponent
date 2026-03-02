@@ -15,7 +15,6 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.client.zgw.shared.model.createFieldValidationError
@@ -23,6 +22,7 @@ import net.atos.client.zgw.shared.model.createValidationZgwError
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.klant.KlantClientService
+import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
