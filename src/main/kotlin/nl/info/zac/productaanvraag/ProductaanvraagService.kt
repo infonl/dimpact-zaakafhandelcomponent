@@ -733,7 +733,9 @@ class ProductaanvraagService @Inject constructor(
                 betrokkene = this,
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
-        } ?: LOG.fine { "No initiator provided for zaak '$zaak'. Skipping automatic email confirmation." }
+        } ?: LOG.fine {
+            "No initiator provided for zaak with identification: '${zaak.identificatie}'. Skipping automatic email confirmation."
+        }
     }
 
     private fun createZaak(
