@@ -466,7 +466,7 @@ services:
     image: rabbitmq:4.2.4-alpine@sha256:09fbd90e09ca0f12f0c4c40a069147412f7be25245cad774d9df5684b03a031e
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 5s
+      interval: 10s
       timeout: 10s
       retries: 20
     profiles: [ "opennotificaties" ]
