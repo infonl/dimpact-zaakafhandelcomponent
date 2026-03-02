@@ -22,12 +22,12 @@ export type ZaakbeeindigParameterFormData = {
  */
 export function toRestZaakbeeindigParameter(
   formData: ZaakbeeindigParameterFormData,
-): GeneratedType<"RestZaakbeeindigParameter"> {
+): GeneratedType<"RestZaakbeeindigParameter"> | null {
   if (!formData.zaakbeeindigReden) {
-    throw new Error("zaakbeeindigReden is required");
+      return null
   }
   if (!formData.resultaattype) {
-    throw new Error("resultaattype is required");
+      return null
   }
 
   return {

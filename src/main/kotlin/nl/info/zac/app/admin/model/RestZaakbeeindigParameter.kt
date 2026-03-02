@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin.model
 
+import jakarta.validation.constraints.NotNull
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -16,7 +17,11 @@ import nl.info.zac.util.NoArgConstructor
 data class RestZaakbeeindigParameter(
     // id is nullable to allow creation of new parameters without specifying an id
     var id: Long? = null,
+
+    @field:NotNull
     var zaakbeeindigReden: RestZaakbeeindigReden,
+
+    @field:NotNull
     var resultaattype: RestResultaattype
 )
 

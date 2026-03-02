@@ -373,7 +373,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ): ZaakbeeindigParameterFormData {
     let parameter: ZaakbeeindigParameterFormData | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ?? []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -417,7 +417,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
-    this.bpmnZaakafhandelParameters.zaakbeeindigParameters = [];
+    this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??= [];
     this.selection.selected.forEach((param) => {
       if (this.isZaaknietontvankelijkParameter(param)) {
         this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
@@ -427,9 +427,12 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           param,
           "beeindigResultaat",
         )?.value;
-        this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(
-          toRestZaakbeeindigParameter(param),
-        );
+        const converted = toRestZaakbeeindigParameter(param);
+        if (converted) {
+          this.bpmnZaakafhandelParameters.zaakbeeindigParameters!.push(
+            converted,
+          );
+        }
       }
     });
 

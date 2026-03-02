@@ -936,9 +936,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           "beeindigResultaat",
         )?.value;
         // Convert internal form data to API type for sending to backend
-        this.parameters.zaakbeeindigParameters.push(
-          toRestZaakbeeindigParameter(param),
-        );
+        const converted = toRestZaakbeeindigParameter(param);
+        if (converted) {
+          this.parameters.zaakbeeindigParameters.push(converted);
+        }
       }
     });
 
