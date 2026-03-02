@@ -18,7 +18,10 @@ export abstract class AbstractTaakFormulier implements OnDestroy {
   protected readonly translateService = inject(TranslateService);
   protected readonly destroy$ = new Subject<void>();
 
-  abstract requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]>;
+  abstract requestForm(
+    zaak: GeneratedType<"RestZaak">,
+    planItem?: GeneratedType<"RESTPlanItem">,
+  ): Promise<FormField[]>;
   abstract handleForm(
     taak: GeneratedType<"RestTask">,
     zaak?: GeneratedType<"RestZaak">,

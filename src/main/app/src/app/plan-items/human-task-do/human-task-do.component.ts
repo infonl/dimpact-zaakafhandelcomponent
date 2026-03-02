@@ -4,7 +4,12 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
@@ -74,7 +79,7 @@ export class HumanTaskDoComponent implements OnInit {
       const formFields =
         await this.taakFormulierenService.getAngularRequestFormBuilder(
           this.zaak,
-          this.planItem.formulierDefinitie,
+          this.planItem,
         );
 
       formFields.map((formField) => {
@@ -103,6 +108,16 @@ export class HumanTaskDoComponent implements OnInit {
           this.zaak.zaaktype.uuid,
         ),
       );
+
+      if (this.planItem.groepId) {
+        const defaultGroup = groups.find(
+          (group) => group.id === this.planItem!.groepId,
+        );
+        if (defaultGroup) {
+          groupControl.setValue(defaultGroup);
+        }
+      }
+
       this.formFields.push({
         type: "auto-complete",
         key: "group",
@@ -123,22 +138,16 @@ export class HumanTaskDoComponent implements OnInit {
         optionDisplayValue: "naam",
       });
 
+      if (groupControl.value) {
+        this.setUserOptions(userControl, groupControl);
+      }
       groupControl.valueChanges.subscribe((value) => {
         userControl.reset();
-
         if (!value) {
           userControl.disable();
           return;
         }
-
-        userControl.enable();
-        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
-          this.formFields = this.formFields.map((field) => {
-            if (field.type === "auto-complete" && field.key === "user")
-              field.options = users;
-            return field;
-          });
-        });
+        this.setUserOptions(userControl, groupControl);
       });
     } catch (e) {
       console.warn(e);
@@ -152,6 +161,22 @@ export class HumanTaskDoComponent implements OnInit {
       }
       this.formItems = this.formulier.form;
     }
+  }
+
+  private setUserOptions(
+    userControl: FormControl<GeneratedType<"RestUser"> | null>,
+    groupControl: FormControl<GeneratedType<"RestGroup"> | null>,
+  ) {
+    userControl.enable();
+    this.identityService
+      .listUsersInGroup(groupControl.value!.id)
+      .subscribe((users) => {
+        this.formFields = this.formFields.map((field) => {
+          if (field.type === "auto-complete" && field.key === "user")
+            field.options = users;
+          return field;
+        });
+      });
   }
 
   onFormCancel() {
