@@ -47,16 +47,16 @@ class ProductaanvraagEmailService @Inject constructor(
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         LOG.fine {
-            "Attempting to send automatic confirmation of receipt email for zaak '${zaak.uuid}' " +
-                "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
+            "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
+                "and zaaktype '${zaak.zaaktype}' to zaak initiator."
         }
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
             extractBetrokkeneEmail(betrokkene)?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
-            } ?: LOG.fine(
-                "No email address found for initiator '$betrokkene'. " +
+            } ?: LOG.fine {
+                "No email address found for initiator of zaak with identification: '${zaak.identificatie}' and zaaktype '${zaak.zaaktype}'. " +
                     "Skipping automatic email confirmation."
-            )
+            }
         }
     }
 
@@ -96,7 +96,7 @@ class ProductaanvraagEmailService @Inject constructor(
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
                 } ?: LOG.warning(
-                    "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+                    "No email sender configured for zaaktype '${zaakFromProductaanvraag.zaaktype}.' " +
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.warning(
@@ -104,7 +104,7 @@ class ProductaanvraagEmailService @Inject constructor(
                     "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
-            "No email template configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+            "No email template configured for zaaktype '${zaakFromProductaanvraag.zaaktype}'. " +
                 "Skipping automatic email confirmation."
         )
     }
