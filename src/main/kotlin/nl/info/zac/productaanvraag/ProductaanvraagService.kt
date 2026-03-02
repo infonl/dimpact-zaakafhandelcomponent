@@ -722,13 +722,18 @@ class ProductaanvraagService @Inject constructor(
             )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        val initiator = addInitiatorAndBetrokkenenToZaak(
+        addInitiatorAndBetrokkenenToZaak(
             productaanvraag = productaanvraagDimpact,
             zaak = zaak,
             brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
-        )
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
+        )?.run {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak = zaak,
+                betrokkene = this,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+            )
+        } ?: LOG.fine { "No initiator provided for zaak '$zaak'. Skipping automatic email confirmation." }
     }
 
     private fun createZaak(

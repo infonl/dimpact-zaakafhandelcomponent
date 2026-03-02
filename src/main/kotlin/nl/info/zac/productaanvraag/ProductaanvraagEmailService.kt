@@ -41,25 +41,20 @@ class ProductaanvraagEmailService @Inject constructor(
         private val LOG = Logger.getLogger(ProductaanvraagEmailService::class.java.name)
     }
 
-    fun sendEmailForZaakFromProductaanvraag(
+    fun sendConfirmationOfReceiptEmailFromProductaanvraag(
         zaak: Zaak,
-        betrokkene: Betrokkene?,
+        betrokkene: Betrokkene,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         LOG.fine {
-            "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
+            "Attempting to send automatic confirmation of receipt email for zaak '${zaak.uuid}' " +
                 "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
         }
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
-            betrokkene?.let { betrokkene ->
-                extractBetrokkeneEmail(betrokkene)?.let { to ->
-                    sendMail(zaaktypeCmmnEmailParameters, to, zaak)
-                } ?: LOG.fine(
-                    "No email address found for initiator '$betrokkene'. " +
-                        "Skipping automatic email confirmation."
-                )
+            extractBetrokkeneEmail(betrokkene)?.let { to ->
+                sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
             } ?: LOG.fine(
-                "No initiator provided for zaak '$zaak'. " +
+                "No email address found for initiator '$betrokkene'. " +
                     "Skipping automatic email confirmation."
             )
         }
@@ -89,7 +84,7 @@ class ProductaanvraagEmailService @Inject constructor(
             ?.adres
     }
 
-    private fun sendMail(
+    private fun sendConfirmationOfReceiptMail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         zaakFromProductaanvraag: Zaak
