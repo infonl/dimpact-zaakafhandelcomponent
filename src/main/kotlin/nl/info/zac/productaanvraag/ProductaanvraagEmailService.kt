@@ -41,27 +41,22 @@ class ProductaanvraagEmailService @Inject constructor(
         private val LOG = Logger.getLogger(ProductaanvraagEmailService::class.java.name)
     }
 
-    fun sendEmailForZaakFromProductaanvraag(
+    fun sendConfirmationOfReceiptEmailFromProductaanvraag(
         zaak: Zaak,
-        betrokkene: Betrokkene?,
+        betrokkene: Betrokkene,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         LOG.fine {
-            "Attempting to send automatic email confirmation for zaak '${zaak.uuid}' " +
-                "and zaaktype '${zaak.zaaktype}'. For initiator '$betrokkene'."
+            "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
+                "and zaaktype '${zaak.zaaktype}' to zaak initiator."
         }
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
-            betrokkene?.let { betrokkene ->
-                extractBetrokkeneEmail(betrokkene)?.let { to ->
-                    sendMail(zaaktypeCmmnEmailParameters, to, zaak)
-                } ?: LOG.fine(
-                    "No email address found for initiator '$betrokkene'. " +
-                        "Skipping automatic email confirmation."
-                )
-            } ?: LOG.fine(
-                "No initiator provided for zaak '$zaak'. " +
-                    "Skipping automatic email confirmation."
-            )
+            extractBetrokkeneEmail(betrokkene)?.let { to ->
+                sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
+            } ?: LOG.fine {
+                "No email address found for initiator of zaak with identification: '${zaak.identificatie}' " +
+                    "and zaaktype '${zaak.zaaktype}'. Skipping automatic email confirmation."
+            }
         }
     }
 
@@ -89,7 +84,7 @@ class ProductaanvraagEmailService @Inject constructor(
             ?.adres
     }
 
-    private fun sendMail(
+    private fun sendConfirmationOfReceiptMail(
         zaaktypeCmmnEmailParameters: ZaaktypeCmmnEmailParameters,
         to: String,
         zaakFromProductaanvraag: Zaak
@@ -101,7 +96,7 @@ class ProductaanvraagEmailService @Inject constructor(
                         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
                     }
                 } ?: LOG.warning(
-                    "No email sender configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+                    "No email sender configured for zaaktype '${zaakFromProductaanvraag.zaaktype}.' " +
                         "Skipping automatic email confirmation."
                 )
             } ?: LOG.warning(
@@ -109,7 +104,7 @@ class ProductaanvraagEmailService @Inject constructor(
                     "Skipping automatic email confirmation."
             )
         } ?: LOG.warning(
-            "No email template configured for zaaktype ${zaakFromProductaanvraag.zaaktype}. " +
+            "No email template configured for zaaktype '${zaakFromProductaanvraag.zaaktype}'. " +
                 "Skipping automatic email confirmation."
         )
     }
