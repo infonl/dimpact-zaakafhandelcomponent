@@ -9,10 +9,9 @@ services:
       - "54326:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 30s
     environment:
       - POSTGRES_USER=keycloak
       - POSTGRES_PASSWORD=keycloak
@@ -33,7 +32,7 @@ services:
         "CMD-SHELL",
         "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1"
       ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
     environment:
@@ -102,10 +101,9 @@ services:
       - "54322:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 30
     environment:
       - POSTGRES_USER=openzaak
       - POSTGRES_PASSWORD=openzaak
@@ -154,13 +152,13 @@ services:
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 30
       # This should allow for enough time for migrations to run before the max
-      # retries have passed. This healthcheck in turn allows other containers
+      # retries have passed. This health check in turn allows other containers
       # to wait for the database migrations.
-      start_period: 30s
+      start_period: 10s
     depends_on:
       openzaak-database:
         condition: service_healthy
@@ -177,9 +175,9 @@ services:
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       start_period: 10s
     depends_on:
       openzaak.local:
@@ -210,10 +208,9 @@ services:
       - EMAIL_HOST=localhost
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 10s
     depends_on:
       objecten-api-database:
         condition: service_healthy
@@ -227,10 +224,9 @@ services:
       - "54323:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
@@ -296,10 +292,9 @@ services:
       - "54325:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=openklant
       - POSTGRES_PASSWORD=openklant
@@ -444,10 +439,9 @@ services:
       - "3000:3000"
     healthcheck:
       test: "bash -c 'printf \"GET /api/health HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/3000; exit $?;'"
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     depends_on:
       - tempo
       - prometheus
@@ -472,9 +466,9 @@ services:
     image: rabbitmq:4.2.4-alpine@sha256:09fbd90e09ca0f12f0c4c40a069147412f7be25245cad774d9df5684b03a031e
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
+      interval: 10s
+      timeout: 10s
+      retries: 20
     profiles: [ "opennotificaties" ]
 
   opennotificaties-database:
@@ -485,10 +479,9 @@ services:
       - "54327:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=opennotificaties
       - POSTGRES_PASSWORD=opennotificaties
@@ -527,13 +520,13 @@ services:
       SECRET_KEY: opennotificatiesApiSecretKey
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       # This should allow for enough time for migrations to run before the max
       # retries have passed.
       # This health check in turn allows other containers to wait for the database migrations.
-      start_period: 30s
+      start_period: 10s
     ports:
       - "8003:8000"
     volumes: &opennotificaties-volumes
@@ -570,9 +563,9 @@ services:
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       start_period: 10s
     depends_on:
       opennotificaties:
@@ -585,10 +578,9 @@ services:
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 30s
     environment:
       - POSTGRES_USER=openarchiefbeheer
       - POSTGRES_PASSWORD=openarchiefbeheer
@@ -634,13 +626,8 @@ services:
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      # This should allow for enough time for migrations to run before the max
-      # retries have passed. This healthcheck in turn allows other containers
-      # to wait for the database migrations.
-      start_period: 30s
+      interval: 5s
+      timeout: 10s
     ports:
       - "8004:8000"
     depends_on:
@@ -669,10 +656,9 @@ services:
     environment: *web_env
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       - openarchiefbeheer-database
       - redis
@@ -708,7 +694,7 @@ services:
       - POSTGRES_DB=Pabc
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
     volumes:
@@ -758,10 +744,9 @@ services:
       - "54320:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       POSTGRES_USER: zac
       POSTGRES_PASSWORD: password
