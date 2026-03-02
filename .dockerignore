@@ -3,21 +3,9 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# IntelliJ specific files
-.idea
-**/*.iml
-# The git repository
-.git
-# Github specific files
-.github
-#
-**/generated
-**/node
-**/node_modules
-**/dist
-**/.angular
-/wildfly-*
-.editorconfig
-*.md
-.openapi-generator
-config
+# Ignore everything
+*
+
+# Only allow the ZAC JAR file to be included in the Docker build context
+# because that is the only thing we need to build the Docker image.
+!/target/zaakafhandelcomponent.jar
