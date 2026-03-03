@@ -308,9 +308,6 @@ function ensureDirectory(dirPath) {
     }
 }
 
-/**
- * Find the most recent collection in parent folder
- */
 function findExistingCollection(parentFolder) {
     if (!fs.existsSync(parentFolder)) {
         return null;
