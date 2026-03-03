@@ -11,12 +11,13 @@ Then:
 1. Open the Bruno application.
 2. Click on "Open collection" and select the (most recent) ZAC Bruno collection subfolder in the `/scripts/bruno/collections` folder.
 3. Select the environment you wish to connect to. If you want to connect to the INFO TEST environment, you will need to set the `keycloakClientSecret` variable first.
+You can find the value for this variable in Keycloak on the INFO TEST environment.
 4. Select the collection and open the `Auth` tab.
 5. At the bottom click on `Get Access Token`.
 6. You should now be directed to the ZAC login page. After logging in you should be redirected back to Bruno and see that the access token has been updated in the environment.
 7. Select the API endpoint you wish to test, optionally add/change the contents and send the request to the ZAC API.
 
-## Create a new Bruno collection for the ZAC backend API
+## Update the Bruno collection for the ZAC backend API
 
 Run:
 
@@ -24,10 +25,10 @@ Run:
 ./update-bruno-collection.sh
 ```
 
-This will generate a new ZAC API Bruno collection, copying global configuration and environments from the most recent previous collection, 
-and will automatically open this new collection in the Bruno application.
+This will update the existing ZAC API Bruno collection, and will automatically open the updated collection in the Bruno application.
 
-You can now add the new collection folder to Git and delete the previous collection folder.
+You can now commit any changes made by the script to Git. 
+Be careful not to commit any secret variables in the environment files, except for the 'ZAC localhost' environment.
 
 ## Ideas for future enhancements
 
