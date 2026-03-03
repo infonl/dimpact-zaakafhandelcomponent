@@ -49,7 +49,7 @@ concurrency:
 
 jobs:
   validate-input:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     outputs:
       version-bump: ${{ github.event.inputs.confirm || 'patch' }}
     steps:
@@ -65,7 +65,7 @@ jobs:
           exit 1
 
   determine-version:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     needs: [validate-input]
     outputs:
       version: ${{ steps.set-hotfix-version.outputs.version || steps.get-version.outputs.version }}
@@ -161,7 +161,7 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.version }}"
 
   paths-filter:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     needs: validate-input
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
@@ -187,7 +187,7 @@ jobs:
               - '!.github/CODEOWNERS'
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     needs: [paths-filter, validate-input]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
@@ -267,7 +267,7 @@ jobs:
   run-unit-tests:
     needs: [build, paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -350,7 +350,7 @@ jobs:
     # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -486,7 +486,7 @@ jobs:
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
     if: ${{ (github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to')) || startsWith(github.ref_name, 'hotfix/') }}
@@ -530,7 +530,7 @@ jobs:
   create-release:
     needs: [push-docker-image, determine-version]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     env:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
       NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
@@ -567,7 +567,7 @@ jobs:
     needs: [determine-version, push-docker-image, create-release]
     env:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
     steps:
