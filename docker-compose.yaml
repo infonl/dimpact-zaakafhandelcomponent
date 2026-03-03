@@ -701,9 +701,8 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
-    platform: linux/amd64
+    # a test to see if we can use ARM64 Docker Images
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:test-arm64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
       JSON_DATASET_PATH: "/app/json/pabc-mapping-data.json"
