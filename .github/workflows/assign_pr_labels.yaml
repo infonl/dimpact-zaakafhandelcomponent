@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Determine and set PR labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@ed59740818d2a8298b4b9c63c4bd9dd858a1df90
         with:
           script: |
             const extensionLabels = {
