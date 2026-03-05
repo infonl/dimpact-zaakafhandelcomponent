@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import nl.info.zac.app.admin.model.RestFormioFormulier
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
-import nl.info.zac.formio.BpmnProcessDefinitionTaskFormService
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.formio.FormioService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy

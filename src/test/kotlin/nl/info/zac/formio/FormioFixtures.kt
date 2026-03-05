@@ -4,7 +4,7 @@
  */
 package nl.info.zac.formio
 
-import nl.info.zac.formio.model.BpmnProcessDefinitionTaskForm
+import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.formio.model.FormioFormulier
 
 fun createFormioFormulier(

@@ -13,7 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import nl.info.zac.app.admin.model.createRestFormioFormulierContent
-import nl.info.zac.formio.BpmnProcessDefinitionTaskFormService
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.formio.FormioService
 import nl.info.zac.formio.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService

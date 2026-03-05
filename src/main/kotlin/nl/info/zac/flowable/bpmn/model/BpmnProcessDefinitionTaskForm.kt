@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.formio.model
+package nl.info.zac.flowable.bpmn.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -17,9 +17,9 @@ import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "bpmn_procesdefinitie_taakformulieren")
+@Table(schema = FlywayIntegrator.Companion.SCHEMA, name = "bpmn_procesdefinitie_taakformulieren")
 @SequenceGenerator(
-    schema = FlywayIntegrator.SCHEMA,
+    schema = FlywayIntegrator.Companion.SCHEMA,
     name = "sq_bpmn_procesdefinitie_taakformulieren",
     sequenceName = "sq_bpmn_procesdefinitie_taakformulieren",
     allocationSize = 1
