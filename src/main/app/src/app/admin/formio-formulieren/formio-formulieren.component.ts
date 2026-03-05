@@ -32,7 +32,7 @@ export class FormioFormulierenComponent
   @ViewChild("fileInput", { static: false }) fileInput!: ElementRef;
 
   isLoadingResults = false;
-  columns: string[] = ["name", "title", "id"];
+  columns: string[] = ["bpmnProcessDefinition", "name", "title", "id"];
   dataSource = new MatTableDataSource<GeneratedType<"RestFormioFormulier">>();
 
   constructor(

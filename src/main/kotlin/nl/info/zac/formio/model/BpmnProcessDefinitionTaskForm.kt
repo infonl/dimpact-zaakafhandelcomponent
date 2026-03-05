@@ -25,7 +25,7 @@ import nl.info.zac.util.AllOpen
     allocationSize = 1
 )
 @AllOpen
-class BpmnProcessdefinitieTaakformulier {
+class BpmnProcessDefinitionTaskForm {
 
     @Id
     @GeneratedValue(generator = "sq_bpmn_procesdefinitie_taakformulieren", strategy = GenerationType.SEQUENCE)
@@ -34,19 +34,22 @@ class BpmnProcessdefinitieTaakformulier {
 
     @NotBlank
     @Column(name = "bpmn_procesdefinitie")
-    lateinit var bpmnProcesdefinitie: String
+    lateinit var bpmnProcessDefinition: String
 
     @NotBlank
     @Column(name = "bpmn_procesdefinitie_versie")
-    var bpmnProcesdefinitieVersie: Long = 0
+    var bpmnProcessDefinitionVersion: Long = 0
 
     @NotBlank
+    @Column(name = "naam")
     lateinit var name: String
 
     @NotNull
+    @Column(name = "titel")
     lateinit var title: String
 
     @NotBlank
+    @Column(name = "bestandsnaam")
     lateinit var filename: String
 
     @NotBlank

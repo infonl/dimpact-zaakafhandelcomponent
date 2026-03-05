@@ -13,15 +13,21 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import nl.info.zac.app.admin.model.createRestFormioFormulierContent
+import nl.info.zac.formio.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.formio.FormioService
-import nl.info.zac.formio.createFormioFormulier
+import nl.info.zac.formio.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
 import org.apache.http.HttpStatus
 
 class FormioFormulierenRestServiceTest : BehaviorSpec({
     val formioService = mockk<FormioService>()
     val policyService = mockk<PolicyService>()
-    val formioFormulierenRestService = FormioFormulierenRestService(formioService, policyService)
+    val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
+    val formioFormulierenRestService = FormioFormulierenRestService(
+        formioService,
+        bpmnProcessDefinitionTaskFormService,
+        policyService
+    )
 
     beforeEach {
         checkUnnecessaryStub()
@@ -29,17 +35,17 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
 
     Given("A list of formio forms") {
         val formioForms = listOf(
-            createFormioFormulier(
+            createBpmnProcessDefinitionTaskForm(
                 id = 1234L,
                 name = "name1"
             ),
-            createFormioFormulier(
+            createBpmnProcessDefinitionTaskForm(
                 id = 5678L,
                 name = "name2"
             ),
         )
         every { policyService.readOverigeRechten().beheren } returns true
-        every { formioService.listFormulieren() } returns formioForms
+        every { bpmnProcessDefinitionTaskFormService.listForms() } returns formioForms
 
         When("the forms are listed") {
             val restFormioForms = formioFormulierenRestService.listFormulieren()

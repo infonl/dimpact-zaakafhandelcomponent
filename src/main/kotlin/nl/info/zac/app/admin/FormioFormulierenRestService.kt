@@ -17,6 +17,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import nl.info.zac.app.admin.model.RestFormioFormulier
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
+import nl.info.zac.formio.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.formio.FormioService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -29,13 +30,14 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class FormioFormulierenRestService @Inject constructor(
     private val formioService: FormioService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
     private val policyService: PolicyService
 ) {
     @GET
     fun listFormulieren(): List<RestFormioFormulier> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return formioService.listFormulieren()
-            .map { RestFormioFormulier(it.id, it.name, it.title) }
+        return bpmnProcessDefinitionTaskFormService.listForms()
+            .map { RestFormioFormulier(it.id, it.bpmnProcessDefinition, it.name, it.title) }
     }
 
     @POST

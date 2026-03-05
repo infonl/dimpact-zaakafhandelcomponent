@@ -47,11 +47,11 @@ CREATE TABLE ${schema}.bpmn_procesdefinitie_taakformulieren (
     bpmn_procesdefinitie VARCHAR NOT NULL,
     bpmn_procesdefinitie_versie INTEGER NOT NULL,
     naam VARCHAR NOT NULL,
-    title VARCHAR NOT NULL,
+    titel VARCHAR NOT NULL,
     bestandsnaam VARCHAR NOT NULL,
     content VARCHAR NOT NULL,
-    CONSTRAINT pk_bpmn_procesdefinities PRIMARY KEY (id),
-    CONSTRAINT un_bpmn_procesdefinities UNIQUE (bpmn_procesdefinitie, bpmn_procesdefinitie_versie, naam)
+    CONSTRAINT pk_bpmn_procesdefinitie_taakformulieren PRIMARY KEY (id),
+    CONSTRAINT un_bpmn_procesdefinitie_taakformulieren UNIQUE (bpmn_procesdefinitie, bpmn_procesdefinitie_versie, naam)
 );
 
 CREATE SEQUENCE ${schema}.sq_bpmn_procesdefinitie_taakformulieren
@@ -62,7 +62,7 @@ CREATE SEQUENCE ${schema}.sq_bpmn_procesdefinitie_taakformulieren
     CACHE 1;
 
 INSERT INTO ${schema}.bpmn_procesdefinitie_taakformulieren
-SELECT nextval('${schema}.sq_bpmn_procesdefinities'),
+SELECT nextval('${schema}.sq_bpmn_procesdefinitie_taakformulieren'),
        pfk.bpmn_procesdefinitie,
        pfk.bpmn_procesdefinitie_versie,
        pfk.form_key,
