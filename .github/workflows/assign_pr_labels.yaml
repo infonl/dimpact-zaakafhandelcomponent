@@ -65,7 +65,7 @@ jobs:
             const existingLabels = github.event.pull_request.labels.map(l => l.name);
             const newLabels = Array.from(labels).filter(label => !existingLabels.includes(label));
             if (newLabels.length > 0) {
-              await github.issues.addLabels({
+              await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
