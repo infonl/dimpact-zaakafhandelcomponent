@@ -62,7 +62,7 @@ jobs:
               if (filename.includes('Dockerfile')) labels.add('docker');
             }
               
-            const existingLabels = github.event.pull_request.labels.map(l => l.name);
+            const existingLabels = context.payload.pull_request.labels.map(l => l.name);
             const newLabels = Array.from(labels).filter(label => !existingLabels.includes(label));
             if (newLabels.length > 0) {
               await github.rest.issues.addLabels({
