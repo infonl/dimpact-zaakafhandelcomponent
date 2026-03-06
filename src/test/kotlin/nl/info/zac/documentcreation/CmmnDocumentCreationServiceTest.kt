@@ -18,7 +18,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.createCmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData
@@ -38,12 +38,12 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
-    val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
+    val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         documentCreationDataConverter = documentCreationDataConverter,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
     val cmmnDocumentCreationService = CmmnDocumentCreationService(
         smartDocumentsService = smartDocumentsService,
@@ -95,7 +95,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         every {
             smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
         } returns templateName
-        every { configuratieService.readContextUrl() } returns contextUrl
+        every { configurationService.readContextUrl() } returns contextUrl
 
         When("the 'create document attended' method is called") {
             val documentCreationResponse = cmmnDocumentCreationService.createCmmnDocumentAttended(documentCreationData)
@@ -145,7 +145,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
 
-        every { configuratieService.readContextUrl() } returns contextUrl
+        every { configurationService.readContextUrl() } returns contextUrl
 
         When("Document creation URL is requested for zaak") {
             val uri = cmmnDocumentCreationService.documentCreationCallbackUrl(

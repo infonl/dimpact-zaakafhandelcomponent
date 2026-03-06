@@ -68,7 +68,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   protected init: boolean = false;
   protected inclusiefAfgerondeZaken = new FormControl(false);
-  protected betrokkeneSelectControl = new FormControl<ZoekVeld | null>(null);
+  protected betrokkeneSelectControl = new FormControl<string | null>(null);
   private laatsteBetrokkenheid?: string | null = null;
 
   protected distinctRoltypenQuery = injectQuery(() => ({
@@ -94,15 +94,11 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     if (this.laatsteBetrokkenheid) {
       delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
     }
-    if (this.betrokkeneSelectControl.value) {
-      this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value);
-    }
+
+    this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value!);
 
     this.updateActieveFilters();
 
-    if (!this.betrokkeneSelectControl.value) {
-      this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
-    }
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = this.sort
@@ -134,11 +130,17 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.changeDetectorRef.detectChanges();
   }
 
-  private setZoekParameterBetrokkenheid(betrokkenheid: ZoekVeld) {
+  private setZoekParameterBetrokkenheid(betrokkenheid: string) {
     if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    this.zoekParameters.zoeken[(this.laatsteBetrokkenheid = betrokkenheid)] =
-      betrokkene.bsn ?? betrokkene.kvkNummer ?? "";
+    this.zoekParameters.zoeken[
+      (this.laatsteBetrokkenheid =
+        this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))
+    ] =
+      betrokkene.bsn ??
+      betrokkene.vestigingsnummer ??
+      betrokkene.kvkNummer ??
+      "";
   }
 
   ngAfterViewInit() {
@@ -168,19 +170,39 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   protected getBetrokkenheid(zaak: ZaakZoekObject) {
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
-    console.log("betrokkene: ", betrokkene);
 
-    return Object.entries(zaak.betrokkenen || {}).reduce((acc, [rol, ids]) => {
-      if (betrokkene.kvkNummer && ids.includes(betrokkene.kvkNummer)) {
-        acc.push(rol);
-      }
+    return Object.entries(zaak.betrokkenen || {}).reduce<string[]>(
+      (acc, [rol, identifiers]) => {
+        const identifierList = identifiers as string[];
+        if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
+        }
 
-      if (betrokkene.bsn && ids.includes(betrokkene.bsn)) {
-        acc.push(rol);
-      }
+        if (
+          betrokkene.vestigingsnummer &&
+          identifierList.includes(betrokkene.vestigingsnummer)
+        ) {
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
+        } else if (
+          betrokkene.kvkNummer &&
+          identifierList.includes(betrokkene.kvkNummer)
+        ) {
+          acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
+        }
+        return acc;
+      },
+      [],
+    );
+  }
 
-      return acc;
-    }, [] as string[]);
+  protected setBetrokkeneFieldToSolrKeyName(betrokkene: string): string {
+    return betrokkene
+      ? "zaak_betrokkene_" + betrokkene.replace(/ /g, "_")
+      : ZoekVeld.ZAAK_BETROKKENEN;
+  }
+
+  private makeSolrKeyNameReadableBetrokkeneType(fieldName: string): string {
+    return fieldName.replace(/_/g, " ");
   }
 
   protected filtersChanged() {

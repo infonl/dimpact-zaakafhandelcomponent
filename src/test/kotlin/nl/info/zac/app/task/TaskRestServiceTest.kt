@@ -461,10 +461,12 @@ class TaskRestServiceTest : BehaviorSpec({
                 createRestTask(id = "fakeId1"),
                 createRestTask(id = "fakeId2")
             )
+            val loggedInUser = createLoggedInUser()
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-            every { policyService.readZaakRechten(zaak).lezen } returns true
+            every { policyService.readZaakRechten(zaak, loggedInUser).lezen } returns true
             every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
             every { restTaskConverter.convert(tasks) } returns restTasks
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the tasks are listed for this zaak") {
                 val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)

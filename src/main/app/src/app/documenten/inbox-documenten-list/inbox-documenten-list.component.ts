@@ -46,7 +46,7 @@ export class InboxDocumentenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource = new MatTableDataSource<GeneratedType<"RESTInboxDocument">>();
+  dataSource = new MatTableDataSource<GeneratedType<"RestInboxDocument">>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
@@ -75,7 +75,7 @@ export class InboxDocumentenListComponent
   };
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  selectedInformationObject: GeneratedType<"RESTInboxDocument"> | null = null;
+  selectedInformationObject: GeneratedType<"RestInboxDocument"> | null = null;
 
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,
@@ -134,14 +134,14 @@ export class InboxDocumentenListComponent
     );
   }
 
-  getDownloadURL(inboxDocument: GeneratedType<"RESTInboxDocument">) {
+  getDownloadURL(inboxDocument: GeneratedType<"RestInboxDocument">) {
     if (!inboxDocument.enkelvoudiginformatieobjectUUID) return null;
     return this.infoService.getDownloadURL(
       inboxDocument.enkelvoudiginformatieobjectUUID,
     );
   }
 
-  documentVerwijderen(inboxDocument: GeneratedType<"RESTInboxDocument">) {
+  documentVerwijderen(inboxDocument: GeneratedType<"RestInboxDocument">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -210,7 +210,7 @@ export class InboxDocumentenListComponent
     return "INBOX_DOCUMENTEN";
   }
 
-  openDrawer(selectedInformationObject: GeneratedType<"RESTInboxDocument">) {
+  openDrawer(selectedInformationObject: GeneratedType<"RestInboxDocument">) {
     this.selectedInformationObject = selectedInformationObject;
     void this.actionsSidenav.open();
   }

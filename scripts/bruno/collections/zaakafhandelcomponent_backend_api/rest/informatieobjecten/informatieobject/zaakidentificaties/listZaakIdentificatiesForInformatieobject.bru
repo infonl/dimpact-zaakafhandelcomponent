@@ -1,0 +1,15 @@
+meta {
+  name: listZaakIdentificatiesForInformatieobject
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:informatieObjectUuid/zaakidentificaties
+  body: none
+  auth: inherit
+}
+
+params:path {
+  informatieObjectUuid: {informatieObjectUuid}
+}

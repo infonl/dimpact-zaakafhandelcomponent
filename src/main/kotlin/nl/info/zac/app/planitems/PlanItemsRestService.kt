@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.planitems
 
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
@@ -33,7 +34,8 @@ import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
@@ -65,19 +67,20 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class PlanItemsRestService @Inject constructor(
-    private var zaakVariabelenService: ZaakVariabelenService,
-    private var cmmnService: CMMNService,
-    private var zrcClientService: ZrcClientService,
-    private var zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private var planItemConverter: RESTPlanItemConverter,
-    private var zgwApiService: ZgwApiService,
-    private var indexingService: IndexingService,
-    private var mailService: MailService,
-    private var configuratieService: ConfiguratieService,
-    private var mailTemplateService: MailTemplateService,
-    private var policyService: PolicyService,
-    private var suspensionZaakHelper: SuspensionZaakHelper,
-    private var restMailGegevensConverter: RESTMailGegevensConverter,
+    private val zaakVariabelenService: ZaakVariabelenService,
+    private val cmmnService: CMMNService,
+    private val zrcClientService: ZrcClientService,
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val planItemConverter: RESTPlanItemConverter,
+    private val zgwApiService: ZgwApiService,
+    private val indexingService: IndexingService,
+    private val mailService: MailService,
+    private val configurationService: ConfigurationService,
+    private val mailTemplateService: MailTemplateService,
+    private val policyService: PolicyService,
+    private val suspensionZaakHelper: SuspensionZaakHelper,
+    private val restMailGegevensConverter: RESTMailGegevensConverter,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
@@ -141,7 +144,7 @@ class PlanItemsRestService @Inject constructor(
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
-        assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
+        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).startenTaak)
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
             zaak.zaaktype.extractUuid()
         )
@@ -166,7 +169,7 @@ class PlanItemsRestService @Inject constructor(
                 .firstOrNull { it?.mail == mail }
                 ?: mailTemplateService.readMailtemplate(mail)
 
-            val afzender = configuratieService.readGemeenteNaam()
+            val afzender = configurationService.readGemeenteNaam()
             TaakVariabelenService.setMailBody(
                 taakdata,
                 mailService.sendMail(
@@ -211,7 +214,7 @@ class PlanItemsRestService @Inject constructor(
     @Path("doUserEventListenerPlanItem")
     fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
-        val zaakRechten = policyService.readZaakRechten(zaak)
+        val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
         assertPolicy(zaakRechten.startenTaak)
         userEventListenerData.restMailGegevens?.run {
             assertPolicy(zaakRechten.versturenEmail)

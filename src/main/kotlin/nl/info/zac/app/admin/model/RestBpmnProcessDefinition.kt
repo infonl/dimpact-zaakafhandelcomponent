@@ -13,5 +13,6 @@ class RestBpmnProcessDefinition(
     var id: String,
     var name: String,
     var version: Int,
-    var key: String
+    var key: String,
+    var inUse: Boolean
 )

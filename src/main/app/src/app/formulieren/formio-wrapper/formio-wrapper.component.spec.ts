@@ -83,6 +83,14 @@ describe(FormioWrapperComponent.name, () => {
       await expect(component.ngOnInit()).resolves.not.toThrow();
     });
 
+    it("should set stylesLoaded to true after initialization", async () => {
+      expect(component["stylesLoaded"]).toBe(false);
+
+      await component.ngOnInit();
+
+      expect(component["stylesLoaded"]).toBe(true);
+    });
+
     it("should handle errors gracefully", async () => {
       const consoleSpy = jest.spyOn(console, "error").mockImplementation();
       jest
@@ -96,6 +104,94 @@ describe(FormioWrapperComponent.name, () => {
         expect.any(Error),
       );
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe(FormioWrapperComponent.prototype.onClickInside.name, () => {
+    it("should stop propagation when clicking inside a .choices widget (to prevent closing)", () => {
+      // 1. Mock the DOM element that has the 'choices' class (the dropdown widget)
+      const mockChoicesElement = {
+        classList: {
+          contains: (className: string) => className === "choices",
+        },
+      };
+
+      // 2. Create a mock event where composedPath returns our mock element
+      const event = {
+        composedPath: () => [mockChoicesElement],
+        stopPropagation: jest.fn(),
+      } as unknown as MouseEvent;
+
+      // 3. Call the listener
+      component.onClickInside(event);
+
+      // 4. Verify propagation is stopped (dropdown stays open)
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    });
+
+    it("should NOT stop propagation when clicking outside the widget (to allow closing)", () => {
+      // 1. Mock a generic element (like the form background) without 'choices' class
+      const mockOtherElement = {
+        classList: {
+          contains: () => false, // No 'choices' class found
+        },
+      };
+
+      // 2. Create a mock event
+      const event = {
+        composedPath: () => [mockOtherElement],
+        stopPropagation: jest.fn(),
+      } as unknown as MouseEvent;
+
+      // 3. Call the listener
+      component.onClickInside(event);
+
+      // 4. Verify propagation is NOT stopped (dropdown closes normally)
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+    });
+
+    it("should handle elements without classList gracefully", () => {
+      // 1. Mock an element that might appear in path but has no classList (e.g. Document or Window)
+      const mockElementNoClassList = {};
+
+      const event = {
+        composedPath: () => [mockElementNoClassList],
+        stopPropagation: jest.fn(),
+      } as unknown as MouseEvent;
+
+      component.onClickInside(event);
+
+      // Should not crash and should not stop propagation
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("ngAfterViewInit should patch document.activeElement correctly", () => {
+    let originalActiveElement: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      originalActiveElement = Object.getOwnPropertyDescriptor(
+        Document.prototype,
+        "activeElement",
+      );
+
+      FormioWrapperComponent["activeElementPatched"] = false;
+    });
+
+    afterEach(() => {
+      if (originalActiveElement) {
+        Object.defineProperty(document, "activeElement", originalActiveElement);
+      }
+      FormioWrapperComponent["activeElementPatched"] = false;
+    });
+
+    it("should patch document.activeElement only once", () => {
+      component.ngAfterViewInit();
+      expect(FormioWrapperComponent["activeElementPatched"]).toBe(true);
+
+      const spy = jest.spyOn(Object, "defineProperty");
+      component.ngAfterViewInit();
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });

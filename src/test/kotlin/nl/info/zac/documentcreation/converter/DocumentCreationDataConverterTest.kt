@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.brp.BrpClientService
@@ -20,6 +19,7 @@ import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createResultaatItem
+import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -34,7 +34,7 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -49,7 +49,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val identityService = mockk<IdentityService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val documentCreationDataConverter = DocumentCreationDataConverter(
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
@@ -60,7 +60,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         identityService = identityService,
         productaanvraagService = productaanvraagService,
-        configuratieService = configuratieService
+        configurationService = configurationService
     )
 
     beforeEach {

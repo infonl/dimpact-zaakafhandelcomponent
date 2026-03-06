@@ -12,14 +12,14 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
-import net.atos.client.bag.BagClientService
-import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
+import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.klant.KlantClientService
+import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.exception.BrcRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
@@ -216,11 +216,20 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             }
         }
 
-    private fun createResponse(exception: WebApplicationException): Response =
-        Response.status(exception.response.status)
+    private fun createResponse(exception: WebApplicationException): Response {
+        val jsonErrorMessage = if (exception.cause is IllegalArgumentException) {
+            getJSONMessage(
+                errorMessage = "msg.error.invalid.argument",
+                exceptionMessage = exception.cause?.message
+            )
+        } else {
+            getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value)
+        }
+        return Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
+            .entity(jsonErrorMessage)
             .build()
+    }
 
     private fun generateResponse(
         responseStatus: Response.Status,

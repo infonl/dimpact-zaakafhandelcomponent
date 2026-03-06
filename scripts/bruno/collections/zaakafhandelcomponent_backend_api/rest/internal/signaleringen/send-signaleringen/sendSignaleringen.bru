@@ -1,0 +1,11 @@
+meta {
+  name: sendSignaleringen
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/internal/signaleringen/send-signaleringen
+  body: none
+  auth: inherit
+}

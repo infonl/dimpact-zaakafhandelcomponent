@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,7 +9,7 @@ import moment from "moment";
 
 @Pipe({
   name: "dagen",
-  standalone: false,
+  standalone: true,
 })
 export class DagenPipe implements PipeTransform {
   constructor(private translate: TranslateService) {}

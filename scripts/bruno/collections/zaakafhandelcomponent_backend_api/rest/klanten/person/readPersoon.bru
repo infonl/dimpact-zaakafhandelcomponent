@@ -1,0 +1,19 @@
+meta {
+  name: readPersoon
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/person/:temporaryPersonId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  temporaryPersonId: {temporaryPersonId}
+}
+
+headers {
+  X-ZAAKTYPE-UUID: 
+}

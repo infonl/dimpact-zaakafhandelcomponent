@@ -33,7 +33,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mail.model.Attachment
 import nl.info.zac.mail.model.Bronnen
@@ -66,7 +66,7 @@ import kotlin.takeIf
 @AllOpen
 @Suppress("LongParameterList")
 class MailService @Inject constructor(
-    private var configuratieService: ConfiguratieService,
+    private var configurationService: ConfigurationService,
     private var zgwApiService: ZgwApiService,
     private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
@@ -98,8 +98,8 @@ class MailService @Inject constructor(
 
     fun getGemeenteMailAdres() =
         MailAdres(
-            configuratieService.readGemeenteMail(),
-            configuratieService.readGemeenteNaam()
+            configurationService.readGemeenteMail(),
+            configurationService.readGemeenteNaam()
         )
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
@@ -166,11 +166,11 @@ class MailService @Inject constructor(
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-            bronorganisatie = configuratieService.readBronOrganisatie()
+            bronorganisatie = configurationService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
             titel = subject
             auteur = loggedInUserInstance.get().getFullName()
-            taal = ConfiguratieService.TAAL_NEDERLANDS
+            taal = ConfigurationService.TAAL_NEDERLANDS
             informatieobjecttype = eMailObjectType.url
             inhoud = pdfDocument.toBase64String()
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
@@ -185,7 +185,7 @@ class MailService @Inject constructor(
             enkelvoudigInformatieobjectWithInhoud,
             subject,
             subject,
-            ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+            ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         )
     }
 
@@ -244,7 +244,7 @@ class MailService @Inject constructor(
     private fun getEmailInformatieObjectType(zaak: Zaak): InformatieObjectType =
         ztcClientService.readZaaktype(zaak.zaaktype).informatieobjecttypen
             .map { ztcClientService.readInformatieobjecttype(it) }
-            .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
+            .first { it.omschrijving == ConfigurationService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
     private fun getAttachments(attachmentUUIDs: List<String>): List<Attachment> =
         attachmentUUIDs

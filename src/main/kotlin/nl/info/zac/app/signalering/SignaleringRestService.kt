@@ -56,7 +56,7 @@ class SignaleringRestService @Inject constructor(
     @GET
     @Path("/latest")
     fun latestSignaleringOccurrence(): ZonedDateTime? =
-        signaleringService.latestSignaleringOccurrence()
+        signaleringService.latestSignaleringOccurrence(loggedInUserInstance.get())
 
     /**
      * Lists zaken signaleringen for the given signaleringsType.
@@ -66,8 +66,9 @@ class SignaleringRestService @Inject constructor(
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @Valid restSignaleringPageParameters: RestSignaleringPageParameters
-    ): RESTResultaat<RestZaakOverzicht> =
-        signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
+    ): RESTResultaat<RestZaakOverzicht> {
+        val loggedInUser = loggedInUserInstance.get()
+        return signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
             objectsCount.maxPages(restSignaleringPageParameters.rows).let { maxPages ->
                 if (restSignaleringPageParameters.page > maxPages) {
                     throw SignaleringException(
@@ -76,10 +77,15 @@ class SignaleringRestService @Inject constructor(
                 }
             }
             RESTResultaat(
-                signaleringService.listZakenSignaleringenPage(signaleringsType, restSignaleringPageParameters),
+                signaleringService.listZakenSignaleringenPage(
+                    signaleringsType = signaleringsType,
+                    pageParameters = restSignaleringPageParameters,
+                    loggedInUser = loggedInUser
+                ),
                 objectsCount
             )
         }
+    }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
 

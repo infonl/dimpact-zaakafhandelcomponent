@@ -11,21 +11,25 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.bag.BagClientService
-import net.atos.client.bag.model.BevraagAdressenParameters
-import net.atos.client.bag.model.createAdresIOHal
+import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.bag.model.BAGObjectType
+import nl.info.client.bag.BagClientService
+import nl.info.client.bag.model.BevraagAdressenParameters
+import nl.info.client.bag.model.createAdresIOHal
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 
 class BagRestServiceTest : BehaviorSpec({
     val bagClientService = mockk<BagClientService>()
-    var zrcClientService = mockk<ZrcClientService>()
-    var policyService = mockk<PolicyService>()
+    val zrcClientService = mockk<ZrcClientService>()
+    val policyService = mockk<PolicyService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val bagRestService = BagRestService(
         bagClientService,
         zrcClientService,
-        policyService
+        policyService,
+        loggedInUserInstance
     )
 
     beforeEach {

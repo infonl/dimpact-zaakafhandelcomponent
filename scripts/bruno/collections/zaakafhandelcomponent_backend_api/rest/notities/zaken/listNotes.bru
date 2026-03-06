@@ -1,0 +1,15 @@
+meta {
+  name: listNotes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/notities/zaken/:uuid
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}

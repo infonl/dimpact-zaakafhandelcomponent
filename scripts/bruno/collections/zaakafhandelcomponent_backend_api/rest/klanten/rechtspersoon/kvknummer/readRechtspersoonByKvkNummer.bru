@@ -1,0 +1,15 @@
+meta {
+  name: readRechtspersoonByKvkNummer
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/rechtspersoon/kvknummer/:kvkNummer
+  body: none
+  auth: inherit
+}
+
+params:path {
+  kvkNummer: {kvkNummer}
+}

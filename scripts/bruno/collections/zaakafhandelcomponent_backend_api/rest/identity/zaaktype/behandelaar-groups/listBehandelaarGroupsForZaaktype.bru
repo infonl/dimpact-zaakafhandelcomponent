@@ -1,0 +1,15 @@
+meta {
+  name: listBehandelaarGroupsForZaaktype
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/identity/zaaktype/:zaaktypeDescription/behandelaar-groups
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaaktypeDescription: {zaaktypeDescription}
+}

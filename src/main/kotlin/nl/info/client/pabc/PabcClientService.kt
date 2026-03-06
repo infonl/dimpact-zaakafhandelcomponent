@@ -19,12 +19,10 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 class PabcClientService @Inject constructor(
     @RestClient private val pabcClient: PabcClient
 ) {
-    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse {
-        val applicationRolesRequest = GetApplicationRolesRequest().apply {
-            functionalRoleNames = functionalRoles
-        }
-        return pabcClient.getApplicationRolesPerEntityType(applicationRolesRequest)
-    }
+    fun getApplicationRoles(functionalRoles: List<String>): GetApplicationRolesResponse =
+        pabcClient.getApplicationRolesPerEntityType(
+            GetApplicationRolesRequest().apply { functionalRoleNames = functionalRoles }
+        )
 
     /**
      * Returns the list of groups that are authorised for the given ZAC application role and zaaktype description.

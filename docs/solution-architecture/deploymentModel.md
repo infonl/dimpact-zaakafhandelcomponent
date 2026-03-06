@@ -1,5 +1,81 @@
 # ZAC deployment model
 
+The ZAC deployment model is illustrated in the deployment diagram below. 
+Dependencies to external services are not shown here, but are described in the [ZAC system context](systemContext.md).
+
+```mermaid
+graph TB
+    subgraph "Deployment Scripts"
+        HELM[ZAC Helm Chart<br/>Manages Pods & CronJobs]
+    end
+    
+    subgraph "Kubernetes Cluster"
+        subgraph "ZAC Application Pods"
+            ZAC[ZAC Application<br/>Docker Container]
+            SOLR[Apache Solr<br/>Search Engine]
+            OPA[OPA<br/>Open Policy Agent]
+            OFFICE[Office Converter<br/>Document Conversion]
+        end
+        
+        subgraph "Cron Jobs"
+            SIGNAL[Send Signaleringen<br/>CronJob<br/>Daily]
+            DELETE[Delete Old Signaleringen<br/>CronJob<br/>Daily]
+        end
+    
+        subgraph "ZGW APIs"
+            ZRC[Zaken API<br/>ZRC]
+            ZTC[Catalogi API<br/>ZTC]
+            DRC[Documenten API<br/>DRC]
+        end
+
+        subgraph "Notification Services"
+            NOTIF[Open Notificaties<br/>Notification API]
+        end
+
+        subgraph "Authentication"
+            KEYCLOAK[Keycloak<br/>Identity Provider]
+        end
+        
+        subgraph "Database"
+            POSTGRES[(PostgreSQL<br/>Database<br/>Not managed by Helm)]
+        end
+    end
+    
+    %% Connections
+    HELM -.-> ZAC
+    HELM -.-> SIGNAL
+    HELM -.-> DELETE
+    HELM -.-> SOLR
+    HELM -.-> OPA
+    HELM -.-> OFFICE
+    
+    ZAC --> POSTGRES
+    ZAC --> ZRC
+    ZAC --> ZTC
+    ZAC --> DRC
+    ZAC --> NOTIF
+    ZAC --> KEYCLOAK
+    ZAC --> SOLR
+    ZAC --> OPA
+    
+    SIGNAL --> ZAC
+    DELETE --> ZAC
+    
+    %% Styling
+    classDef zacComponent fill:#e1f5fe
+    classDef external fill:#fff3e0
+    classDef database fill:#e8f5e8
+    classDef cronJob fill:#f3e5f5
+    classDef helm fill:#fff8e1
+    classDef users fill:#fce4ec
+    
+    class ZAC,SOLR,OPA,OFFICE zacComponent
+    class POSTGRES database
+    class SIGNAL,DELETE cronJob
+    class HELM helm
+    class ZRC,ZTC,DRC,NOTIF,KEYCLOAK external
+```
+
 ZAC consists of [a number of components](systemContext.md) that are packaged as Docker images and together make up the full ZAC application.
 These components are deployed as Kubernetes pods using the [ZAC Helm Chart](../../charts/zac).
 

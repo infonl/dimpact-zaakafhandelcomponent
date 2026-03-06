@@ -1,0 +1,21 @@
+meta {
+  name: assignTask
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/rest/taken/toekennen
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "taakId": "",
+    "zaakUuid": "",
+    "groepId": "",
+    "behandelaarId": "",
+    "reden": ""
+  }
+}

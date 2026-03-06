@@ -1,0 +1,15 @@
+meta {
+  name: listBetrokkeneRoltypen
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/roltype/:zaaktypeUuid/betrokkene
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaaktypeUuid: {zaaktypeUuid}
+}

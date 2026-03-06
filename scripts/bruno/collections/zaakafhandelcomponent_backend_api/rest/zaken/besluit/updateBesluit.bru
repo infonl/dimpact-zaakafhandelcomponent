@@ -1,0 +1,24 @@
+meta {
+  name: updateBesluit
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/besluit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "besluitUuid": "",
+    "toelichting": "",
+    "ingangsdatum": "",
+    "vervaldatum": {},
+    "publicationDate": {},
+    "lastResponseDate": {},
+    "informatieobjecten": "",
+    "reden": ""
+  }
+}

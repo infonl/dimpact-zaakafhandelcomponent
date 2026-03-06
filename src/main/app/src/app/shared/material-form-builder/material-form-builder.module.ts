@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -58,6 +58,7 @@ import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
+import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
 import { AutocompleteComponent } from "./form-components/autocomplete/autocomplete.component";
 import { CheckboxComponent } from "./form-components/checkbox/checkbox.component";
@@ -109,7 +110,6 @@ import { FormComponent } from "./form/form/form.component";
     HiddenComponent,
     MessageComponent,
     EnhanceMatErrorDirective,
-    CapitalizeFirstLetterPipe,
     ZacAutoComplete,
     ZacDate,
     ZacSelect,
@@ -157,6 +157,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacRadio,
     ZacForm,
     CapitalizeFirstLetterPipe,
+    EmptyPipe,
     ZacFormActions,
   ],
   imports: [
@@ -187,6 +188,8 @@ import { FormComponent } from "./form/form/form.component";
     MatMenuModule,
     MatListModule,
     MatExpansionPanelActionRow,
+    EmptyPipe,
+    CapitalizeFirstLetterPipe,
   ],
   providers: [
     {

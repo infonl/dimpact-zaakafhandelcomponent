@@ -16,7 +16,7 @@
           "labelPosition": "left-left",
           "type": "textfield",
           "key": "hardCodedGroup",
-          "defaultValue": "Superheroes",
+          "defaultValue": "BPMN test group 1",
           "persistent": false,
           "input": false,
           "disabled": true
@@ -26,7 +26,7 @@
           "labelPosition": "left-left",
           "type": "textfield",
           "key": "hardCodedUser",
-          "defaultValue": "Invisible Man",
+          "defaultValue": "BPMN test behandelaar 1",
           "persistent": false,
           "input": false,
           "disabled": true

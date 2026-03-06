@@ -1,0 +1,15 @@
+meta {
+  name: readHumanTaskPlanItem
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/planitems/humanTaskPlanItem/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

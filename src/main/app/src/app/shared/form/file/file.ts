@@ -142,6 +142,9 @@ export class ZacFile<
 
   private updateInputControls(file: File | null) {
     this.control()?.patchValue(file);
+    if (file) {
+      this.control()?.markAsDirty();
+    }
     this.displayControl.patchValue(
       file ? file.name.replace(`.${this.getFileExtension(file)}`, "") : null,
       { emitEvent: false },

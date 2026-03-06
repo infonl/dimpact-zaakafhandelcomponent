@@ -4,6 +4,7 @@
  */
 package nl.info.client.pabc
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -11,6 +12,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import nl.info.client.pabc.model.createApplicationRolesResponse
+import nl.info.client.pabc.model.createGetGroupsByApplicationRoleAndEntityTypeResponse
+import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.pabc.model.generated.GetApplicationRolesRequest
 
 class PabcClientServiceTest : BehaviorSpec({
@@ -23,14 +26,7 @@ class PabcClientServiceTest : BehaviorSpec({
 
     Context("Getting application roles") {
         Given("A PABC application roles response for a certain PABC request") {
-            val applicationName = "fakeApplicationName"
-            val entityTypeId = "fakeEntityTypeId"
-            val entityTypeType = "fakeEntityTypeType"
-            val applicationRolesResponse = createApplicationRolesResponse(
-                id = entityTypeId,
-                applicationName = applicationName,
-                type = entityTypeType,
-            )
+            val applicationRolesResponse = createApplicationRolesResponse()
             val getApplicationRolesRequestSlot = slot<GetApplicationRolesRequest>()
             val functionalRoles = listOf("fakeRole1", "fakeRole2")
             every {
@@ -43,13 +39,57 @@ class PabcClientServiceTest : BehaviorSpec({
                 Then("it should invoke the client with the given roles") {
                     result shouldBe applicationRolesResponse
                     getApplicationRolesRequestSlot.captured.functionalRoleNames shouldBe functionalRoles
-                    with(result.results[0]) {
-                        entityType.id shouldBe entityTypeId
-                        entityType.type shouldBe entityTypeType
-                        applicationRoles.forEach {
-                            it.application shouldBe applicationName
-                        }
-                    }
+                }
+            }
+        }
+    }
+
+    Context("Getting groups by application role and zaaktype") {
+        Given("A valid application role and zaaktype description") {
+            val applicationRole = "validRole"
+            val zaaktypeDescription = "validZaaktype"
+            val groupRepresentation = createPabcGroupRepresentation()
+            every {
+                pabcClient.getGroupsByApplicationRoleAndEntityType(
+                    applicationName = APPLICATION_NAME_ZAC,
+                    applicationRoleName = applicationRole,
+                    entityTypeId = zaaktypeDescription,
+                    entityType = ENTITY_TYPE_ZAAKTYPE
+                )
+            } returns createGetGroupsByApplicationRoleAndEntityTypeResponse(listOf(groupRepresentation))
+
+            When("getGroupsByApplicationRoleAndZaaktype is called") {
+                val result = pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole,
+                    zaaktypeDescription
+                )
+
+                Then("it should return the expected list of groups") {
+                    result shouldBe listOf(groupRepresentation)
+                }
+            }
+        }
+
+        Given("The PABC client throws an RuntimeException when getting groups by application role and zaaktype") {
+            val applicationRole = "fakeApplicationRole"
+            val zaaktypeDescription = "fakeZaaktypeDescription"
+            val runtimeException = RuntimeException("fakeExceptionMessage")
+            every {
+                pabcClient.getGroupsByApplicationRoleAndEntityType(
+                    applicationName = APPLICATION_NAME_ZAC,
+                    applicationRoleName = applicationRole,
+                    entityTypeId = zaaktypeDescription,
+                    entityType = ENTITY_TYPE_ZAAKTYPE
+                )
+            } throws runtimeException
+
+            When("getGroupsByApplicationRoleAndZaaktype is called") {
+                val exception = shouldThrow<RuntimeException> {
+                    pabcClientService.getGroupsByApplicationRoleAndZaaktype(applicationRole, zaaktypeDescription)
+                }
+
+                Then("it should pass on the RuntimeException") {
+                    exception shouldBe runtimeException
                 }
             }
         }

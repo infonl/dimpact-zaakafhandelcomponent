@@ -1,0 +1,27 @@
+meta {
+  name: updateMailtemplate
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/beheer/mailtemplates/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}
+
+body:json {
+  {
+    "id": 0,
+    "mailTemplateNaam": "",
+    "onderwerp": "",
+    "body": "",
+    "mail": "",
+    "variabelen": [],
+    "defaultMailtemplate": false
+  }
+}

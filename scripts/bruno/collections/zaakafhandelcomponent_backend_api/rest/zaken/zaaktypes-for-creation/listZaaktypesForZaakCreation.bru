@@ -1,0 +1,11 @@
+meta {
+  name: listZaaktypesForZaakCreation
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/zaaktypes-for-creation
+  body: none
+  auth: inherit
+}

@@ -15,6 +15,7 @@ import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
+import nl.info.zac.configuration.ConfigurationService
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
@@ -43,23 +44,24 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
-        val configurationService = ConfiguratieService(
-            entityManager,
-            ztcClientService,
-            additionalAllowedFileTypes,
-            zgwApiClientMpRestUrl,
-            contextUrl,
-            gemeenteCode,
-            gemeenteNaam,
-            gemeenteMail,
-            pabcIntegration,
-            bronOrganisatie,
-            verantwoordelijkeOrganisatie,
-            catalogusDomein,
-            brpConfiguration
+        val configurationService = ConfigurationService(
+            entityManager = entityManager,
+            ztcClientService = ztcClientService,
+            additionalAllowedFileTypes = additionalAllowedFileTypes,
+            zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+            contextUrl = contextUrl,
+            gemeenteCode = gemeenteCode,
+            gemeenteNaam = gemeenteNaam,
+            gemeenteMail = gemeenteMail,
+            pabcIntegration = pabcIntegration,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+            catalogusDomein = catalogusDomein,
+            brpConfiguration = brpConfiguration
         )
 
         When("zaak tonen URL is requested") {
+            configurationService.onStartup(Any())
             val zaakTonenUrl = configurationService.zaakTonenUrl(zaakIdentificatie = "id")
 
             Then("correct url is built") {
@@ -111,21 +113,21 @@ class ConfiguratieServiceTest : BehaviorSpec({
         When("configuration service is initialized") {
             Then("BSN is validated") {
                 shouldThrow<IllegalArgumentException> {
-                    ConfiguratieService(
-                        entityManager,
-                        ztcClientService,
-                        additionalAllowedFileTypes,
-                        zgwApiClientMpRestUrl,
-                        contextUrl,
-                        gemeenteCode,
-                        gemeenteNaam,
-                        gemeenteMail,
-                        pabcIntegration,
-                        bronOrganisatie,
-                        verantwoordelijkeOrganisatie,
-                        catalogusDomein,
-                        brpConfiguration
-                    )
+                    ConfigurationService(
+                        entityManager = entityManager,
+                        ztcClientService = ztcClientService,
+                        additionalAllowedFileTypes = additionalAllowedFileTypes,
+                        zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+                        contextUrl = contextUrl,
+                        gemeenteCode = gemeenteCode,
+                        gemeenteNaam = gemeenteNaam,
+                        gemeenteMail = gemeenteMail,
+                        pabcIntegration = pabcIntegration,
+                        bronOrganisatie = bronOrganisatie,
+                        verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+                        catalogusDomein = catalogusDomein,
+                        brpConfiguration = brpConfiguration
+                    ).onStartup(Any())
                 }
             }
         }
@@ -140,23 +142,24 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val catalogusDomein = "ALG"
         val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
-        val configurationService = ConfiguratieService(
-            entityManager,
-            ztcClientService,
-            Optional.empty(),
-            zgwApiClientMpRestUrl,
-            contextUrl,
-            gemeenteCode,
-            gemeenteNaam,
-            gemeenteMail,
-            pabcIntegration,
-            bronOrganisatie,
-            verantwoordelijkeOrganisatie,
-            catalogusDomein,
-            brpConfiguration
+        val configurationService = ConfigurationService(
+            entityManager = entityManager,
+            ztcClientService = ztcClientService,
+            additionalAllowedFileTypes = Optional.empty(),
+            zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
+            contextUrl = contextUrl,
+            gemeenteCode = gemeenteCode,
+            gemeenteNaam = gemeenteNaam,
+            gemeenteMail = gemeenteMail,
+            pabcIntegration = pabcIntegration,
+            bronOrganisatie = bronOrganisatie,
+            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
+            catalogusDomein = catalogusDomein,
+            brpConfiguration = brpConfiguration
         )
 
         When("a list of additional allowed file types are requested") {
+            configurationService.onStartup(Any())
             val fileTypes = configurationService.readAdditionalAllowedFileTypes()
 
             Then("an empty list is returned") {

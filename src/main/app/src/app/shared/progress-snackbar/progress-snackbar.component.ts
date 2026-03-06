@@ -15,7 +15,6 @@ import {
 } from "@angular/material/snack-bar";
 
 @Component({
-  standalone: true,
   selector: "app-progress-snackbar",
   imports: [MatSnackBarLabel, MatProgressBar],
   templateUrl: "./progress-snackbar.component.html",

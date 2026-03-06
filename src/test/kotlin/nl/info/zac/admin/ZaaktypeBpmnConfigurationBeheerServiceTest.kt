@@ -5,6 +5,7 @@
 package nl.info.zac.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainAllInAnyOrder
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -16,6 +17,7 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.BPMN_PROCESS_DEFINITION_KEY
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
@@ -27,6 +29,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationCriteriaQuery = mockk<CriteriaQuery<ZaaktypeBpmnConfiguration>>()
     val zaaktypeBpmnConfigurationRoot = mockk<Root<ZaaktypeBpmnConfiguration>>()
     val path = mockk<Path<Any>>()
+    val stringPath = mockk<Path<String>>()
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
 
@@ -34,6 +37,32 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
+    }
+
+    Given("Multiple zaaktypeBpmnConfigurations with two unique BPMN process definition keys") {
+        val uniqueBpmnProcessDefinitionKeys = listOf("fakeBpmnProcessDefinitionKey", "fakeBpmnProcessDefinitionKey2")
+        val stringCriteriaQuery = mockk<CriteriaQuery<String>>()
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createQuery(String::class.java) } returns stringCriteriaQuery
+        every {
+            stringCriteriaQuery.from(ZaaktypeBpmnConfiguration::class.java)
+        } returns zaaktypeBpmnConfigurationRoot
+        every { zaaktypeBpmnConfigurationRoot.get<String>(BPMN_PROCESS_DEFINITION_KEY) } returns stringPath
+        every {
+            stringCriteriaQuery.select(stringPath)
+        } returns stringCriteriaQuery
+        every { stringCriteriaQuery.distinct(true) } returns stringCriteriaQuery
+        every {
+            entityManager.createQuery(stringCriteriaQuery).resultList
+        } returns uniqueBpmnProcessDefinitionKeys
+
+        When("Returning the unique BPMN process definition keys") {
+            val keys = zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+
+            Then("Gives a list of two unique BPMN process definition keys") {
+                keys shouldContainAllInAnyOrder uniqueBpmnProcessDefinitionKeys
+            }
+        }
     }
 
     Given("One zaaktypeBpmnConfiguration for a given zaaktype omschrijving") {

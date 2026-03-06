@@ -42,7 +42,7 @@ import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
@@ -65,7 +65,7 @@ import java.util.UUID
 @Suppress("LongParameterList", "TooManyFunctions")
 class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val cmmnService: CMMNService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
@@ -113,7 +113,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     @GET
     fun listZaaktypeCmmnConfiguration(): List<RestZaakafhandelParameters> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+        return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .map { it.url.extractUuid() }
             .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
             .map { zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, false) }

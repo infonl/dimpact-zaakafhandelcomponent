@@ -1,0 +1,15 @@
+meta {
+  name: deleteInboxProductaanvraag
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/inbox-productaanvragen/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

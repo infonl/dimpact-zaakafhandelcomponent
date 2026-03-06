@@ -1,0 +1,15 @@
+meta {
+  name: readMailtemplateKoppeling
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/beheer/mailtemplatekoppeling/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

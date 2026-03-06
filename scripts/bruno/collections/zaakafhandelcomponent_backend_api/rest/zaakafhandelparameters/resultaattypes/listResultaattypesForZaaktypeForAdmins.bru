@@ -1,0 +1,15 @@
+meta {
+  name: listResultaattypesForZaaktypeForAdmins
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaakafhandelparameters/resultaattypes/:zaaktypeUUID
+  body: none
+  auth: inherit
+}
+
+params:path {
+  zaaktypeUUID: {zaaktypeUUID}
+}

@@ -1,0 +1,11 @@
+meta {
+  name: listMailtemplates
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/beheer/mailtemplates
+  body: none
+  auth: inherit
+}
