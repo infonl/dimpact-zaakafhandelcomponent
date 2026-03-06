@@ -42,13 +42,14 @@ jobs:
               labels.add('dependencies');
             }
               
-            const files = await github.rest.pulls.listFiles({
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number
+              pull_number: context.issue.number,
+              per_page: 100
             });
               
-            for (const f of files.data) {
+            for (const f of files) {
               const filename = f.filename;
               // Extension-based labels
               for (const [ext, label] of Object.entries(extensionLabels)) {
