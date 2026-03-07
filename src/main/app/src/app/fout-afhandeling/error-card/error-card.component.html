@@ -1,0 +1,14 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-card>
+  <mat-card-content>
+    <mat-icon color="primary" outlined>{{ iconName }}</mat-icon>
+    <h2>{{ title || "error-card.title.default" | translate }}</h2>
+    @if (text) {
+      <p>{{ text | translate }}</p>
+    }
+  </mat-card-content>
+</mat-card>

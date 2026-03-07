@@ -385,4 +385,132 @@ describe(InformatieObjectEditComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
   });
+
+  describe("Submit button behavior", () => {
+    beforeEach(() => {
+      componentRef.setInput(
+        "infoObject",
+        enkelvoudigInformatieObjectVersieGegevens,
+      );
+      fixture.detectChanges();
+    });
+
+    describe("when no changes are made", () => {
+      it("should keep submit button disabled", async () => {
+        fixture.detectChanges();
+
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.toevoegen" }),
+        );
+
+        expect(await submitButton.isDisabled()).toBe(true);
+      });
+    });
+
+    describe("when file is uploaded", () => {
+      it("should enable submit button when file is selected", async () => {
+        component["form"].controls.bestand.setValue(mockFile);
+        component["form"].controls.bestand.markAsDirty();
+        fixture.detectChanges();
+
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.toevoegen" }),
+        );
+
+        expect(await submitButton.isDisabled()).toBe(false);
+      });
+
+      it("should disable submit button when file is removed", async () => {
+        component["form"].controls.bestand.setValue(mockFile);
+        component["form"].controls.bestand.markAsDirty();
+        fixture.detectChanges();
+
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.toevoegen" }),
+        );
+        expect(await submitButton.isDisabled()).toBe(false);
+
+        component["form"].controls.bestand.setValue(null);
+        component["form"].markAsPristine();
+        fixture.detectChanges();
+
+        expect(await submitButton.isDisabled()).toBe(true);
+      });
+    });
+
+    describe("when metadata is changed", () => {
+      it("should enable submit button when title is changed", async () => {
+        component["form"].controls.titel.setValue("New Title");
+        component["form"].controls.titel.markAsDirty();
+        component["form"].markAsDirty();
+        fixture.detectChanges();
+
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.toevoegen" }),
+        );
+
+        expect(await submitButton.isDisabled()).toBe(false);
+      });
+
+      it("should enable submit button when description is changed", async () => {
+        component["form"].controls.beschrijving.setValue("New Description");
+        component["form"].controls.beschrijving.markAsDirty();
+        component["form"].markAsDirty();
+        fixture.detectChanges();
+
+        const submitButton = await loader.getHarness(
+          MatButtonHarness.with({ text: "actie.toevoegen" }),
+        );
+
+        expect(await submitButton.isDisabled()).toBe(false);
+      });
+
+      describe("when both file and metadata are changed", () => {
+        it("should keep submit button enabled", async () => {
+          component["form"].controls.bestand.setValue(mockFile);
+          component["form"].controls.titel.setValue("New Title");
+          component["form"].controls.titel.markAsDirty();
+          component["form"].markAsDirty();
+          fixture.detectChanges();
+
+          const submitButton = await loader.getHarness(
+            MatButtonHarness.with({ text: "actie.toevoegen" }),
+          );
+
+          expect(await submitButton.isDisabled()).toBe(false);
+        });
+      });
+
+      describe("when form has validation errors", () => {
+        it("should keep submit button disabled even with file selected", async () => {
+          component["form"].controls.bestand.setValue(mockFile);
+          component["form"].controls.titel.setValue("");
+          component["form"].controls.titel.markAsDirty();
+          component["form"].markAsDirty();
+          fixture.detectChanges();
+
+          const submitButton = await loader.getHarness(
+            MatButtonHarness.with({ text: "actie.toevoegen" }),
+          );
+
+          expect(await submitButton.isDisabled()).toBe(true);
+        });
+
+        it("should keep submit button disabled even with metadata changed", async () => {
+          component["form"].controls.beschrijving.setValue("New Description");
+          component["form"].controls.titel.setValue("");
+          component["form"].controls.titel.markAsDirty();
+          component["form"].controls.beschrijving.markAsDirty();
+          component["form"].markAsDirty();
+          fixture.detectChanges();
+
+          const submitButton = await loader.getHarness(
+            MatButtonHarness.with({ text: "actie.toevoegen" }),
+          );
+
+          expect(await submitButton.isDisabled()).toBe(true);
+        });
+      });
+    });
+  });
 });

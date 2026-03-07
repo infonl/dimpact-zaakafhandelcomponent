@@ -22,7 +22,7 @@ data class RestZoekParameters(
     @field:PositiveOrZero
     override var page: Int,
 
-    @field: Positive
+    @field:Positive
     override var rows: Int,
 
     var type: ZoekObjectType? = null,

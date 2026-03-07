@@ -26,7 +26,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.PolicyService
@@ -68,7 +68,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     enkelvoudigInformatieObjectCreateLockRequest,
                     enkelvoudigInformatieObjectCreateLockRequest.titel,
                     enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-                    ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                    ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                 )
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns task
@@ -102,7 +102,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     enkelvoudigInformatieObjectCreateLockRequest,
                     enkelvoudigInformatieObjectCreateLockRequest.titel,
                     enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-                    ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                    ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                 )
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns null
@@ -129,7 +129,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     enkelvoudigInformatieObjectCreateLockRequest,
                     enkelvoudigInformatieObjectCreateLockRequest.titel,
                     enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-                    ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+                    ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
                 )
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns task

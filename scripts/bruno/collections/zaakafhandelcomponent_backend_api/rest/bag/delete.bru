@@ -1,0 +1,27 @@
+meta {
+  name: delete
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/bag
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uuid": "",
+    "zaakUuid": {},
+    "zaakobject": {
+      "url": "",
+      "identificatie": "",
+      "geconstateerd": false,
+      "bagObjectType": "",
+      "omschrijving": ""
+    },
+    "redenWijzigen": "",
+    "bagObject": {}
+  }
+}

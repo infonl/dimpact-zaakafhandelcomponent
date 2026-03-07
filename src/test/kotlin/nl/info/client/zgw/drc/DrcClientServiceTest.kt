@@ -16,17 +16,17 @@ import net.atos.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({
     val drcClient = mockk<DrcClient>()
     val zgwClientHeadersFactory = mockk<ZgwClientHeadersFactory>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val drcClientService = DrcClientService(
         drcClient,
         zgwClientHeadersFactory,
-        configuratieService
+        configurationService
     )
 
     beforeEach {

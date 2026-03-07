@@ -1,0 +1,19 @@
+meta {
+  name: readEnkelvoudigInformatieobject
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:uuid
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuid: {uuid}
+}
+
+query {
+  zaak: 
+}

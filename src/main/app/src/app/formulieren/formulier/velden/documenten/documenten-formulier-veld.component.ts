@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,6 +8,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatTableDataSource } from "@angular/material/table";
 import { of } from "rxjs";
+import { IndicatiesLayout } from "src/app/shared/indicaties/indicaties.component";
 import {
   mapDocumentenToString,
   mapStringToDocumentenStrings,
@@ -46,6 +47,8 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   selection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
+
+  readonly indicatiesLayout = IndicatiesLayout;
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,

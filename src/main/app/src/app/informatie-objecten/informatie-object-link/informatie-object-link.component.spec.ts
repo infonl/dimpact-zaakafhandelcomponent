@@ -52,8 +52,8 @@ describe(InformatieObjectLinkComponent.name, () => {
     informatieobjectTypeUUID: "info-type-uuid-456",
   });
 
-  const mockInfoObjectRESTInboxDocument = fromPartial<
-    GeneratedType<"RESTInboxDocument">
+  const mockInfoObjectRestInboxDocument = fromPartial<
+    GeneratedType<"RestInboxDocument">
   >({
     enkelvoudiginformatieobjectUUID: "inbox-uuid-789",
     enkelvoudiginformatieobjectID: "inbox-doc-789",
@@ -307,8 +307,8 @@ describe(InformatieObjectLinkComponent.name, () => {
     expect(component["getDocumentUUID"]()).toBe("doc-uuid-123");
   });
 
-  it("should extract UUID from RESTInboxDocument", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTInboxDocument);
+  it("should extract UUID from RestInboxDocument", () => {
+    componentRef.setInput("infoObject", mockInfoObjectRestInboxDocument);
     fixture.detectChanges();
 
     expect(component["getDocumentUUID"]()).toBe("inbox-uuid-789");

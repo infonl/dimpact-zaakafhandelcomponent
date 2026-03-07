@@ -580,7 +580,7 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309c",
       "name": "test-group-fb",
       "path": "/test-group-fb",
-      "description": "Test group Functional Admins - old IAM",
+      "description": "Test group functional admins - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS}"]
       },
@@ -599,7 +599,7 @@
       "id": "c06d7f98-16c8-4363-ac31-8449e0c2309d",
       "name": "test-group-rm",
       "path": "/test-group-rm",
-      "description": "Test group Record Managers - old IAM",
+      "description": "Test group recordmanagers - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}"]
       },
@@ -643,7 +643,7 @@
       "id": "20657c93-6396-4b0c-862c-7da3a8e1418f",
       "name": "test-group-co",
       "path": "/test-group-co",
-      "description": "Test group Coordinators - old IAM",
+      "description": "Test group coordinators - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS}"]
       },
@@ -660,7 +660,7 @@
       "id": "77e39e27-c95a-42d4-80fc-23344884b6c9",
       "name": "test-group-bh",
       "path": "/test-group-bh",
-      "description": "Test group Behandelaars - old IAM",
+      "description": "Test group behandelaars - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS}"]
       },
@@ -676,7 +676,7 @@
       "id": "84802893-f2a9-4d67-b3e6-b1696f476201",
       "name": "test-group-rp",
       "path": "/test-group-rp",
-      "description": "Test group Raadplegers - old IAM",
+      "description": "Test group raadplegers - old IAM",
       "attributes": {
         "email": ["${ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS}"]
       },

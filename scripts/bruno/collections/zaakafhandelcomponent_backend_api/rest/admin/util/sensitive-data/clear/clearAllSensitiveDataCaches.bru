@@ -1,0 +1,11 @@
+meta {
+  name: clearAllSensitiveDataCaches
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/admin/util/sensitive-data/clear
+  body: none
+  auth: inherit
+}

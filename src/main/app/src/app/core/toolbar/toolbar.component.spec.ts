@@ -61,6 +61,8 @@ describe(ToolbarComponent.name, () => {
     jest.spyOn(policyService, "readOverigeRechten").mockReturnValue(
       of({
         startenZaak: true,
+        beheren: false,
+        zoeken: false,
       }),
     );
 

@@ -17,7 +17,7 @@ import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.admin.model.RESTBuildInformation
 import nl.info.zac.app.admin.model.RESTZaaktypeInrichtingscheck
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.model.ZaaktypeInrichtingscheck
 import nl.info.zac.policy.PolicyService
@@ -32,7 +32,7 @@ import java.time.ZonedDateTime
 @NoArgConstructor
 class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val configuratieService: ConfiguratieService,
+    private val configurationService: ConfigurationService,
     private val healthCheckService: HealthCheckService,
     private val policyService: PolicyService
 ) {
@@ -85,7 +85,7 @@ class HealthCheckRestService @Inject constructor(
         }
 
     private fun listZaaktypes() =
-        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
 

@@ -21,8 +21,8 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.signalering.model.createSignalering
@@ -33,7 +33,7 @@ import java.util.UUID
 
 class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
-    val configuratieService = mockk<ConfiguratieService>()
+    val configurationService = mockk<ConfigurationService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val searchService = mockk<SearchService>()
@@ -41,7 +41,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
 
     val zaakTaskDueDateEmailNotificationService = ZaakTaskDueDateEmailNotificationService(
         signaleringService,
-        configuratieService,
+        configurationService,
         ztcClientService,
         zaaktypeCmmnConfigurationService,
         searchService,
@@ -90,7 +90,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             items = listOf(createZaakZoekObject(behandelaarGebruikersnaam = assigneeName))
         )
 
-        every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogusURI
+        every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
         every {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID1)
@@ -156,7 +156,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             zaak = null,
             taskInfo = openTask
         )
-        every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogusURI
+        every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogusURI
         every { ztcClientService.listZaaktypen(defaultCatalogusURI) } returns zaakTypen
         every {
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID1)

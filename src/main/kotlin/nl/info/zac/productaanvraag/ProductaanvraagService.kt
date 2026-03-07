@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
@@ -29,6 +28,7 @@ import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
+import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -47,7 +47,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -84,7 +84,7 @@ class ProductaanvraagService @Inject constructor(
     private val cmmnService: CMMNService,
     private val bpmnService: BpmnService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
 
     companion object {
@@ -625,8 +625,8 @@ class ProductaanvraagService @Inject constructor(
                 it
             )
         }
-        productaanvraagDimpact.bijlagen?.runCatching {
-            pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = this, zaakUrl = zaak.url)
+        productaanvraagDimpact.bijlagen?.let {
+            pairBijlagenWithZaakIgnoringExceptions(bijlageURIs = it, zaakUrl = zaak.url)
         }
     }
 
@@ -722,13 +722,20 @@ class ProductaanvraagService @Inject constructor(
             )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        val initiator = addInitiatorAndBetrokkenenToZaak(
+        addInitiatorAndBetrokkenenToZaak(
             productaanvraag = productaanvraagDimpact,
             zaak = zaak,
             brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
-        )
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
+        )?.run {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak = zaak,
+                betrokkene = this,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+            )
+        } ?: LOG.fine {
+            "No initiator provided for zaak with identification: '${zaak.identificatie}'. Skipping automatic email confirmation."
+        }
     }
 
     private fun createZaak(
@@ -739,9 +746,9 @@ class ProductaanvraagService @Inject constructor(
         return Zaak().apply {
             this.zaaktype = zaakType.url
             startdatum = productaanvraagObject.record.startAt
-            bronorganisatie = configuratieService.readBronOrganisatie()
-            communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
-            verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
+            bronorganisatie = configurationService.readBronOrganisatie()
+            communicatiekanaalNaam = ConfigurationService.COMMUNICATIEKANAAL_EFORMULIER
+            verantwoordelijkeOrganisatie = configurationService.readBronOrganisatie()
             productaanvraagDimpact.zaakgegevens?.let { zaakgegevens ->
                 // note that ZAC currently only supports 'POINT' zaakgeometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {

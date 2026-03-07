@@ -1,0 +1,20 @@
+meta {
+  name: listAdressen
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/bag/adres
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "type": "",
+    "trefwoorden": "",
+    "postcode": "",
+    "huisnummer": 0
+  }
+}

@@ -40,10 +40,6 @@ describe("FoutAfhandelingService", () => {
     service = TestBed.inject(FoutAfhandelingService);
   });
 
-  it("should be created", () => {
-    expect(service).toBeTruthy();
-  });
-
   it("should return an observable error message when openFoutDialog is called", async () => {
     const errorText = "fakeErrorMessage";
     const error$ = service.openFoutDialog(errorText);

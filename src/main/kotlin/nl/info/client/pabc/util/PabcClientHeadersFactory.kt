@@ -10,9 +10,9 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
 class PabcClientHeadersFactory : ClientHeadersFactory {
     companion object {
-        private const val KVK_API_KEY_HEADER_FIELD: String = "X-API-KEY"
+        private const val API_KEY_HEADER_FIELD = "X-API-KEY"
 
-        private val API_KEY: String = ConfigProvider.getConfig().getValue<String>(
+        private val API_KEY = ConfigProvider.getConfig().getValue(
             "pabc.api.key",
             String::class.java
         )
@@ -22,7 +22,7 @@ class PabcClientHeadersFactory : ClientHeadersFactory {
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> {
-        clientOutgoingHeaders.add(KVK_API_KEY_HEADER_FIELD, API_KEY)
+        clientOutgoingHeaders.add(API_KEY_HEADER_FIELD, API_KEY)
         return clientOutgoingHeaders
     }
 }

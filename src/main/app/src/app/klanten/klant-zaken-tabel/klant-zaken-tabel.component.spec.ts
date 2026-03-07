@@ -16,6 +16,7 @@ import { fromPartial } from "@total-typescript/shoehorn";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -83,6 +84,7 @@ describe(KlantZakenTabelComponent.name, () => {
         MatPaginatorModule,
         TranslateModule.forRoot(),
         PipesModule,
+        EmptyPipe,
       ],
       providers: [
         provideHttpClient(),
@@ -174,6 +176,106 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result).toEqual(["Belanghebbende"]);
     }));
 
+    it("should match betrokkene by kvkNummer when no vestigingsnummer is present", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        kvkNummer: "12345678",
+        identificatieType: "RSIN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["12345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should match betrokkene by vestigingsnummer for companies", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678"],
+          Adviseur: ["87654321"],
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should prioritize vestigingsnummer over kvkNummer when both are present in same role", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678", "12345678"], // both in same role
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match the role once when vestigingsnummer matches (else-if prevents kvkNummer from also matching)
+      expect(result).toEqual(["Belanghebbende"]);
+    }));
+
+    it("should match both vestigingsnummer and kvkNummer when in different roles", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Belanghebbende: ["000012345678"], // vestigingsnummer
+          Adviseur: ["12345678"], // kvkNummer
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match both because else-if is evaluated per role
+      expect(result).toEqual(["Belanghebbende", "Adviseur"]);
+    }));
+
+    it("should match kvkNummer when vestigingsnummer is present but not in betrokkenen", fakeAsync(() => {
+      const mockBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
+        vestigingsnummer: "000012345678",
+        kvkNummer: "12345678",
+        identificatieType: "VN",
+      });
+      fixture.componentRef.setInput("klant", mockBedrijf);
+
+      const mockZaak = {
+        betrokkenen: {
+          Adviseur: ["12345678"], // only kvkNummer in betrokkenen
+        },
+      } as unknown as ZaakZoekObject;
+
+      const result = component["getBetrokkenheid"](mockZaak);
+
+      // Should match kvkNummer because vestigingsnummer is not in this role's identifiers
+      expect(result).toEqual(["Adviseur"]);
+    }));
+
     it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
@@ -225,5 +327,100 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result).toEqual(["Initiator"]);
       expect(result.length).toBe(1);
     }));
+  });
+
+  describe("setBetrokkeneFieldToSolrKeyName", () => {
+    it.each([
+      ["Behandelaar", "zaak_betrokkene_Behandelaar"],
+      ["Melder", "zaak_betrokkene_Melder"],
+      ["Initiator", "zaak_betrokkene_Initiator"],
+    ])(
+      "should convert simple role name '%s' to field name '%s'",
+      (input, expected) => {
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it.each([
+      [
+        "Belanghebbende Met Spaties",
+        "zaak_betrokkene_Belanghebbende_Met_Spaties",
+      ],
+      ["Rol Met Veel Spaties", "zaak_betrokkene_Rol_Met_Veel_Spaties"],
+      ["A B C", "zaak_betrokkene_A_B_C"],
+    ])(
+      "should convert role name with spaces '%s' to field name '%s'",
+      (input, expected) => {
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it("should handle an empty search", () => {
+      expect(component["setBetrokkeneFieldToSolrKeyName"]("")).toBe(
+        "ZAAK_BETROKKENEN",
+      );
+    });
+
+    it("should handle role name that already has underscores", () => {
+      expect(
+        component["setBetrokkeneFieldToSolrKeyName"]("Rol_Met_Underscores"),
+      ).toBe("zaak_betrokkene_Rol_Met_Underscores");
+    });
+  });
+
+  describe("makeSolrKeyNameReadableBetrokkeneType", () => {
+    it.each([
+      ["Behandelaar", "Behandelaar"],
+      ["Melder", "Melder"],
+      ["Initiator", "Initiator"],
+    ])(
+      "should keep simple role name '%s' unchanged as '%s'",
+      (input, expected) => {
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it.each([
+      ["Belanghebbende_Met_Spaties", "Belanghebbende Met Spaties"],
+      ["Rol_Met_Veel_Spaties", "Rol Met Veel Spaties"],
+      ["A_B_C", "A B C"],
+    ])(
+      "should convert field name with underscores '%s' to human-readable '%s'",
+      (input, expected) => {
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it("should handle empty string", () => {
+      expect(component["makeSolrKeyNameReadableBetrokkeneType"]("")).toBe("");
+    });
+  });
+
+  describe("betrokkene field name round-trip conversion", () => {
+    it.each([
+      "Behandelaar",
+      "Melder",
+      "Belanghebbende Met Spaties",
+      "Rol Met Veel Spaties",
+    ])(
+      "should convert '%s' to field name and back to original (minus prefix)",
+      (original) => {
+        const fieldName =
+          component["setBetrokkeneFieldToSolrKeyName"](original);
+        // Remove the prefix before converting back
+        const withoutPrefix = fieldName.replace("zaak_betrokkene_", "");
+        const result =
+          component["makeSolrKeyNameReadableBetrokkeneType"](withoutPrefix);
+        expect(result).toBe(original);
+      },
+    );
   });
 });

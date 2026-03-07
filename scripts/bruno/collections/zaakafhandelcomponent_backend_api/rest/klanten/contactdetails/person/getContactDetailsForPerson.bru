@@ -1,0 +1,15 @@
+meta {
+  name: getContactDetailsForPerson
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/klanten/contactdetails/person/:temporaryPersonId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  temporaryPersonId: {temporaryPersonId}
+}

@@ -115,6 +115,21 @@ class AppContainerTest : BehaviorSpec({
                 }
                 foundSolrCheck shouldBe true
             }
+
+            And("it should include PABC readiness check") {
+                val checks = healthResponse.getJSONArray("checks")
+
+                var foundOpenZaakCheck = false
+                for (i in 0 until checks.length()) {
+                    val check = checks.getJSONObject(i)
+                    if (check.getString("name") == "nl.info.zac.health.PabcReadinessHealthCheck") {
+                        foundOpenZaakCheck = true
+                        check.getString("status") shouldBe "UP"
+                        break
+                    }
+                }
+                foundOpenZaakCheck shouldBe true
+            }
         }
 
         When("the generic health endpoint is called") {

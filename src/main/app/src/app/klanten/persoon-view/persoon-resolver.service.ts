@@ -19,16 +19,16 @@ export class PersoonResolverService {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   async resolve(route: ActivatedRouteSnapshot) {
-    const bsn = route.paramMap.get("bsn");
+    const temporaryPersonId = route.paramMap.get("temporaryPersonId")!;
 
-    if (!bsn) {
+    if (!temporaryPersonId) {
       throw new Error(
-        `${PersoonResolverService.name}: no 'bsn' found in route`,
+        `${PersoonResolverService.name}: no 'temporaryPersonId' found in route`,
       );
     }
 
     return this.queryClient.ensureQueryData({
-      ...this.klantenService.readPersoon(bsn),
+      ...this.klantenService.readPersoon(temporaryPersonId),
       retry: (count, error) => {
         if (count < DEFAULT_RETRY_COUNT) return true;
 

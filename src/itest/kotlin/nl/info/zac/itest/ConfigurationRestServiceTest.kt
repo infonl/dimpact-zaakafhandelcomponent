@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -10,7 +9,6 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
@@ -162,17 +160,19 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson if (FEATURE_FLAG_PABC_INTEGRATION) "true" else "false"
             }
         }
-        When("the BRP protocollering provider is retrieved") {
+        When("the 'is BRP doelbinding setup enabled' endpoint is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/brp/protocollering-provider",
+                url = "$ZAC_API_URI/configuratie/brp/doelbinding-setup-enabled",
                 testUser = RAADPLEGER_DOMAIN_TEST_1
             )
 
-            Then("the configured BRP protocollering provider is returned") {
+            Then(
+                "'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration"
+            ) {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                responseBody shouldBe BRP_PROTOCOLLERING_ICONNECT
+                responseBody shouldBe "true"
             }
         }
     }

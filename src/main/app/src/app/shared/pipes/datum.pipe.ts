@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 import moment from "moment";
+import "moment/locale/nl";
 
 type DateFormat =
   | "shortDate"
@@ -18,7 +19,7 @@ type DateFormat =
 
 @Pipe({
   name: "datum",
-  standalone: false,
+  standalone: true,
 })
 export class DatumPipe implements PipeTransform {
   constructor(@Inject(LOCALE_ID) public locale: string) {}

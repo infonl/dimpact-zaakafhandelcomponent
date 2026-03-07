@@ -1,0 +1,24 @@
+meta {
+  name: createFormDefinition
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/formulierdefinities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "",
+    "systeemnaam": "",
+    "naam": "",
+    "beschrijving": "",
+    "uitleg": "",
+    "creatiedatum": "",
+    "wijzigingsdatum": "",
+    "veldDefinities": []
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: verplaatsEnkelvoudigInformatieobject
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/verplaats
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "INBOX_DOCUMENTEN": "",
+    "ONTKOPPELDE_DOCUMENTEN": "",
+    "documentUUID": "",
+    "bron": "",
+    "nieuweZaakID": ""
+  }
+}

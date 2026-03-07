@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-FileCopyrightText: 2021-2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,7 +16,6 @@ import { IndicatiesComponent } from "../indicaties.component";
 
 @Component({
   selector: "zac-informatie-object-indicaties",
-  standalone: true,
   imports: [MaterialModule, TranslateModule, PipesModule, CommonModule],
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
@@ -27,8 +26,8 @@ export class InformatieObjectIndicatiesComponent
 {
   datumPipe = new DatumPipe("nl");
 
-  @Input() document: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  @Input() documentZoekObject: DocumentZoekObject;
+  @Input() document?: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  @Input() documentZoekObject?: DocumentZoekObject;
 
   constructor(private translateService: TranslateService) {
     super();
@@ -44,7 +43,7 @@ export class InformatieObjectIndicatiesComponent
     this.indicaties = [];
     const indicaties = this.documentZoekObject
       ? this.documentZoekObject.indicaties
-      : this.document.indicaties;
+      : this.document?.indicaties;
 
     indicaties?.forEach((indicatie) => {
       switch (indicatie) {
@@ -104,9 +103,9 @@ export class InformatieObjectIndicatiesComponent
       );
     } else {
       return (
-        this.document.ondertekening.soort +
+        this.document?.ondertekening?.soort +
         "-" +
-        this.datumPipe.transform(this.document.ondertekening.datum)
+        this.datumPipe.transform(this.document?.ondertekening?.datum)
       );
     }
   }
@@ -115,7 +114,7 @@ export class InformatieObjectIndicatiesComponent
     if (this.documentZoekObject) {
       return this.datumPipe.transform(this.documentZoekObject.verzenddatum);
     } else {
-      return this.datumPipe.transform(this.document.verzenddatum);
+      return this.datumPipe.transform(this.document?.verzenddatum);
     }
   }
 
@@ -126,7 +125,7 @@ export class InformatieObjectIndicatiesComponent
       });
     } else {
       return this.translateService.instant("msg.document.vergrendeld", {
-        gebruiker: this.document.gelockedDoor.naam,
+        gebruiker: this.document?.gelockedDoor?.naam,
       });
     }
   }

@@ -17,7 +17,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.zaak.model.RestDecision
 import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.toRestDecisionType
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
@@ -27,7 +27,7 @@ class RestDecisionConverter @Inject constructor(
     private val drcClientService: DrcClientService,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val ztcClientService: ZtcClientService,
-    private val configuratieService: ConfiguratieService
+    private val configurationService: ConfigurationService
 ) {
     fun convertToRestDecision(besluit: Besluit) =
         RestDecision(
@@ -64,7 +64,7 @@ class RestDecisionConverter @Inject constructor(
                 }
                 publicatiedatum = besluitToevoegenGegevens.publicationDate
                 uiterlijkeReactiedatum = besluitToevoegenGegevens.lastResponseDate
-                verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
+                verantwoordelijkeOrganisatie = configurationService.readVerantwoordelijkeOrganisatie()
                 toelichting = besluitToevoegenGegevens.toelichting
             }
         }

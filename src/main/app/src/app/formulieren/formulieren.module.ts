@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
-import { FormioModule } from "@formio/angular";
+import { FormioAppConfig, FormioModule } from "@formio/angular";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { SharedModule } from "../shared/shared.module";
@@ -24,6 +24,15 @@ import { DocumentenFormulierVeldComponent } from "./formulier/velden/documenten/
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     FormioModule,
+  ],
+  providers: [
+    {
+      provide: FormioAppConfig,
+      useValue: {
+        appUrl: window.location.origin,
+        apiUrl: window.location.origin,
+      },
+    },
   ],
 })
 export class FormulierenModule {}

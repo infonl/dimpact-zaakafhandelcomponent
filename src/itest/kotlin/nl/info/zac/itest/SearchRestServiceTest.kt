@@ -5,6 +5,7 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -33,6 +34,7 @@ import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 
@@ -561,6 +563,132 @@ class SearchRestServiceTest : BehaviorSpec({
                             "totaal" : 1,
                             "filters" : { }
                         }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called with an explicit null value for the required non-blank zaakIdentificator parameter 
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": null,
+                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+
+                Then(
+                    """
+                    the response is a HTTP bad request with the expected validation error message
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJson """
+                    {
+                      "classViolations" : [ ],
+                      "parameterViolations" : [ {
+                        "constraintType" : "PARAMETER",
+                        "message" : "must not be blank",
+                        "path" : "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                        "value" : ""
+                      } ],
+                      "propertyViolations" : [ ],
+                      "returnValueViolations" : [ ]
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called without the required non-blank zaakIdentificator parameter 
+                """.trimMargin()
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+
+                Then(
+                    """
+                    the response is a HTTP bad request with the expected validation error message
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJson """
+                    {
+                      "classViolations" : [ ],
+                      "parameterViolations" : [ {
+                        "constraintType" : "PARAMETER",
+                        "message" : "must not be blank",
+                        "path" : "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                        "value" : ""
+                      } ],
+                      "propertyViolations" : [ ],
+                      "returnValueViolations" : [ ]
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When(
+                """
+                the search endpoint is called with a blank value for the non-blank zaakIdentificator parameter 
+                """.trimMargin()
+            ) {
+                val zaakIdentificatorValue = "   "
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/zaken",
+                    requestBodyAsString = """
+                        {
+                            "rows": 5,
+                            "page": 0,
+                            "zaakIdentificator": "$zaakIdentificatorValue",
+                            "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                        }
+                    """.trimIndent(),
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+
+                Then(
+                    """
+                    the response is a HTTP bad request with the expected validation error message
+                    """
+                ) {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_BAD_REQUEST
+                    responseBody shouldEqualJson """
+                    {
+                      "classViolations" : [ ],
+                      "parameterViolations" : [ {
+                        "constraintType" : "PARAMETER",
+                        "message" : "must not be blank",
+                        "path" : "listZakenForInformationObjectType.arg0.zaakIdentificator",
+                        "value" : "$zaakIdentificatorValue"
+                      } ],
+                      "propertyViolations" : [ ],
+                      "returnValueViolations" : [ ]
+                    }
                     """.trimIndent()
                 }
             }

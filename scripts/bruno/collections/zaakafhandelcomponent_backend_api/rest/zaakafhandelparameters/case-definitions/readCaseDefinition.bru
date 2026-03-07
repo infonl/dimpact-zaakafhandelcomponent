@@ -1,0 +1,15 @@
+meta {
+  name: readCaseDefinition
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaakafhandelparameters/case-definitions/:key
+  body: none
+  auth: inherit
+}
+
+params:path {
+  key: {key}
+}

@@ -1,0 +1,11 @@
+meta {
+  name: clearZTCCaches
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/rest/health-check/ztc-cache
+  body: none
+  auth: inherit
+}

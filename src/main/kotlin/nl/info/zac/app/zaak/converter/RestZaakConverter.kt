@@ -31,6 +31,7 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
 import nl.info.zac.app.zaak.model.toRestZaakStatus
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.ZaakRechten
@@ -63,11 +64,12 @@ class RestZaakConverter @Inject constructor(
     fun toRestZaak(
         zaak: Zaak,
         zaakType: ZaakType,
-        zaakRechten: ZaakRechten
+        zaakRechten: ZaakRechten,
+        loggedInUser: LoggedInUser
     ): RestZaak {
         val status = zaak.status?.let { zrcClientService.readStatus(it) }
         val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
-        return toRestZaak(zaak, zaakType, zaakRechten, status, statustype)
+        return toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statustype)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -75,6 +77,7 @@ class RestZaakConverter @Inject constructor(
         zaak: Zaak,
         zaakType: ZaakType,
         zaakRechten: ZaakRechten,
+        loggedInUser: LoggedInUser,
         status: Status?,
         statustype: StatusType?
     ): RestZaak {
@@ -119,7 +122,7 @@ class RestZaakConverter @Inject constructor(
             // so we use [Period.parse] to convert the duration string to a [Period] object
             duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
             redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
-            gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
+            gerelateerdeZaken = toRestGerelateerdeZaken(zaak, loggedInUser),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
             communicatiekanaal = zaak.communicatiekanaalNaam,
@@ -155,22 +158,23 @@ class RestZaakConverter @Inject constructor(
         )
     }
 
-    private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
+    private fun toRestGerelateerdeZaken(zaak: Zaak, loggedInUser: LoggedInUser): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 restGerelateerdeZaakConverter.convert(
                     zaak = zrcClientService.readZaak(it),
-                    relatieType = RelatieType.HOOFDZAAK
+                    relatieType = RelatieType.HOOFDZAAK,
+                    loggedInUser = loggedInUser
                 )
             )
         }
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
-            ?.map { restGerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
+            ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser, RelatieType.DEELZAAK) }
             ?.forEach(gerelateerdeZaken::add)
         zaak.relevanteAndereZaken
-            ?.map(restGerelateerdeZaakConverter::convert)
+            ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }

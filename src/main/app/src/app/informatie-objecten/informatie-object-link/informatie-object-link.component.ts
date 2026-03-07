@@ -35,7 +35,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
 export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   @Input() infoObject?: GeneratedType<
     | "RESTOntkoppeldDocument"
-    | "RESTInboxDocument"
+    | "RestInboxDocument"
     | "RestEnkelvoudigInformatieobject"
   > | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;

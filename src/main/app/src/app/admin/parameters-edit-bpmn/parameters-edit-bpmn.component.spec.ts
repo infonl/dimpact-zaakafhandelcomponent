@@ -62,12 +62,14 @@ describe(ParametersEditBpmnComponent.name, () => {
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      inUse: true,
     },
     {
       id: "RestBpmnProcessDefinition-2",
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      inUse: true,
     },
   ];
 
@@ -177,8 +179,8 @@ describe(ParametersEditBpmnComponent.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest
-      .spyOn(configuratieService, "readBrpProtocollering")
-      .mockReturnValue(of(""));
+      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
+      .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
     fixture.detectChanges();

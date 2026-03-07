@@ -24,7 +24,7 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.configuratie.BrpConfiguration
+import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -32,7 +32,6 @@ import java.nio.charset.StandardCharsets
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @AllOpen
@@ -70,13 +69,13 @@ class BrpClientService @Inject constructor(
                     personenQuery = updatedQuery,
                     doelbinding = resolveDoelbinding(
                         zaaktypeUuid,
-                        brpConfiguration.doelbindingZoekMetDefault.getOrNull()
+                        brpConfiguration.getDoelbindingZoekMetDefault()
                     ) {
                         it.zaaktypeBrpParameters?.zoekWaarde
                     },
                     verwerking = resoleVerwerkingregister(
                         zaaktypeUuid,
-                        brpConfiguration.verwerkingregisterDefault.getOrNull()
+                        brpConfiguration.getVerwerkingsRegister()
                     ),
                     gebruikersnaam = user
                 )
@@ -105,14 +104,14 @@ class BrpClientService @Inject constructor(
                     personenApi.personen(
                         personenQuery = personenQuery,
                         doelbinding = resolveDoelbinding(
-                            zaaktypeUuid,
-                            brpConfiguration.doelbindingRaadpleegMetDefault.getOrNull()
+                            zaaktypeUuid = zaaktypeUuid,
+                            defaultDoelbinding = brpConfiguration.getDoelbindingRaadpleegMetDefault()
                         ) {
                             it.zaaktypeBrpParameters?.raadpleegWaarde
                         },
                         verwerking = resoleVerwerkingregister(
-                            zaaktypeUuid,
-                            brpConfiguration.verwerkingregisterDefault.getOrNull()
+                            zaaktypeUuid = zaaktypeUuid,
+                            defaultVerwerkingregisterValue = brpConfiguration.getVerwerkingsRegister()
                         ),
                         gebruikersnaam = userName
                     )

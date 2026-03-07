@@ -1,0 +1,20 @@
+meta {
+  name: intrekkenBesluit
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/besluit/intrekken
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "besluitUuid": "",
+    "reden": "",
+    "vervaldatum": "",
+    "vervalreden": ""
+  }
+}

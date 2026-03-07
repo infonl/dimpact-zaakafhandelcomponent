@@ -190,7 +190,7 @@ class SignaleringService @Inject constructor(
     @Transactional(REQUIRED)
     fun deleteSignaleringenForZaak(zaak: Zaak) =
         deleteSignaleringen(
-            loggedInUserInstance.getSignaleringZoekParameters()
+            SignaleringZoekParameters(loggedInUserInstance.get())
                 .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
                 .subject(zaak)
         )
@@ -243,12 +243,12 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    fun latestSignaleringOccurrence(): ZonedDateTime? {
+    fun latestSignaleringOccurrence(loggedInUser: LoggedInUser): ZonedDateTime? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZonedDateTime::class.java)
         val root = query.from(Signalering::class.java)
         query.select(root.get("tijdstip"))
-            .where(getSignaleringWhere(loggedInUserInstance.getSignaleringZoekParameters(), builder, root))
+            .where(getSignaleringWhere(SignaleringZoekParameters(loggedInUser), builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
         val resultList = entityManager.createQuery(query).resultList
         return if (resultList?.isNotEmpty() == true) {
@@ -380,9 +380,10 @@ class SignaleringService @Inject constructor(
      */
     fun listZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
-        pageParameters: RestPageParameters
+        pageParameters: RestPageParameters,
+        loggedInUser: LoggedInUser
     ): List<RestZaakOverzicht> =
-        loggedInUserInstance.getSignaleringZoekParameters()
+        SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
             .let {
@@ -393,7 +394,7 @@ class SignaleringService @Inject constructor(
                 listSignaleringen(it, pageParameters)
             }
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convertForDisplay(it) }
+            .map { restZaakOverzichtConverter.convertForDisplay(zaak = it, loggedInUser = loggedInUser) }
             .also {
                 LOG.fine {
                     "Successfully listed page ${pageParameters.page} for zaken signaleringen " +
@@ -408,7 +409,7 @@ class SignaleringService @Inject constructor(
      */
     fun countZakenSignaleringen(signaleringsType: SignaleringType.Type) =
         signaleringenCount(
-            loggedInUserInstance.getSignaleringZoekParameters()
+            SignaleringZoekParameters(loggedInUserInstance.get())
                 .types(signaleringsType)
                 .subjecttype(SignaleringSubject.ZAAK)
         )
@@ -419,7 +420,7 @@ class SignaleringService @Inject constructor(
     fun listTakenSignaleringenPage(
         signaleringsType: SignaleringType.Type
     ): List<RestSignaleringTaskSummary> =
-        loggedInUserInstance.getSignaleringZoekParameters()
+        SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
             .let {
@@ -438,7 +439,7 @@ class SignaleringService @Inject constructor(
     fun listInformatieobjectenSignaleringen(
         signaleringsType: SignaleringType.Type
     ): List<RestEnkelvoudigInformatieobject> =
-        loggedInUserInstance.getSignaleringZoekParameters()
+        SignaleringZoekParameters(loggedInUserInstance.get())
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)
             .let {
@@ -453,8 +454,6 @@ class SignaleringService @Inject constructor(
 
     private fun getDocument(documentUUID: String) =
         drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
-
-    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() = SignaleringZoekParameters(get())
 
     private fun getTask(taakID: String) = flowableTaskService.readTask(taakID)
 

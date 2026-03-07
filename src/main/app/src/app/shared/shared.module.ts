@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -35,6 +35,7 @@ import { BackButtonDirective } from "./navigation/back-button.directive";
 import { NotificationDialogComponent } from "./notification-dialog/notification-dialog.component";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
 import { PaginatorTranslator } from "./paginator/paginator-translator";
+import { EmptyPipe } from "./pipes/empty.pipe";
 import { PipesModule } from "./pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ReadMoreComponent } from "./read-more/read-more.component";
@@ -69,10 +70,10 @@ import { VersionComponent } from "./version/version.component";
     ZaakIndicatiesComponent,
     ZaakdataComponent,
     VersionComponent,
-    SortPipe,
     ZacNarrowMatCheckboxDirective,
   ],
   imports: [
+    SortPipe,
     FormsModule,
     BrowserAnimationsModule,
     RouterModule,
@@ -81,6 +82,7 @@ import { VersionComponent } from "./version/version.component";
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
+    EmptyPipe,
   ],
   exports: [
     BrowserAnimationsModule,
@@ -112,6 +114,7 @@ import { VersionComponent } from "./version/version.component";
     SortPipe,
     ZacNarrowMatCheckboxDirective,
     VertrouwelijkaanduidingToTranslationKeyPipe,
+    EmptyPipe,
   ],
   providers: [
     Title,

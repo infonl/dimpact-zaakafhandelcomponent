@@ -12,9 +12,9 @@ import io.mockk.mockk
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.csv.CsvService
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
-import nl.info.zac.app.search.createRESTZoekParameters
-import nl.info.zac.app.search.createZoekParameters
-import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
+import nl.info.zac.app.search.model.createRestZoekParameters
+import nl.info.zac.app.search.model.createZoekParameters
+import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.SearchService
 
@@ -35,7 +35,7 @@ class CsvRestServiceTest : BehaviorSpec({
     }
 
     Given("The CSV REST service") {
-        val restZoekParameters = createRESTZoekParameters()
+        val restZoekParameters = createRestZoekParameters()
         val zoekParameters = createZoekParameters()
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
         val csvStreamingOutput = mockk<StreamingOutput>()

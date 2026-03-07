@@ -44,7 +44,7 @@
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "test-group-bh",
+                  "groep": "Test group behandelaars - old IAM",
                   "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
@@ -87,7 +87,7 @@
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "test-group-bh",
+                  "groep": "Test group behandelaars - old IAM",
                   "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",

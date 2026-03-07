@@ -11,7 +11,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
-import nl.info.zac.app.configuratie.model.RestTaal
+import nl.info.zac.app.configuration.model.RestTaal
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 

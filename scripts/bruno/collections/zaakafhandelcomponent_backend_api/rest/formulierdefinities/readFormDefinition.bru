@@ -1,0 +1,15 @@
+meta {
+  name: readFormDefinition
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/formulierdefinities/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: {id}
+}

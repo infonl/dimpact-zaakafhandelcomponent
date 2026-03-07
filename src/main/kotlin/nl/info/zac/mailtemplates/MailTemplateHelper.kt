@@ -23,7 +23,7 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
@@ -43,7 +43,7 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions", "LongParameterList")
 class MailTemplateHelper @Inject constructor(
     private val brpClientService: BrpClientService,
-    private var configuratieService: ConfiguratieService,
+    private var configurationService: ConfigurationService,
     private val identityService: IdentityService,
     private val kvkClientService: KvkClientService,
     private val zgwApiService: ZgwApiService,
@@ -60,7 +60,7 @@ class MailTemplateHelper @Inject constructor(
         replaceVariable(
             targetString = text,
             mailTemplateVariable = MailTemplateVariables.GEMEENTE,
-            value = configuratieService.readGemeenteNaam()
+            value = configurationService.readGemeenteNaam()
         )
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
@@ -195,7 +195,7 @@ class MailTemplateHelper @Inject constructor(
         val zaaktypeOmschrijving = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving()
         return MailLink(
             identificatie,
-            configuratieService.zaakTonenUrl(identificatie),
+            configurationService.zaakTonenUrl(identificatie),
             "de zaak",
             "($zaaktypeOmschrijving)"
         )
@@ -206,7 +206,7 @@ class MailTemplateHelper @Inject constructor(
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         return MailLink(
             taskInfo.name,
-            configuratieService.taakTonenUrl(taskInfo.id),
+            configurationService.taakTonenUrl(taskInfo.id),
             "de taak",
             "voor zaak $zaakIdentificatie ($zaaktypeOmschrijving)"
         )
@@ -215,7 +215,7 @@ class MailTemplateHelper @Inject constructor(
     private fun createMailLinkFromDocument(document: EnkelvoudigInformatieObject): MailLink =
         MailLink(
             document.getTitel(),
-            configuratieService.informatieobjectTonenUrl(document.getUrl().extractUuid()),
+            configurationService.informatieobjectTonenUrl(document.getUrl().extractUuid()),
             "het document",
             null
         )

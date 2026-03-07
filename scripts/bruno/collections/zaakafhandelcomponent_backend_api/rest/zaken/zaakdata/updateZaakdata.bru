@@ -1,0 +1,18 @@
+meta {
+  name: updateZaakdata
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/zaken/zaakdata
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uuid": "",
+    "zaakdata": {}
+  }
+}

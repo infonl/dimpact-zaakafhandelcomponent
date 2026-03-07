@@ -1,0 +1,16 @@
+meta {
+  name: updateAantalItemsPerPagina
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/rest/gebruikersvoorkeuren/aantal-per-pagina/:werklijst/:aantal
+  body: none
+  auth: inherit
+}
+
+params:path {
+  aantal: {aantal}
+  werklijst: {werklijst}
+}

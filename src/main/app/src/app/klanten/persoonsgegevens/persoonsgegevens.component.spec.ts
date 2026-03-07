@@ -11,6 +11,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
 import { of, throwError } from "rxjs";
+import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
 import { testQueryClient } from "../../../../setupJest";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -38,6 +39,7 @@ describe("PersoonsgegevensComponent", () => {
         PipesModule,
         MaterialModule,
         NoopAnimationsModule,
+        EmptyPipe,
       ],
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
