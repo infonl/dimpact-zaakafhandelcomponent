@@ -102,10 +102,13 @@ export class InformatieObjectIndicatiesComponent
         this.datumPipe.transform(this.documentZoekObject.ondertekeningDatum)
       );
     } else {
+      if (!this.document?.ondertekening) {
+        return "";
+      }
       return (
-        this.document?.ondertekening?.soort +
+        this.document.ondertekening.soort +
         "-" +
-        this.datumPipe.transform(this.document?.ondertekening?.datum)
+        this.datumPipe.transform(this.document.ondertekening.datum)
       );
     }
   }
