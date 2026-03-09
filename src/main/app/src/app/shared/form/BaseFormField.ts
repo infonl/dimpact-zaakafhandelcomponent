@@ -30,13 +30,13 @@ import { FormHelper } from "./helpers";
  */
 @Component({
   template: "",
+  standalone: true,
 })
 export class SingleInputFormField<
   Form extends Record<string, AbstractControl>,
   Key extends keyof Form,
   Option extends Form[Key]["value"],
-> implements OnDestroy
-{
+> implements OnDestroy {
   private readonly translateService = inject(TranslateService);
 
   private readonly controlErrors = signal<ValidationErrors | null>(null);
@@ -114,6 +114,7 @@ export class SingleInputFormField<
  */
 @Component({
   template: "",
+  standalone: true,
 })
 export class MultiInputFormField<
   Form extends Record<string, AbstractControl>,

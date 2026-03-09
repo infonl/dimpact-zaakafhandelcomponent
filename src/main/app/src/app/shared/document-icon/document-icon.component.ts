@@ -12,6 +12,7 @@ import { FileIcon } from "../../informatie-objecten/model/file-icon";
   selector: "zac-document-icon",
   templateUrl: "./document-icon.component.html",
   styleUrls: ["./document-icon.component.less"],
+  standalone: true,
   imports: [MatIcon],
 })
 export class DocumentIconComponent {
